@@ -8,26 +8,25 @@ tag_checker:
 junit:
   stage: test
   script:
-    - mvn -B clean test
+    - sbt test
 
 recent-artifacts:
   stage: deploy
   script:
-    - mvn -B clean site package
+    - sbt dist
   artifacts:
     paths:
-      - target/*.jar
+      - target/universal/*.zip
     expire_in: 1 week
   except:
     - tags
 
 release-artifacts:
-  stage: deploy
-  script:
-    - mvn -B clean site package
-  artifacts:
+ stage: deploy
+ script:
+    - sbt dist
+ artifacts:
     paths:
-    - target/*.jar
-    - target/site/jacoco/*
-  only:
+    - target/universal/*.zip
+ only:
     - tags
