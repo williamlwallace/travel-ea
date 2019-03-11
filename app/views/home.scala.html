@@ -1,92 +1,21 @@
 @import play.mvc.Http.Request
 @(user: String)
 
-<html>
-    <head>
-        @* Here's where we render the page title `String`. *@
-        <title>TravelEA - Home</title>
-
-        @* Adds all stylesheets to files using the layout template. *@
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap-select.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-
-            @* Font Awesome *@
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
-
-            @* The browser tab icon *@
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-    </head>
-
-    <body>
-        @* The Navbar *@
-    <header>
-        <nav id="navbar" class="navbar navbar-expand-md navbar-dark fixed-top bg-main pb-0" style="font-size: 20px">
-            <a href="/home">
-                <img src="@routes.Assets.at("images/travelEA.png")" style="width: 130px" class="pr-2 pb-1">
-            </a>
-            <button id="navbar-toggle"class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse text-left" id="navbarText">
-                <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/trips">Trips</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/destinations">Destinations</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/people">People</a>
-                    </li>
-                </ul>
-                <ul class="nav pull-right">
-                    <li class="dropdown">
-                        <a class="dropdown-toggle dropdown-style" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            @user
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/editProfile">Profile</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="@routes.ApplicationController.logout()">Logout</a>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
-
-        <div class="home-bg">
-            <div class="home-main">
-                <div class="my-block">
-                    <img src="@routes.Assets.at("images/travelEA.png")" style="width: 500px">
-                    <div class="pl-5">
-                        <h1>Start an Adventure</h1>
-                        <h4>"TravelEA is hands down the best</h4>
-                        <h4>travel app out there!"</h4>
-                        <h4 style="text-indent :1em;">-Kate, experienced traveller </h4>
-                        <a class="btn btn-primary mt-2" href="trips/create" role="button">Create New Trip</a>
-                    </div>
+@layouts.main("Home", user) {
+    <div class="home-bg">
+        <div class="home-main">
+            <div class="my-block">
+                <img src="@routes.Assets.at("images/travelEA.png")" style="width: 500px">
+                <div class="pl-5">
+                    <h1>Start an Adventure</h1>
+                    <h4>"TravelEA is hands down the best</h4>
+                    <h4>travel app out there!"</h4>
+                    <h4 style="text-indent :1em;">-Kate, experienced traveller </h4>
+                    <a class="btn btn-primary mt-2" href="trips/create" role="button">Create New Trip</a>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div id="startchange"></div>
-
-        @* Import javascript files. Speeds up page load times importing here. *@
-        <script src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/popper.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/bootstrap.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/picker.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/jquery.validate.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/bootstrap-select.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/jquery-ui.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/jquery-ui.min.js")" type="text/javascript"></script>
-
-        @* Imports MBBootstrap Datatables JS. *@
-        <script src="@routes.Assets.at("javascripts/mdb.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/datatables.min.js")" type="text/javascript"></script>
-
-    </body>
-</html>
+    <div id="startchange"></div>
+}

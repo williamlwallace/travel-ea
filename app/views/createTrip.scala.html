@@ -2,7 +2,7 @@
 @import helper._
 @(user: String, tripList: List[models.frontend.Trip])(implicit request: Request, messages: play.i18n.Messages)
 
-@layout("Create Trip", user, "images/home-bg.jpg"){
+@layouts.imageHeader("Create Trip", user, "images/home-bg.jpg"){
 
     <main role="main" class="container pb-3 mb-5">
 

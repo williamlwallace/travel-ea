@@ -10,7 +10,7 @@ POST    /api/user                       controllers.backend.UserController.addNe
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
 
 POST    /api/profile                    controllers.backend.UserController.addNewProfile(request:Request)
-#, userID:Long)
+
 GET     /api/profile/:uid               controllers.backend.UserController.getProfile(uid:Long)
 
 POST    /api/profile/:uid               controllers.backend.UserController.updateProfile(request:Request, uid:Long)

@@ -2,7 +2,7 @@
 @import helper._
 @(destList: Seq[models.frontend.Destination], form: Form[DestData], user: String)(implicit request: Request, messages: play.i18n.Messages)
 
-@layout("Destinations", user, "images/destination-bg.jpg"){
+@layouts.imageHeader("Destinations", user, "images/destination-bg.jpg"){
 
     <head>
         @* Imports MBBootstrap Datatables CSS. *@

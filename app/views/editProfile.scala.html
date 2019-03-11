@@ -1,7 +1,7 @@
 @import play.mvc.Http.Request
 @(profile: models.frontend.Profile, form: Form[ProfileData], user: String)(implicit request: Request, messages: play.i18n.Messages)
 
-@layout("Profile", user, "images/profile-bg.jpg"){
+@layouts.imageHeader("Profile", user, "images/profile-bg.jpg"){
     <div class="container">
         @helper.form(routes.EditProfileController.updateProfile()) {
             @helper.CSRF.formField
