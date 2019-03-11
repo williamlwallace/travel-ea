@@ -2,44 +2,64 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Start page
-GET     /                           controllers.StartController.index(request: Request)
+# ~~~~~backend~~~~~~
+GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
 
-# signing up
-POST    /signUp                     controllers.StartController.signUp(request: Request)
-GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
+POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
 
-# Logging in
-POST    /login                      controllers.StartController.login(request: Request)
+POST    /api/login                      controllers.backend.UserController.login(request:Request)
 
-# Home page
-GET     /home                       controllers.ApplicationController.index(request: Request)
+POST    /api/profile                    controllers.backend.UserController.addNewProfile(request:Request)
+#, userID:Long)
+GET     /api/profile/:uid               controllers.backend.UserController.getProfile(uid:Long)
 
-# Logging the user out.
-GET    /logout                      controllers.ApplicationController.logout()
+POST    /api/profile/:uid               controllers.backend.UserController.updateProfile(request:Request, uid:Long)
 
-# People page
-GET     /people                     controllers.PeopleController.index(request: Request)
+DELETE  /api/profile/:uid               controllers.backend.UserController.deleteProfile(uid:Long)
 
-# The Travelea trips page
-GET     /trips                      controllers.TripsController.index(request: Request)
+DELETE  /api/user/:uid                  controllers.backend.UserController.deleteUser(uid:Long)
 
-# The Travelea create trips page
-GET     /trips/create               controllers.createTripController.index(request: Request)
-# POST    /trips                      controllers.createTripController.save
+POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
 
-# The Travelea profile page
-GET     /profile                    controllers.ProfileController.index(request: Request)
-POST    /profile                    controllers.ProfileController.createProfile(request: Request)
+GET     /api/destination                controllers.backend.DestinationController.getAllDestinations()
 
-# The TravelEA destinations page
-GET     /destinations               controllers.DestinationsController.index(request: Request)
-POST    /destinations               controllers.DestinationsController.createDestination(request: Request)
-DELETE  /destinations               controllers.DestinationsController.deleteDestination(request: Request)
+DELETE  /api/destination/:id            controllers.backend.DestinationController.deleteDestination(id:Long)
 
-GET    /editProfile                 controllers.EditProfileController.index(request: Request)
-POST   /editProfile                 controllers.EditProfileController.updateProfile(request: Request)
+GET     /api/destination/:id            controllers.backend.DestinationController.getDestination(id:Long)
+
+GET     /api/destination/search         controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
+
+POST    /api/trip                       controllers.backend.TripController.insertTrip(request:Request)
+
+PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
+
+GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
+
+GET     /api/trip/getAll/:uid            controllers.backend.TripController.getAllUserTrips(uid:Long)
+
+DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
+
+# ~~~~~~frontend~~~~~~~
+GET     /                               controllers.frontend.UserController.index()
+
+GET     /login                          controllers.frontend.UserController.login()
+
+GET     /profile/new                    controllers.frontend.UserController.addNewProfile()
+
+GET     /profile/:id                    controllers.frontend.UserController.viewProfile(id:Long)
+
+GET     /destination/add                controllers.frontend.DestinationController.addDestinationForm()
+
+GET     /destination/viewAll            controllers.frontend.DestinationController.viewAllDestinations()
+
+GET     /trip/add                       controllers.frontend.TripController.addNewTrip()
+
+GET     /trip/view/:id                  controllers.frontend.TripController.viewTrip(id:Long)
+
+GET     /trip/viewAll/:uid              controllers.frontend.TripController.viewAllUserTrips(uid:Long)
+
+GET     /signup                         controllers.frontend.UserController.signUp()
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-

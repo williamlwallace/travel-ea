@@ -1,0 +1,50 @@
+@(content: Html)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TravelEA by CHOM</title>
+        <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
+        <style>
+                ul {
+                    list-style-type: none;
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
+                }
+
+                li a {
+                    float: left;
+                    display: block;
+                    color: white;
+                    text-align: center;
+                    padding: 14px 16px;
+                    text-decoration: none;
+                    background-color: #333;
+                }
+
+                /* Change the link color to #111 (black) on hover */
+                li a:hover {
+                    background-color: #111;
+                }
+        </style>
+    </head>
+    <body>
+        <ul style = "list-style-type: none;margin: 0;padding: 0;">
+            <li><a href="/login">Login</a></li>
+            <li><a href="/signup">Sign Up</a></li>
+            <li><a href="/profile/new">Create new profile</a></li>
+            <li><a href="/profile/1">View profile 1</a></li>
+            <li><a href="/destination/add">Add destination</a></li>
+            <li><a href="/destination/viewAll">View all destinations</a></li>
+            <li><a href="/trip/add">Add trip</a></li>
+            <li><a href="/trip/view/1">View trip 1</a></li>
+            <li><a href="/trip/viewAll/1">View all trips for user 1</a></li>
+        </ul>
+
+        <section id="main">
+            @content
+        </section>   
+    </body>
+</html>
+
