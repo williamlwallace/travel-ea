@@ -1,13 +1,41 @@
-# SENG302 Project Template
+# SENG302 project template
 
-Basic Maven project with required Maven reporting setup and basic GitLab CI.
+[<img src="https://img.shields.io/travis/playframework/play-java-forms-example.svg"/>](https://travis-ci.org/playframework/play-java-forms-example)
 
-It is a requirement that your product should be completely built to a deliverable form using the Maven package goal.
+[<img src="https://img.shields.io/travis/playframework/play-java-ebean-example.svg"/>](https://travis-ci.org/playframework/play-java-ebean-example)
 
-Remember to set up your GitLab CI server (refer to the student guide for instructions).
+This template is a combination of the Play forms and Ebean samples. Update this README file to make it your own.
 
-# Basic Project Structure
- - `src/` Your application source
- - `doc/` User and design documentation
- - `doc/examples/` Demo example files for use with your application
- 
+## How to run
+
+Start the Play app:
+
+```bash
+sbt run
+```
+
+And open <http://localhost:9000/>
+
+## Documentation
+
+
+### Play
+
+Play documentation is here:
+
+[https://playframework.com/documentation/latest/Home](https://playframework.com/documentation/latest/Home)
+
+### EBean
+
+EBean is a Java ORM library that uses SQL:
+
+[https://www.playframework.com/documentation/latest/JavaEbean](https://www.playframework.com/documentation/latest/JavaEbean)
+
+and the documentation can be found here:
+
+[https://ebean-orm.github.io/](https://ebean-orm.github.io/)
+
+### Forms
+
+Please see <https://playframework.com/documentation/latest/JavaForms>.
+
