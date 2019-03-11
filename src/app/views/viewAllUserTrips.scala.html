@@ -1,0 +1,13 @@
+@main {
+    <script src="@routes.Assets.at("javascripts/simpleTrip.js")" type="text/javascript"></script>
+    <h1>View all trips for user</h1>
+    <div>
+        <ul id="tripList">
+
+        </ul>
+    </div>
+        <!-- run js funtion on load-->
+    <script type="text/javascript">
+            getAllTripsOfUser("@controllers.backend.routes.TripController.getAllUserTrips(0)", "@controllers.frontend.routes.TripController.viewTrip(0)");
+    </script>
+}
