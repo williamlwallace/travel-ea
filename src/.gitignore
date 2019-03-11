@@ -3,6 +3,7 @@ target
 build
 /.idea
 /.idea_modules
+.idea/*
 /.classpath
 /.project
 /.settings

@@ -1,0 +1,33 @@
+@main {
+    <h1>Add new destination</h1>
+
+    <form id="addDestinationForm">
+        Name <input type="text" name="name"/>
+            <pre style="color:red" id='nameError'></pre><br>
+
+        Type <input type="text" name="type"/>
+            <pre style="color:red" id='typeError'></pre><br>
+
+        District <input type="text" name="district"/>
+            <pre style="color:red" id='districtError'></pre><br>
+
+        Latitude <input type="number" name="latitude"/>
+            <pre style="color:red" id='latitudeError'></pre><br>
+
+        Longitude <input type="number" name="longitude"/>
+            <pre style="color:red" id='longitudeError'></pre><br>
+
+        CountryId <input type="number" name="countryId"/>
+            <pre style="color:red" id='countryIdError'></pre><br>
+    </form>
+
+    <div>
+        <button onclick=
+        'addDestination(
+            "@controllers.backend.routes.DestinationController.addNewDestination()",
+            "@controllers.frontend.routes.DestinationController.viewAllDestinations()")'>
+            Add destination
+        </button>
+    </div>
+
+}

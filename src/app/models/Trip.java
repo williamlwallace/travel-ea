@@ -1,23 +1,20 @@
 package models;
 
-import java.util.List;
-import java.util.Date;
-import models.Destination;
+import io.ebean.Model;
+import play.data.validation.Constraints;
 
-public class Trip {
-//    public Date departDate;
-//    public Date arrivalDate;
-    public String tripName;
-    public List<Destination> tripList; // Trip is an array of destinations in order of travel
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-    public Trip(){}
+/**
+ * A class that models the trip database table
+ */
+@Entity
+public class Trip extends Model {
 
-    public Trip(List<Destination> tripList) {
-//        this.departDate = departDate;
-//        this.arrivalDate = arrivalDate;
-        this.tripName = tripName;
-        this.tripList = tripList;
-    }
+    @Id
+    public Long id;
 
-
+    @Constraints.Required
+    public Long uid;
 }
