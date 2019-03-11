@@ -40,25 +40,7 @@ GET     /api/trip/getAll/:uid            controllers.backend.TripController.getA
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
 # ~~~~~~frontend~~~~~~~
-GET     /                               controllers.frontend.UserController.index()
 
-GET     /login                          controllers.frontend.UserController.login()
-
-GET     /profile/new                    controllers.frontend.UserController.addNewProfile()
-
-GET     /profile/:id                    controllers.frontend.UserController.viewProfile(id:Long)
-
-GET     /destination/add                controllers.frontend.DestinationController.addDestinationForm()
-
-GET     /destination/viewAll            controllers.frontend.DestinationController.viewAllDestinations()
-
-GET     /trip/add                       controllers.frontend.TripController.addNewTrip()
-
-GET     /trip/view/:id                  controllers.frontend.TripController.viewTrip(id:Long)
-
-GET     /trip/viewAll/:uid              controllers.frontend.TripController.viewAllUserTrips(uid:Long)
-
-GET     /signup                         controllers.frontend.UserController.signUp()
 
 
 # Map static resources from the /public folder to the /assets URL path
