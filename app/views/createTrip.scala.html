@@ -140,7 +140,7 @@
 
 
         <!-- Create destination form -->
-        @helper.form(routes.DestinationsController.createDestination()) {
+        @helper.form(controllers.frontend.routes.DestinationController.createDestination()) {
             @helper.CSRF.formField
             <div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
             aria-hidden="true">

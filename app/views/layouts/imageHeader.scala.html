@@ -1,10 +1,9 @@
-
 @(title: String, user: String, imagePath: String)(body: Html)
 
 @main(title, user) {
     @* The title section with background image *@
     <div class="title-frame" id="title-frame">
-        <div class="title-bg" style="background-image: url(@routes.Assets.at(imagePath)">
+        <div class="title-bg" style="background-image: url(@routes.Assets.at(imagePath))">
             <div class="title-text-wrap">
                 <p class="title-text">@title</p>
             </div>
