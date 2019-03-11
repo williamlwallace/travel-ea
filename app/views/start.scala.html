@@ -1,0 +1,96 @@
+@import play.mvc.Http.Request
+@import helper._
+@(accounts: Seq[models.frontend.Account], form: Form[AccountData])(implicit request: Request, messages: play.i18n.Messages)
+
+
+<html>
+    <head>
+        @* Page title. *@
+    <title>TravelEA</title>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cover.css")">
+
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    </head>
+
+    <body class="text-center bg">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+            <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column parent">
+                <main role="main" class="child cover">
+                    <img src="@routes.Assets.at("images/travelEA.png")" style="width: 500px">
+                    <p class="lead txt-shadow">Enjoy the journey</p>
+
+                    @* Sign Up Form *@
+                    @helper.form(routes.StartController.signUp()) {
+                        @helper.CSRF.formField
+                        <div class="collapse form-style" id="collapseSignUp">
+                            <div class="container">
+                                <h1>Sign Up</h1>
+                                <p>Please fill in this form to create an account.</p>
+                                @* Flash shows updates to a page *@
+                                @request.flash.asScala().data.map { case (name, value) =>
+                                <div id="flashMessage1" class="@name error">@value</div>
+                                }
+                                <hr>
+                                <input type="email" placeholder="Enter Email" name="email" required>
+                                <input type="password" id="password" placeholder="Enter Password" name="password" required>
+                                <input type="password" id="confirm_password" placeholder="Repeat Password" name="password-repeat" required>
+                                <span id='message'></span>
+                            </div>
+                            <div class="clearfix" style="padding-top: 10px">
+                                <button type="button" onclick="document.getElementById('LogInSignUpBtns').style.display='block'"
+                                        class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseSignUp"
+                                        role="button" aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
+                                <button id="registerBtn" type="submit" class="btn btn-lg btn-secondary">Register</button>
+                            </div>
+                        </div>
+                    }
+
+                    @* Log In Form *@
+                    @helper.form(routes.StartController.login()) {
+                        @helper.CSRF.formField
+                        <div class="collapse form-style" id="collapseLogIn">
+                            <div class="container">
+                                <h1>Log In</h1>
+                                <p>Enter your login details below.</p>
+                                <hr>
+                                @* Flash shows updates to a page *@
+                                @request.flash.asScala().data.map { case (name, value) =>
+                                <div id="flashMessage2" class="@name error">@value</div>
+                                }
+                                <input type="email" placeholder="Enter Email" name="email" required>
+                                <input type="password" placeholder="Enter Password" name="password" required>
+                                <label>
+                                    <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
+                                </label>
+                            </div>
+                            <div class="clearfix" style="padding-top: 10px">
+                                <button type="button" onclick="document.getElementById('LogInSignUpBtns').style.display='block'"
+                                class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseLogIn"
+                                role="button" aria-expanded="false" aria-controls="collapseLogIn" id="cancelBtn2">Cancel</button>
+                                <button type="submit" class="btn btn-lg btn-secondary">Log In</button>
+                            </div>
+                        </div>
+                    }
+
+                    <p class="lead" id="LogInSignUpBtns">
+                        <a id="loginBtn" class="btn btn-lg btn-secondary" onclick="document.getElementById('LogInSignUpBtns').style.display='none'"
+                            data-toggle="collapse" href="#collapseLogIn" role="button" aria-expanded="false" aria-controls="collapseLogIn">Log In</a>
+                        <a id="signUpBtn" class="btn btn-lg btn-secondary" onclick="document.getElementById('LogInSignUpBtns').style.display='none'"
+                            data-toggle="collapse" href="#collapseSignUp" role="button" aria-expanded="false" aria-controls="collapseSignUp">Sign Up</a>
+                    </p>
+                </main>
+            </div>
+
+
+            @* Imports javascript files to the template. Speeds up page load times importing here. *@
+            <script src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("javascripts/bootstrap.min.js")" type="text/javascript"></script>
+            <script src="@routes.Assets.at("javascripts/cover.js")" type="text/javascript"></script>
+        </div>
+
+
+    </body>
+
+</html>
