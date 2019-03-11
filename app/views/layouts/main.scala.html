@@ -1,5 +1,5 @@
 
-@(title: String, user: String, imagePath: String)(body: Html)
+@(title: String, user: String)(content: Html)
 
 @* Shows the current tab as active. Thanks to user2518430 of stackoverflow *@
 @activeLink(currentPath:String) = @{
@@ -62,19 +62,8 @@
         </nav>
         </header>
 
-        @* The title section with background image *@
-        <div class="title-frame" id="title-frame">
-            <div class="title-bg" style="background-image: url(@routes.Assets.at(imagePath)">
-                <div class="title-text-wrap">
-                    <p class="title-text">@title</p>
-                </div>
-            </div>
-        </div>
-
-        <main role="main" class="container mt-5 pb-3" id="startchange">
-            @* the page content. *@
-            @body
-        </main>
+        @* Page content *@
+        @content
 
         @* Import javascript files to the template. Speeds up page load times importing here. *@
         <script src="@routes.Assets.at("javascripts/jquery-3.3.1.min.js")" type="text/javascript"></script>

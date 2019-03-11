@@ -115,6 +115,7 @@ nbactions.xml
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
 .idea/uiDesigner.xml
+.vscode
 
 # Gradle:
 .idea/gradle.xml
