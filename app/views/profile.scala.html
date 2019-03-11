@@ -1,7 +1,7 @@
 @import play.mvc.Http.Request
 @(profiles: Seq[models.frontend.Profile], form: Form[ProfileData], user: String)(implicit request: Request, messages: play.i18n.Messages)
 
-@layout("Profile", user, "images/profile-bg.jpg") {
+@layouts.imageHeader("Profile", user, "images/profile-bg.jpg") {
 
     <body>
             @helper.form(routes.ProfileController.createProfile()) {
