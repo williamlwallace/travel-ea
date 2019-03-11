@@ -1,26 +1,45 @@
 package models;
 
+import io.ebean.Finder;
+import io.ebean.Model;
+import play.data.validation.Constraints;
+
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 /**
- * Presentation object used for displaying data in a template.
+ * This class models the destination table in the database, with all requirements met.
+ * A finder is also supplied for easy and concise queries
  *
+ * @author Harrison Cook
  */
-public class Destination {
+@Entity
+public class Destination extends Model {
+
+    @Id
+    @Constraints.Required
+    public Long id;
+
+    @Constraints.Required
     public String name;
-    public String destType;
+
+    @Constraints.Required
+    public String type;
+
+    @Constraints.Required
     public String district;
-    public double latitude;
-    public double longitude;
-    public String country;
 
+    @Constraints.Required
+    public Double latitude;
 
-    public Destination(){}
+    @Constraints.Required
+    public Double longitude;
 
-    public Destination(String name, String destType, String district, double latitude, double longitude, String country) {
-        this.name = name;
-        this.destType = destType;
-        this.district = district;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.country = country;
-    }
+    @Constraints.Required
+    @Column(name="countryId")
+    public Long countryId;
+
+    public static final Finder<Long, Destination> find = new Finder<>(Destination.class);
 }
