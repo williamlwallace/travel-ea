@@ -1,6 +1,6 @@
 @(user: String, people: List[models.frontend.Account])
 
-@layout("People", user, "images/people-bg.jpg"){
+@layouts.imageHeader("People", user, "images/people-bg.jpg"){
     <head>
         @* Imports MBBootstrap Datatables CSS. *@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/datatables.min.css")">
