@@ -26,7 +26,8 @@ public class Destination extends Model {
     public String name;
 
     @Constraints.Required
-    public String type;
+    @Column(name="type") //type is a keyword in scala so cant get the column
+    public String _type;
 
     @Constraints.Required
     public String district;

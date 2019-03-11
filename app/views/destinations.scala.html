@@ -1,6 +1,6 @@
 @import play.mvc.Http.Request
 @import helper._
-@(destList: Seq[models.frontend.Destination], form: Form[DestData], user: String)
+@(destList: Seq[models.Destination], user: String)
 
 @layouts.imageHeader("Destinations", user, "images/destination-bg.jpg"){
 
@@ -346,11 +346,11 @@
                     @for(d <- destList) {
                         <tr>
                             <td>@d.name</td>
-                            <td>@d.destType</td>
+                            <td>@d._type</td>
                             <td>@d.district</td>
                             <td>@d.latitude</td>
                             <td>@d.longitude</td>
-                            <td>@d.country</td>
+                            <td>@d.countryId</td>
                             @*<td><a class="edit" title="Edit" data-toggle="modal" data-target="#modalContactForm1"><i class="fas fa-edit"></i></a></td>*@
                             @*<td><a class="delete" title="Delete" data-toggle="tooltip"><i class="fas fa-trash-alt"></i></a></td>*@
                         </tr>
