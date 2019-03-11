@@ -15,6 +15,7 @@ libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += javaJdbc % Test
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
 libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.8.6"
+libraryDependencies ++= Seq(ws)
 
 libraryDependencies ++= Seq(evolutions, javaJdbc % Test)
 
