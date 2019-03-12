@@ -1,7 +1,7 @@
 // Runs get countries method, then add country options to drop down
 function fillCountryDropDown(getCountriesUrl) {
     // Run a get request to fetch all destinations
-    get(url)
+    get(getCountriesUrl)
     // Get the response of the request
         .then(response => {
             // Convert the response to json
