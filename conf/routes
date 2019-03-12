@@ -36,16 +36,16 @@ PUT     /api/trip                       controllers.backend.TripController.updat
 
 GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
-GET     /api/trip/getAll/:uid            controllers.backend.TripController.getAllUserTrips(uid:Long)
+GET     /api/trip/getAll/:uid           controllers.backend.TripController.getAllUserTrips(uid:Long)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
-GET     /                           controllers.StartController.index(request: Request)
+GET     /                           controllers.StartController.index(request:Request)
 
 # signing up
-POST    /signUp                     controllers.StartController.signUp(request: Request)
+POST    /signUp                     controllers.StartController.signUp(request:Request)
 GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
 
 # Logging in
