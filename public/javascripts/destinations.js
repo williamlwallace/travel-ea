@@ -1,8 +1,23 @@
-$(document).ready(function(){
-    $(document).on("click", ".delete", function(){
-        $(this).parents("tr").remove();
-    });
-});
+// Runs get countries method, then add country options to drop down
+function fillCountryDropDown(getCountriesUrl) {
+    // Run a get request to fetch all destinations
+    get(url)
+    // Get the response of the request
+        .then(response => {
+            // Convert the response to json
+            response.json().then(data => {
+                // Json data is an array of destinations, iterate through it
+                for(let i = 0; i < data.length; i++) {
+                    // For each destination, make a list element that is the json string of object
+                    let item = document.createElement("OPTION");
+                    item.innerHTML = data[i]['name'];
+                    item.value = data[i]['id'];
+                    // Add list element to list
+                    document.getElementById("countryDropDown").appendChild(item);
+                }
+            });
+        });
+}
 
 function addDestination(url, redirect) {
     // Read data from destination form
@@ -25,4 +40,10 @@ function addDestination(url, redirect) {
             }
         });
     });
+}
+
+function get(url) {
+    return fetch(url, {
+        method: "GET"
+    })
 }

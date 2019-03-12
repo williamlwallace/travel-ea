@@ -19,7 +19,7 @@ public class DestinationValidator extends Validator{
         //Check that the destination name is present
         this.required("name");
         //Check that the destination type is present
-        this.required("type");
+        this.required("_type");
         //Check that the destination district is present
         this.required("district");
         //Check that the destination's country id is present
