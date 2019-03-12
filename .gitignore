@@ -15,6 +15,7 @@ server.pid
 /dist/
 .cache
 *.log
+*.db
 
 # Things that don't belong under source control see https://github.com/github/gitignore
 

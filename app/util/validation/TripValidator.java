@@ -9,7 +9,6 @@ import models.TripData.TripDataKey;
 import play.libs.Json;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -55,14 +54,14 @@ public class TripValidator {
             }
             if(trip.destinationId == null) errorString += "destinationId is null, ";
             if(trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
-            if(trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.after(trip.departureTime)) errorString += "departure must be after arrival, ";
+            if(trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.getTimestamp().after(trip.departureTime.getTimestamp())) errorString += "departure must be after arrival, ";
             if(trip.arrivalTime != null || trip.departureTime != null) {
                 //todo: fix this one
                 //if(!(mostRecentDate == null) && (trip.arrivalTime.before(mostRecentDate) || trip.departureTime.before(mostRecentDate))) {
                 //    errorString += "this stage cannot occur before a previous stage, ";
                 //}
                 // Set most recent time stamp to be latest value that is not null
-                mostRecentDate = (trip.departureTime == null) ? trip.arrivalTime : trip.departureTime;
+                mostRecentDate = ((trip.departureTime == null) ? trip.arrivalTime : trip.departureTime).getTimestamp();
             }
 
             // Update most recent destination id
