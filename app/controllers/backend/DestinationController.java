@@ -4,6 +4,7 @@ package controllers.backend;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.CountryDefinition;
 import models.Destination;
 import play.data.Form;
 import play.data.FormFactory;
@@ -13,6 +14,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
@@ -23,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 public class DestinationController extends Controller {
 
     private final DestinationRepository destinationRepository;
+    private final CountryDefinitionRepository countryDefinitionRepository;
     private final FormFactory formFactory;
     private final HttpExecutionContext httpExecutionContext;
     private final MessagesApi messagesApi;
@@ -31,8 +34,10 @@ public class DestinationController extends Controller {
     public DestinationController(FormFactory formFactory,
                                  DestinationRepository destinationRepository,
                                  HttpExecutionContext httpExecutionContext,
-                                 MessagesApi messagesApi) {
+                                 MessagesApi messagesApi,
+                                 CountryDefinitionRepository countryDefinitionRepository) {
         this.destinationRepository = destinationRepository;
+        this.countryDefinitionRepository = countryDefinitionRepository;
         this.formFactory = formFactory;
         this.httpExecutionContext = httpExecutionContext;
         this.messagesApi = messagesApi;
@@ -71,6 +76,11 @@ public class DestinationController extends Controller {
     public CompletableFuture<Result> getAllDestinations() {
         return destinationRepository.getAllDestinations()
             .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+    }
+
+    public CompletableFuture<Result> getAllCountries() {
+        return countryDefinitionRepository.getAllCountries()
+                .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
     }
 
     public CompletableFuture<Result> getDestination(long getId) {
