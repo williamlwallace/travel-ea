@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.libs.Scala;
 import play.mvc.*;
 
 import views.html.*;
@@ -23,7 +24,7 @@ import static play.libs.Scala.asScala;
 public class createTripController extends Controller {
 
     private MessagesApi messagesApi;
-    private final List<Trip> tripList;
+    private final ArrayList<Trip> tripList;
     private final ArrayList<Destination> destList = new ArrayList<Destination>();
 
     @Inject

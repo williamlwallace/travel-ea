@@ -8,8 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.security.Timestamp;
 import java.util.Objects;
-import java.sql.Timestamp;
 
 /**
  * A class that models the tripData database table

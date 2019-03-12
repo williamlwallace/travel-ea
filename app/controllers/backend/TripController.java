@@ -25,7 +25,7 @@ import util.validation.TripValidator;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.sql.Timestamp;
+import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
