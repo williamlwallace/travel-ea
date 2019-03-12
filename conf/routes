@@ -19,6 +19,7 @@ DELETE  /api/profile/:uid               controllers.backend.UserController.delet
 
 DELETE  /api/user/:uid                  controllers.backend.UserController.deleteUser(uid:Long)
 
++ nocsrf
 POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET     /api/destination                controllers.backend.DestinationController.getAllDestinations()
