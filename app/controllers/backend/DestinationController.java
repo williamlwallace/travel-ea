@@ -45,13 +45,9 @@ public class DestinationController extends Controller {
      * @return Ok with id of destination on success, badRequest otherwise
      */
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
-        //Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
-
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
-
-        //Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         } else {
