@@ -7,6 +7,8 @@ import models.CountryDefinition;
 import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -66,6 +68,12 @@ public class CountryDefinitionRepository {
                     .findOneOrEmpty()
                     .orElse(null),
                 executionContext);
+    }
+
+    public CompletableFuture<List<CountryDefinition>> getAllCountries() {
+        return supplyAsync(() ->
+            ebeanServer.find(CountryDefinition.class).findList(),
+            executionContext);
     }
 
     /**
