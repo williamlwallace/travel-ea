@@ -183,6 +183,6 @@ code {
 }
 
 .error-messages {
-    color: red;
+    color: red !important;
     font-size: 12px; 
 }
