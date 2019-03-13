@@ -10,22 +10,3 @@ $('#password, #confirm_password').on('keyup', function () {
         $('#message').html('Password not matching!').css('color', 'red');
     }
 });
-
-/*
- * Displays the form on the start page that had the error.
- */
-$(document).ready(function() {
-    if ($('#flashMessage1').hasClass("loginError")) {
-        $("#loginBtn").click();
-    } if ($('#flashMessage2').hasClass("signUpError")) {
-        $("#signUpBtn").click();
-    }
-});
-
-/*
- * Hides error message if cancel is pressed on start page.
- */
-$('#cancelBtn1, #cancelBtn2').click(function () {
-    $("#flashMessage1").hide();
-    $("#flashMessage2").hide();
-});
