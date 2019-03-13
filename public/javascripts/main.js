@@ -14,15 +14,23 @@ function post(url, data) {
     })
 }
 
-function showErrors(json) {
-    console.log("yooo");
-    const elements = document.getElementsByTagName("label");
+function showErrors(json, formName) {
+    const elements = document.getElementById(formName).getElementsByTagName("label");
     for (i in elements) {
         elements[i].innerHTML = "";
+        for (const key of Object.keys(json)) {
+            if (elements[i].id == (key+"Error")) {
+                elements[i].innerHTML = key + "Error";
+                break;
+            }
+        }
     }
-    for (const key of Object.keys(json)) {
-        console.log(key);
-        document.getElementById(key + "Error").innerHTML = json[key];
+}
+
+function hideErrors(formName) {
+    const elements = document.getElementById(formName).getElementsByTagName("label");
+    for (i in elements) {
+        elements[i].innerHTML = "";
     }
 }
 

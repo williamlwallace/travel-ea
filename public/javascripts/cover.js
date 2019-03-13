@@ -23,8 +23,7 @@ function login(url, redirect) {
         response.json()
         .then(json => {
             if (response.status != 200) {
-                console.log("Yeeeet");
-                showErrors(json);
+                showErrors(json, "loginForm");
             } else {
                 window.location.href = redirect;
             }
@@ -37,7 +36,8 @@ function login(url, redirect) {
  * @param url The route/url to send the request to
  * @param redirect The page to redirect to if no errors are found
  */
-function signUp(url, redirect) {
+function signup(url, redirect) {
+    console.log("yeeeT");
     const formData = new FormData(document.getElementById("signupForm"));
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -48,7 +48,7 @@ function signUp(url, redirect) {
             response.json()
             .then(json => {
                 if (response.status != 200) {
-                    showErrors(json);
+                    showErrors(json, "signupForm");
                 } else {
                     window.location.href = redirect;
                 }
