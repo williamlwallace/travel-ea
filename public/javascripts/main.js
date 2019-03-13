@@ -27,8 +27,8 @@ function showErrors(json, elementName="main") {
     }
 }
 
-function hideErrors(formName) {
-    const elements = document.getElementById(formName).getElementsByTagName("label");
+function hideErrors(elementName) {
+    const elements = document.getElementById(elementName).getElementsByTagName("label");
     for (i in elements) {
         elements[i].innerHTML = "";
     }
