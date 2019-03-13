@@ -34,7 +34,7 @@ function addDestination(url, redirect) {
         response.json()
         .then(json => {
             if (response.status != 200) {
-                showErrors(json, "addDestinationForm");
+                showErrors(json);
             } else {
                 window.location.href = redirect;
             }
