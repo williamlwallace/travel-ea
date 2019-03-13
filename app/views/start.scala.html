@@ -25,10 +25,10 @@
                             <p>Please fill in this form to create an account.</p>
                             <div id="otherError" class="error"></div>
                             <hr>
-                            <input type="email" placeholder="Enter Email" name="username" required>
-                            <label id="usernameError"></label>
-                            <input type="password" id="password" placeholder="Enter Password" name="password" required>
-                            <label id="passwordError"></label>
+                            <input type="email" placeholder="Enter Email" name="username">
+                            <label id="usernameError" class="error-messages"></label>
+                            <input type="password" id="password" placeholder="Enter Password" name="password">
+                            <label id="passwordError" class="error-messages"></label>
                             <input type="password" id="confirm_password" placeholder="Repeat Password"
                                 name="password-repeat" required>
                             <span id='message'></span>
@@ -39,6 +39,7 @@
                             class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseSignUp" role="button"
                             aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
                         <button class="btn btn-lg btn-secondary"
+                            id="registerBtn"
                             onclick='signup("@controllers.backend.routes.UserController.addNewUser()","@controllers.routes.ProfileController.index()")'>
                             Register
                         </button>
@@ -52,15 +53,11 @@
                             <h1>Log In</h1>
                             <p>Enter your login details below.</p>
                             <hr>
-                            <div id="otherError" class="error"></div>
-                            <input type="email" placeholder="Enter Email" name="username" required>
-                            <label id="usernameError">asdf</label>
-                            <input type="password" placeholder="Enter Password" name="password" required>
-                            <label id="passwordError">asdf</label>
-                            <label>
-                                <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px">
-                                Remember me
-                            </label>
+                            <label id="otherError" class="error-messages"></label>
+                            <input type="email" placeholder="Enter Email" name="username">
+                            <label id="usernameError" class="error-messages"></label>
+                            <input type="password" placeholder="Enter Password" name="password">
+                            <label id="passwordError" class="error-messages"></label>
                         </form>
                     </div>
                     <div class="clearfix" style="padding-top: 10px">
