@@ -14,8 +14,8 @@ function post(url, data) {
     })
 }
 
-function showErrors(json, elementName="main") {
-    const elements = document.getElementById(elementName).getElementsByTagName("label");
+function showErrors(json, parentElement="main") {
+    const elements = document.getElementById(parentElement).getElementsByTagName("label");
     for (i in elements) {
         elements[i].innerHTML = "";
         for (const key of Object.keys(json)) {
@@ -27,8 +27,8 @@ function showErrors(json, elementName="main") {
     }
 }
 
-function hideErrors(elementName) {
-    const elements = document.getElementById(elementName).getElementsByTagName("label");
+function hideErrors(parentElement) {
+    const elements = document.getElementById(parentElement).getElementsByTagName("label");
     for (i in elements) {
         elements[i].innerHTML = "";
     }
