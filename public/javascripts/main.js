@@ -14,8 +14,8 @@ function post(url, data) {
     })
 }
 
-function showErrors(json, formName="main") {
-    const elements = document.getElementById(formName).getElementsByTagName("label");
+function showErrors(json, elementName="main") {
+    const elements = document.getElementById(elementName).getElementsByTagName("label");
     for (i in elements) {
         elements[i].innerHTML = "";
         for (const key of Object.keys(json)) {
