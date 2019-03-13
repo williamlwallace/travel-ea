@@ -20,9 +20,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 
 import static java.lang.Math.max;
 
@@ -96,7 +94,7 @@ public class UserController extends Controller {
      * @param request The HTTP request sent, the body of this request should be a JSON User object
      * @return OK if user is successfully added to DB, badRequest otherwise
      */
-    public CompletableFuture<Result> addNewUser(Http.Request request) {
+    public Result addNewUser(Http.Request request) {
         //Get the data from the request as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -105,7 +103,8 @@ public class UserController extends Controller {
 
         //Checks if the validator found any errors in the data
         if (validatorResult.error()) {
-            return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
+//            return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
+            return badRequest(validatorResult.toJson());
         } else {
             //Else, no errors found, continue with adding to the database
             //Create a new user from the request data, basing off the User class
@@ -116,8 +115,8 @@ public class UserController extends Controller {
             newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
 
             //This block ensures that the username (email) is not taken already, and returns a CompletableFuture<Result>
-            //The chained thenComposes results in the last function's return value being the overall return value
-            return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
+            //The chained thenComposes results in the last function's return value being the overall value assigned to result
+            CompletableFuture result =  userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
                     .thenComposeAsync(user -> CompletableFuture.supplyAsync(() -> {  //Pass that result (a User object) into the new function using thenCompose
                         if (user != null) return null;                          //If a user is found pass null into the next function using thenCompose
                         else return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function using thenCompose
@@ -128,8 +127,23 @@ public class UserController extends Controller {
                            validatorResult.map("Email already in use", "other");
                           return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
                         }
-                        else return ok(Json.toJson(uid));                                           //If the uid is not null, return an ok message with the uid contained within
+                        else return ok(Json.toJson(uid));                 //If the uid is not null, return an ok message with the uid contained within
                       }));
+
+            //Try to get the result of the completable future
+            try {
+                //The .get() function with timeout if the result of the completable future is not returned within 3 seconds
+                //if this happens, a timeout exception will be thrown
+                return (Result) result.get(3, TimeUnit.SECONDS);
+            } catch (InterruptedException | ExecutionException e) {
+                System.out.println(e);
+                validatorResult.map("Error whilst processing request", "other");
+                return internalServerError(validatorResult.toJson());
+            } catch (TimeoutException e) {
+                System.out.println(e);
+                validatorResult.map("Request timed out", "other");
+                return status(504, validatorResult.toJson());
+            }
         }
 
 
