@@ -16,11 +16,12 @@ function post(url, data) {
 
 function showErrors(json) {
     console.log("yooo");
-    const elements = document.getElementsByTagName("pre");
+    const elements = document.getElementsByTagName("label");
     for (i in elements) {
         elements[i].innerHTML = "";
     }
     for (const key of Object.keys(json)) {
+        console.log(key);
         document.getElementById(key + "Error").innerHTML = json[key];
     }
 }

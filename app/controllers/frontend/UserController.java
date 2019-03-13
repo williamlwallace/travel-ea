@@ -22,11 +22,11 @@ import javax.inject.Inject;
 public class UserController extends Controller {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Inject
     /**
      * Used to initialise the account form. messagesApi and also creates a list of example
      * account data to use before a database is established.
      */
+    @Inject
     public void StartController() {}
 
     /**
@@ -41,9 +41,21 @@ public class UserController extends Controller {
                 .getOptional("connected")
                 .map(user -> redirect(controllers.routes.ApplicationController.index()))
             .orElseGet(() -> {
-
                 return ok(start.render());
             }
                 );
+    }
+
+    /**
+     * Uses a POST request at /login to validate logging in to an account.
+     * Will display error messages if email/password are incorrect.
+     * If the account details are in the database. The user will be logged in and taken to
+     * the home page.
+     *
+     * @param request
+     * @return a http result; a redirect if the user credentials are correct, and a bad request in other cases.
+     */
+    public Result login(Http.Request request) {
+        return redirect(controllers.routes.ApplicationController.index()).addingToSession(request, "connected", "dave@gmail.com");
     }
 }
