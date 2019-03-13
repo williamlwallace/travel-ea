@@ -47,7 +47,7 @@ public class DestinationController extends Controller {
                         return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user)):internalServerError();
                     },
                     httpExecutionContext.current());
-        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.routes.StartController.index())));
+        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index())));
     }
 
     public Result createDestination(Http.Request request) {
