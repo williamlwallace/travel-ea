@@ -10,3 +10,48 @@ $('#password, #confirm_password').on('keyup', function () {
         $('#message').html('Password not matching!').css('color', 'red');
     }
 });
+
+function login(url, redirect) {
+    const formData = new FormData(document.getElementById("loginForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]]: pair[1],
+    }), {});
+    post(url,data)
+    .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+        .then(json => {
+            if (response.status != 200) {
+                console.log("Yeeeet");
+                showErrors(json);
+            } else {
+                window.location.href = redirect;
+            }
+        });
+    });
+}
+
+/**
+ * The JavaScript function to process a client signing up
+ * @param url The route/url to send the request to
+ * @param redirect The page to redirect to if no errors are found
+ */
+function signUp(url, redirect) {
+    const formData = new FormData(document.getElementById("signupForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]] : pair[1],
+    }), {});
+    post(url, data)
+        .then(response => {
+            response.json()
+            .then(json => {
+                if (response.status != 200) {
+                    showErrors(json);
+                } else {
+                    window.location.href = redirect;
+                }
+            });
+    });
+}

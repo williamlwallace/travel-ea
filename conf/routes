@@ -4,9 +4,9 @@
 
 # ~~~~~backend~~~~~~
 GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
-
++ nocsrf
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
-
++ nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
 
 POST    /api/profile                    controllers.backend.UserController.addNewProfile(request:Request)
@@ -51,7 +51,7 @@ POST    /signUp                     controllers.StartController.signUp(request:R
 GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
 
 # Logging in
-POST    /login                      controllers.StartController.login(request: Request)
+GET    /login                      controllers.frontend.UserController.login(request: Request)
 
 # Home page
 GET     /home                       controllers.ApplicationController.index(request: Request)
