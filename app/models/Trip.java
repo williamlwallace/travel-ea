@@ -16,5 +16,5 @@ public class Trip extends Model {
     public Long id;
 
     @Constraints.Required
-    public Long uid;
+    public Long userId;
 }
