@@ -1,7 +1,10 @@
 package repository;
 
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
 import io.ebean.PagedList;
 import models.Destination;
+import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -14,10 +17,12 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
  */
 public class DestinationRepository {
 
+    private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public DestinationRepository(DatabaseExecutionContext executionContext) {
+    public DestinationRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+        this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
     }
 
@@ -28,7 +33,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Long> addDestination(Destination destination) {
         return supplyAsync(() -> {
-            destination.insert();
+            ebeanServer.insert(destination);
             return destination.id;
         }, executionContext);
     }
@@ -36,13 +41,15 @@ public class DestinationRepository {
     /**
      * Deletes a destination from the database
      * @param id    Unique destination ID of destination to be deleted
-     * @return      The ID of the deleted destination
+     * @return      The number of rows deleted
      */
-    public CompletableFuture<Long> deleteDestination(Long id) {
-        return supplyAsync(() -> {
-            Destination.find.byId(id).delete();
-            return id;
-        }, executionContext);
+    public CompletableFuture<Integer> deleteDestination(Long id) {
+        return supplyAsync(() ->
+            ebeanServer.find(Destination.class)
+                    .where()
+                    .idEq(id)
+                    .delete()
+        , executionContext);
     }
 
     /**
@@ -52,7 +59,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
         return supplyAsync(() -> {
-            destination.update();
+            ebeanServer.update(destination);
             return destination;
         }, executionContext);
     }
@@ -60,10 +67,14 @@ public class DestinationRepository {
     /**
      * Gets a single destination given the destination ID
      * @param id Unique destination ID of the requested destination
-     * @return   A single destination with the reqested ID
+     * @return   A single destination with the requested ID, or null if none was found
      */
     public CompletableFuture<Destination> getDestination(Long id) {
-        return supplyAsync(() -> Destination.find.byId(id), executionContext);
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                .where()
+                .idEq(id)
+                .findOneOrEmpty()
+                .orElse(null), executionContext);
     }
 
     /**
@@ -71,7 +82,7 @@ public class DestinationRepository {
      * @return list of destinations
      */
     public CompletableFuture<List<Destination>> getAllDestinations() {
-        return supplyAsync(() -> Destination.find.all(), executionContext);
+        return supplyAsync(() -> ebeanServer.find(Destination.class).findList(), executionContext);
     }
 
     /**
@@ -84,7 +95,7 @@ public class DestinationRepository {
      * @return Paged list of destinations
      */
     public CompletableFuture<PagedList<Destination>> getPagedDestinations(int page, int pageSize, String order, String filter) {
-        return supplyAsync(() -> Destination.find.query()
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
                     .where()
                     .ilike("name", "%" + filter + "%")
                     .orderBy(order)
