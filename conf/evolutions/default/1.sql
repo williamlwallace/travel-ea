@@ -126,13 +126,13 @@ INSERT INTO CountryDefinition (name) VALUES ('France'), ('England'), ('New Zeala
 INSERT INTO TravellerTypeDefinition (description) VALUES ('backpacker'), ('functional/business traveller'), ('groupies'), ('thrillseeker'), ('frequent weekender'), ('gap year');
 
 -- Add sample Profile
-INSERT INTO Profile(uid, firstName, middleName, lastName, dateOfBirth, gender) VALUES (1, 'UserFirst', "UserMiddle", "UserLast", "1990-01-01", "Male");
-INSERT INTO TravellerType (uid, travellerTypeId) VALUES (1,1), (1,3);
-INSERT INTO Passport (uid, countryId) VALUES (1,1);
-INSERT INTO Nationality (uid, countryId) VALUES (1,1), (1,3);
+INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
+INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3);
+INSERT INTO Passport (user_id, country_id) VALUES (1,1);
+INSERT INTO Nationality (user_id, country_id) VALUES (1,1), (1,3);
 
 -- Add sample data for destination
-INSERT INTO Destination (name, type, district, latitude, longitude, countryId) VALUES
+INSERT INTO Destination (name, type, district, latitude, longitude, country_id) VALUES
     ('Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1),
     ('Stonehenge', 'Monument', 'Salisbury', 20.0, 30.0, 2),
     ('Sky Tower', 'Monument', 'Auckland', 40.0, 50.0, 3),
@@ -141,10 +141,10 @@ INSERT INTO Destination (name, type, district, latitude, longitude, countryId) V
     ('Statue of Liberty', 'Monument', 'New York', 70.0, 80.0, 6);
 
 -- Add sample data for trip
-INSERT INTO Trip (uid) VALUES (1);
+INSERT INTO Trip (user_id) VALUES (1);
 
 -- Add sample tripData for the sample trip
-INSERT INTO TripData (tripId, position, destinationId, arrivalTime, departureTime) VALUES (1, 0, 1, NULL, NULL);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
 DROP TABLE User;
