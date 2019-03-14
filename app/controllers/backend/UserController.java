@@ -3,8 +3,6 @@ package controllers.backend;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
-import models.TravellerType.TravellerTypeKey;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
@@ -79,12 +77,12 @@ public class UserController extends Controller {
     /**
      * Delete a user with given uid
      *
-     * @param uid ID of user to delete
+     * @param userId ID of user to delete
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
-    public CompletionStage<Result> deleteUser(Long uid) {
-        return userRepository.deleteUser(uid).thenApplyAsync(rowsDeleted ->
-                        (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + uid) : badRequest("No user with such uid found"),
+    public CompletionStage<Result> deleteUser(Long userId) {
+        return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted ->
+                        (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found"),
                 httpExecutionContext.current());
     }
 
@@ -112,7 +110,7 @@ public class UserController extends Controller {
         User user = new User();
         user.username = data.get("username").asText();
         user.password = data.get("password").asText();
-        user.uid = null;
+        user.id = null;
 
         // Create salt to user, and hash password before storing in database
         user.salt = CryptoManager.generateNewSalt();
@@ -126,7 +124,7 @@ public class UserController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Databse Exception", "other");
+                validatorResult.map("Database Exception", "other");
                 return internalServerError(validatorResult.toJson());
             
             });
@@ -146,8 +144,8 @@ public class UserController extends Controller {
             });
         }
         // Otherwise if username is free, add to database and return ok
-        return userRepository.insertUser(user).thenApplyAsync(uid ->
-                (uid != null) ? ok(Long.toString(uid)) : internalServerError());
+        return userRepository.insertUser(user).thenApplyAsync(userId ->
+                (userId != null) ? ok(Long.toString(userId)) : internalServerError());
         //else {
             //Else, no errors found, continue with adding to the database
             //Create a new user from the request data, basing off the User class
@@ -208,7 +206,7 @@ public class UserController extends Controller {
                    // Redact password specific fields and return json user object
                    foundUser.password = null;
                    foundUser.salt = null;
-                   return ok(Json.toJson(foundUser.uid));
+                   return ok(Json.toJson(foundUser.id));
                }
                // If password was incorrect, return bad request
                else {
@@ -239,12 +237,12 @@ public class UserController extends Controller {
 
         // Converts json to Profile object, sets uid to link profile and user
         Profile profile = new Profile();
-        profile.uid = json.get("uid").asLong();
+        profile.userId = json.get("userId").asLong();
         profile.firstName = json.get("firstName").asText();
         profile.lastName = json.get("lastName").asText();
         profile.middleName = json.get("middleName").asText();
         profile.gender = json.get("gender").asText();
-        profile.birthDate = json.get("birthDate").asText();
+        profile.dateOfBirth = json.get("dateOfBirth").asText();
 
         // Converts users nationalities, passports and traveller types to arrays of strings
         String[] nationalityStrings = json.get("nationalities").asText().split(",");
@@ -257,13 +255,13 @@ public class UserController extends Controller {
         List<TravellerType> travellerTypes;
 
         try {
-            nationalities = getValidNationalities(nationalityStrings, profile.uid);
-            passports = getValidPassports(passportStrings, profile.uid);
-            travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.uid);
+            nationalities = getValidNationalities(nationalityStrings, profile.userId);
+            passports = getValidPassports(passportStrings, profile.userId);
+            travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -279,7 +277,7 @@ public class UserController extends Controller {
 
         // Check if profile already exists
         try {
-            foundProfile = profileRepository.findID(profile.uid).get();
+            foundProfile = profileRepository.findID(profile.userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -359,9 +357,9 @@ public class UserController extends Controller {
             List<TravellerType> travellerTypes;
 
             try {
-                nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.uid).get();
-                passports = passportRepository.getAllPassportsOfUser(profile.uid).get();
-                travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.uid).get();
+                nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
+                passports = passportRepository.getAllPassportsOfUser(profile.userId).get();
+                travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
@@ -409,7 +407,7 @@ public class UserController extends Controller {
 
                 if (travellerTypes != null) {
                     for (TravellerType travellerType : travellerTypes) {
-                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.key.travellerTypeId).get();
+                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.travellerTypeId).get();
 
                         if (travellerTypeDefinition != null) {
                             travellerTypeString += travellerTypeDefinition.description + ",";
@@ -421,7 +419,7 @@ public class UserController extends Controller {
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -493,7 +491,7 @@ public class UserController extends Controller {
             profile.lastName = json.get("lastName").asText();
             profile.middleName = json.get("middleName").asText();
             profile.gender = json.get("gender").asText();
-            profile.birthDate = json.get("birthDate").asText();
+            profile.dateOfBirth = json.get("dateOfBirth").asText();
 
             // Converts users nationalities, passports and traveller types to arrays of strings
             String[] nationalityStrings = json.get("nationalities").asText().split(",");
@@ -512,18 +510,18 @@ public class UserController extends Controller {
 
             try {
                 // Gets objects to add
-                nationalities = getValidNationalities(nationalityStrings, profile.uid);
-                passports = getValidPassports(passportStrings, profile.uid);
-                travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.uid);
+                nationalities = getValidNationalities(nationalityStrings, profile.userId);
+                passports = getValidPassports(passportStrings, profile.userId);
+                travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
 
                 // Gets objects to delete
-                nationalitiesToDelete = nationalityRepository.getAllNationalitiesOfUser(profile.uid).get();
-                passportsToDelete = passportRepository.getAllPassportsOfUser(profile.uid).get();
-                travellerTypesToDelete = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.uid).get();
+                nationalitiesToDelete = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
+                passportsToDelete = passportRepository.getAllPassportsOfUser(profile.userId).get();
+                travellerTypesToDelete = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -568,7 +566,7 @@ public class UserController extends Controller {
         }
         else {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Culd not find profile to update", "other");
+                errorResponse.map("Could not find profile to update", "other");
                  return badRequest(errorResponse.toJson());
             });
         }
@@ -608,7 +606,7 @@ public class UserController extends Controller {
             if (foundCountry != null) {
                 // Creates found nationality object and stores in list
                 Nationality nationality = new Nationality();
-                nationality.uid = userID;
+                nationality.userId = userID;
                 nationality.countryId = foundCountry.id;
 
                 nationalities.add(nationality);
@@ -636,14 +634,14 @@ public class UserController extends Controller {
             try {
                 foundCountry = countryDefinitionRepository.findCountryByExactName(passportString).get();
             }
-            catch (ExecutionException | InterruptedException ex) {;
+            catch (ExecutionException | InterruptedException ex) {
                 throw ex;
             }
 
             if (foundCountry != null) {
                 // Creates found passport object and stores in list
                 Passport passport = new Passport();
-                passport.uid = userID;
+                passport.userId = userID;
                 passport.countryId = foundCountry.id;
 
                 passports.add(passport);
@@ -678,7 +676,8 @@ public class UserController extends Controller {
             if (foundTravellerType != null) {
                 // Creates found travellerType object and stores in list
                 TravellerType travellerType = new TravellerType();
-                travellerType.key = new TravellerTypeKey(userID, foundTravellerType.id);
+                travellerType.userId = userID;
+                travellerType.travellerTypeId = foundTravellerType.id;
                 travellerTypes.add(travellerType);
             }
         }
