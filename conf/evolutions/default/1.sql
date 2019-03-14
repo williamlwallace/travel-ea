@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS User
     auth_token        VARCHAR(128),
     PRIMARY KEY (id),
     UNIQUE (username),
-    UNIQUE (password),
     UNIQUE (auth_token)
   );
 
@@ -29,6 +28,14 @@ CREATE TABLE IF NOT EXISTS Profile
     gender            VARCHAR(32),
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(id)
+  );
+
+CREATE TABLE IF NOT EXISTS CountryDefinition
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    name              VARCHAR(64) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX name_index (name)
   );
 
 -- Create Nationality table, which specifies nationalities for users
@@ -62,8 +69,7 @@ CREATE TABLE IF NOT EXISTS TravellerTypeDefinition
   (
     id                INT NOT NULL AUTO_INCREMENT,
     description       VARCHAR(2048) NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE (description)
+    PRIMARY KEY (id)
   );
 
 -- Create TravellerType table, which specifies the traveller types of users
@@ -72,7 +78,7 @@ CREATE TABLE IF NOT EXISTS TravellerType
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     traveller_type_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id),
     PRIMARY KEY (guid),
     INDEX travellertype_index (user_id, traveller_type_id),
@@ -98,7 +104,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    FOREIGN KEY (user_id) REFERENCES User(id),
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
   );
@@ -119,13 +125,6 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
-CREATE TABLE IF NOT EXISTS CountryDefinition
-  (
-    id                INT NOT NULL,
-    name              VARCHAR(64) NOT NULL,
-    PRIMARY KEY (id),
-    INDEX name_index (name)
-  );
 
 -- Add sample user
 INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass', 'salt');
@@ -159,11 +158,15 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
-DROP TABLE User;
-DROP TABLE Profile;
+DROP TABLE TravellerType;
+DROP TABLE Passport;
 DROP TABLE Nationality;
 DROP TABLE TravellerTypeDefinition;
-DROP TABLE TravellerType;
 DROP TABLE Destination;
-DROP TABLE Trip;
 DROP TABLE TripData;
+DROP TABLE Trip;
+DROP TABLE CountryDefinition;
+DROP TABLE Profile;
+DROP TABLE User;
+
+
