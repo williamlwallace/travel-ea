@@ -20,18 +20,14 @@ public class Profile extends Model {
     @Constraints.Required
     public Long uid; //Unique user id
 
-    @Column(name="firstName")
     @Constraints.Required
     public String firstName;
 
-    @Column(name="lastName")
     @Constraints.Required
     public String lastName;
 
-    @Column(name="middleName")
     public String middleName;
 
-    @Column(name="dateOfBirth")
     @Constraints.Required
     public String birthDate;
 
