@@ -81,7 +81,7 @@ public class TravellerTypeRepository {
             ebeanServer.find(TravellerType.class)
                     .where()
                     .ieq("user_id", Long.toString(profileId))
-                    .findList(),
-                executionContext);
+                    .findList()
+                , executionContext);
     }
 }

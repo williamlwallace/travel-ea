@@ -1,6 +1,9 @@
 package repository;
 
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
 import models.TravellerTypeDefinition;
+import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
@@ -8,10 +11,12 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 public class TravellerTypeDefinitionRepository {
 
+    private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public TravellerTypeDefinitionRepository(DatabaseExecutionContext executionContext) {
+    public TravellerTypeDefinitionRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+        this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
     }
 
@@ -21,7 +26,12 @@ public class TravellerTypeDefinitionRepository {
      * @return The TravellerTypeDefinition with matching id, null if no TravellerTypeDefinition found
      */
     public CompletableFuture<TravellerTypeDefinition> getTravellerTypeDefinitionById(Long id) {
-        return supplyAsync(() -> TravellerTypeDefinition.find.byId(id), executionContext);
+        return supplyAsync(() ->
+            ebeanServer.find(TravellerTypeDefinition.class)
+                    .where()
+                    .eq("id", id)
+                    .findOne()
+                , executionContext);
     }
 
     /**
@@ -30,12 +40,13 @@ public class TravellerTypeDefinitionRepository {
      * @return The first TravellerTypeDefinition which has a matching description, or null if no matching description found
      */
     public CompletableFuture<TravellerTypeDefinition> getTravellerTypeDefinitionByDescription(String description) {
-        return supplyAsync(() -> TravellerTypeDefinition.find.query()
-                .where()
-                .ilike("description", "%" + description + "%")
-                .findOneOrEmpty()
-                .orElse(null),
-            executionContext);
+        return supplyAsync(() ->
+            ebeanServer.find(TravellerTypeDefinition.class)
+                    .where()
+                    .ilike("description", "%" + description + "%")
+                    .findOneOrEmpty()
+                    .orElse(null)
+                , executionContext);
     }
 
 }
