@@ -3,7 +3,6 @@ package repository;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.TravellerType;
-import models.TravellerType.TravellerTypeKey;
 import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
