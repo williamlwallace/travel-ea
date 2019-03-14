@@ -244,7 +244,6 @@ public class TripController extends Controller {
         System.out.println(data);
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
-        System.out.println("2");
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
