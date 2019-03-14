@@ -54,7 +54,7 @@ public class PassportRepository {
         return supplyAsync(() ->
             ebeanServer.find(Passport.class)
                     .where()
-                    .eq("uid", userID)
+                    .eq("user_id", userID)
                     .findList()
             , executionContext);
     }
