@@ -7,50 +7,55 @@
 -- Create User table
 CREATE TABLE IF NOT EXISTS User
   (
-    uid INTEGER PRIMARY KEY AUTOINCREMENT,
-    username          TEXT,
-    password          TEXT,
-    salt              TEXT
+    id               INTEGER NOT NULL AUTO_INCREMENT,
+    username          VARCHAR(64),
+    password          VARCHAR(128),
+    salt              VARCHAR(64)
   );
 
 -- Create Profile table
 CREATE TABLE IF NOT EXISTS Profile
   (
-    uid               INTEGER PRIMARY KEY,
-    firstName         TEXT,
-    middleName        TEXT,
-    lastName          TEXT,
-    dateOfBirth       DATE,
-    gender            TEXT,
-    FOREIGN KEY(uid) REFERENCES User(uid)
+    user_id           INT NOT NULL AUTO_INCREMENT,
+    first_name        VARCHAR(64),
+    middle_name       VARCHAR(64),
+    last_name         VARCHAR(64),
+    date_of_birth     DATE,
+    gender            VARCHAR(32),
+    PRIMARY KEY (user_id),
+    FOREIGN KEY (user_id) REFERENCES User(id)
   );
 
 -- Create Nationality table, which specifies nationalities for users
 CREATE TABLE IF NOT EXISTS Nationality
   (
-    uid               INTEGER,
-    countryId         INTEGER,
-    FOREIGN KEY(uid) REFERENCES User(uid),
-    FOREIGN KEY(countryId) references CountryDefinition(id),
-    PRIMARY KEY(uid, countryId)
+    guid              INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL,
+    country_id        INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (country_id) references CountryDefinition(id),
+    PRIMARY KEY (guid),
+    INDEX nationality_index (user_id, country_id)
   );
 
 -- Create Passport table, which specifies passports of users
 CREATE TABLE IF NOT EXISTS Passport
   (
-    GUID              INT NOT NULL AUTO_INCREMENT,
-    uid               INTEGER,
-    countryId         INTEGER,
-    FOREIGN KEY(uid) REFERENCES User(uid),
-    FOREIGN KEY(countryId) references CountryDefinition(id),
-    PRIMARY KEY(uid, countryId)
+    guid              INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL,
+    country_id        INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (country_id) references CountryDefinition(id),
+    PRIMARY KEY (guid),
+    INDEX passport_index (user_id, country_id)
   );
 
 -- Create the traveller type definitions table (as above, static-ish table with all possible values)
 CREATE TABLE IF NOT EXISTS TravellerTypeDefinition
   (
-    id                INTEGER PRIMARY KEY AUTOINCREMENT,
-    description       TEXT
+    id                INT NOT NULL AUTO_INCREMENT,
+    description       VARCHAR(2048) NOT NULL,
+    PRIMARY KEY (id)
   );
 
 -- Create TravellerType table, which specifies the traveller types of users
