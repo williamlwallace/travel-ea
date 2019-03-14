@@ -56,48 +56,59 @@ CREATE TABLE IF NOT EXISTS TravellerTypeDefinition
 -- Create TravellerType table, which specifies the traveller types of users
 CREATE TABLE IF NOT EXISTS TravellerType
   (
-    uid               INTEGER,
-    travellerTypeId   INTEGER,
-    FOREIGN KEY(uid) REFERENCES User(uid),
-    FOREIGN KEY(travellerTypeId) REFERENCES TravellerTypeDefinition(id),
-    PRIMARY KEY(uid, travellerTypeId)
+    guid              INT NOT NULL AUTO_INCREMENT,
+    user_id           INT,
+    travellerTypeId   INT,
+    FOREIGN KEY (user_id) REFERENCES User (user_id),
+    FOREIGN KEY (travellerTypeId) REFERENCES TravellerTypeDefinition(id),
+    PRIMARY KEY (guid),
+    INDEX travellertype_index (user_id, travellerTypeId)
   );
 
 -- Create Destination table
-CREATE TABLE IF NOT EXISTS Destination(
-id                INTEGER PRIMARY KEY AUTOINCREMENT,
-name              TEXT,
-type              TEXT, -- We may want to make a separate table which stores these
-district          TEXT,
-latitude          DOUBLE,
-longitude         DOUBLE,
-countryId         INTEGER,
-FOREIGN KEY(countryId) REFERENCES CountryDefinition(id)
-);
+CREATE TABLE IF NOT EXISTS Destination
+  (
+    id                INT AUTO_INCREMENT,
+    name              VARCHAR(128),
+    type              VARCHAR(128), -- We may want to make a separate table which stores these
+    district          VARCHAR(128),
+    latitude          DOUBLE,
+    longitude         DOUBLE,
+    countryId         INT,
+    FOREIGN KEY (countryId) REFERENCES CountryDefinition(id),
+    PRIMARY KEY (id)
+  );
 
 -- Create Trip table, which maps trips to users
-CREATE TABLE IF NOT EXISTS Trip(
-id                INTEGER PRIMARY KEY AUTOINCREMENT,
-uid               INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid)
-);
+CREATE TABLE IF NOT EXISTS Trip
+  (
+    id                INT AUTO_INCREMENT,
+    user_id           INT,
+    FOREIGN KEY (user_id) REFERENCES User(user_id),
+    PRIMARY KEY (id)
+  );
 
 -- Create TripData table, which stores the actual data (i.e destinations, times, etc.) of all trips
-CREATE TABLE IF NOT EXISTS TripData(
-tripId            INTEGER,
-position          INTEGER,
-destinationId     INTEGER,
-arrivalTime       DATETIME,
-departureTime     DATETIME,
-FOREIGN KEY(tripID) REFERENCES Trip(id),
-FOREIGN KEY(destinationId) REFERENCES Destination(id),
-PRIMARY KEY(tripId, position)
-);
+CREATE TABLE IF NOT EXISTS TripData
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    tripId            INT,
+    position          INT,
+    destinationId     INT,
+    arrivalTime       DATETIME,
+    departureTime     DATETIME,
+    FOREIGN KEY (tripID) REFERENCES Trip(id),
+    FOREIGN KEY (destinationId) REFERENCES Destination(id),
+    PRIMARY KEY (guid),
+    INDEX tripdata_index (tripId, position)
+  );
 
-CREATE TABLE IF NOT EXISTS CountryDefinition(
-id                INTEGER PRIMARY KEY,
-name              TEXT
-);
+CREATE TABLE IF NOT EXISTS CountryDefinition
+  (
+    id                INT,
+    name              VARCHAR(64),
+    PRIMARY KEY (id)
+  );
 
 -- Add sample user
 INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass', 'salt');
