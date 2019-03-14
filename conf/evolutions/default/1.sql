@@ -1,6 +1,5 @@
--- AUTHOR: Matthew Minish
--- CREATED: 23/2/2019 5.30pm
--- USAGE: To execute this file, open sqlite DB file via command line (e.g sqlite3 team302.db) then execute .read <this-filename>
+-- AUTHOR: Matthew Minish, William Wallace
+-- MODIFIED: 14/3/2019 2.00PM
 
 # --- !Ups
 
