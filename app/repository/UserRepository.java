@@ -79,7 +79,7 @@ public class UserRepository {
     public CompletableFuture<Long> updateUser(User updatedUser) {
         return supplyAsync(() -> {
             ebeanServer.update(updatedUser);
-            return updatedUser.uid;
+            return updatedUser.id;
         }, executionContext);
     }
 
@@ -91,18 +91,18 @@ public class UserRepository {
     public CompletableFuture<Long> insertUser(User newUser) {
         return supplyAsync(() -> {
             ebeanServer.insert(newUser);
-            return newUser.uid;
+            return newUser.id;
         }, executionContext);
     }
 
     /**
      * remove a user from db
-     * @param uid uid of user
+     * @param id uid of user
      * @return Ok result object in a completableFuture
      */
-    public CompletableFuture<Integer> deleteUser(Long uid) {
+    public CompletableFuture<Integer> deleteUser(Long id) {
         return supplyAsync(() ->
-            ebeanServer.delete(User.class, uid)
+            ebeanServer.delete(User.class, id)
         , executionContext);
     }
 }

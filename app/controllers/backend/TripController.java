@@ -54,14 +54,14 @@ public class TripController extends Controller {
         this.messagesApi = messagesApi;
     }
 
-    public CompletableFuture<Result> getAllUserTrips(Long uid) {
+    public CompletableFuture<Result> getAllUserTrips(Long userId) {
         ArrayList<Long> tripIds = new ArrayList<>();
 
         // Trip to get the trip with a given ID
         try {
             // Query DB for trip with id
             ArrayList<Trip> trips = new ArrayList<>();
-            for(Trip data: tripRepository.getAllUserTrips(uid).get()){
+            for(Trip data: tripRepository.getAllUserTrips(userId).get()){
                 trips.add(data);
             }
             // If trip returned is null, then trip with given ID exists, return bad request
@@ -92,7 +92,7 @@ public class TripController extends Controller {
                 // Create new JSON object to store returned data
                 ObjectNode node = Json.newObject();
                 // Put the UID that was previously found
-                node.put("uid", uid);
+                node.put("userId", userId);
                 node.put("id", tripId);
                 // Convert found trip data points to an array node
                 ArrayNode array = new ObjectMapper().valueToTree(tripDataList);
@@ -138,7 +138,7 @@ public class TripController extends Controller {
                 return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No such trip")));
             }
             // If trip was found, keep track of who owned that trip (this is not stored in tripData)
-            userId = trip.uid;
+            userId = trip.userId;
         }
         // Catch error conditions from getting result
         catch (ExecutionException ex) {
@@ -155,7 +155,7 @@ public class TripController extends Controller {
                     // Create new JSON object to store returned data
                     ObjectNode node = Json.newObject();
                     // Put the UID that was previously found
-                    node.put("uid", userId);
+                    node.put("userId", userId);
                     // Convert found trip data points to an array node
                     ArrayNode array = new ObjectMapper().valueToTree(allDestinations);
                     // Add array node to return json object
@@ -252,7 +252,7 @@ public class TripController extends Controller {
 
         // Assemble trip
         Trip trip = new Trip();
-        trip.uid = data.get("uid").asLong();
+        trip.userId = data.get("userId").asLong();
 
         // Store result of trip adding operation
         Result tripAddResult;
@@ -302,11 +302,10 @@ public class TripController extends Controller {
         for(JsonNode node : data.get("tripDataCollection")) {
             // Assemble trip data
             TripData tripData = new TripData();
-            tripData.key = new TripData.TripDataKey();
-            tripData.key.tripId = tripId;
+            tripData.tripId = tripId;
 
             // Get position and destinationId from json object, these must be present so no need for try catch
-            tripData.key.position = node.get("position").asLong();
+            tripData.position = node.get("position").asLong();
             tripData.destinationId = node.get("destinationId").asLong();
 
             // Try to get arrivalTime, but set to null if unable to deserialize

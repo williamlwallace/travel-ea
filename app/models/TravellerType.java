@@ -20,5 +20,5 @@ public class TravellerType extends Model {
     public Long userId;
 
     @Constraints.Required
-    public Long countryId;
+    public Long travellerTypeId;
 }
