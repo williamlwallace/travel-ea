@@ -39,7 +39,6 @@ public class Destination extends Model {
     public Double longitude;
 
     @Constraints.Required
-    @Column(name="countryId")
     public Long countryId;
 
     public static final Finder<Long, Destination> find = new Finder<>(Destination.class);
