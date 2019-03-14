@@ -15,7 +15,7 @@ import javax.persistence.Id;
 public class User extends Model {
 
     @Id
-    public Long uid;
+    public Long id;
 
     @Constraints.Required
     @Constraints.Email
@@ -26,6 +26,8 @@ public class User extends Model {
     public String password;
 
     public String salt;
+
+    public String authToken;
 
     public static final Finder<Long, User> find = new Finder<>(User.class);
 }

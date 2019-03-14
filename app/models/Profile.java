@@ -18,7 +18,7 @@ public class Profile extends Model {
 
     @Id
     @Constraints.Required
-    public Long uid; //Unique user id
+    public Long userId; //Unique user id
 
     @Constraints.Required
     public String firstName;
@@ -28,8 +28,7 @@ public class Profile extends Model {
 
     public String middleName;
 
-    @Constraints.Required
-    public String birthDate;
+    public String dateOfBirth;
 
     public String gender;
 
