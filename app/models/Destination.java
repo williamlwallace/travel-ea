@@ -41,5 +41,4 @@ public class Destination extends Model {
     @Constraints.Required
     public Long countryId;
 
-    public static final Finder<Long, Destination> find = new Finder<>(Destination.class);
 }
