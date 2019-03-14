@@ -4,94 +4,99 @@
 
 # --- !Ups
 
-PRAGMA foreign_keys = true;
-
 -- Create User table
-CREATE TABLE IF NOT EXISTS User(
-uid INTEGER PRIMARY KEY AUTOINCREMENT,
-username TEXT,
-password TEXT,
-salt TEXT
-);
+CREATE TABLE IF NOT EXISTS User
+  (
+    uid INTEGER PRIMARY KEY AUTOINCREMENT,
+    username          TEXT,
+    password          TEXT,
+    salt              TEXT
+  );
 
 -- Create Profile table
-CREATE TABLE IF NOT EXISTS Profile(
-uid INTEGER PRIMARY KEY,
-firstName TEXT,
-middleName TEXT,
-lastName TEXT,
-dateOfBirth DATE,
-gender TEXT,
-FOREIGN KEY(uid) REFERENCES User(uid)
-);
+CREATE TABLE IF NOT EXISTS Profile
+  (
+    uid               INTEGER PRIMARY KEY,
+    firstName         TEXT,
+    middleName        TEXT,
+    lastName          TEXT,
+    dateOfBirth       DATE,
+    gender            TEXT,
+    FOREIGN KEY(uid) REFERENCES User(uid)
+  );
 
 -- Create Nationality table, which specifies nationalities for users
-CREATE TABLE IF NOT EXISTS Nationality(
-uid INTEGER,
-countryId INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid),
-FOREIGN KEY(countryId) references CountryDefinition(id),
-PRIMARY KEY(uid, countryId)
-);
+CREATE TABLE IF NOT EXISTS Nationality
+  (
+    uid               INTEGER,
+    countryId         INTEGER,
+    FOREIGN KEY(uid) REFERENCES User(uid),
+    FOREIGN KEY(countryId) references CountryDefinition(id),
+    PRIMARY KEY(uid, countryId)
+  );
 
 -- Create Passport table, which specifies passports of users
-CREATE TABLE IF NOT EXISTS Passport(
-uid INTEGER,
-countryId INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid),
-FOREIGN KEY(countryId) references CountryDefinition(id),
-PRIMARY KEY(uid, countryId)
-);
+CREATE TABLE IF NOT EXISTS Passport
+  (
+    GUID              INT NOT NULL AUTO_INCREMENT,
+    uid               INTEGER,
+    countryId         INTEGER,
+    FOREIGN KEY(uid) REFERENCES User(uid),
+    FOREIGN KEY(countryId) references CountryDefinition(id),
+    PRIMARY KEY(uid, countryId)
+  );
 
 -- Create the traveller type definitions table (as above, static-ish table with all possible values)
-CREATE TABLE IF NOT EXISTS TravellerTypeDefinition(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-description TEXT
-);
+CREATE TABLE IF NOT EXISTS TravellerTypeDefinition
+  (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    description       TEXT
+  );
 
 -- Create TravellerType table, which specifies the traveller types of users
-CREATE TABLE IF NOT EXISTS TravellerType(
-uid INTEGER,
-travellerTypeId INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid),
-FOREIGN KEY(travellerTypeId) REFERENCES TravellerTypeDefinition(id),
-PRIMARY KEY(uid, travellerTypeId)
-);
+CREATE TABLE IF NOT EXISTS TravellerType
+  (
+    uid               INTEGER,
+    travellerTypeId   INTEGER,
+    FOREIGN KEY(uid) REFERENCES User(uid),
+    FOREIGN KEY(travellerTypeId) REFERENCES TravellerTypeDefinition(id),
+    PRIMARY KEY(uid, travellerTypeId)
+  );
 
 -- Create Destination table
 CREATE TABLE IF NOT EXISTS Destination(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-name TEXT,
-type TEXT, -- We may want to make a separate table which stores these
-district TEXT,
-latitude DOUBLE,
-longitude DOUBLE,
-countryId INTEGER,
+id                INTEGER PRIMARY KEY AUTOINCREMENT,
+name              TEXT,
+type              TEXT, -- We may want to make a separate table which stores these
+district          TEXT,
+latitude          DOUBLE,
+longitude         DOUBLE,
+countryId         INTEGER,
 FOREIGN KEY(countryId) REFERENCES CountryDefinition(id)
 );
 
 -- Create Trip table, which maps trips to users
 CREATE TABLE IF NOT EXISTS Trip(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-uid INTEGER,
+id                INTEGER PRIMARY KEY AUTOINCREMENT,
+uid               INTEGER,
 FOREIGN KEY(uid) REFERENCES User(uid)
 );
 
 -- Create TripData table, which stores the actual data (i.e destinations, times, etc.) of all trips
 CREATE TABLE IF NOT EXISTS TripData(
-tripId INTEGER,
-position INTEGER,
-destinationId INTEGER,
-arrivalTime DATETIME,
-departureTime DATETIME,
+tripId            INTEGER,
+position          INTEGER,
+destinationId     INTEGER,
+arrivalTime       DATETIME,
+departureTime     DATETIME,
 FOREIGN KEY(tripID) REFERENCES Trip(id),
 FOREIGN KEY(destinationId) REFERENCES Destination(id),
 PRIMARY KEY(tripId, position)
 );
 
 CREATE TABLE IF NOT EXISTS CountryDefinition(
-id INTEGER PRIMARY KEY,
-name TEXT
+id                INTEGER PRIMARY KEY,
+name              TEXT
 );
 
 -- Add sample user
