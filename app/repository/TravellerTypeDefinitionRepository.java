@@ -1,18 +1,24 @@
 package repository;
 
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
 import models.TravellerTypeDefinition;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 public class TravellerTypeDefinitionRepository {
 
     private final DatabaseExecutionContext executionContext;
+    private final EbeanServer ebeanServer;
 
     @Inject
-    public TravellerTypeDefinitionRepository(DatabaseExecutionContext executionContext) {
+    public TravellerTypeDefinitionRepository(DatabaseExecutionContext executionContext,
+                                             EbeanServer ebeanServer) {
         this.executionContext = executionContext;
+        this.ebeanServer = ebeanServer;
     }
 
     /**
@@ -36,6 +42,16 @@ public class TravellerTypeDefinitionRepository {
                 .findOneOrEmpty()
                 .orElse(null),
             executionContext);
+    }
+
+    /**
+     * Gets all traveller type definitions
+     */
+    public CompletableFuture<List<TravellerTypeDefinition>> getAllTravellerTypeDefinitions() {
+        return supplyAsync(() ->
+                ebeanServer.find(TravellerTypeDefinition.class)
+                        .findList(),
+                executionContext);
     }
 
 }

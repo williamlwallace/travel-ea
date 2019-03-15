@@ -7,6 +7,7 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -75,5 +76,10 @@ public class ProfileRepository {
            ebeanServer.update(profile);
            return ok();
         }, executionContext);
+    }
+
+    public CompletableFuture<List<Profile>> getAllProfiles() {
+        return supplyAsync(() -> ebeanServer.find(Profile.class).findList()
+                , executionContext);
     }
 }

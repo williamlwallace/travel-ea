@@ -13,6 +13,8 @@ POST    /api/profile                    controllers.backend.UserController.addNe
 
 GET     /api/profile/:uid               controllers.backend.UserController.getProfile(uid:Long)
 
+GET     /api/profile                    controllers.backend.UserController.getAllProfiles()
+
 POST    /api/profile/:uid               controllers.backend.UserController.updateProfile(request:Request, uid:Long)
 
 DELETE  /api/profile/:uid               controllers.backend.UserController.deleteProfile(uid:Long)
@@ -60,7 +62,7 @@ GET     /home                       controllers.ApplicationController.index(requ
 GET    /logout                      controllers.ApplicationController.logout()
 
 # People page
-GET     /people                     controllers.PeopleController.index(request: Request)
+GET     /people                     controllers.frontend.UserController.index(request: Request)
 
 # The Travelea trips page
 GET     /trips                      controllers.TripsController.index(request: Request)
