@@ -181,3 +181,8 @@ code {
 .selectpicker {
     border: 1px solid #ced4da !important;
 }
+
+.error-messages {
+    color: red !important;
+    font-size: 12px; 
+}

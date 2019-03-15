@@ -33,7 +33,7 @@ public class ApplicationController extends Controller {
         return request.session()
                 .getOptional("connected")
                 .map(user -> ok(home.render(user)))
-                .orElseGet(() -> redirect(routes.StartController.index()));
+                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
     }
 
     /**
@@ -42,7 +42,7 @@ public class ApplicationController extends Controller {
      * @return redirects user to the start page with a new session.
      */
     public Result logout() {
-        return redirect(routes.StartController.index()).withNewSession();
+        return redirect(controllers.frontend.routes.UserController.index()).withNewSession();
     }
 
 }
