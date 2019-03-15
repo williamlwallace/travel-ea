@@ -139,18 +139,6 @@ public class PeopleController extends Controller {
         );
     }
 
-    /**
-     * Displays the people page. Called with the /people URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the people page if they are,
-     * otherwise they are taken to the start page.
-     *
-     * @return displays the people or start page.
-     */
-    public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(people.render(user, accounts))) //Let them access the page. Database should access all accounts here
-                .orElseGet(() -> redirect(routes.StartController.index())); //Send them to the start page
-    }
+
 
 }

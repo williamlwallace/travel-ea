@@ -1,4 +1,4 @@
-@(user: String, people: List[models.frontend.Account])
+@(people: Seq[models.Profile], user: String)
 
 @layouts.imageHeader("People", user, "images/people-bg.jpg"){
     <head>
@@ -32,12 +32,12 @@
             @* Populate the table with a list of Accounts details *@
             @for(person <- people){
                 <tr>
-                    <td>@person.getProfile.getFirstName()</td>
-                    <td>@person.getProfile.getLastName()</td>
-                    <td>@person.getProfile.getGender()</td>
-                    <td>@person.getProfile.getAge()</td>
-                    <td>@person.getProfile.getNationalitiesString()</td>
-                    <td>@person.getProfile.getTravelerTypesString()</td>
+                    <td>@person.firstName</td>
+                    <td>@person.lastName</td>
+                    <td>@person.gender</td>
+                    <td>@person.getAge()</td>
+                    <td>""</td>
+                    <td>""</td>
                 </tr>
             }
         </tbody>
