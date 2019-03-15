@@ -326,15 +326,15 @@ public class UserController extends Controller {
 
     /**
      * Gets a profile based on the userID specified in the request
-     * @param uid The user ID to return data for
+     * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    public CompletionStage<Result> getProfile(Long uid) {
+    public CompletionStage<Result> getProfile(Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
 
         try {
-            profile = profileRepository.findID(uid).get();
+            profile = profileRepository.findID(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -363,7 +363,7 @@ public class UserController extends Controller {
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -454,7 +454,7 @@ public class UserController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    public CompletionStage<Result> updateProfile(Http.Request request, Long uid) {
+    public CompletionStage<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode json = request.body().asJson();
 
@@ -469,7 +469,7 @@ public class UserController extends Controller {
         Profile profile;
 
         try {
-            profile = profileRepository.findID(uid).get();
+            profile = profileRepository.findID(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
