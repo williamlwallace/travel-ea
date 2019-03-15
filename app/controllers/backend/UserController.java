@@ -119,8 +119,7 @@ public class UserController extends Controller {
                     .thenComposeAsync(user -> {                                 //Pass that result (a User object) into the new function using thenCompose
                         if (user != null) {
                             return null;                          //If a user is found pass null into the next function
-                        }
-                        else {
+                        } else {
                             return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
                         }
                     })
