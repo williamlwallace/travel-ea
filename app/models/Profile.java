@@ -8,6 +8,9 @@ import javax.persistence.Column;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.time.LocalDate;
+import java.time.Period;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -37,4 +40,8 @@ public class Profile extends Model {
 
     public String gender;
 
+
+    public int getAge() {
+        return Period.between(LocalDate.parse(birthDate), LocalDate.now()).getYears();
+    }
 }

@@ -1,6 +1,8 @@
 package controllers.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import models.TravellerType.TravellerTypeKey;
@@ -126,7 +128,7 @@ public class UserController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Databse Exception", "other");
+                validatorResult.map("Database Exception", "other");
                 return internalServerError(validatorResult.toJson());
             
             });
@@ -263,7 +265,7 @@ public class UserController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -283,7 +285,7 @@ public class UserController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -340,7 +342,7 @@ public class UserController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -365,7 +367,7 @@ public class UserController extends Controller {
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -421,7 +423,7 @@ public class UserController extends Controller {
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -475,7 +477,7 @@ public class UserController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -523,7 +525,7 @@ public class UserController extends Controller {
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -577,6 +579,90 @@ public class UserController extends Controller {
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted ->
             (!rowsDeleted) ? badRequest(Json.toJson("No such Profile")) : ok(Json.toJson("Profile Deleted")));
+    }
+
+    /**
+     * Gets all profiles
+     * @return A CompletableFuture of type result, which contains a json array containing all the profiles
+     */
+    public CompletableFuture<Result> getAllProfiles() {
+        ErrorResponse errorResponse = new ErrorResponse();
+        List<Profile> profiles;
+        ArrayList<Profile> profilesToSend = new ArrayList<>();
+        ArrayNode arrayToSend = new ObjectMapper().valueToTree(profilesToSend);
+
+        try {
+            profiles = profileRepository.getAllProfiles().get();
+
+            for (Profile profile : profiles) {
+                List<Nationality> nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.uid).get();
+                List<Passport> passports = passportRepository.getAllPassportsOfUser(profile.uid).get();
+                List<TravellerType> travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.uid).get();
+
+                // Creates nationality, passport and traveller type strings to send
+                String nationalityString = "";
+                String passportString = "";
+                String travellerTypeString = "";
+
+                if (nationalities != null) {
+                    for (Nationality nationality : nationalities) {
+                        CountryDefinition countryDefinition = countryDefinitionRepository.findCountryByID(nationality.countryId).get();
+
+                        if (countryDefinition != null) {
+                            nationalityString += countryDefinition.name + ",";
+                        }
+                    }
+
+                    nationalityString = nationalityString.substring(0, max(0, nationalityString.length() - 1));
+                }
+
+                if (passports != null) {
+                    for (Passport passport : passports) {
+                        CountryDefinition countryDefinition = countryDefinitionRepository.findCountryByID(passport.countryId).get();
+
+                        if (countryDefinition != null) {
+                            passportString += countryDefinition.name + ",";
+                        }
+                    }
+
+                    passportString = passportString.substring(0, max(0, passportString.length() - 1));
+                }
+
+                if (travellerTypes != null) {
+                    for (TravellerType travellerType : travellerTypes) {
+                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.key.travellerTypeId).get();
+
+                        if (travellerTypeDefinition != null) {
+                            travellerTypeString += travellerTypeDefinition.description + ",";
+                        }
+                    }
+
+                    travellerTypeString = travellerTypeString.substring(0, max(0, travellerTypeString.length() - 1));
+                }
+
+                ObjectNode profileJson = (ObjectNode)Json.toJson(profile);
+                profileJson.put("travellerType", travellerTypeString);
+                profilesToSend.add(profileJson);
+            }
+        }
+        catch (ExecutionException ex) {
+            return CompletableFuture.supplyAsync(() -> {
+                errorResponse.map("Database Exception", "other");
+                return internalServerError(errorResponse.toJson());
+
+            });
+        }
+        catch (InterruptedException ex) {
+            return CompletableFuture.supplyAsync(() -> {
+                errorResponse.map("Thread exception", "other");
+                return internalServerError(errorResponse.toJson());
+            });
+        }
+
+        ObjectNode node = Json.newObject();
+        ArrayNode arrayToSend = new ObjectMapper().valueToTree(profilesToSend);
+        node.putArray("allProfiles").addAll(arrayToSend);
+        return CompletableFuture.supplyAsync(() -> ok(node));
     }
 
     // Private Methods
