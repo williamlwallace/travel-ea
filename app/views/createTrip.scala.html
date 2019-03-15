@@ -37,6 +37,22 @@
                     <div id="menu">
                         <ul id="sortable">
                             <div id="fillTripDestinations"></div>
+                            <div>
+                                <table id="dtPeople" class="table table-hover" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th class="th-sm">Name</th>
+                                            <th class="th-sm">Type</th>
+                                            <th class="th-sm">District</th>
+                                            <th class="th-sm">Latitude</th>
+                                            <th class="th-sm">Longitude</th>
+                                            <th class="th-sm">Country</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tripDestinations">
+                                    </tbody>
+                                </table>
+                            </div>
                         @*<div class="sortable-card col-md-4">*@
                                 @*<!-- Card -->*@
                             @*<div class="card mb-4">*@
@@ -293,7 +309,7 @@
                                                 <td>@d.latitude</td>
                                                 <td>@d.longitude</td>
                                                 <td>@d.countryId</td>
-                                                <td><button class="btn btn-popup" onclick='addDestinationToTrip(@d.id)'>Add</button></td>
+                                                <td><button class="btn btn-popup" onclick='red("@controllers.routes.ApplicationController.index()")'>Add</button></td>
                                             </tr>
                                         }
                                         </tbody>
