@@ -79,7 +79,7 @@ public class UserControllerTest extends WithApplication {
         node.put("middleName", "Nobody");
         node.put("lastName", "Smith");
         node.put("gender", "Male");
-        node.put("birthDate", "1999-01-01");
+        node.put("dateOfBirth", "1999-01-01");
         node.put("nationalities", "France");
         node.put("passports", "France");
         node.put("travellerTypes", "backpacker");
