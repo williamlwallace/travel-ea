@@ -11,21 +11,47 @@ $('#password, #confirm_password').on('keyup', function () {
     }
 });
 
-/*
- * Displays the form on the start page that had the error.
- */
-$(document).ready(function() {
-    if ($('#flashMessage1').hasClass("loginError")) {
-        $("#loginBtn").click();
-    } if ($('#flashMessage2').hasClass("signUpError")) {
-        $("#signUpBtn").click();
-    }
-});
+function login(url, redirect) {
+    const formData = new FormData(document.getElementById("loginForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]]: pair[1],
+    }), {});
+    post(url,data)
+    .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+        .then(json => {
+            if (response.status != 200) {
+                showErrors(json, "loginForm");
+            } else {
+                window.location.href = redirect;
+            }
+        });
+    });
+}
 
-/*
- * Hides error message if cancel is pressed on start page.
+/**
+ * The JavaScript function to process a client signing up
+ * @param url The route/url to send the request to
+ * @param redirect The page to redirect to if no errors are found
  */
-$('#cancelBtn1, #cancelBtn2').click(function () {
-    $("#flashMessage1").hide();
-    $("#flashMessage2").hide();
-});
+function signup(url, redirect) {
+    console.log("yeeeT");
+    const formData = new FormData(document.getElementById("signupForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]] : pair[1],
+    }), {});
+    post(url, data)
+        .then(response => {
+            response.json()
+            .then(json => {
+                if (response.status != 200) {
+                    showErrors(json, "signupForm");
+                } else {
+                    window.location.href = redirect;
+                }
+            });
+    });
+}

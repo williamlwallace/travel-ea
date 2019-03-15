@@ -68,7 +68,7 @@ public class EditProfileController extends Controller {
         return request.session()
                 .getOptional("connected")
                 .map(user -> ok(views.html.editProfile.render(profile, form, user, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(routes.StartController.index()));
+                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
     }
 
     public Result updateProfile(Http.Request request) {
