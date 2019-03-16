@@ -42,3 +42,4 @@ DELETE FROM Trip;
 DELETE FROM CountryDefinition;
 DELETE FROM Profile;
 DELETE FROM User;
+
