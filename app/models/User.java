@@ -7,11 +7,13 @@ import play.data.validation.Constraints;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * User entity managed by Ebean
  */
-@Entity 
+@Entity
+@Table(name="User")
 public class User extends Model {
 
     @Id
