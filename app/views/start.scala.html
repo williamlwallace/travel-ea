@@ -14,7 +14,7 @@
  <body class="text-center bg">
     <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column parent">
-            <main role="main" class="child cover">
+            <main role="main" class="child cover" id="main">
                 <img src="@routes.Assets.at("images/travelEA.png")" style="width: 500px">
                 <p class="lead txt-shadow">Enjoy the journey</p>
                 @* Sign Up Form *@
@@ -25,17 +25,24 @@
                             <p>Please fill in this form to create an account.</p>
                             <div id="otherError" class="error"></div>
                             <hr>
-                            <input type="email" placeholder="Enter Email" name="username">
-                            <label id="usernameError" class="error-messages"></label>
-                            <input type="password" id="password" placeholder="Enter Password" name="password">
-                            <label id="passwordError" class="error-messages"></label>
-                            <input type="password" id="confirm_password" placeholder="Repeat Password"
-                                name="password-repeat" required>
-                            <span id='message'></span>
+                            <label id="otherError" class="error-messages"></label>
+                            <div class = field-container>
+                                <input type="email" placeholder="Enter Email" name="username">
+                                <label id="usernameError" class="error-messages"></label>
+                            </div>
+                            <div class = field-container>
+                                <input type="password" id="password" placeholder="Enter Password" name="password">
+                                <label id="passwordError" class="error-messages"></label>
+                            </div>
+                            <div class = field-container>
+                                <input type="password" id="confirm_password" placeholder="Repeat Password"
+                                    name="password-repeat" required>
+                                <label id='message' class="error-messages"></label>
+                            </div>
                         </form>
                     </div>
                     <div class="clearfix" style="padding-top: 10px">
-                        <button type="button" onclick="document.getElementById('LogInSignUpBtns').style.display='block'"
+                        <button type="button" onclick="cancel(); document.getElementById('LogInSignUpBtns').style.display='block'"
                             class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseSignUp" role="button"
                             aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
                         <button class="btn btn-lg btn-secondary"
@@ -54,14 +61,18 @@
                             <p>Enter your login details below.</p>
                             <hr>
                             <label id="otherError" class="error-messages"></label>
-                            <input type="email" placeholder="Enter Email" name="username">
-                            <label id="usernameError" class="error-messages"></label>
-                            <input type="password" placeholder="Enter Password" name="password">
-                            <label id="passwordError" class="error-messages"></label>
+                            <div class = field-container>
+                                <input type="email" placeholder="Enter Email" name="username">
+                                <label id="usernameError" class="error-messages"></label>
+                            </div>
+                            <div class = field-container>
+                                <input type="password" placeholder="Enter Password" name="password">
+                                <label id="passwordError" class="error-messages"></label>
+                            </div>
                         </form>
                     </div>
                     <div class="clearfix" style="padding-top: 10px">
-                        <button type="button" onclick="document.getElementById('LogInSignUpBtns').style.display='block'"
+                        <button type="button" onclick="cancel(); document.getElementById('LogInSignUpBtns').style.display='block'"
                             class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseLogIn" role="button"
                             aria-expanded="false" aria-controls="collapseLogIn" id="cancelBtn2">Cancel</button>
                         <button
