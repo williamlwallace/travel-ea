@@ -47,7 +47,6 @@ DELETE  /api/trip/:id                   controllers.backend.TripController.delet
 GET     /                           controllers.frontend.UserController.index(request:Request)
 
 # signing up
-POST    /signUp                     controllers.StartController.signUp(request:Request)
 GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
 
 # Logging in
