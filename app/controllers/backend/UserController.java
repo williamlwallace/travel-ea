@@ -18,9 +18,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 
 import static java.lang.Math.max;
 
@@ -98,81 +96,42 @@ public class UserController extends Controller {
         //Get the data from the request as a JSON object
         JsonNode data = request.body().asJson();
 
+
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new UserValidator(data).login();
 
         //Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        }
-
-        // Convert body to user object, and set uid to null to force new id to be generated
-        User user = new User();
-        user.username = data.get("username").asText();
-        user.password = data.get("password").asText();
-        user.id = null;
-
-        // Create salt to user, and hash password before storing in database
-        user.salt = CryptoManager.generateNewSalt();
-        user.password = CryptoManager.hashPassword(user.password, Base64.getDecoder().decode(user.salt));
-
-        User foundUser;
-
-        // Check if username taken
-        try {
-            foundUser = userRepository.findUserName(user.username).get();
-        }
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Database Exception", "other");
-                return internalServerError(validatorResult.toJson());
-            
-            });
-        }
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Thread exception", "other");
-                return internalServerError(validatorResult.toJson());
-            });
-        }
-
-        // If username was already in use
-        if (foundUser != null) {
-            CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Username already in use", "other");
-                return badRequest(validatorResult.toJson());
-            });
-        }
-        // Otherwise if username is free, add to database and return ok
-        return userRepository.insertUser(user).thenApplyAsync(userId ->
-                (userId != null) ? ok(Long.toString(userId)) : internalServerError());
-        //else {
+        } else {
             //Else, no errors found, continue with adding to the database
             //Create a new user from the request data, basing off the User class
-            //User newUser = Json.fromJson(data, User.class);
+            User newUser = Json.fromJson(data, User.class);
             //Generate a new salt for the new user
-            //newUser.salt = CryptoManager.generateNewSalt();
+            newUser.salt = CryptoManager.generateNewSalt();
             //Generate the salted password
-            //newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
+            newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
 
             //This block ensures that the username (email) is not taken already, and returns a CompletableFuture<Result>
-            //The chained thenComposes results in the last function's return value being the overall return value
-            //return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
-            //        .thenComposeAsync(user -> CompletableFuture.supplyAsync(() -> {  //Pass that result (a User object) into the new function using thenCompose
-            //            if (user != null) return null;                          //If a user is found pass null into the next function using thenCompose
-            //            else return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function using thenCompose
-            //        }))
-            //        .thenComposeAsync(uid -> CompletableFuture.supplyAsync(() -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
-            //            if (uid == null) {
-            //                //Create the error to be sent to client
-            //               validatorResult.map("Email already in use", "other");
-            //              return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
-            //            }
-            //            else return ok(Json.toJson(uid));                                           //If the uid is not null, return an ok message with the uid contained within
-            //          })).thenApplyAsync(result -> result);
-        //}
+            return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
+                    .thenComposeAsync(user -> {                                 //Pass that result (a User object) into the new function using thenCompose
+                        if (user != null) {
+                            return null;                          //If a user is found pass null into the next function
+                        } else {
+                            return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
+                        }
+                    })
+                    .thenApplyAsync(uid -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                        if (uid == null) {
+                            //Create the error to be sent to client
+                            validatorResult.map("Email already in use", "other");
+                            return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
+                        } else {
+                            return ok(Json.toJson(uid));                 //If the uid is not null, return an ok message with the uid contained within
+                        }
+                    });
+        }
     }
-
     /**
      * Handles login attempts. A username and password must be provided as a JSON object,
      * by default this JSON object deserializes to a User object which is then compared against
