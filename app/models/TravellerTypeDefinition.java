@@ -12,6 +12,7 @@ import javax.persistence.Table;
  * A class that represents a traveller type and holds information received from database
  */
 @Entity
+@Table(name="TravellerTypeDefinition")
 public class TravellerTypeDefinition extends Model {
 
     @Id

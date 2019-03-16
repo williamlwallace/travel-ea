@@ -10,8 +10,8 @@ lazy val myProject = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies += guice
 libraryDependencies += javaJdbc
-libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += javaJdbc % Test
+libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
 libraryDependencies ++= Seq(ws)
