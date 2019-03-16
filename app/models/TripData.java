@@ -14,6 +14,8 @@ import java.util.Objects;
 /**
  * A class that models the tripData database table
  */
+@Table(name="TripData")
+@Entity
 public class TripData extends Model {
 
     @Id
@@ -33,6 +35,4 @@ public class TripData extends Model {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     public Timestamp departureTime;
-
-    public static final Finder<Long, TripData> find = new Finder<>(TripData.class);
 }

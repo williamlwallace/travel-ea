@@ -6,11 +6,13 @@ import javax.persistence.Column;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * A class that represents a user's nationalities
  */
 @Entity
+@Table(name="Nationality")
 public class Nationality extends Model {
 
     @Id

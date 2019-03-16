@@ -5,11 +5,13 @@ import play.data.validation.Constraints;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * A class that models the trip database table
  */
 @Entity
+@Table(name="Trip")
 public class Trip extends Model {
 
     @Id
