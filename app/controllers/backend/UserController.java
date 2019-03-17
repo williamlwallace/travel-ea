@@ -3,8 +3,6 @@ package controllers.backend;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
-import models.TravellerType.TravellerTypeKey;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
@@ -20,9 +18,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.*;
 
 import static java.lang.Math.max;
 
@@ -79,12 +75,12 @@ public class UserController extends Controller {
     /**
      * Delete a user with given uid
      *
-     * @param uid ID of user to delete
+     * @param userId ID of user to delete
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
-    public CompletionStage<Result> deleteUser(Long uid) {
-        return userRepository.deleteUser(uid).thenApplyAsync(rowsDeleted ->
-                        (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + uid) : badRequest("No user with such uid found"),
+    public CompletionStage<Result> deleteUser(Long userId) {
+        return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted ->
+                        (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found"),
                 httpExecutionContext.current());
     }
 
@@ -100,81 +96,42 @@ public class UserController extends Controller {
         //Get the data from the request as a JSON object
         JsonNode data = request.body().asJson();
 
+
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new UserValidator(data).login();
 
         //Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        }
-
-        // Convert body to user object, and set uid to null to force new id to be generated
-        User user = new User();
-        user.username = data.get("username").asText();
-        user.password = data.get("password").asText();
-        user.uid = null;
-
-        // Create salt to user, and hash password before storing in database
-        user.salt = CryptoManager.generateNewSalt();
-        user.password = CryptoManager.hashPassword(user.password, Base64.getDecoder().decode(user.salt));
-
-        User foundUser;
-
-        // Check if username taken
-        try {
-            foundUser = userRepository.findUserName(user.username).get();
-        }
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Databse Exception", "other");
-                return internalServerError(validatorResult.toJson());
-            
-            });
-        }
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Thread exception", "other");
-                return internalServerError(validatorResult.toJson());
-            });
-        }
-
-        // If username was already in use
-        if (foundUser != null) {
-            CompletableFuture.supplyAsync(() -> {
-                validatorResult.map("Username already in use", "other");
-                return badRequest(validatorResult.toJson());
-            });
-        }
-        // Otherwise if username is free, add to database and return ok
-        return userRepository.insertUser(user).thenApplyAsync(uid ->
-                (uid != null) ? ok(Long.toString(uid)) : internalServerError());
-        //else {
+        } else {
             //Else, no errors found, continue with adding to the database
             //Create a new user from the request data, basing off the User class
-            //User newUser = Json.fromJson(data, User.class);
+            User newUser = Json.fromJson(data, User.class);
             //Generate a new salt for the new user
-            //newUser.salt = CryptoManager.generateNewSalt();
+            newUser.salt = CryptoManager.generateNewSalt();
             //Generate the salted password
-            //newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
+            newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
 
             //This block ensures that the username (email) is not taken already, and returns a CompletableFuture<Result>
-            //The chained thenComposes results in the last function's return value being the overall return value
-            //return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
-            //        .thenComposeAsync(user -> CompletableFuture.supplyAsync(() -> {  //Pass that result (a User object) into the new function using thenCompose
-            //            if (user != null) return null;                          //If a user is found pass null into the next function using thenCompose
-            //            else return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function using thenCompose
-            //        }))
-            //        .thenComposeAsync(uid -> CompletableFuture.supplyAsync(() -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
-            //            if (uid == null) {
-            //                //Create the error to be sent to client
-            //               validatorResult.map("Email already in use", "other");
-            //              return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
-            //            }
-            //            else return ok(Json.toJson(uid));                                           //If the uid is not null, return an ok message with the uid contained within
-            //          })).thenApplyAsync(result -> result);
-        //}
+            return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
+                    .thenComposeAsync(user -> {                                 //Pass that result (a User object) into the new function using thenCompose
+                        if (user != null) {
+                            return null;                          //If a user is found pass null into the next function
+                        } else {
+                            return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
+                        }
+                    })
+                    .thenApplyAsync(uid -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                        if (uid == null) {
+                            //Create the error to be sent to client
+                            validatorResult.map("Email already in use", "other");
+                            return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
+                        } else {
+                            return ok(Json.toJson(uid));                 //If the uid is not null, return an ok message with the uid contained within
+                        }
+                    });
+        }
     }
-
     /**
      * Handles login attempts. A username and password must be provided as a JSON object,
      * by default this JSON object deserializes to a User object which is then compared against
@@ -208,7 +165,7 @@ public class UserController extends Controller {
                    // Redact password specific fields and return json user object
                    foundUser.password = null;
                    foundUser.salt = null;
-                   return ok(Json.toJson(foundUser.uid));
+                   return ok(Json.toJson(foundUser.id));
                }
                // If password was incorrect, return bad request
                else {
@@ -239,12 +196,12 @@ public class UserController extends Controller {
 
         // Converts json to Profile object, sets uid to link profile and user
         Profile profile = new Profile();
-        profile.uid = json.get("uid").asLong();
+        profile.userId = json.get("userId").asLong();
         profile.firstName = json.get("firstName").asText();
         profile.lastName = json.get("lastName").asText();
         profile.middleName = json.get("middleName").asText();
         profile.gender = json.get("gender").asText();
-        profile.birthDate = json.get("birthDate").asText();
+        profile.dateOfBirth = json.get("dateOfBirth").asText();
 
         // Converts users nationalities, passports and traveller types to arrays of strings
         String[] nationalityStrings = json.get("nationalities").asText().split(",");
@@ -257,13 +214,13 @@ public class UserController extends Controller {
         List<TravellerType> travellerTypes;
 
         try {
-            nationalities = getValidNationalities(nationalityStrings, profile.uid);
-            passports = getValidPassports(passportStrings, profile.uid);
-            travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.uid);
+            nationalities = getValidNationalities(nationalityStrings, profile.userId);
+            passports = getValidPassports(passportStrings, profile.userId);
+            travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -279,7 +236,7 @@ public class UserController extends Controller {
 
         // Check if profile already exists
         try {
-            foundProfile = profileRepository.findID(profile.uid).get();
+            foundProfile = profileRepository.findID(profile.userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -328,15 +285,15 @@ public class UserController extends Controller {
 
     /**
      * Gets a profile based on the userID specified in the request
-     * @param uid The user ID to return data for
+     * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    public CompletionStage<Result> getProfile(Long uid) {
+    public CompletionStage<Result> getProfile(Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
 
         try {
-            profile = profileRepository.findID(uid).get();
+            profile = profileRepository.findID(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -359,13 +316,13 @@ public class UserController extends Controller {
             List<TravellerType> travellerTypes;
 
             try {
-                nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.uid).get();
-                passports = passportRepository.getAllPassportsOfUser(profile.uid).get();
-                travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.uid).get();
+                nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
+                passports = passportRepository.getAllPassportsOfUser(profile.userId).get();
+                travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -409,7 +366,7 @@ public class UserController extends Controller {
 
                 if (travellerTypes != null) {
                     for (TravellerType travellerType : travellerTypes) {
-                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.key.travellerTypeId).get();
+                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.travellerTypeId).get();
 
                         if (travellerTypeDefinition != null) {
                             travellerTypeString += travellerTypeDefinition.description + ",";
@@ -421,7 +378,7 @@ public class UserController extends Controller {
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -456,7 +413,7 @@ public class UserController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    public CompletionStage<Result> updateProfile(Http.Request request, Long uid) {
+    public CompletionStage<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode json = request.body().asJson();
 
@@ -471,7 +428,7 @@ public class UserController extends Controller {
         Profile profile;
 
         try {
-            profile = profileRepository.findID(uid).get();
+            profile = profileRepository.findID(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -493,7 +450,7 @@ public class UserController extends Controller {
             profile.lastName = json.get("lastName").asText();
             profile.middleName = json.get("middleName").asText();
             profile.gender = json.get("gender").asText();
-            profile.birthDate = json.get("birthDate").asText();
+            profile.dateOfBirth = json.get("dateOfBirth").asText();
 
             // Converts users nationalities, passports and traveller types to arrays of strings
             String[] nationalityStrings = json.get("nationalities").asText().split(",");
@@ -512,18 +469,18 @@ public class UserController extends Controller {
 
             try {
                 // Gets objects to add
-                nationalities = getValidNationalities(nationalityStrings, profile.uid);
-                passports = getValidPassports(passportStrings, profile.uid);
-                travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.uid);
+                nationalities = getValidNationalities(nationalityStrings, profile.userId);
+                passports = getValidPassports(passportStrings, profile.userId);
+                travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
 
                 // Gets objects to delete
-                nationalitiesToDelete = nationalityRepository.getAllNationalitiesOfUser(profile.uid).get();
-                passportsToDelete = passportRepository.getAllPassportsOfUser(profile.uid).get();
-                travellerTypesToDelete = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.uid).get();
+                nationalitiesToDelete = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
+                passportsToDelete = passportRepository.getAllPassportsOfUser(profile.userId).get();
+                travellerTypesToDelete = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Databse Exception", "other");
+                    errorResponse.map("Database Exception", "other");
                     return internalServerError(errorResponse.toJson());
                 
                 });
@@ -568,7 +525,7 @@ public class UserController extends Controller {
         }
         else {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Culd not find profile to update", "other");
+                errorResponse.map("Could not find profile to update", "other");
                  return badRequest(errorResponse.toJson());
             });
         }
@@ -608,7 +565,7 @@ public class UserController extends Controller {
             if (foundCountry != null) {
                 // Creates found nationality object and stores in list
                 Nationality nationality = new Nationality();
-                nationality.uid = userID;
+                nationality.userId = userID;
                 nationality.countryId = foundCountry.id;
 
                 nationalities.add(nationality);
@@ -636,14 +593,14 @@ public class UserController extends Controller {
             try {
                 foundCountry = countryDefinitionRepository.findCountryByExactName(passportString).get();
             }
-            catch (ExecutionException | InterruptedException ex) {;
+            catch (ExecutionException | InterruptedException ex) {
                 throw ex;
             }
 
             if (foundCountry != null) {
                 // Creates found passport object and stores in list
                 Passport passport = new Passport();
-                passport.uid = userID;
+                passport.userId = userID;
                 passport.countryId = foundCountry.id;
 
                 passports.add(passport);
@@ -678,7 +635,8 @@ public class UserController extends Controller {
             if (foundTravellerType != null) {
                 // Creates found travellerType object and stores in list
                 TravellerType travellerType = new TravellerType();
-                travellerType.key = new TravellerTypeKey(userID, foundTravellerType.id);
+                travellerType.userId = userID;
+                travellerType.travellerTypeId = foundTravellerType.id;
                 travellerTypes.add(travellerType);
             }
         }
