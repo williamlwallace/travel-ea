@@ -239,6 +239,7 @@ public class UserController extends Controller {
             return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
         }
 
+        System.out.println(json);
         // Converts json to Profile object, sets uid to link profile and user
         Profile profile = new Profile();
         profile.uid = json.get("uid").asLong();
@@ -570,7 +571,7 @@ public class UserController extends Controller {
         }
         else {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Culd not find profile to update", "other");
+                errorResponse.map("Could not find profile to update", "other");
                  return badRequest(errorResponse.toJson());
             });
         }
@@ -588,13 +589,15 @@ public class UserController extends Controller {
     public CompletableFuture<Result> getAllProfiles() {
         ErrorResponse errorResponse = new ErrorResponse();
         List<Profile> profiles;
-        ArrayList<Profile> profilesToSend = new ArrayList<>();
-        ArrayNode arrayToSend = new ObjectMapper().valueToTree(profilesToSend);
+        ArrayList<ObjectNode> profilesToSend = new ArrayList<>();
 
         try {
             profiles = profileRepository.getAllProfiles().get();
 
             for (Profile profile : profiles) {
+                JsonNode profileJson = Json.toJson(profile);
+                ObjectNode customProfileJson = (ObjectNode)profileJson;
+
                 List<Nationality> nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.uid).get();
                 List<Passport> passports = passportRepository.getAllPassportsOfUser(profile.uid).get();
                 List<TravellerType> travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.uid).get();
@@ -640,9 +643,11 @@ public class UserController extends Controller {
                     travellerTypeString = travellerTypeString.substring(0, max(0, travellerTypeString.length() - 1));
                 }
 
-                ObjectNode profileJson = (ObjectNode)Json.toJson(profile);
-                profileJson.put("travellerType", travellerTypeString);
-                profilesToSend.add(profileJson);
+                customProfileJson.put("nationalities", nationalityString);
+                customProfileJson.put("passports", passportString);
+                customProfileJson.put("travellerTypes", travellerTypeString);
+
+                profilesToSend.add(customProfileJson);
             }
         }
         catch (ExecutionException ex) {
@@ -662,7 +667,7 @@ public class UserController extends Controller {
         ObjectNode node = Json.newObject();
         ArrayNode arrayToSend = new ObjectMapper().valueToTree(profilesToSend);
         node.putArray("allProfiles").addAll(arrayToSend);
-        return CompletableFuture.supplyAsync(() -> ok(node));
+        return CompletableFuture.supplyAsync(() -> ok(node.get("allProfiles")));
     }
 
     // Private Methods

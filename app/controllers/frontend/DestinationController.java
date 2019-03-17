@@ -44,6 +44,7 @@ public class DestinationController extends Controller {
         return request.session().getOptional("connected").map(user -> {
             return this.getDestinations().thenApplyAsync(
                     destList -> {
+                        System.out.println("List: " + destList);
                         return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user)):internalServerError();
                     },
                     httpExecutionContext.current());
@@ -67,6 +68,7 @@ public class DestinationController extends Controller {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/destination").get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
+            System.out.println("res destination: " + json);
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                         new TypeReference<List<Destination>>() {
