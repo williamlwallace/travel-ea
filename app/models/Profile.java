@@ -1,17 +1,12 @@
 package models;
 
-import io.ebean.Finder;
 import io.ebean.Model;
 import play.data.validation.Constraints;
-import play.data.format.*;
 import javax.persistence.Column;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.time.LocalDate;
-import java.time.Period;
-import java.util.ArrayList;
-import java.util.Date;
+
 
 /**
  * A class that represents a profile and hold information that is received from the database
@@ -40,8 +35,4 @@ public class Profile extends Model {
 
     public String gender;
 
-
-    public int getAge() {
-        return Period.between(LocalDate.parse(birthDate), LocalDate.now()).getYears();
-    }
 }

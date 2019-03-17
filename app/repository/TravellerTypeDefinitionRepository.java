@@ -3,6 +3,7 @@ package repository;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.TravellerTypeDefinition;
+import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -15,10 +16,9 @@ public class TravellerTypeDefinitionRepository {
     private final EbeanServer ebeanServer;
 
     @Inject
-    public TravellerTypeDefinitionRepository(DatabaseExecutionContext executionContext,
-                                             EbeanServer ebeanServer) {
+    public TravellerTypeDefinitionRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.executionContext = executionContext;
-        this.ebeanServer = ebeanServer;
+        this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
     }
 
     /**
