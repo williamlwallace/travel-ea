@@ -7,7 +7,7 @@ import play.data.validation.Constraints;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Entity;
-import javax.persistence.Table;
+
 
 /**
  * This class models the destination table in the database, with all requirements met.
