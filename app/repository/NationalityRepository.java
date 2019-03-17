@@ -54,7 +54,7 @@ public class NationalityRepository {
         return supplyAsync(() ->
             ebeanServer.find(Nationality.class)
                 .where()
-                .eq("uid", userID)
+                .eq("user_id", userID)
                 .findList()
         , executionContext);
     }

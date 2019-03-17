@@ -53,7 +53,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create new json object node
         ObjectNode node = Json.newObject();
         node.put("name", "Test destination");
-        node.put("type", "Monument");
+        node.put("_type", "Monument");
         node.put("district", "Canterbury");
         node.put("latitude", 10.0);
         node.put("longitude", 20.0);
