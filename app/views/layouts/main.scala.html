@@ -1,4 +1,5 @@
-
+@import play.mvc.Http.Request
+@import helper._
 @(title: String, user: String, scripts: Html = Html(""))(content: Html)
 
 @* Shows the current tab as active. Thanks to user2518430 of stackoverflow *@
@@ -52,7 +53,7 @@
                         @user
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="@routes.EditProfileController.index()">Profile</a>
+                            <a class="dropdown-item" href="/editProfile">Profile</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="@routes.ApplicationController.logout()">Logout</a>
                         </div>

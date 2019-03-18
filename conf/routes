@@ -47,8 +47,8 @@ DELETE  /api/trip/:id                   controllers.backend.TripController.delet
 GET     /                           controllers.frontend.UserController.index(request:Request)
 
 # signing up
-POST    /signUp                     controllers.StartController.signUp(request:Request)
-GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
+POST    /signUp                     controllers.frontend.ProfileController.index(request:Request)
+GET     /signUp                     controllers.frontend.ProfileController.createProfile(request: Request)
 
 # Logging in
 GET    /login                      controllers.frontend.UserController.login(request: Request)
@@ -70,16 +70,17 @@ GET     /trips/create               controllers.createTripController.index(reque
 # POST    /trips                      controllers.createTripController.save
 
 # The Travelea profile page
-GET     /profile                    controllers.ProfileController.index(request: Request)
-POST    /profile                    controllers.ProfileController.createProfile(request: Request)
+GET     /profile                    controllers.frontend.ProfileController.index(request: Request)
+POST    /profile                    controllers.frontend.ProfileController.createProfile(request: Request)
 
 # The TravelEA destinations page
 GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
 POST    /destinations               controllers.frontend.DestinationController.createDestination(request: Request)
 DELETE  /destinations               controllers.frontend.DestinationController.deleteDestination(request: Request)
 
-GET    /editProfile                 controllers.EditProfileController.index(request: Request)
-POST   /editProfile                 controllers.EditProfileController.updateProfile(request: Request)
+# Edit profile page
+GET    /editProfile                 controllers.frontend.UserController.index(request: Request)
+#POST   /editProfile                 controllers.frontend.UserController.updateProfile(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
