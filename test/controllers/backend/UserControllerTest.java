@@ -74,12 +74,12 @@ public class UserControllerTest extends WithApplication {
     public void createAndDeleteProfile() throws IOException {
         // Create new json object node
         ObjectNode node = Json.newObject();
-        node.put("uid", "2");
+        node.put("userId", "2");
         node.put("firstName", "John");
         node.put("middleName", "Nobody");
         node.put("lastName", "Smith");
         node.put("gender", "Male");
-        node.put("birthDate", "1999-01-01");
+        node.put("dateOfBirth", "1999-01-01");
         node.put("nationalities", "France");
         node.put("passports", "France");
         node.put("travellerTypes", "backpacker");

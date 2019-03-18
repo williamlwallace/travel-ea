@@ -45,7 +45,7 @@ public class TripControllerTest extends WithApplication {
     public void createAndDeleteTest() throws IOException {
         // Create json object to store trip to add
         ObjectNode node = Json.newObject();
-        node.put("uid", 0);
+        node.put("userId", 0);
 
         // Add sample trip data
         TripData data1 = new TripData();
