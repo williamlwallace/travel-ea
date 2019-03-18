@@ -1,33 +1,38 @@
 package controllers.frontend;
 
-import models.User;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
+import models.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.mvc.*;
-import play.libs.ws.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import play.libs.concurrent.HttpExecutionContext;
+import play.libs.ws.WSClient;
+import play.mvc.*;
 
 import views.html.*;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.concurrent.CompletableFuture;
+
+import static play.libs.Scala.asScala;
 
 /**
  * This controller contains actions to handle HTTP requests on the start page.
  */
+@Singleton
 public class UserController extends Controller {
-    private final Logger logger = LoggerFactory.getLogger(getClass());
+    private WSClient ws;
+    private HttpExecutionContext httpExecutionContext;
+
 
     /**
      * Used to initialise the account form. messagesApi and also creates a list of example
      * account data to use before a database is established.
      */
     @Inject
-    public void StartController() {}
+    public void StartController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+        this.ws = ws;
+        this.httpExecutionContext = httpExecutionContext;
+    }
 
     /**
      * Displays the start page. Called with the / URL and uses a GET request.
@@ -58,4 +63,17 @@ public class UserController extends Controller {
     public Result login(Http.Request request) {
         return redirect(controllers.routes.ApplicationController.index()).addingToSession(request, "connected", "dave@gmail.com");
     }
+
+    public Result signUp(Http.Request request) {
+        return redirect(controllers.frontend.routes.ProfileController.index()).addingToSession(request, "connected", "dave@gmail.com");
+    }
+//
+//    public Result updateProfile(Http.Request request) {
+//        this.profile = new Profile();
+//
+//        return request.session()
+//                .getOptional("connected")
+//                .map(user -> ok(views.html.editProfile.render(profile, user)))
+//                .orElseGet(() -> redirect(controllers.routes.ApplicationController.index()).addingToSession(request, "connected", "dave@gmail.com"));
+//    }
 }
