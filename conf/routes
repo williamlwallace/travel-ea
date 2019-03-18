@@ -11,13 +11,13 @@ POST    /api/login                      controllers.backend.UserController.login
 
 POST    /api/profile                    controllers.backend.UserController.addNewProfile(request:Request)
 
-GET     /api/profile/:uid               controllers.backend.UserController.getProfile(uid:Long)
+GET     /api/profile/:userId               controllers.backend.UserController.getProfile(userId:Long)
 
-POST    /api/profile/:uid               controllers.backend.UserController.updateProfile(request:Request, uid:Long)
+POST    /api/profile/:userId               controllers.backend.UserController.updateProfile(request:Request, userId:Long)
 
-DELETE  /api/profile/:uid               controllers.backend.UserController.deleteProfile(uid:Long)
+DELETE  /api/profile/:userId               controllers.backend.UserController.deleteProfile(userId:Long)
 
-DELETE  /api/user/:uid                  controllers.backend.UserController.deleteUser(uid:Long)
+DELETE  /api/user/:userId                  controllers.backend.UserController.deleteUser(userId:Long)
 
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
 
@@ -38,7 +38,7 @@ PUT     /api/trip                       controllers.backend.TripController.updat
 
 GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
-GET     /api/trip/getAll/:uid           controllers.backend.TripController.getAllUserTrips(uid:Long)
+GET     /api/trip/getAll/:userId           controllers.backend.TripController.getAllUserTrips(userId:Long)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
@@ -47,7 +47,6 @@ DELETE  /api/trip/:id                   controllers.backend.TripController.delet
 GET     /                           controllers.frontend.UserController.index(request:Request)
 
 # signing up
-POST    /signUp                     controllers.frontend.ProfileController.index(request:Request)
 GET     /signUp                     controllers.frontend.ProfileController.createProfile(request: Request)
 
 # Logging in
