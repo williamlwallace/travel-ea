@@ -20,7 +20,9 @@ function showErrors(json, parentElement="main") {
         elements[i].innerHTML = "";
         for (const key of Object.keys(json)) {
             if (elements[i].id == (key+"Error")) {
-                elements[i].innerHTML = json[key];
+                const data = json[key]
+                if (data.startsWith("_")) elements[i].innerHTML = data.slice(1);
+                else elements[i].innerHTML = data;
                 break;
             }
         }
