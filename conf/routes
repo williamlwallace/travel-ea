@@ -9,13 +9,13 @@ POST    /api/user                       controllers.backend.UserController.addNe
 + nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
 
-POST    /api/profile                    controllers.backend.UserController.addNewProfile(request:Request)
+POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET     /api/profile/:userId               controllers.backend.UserController.getProfile(userId:Long)
+GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
 
-POST    /api/profile/:userId               controllers.backend.UserController.updateProfile(request:Request, userId:Long)
+POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
 
-DELETE  /api/profile/:userId               controllers.backend.UserController.deleteProfile(userId:Long)
+DELETE  /api/profile/:userId               controllers.backend.ProfileController.deleteProfile(userId:Long)
 
 DELETE  /api/user/:userId                  controllers.backend.UserController.deleteUser(userId:Long)
 
