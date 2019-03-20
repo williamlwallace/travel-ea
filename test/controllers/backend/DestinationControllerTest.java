@@ -89,10 +89,10 @@ public class DestinationControllerTest extends WithApplication {
         assertEquals("Eiffel Tower", dest.name);
         assertEquals("Monument", dest._type);
         assertEquals("Paris", dest.district);
-        assertEquals(new Double(10.0), dest.latitude);
-        assertEquals(new Double(20.0), dest.longitude);
-        assertEquals(new Long(1), dest.countryId);
-        assertEquals(new Long(1), dest.id);
+        assertEquals(Double.valueOf(10.0), dest.latitude);
+        assertEquals(Double.valueOf(20.0), dest.longitude);
+        assertEquals(Long.valueOf(1), dest.countryId);
+        assertEquals(Long.valueOf(1), dest.id);
     }
 
     @Test
@@ -141,6 +141,6 @@ public class DestinationControllerTest extends WithApplication {
 
         // Get id of destination, check it is 2
         Long idOfDestination = new ObjectMapper().readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(new Long(2), idOfDestination);
+        assertEquals(Long.valueOf(2), idOfDestination);
     }
 }
