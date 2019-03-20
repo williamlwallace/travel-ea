@@ -32,7 +32,8 @@ public class DestinationControllerTest extends WithApplication {
     public static void setUp() {
         // Create custom settings that change the database to use test database instead of production
         Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.url", "jdbc:mysql://mysql2.csse.canterbury.ac.nz/seng302-2019-team400-test");
+        settings.put("db.default.driver", "org.h2.Driver");
+        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
 
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
