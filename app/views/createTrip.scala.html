@@ -9,7 +9,7 @@
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
 }
 
-@layouts.imageHeader("Create Trip", user, "images/home-bg.jpg"){
+@layouts.imageHeader("Create Trip", user, "images/home-bg.jpg", scripts){
 
     <main role="main" class="container pb-3 mb-5">
 
@@ -35,8 +35,55 @@
                     <!-- Card deck -->
                 <div class="card-deck">
                     <div id="menu">
-                        <ul id="sortable">
-                            <div id="fillTripDestinations"></div>
+                            <ul id="sortable">
+
+                            </ul>
+
+                            @*<div>*@
+                                @*<table id="dtPeople" class="table table-hover" cellspacing="0" width="100%">*@
+                                    @*<thead>*@
+                                        @*<ul id="sortable">*@
+                                            @*<tr>*@
+                                                @*<th class="th-sm">Name</th>*@
+                                                @*<th class="th-sm">Type</th>*@
+                                                @*<th class="th-sm">District</th>*@
+                                                @*<th class="th-sm">Latitude</th>*@
+                                                @*<th class="th-sm">Longitude</th>*@
+                                                @*<th class="th-sm">Country</th>*@
+                                            @*</tr>*@
+                                        @*</ul>*@
+                                    @*</thead>*@
+                                    @*<tbody id="tripDestinations">*@
+                                    @*</tbody>*@
+                                @*</table>*@
+                        @*</div>*@
+                        @*<div class="sortable-card col-md-4">*@
+                                @*<!-- Card -->*@
+                            @*<div class="card mb-4">*@
+                                    @*<!--Card image-->*@
+                                @*<div class="view overlay">*@
+                                    @*<img class="card-img-top" src="http://3.bp.blogspot.com/-KDpQ2oGx1-I/VX0SOFlAlTI/AAAAAAAAAAY/JdJSzX5iU3M/s640/spongebob%2Bhouse.png" alt="Card image cap">*@
+                                    @*<a href="#!">*@
+                                        @*<div class="mask rgba-white-slight"></div>*@
+                                    @*</a>*@
+                                @*</div>*@
+
+                                    @*<!--Card content-->*@
+                                @*<div class="card-body">*@
+
+                                        @*<!--Title-->*@
+                                    @*<h4 class="card-title">124 Conch Street</h4>*@
+                                        @*<!--Text-->*@
+                                    @*<p class="card-text"><b>Type:</b> Underwater<br/><b>District:</b> Bikini Bottom<br/><b>Latitude:</b> 54.5173<br/><b>Longitude:</b> 16.8401<br/><b>Country:</b> Pacific Ocean</p>*@
+                                        @*<!-- Provides extra visual weight and identifies the primary action in a set of buttons -->*@
+                                    @*<button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalEditForm">Edit</button>*@
+
+                                @*</div>*@
+
+                            @*</div>*@
+                                @*<!-- Card -->*@
+                        @*</div>*@
+
                         <!--<div class="sortable-card col-md-4">-->
                                 <!--&lt;!&ndash; Card &ndash;&gt;-->
                             <!--<div class="card mb-4">-->
@@ -62,7 +109,7 @@
 
                             <!--</div>-->
                                 <!-- Card -->
-                        </div>
+                        @*</div>*@
 
                         @*<div class="sortable-card col-md-4">*@
                                 @*<!-- Card -->*@
@@ -123,8 +170,6 @@
                                 @*</div>*@
                                 @*<!-- Card -->*@
                         @*</div>*@
-                        </ul>
-                    </div>
                 </div>
                     <!-- Card deck -->
 
@@ -293,7 +338,7 @@
                                                 <td>@d.latitude</td>
                                                 <td>@d.longitude</td>
                                                 <td>@d.countryId</td>
-                                                <td><button class="btn btn-popup" onclick='addDestinationToTrip(@d.id)'>Add</button></td>
+                                                <td><button class="btn btn-popup" type="button" onclick='addDestinationToTrip(["@d.name", "@d._type", "@d.district", "@d.latitude", "@d.longitude", "@d.countryId"])'>Add</button></td>
                                             </tr>
                                         }
                                         </tbody>
