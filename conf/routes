@@ -8,11 +8,11 @@ GET     /api/user/search                controllers.backend.UserController.paged
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
 + nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
-
++ nocsrf
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
 GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
-
++ nocsrf
 POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
 
 DELETE  /api/profile/:userId               controllers.backend.ProfileController.deleteProfile(userId:Long)

@@ -30,7 +30,8 @@ public class ProfileRepository {
      */
     public CompletableFuture<Result> addProfile(Profile profile) {
         return supplyAsync(() -> {
-            ebeanServer.insert(profile);
+            System.out.println();
+            ebeanServer.save(profile);
             return ok();
         }, executionContext);
     }
