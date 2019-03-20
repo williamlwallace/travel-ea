@@ -90,12 +90,11 @@ public class ProfileController extends Controller {
         // Creates lists of nationality, passport and traveller type objects from CountryDefinition and TravellerTypeDefinition tables in database
         List<Nationality> nationalities;
         List<Passport> passports;
-        List<TravellerType> travellerTypes;
 
         try {
             nationalities = getValidNationalities(nationalityStrings, profile.userId);
             passports = getValidPassports(passportStrings, profile.userId);
-            travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
+            profile.travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -153,11 +152,6 @@ public class ProfileController extends Controller {
                 passportRepository.insertPassport(passport);
             }
 
-            // Stores all the users traveller types in the database
-            for (TravellerType travellerType : travellerTypes) {
-                travellerTypeRepository.addTravellerTypeToProfile(travellerType);
-            }
-
             return CompletableFuture.supplyAsync(() -> ok("Successfully added new profile to database"));
         }
     }
@@ -192,12 +186,10 @@ public class ProfileController extends Controller {
             // Creates lists for nationality, passport and traveller type objects to be stored in
             List<Nationality> nationalities;
             List<Passport> passports;
-            List<TravellerType> travellerTypes;
 
             try {
                 nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
                 passports = passportRepository.getAllPassportsOfUser(profile.userId).get();
-                travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
@@ -242,18 +234,6 @@ public class ProfileController extends Controller {
 
                     passportString = passportString.substring(0, max(0, passportString.length() - 1));
                 }
-
-                if (travellerTypes != null) {
-                    for (TravellerType travellerType : travellerTypes) {
-                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.travellerTypeId).get();
-
-                        if (travellerTypeDefinition != null) {
-                            travellerTypeString += travellerTypeDefinition.description + ",";
-                        }
-                    }
-
-                    travellerTypeString = travellerTypeString.substring(0, max(0, travellerTypeString.length() - 1));
-                }
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
@@ -274,7 +254,6 @@ public class ProfileController extends Controller {
             ObjectNode customProfileJson = (ObjectNode)profileJson;
             customProfileJson.put("nationalities", nationalityString);
             customProfileJson.put("passports", passportString);
-            customProfileJson.put("travellerTypes", travellerTypeString);
 
             return CompletableFuture.supplyAsync(() -> ok(customProfileJson));
         }
@@ -344,18 +323,16 @@ public class ProfileController extends Controller {
             // Creates lists of nationality, passport and traveller type objects to be deleted from database
             List<Nationality> nationalitiesToDelete;
             List<Passport> passportsToDelete;
-            List<TravellerType> travellerTypesToDelete;
 
             try {
                 // Gets objects to add
                 nationalities = getValidNationalities(nationalityStrings, profile.userId);
                 passports = getValidPassports(passportStrings, profile.userId);
-                travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
+                profile.travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
 
                 // Gets objects to delete
                 nationalitiesToDelete = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
                 passportsToDelete = passportRepository.getAllPassportsOfUser(profile.userId).get();
-                travellerTypesToDelete = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
             }
             catch (ExecutionException ex) {
                 return CompletableFuture.supplyAsync(() -> {
@@ -383,10 +360,6 @@ public class ProfileController extends Controller {
                 passportRepository.deletePassport(passport);
             }
 
-            for (TravellerType travellerType : travellerTypesToDelete) {
-                travellerTypeRepository.deleteTravellerTypeFromProfile(travellerType);
-            }
-
             // Adds new nationality, passport and traveller type objects to the database
             for (Nationality nationality : nationalities) {
                 nationalityRepository.insertNationality(nationality);
@@ -396,9 +369,6 @@ public class ProfileController extends Controller {
                 passportRepository.insertPassport(passport);
             }
 
-            for (TravellerType travellerType : travellerTypes) {
-                travellerTypeRepository.addTravellerTypeToProfile(travellerType);
-            }
 
             return CompletableFuture.supplyAsync(() -> ok("Successfully updated profile in database"));
         }
@@ -497,26 +467,15 @@ public class ProfileController extends Controller {
      * @throws ExecutionException Thrown when database cannot be accessed
      * @throws InterruptedException Thrown when connection with database interrupted
      */
-    private List<TravellerType> getValidTravellerTypes(String[] travellerTypeStrings, long userID) throws ExecutionException, InterruptedException {
-        ArrayList<TravellerType> travellerTypes = new ArrayList<>();
+    private List<TravellerTypeDefinition> getValidTravellerTypes(String[] travellerTypeStrings, long userID) throws ExecutionException, InterruptedException {
+        ArrayList<TravellerTypeDefinition> travellerTypes = new ArrayList<>();
 
         // Iterates through travellerTypeStrings array and checks database for matching traveller types, stores traveller type if found
         for (String travellerTypeString : travellerTypeStrings) {
             TravellerTypeDefinition foundTravellerType;
-
-            try {
-                foundTravellerType = travellerTypeDefinitionRepository.getTravellerTypeDefinitionByDescription(travellerTypeString).get();
-            }
-            catch (ExecutionException | InterruptedException ex) {
-                throw ex;
-            }
-
+            foundTravellerType = travellerTypeDefinitionRepository.getTravellerTypeDefinitionByDescription(travellerTypeString).get();
             if (foundTravellerType != null) {
-                // Creates found travellerType object and stores in list
-                TravellerType travellerType = new TravellerType();
-                travellerType.userId = userID;
-                travellerType.travellerTypeId = foundTravellerType.id;
-                travellerTypes.add(travellerType);
+                travellerTypes.add(foundTravellerType);
             }
         }
 
