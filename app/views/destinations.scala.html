@@ -1,5 +1,3 @@
-@import play.mvc.Http.Request
-@import helper._
 @(destList: Seq[models.Destination], user: String)
 
 @scripts = {
@@ -56,11 +54,6 @@
                                     <div>Country
                                         <i class="fas prefix grey-text"></i>
                                         <select id="countryDropDown" name="countryId" class="form-control validate">
-                                            @* TODO: insert countries from db
-                                            <option value="1">Afghanistan</option>
-                                            <option value="2">Åland Islands</option>
-                                            <option value="3">Zambia</option>
-                                            <option value="4">Zimbabwe</option> *@
                                         </select>
                                         <label id="countryError" class="error-messages"></label>
                                     </div>
@@ -99,19 +92,18 @@
                             <th class="th-sm">Country</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="destinationList">
                     @for(d <- destList) {
-                        <tr>
+                        <tr id="@d.id">
                             <td>@d.name</td>
                             <td>@d._type</td>
                             <td>@d.district</td>
                             <td>@d.latitude</td>
                             <td>@d.longitude</td>
-                            <td>@d.countryId</td>
+                            <td id="country" value="@d.countryId">@d.countryId</td>
                             @*<td><a class="edit" title="Edit" data-toggle="modal" data-target="#modalContactForm1"><i class="fas fa-edit"></i></a></td>*@
                             @*<td><a class="delete" title="Delete" data-toggle="tooltip"><i class="fas fa-trash-alt"></i></a></td>*@
-                        </tr>
-                    }
+                        </tr>}
                     </tbody>
                 </table>
             </div>
@@ -120,5 +112,5 @@
 }
 
 <script type="text/javascript">
-        fillCountryDropDown("@controllers.backend.routes.DestinationController.getAllCountries()");
+    fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
 </script>
