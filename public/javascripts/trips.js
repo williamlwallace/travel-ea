@@ -18,6 +18,7 @@ var destinationsInTrip = [];
 function addDestinationToTrip (destId) {
     console.log("destId");
     destinationsInTrip.push(destId);
+    displayDestinations ();
 
 
 }
@@ -28,22 +29,48 @@ function getDestinations() {
 
 function displayDestinations () {
     for (var i=0; i < destinationsInTrip.length; i++) {
-        var html = "<div class=\"sortable-card col-md-4\">";
-        html += "<div class=\"card mb-4\">";
-        html += "<div class=\"view overlay\">";
-        html += "<a href=\"#!\">";
-        html += "<div class=\"mask rgba-white-slight\"></div>";
-        html += "</a>";
-        html += "</div>";
-        html += "<div class=\"card-body\">";
-        html += "<h4 class=\"card-title\">" + destinationsInTrip[i]["name"] + "</h4>";
-        html += "<p class=\"card-text\"><b>Type: </b>" + destinationsInTrip[i]["_type"] + "<br/><b>District: </b>" + destinationsInTrip[i]["district"] + "<br/><b>Latitude: </b>" + destinationsInTrip[i]["latitude"] + "<br/><b>Longitude: </b>" + destinationsInTrip[i]["longitude"] + "<br/><b>Country: </b>" + destinationsInTrip[i]["countryId"] + "</p>";
-        html += "<button type=\"button\" class=\"btn btn-primary btn-md\" data-toggle=\"modal\" data-target=\"#modalEditForm\">Edit</button>";
-        html += "</div>";
-        html += "</div>";
-        html += "</div>";
-
-        document.getElementById("fillTripDestinations").innerHTML = html;
+        // var html = "<div class=\"sortable-card col-md-4\">";
+        // html += "<div class=\"card mb-4\">";
+        // html += "<div class=\"view overlay\">";
+        // html += "<a href=\"#!\">";
+        // html += "<div class=\"mask rgba-white-slight\"></div>";
+        // html += "</a>";
+        // html += "</div>";
+        // html += "<div class=\"card-body\">";
+        // html += "<h4 class=\"card-title\">" + destinationsInTrip[i]["name"] + "</h4>";
+        // html += "<p class=\"card-text\"><b>Type: </b>" + destinationsInTrip[i]["_type"] + "<br/><b>District: </b>" + destinationsInTrip[i]["district"] + "<br/><b>Latitude: </b>" + destinationsInTrip[i]["latitude"] + "<br/><b>Longitude: </b>" + destinationsInTrip[i]["longitude"] + "<br/><b>Country: </b>" + destinationsInTrip[i]["countryId"] + "</p>";
+        // html += "<button type=\"button\" class=\"btn btn-primary btn-md\" data-toggle=\"modal\" data-target=\"#modalEditForm\">Edit</button>";
+        // html += "</div>";
+        // html += "</div>";
+        // html += "</div>";
+        //
+        // document.getElementById("fillTripDestinations").innerHTML = html;
+        document.getElementById('fillTripDestinations').insertAdjacentHTML('beforeend', '<div class="sortable-card col-md-4">\n' +
+            '                                <!-- Card -->\n' +
+            '                            <div class="card mb-4">\n' +
+            '                                    <!--Card image-->\n' +
+            '                                <div class="view overlay">\n' +
+            '                                    <img class="card-img-top" src="" alt="Card image cap">\n' +
+            '                                    <a href="#!">\n' +
+            '                                        <div class="mask rgba-white-slight"></div>\n' +
+            '                                    </a>\n' +
+            '                                </div>\n' +
+            '\n' +
+            '                                    <!--Card content-->\n' +
+            '                                <div class="card-body">\n' +
+            '\n' +
+            '                                        <!--Title-->\n' +
+            '                                    <h4 class="card-title">124 Conch Street</h4>\n' +
+            '                                        <!--Text-->\n' +
+            '                                    <p class="card-text"><b>Type:</b> Underwater<br/><b>District:</b> Bikini Bottom<br/><b>Latitude:</b> 54.5173<br/><b>Longitude:</b> 16.8401<br/><b>Country:</b> Pacific Ocean</p>\n' +
+            '                                        <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
+            '                                    <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalEditForm">Edit</button>\n' +
+            '\n' +
+            '                                </div>\n' +
+            '\n' +
+            '                            </div>\n' +
+            '                                <!-- Card -->\n' +
+            '                        </div>');
     }
 }
 
