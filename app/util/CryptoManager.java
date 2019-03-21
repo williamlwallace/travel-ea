@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+
+import java.security.AlgorithmConstraints;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -106,5 +108,20 @@ public class CryptoManager {
                 .withIssuer("TravelEA")
                 .withClaim("userId", userId)
                 .sign(algorithm);
+    }
+
+    public static Boolean veryifyToken(String Token, Long userId, String secret) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            JWTVerifier verifier = JWT.require(algorithm)
+                .withIssuer("TravelEA")
+                .withClaim("userId", userId)
+                .build();
+            DecodedJWT jwt = verifier.verify(token);
+            return true;
+        } catch (JWTVerificationException e) {
+            return false;
+        }
+        }
     }
 }
