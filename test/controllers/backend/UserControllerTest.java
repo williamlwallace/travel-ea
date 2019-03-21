@@ -94,8 +94,8 @@ public class UserControllerTest extends WithApplication {
         User user = users.get(0);
         assertEquals(Long.valueOf(1), user.id);
         assertEquals("dave@gmail.com", user.username);
-        assertEquals("password", user.password);
-        assertEquals("salt", user.salt);
+        assertEquals("ByT98//U0kAJsniaZyDXOsm7p4/3ALXUAs1Y9lsIyo0=", user.password); //MeowMeow123
+        assertEquals("5w8mhT42p9uS2f716RLMQTG8r+/+nfeMbwQGBpGqMao=", user.salt);
         assertNull(user.authToken);
     }
 
@@ -179,28 +179,18 @@ public class UserControllerTest extends WithApplication {
     public void validLogin() {
         // Create new new user, so password is hashed
         ObjectNode node = Json.newObject();
-        node.put("username", "catsinhats123@live.com");
+        node.put("username", "dave@gmail.com");
         node.put("password", "MeowMeow123");
 
-        // Create request to create a new user
-        Http.RequestBuilder request1 =  Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user");
-
-        // Get result and check it was successful
-        Result result1 = route(fakeApp, request1);
-        assertEquals(OK, result1.status());
-
         // Create request to login
-        Http.RequestBuilder request2 = Helpers.fakeRequest()
+        Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
                 .uri("/api/login");
 
         // Get result and check OK was sent back
-        Result result2 = route(fakeApp, request2);
-        assertEquals(OK, result2.status());
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
     }
 
     @Test
