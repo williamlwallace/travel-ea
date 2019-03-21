@@ -28,10 +28,10 @@ public class ProfileRepository {
      * @param profile Profile to add
      * @return Ok on success
      */
-    public CompletableFuture<Result> addProfile(Profile profile) {
+    public CompletableFuture<Long> addProfile(Profile profile) {
         return supplyAsync(() -> {
             ebeanServer.insert(profile);
-            return ok();
+            return profile.userId;
         }, executionContext);
     }
 
@@ -55,13 +55,13 @@ public class ProfileRepository {
      * @param id ID of profile to delete
      * @return True if a profile was found with the ID and then deleted
      */
-    public CompletableFuture<Boolean> deleteProfile(Long id) {
+    public CompletableFuture<Integer> deleteProfile(Long id) {
         return supplyAsync(() -> {
             int rows = ebeanServer.find(Profile.class)
                                     .where()
                                     .eq("user_id",id)
                                     .delete();
-            return rows > 0;
+            return rows;
         }, executionContext);
     }
 
@@ -70,10 +70,10 @@ public class ProfileRepository {
      * @param profile New profile object
      * @return OK on success
      */
-    public CompletableFuture<Result> updateProfile(Profile profile) {
+    public CompletableFuture<Long> updateProfile(Profile profile) {
         return supplyAsync(() -> {
            ebeanServer.update(profile);
-           return ok();
+           return profile.userId;
         }, executionContext);
     }
 }

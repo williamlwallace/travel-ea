@@ -30,6 +30,7 @@ public class TripControllerTest extends WithApplication {
         fakeApp = Helpers.fakeApplication();
     }
 
+
     @Test
     public void getTrips() {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -38,6 +39,17 @@ public class TripControllerTest extends WithApplication {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void getAllUserTrips() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .uri("/api/trip/getAll/1");
+
+        Result result = route(fakeApp, request);
+        System.out.println(result);
         assertEquals(OK, result.status());
     }
 

@@ -55,67 +55,27 @@ public class TripController extends Controller {
     }
 
     public CompletableFuture<Result> getAllUserTrips(Long userId) {
-        ArrayList<Long> tripIds = new ArrayList<>();
+        return tripRepository.getAllUserTrips(userId)
+                .thenApplyAsync(tripList -> {
+                    if (tripList.size() < 1) {
+                        ErrorResponse errorResponse = new ErrorResponse();
+                        errorResponse.map("User has no trips", "other");
+                        return notFound(errorResponse.toJson());
+                    } else {
+                        ArrayList<CompletableFuture<List<TripData>>> futures = new ArrayList<>();
+                        for (Trip trip : tripList) {
+                            futures.add(tripDataRepository.getAllTripData(trip.id));
+                        }
+                        CompletableFuture cf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                        cf.join();
 
-        // Trip to get the trip with a given ID
-        try {
-            // Query DB for trip with id
-            ArrayList<Trip> trips = new ArrayList<>();
-            for(Trip data: tripRepository.getAllUserTrips(userId).get()){
-                trips.add(data);
-            }
-            // If trip returned is null, then trip with given ID exists, return bad request
-            if(trips == null) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("User has no trips")));
-            }
-            for(Trip trip : trips) {
-                tripIds.add(trip.id);
-            }
-        }
-        // Catch error conditions from getting result
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-        }
-        // If the operation was interrupted before completion
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-        }
-
-        ArrayList<ObjectNode> returnedTrips = new ArrayList<>();
-
-        for(Long tripId : tripIds) {
-            try{
-                ArrayList<TripData> tripDataList = new ArrayList<>();
-                for(TripData tripData : tripDataRepository.getAllTripData(tripId).get()){
-                    tripDataList.add(tripData);
-                }
-                // Create new JSON object to store returned data
-                ObjectNode node = Json.newObject();
-                // Put the UID that was previously found
-                node.put("userId", userId);
-                node.put("id", tripId);
-                // Convert found trip data points to an array node
-                ArrayNode array = new ObjectMapper().valueToTree(tripDataList);
-                // Add array node to return json object
-                node.putArray("tripDataCollection").addAll(array);
-                returnedTrips.add(node);
-            }
-            // Catch error conditions from getting result
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-            }
-            // If the operation was interrupted before completion
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-            }
-        }
-        ObjectNode returnNode = Json.newObject();
-        ObjectMapper mapper = new ObjectMapper();
-
-        ArrayNode arrayNode = mapper.valueToTree(returnedTrips);
-        returnNode.putArray("allTrips").addAll(arrayNode);
-
-        return CompletableFuture.supplyAsync(() -> ok(returnNode));
+                        ArrayList<List<TripData>> result =  new ArrayList<>();
+                        for (CompletableFuture<List<TripData>> future : futures) {
+                            result.add(future.join());
+                        }
+                        return ok(Json.toJson(result));
+                    }
+                });
     }
 
     /**

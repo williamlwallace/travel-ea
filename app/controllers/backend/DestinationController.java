@@ -2,15 +2,8 @@ package controllers.backend;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.CountryDefinition;
 import models.Destination;
-import play.data.Form;
-import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -26,21 +19,13 @@ public class DestinationController extends Controller {
 
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
-    private final FormFactory formFactory;
-    private final HttpExecutionContext httpExecutionContext;
-    private final MessagesApi messagesApi;
 
     @Inject
-    public DestinationController(FormFactory formFactory,
-                                 DestinationRepository destinationRepository,
-                                 HttpExecutionContext httpExecutionContext,
-                                 MessagesApi messagesApi,
+    public DestinationController(DestinationRepository destinationRepository,
                                  CountryDefinitionRepository countryDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
-        this.formFactory = formFactory;
-        this.httpExecutionContext = httpExecutionContext;
-        this.messagesApi = messagesApi;
+
     }
 
     /**
@@ -69,8 +54,15 @@ public class DestinationController extends Controller {
      * @return OK with number of rows deleted, badrequest if none deleted
      */
     public CompletableFuture<Result> deleteDestination(Long id) {
-        return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted ->
-            (rowsDeleted == 0) ? badRequest(Json.toJson("No such destination")) : ok(Json.toJson(rowsDeleted)));
+        return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
+            if (rowsDeleted < 1) {
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.map("Destination not found", "other");
+                return badRequest(errorResponse.toJson());
+            } else {
+                return ok(Json.toJson(rowsDeleted));
+            }
+        });
     }
 
     public CompletableFuture<Result> getAllDestinations() {
@@ -85,8 +77,11 @@ public class DestinationController extends Controller {
 
     public CompletableFuture<Result> getDestination(long getId) {
         return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
-            if (destination.id == null) return notFound(Json.toJson(getId));
-            else return ok(Json.toJson(destination));
+            if (destination.id == null) {
+                return notFound(Json.toJson(getId));
+            } else {
+                return ok(Json.toJson(destination));
+            }
         });
     }
 
@@ -94,7 +89,4 @@ public class DestinationController extends Controller {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }
-
-
-
 }

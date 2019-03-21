@@ -1,7 +1,6 @@
 package controllers.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -15,12 +14,9 @@ import util.validation.UserValidator;
 import util.validation.ErrorResponse;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 import java.util.concurrent.*;
 
-import static java.lang.Math.max;
 
 /**
  * Manage a database of users
@@ -28,15 +24,12 @@ import static java.lang.Math.max;
 public class UserController extends Controller {
 
     private final UserRepository userRepository;
-    private final FormFactory formFactory;
     private final HttpExecutionContext httpExecutionContext;
 
     @Inject
-    public UserController(FormFactory formFactory,
-                          UserRepository userRepository,
+    public UserController(UserRepository userRepository,
                           HttpExecutionContext httpExecutionContext) {
         this.userRepository = userRepository;
-        this.formFactory = formFactory;
         this.httpExecutionContext = httpExecutionContext;
     }
 
@@ -48,10 +41,11 @@ public class UserController extends Controller {
      * @param filter Filter applied on user names
      * @return Returns a CompletionStage ok type for successful query
      */
-    public CompletionStage<Result> pagedUsers(int page, String order, String filter) {
+    public CompletableFuture<Result> pagedUsers(int page, String order, String filter) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.page(page, 10, order, filter).thenApplyAsync(users ->
                 ok(Json.toJson(users.getList())), httpExecutionContext.current());
+
     }
 
     /**
@@ -60,7 +54,7 @@ public class UserController extends Controller {
      * @param userId ID of user to delete
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
-    public CompletionStage<Result> deleteUser(Long userId) {
+    public CompletableFuture<Result> deleteUser(Long userId) {
         return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted ->
                         (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found"),
                 httpExecutionContext.current());
@@ -123,7 +117,7 @@ public class UserController extends Controller {
      * @param request HTTP request with username and password in body
      * @return OK with User JSON data on successful login, otherwise badRequest with specific error message
      */
-    public CompletionStage<Result> login(Http.Request request) {
+    public CompletableFuture<Result> login(Http.Request request) {
         // Get json parameters
         JsonNode json = request.body().asJson();
 
