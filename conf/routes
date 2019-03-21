@@ -4,20 +4,20 @@
 
 # ~~~~~backend~~~~~~
 GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
-
++ nocsrf
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
-
++ nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
 
-POST    /api/profile                    controllers.backend.UserController.addNewProfile(request:Request)
+POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET     /api/profile/:uid               controllers.backend.UserController.getProfile(uid:Long)
+GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
 
-POST    /api/profile/:uid               controllers.backend.UserController.updateProfile(request:Request, uid:Long)
+POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
 
-DELETE  /api/profile/:uid               controllers.backend.UserController.deleteProfile(uid:Long)
+DELETE  /api/profile/:userId               controllers.backend.ProfileController.deleteProfile(userId:Long)
 
-DELETE  /api/user/:uid                  controllers.backend.UserController.deleteUser(uid:Long)
+DELETE  /api/user/:userId                  controllers.backend.UserController.deleteUser(userId:Long)
 
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
 
@@ -38,20 +38,19 @@ PUT     /api/trip                       controllers.backend.TripController.updat
 
 GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
-GET     /api/trip/getAll/:uid           controllers.backend.TripController.getAllUserTrips(uid:Long)
+GET     /api/trip/getAll/:userId           controllers.backend.TripController.getAllUserTrips(userId:Long)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
-GET     /                           controllers.StartController.index(request:Request)
+GET     /                           controllers.frontend.UserController.index(request:Request)
 
 # signing up
-POST    /signUp                     controllers.StartController.signUp(request:Request)
 GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
 
 # Logging in
-POST    /login                      controllers.StartController.login(request: Request)
+GET    /login                      controllers.frontend.UserController.login(request: Request)
 
 # Home page
 GET     /home                       controllers.ApplicationController.index(request: Request)

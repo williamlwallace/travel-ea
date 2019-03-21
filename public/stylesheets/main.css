@@ -181,3 +181,11 @@ code {
 .selectpicker {
     border: 1px solid #ced4da !important;
 }
+
+.error-messages {
+    color: #FF1133 !important;
+    font-size: 12px;
+    height: 13px;
+    padding-left: 3px;
+    padding-top: 3px;
+}
