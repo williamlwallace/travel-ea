@@ -1,54 +1,55 @@
-// function getAllDestinations (url) {
-//     get(url).then(response => {
-//         response.json().then(data => {
-//             for(let i = 0; i < data.length; i++) {
-//             // For each destination, make a list element that is the json string of object
-//             let item = document.createElement("TD");
-//             item.innerHTML = data[i]['name'];
-//             item.value = data[i]['id'];
-//             // Add list element to list
-//             document.getElementById("countryDropDown").appendChild(item);
-//         }
-//     })
-//     })
-// }
-
 var destinationsInTrip = [];
 var destCounter = 0;
 
-function addDestinationToTrip (destId) {
+function newDestination(url) {
+    // Read data from destination form
+    const formData = new FormData(document.getElementById("addDestinationForm"));
+    // Convert data to json object
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]]: pair[1],
+    }), {});
+    // Post json data to given url
+    post(url,data)
+        .then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                showErrors(json);
+            } else {
+                // Toggles aria-hidden to hide add destination form
+                // TODO: Get toggle working
+                document.getElementById("#modalContactForm").setAttribute("aria-hidden", "true");
+            }
+});
+});
+}
+
+function addDestinationToTrip (dest) {
     console.log("destId");
-    destinationsInTrip.push(destId);
-    displayDestinations ();
-    // console.log(destId.name);
+    destinationsInTrip.push(dest);
+    displayDestinations(dest[0], dest[1], dest[2], dest[3], dest[4], dest[5], dest[6]);
     destCounter += 1;
-
-
 }
 
-function getDestinations() {
-    return destinationsInTrip;
+function createTrip() {
+    var tripDestinations = document.getElementById("sortable");
+    var destinations = tripDestinations.getElementsByClassName("sortable-card col-md-4");
+    var destList = [];
+
+    for (let i = 0; i < destinations.length; i++) {
+        console.log(destinations[i]);
+        destList.push(destinations[i].getAttribute("id"));
+    }
+
+    console.log(destList);
+
+    return;
 }
 
-function displayDestinations () {
-    // for (var i=0; i < destinationsInTrip.length; i++) {
-        // var html = "<div class=\"sortable-card col-md-4\">";
-        // html += "<div class=\"card mb-4\">";
-        // html += "<div class=\"view overlay\">";
-        // html += "<a href=\"#!\">";
-        // html += "<div class=\"mask rgba-white-slight\"></div>";
-        // html += "</a>";
-        // html += "</div>";
-        // html += "<div class=\"card-body\">";
-        // html += "<h4 class=\"card-title\">" + destinationsInTrip[i]["name"] + "</h4>";
-        // html += "<p class=\"card-text\"><b>Type: </b>" + destinationsInTrip[i]["_type"] + "<br/><b>District: </b>" + destinationsInTrip[i]["district"] + "<br/><b>Latitude: </b>" + destinationsInTrip[i]["latitude"] + "<br/><b>Longitude: </b>" + destinationsInTrip[i]["longitude"] + "<br/><b>Country: </b>" + destinationsInTrip[i]["countryId"] + "</p>";
-        // html += "<button type=\"button\" class=\"btn btn-primary btn-md\" data-toggle=\"modal\" data-target=\"#modalEditForm\">Edit</button>";
-        // html += "</div>";
-        // html += "</div>";
-        // html += "</div>";
-        //
-        // document.getElementById("fillTripDestinations").innerHTML = html;
-        document.getElementById('sortable').insertAdjacentHTML('beforeend', '<div class="sortable-card col-md-4">\n' +
+function displayDestinations(id, name, type, district, latitude, longitude, country) {
+    document.getElementById('sortable').insertAdjacentHTML('beforeend', '<div class="sortable-card col-md-4" id=id>\n' +
             '                                <!-- Card -->\n' +
             '                            <div class="card mb-4">\n' +
             '                                    <!--Card image-->\n' +
@@ -63,9 +64,9 @@ function displayDestinations () {
             '                                <div class="card-body">\n' +
             '\n' +
             '                                        <!--Title-->\n' +
-            '                                    <h4 class="card-title"> ' + destinationsInTrip[destCounter][0] + '</h4>\n' +
+            '                                    <h4 class="card-title"> ' + name + '</h4>\n' +
             '                                        <!--Text-->\n' +
-            '                                    <p class="card-text"><b>Type: </b> '+ destinationsInTrip[destCounter][1] + '<br/><b>District: </b> '+ destinationsInTrip[destCounter][2] + '<br/><b>Latitude: </b>' + destinationsInTrip[destCounter][3] + '<br/><b>Longitude: </b>' + destinationsInTrip[destCounter][4] + '<br/><b>Country: </b>' + destinationsInTrip[destCounter][5] + '</p>\n' +
+            '                                    <p class="card-text"><b>Type: </b> '+ type + '<br/><b>District: </b> '+ district + '<br/><b>Latitude: </b>' + latitude + '<br/><b>Longitude: </b>' + longitude + '<br/><b>Country: </b>' + country + '</p>\n' +
             '                                        <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
             '                                    <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalEditForm">Edit</button>\n' +
             '\n' +
@@ -74,7 +75,6 @@ function displayDestinations () {
             '                            </div>\n' +
             '                                <!-- Card -->\n' +
             '                        </div>');
-    // }
 }
 
 
