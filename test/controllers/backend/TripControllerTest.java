@@ -42,7 +42,6 @@ public class TripControllerTest extends WithApplication {
         assertEquals(OK, result.status());
     }
 
-    @Ignore
     @Test
     public void createAndDeleteTest() throws IOException {
         // Create json object to store trip to add
