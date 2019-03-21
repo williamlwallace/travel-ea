@@ -26,8 +26,8 @@ public class Validator {
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field) {
-        if (this.form.get(field).asText("") == "") {
-            this.errorResponse.map(String.format("%s required", field), field);
+        if (this.form.get(field) == null || this.form.get(field).asText("").equals("")) {
+            this.errorResponse.map(String.format("%s field must be present", field), field);
             return false;
         }
         return true;
@@ -39,9 +39,9 @@ public class Validator {
      * @param min Min field length
      * @return Boolean whether validation succeeds
      */
-    protected Boolean min(String field, int min) {
+    protected Boolean minTextLength(String field, int min) {
         if (this.form.get(field).asText("").length() < min) {
-            this.errorResponse.map(String.format("%s has a min length of %d", field, min), field);
+            this.errorResponse.map(String.format("%s has a minTextLength length of %d", field, min), field);
             return false;
         }
         return true;
@@ -50,12 +50,120 @@ public class Validator {
     /**
      * Checks field is shorter then given length
      * @param field json field name
-     * @param max max field length
+     * @param max maxTextLength field length
      * @return Boolean whether validation succeeds
      */
-    protected Boolean max(String field, int max) {
+    protected Boolean maxTextLength(String field, int max) {
         if (this.form.get(field).asText("").length() > max) {
-            this.errorResponse.map(String.format("%s has a max length of %d", field, max), field);
+            this.errorResponse.map(String.format("%s has a maxTextLength length of %d", field, max), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if value of field is integer
+     * @param field json field name
+     * @return Boolean whether condition is met
+     */
+    protected Boolean isText(String field) {
+        if (!this.form.get(field).isTextual()) {
+            this.errorResponse.map(String.format("%s must be text", field), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if value of field is integer
+     * @param field json field name
+     * @return Boolean whether condition is met
+     */
+    protected Boolean isInt(String field) {
+        if (!this.form.get(field).isInt()) {
+            this.errorResponse.map(String.format("%s must be of type integer", field), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if value of field is long
+     * @param field json field name
+     * @return Boolean whether condition is met
+     */
+    protected Boolean isLong(String field) {
+        if (!this.form.get(field).isLong()) {
+            this.errorResponse.map(String.format("%s must be of type long", field), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks if value of field is double or int
+     * @param field json field name
+     * @return Boolean whether condition is met
+     */
+    protected Boolean isDoubleOrInt(String field) {
+        if(!this.form.get(field).isDouble() && !this.form.get(field).isInt()) {
+            this.errorResponse.map(String.format("%s must be of type double", field), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks integer value of field, must already be confirmed to be integer
+     * @param field json field name
+     * @param max maxTextLength value of integer in field
+     * @return Boolean whether condition is met
+     */
+    protected Boolean maxDoubleValue(String field, double max) {
+        if (this.form.get(field).asDouble() > max) {
+            this.errorResponse.map(String.format("%s must be not be more than %f", field, max), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks integer value of field, must already be confirmed to be integer
+     * @param field json field name
+     * @param min minTextLength value of integer in field
+     * @return Boolean whether condition is met
+     */
+    protected Boolean minDoubleValue(String field, double min) {
+        if (this.form.get(field).asDouble() < min) {
+            this.errorResponse.map(String.format("%s must be at least %f", field, min), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks integer value of field, must already be confirmed to be integer
+     * @param field json field name
+     * @param max maxTextLength value of integer in field
+     * @return Boolean whether condition is met
+     */
+    protected Boolean maxIntValue(String field, int max) {
+        if (this.form.get(field).asInt() > max) {
+            this.errorResponse.map(String.format("%s must be not be more than %d", field, max), field);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks integer value of field, must already be confirmed to be integer
+     * @param field json field name
+     * @param min minTextLength value of integer in field
+     * @return Boolean whether condition is met
+     */
+    protected Boolean minIntValue(String field, int min) {
+        if (this.form.get(field).asInt() < min) {
+            this.errorResponse.map(String.format("%s must be at least %d", field, min), field);
             return false;
         }
         return true;
