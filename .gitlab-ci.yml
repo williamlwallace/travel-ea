@@ -34,4 +34,4 @@ release-artifacts:
 Update-sonar:
   stage: deploy
   script:
-    - sonar-scanner
+    - sbt compile && sonar-scanner
