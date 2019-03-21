@@ -41,7 +41,6 @@ public class UserControllerTest extends WithApplication {
         assertEquals(OK, result.status());
     }
 
-    @Ignore
     @Test
     public void createAndDeleteUser() throws IOException {
         // Create new json object node
