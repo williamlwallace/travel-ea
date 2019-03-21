@@ -95,8 +95,13 @@ public class CryptoManager {
      * Generate JSON web token
      * @return JWT
      */
-    private static String createToken(Long userId, String secret) throws UnsupportedEncodingException {
-        Algorithm algorithm = Algorithm.HMAC256(secret);
+    public static String createToken(Long userId, String secret) {
+        Algorithm algorithm;
+        try {
+            algorithm = Algorithm.HMAC256(secret);
+        } catch (java.io.UnsupportedEncodingException e) {
+            return null;
+        }
         return JWT.create()
                 .withIssuer("TravelEA")
                 .withClaim("userId", userId)

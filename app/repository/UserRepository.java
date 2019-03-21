@@ -88,10 +88,10 @@ public class UserRepository {
      * @param  newUser User object with new user details
      * @return uid of new user
      */
-    public CompletableFuture<Long> insertUser(User newUser) {
+    public CompletableFuture<User> insertUser(User newUser) {
         return supplyAsync(() -> {
             ebeanServer.insert(newUser);
-            return newUser.id;
+            return newUser;
         }, executionContext);
     }
 

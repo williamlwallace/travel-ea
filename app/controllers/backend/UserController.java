@@ -105,13 +105,14 @@ public class UserController extends Controller {
                             return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
                         }
                     })
-                    .thenApplyAsync(uid -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
-                        if (uid == null) {
+                    .thenApplyAsync(user -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                        if (user == null) {
                             //Create the error to be sent to client
                             validatorResult.map("Email already in use", "other");
                             return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
                         } else {
-                            String authToken = updateToken(newUser);
+                            System.out.println(user);
+                            String authToken = updateToken(user);
                             return ok(Json.toJson(authToken));                 //If the uid is not null, return an ok message with the uid contained within
                         }
                     });
@@ -148,7 +149,7 @@ public class UserController extends Controller {
            else {
                // Check if password given matches hashed and salted password on db
                if(CryptoManager.checkPasswordMatch(json.get("password").asText(""), foundUser.salt, foundUser.password)) {
-                    String authToken = updateToken(newUser);
+                    String authToken = updateToken(foundUser);
                     return ok(Json.toJson(authToken));
                }
                // If password was incorrect, return bad request
@@ -166,8 +167,8 @@ public class UserController extends Controller {
      * @return authToken 
      */
     public String updateToken(User user) {
-        String authToken = CryptoManager.createToken(uid, config.getString("play.http.secret.key"));
-        userser.authToken = authToken;
+        String authToken = CryptoManager.createToken(user.id, config.getString("play.http.secret.key"));
+        user.authToken = authToken;
         userRepository.updateUser(user);
         return authToken;
     }
