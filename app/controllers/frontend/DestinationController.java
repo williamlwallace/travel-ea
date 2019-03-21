@@ -47,7 +47,7 @@ public class DestinationController extends Controller {
                         return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user)):internalServerError();
                     },
                     httpExecutionContext.current());
-        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.routes.StartController.index())));
+        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index())));
     }
 
     public Result createDestination(Http.Request request) {
@@ -66,6 +66,7 @@ public class DestinationController extends Controller {
     private CompletableFuture<List<Destination>> getDestinations() {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/destination").get().toCompletableFuture();
         return res.thenApply(r -> {
+            //System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
