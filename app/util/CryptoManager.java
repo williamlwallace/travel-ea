@@ -1,5 +1,7 @@
 package util;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -87,5 +89,17 @@ public class CryptoManager {
 
         // Return salt
         return salt;
+    }
+
+    /**
+     * Generate JSON web token
+     * @return JWT
+     */
+    private static String createToken(Long userId, String secret) throws UnsupportedEncodingException {
+        Algorithm algorithm = Algorithm.HMAC256(secret);
+        return JWT.create()
+                .withIssuer("TravelEA")
+                .withClaim("userId", userId)
+                .sign(algorithm);
     }
 }
