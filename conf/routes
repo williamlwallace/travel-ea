@@ -80,6 +80,9 @@ DELETE  /destinations               controllers.frontend.DestinationController.d
 GET    /editProfile                 controllers.EditProfileController.index(request: Request)
 POST   /editProfile                 controllers.EditProfileController.updateProfile(request: Request)
 
+# Admin page
+GET     /admin                      controllers.frontend.AdminController.index(request: Request)
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 

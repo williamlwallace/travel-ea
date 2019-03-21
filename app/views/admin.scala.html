@@ -1,0 +1,18 @@
+@import play.mvc.Http.Request
+@(user: String)
+
+@scripts = {
+    <script src="@routes.Assets.at("javascripts/admin.js")" type="text/javascript"></script>
+}
+
+@layouts.main("Admin", user) {
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/admin.css")">
+
+    <div class="pl-5">
+        <h1>Admin</h1>
+        <h3>Do admin things here</h3>
+    </div>
+
+    <div id="startchange"></div>
+}
