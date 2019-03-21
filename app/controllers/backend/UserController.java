@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import com.typesafe.config.Config;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
@@ -30,14 +31,17 @@ public class UserController extends Controller {
     private final UserRepository userRepository;
     private final FormFactory formFactory;
     private final HttpExecutionContext httpExecutionContext;
+    private final Config config;
 
     @Inject
     public UserController(FormFactory formFactory,
                           UserRepository userRepository,
-                          HttpExecutionContext httpExecutionContext) {
+                          HttpExecutionContext httpExecutionContext,
+                          Config config) {
         this.userRepository = userRepository;
         this.formFactory = formFactory;
         this.httpExecutionContext = httpExecutionContext;
+        this.config = config;
     }
 
     /**
@@ -77,8 +81,6 @@ public class UserController extends Controller {
     public CompletableFuture<Result> addNewUser(Http.Request request) {
         //Get the data from the request as a JSON object
         JsonNode data = request.body().asJson();
-
-
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new UserValidator(data).login();
 
@@ -109,7 +111,8 @@ public class UserController extends Controller {
                             validatorResult.map("Email already in use", "other");
                             return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
                         } else {
-                            return ok(Json.toJson(uid));                 //If the uid is not null, return an ok message with the uid contained within
+                            String authToken = updateToken(newUser);
+                            return ok(Json.toJson(authToken));                 //If the uid is not null, return an ok message with the uid contained within
                         }
                     });
         }
@@ -145,10 +148,8 @@ public class UserController extends Controller {
            else {
                // Check if password given matches hashed and salted password on db
                if(CryptoManager.checkPasswordMatch(json.get("password").asText(""), foundUser.salt, foundUser.password)) {
-                   // Redact password specific fields and return json user object
-                   foundUser.password = null;
-                   foundUser.salt = null;
-                   return ok(Json.toJson(foundUser.id));
+                    String authToken = updateToken(newUser);
+                    return ok(Json.toJson(authToken));
                }
                // If password was incorrect, return bad request
                else {
@@ -157,5 +158,17 @@ public class UserController extends Controller {
                }
            }
         });
+    }
+
+    /**
+     * Create Token and update user with it
+     * @param user User object to be updated
+     * @return authToken 
+     */
+    public String updateToken(User user) {
+        String authToken = CryptoManager.createToken(uid, config.getString("play.http.secret.key"));
+        userser.authToken = authToken;
+        userRepository.updateUser(user);
+        return authToken;
     }
 }
