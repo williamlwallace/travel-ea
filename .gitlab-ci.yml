@@ -30,3 +30,8 @@ release-artifacts:
     - target/universal/*.zip
  only:
     - tags
+
+Update-sonar:
+  Stage: deploy
+  Script:
+    - sonar-scanner
