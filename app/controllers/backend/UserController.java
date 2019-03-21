@@ -78,7 +78,6 @@ public class UserController extends Controller {
         //Get the data from the request as a JSON object
         JsonNode data = request.body().asJson();
 
-
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new UserValidator(data).login();
 

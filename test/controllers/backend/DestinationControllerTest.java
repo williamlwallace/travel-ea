@@ -109,7 +109,7 @@ public class DestinationControllerTest extends WithApplication {
 
     @Test
     public void deleteDestination() {
-        // Create request to delete newly created user
+        // Create request to delete newly created destination
         Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
                 .uri("/api/destination/1");
