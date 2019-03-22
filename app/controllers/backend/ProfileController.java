@@ -164,7 +164,6 @@ public class ProfileController extends Controller {
     public CompletionStage<Result> getProfile(Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
-
         try {
             profile = profileRepository.findID(userId).get();
         }
@@ -184,11 +183,10 @@ public class ProfileController extends Controller {
 
         if (profile != null) {
             // Creates lists for nationality, passport and traveller type objects to be stored in
-            List<Nationality> nationalities;
+            System.out.println(profile.nationalities.get(0));
             List<Passport> passports;
 
             try {
-                nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
                 passports = passportRepository.getAllPassportsOfUser(profile.userId).get();
             }
             catch (ExecutionException ex) {
@@ -206,22 +204,9 @@ public class ProfileController extends Controller {
             }
 
             // Creates nationality, passport and traveller type strings to send
-            String nationalityString = "";
             String passportString = "";
-            String travellerTypeString = "";
 
             try {
-                if (nationalities != null) {
-                    for (Nationality nationality : nationalities) {
-                        CountryDefinition countryDefinition = countryDefinitionRepository.findCountryByID(nationality.countryId).get();
-
-                        if (countryDefinition != null) {
-                            nationalityString += countryDefinition.name + ",";
-                        }
-                    }
-
-                    nationalityString = nationalityString.substring(0, max(0, nationalityString.length() - 1));
-                }
 
                 if (passports != null) {
                     for (Passport passport : passports) {
@@ -252,7 +237,6 @@ public class ProfileController extends Controller {
             // Converts profile to json and adds nationality, passport and traveller type properties
             JsonNode profileJson = Json.toJson(profile);
             ObjectNode customProfileJson = (ObjectNode)profileJson;
-            customProfileJson.put("nationalities", nationalityString);
             customProfileJson.put("passports", passportString);
 
             return CompletableFuture.supplyAsync(() -> ok(customProfileJson));

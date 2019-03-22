@@ -40,4 +40,12 @@ public class Profile extends Model {
             inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     @JsonManagedReference
     public List<TravellerTypeDefinition> travellerTypes;
+
+    @ManyToMany(cascade=CascadeType.ALL, mappedBy="profiles")
+    @JoinTable(
+        name="Nationality",
+        joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    @JsonManagedReference
+    public List<CountryDefinition> nationalities;
 }
