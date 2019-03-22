@@ -62,7 +62,7 @@ public class ProfileController extends Controller {
      * @return        Returns CompletionStage type: ok if profile created and added succesfully, badRequest if profile
      *                already exists
      */
-    public CompletionStage<Result> addNewProfile(Http.Request request) {
+    public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
         JsonNode json = request.body().asJson();
 
@@ -167,7 +167,7 @@ public class ProfileController extends Controller {
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    public CompletionStage<Result> getProfile(Long userId) {
+    public CompletableFuture<Result> getProfile(Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
 
@@ -292,7 +292,7 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    public CompletionStage<Result> updateProfile(Http.Request request, Long userId) {
+    public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode json = request.body().asJson();
 
