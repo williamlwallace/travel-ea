@@ -46,10 +46,10 @@ public class TripDataRepository {
      * @param tripDataList
      * @return
      */
-    public CompletableFuture<Result> insertTripDataList(Collection<TripData> tripDataList) {
+    public CompletableFuture<Long> insertTripDataList(List<TripData> tripDataList, Long tripId) {
         return supplyAsync(() -> {
             ebeanServer.insertAll(tripDataList);
-            return ok();
+            return tripId;
         }, executionContext);
     }
 
@@ -60,17 +60,17 @@ public class TripDataRepository {
      */
     public CompletableFuture<Boolean> deleteTripData(TripData tripData) {
         return supplyAsync(() ->
-            ebeanServer.delete(tripData),
-            executionContext);
+                        ebeanServer.delete(tripData),
+                executionContext);
     }
 
     public CompletableFuture<Integer> deleteAllTripData(Long tripId) {
         return supplyAsync(() ->
-            ebeanServer.find(TripData.class)
-                .where()
-                .eq("tripId", tripId)
-                .delete()
-        , executionContext);
+                        ebeanServer.find(TripData.class)
+                                .where()
+                                .eq("tripId", tripId)
+                                .delete()
+                , executionContext);
     }
 
     /**
@@ -80,12 +80,12 @@ public class TripDataRepository {
      */
     public CompletableFuture<List<TripData>> getAllTripData(Long tripID) {
         return supplyAsync(() ->
-            ebeanServer.find(TripData.class)
-                .where()
-                 .eq("tripId", tripID)
-                .findList()
+                        ebeanServer.find(TripData.class)
+                                .where()
+                                .eq("tripId", tripID)
+                                .findList()
 
-            , executionContext);
+                , executionContext);
     }
 
     /**

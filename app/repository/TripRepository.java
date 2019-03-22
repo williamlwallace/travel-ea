@@ -31,10 +31,10 @@ public class TripRepository {
      * @param newTrip Trip object to be added
      * @return Ok on success
      */
-    public CompletableFuture<Result> insertTrip(Trip newTrip) {
+    public CompletableFuture<Long> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
             ebeanServer.insert(newTrip);
-            return ok();
+            return newTrip.id;
         }, executionContext);
     }
 
@@ -45,8 +45,8 @@ public class TripRepository {
      */
     public CompletableFuture<Boolean> deleteTrip(Trip trip) {
         return supplyAsync(() ->
-            ebeanServer.delete(trip),
-            executionContext);
+                        ebeanServer.delete(trip),
+                executionContext);
     }
 
     /**
@@ -56,10 +56,10 @@ public class TripRepository {
      */
     public CompletableFuture<Integer> deleteTrip(Long id) {
         return supplyAsync(() ->
-                ebeanServer.find(Trip.class)
-                .where()
-                .eq("id", id)
-                .delete(),
+                        ebeanServer.find(Trip.class)
+                                .where()
+                                .eq("id", id)
+                                .delete(),
                 executionContext);
     }
 
@@ -70,11 +70,11 @@ public class TripRepository {
      */
     public CompletableFuture<List<Trip>> getAllUserTrips(long userID) {
         return supplyAsync(() ->
-            ebeanServer.find(Trip.class)
-                .where()
-                .eq("user_id", userID)
-                .findList(),
-            executionContext);
+                        ebeanServer.find(Trip.class)
+                                .where()
+                                .eq("user_id", userID)
+                                .findList(),
+                executionContext);
     }
 
     /**
@@ -84,11 +84,11 @@ public class TripRepository {
      */
     public CompletableFuture<Trip> getTripById(long tripId) {
         return supplyAsync(() ->
-        ebeanServer.find(Trip.class)
-                .where()
-                .eq("id", tripId)
-                .findOneOrEmpty()
-                .orElse(null),
+                        ebeanServer.find(Trip.class)
+                                .where()
+                                .eq("id", tripId)
+                                .findOneOrEmpty()
+                                .orElse(null),
                 executionContext);
     }
 }
