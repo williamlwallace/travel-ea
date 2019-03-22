@@ -9,10 +9,13 @@ POST    /api/user                       controllers.backend.UserController.addNe
 + nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
 
++ nocsrf
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
++ nocsrf
 GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
 
++ nocsrf
 POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
 
 DELETE  /api/profile/:userId               controllers.backend.ProfileController.deleteProfile(userId:Long)
@@ -78,7 +81,7 @@ POST    /destinations               controllers.frontend.DestinationController.c
 DELETE  /destinations               controllers.frontend.DestinationController.deleteDestination(request: Request)
 
 # Edit profile page
-GET    /editProfile                 controllers.frontend.UserController.index(request: Request)
+GET    /editProfile                 controllers.frontend.ProfileController.editindex(request: Request)
 #POST   /editProfile                 controllers.frontend.UserController.updateProfile(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path

@@ -1,3 +1,9 @@
+/* Display profile dropdowns with cool tag style in profile */
+$('#nationalities').picker();
+$('#passports').picker();
+$('#travellerTypes').picker();
+$('#gender').picker();
+
 function updateProfile(url, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("updateProfileForm"));
@@ -20,7 +26,6 @@ function updateProfile(url, redirect) {
         });
     });
 }
-
 
 function get(url) {
     return fetch(url, {
