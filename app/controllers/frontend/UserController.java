@@ -67,13 +67,4 @@ public class UserController extends Controller {
     public Result signUp(Http.Request request) {
         return redirect(controllers.frontend.routes.ProfileController.index()).addingToSession(request, "connected", "dave@gmail.com");
     }
-//
-//    public Result updateProfile(Http.Request request) {
-//        this.profile = new Profile();
-//
-//        return request.session()
-//                .getOptional("connected")
-//                .map(user -> ok(views.html.editProfile.render(profile, user)))
-//                .orElseGet(() -> redirect(controllers.routes.ApplicationController.index()).addingToSession(request, "connected", "dave@gmail.com"));
-//    }
 }
