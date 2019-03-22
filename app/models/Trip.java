@@ -6,6 +6,7 @@ import play.data.validation.Constraints;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.List;
 
 /**
  * A class that models the trip database table
@@ -19,4 +20,7 @@ public class Trip extends Model {
 
     @Constraints.Required
     public Long userId;
+
+    //TODO: Actually implement this
+    public List<TripData> tripDataList;
 }
