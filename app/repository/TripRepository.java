@@ -31,10 +31,10 @@ public class TripRepository {
      * @param newTrip Trip object to be added
      * @return Ok on success
      */
-    public CompletableFuture<Long> insertTrip(Trip newTrip) {
+    public CompletableFuture<Result> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
             ebeanServer.insert(newTrip);
-            return newTrip.id;
+            return ok();
         }, executionContext);
     }
 

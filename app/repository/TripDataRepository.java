@@ -46,10 +46,10 @@ public class TripDataRepository {
      * @param tripDataList
      * @return
      */
-    public CompletableFuture<Long> insertTripDataList(List<TripData> tripDataList, Long tripId) {
+    public CompletableFuture<Result> insertTripDataList(Collection<TripData> tripDataList) {
         return supplyAsync(() -> {
             ebeanServer.insertAll(tripDataList);
-            return tripId;
+            return ok();
         }, executionContext);
     }
 
