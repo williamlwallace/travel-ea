@@ -3,15 +3,7 @@ package controllers.frontend;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import controllers.ProfileData;
-import controllers.routes;
-import models.Destination;
-import models.frontend.Profile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.data.Form;
-import play.data.FormFactory;
-import play.i18n.MessagesApi;
+import models.Profile;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
@@ -19,15 +11,11 @@ import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import views.html.profile;
+import views.html.*;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -55,38 +43,50 @@ public class ProfileController extends Controller {
      *
      * @return displays the profile or start page.
      */
-    public CompletableFuture<Result> index(Http.Request request) {
+    public Result index(Http.Request request) {
         return request.session()
                 .getOptional("connected")
-                .map(user -> {
-                    return this.getUser().thenApplyAsync(
-                            ok(profile.render(user)),
-                            httpExecutionContext.current());
-                }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index())));
+                .map(user -> ok(profile.render(user)))
+                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
+    }
+
+    public CompletableFuture<Result> editindex(Http.Request request) {
+        return request.session().getOptional("connected").map(user -> {
+            return this.getProfile().thenApplyAsync(
+                    profile -> {
+                        return ok(editProfile.render(profile, user));
+                    },
+                    httpExecutionContext.current());
+        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index())));
+    }
+
+    public Result createProfile(Http.Request request) {
+        return ok();
     }
 
     /**
-     * Uses a POST request at /profile to validate creating a profile.
-     * If the account details are in the database. The user will be logged in and taken to the home page
+     * Gets Profile from api endpoint via get request
      *
-     * @param request
-     * @return a http result; a redirect if the user credentials are correct, and a bad request in other cases.
+     * @return List of destinations wrapped in completable future
      */
-    public Result createProfile(Http.Request request) {
-        return redirect(controllers.routes.ApplicationController.index()).addingToSession(request, "connected", "dave@gmail.com");
-    }
-
-    private CompletableFuture<String> getUser() {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile").get().toCompletableFuture();
+    private CompletableFuture<Profile> getProfile() {
+        // This url will need to be updated to use the actual logged in user
+        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/1").get().toCompletableFuture();
         return res.thenApply(r -> {
+            //System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                        new TypeReference<String>() {
+                        new TypeReference<Profile>() {
                         });
             } catch (Exception e) {
-                return null;
+                return new Profile();
             }
         });
+
     }
+
 }
+
+
+
