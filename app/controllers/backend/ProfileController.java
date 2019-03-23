@@ -156,6 +156,11 @@ public class ProfileController extends Controller {
         }
     }
 
+    public CompletionStage<Result> getNationality() {
+        return nationalityRepository.getAllNationalitiesOfUser(1L)
+                .thenApplyAsync(nationalities -> ok(Json.toJson(nationalities)));
+    }
+
     /**
      * Gets a profile based on the userID specified in the request
      * @param userId The user ID to return data for
@@ -399,7 +404,7 @@ public class ProfileController extends Controller {
                 // Creates found nationality object and stores in list
                 Nationality nationality = new Nationality();
                 nationality.userId = userID;
-                nationality.countryId = foundCountry.id;
+                //nationality.countryId = foundCountry.id;
 
                 nationalities.add(nationality);
             }
