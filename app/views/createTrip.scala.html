@@ -11,7 +11,7 @@
 
 @layouts.imageHeader("Create Trip", user, "images/home-bg.jpg", scripts){
 
-    <main role="main" class="container pb-3 mb-5">
+    <main role="main" id="createTripContainer" class="container pb-3 mb-5">
 
         <!-- Destination cards -->
         <!doctype html>
@@ -26,18 +26,20 @@
                 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
                 <script>
                         $( function() {
-                            $( "#sortable" ).sortable();
-                            $( "#sortable" ).disableSelection();
+                            $( "#list" ).disableSelection().sortable({
+                                scroll: true,
+                                axis: 'x',
+                                revert: true
+                            });
+
                         } );
                 </script>
             </head>
             <body>
                     <!-- Destination card deck -->
-                <div class="card-deck">
-                    <div id="menu">
-                        <ul id="sortable">
-                            <!-- Destinations inserted here -->
-                        </ul>
+                <div id="parent" class="parent">
+                    <div id="list" class="list">
+                        <!-- Destinations inserted here -->
                     </div>
                 </div>
             </body>
