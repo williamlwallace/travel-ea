@@ -4,6 +4,7 @@ import com.typesafe.config.Config;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Action;
+import play.mvc.Http.Cookie;
 import javax.inject.Inject;
 import util.CryptoManager;
 import repository.UserRepository;
@@ -25,7 +26,7 @@ public class Authenticator extends Action.Simple {
     }
 
     public CompletableFuture<Result> call(Http.Request request) {
-        String token = getTokenFromHeader(request);
+        String token = getTokenFromCookie(request);
         if (token != null) {
             return userRepository.findByToken(token).thenComposeAsync((user) -> {
                 if (user != null && CryptoManager.veryifyToken(token, user.id, config.getString("play.http.secret.key"))) {
@@ -37,11 +38,9 @@ public class Authenticator extends Action.Simple {
         return supplyAsync(() -> status(401,"unauthorized"));
     }
 
-    private String getTokenFromHeader(Http.Request request) {
-        Optional<String> authTokenHeaderValues = request.getHeaders().get("X-AUTH-TOKEN");
-        if (authTokenHeaderValues.isPresent()) {
-            return authTokenHeaderValues.orElse(null);
-        }
-        return null;
+    private String getTokenFromCookie(Http.Request request) {
+        Optional<Cookie> option = request.cookies().getCookie("X-AUTH-TOKEN");
+        Cookie cookie = option.orElse(null);
+        return (cookie != null ? cookie.value() : null);
     }
 }
