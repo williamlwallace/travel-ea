@@ -30,17 +30,24 @@ public class Profile extends Model {
 
     public String gender;
 
-    @ManyToMany(cascade=CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
         name="TravellerType",
         joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
         inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
-    @JsonManagedReference
     public List<TravellerTypeDefinition> travellerTypes;
 
-//    @ManyToMany
-//    @JoinTable(
-//        name="Nationality",
-//        joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"))
+    @ManyToMany
+    @JoinTable(
+        name = "Nationality",
+        joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+        inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> nationalities;
+
+    @ManyToMany
+    @JoinTable(
+            name = "Passport",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    public List<CountryDefinition> passports;
 }

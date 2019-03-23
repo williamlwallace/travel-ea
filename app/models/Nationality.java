@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -11,16 +12,11 @@ import javax.persistence.*;
 @Entity
 @Table(name="Nationality")
 public class Nationality extends Model {
+    public Long guid;
 
-    @Id
+    @Constraints.Required
     public Long countryId;
 
     @Constraints.Required
     public Long userId;
-
-    @OneToOne
-    @JoinTable(
-        name="CountryDefinition",
-        joinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
-    public CountryDefinition country;
 }
