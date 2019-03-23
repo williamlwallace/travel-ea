@@ -4,10 +4,7 @@ import io.ebean.Model;
 import play.data.validation.Constraints;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import java.util.List;
 
 /**
@@ -22,7 +19,4 @@ public class CountryDefinition extends Model {
 
     @Constraints.Required
     public String name;
-
-    @ManyToMany()
-    public List<Profile> profiles;
 }

@@ -1,12 +1,9 @@
 package models;
 
-import io.ebean.Finder;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Model;
 import play.data.validation.Constraints;
-import play.data.format.*;
 import javax.persistence.*;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,15 +34,13 @@ public class Profile extends Model {
     @JoinTable(
         name="TravellerType",
         joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
+        inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     @JsonManagedReference
     public List<TravellerTypeDefinition> travellerTypes;
 
-    @ManyToMany(cascade=CascadeType.ALL, mappedBy="profiles")
-    @JoinTable(
-        name="Nationality",
-        joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
-    @JsonManagedReference
+//    @ManyToMany
+//    @JoinTable(
+//        name="Nationality",
+//        joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"))
     public List<CountryDefinition> nationalities;
 }
