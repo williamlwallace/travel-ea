@@ -3,33 +3,44 @@ package actions;
 import com.typesafe.config.Config;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Security;
+import play.mvc.Action;
+import javax.inject.Inject;
 import util.CryptoManager;
+import repository.UserRepository;
 import java.util.concurrent.CompletableFuture;
+import java.util.Optional;
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import models.User;
 
 public class Authenticator extends Action.Simple { 
 
-    @Inject
     private final Config config;
+    private final UserRepository userRepository;
 
-    public CompletableFuture<Result> call(Http.Request request) throws Throwable {
+    @Inject
+    public Authenticator(Config config, UserRepository userRepository) {
+        this.config = config;
+        this.userRepository = userRepository;
+    }
+
+    public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromHeader(request);
         if (token != null) {
-            return UserRepositroy.findByToken(token).thenApplyAsync((user) -> {
-                if (user != null && CryptoManager.verifyToken(token, user.id, config.getString("play.http.secret.key"))) {
-                    return delegate.call(request.addAttr(USER, user));
+            return userRepository.findByToken(token).thenComposeAsync((user) -> {
+                if (user != null && CryptoManager.veryifyToken(token, user.id, config.getString("play.http.secret.key"))) {
+                    return delegate.call(request.addAttr(ActionState.USER, user));
                 }
-                return status(401,"unauthorized");
+                return supplyAsync(() -> status(401,"unauthorized"));
             });
         }
+        return supplyAsync(() -> status(401,"unauthorized"));
     }
 
     private String getTokenFromHeader(Http.Request request) {
-        String[] authTokenHeaderValues = request.headers().get("X-AUTH-TOKEN");
-        if ((authTokenHeaderValues != null) && (authTokenHeaderValues.length == 1) && (authTokenHeaderValues[0] != null)) {
-            return authTokenHeaderValues[0];
+        Optional<String> authTokenHeaderValues = request.getHeaders().get("X-AUTH-TOKEN");
+        if (authTokenHeaderValues.isPresent()) {
+            return authTokenHeaderValues.orElse(null);
         }
         return null;
     }
