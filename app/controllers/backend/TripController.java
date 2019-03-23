@@ -241,11 +241,15 @@ public class TripController extends Controller {
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
+
         System.out.println(data);
+
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
+
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
+            System.out.println(validatorResult.toJson());
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 

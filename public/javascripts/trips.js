@@ -1,6 +1,3 @@
-var destinationsInTrip = [];
-var destCounter = 0;
-
 function newDestination(url) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("addDestinationForm"));
@@ -20,147 +17,189 @@ function newDestination(url) {
             } else {
                 // Toggles aria-hidden to hide add destination form
                 // TODO: Get toggle working
-                document.getElementById("#modalContactForm").setAttribute("aria-hidden", "true");
+                document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
             }
 });
 });
 }
 
-function addDestinationToTrip (dest) {
-    console.log("destId");
-    destinationsInTrip.push(dest);
-    displayDestinations(dest[0], dest[1], dest[2], dest[3], dest[4], dest[5], dest[6]);
-    destCounter += 1;
+let DEST_IDEN = [];
+let IDENTIFIER = 0;
+
+function addDestinationToTrip(dest) {
+    DEST_IDEN.push([IDENTIFIER, dest[0]]);
+
+    document.getElementById('sortable').insertAdjacentHTML('beforeend',
+        '<div class="sortable-card col-md-4" id=' + IDENTIFIER + '>\n' +
+        '    <!-- Card -->\n' +
+        '    <div class="card mb-4">\n' +
+        '        <!--Card image-->\n' +
+        '        <div class="view overlay">\n' +
+        '            <img class="card-img-top" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">\n' +
+        '            <a href="#!">\n' +
+        '                <div class="mask rgba-white-slight"></div>\n' +
+        '            </a>\n' +
+        '        </div>\n' +
+        '        <!--Card content-->\n' +
+        '        <div class="card-body">\n' +
+        '            <!--Title-->\n' +
+        '            <h4 class="card-title"> ' + dest[1] + '</h4>\n' +
+        '            <!--Text-->\n' +
+        '            <p class="card-text">' +
+        '                <b>Type: </b> '+ dest[2] + '<br/>' +
+        '                <b>District: </b> '+ dest[3] + '<br/>' +
+        '                <b>Latitude: </b>' + dest[4] + '<br/>' +
+        '                <b>Longitude: </b>' + dest[5] + '<br/>' +
+        '                <b>Country: </b>' + dest[6] +
+        '            </p>\n' +
+        '            <form id="arrivalDepartureForm">\n' +
+        '                <div class="modal-body mx-3">\n' +
+        '                    <div>Arrival\n' +
+        '                        <i class="fas prefix grey-text"></i>\n' +
+        '                        <input type="date" name="arrivalDate" class="form-control validate"><input type="time" name="arrivalTime" class="form-control validate">\n' +
+        '                        <label id="arrivalError"></label>\n' +
+        '                    </div>\n' +
+        '                    <div>Departure\n' +
+        '                        <i class="fas prefix grey-text"></i>\n' +
+        '                        <input type="date" name="departureDate" class="form-control validate"><input type="time" name="departureTime" class="form-control validate">\n' +
+        '                        <label id="departureError"></label>\n' +
+        '                    </div>\n' +
+        '                </div>\n' +
+        '            </form>\n' +
+        '            <label id="destinationError"></label>\n' +
+        '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
+        '            <button type="button" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(IDENTIFIER)">Remove</button>\n' +
+        '        </div>\n' +
+        '    </div>\n' +
+        '</div>'
+    );
+
+    IDENTIFIER++;
 }
 
-function createTrip() {
-    var tripDestinations = document.getElementById("sortable");
-    var destinations = tripDestinations.getElementsByClassName("sortable-card col-md-4");
-    var destList = [];
+// TODO: Get errors displaying correctly
+function removeDestinationFromTrip(cardId) {
+    let destinations = Array.of(document.getElementById("sortable").children)[0];
 
     for (let i = 0; i < destinations.length; i++) {
-        console.log(destinations[i]);
-        destList.push(destinations[i].getAttribute("id"));
+        if (destinations[i].getAttribute("id") === cardId) {
+            destinations[i].parentNode.removeChild(destinations[i]);
+            break;
+        }
+    }
+}
+
+function createTrip(url, redirect) {
+    let listItemArray = Array.of(document.getElementById("sortable").children);
+    let tripDataList = [];
+
+    for (let i = 0; i < listItemArray[0].length; i++) {
+        tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
-    console.log(destList);
+    let tripData = {
+        "uid": 0,    // TODO: Fix uid, arrivalTime and departureTime
+        "tripDataCollection": tripDataList
+    };
 
-    return;
+    post(url, tripData).then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+            .then(json => {
+                if (response.status === 400) {
+                    showErrors(json);    // TODO: Fix show errors
+                } else if (response.status === 200) {
+                    window.location.href = redirect;
+                } else {
+                    document.getElementById("destinationError").innerHTML = "Error(s): " + Object.values(json).join(", ");
+                }
+            });
+        });
 }
 
-function displayDestinations(id, name, type, district, latitude, longitude, country) {
-    document.getElementById('sortable').insertAdjacentHTML('beforeend', '<div class="sortable-card col-md-4" id=id>\n' +
-            '                                <!-- Card -->\n' +
-            '                            <div class="card mb-4">\n' +
-            '                                    <!--Card image-->\n' +
-            '                                <div class="view overlay">\n' +
-            '                                    <img class="card-img-top" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">\n' +
-            '                                    <a href="#!">\n' +
-            '                                        <div class="mask rgba-white-slight"></div>\n' +
-            '                                    </a>\n' +
-            '                                </div>\n' +
-            '\n' +
-            '                                    <!--Card content-->\n' +
-            '                                <div class="card-body">\n' +
-            '\n' +
-            '                                        <!--Title-->\n' +
-            '                                    <h4 class="card-title"> ' + name + '</h4>\n' +
-            '                                        <!--Text-->\n' +
-            '                                    <p class="card-text"><b>Type: </b> '+ type + '<br/><b>District: </b> '+ district + '<br/><b>Latitude: </b>' + latitude + '<br/><b>Longitude: </b>' + longitude + '<br/><b>Country: </b>' + country + '</p>\n' +
-            '                                        <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
-            '                                    <button type="button" class="btn btn-primary btn-md" data-toggle="modal" data-target="#modalEditForm">Edit</button>\n' +
-            '\n' +
-            '                                </div>\n' +
-            '\n' +
-            '                            </div>\n' +
-            '                                <!-- Card -->\n' +
-            '                        </div>');
+function listItemToTripData(listItem, index) {
+    // Create json object to store data
+    let json = {};
+
+    // Assign position to be equal to given index
+    json["position"] = index;
+
+    // Read destination id
+    let destIdentifier = listItem.getAttribute("id");
+
+    for (let i = 0; i < DEST_IDEN.length; i++) {
+        if (DEST_IDEN[i][0] === parseInt(destIdentifier)) {
+            json["destinationId"] = DEST_IDEN[i][1];
+            break;
+        }
+    }
+
+    // Fill in arrival time (if any)
+    try { json["arrivalTime"] = new Date(listItem.children.arrivalInput.value).toISOString(); }
+    catch {json["arrivalTime"] = null }
+
+    // Fill in departure time (if any)
+    try { json["departureTime"] = new Date(listItem.children.departureInput.value).toISOString(); }
+    catch {json["departureTime"] = null }
+
+    // Return created json object
+    return json;
 }
 
+// TODO: Get errors displaying correctly
+function showErrors(json) {
+    let listItemArray = Array.of(document.getElementById("sortable").children);
 
-function get(url) {
-    return fetch(url, {
-        method: "GET"
-    })
+    for (const element in listItemArray[0]) {
+        element.getElementById("destinationError").innerHTML = "123";
+    }
+
+    for (const key of Object.keys(json)) {
+        let errors = json[key].substr(0, Math.max(0, json[key].length - 2)).split(', ');
+
+        if (errors[0] != null) {
+            listItemArray[0][parseInt(key)].getElementById("destinationError").innerHTML = errors[0];
+        }
+    }
+}
+
+function addTripToServer(url, redirect) {
+    // Create array (which will be serialized)
+    let tripDataCollection = [];
+
+    // Get user id to use
+    let uid = document.getElementById("userIDInput").value;
+
+    // For each list item in list, convert it to a json object and add it to json array
+    var listItemArray = Array.of(document.getElementById("tripStageList").children);
+    for(let i = 0; i < listItemArray[0].length; i++) {
+        tripDataCollection.push(listItemToTripData(listItemArray[0][i], i));
+    }
+
+    // Now create final json object
+    let data = {};
+    data["uid"] = uid;
+    data["tripDataCollection"] = tripDataCollection;
+    console.log(data);
+    // Post json object to server at given url
+    post(url,data)
+        .then(response => {
+            // Read response from server, which will be a json object
+            response.json()
+                .then(json => {
+                    if(response.status == 400) {
+                        showErrors(json);
+                    } else if (response.status == 200) {
+                        window.location.href = redirect + JSON.parse(json);
+                    } else {
+                        document.getElementById("errorDisplay").innerHTML = "Error(s): " + Object.values(json).join(", ");
+                    }
+                });
+        });
 }
 
 let idCount = 0;
 let tripId = -1;
-
-function red(url) {
-    window.location.href = url;
-}
-
-function addNewStageRow(destVal) { //, arrivalVal, departVal) {
-
-    // Create list item to store controls
-    let listItem = document.createElement("TR");
-    listItem.id = idCount.toString();
-    idCount++;
-
-    // Create destination input
-    let destinationInput = document.createElement("TD");
-    destinationInput.setAttribute("type", "number");
-    destinationInput.setAttribute("name", "destinationInput");
-    destinationInput.value = destVal;
-
-    /*
-    // Create arrival time input
-    let arrivalTimeInput = document.createElement("INPUT");
-    arrivalTimeInput.setAttribute("type", "datetime-local");
-    arrivalTimeInput.setAttribute("name", "arrivalInput");
-    arrivalTimeInput.value = arrivalVal;
-
-    // Create departure time input
-    let departureTimeInput = document.createElement("INPUT");
-    departureTimeInput.setAttribute("type", "datetime-local");
-    departureTimeInput.setAttribute("name", "departureInput");
-    departureTimeInput.value = departVal;
-    */
-
-    // Add fields to list item
-    // Add label and destination id
-    listItem.appendChild(document.createTextNode("Destination ID: "));
-    listItem.appendChild(destinationInput);
-
-    /*
-    // Add label and arrival time
-    listItem.appendChild(document.createTextNode("Arriving: "));
-    listItem.appendChild(arrivalTimeInput);
-
-    // Add label and departure time
-    listItem.appendChild(document.createTextNode("Departing: "));
-    listItem.appendChild(departureTimeInput);
-    */
-    /*
-    // Add some space before buttons
-    listItem.appendChild(document.createTextNode("        "));
-
-    // Create button to delete this list item
-    let deleteButton = document.createElement("BUTTON");
-    deleteButton.innerHTML = 'Delete';
-    deleteButton.onclick = deleteListItem(listItem.id);
-
-    // Create button to move it up
-    let moveUpButton = document.createElement("BUTTON");
-    moveUpButton.innerHTML = 'Move up';
-    moveUpButton.onclick = moveItemUp(listItem.id);
-
-    // Create button to move it down
-    let moveDownButton = document.createElement("BUTTON");
-    moveDownButton.innerHTML = 'Move Down';
-    moveDownButton.onclick = moveItemDown(listItem.id);
-
-    // Add buttons to list item
-    listItem.appendChild(moveUpButton);
-    listItem.appendChild(moveDownButton);
-    listItem.appendChild(deleteButton);
-    */
-    // Add list element to list
-    document.getElementById("tripDestinations").appendChild(listItem);
-    console.log("Added new stage row with id " + listItem.id);
-
-}
 
 function deleteListItem(itemID) {
     return () => {
@@ -222,27 +261,7 @@ function moveItemDown(itemID){
     }
 }
 
-function listItemToTripData(listItem, index) {
-    // Create json object to store data
-    let json = {};
 
-    // Assign position to be equal to given index
-    json["position"] = index;
-
-    // Read destination id
-    json["destinationId"] = parseInt(listItem.children.destinationInput.value);
-
-    // Fill in arrival time (if any)
-    try{ json["arrivalTime"] = new Date(listItem.children.arrivalInput.value).toISOString(); }
-    catch {json["arrivalTime"] = null }
-
-    // Fill in departure time (if any)
-    try{ json["departureTime"] = new Date(listItem.children.departureInput.value).toISOString(); }
-    catch {json["departureTime"] = null }
-
-    // Return created json object
-    return json;
-}
 
 function addTripToServer(url, redirect) {
     // Create array (which will be serialized)
@@ -392,7 +411,7 @@ function get(url) {
     })
 }
 
-function showErrors(json) {
+function showErrorsDefault(json) {
     const elements = document.getElementsByTagName("pre");
     console.log(json);
     for (i in elements) {
