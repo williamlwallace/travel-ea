@@ -174,7 +174,7 @@ public class ProfileController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -187,62 +187,9 @@ public class ProfileController extends Controller {
         }
 
         if (profile != null) {
-            // Creates lists for nationality, passport and traveller type objects to be stored in
-            System.out.println(profile.nationalities.get(0));
-            List<Passport> passports;
-
-            try {
-                passports = passportRepository.getAllPassportsOfUser(profile.userId).get();
-            }
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Database Exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                
-                });
-            }
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Thread exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                });
-            }
-
-            // Creates nationality, passport and traveller type strings to send
-            String passportString = "";
-
-            try {
-
-                if (passports != null) {
-                    for (Passport passport : passports) {
-                        CountryDefinition countryDefinition = countryDefinitionRepository.findCountryByID(passport.countryId).get();
-
-                        if (countryDefinition != null) {
-                            passportString += countryDefinition.name + ",";
-                        }
-                    }
-
-                    passportString = passportString.substring(0, max(0, passportString.length() - 1));
-                }
-            }
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Database Exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                
-                });
-            }
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Thread exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                });
-            }
-
             // Converts profile to json and adds nationality, passport and traveller type properties
             JsonNode profileJson = Json.toJson(profile);
             ObjectNode customProfileJson = (ObjectNode)profileJson;
-            customProfileJson.put("passports", passportString);
 
             return CompletableFuture.supplyAsync(() -> ok(customProfileJson));
         }
@@ -279,7 +226,7 @@ public class ProfileController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
