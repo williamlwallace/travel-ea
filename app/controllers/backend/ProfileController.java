@@ -169,7 +169,7 @@ public class ProfileController extends Controller {
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    // @With(Authenticator.class)
+    @With(Authenticator.class)
     public CompletionStage<Result> getProfile(Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
