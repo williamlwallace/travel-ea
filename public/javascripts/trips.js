@@ -29,8 +29,8 @@ let IDENTIFIER = 0;
 function addDestinationToTrip(dest) {
     DEST_IDEN.push([IDENTIFIER, dest[0]]);
 
-    document.getElementById('sortable').insertAdjacentHTML('beforeend',
-        '<div class="sortable-card col-md-4" id=' + IDENTIFIER + '>\n' +
+    document.getElementById('list').insertAdjacentHTML('beforeend',
+        '<div class="sortable-card" id=' + IDENTIFIER + '>\n' +
         '    <!-- Card -->\n' +
         '    <div class="card mb-4">\n' +
         '        <!--Card image-->\n' +
