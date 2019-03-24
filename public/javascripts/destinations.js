@@ -67,9 +67,3 @@ function addDestination(url, redirect) {
         });
     });
 }
-
-function get(url) {
-    return fetch(url, {
-        method: "GET"
-    })
-}

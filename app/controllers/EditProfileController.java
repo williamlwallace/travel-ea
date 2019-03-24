@@ -1,5 +1,7 @@
 package controllers;
 
+import actions.*;
+import actions.roles.*;
 import models.frontend.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,11 +66,10 @@ public class EditProfileController extends Controller {
      * @param request
      * @return a http result; a redirect if the user credentials are correct, and a bad request in other cases.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(views.html.editProfile.render(profile, form, user, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(controllers.frontend.routes.ApplicationController.home()));
+        String username = request.attrs().get(ActionState.USER).username;
+        return ok(views.html.editProfile.render(profile, form, username, request, messagesApi.preferred(request)));
     }
 
     public Result updateProfile(Http.Request request) {
