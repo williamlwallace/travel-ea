@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Trip;
 import models.TripData;
-import models.TripData.TripDataKey;
 import play.libs.Json;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class TripValidator {
     public ErrorResponse validateTrip(boolean isUpdating) throws IOException {
         // Check if uid has a value
         //Validation for trip as a whole
-        this.required("uid");
+        this.required("userId");
 
         if(isUpdating) {
             this.required("id");
@@ -46,11 +45,10 @@ public class TripValidator {
 
         for (Object obj : tripDataCollection) {
             TripData trip = (TripData) obj;
-            trip.key = new TripDataKey(trip.tripId, trip.position);
             String errorString = "";
-            if(trip.key.position == null) {
+            if(trip.position == null) {
                 errorString += "position is null, ";
-                trip.key.position = -1L;
+                trip.position = -1L;
             }
             if(trip.destinationId == null) errorString += "destinationId is null, ";
             if(trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
@@ -69,7 +67,7 @@ public class TripValidator {
 
             // If any errors were added to string, add this to error response map
             if(!errorString.equals("")) {
-                this.response.map(errorString, trip.key.position.toString());
+                this.response.map(errorString, trip.position.toString());
             }
 
         }
@@ -90,7 +88,7 @@ public class TripValidator {
     }
 
     public ErrorResponse getAllTripsByUser() {
-        this.required("uid");
+        this.required("userId");
 
         return this.response;
     }

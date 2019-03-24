@@ -1,5 +1,11 @@
 package controllers;
 
+import actions.*;
+import actions.roles.*;
+import play.mvc.With;
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -55,13 +61,6 @@ public class createTripController extends Controller {
      *
      * @return displays the create trip or start page.
      */
-//    public Result index2(Http.Request request) {
-//        return request.session()
-//                .getOptional("connected")
-//                .map(user -> ok(createTrip.render(user, destinationController.getDestinations(), tripList, request, messagesApi.preferred(request))))
-//                .orElseGet(() -> redirect(routes.StartController.index()));
-//    }
-
     public CompletableFuture<Result> index(Http.Request request) {
         return request.session().getOptional("connected").map(user -> {
             return destinationController.getDestinations().thenApplyAsync(
@@ -69,26 +68,13 @@ public class createTripController extends Controller {
                         return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), tripList, request, messagesApi.preferred(request))):internalServerError();
                     },
                     httpExecutionContext.current());
-        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.routes.StartController.index())));
+        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.home())));
     }
 
-    /**
-     * Displays the destinations page. Called with the /destinations URL and uses a
-     * GET request. Checks that a user is logged in. Takes them to the destinations
-     * page if they are, otherwise they are taken to the start page.
-     *
-     * @return displays the destinations or start page.
-     */
-//    public CompletableFuture<Result> index(Http.Request request) {
-//        //will remove session checks when middle ware done in story 9
-//        return request.session().getOptional("connected").map(user -> {
-//            return destinationController.getDestinations().thenApplyAsync(
-//                    destList -> {
-//                        return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user)):internalServerError();
-//                    },
-//                    httpExecutionContext.current());
-//        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.routes.StartController.index())));
-//    }
-
-
+    // TODO: Merge these
+//    @With({Everyone.class, Authenticator.class})
+////    public Result index(Http.Request request) {
+////        String username = request.attrs().get(ActionState.USER).username;
+////        return ok(createTrip.render(username, tripList, request, messagesApi.preferred(request)));
+////    }
 }

@@ -59,7 +59,7 @@ public class ProfileRepository {
         return supplyAsync(() -> {
             int rows = ebeanServer.find(Profile.class)
                                     .where()
-                                    .eq("uid",id)
+                                    .eq("user_id",id)
                                     .delete();
             return rows > 0;
         }, executionContext);
