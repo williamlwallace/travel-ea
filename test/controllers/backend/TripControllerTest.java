@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.TripData;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import play.Application;
 import play.libs.Json;
@@ -45,7 +46,7 @@ public class TripControllerTest extends WithApplication {
     public void createAndDeleteTest() throws IOException {
         // Create json object to store trip to add
         ObjectNode node = Json.newObject();
-        node.put("uid", 0);
+        node.put("userId", 0);
 
         // Add sample trip data
         TripData data1 = new TripData();
