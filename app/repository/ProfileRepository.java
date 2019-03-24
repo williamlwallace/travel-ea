@@ -45,7 +45,7 @@ public class ProfileRepository {
         return supplyAsync(() -> 
             ebeanServer.find(Profile.class)
                 .where()
-                .idEq(id)
+                .eq("user_id", id)
                 .findOneOrEmpty()
                 .orElse(null),
             executionContext);
