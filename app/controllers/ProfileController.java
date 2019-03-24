@@ -1,5 +1,7 @@
 package controllers;
 
+import actions.*;
+import actions.roles.*;
 import models.frontend.Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +60,10 @@ public class ProfileController extends Controller {
      *
      * @return displays the profile or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(profile.render(asScala(profiles), form, user, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
+        String username = request.attrs().get(ActionState.USER).username;
+        return ok(profile.render(asScala(profiles), form, username, request, messagesApi.preferred(request)));
     }
 
     /**
