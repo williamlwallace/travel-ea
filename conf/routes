@@ -13,13 +13,14 @@ POST    /api/logout                     controllers.backend.UserController.logou
 
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
+GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(userId:Long)
 
-POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
+PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
+# admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-DELETE  /api/profile/:userId               controllers.backend.ProfileController.deleteProfile(userId:Long)
+DELETE  /api/profile/:userId            controllers.backend.ProfileController.deleteProfile(userId:Long)
 
-DELETE  /api/user/:userId                  controllers.backend.UserController.deleteUser(userId:Long)
+DELETE  /api/user/:userId               controllers.backend.UserController.deleteUser(userId:Long)
 
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
 
@@ -40,7 +41,7 @@ PUT     /api/trip                       controllers.backend.TripController.updat
 
 GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
-GET     /api/trip/getAll/:userId           controllers.backend.TripController.getAllUserTrips(userId:Long)
+GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
