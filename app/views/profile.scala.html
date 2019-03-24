@@ -507,7 +507,7 @@
                                     They can be edited any time in the profile scene</small>
                                 <div>
                                     <br/>
-                                    <select name="travellerType" id="travellerTypes" multiple required>
+                                    <select name="travellerTypes" id="travellerType" multiple required>
                                         <option value="" disabled hidden>Select Traveller Type</option>
                                         <option value="Groupies">Groupies</option>
                                         <option value="Thrill Seeker">Thrill Seeker</option>
@@ -526,7 +526,7 @@
                             <button class="btn btn-popup" onclick=
                             'signUp(
                                     "@controllers.backend.routes.ProfileController.addNewProfile()",
-                                    "@controllers.routes.ApplicationController.index()")'>
+                                    "@controllers.frontend.routes.ApplicationController.home()")'>
                                 Create
                             </button>
                             <label id="otherError"></label>
