@@ -6,6 +6,9 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import views.html.people;
+import actions.*;
+import actions.roles.*;
+import play.mvc.With;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -146,11 +149,9 @@ public class PeopleController extends Controller {
      *
      * @return displays the people or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(people.render(user, accounts))) //Let them access the page. Database should access all accounts here
-                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index())); //Send them to the start page
+        String username = request.attrs().get(ActionState.USER).username;
+        return ok(people.render(username, accounts));
     }
-
 }
