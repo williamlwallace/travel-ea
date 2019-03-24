@@ -30,14 +30,14 @@ public class Profile extends Model {
 
     public String gender;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name="TravellerType",
         joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
         inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "Nationality",
         joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
