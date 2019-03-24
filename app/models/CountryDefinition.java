@@ -20,11 +20,11 @@ public class CountryDefinition extends Model {
     @Constraints.Required
     public String name;
 
-    @JsonBackReference
-    @ManyToMany(mappedBy = "nationalities")
-    public List<Profile> nationalities;
-
-    @JsonBackReference
-    @ManyToMany(mappedBy = "passports")
-    public List<Profile> passports;
+//    @JsonBackReference
+//    @ManyToMany(mappedBy = "nationalities")
+//    public List<Profile> nationalities;
+//
+//    @JsonBackReference
+//    @ManyToMany(mappedBy = "passports")
+//    public List<Profile> passports;
 }
