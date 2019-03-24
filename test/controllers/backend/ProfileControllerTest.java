@@ -58,7 +58,7 @@ public class ProfileControllerTest extends WithApplication {
      */
     @Before
     public void applyEvolutions() {
-        // Only certain evolutions, namely initialisation, and profile folders
+        // Only certain trips, namely initialisation, and profile folders
         Evolutions.applyEvolutions(db, Evolutions.fromClassLoader(getClass().getClassLoader(), "test/profile/"));
     }
 
