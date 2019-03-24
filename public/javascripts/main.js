@@ -80,3 +80,10 @@ function checkCookie(cname) {
       return false;
     }
 } 
+
+function logout(url, redirect) {
+    post(url,"")
+    .then(response => {
+        window.location.href = redirect;
+    });
+}

@@ -14,6 +14,9 @@ import repository.*;
 import util.CryptoManager;
 import util.validation.UserValidator;
 import util.validation.ErrorResponse;
+import actions.*;
+import actions.roles.Everyone;
+import play.mvc.With;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -68,6 +71,18 @@ public class UserController extends Controller {
         return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted ->
                         (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found"),
                 httpExecutionContext.current());
+    }
+
+    /**
+     * Logs userout
+     * @param request The HTTP request sent, the body of this request should be a JSON User object
+     * @return Ok
+     */
+    @With({Everyone.class, Authenticator.class})
+    public Result logout(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        removeToken(user);
+        return ok();
     }
 
 
@@ -171,5 +186,15 @@ public class UserController extends Controller {
         user.authToken = authToken;
         userRepository.updateUser(user);
         return authToken;
+    }
+    
+    /**
+     * Remove user cookie
+     * @param user User object to be updated
+     * @return authToken 
+     */
+    public void removeToken(User user) {
+        user.authToken = "";
+        userRepository.updateUser(user);
     }
 }

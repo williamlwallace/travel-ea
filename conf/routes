@@ -8,6 +8,8 @@ GET     /api/user/search                controllers.backend.UserController.paged
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
 + nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
++ nocsrf
+POST    /api/logout                     controllers.backend.UserController.logout(request:Request)
 
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
@@ -70,15 +72,10 @@ GET     /trips/create               controllers.createTripController.index(reque
 
 # The Travelea profile page
 GET     /profile                    controllers.ProfileController.index(request: Request)
-POST    /profile                    controllers.ProfileController.createProfile(request: Request)
 
 # The TravelEA destinations page
 GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
-POST    /destinations               controllers.frontend.DestinationController.createDestination(request: Request)
-DELETE  /destinations               controllers.frontend.DestinationController.deleteDestination(request: Request)
-
 GET    /editProfile                 controllers.EditProfileController.index(request: Request)
-POST   /editProfile                 controllers.EditProfileController.updateProfile(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
