@@ -1,5 +1,7 @@
 package controllers.frontend;
 
+import actions.*;
+import actions.roles.Everyone;
 import models.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,14 +38,9 @@ public class UserController extends Controller {
      * @param request
      * @return displays the start page.
      */
+    // @With(Authenticator.class)
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> redirect(controllers.routes.ApplicationController.index()))
-            .orElseGet(() -> {
-                return ok(start.render());
-            }
-                );
+        return ok(start.render());
     }
 
     /**

@@ -54,7 +54,10 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="@routes.EditProfileController.index()">Profile</a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="@routes.ApplicationController.logout()">Logout</a>
+                            <button class="dropdown-item" onclick=
+                            'logout("@controllers.backend.routes.UserController.logout()",
+                             "@controllers.routes.ApplicationController.index()")'>
+                             Logout</button>
                         </div>
                     </li>
                 </ul>
