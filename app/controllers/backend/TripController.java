@@ -1,5 +1,7 @@
 package controllers.backend;
 
+import actions.*;
+import actions.roles.*;
 import akka.http.javadsl.model.HttpRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -16,6 +18,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.DestinationRepository;
 import repository.TripDataRepository;
 import repository.TripRepository;
@@ -37,24 +40,20 @@ public class TripController extends Controller {
 
     private final TripRepository tripRepository;
     private final TripDataRepository tripDataRepository;
-    private final FormFactory formFactory;
     private final HttpExecutionContext httpExecutionContext;
-    private final MessagesApi messagesApi;
 
     @Inject
-    public TripController(FormFactory formFactory,
-                         TripRepository tripRepository,
+    public TripController(TripRepository tripRepository,
                          TripDataRepository tripDataRepository,
-                         HttpExecutionContext httpExecutionContext,
-                         MessagesApi messagesApi) {
+                         HttpExecutionContext httpExecutionContext) {
         this.tripDataRepository = tripDataRepository;
         this.tripRepository = tripRepository;
-        this.formFactory = formFactory;
         this.httpExecutionContext = httpExecutionContext;
-        this.messagesApi = messagesApi;
     }
 
-    public CompletableFuture<Result> getAllUserTrips(Long userId) {
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllUserTrips(Http.Request request) {
+        Long userId = request.attrs().get(ActionState.USER).id;
         ArrayList<Long> tripIds = new ArrayList<>();
 
         // Trip to get the trip with a given ID
@@ -172,6 +171,7 @@ public class TripController extends Controller {
      * @return Returns trip id (as json) on success, otherwise bad request
      * @throws IOException
      */
+    // TODO: Add Authorization so only owner can do it
     public CompletableFuture<Result> updateTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
@@ -213,6 +213,7 @@ public class TripController extends Controller {
      * @param id ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
      */
+    // TODO: Add Authorization so only owner can do it
     public CompletableFuture<Result> deleteTrip(Long id) {
         // Delete all existing trip data
         try {
@@ -238,6 +239,7 @@ public class TripController extends Controller {
      * @return JSON object containing id of newly created trip
      * @throws IOException Thrown by failure deserializing
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
@@ -252,7 +254,7 @@ public class TripController extends Controller {
 
         // Assemble trip
         Trip trip = new Trip();
-        trip.userId = data.get("userId").asLong();
+        trip.userId = request.attrs().get(ActionState.USER).id;
 
         // Store result of trip adding operation
         Result tripAddResult;
