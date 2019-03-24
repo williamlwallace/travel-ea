@@ -1,136 +1,140 @@
--- AUTHOR: Matthew Minish
--- CREATED: 23/2/2019 5.30pm
--- USAGE: To execute this file, open sqlite DB file via command line (e.g sqlite3 team302.db) then execute .read <this-filename>
+-- AUTHOR: Matthew Minish, William Wallace
+-- MODIFIED: 14/3/2019 2.00PM
 
-# --- !Ups
-
-PRAGMA foreign_keys = true;
+-- !Ups
 
 -- Create User table
-CREATE TABLE IF NOT EXISTS User(
-uid INTEGER PRIMARY KEY AUTOINCREMENT,
-username TEXT,
-password TEXT,
-salt TEXT
-);
+CREATE TABLE IF NOT EXISTS User
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    username          VARCHAR(64) NOT NULL,
+    password          VARCHAR(128) NOT NULL,
+    salt              VARCHAR(64) NOT NULL,
+    auth_token        VARCHAR(128),
+    PRIMARY KEY (id),
+    UNIQUE (username),
+    UNIQUE (auth_token)
+  );
 
 -- Create Profile table
-CREATE TABLE IF NOT EXISTS Profile(
-uid INTEGER PRIMARY KEY,
-firstName TEXT,
-middleName TEXT,
-lastName TEXT,
-dateOfBirth DATE,
-gender TEXT,
-FOREIGN KEY(uid) REFERENCES User(uid)
-);
+CREATE TABLE IF NOT EXISTS Profile
+  (
+    user_id           INT NOT NULL AUTO_INCREMENT,
+    first_name        VARCHAR(64) NOT NULL,
+    middle_name       VARCHAR(64),
+    last_name         VARCHAR(64) NOT NULL,
+    date_of_birth     DATE,
+    gender            VARCHAR(32),
+    PRIMARY KEY (user_id),
+    FOREIGN KEY (user_id) REFERENCES User(id)
+  );
+
+CREATE TABLE IF NOT EXISTS CountryDefinition
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    name              VARCHAR(64) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX name_index (name)
+  );
 
 -- Create Nationality table, which specifies nationalities for users
-CREATE TABLE IF NOT EXISTS Nationality(
-uid INTEGER,
-countryId INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid),
-FOREIGN KEY(countryId) references CountryDefinition(id),
-PRIMARY KEY(uid, countryId)
-);
+CREATE TABLE IF NOT EXISTS Nationality
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL,
+    country_id        INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    PRIMARY KEY (guid),
+    INDEX nationality_index (user_id, country_id),
+    UNIQUE (user_id, country_id)
+  );
 
 -- Create Passport table, which specifies passports of users
-CREATE TABLE IF NOT EXISTS Passport(
-uid INTEGER,
-countryId INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid),
-FOREIGN KEY(countryId) references CountryDefinition(id),
-PRIMARY KEY(uid, countryId)
-);
+CREATE TABLE IF NOT EXISTS Passport
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL,
+    country_id        INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    PRIMARY KEY (guid),
+    INDEX passport_index (user_id, country_id),
+    UNIQUE (user_id, country_id)
+  );
 
 -- Create the traveller type definitions table (as above, static-ish table with all possible values)
-CREATE TABLE IF NOT EXISTS TravellerTypeDefinition(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-description TEXT
-);
+CREATE TABLE IF NOT EXISTS TravellerTypeDefinition
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    description       VARCHAR(2048) NOT NULL,
+    PRIMARY KEY (id)
+  );
 
 -- Create TravellerType table, which specifies the traveller types of users
-CREATE TABLE IF NOT EXISTS TravellerType(
-uid INTEGER,
-travellerTypeId INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid),
-FOREIGN KEY(travellerTypeId) REFERENCES TravellerTypeDefinition(id),
-PRIMARY KEY(uid, travellerTypeId)
-);
+CREATE TABLE IF NOT EXISTS TravellerType
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL,
+    traveller_type_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id),
+    PRIMARY KEY (guid),
+    INDEX travellertype_index (user_id, traveller_type_id),
+    UNIQUE(user_id, traveller_type_id)
+  );
 
 -- Create Destination table
-CREATE TABLE IF NOT EXISTS Destination(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-name TEXT,
-type TEXT, -- We may want to make a separate table which stores these
-district TEXT,
-latitude DOUBLE,
-longitude DOUBLE,
-countryId INTEGER,
-FOREIGN KEY(countryId) REFERENCES CountryDefinition(id)
-);
+CREATE TABLE IF NOT EXISTS Destination
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    name              VARCHAR(128) NOT NULL,
+    type              VARCHAR(128) NOT NULL, -- We may want to make a separate table which stores these
+    district          VARCHAR(128) NOT NULL,
+    latitude          DOUBLE NOT NULL,
+    longitude         DOUBLE NOT NULL,
+    country_id        INT NOT NULL,
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    PRIMARY KEY (id)
+  );
 
 -- Create Trip table, which maps trips to users
-CREATE TABLE IF NOT EXISTS Trip(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-uid INTEGER,
-FOREIGN KEY(uid) REFERENCES User(uid)
-);
+CREATE TABLE IF NOT EXISTS Trip
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    PRIMARY KEY (id),
+    INDEX user_id_index (user_id)
+  );
 
 -- Create TripData table, which stores the actual data (i.e destinations, times, etc.) of all trips
-CREATE TABLE IF NOT EXISTS TripData(
-tripId INTEGER,
-position INTEGER,
-destinationId INTEGER,
-arrivalTime DATETIME,
-departureTime DATETIME,
-FOREIGN KEY(tripID) REFERENCES Trip(id),
-FOREIGN KEY(destinationId) REFERENCES Destination(id),
-PRIMARY KEY(tripId, position)
-);
-
-CREATE TABLE IF NOT EXISTS CountryDefinition(
-id INTEGER PRIMARY KEY,
-name TEXT
-);
-
--- Add sample user
-INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass', 'salt');
-INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', 'pass', 'salt');
-
--- Add sample data for country
-INSERT INTO CountryDefinition (name) VALUES ('France'), ('England'), ('New Zealand'), ('Australia'), ('Germany'), ('United States');
-
--- Add sample data for TravellerTypeDefinitions
-INSERT INTO TravellerTypeDefinition (description) VALUES ('backpacker'), ('functional/business traveller'), ('groupies'), ('thrillseeker'), ('frequent weekender'), ('gap year');
-
--- Add sample Profile
-INSERT INTO Profile(uid, firstName, middleName, lastName, dateOfBirth, gender) VALUES (1, 'UserFirst', "UserMiddle", "UserLast", "1990-01-01", "Male");
-INSERT INTO TravellerType (uid, travellerTypeId) VALUES (1,1), (1,3);
-INSERT INTO Passport (uid, countryId) VALUES (1,1);
-INSERT INTO Nationality (uid, countryId) VALUES (1,1), (1,3);
-
--- Add sample data for destination
-INSERT INTO Destination (name, type, district, latitude, longitude, countryId) VALUES
-    ('Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1),
-    ('Stonehenge', 'Monument', 'Salisbury', 20.0, 30.0, 2),
-    ('Sky Tower', 'Monument', 'Auckland', 40.0, 50.0, 3),
-    ('Sydney Opera House', 'Monument', 'Sydney', 50.0, 60.0, 4),
-    ('Brandenburg Gate', 'Monument', 'Berlin', 60.0, 70.0, 5),
-    ('Statue of Liberty', 'Monument', 'New York', 70.0, 80.0, 6);
-
--- Add sample data for trip
-INSERT INTO Trip (uid) VALUES (1);
-
--- Add sample tripData for the sample trip
-INSERT INTO TripData (tripId, position, destinationId, arrivalTime, departureTime) VALUES (1, 0, 1, NULL, NULL);
+CREATE TABLE IF NOT EXISTS TripData
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    trip_id           INT NOT NULL,
+    position          INT NOT NULL,
+    destination_id    INT NOT NULL,
+    arrival_time      DATETIME,
+    departure_time    DATETIME,
+    FOREIGN KEY (trip_id) REFERENCES Trip(id),
+    FOREIGN KEY (destination_id) REFERENCES Destination(id),
+    PRIMARY KEY (guid),
+    INDEX tripdata_index (trip_id, position),
+    INDEX destination_id_index (destination_id)
+  );
 
 -- !Downs
-DROP TABLE User;
-DROP TABLE Profile;
+DROP TABLE TravellerType;
+DROP TABLE Passport;
 DROP TABLE Nationality;
 DROP TABLE TravellerTypeDefinition;
-DROP TABLE TravellerType;
+DROP TABLE TripData;
 DROP TABLE Destination;
 DROP TABLE Trip;
-DROP TABLE TripData;
+DROP TABLE CountryDefinition;
+DROP TABLE Profile;
+DROP TABLE User;
+
+
+

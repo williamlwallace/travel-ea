@@ -21,5 +21,4 @@ public class TravellerTypeDefinition extends Model {
     @Constraints.Required
     public String description;
 
-    public static final Finder<Long, TravellerTypeDefinition> find = new Finder<>(TravellerTypeDefinition.class);
 }
