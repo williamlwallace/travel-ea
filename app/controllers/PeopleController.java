@@ -150,7 +150,7 @@ public class PeopleController extends Controller {
         return request.session()
                 .getOptional("connected")
                 .map(user -> ok(people.render(user, accounts))) //Let them access the page. Database should access all accounts here
-                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index())); //Send them to the start page
+                .orElseGet(() -> redirect(controllers.frontend.routes.ApplicationController.cover())); //Send them to the start page
     }
 
 }
