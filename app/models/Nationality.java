@@ -5,6 +5,7 @@ import io.ebean.Model;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * A class that represents a user's nationalities
@@ -19,4 +20,7 @@ public class Nationality extends Model {
 
     @Constraints.Required
     public Long userId;
+
+//    @ManyToMany(mappedBy = "nationalities")
+//    public List<Profile> nationalities;
 }
