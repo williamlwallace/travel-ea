@@ -62,7 +62,7 @@ public class ProfileController extends Controller {
         return request.session()
                 .getOptional("connected")
                 .map(user -> ok(profile.render(asScala(profiles), form, user, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
+                .orElseGet(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
     }
 
     /**
@@ -93,7 +93,7 @@ public class ProfileController extends Controller {
             ProfileData data = boundForm.get();
             String time = getCurrentTimeUsingDate();
             profiles.add(new Profile(time, data.getFirstName(), data.getMiddleName(), data.getLastName(), data.getGender(), data.getDOB(), data.getNationalities(), data.getPassports(), data.getTravelerTypes()));
-            return redirect(routes.ApplicationController.index());
+            return redirect(controllers.frontend.routes.ApplicationController.home());
         }
     }
 

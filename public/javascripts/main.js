@@ -79,9 +79,16 @@ function checkCookie(cname) {
     } else {
       return false;
     }
-} 
+}
+
+function deleteCookie(cname) {
+    let date = new Date()
+    date.setTime(date.getTime()-(60*1000*60*24)) //set date to past
+    document.cookie = cname + "=; expires=" + date.toUTCString() + ";path=/";
+}
 
 function logout(url, redirect) {
+    deleteCookie("JWT-Auth");
     post(url,"")
     .then(response => {
         window.location.href = redirect;

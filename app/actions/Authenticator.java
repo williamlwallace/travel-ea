@@ -38,10 +38,13 @@ public class Authenticator extends Action.Simple {
                 if (user != null && CryptoManager.veryifyToken(token, user.id, config.getString("play.http.secret.key"))) {
                     return roleMatch(request, user);
                 }
-                return supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index()));
+                return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
             });
+        } else if (getRoles(request).isEmpty()) {
+            // if no roles specified, do nothing (for homepage)
+            return delegate.call(request).toCompletableFuture();
         }
-        return supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index()));
+        return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
     }
 
     /**
@@ -68,15 +71,15 @@ public class Authenticator extends Action.Simple {
      */
     private CompletionStage<Result> roleMatch(Http.Request request, User user){
         List<String> roles = Authenticator.getRoles(request);
-        // if no roles havebeen set assume redirect to home
+        // if no roles have been set assume redirect to home
         if (roles.isEmpty()) {
-            return supplyAsync(() -> redirect(controllers.routes.ApplicationController.index()));
+            return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.home()));
         }
         // if roles set to everyone delegate
         if (roles.contains("everyone")) {
             return delegate.call(request.addAttr(ActionState.USER, user));
         }
-        return supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index()));
+        return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
         // TODO: implement role check.
     }
 
@@ -86,7 +89,7 @@ public class Authenticator extends Action.Simple {
      * @return Jwt token
      */
     private String getTokenFromCookie(Http.Request request) {
-        Optional<Cookie> option = request.cookies().getCookie("X-AUTH-TOKEN");
+        Optional<Cookie> option = request.cookies().getCookie("JWT-Auth");
         Cookie cookie = option.orElse(null);
         return (cookie != null ? cookie.value() : null);
     }
