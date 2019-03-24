@@ -14,14 +14,11 @@ POST    /api/logout                     controllers.backend.UserController.logou
 + nocsrf
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(userId:Long)
 + nocsrf
 GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
 
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
-+ nocsrf
-POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
 
 DELETE  /api/profile/:userId            controllers.backend.ProfileController.deleteProfile(userId:Long)
 
@@ -75,7 +72,9 @@ GET     /profile                    controllers.frontend.ProfileController.index
 
 # The TravelEA destinations page
 GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
-GET    /editProfile                 controllers.EditProfileController.index(request: Request)
+
+# Edit profile page
+GET    /editProfile                 controllers.frontend.ProfileController.editindex(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
