@@ -1,7 +1,9 @@
 package repository;
 
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
 import models.TravellerType;
-import models.TravellerType.TravellerTypeKey;
+import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
@@ -15,22 +17,27 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
  */
 public class TravellerTypeRepository {
 
+    private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
     @Inject
-    public TravellerTypeRepository(DatabaseExecutionContext executionContext) {
+    public TravellerTypeRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+        this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
     }
 
     /**
      * Adds a TravellerType to a user's profile
      * @param travellerType The TravellerType to add
-     * @return The key of the added TravellerType
+     * @return The guid of the added TravellerType
      */
-    public CompletableFuture<TravellerTypeKey> addTravellerTypeToProfile(TravellerType travellerType) {
+    public CompletableFuture<Long> addTravellerTypeToProfile(TravellerType travellerType) {
+        // If traveller type started with an ID, set it to null as this is generated
+        travellerType.guid = null;
+
         return supplyAsync(() -> {
-            travellerType.insert();
-            return travellerType.key;
+            ebeanServer.insert(travellerType);
+            return travellerType.guid;
         }, executionContext);
     }
 
@@ -40,8 +47,13 @@ public class TravellerTypeRepository {
      * @param travellerTypeId The id of the TravellerTypeDefinition to remove from the user's profile
      * @return false if the delete failed, true otherwise
      */
-    public CompletableFuture<Boolean> deleteTravellerTypeFromProfile(Long profileId, Long travellerTypeId) {
-        return supplyAsync(() -> TravellerType.find.byId(new TravellerTypeKey(profileId, travellerTypeId)).delete()
+    public CompletableFuture<Integer> deleteTravellerTypeFromProfile(Long profileId, Long travellerTypeId) {
+        return supplyAsync(() ->
+            ebeanServer.find(TravellerType.class)
+                    .where()
+                    .eq("traveller_type_id", travellerTypeId)
+                    .eq("user_id", profileId)
+                    .delete()
                 , executionContext);
     }
 
@@ -50,8 +62,13 @@ public class TravellerTypeRepository {
      * @param travellerType The TravellerType object to delete
      * @return false if the delete failed, true otherwise
      */
-    public CompletableFuture<Boolean> deleteTravellerTypeFromProfile(TravellerType travellerType){
-        return supplyAsync(() -> travellerType.delete(), executionContext);
+    public CompletableFuture<Integer> deleteTravellerTypeFromProfile(TravellerType travellerType){
+        return supplyAsync(() ->
+            ebeanServer.find(TravellerType.class)
+                    .where()
+                    .eq("guid", travellerType.guid)
+                    .delete()
+                , executionContext);
     }
 
     /**
@@ -60,10 +77,11 @@ public class TravellerTypeRepository {
      * @return A list of Traveller Types
      */
     public CompletableFuture<List<TravellerType>> getAllTravellerTypesFromProfile(Long profileId) {
-        return supplyAsync(() -> TravellerType.find.query()
-                        .where()
-                        .ieq("uid", Long.toString(profileId))
-                        .findList(),
-                executionContext);
+        return supplyAsync(() ->
+            ebeanServer.find(TravellerType.class)
+                    .where()
+                    .ieq("user_id", Long.toString(profileId))
+                    .findList()
+                , executionContext);
     }
 }

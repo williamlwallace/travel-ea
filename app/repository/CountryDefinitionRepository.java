@@ -49,7 +49,7 @@ public class CountryDefinitionRepository {
         return supplyAsync(() ->
             ebeanServer.find(CountryDefinition.class)
                     .where()
-                    .ieq("name", name)
+                    .eq("name", name)
                     .findOneOrEmpty()
                     .orElse(null),
                 executionContext);
