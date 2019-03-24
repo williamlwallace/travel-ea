@@ -49,7 +49,7 @@ public class createTripController extends Controller {
         return request.session()
                 .getOptional("connected")
                 .map(user -> ok(createTrip.render(user, tripList, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
+                .orElseGet(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
     }
 
 
