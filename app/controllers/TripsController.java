@@ -1,6 +1,8 @@
 package controllers;
 
-import models.Destination;
+import actions.*;
+import actions.roles.*;
+import models.frontend.Destination;
 import models.frontend.Trip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,11 +44,9 @@ public class TripsController extends Controller {
      *
      * @return displays the trips or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(trips.render(user, tripList, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
+        String username = request.attrs().get(ActionState.USER).username;
+        return ok(trips.render(username, tripList, request, messagesApi.preferred(request)));
     }
-
 }

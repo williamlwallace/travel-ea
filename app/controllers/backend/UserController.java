@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import com.typesafe.config.Config;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
@@ -13,6 +14,9 @@ import repository.*;
 import util.CryptoManager;
 import util.validation.UserValidator;
 import util.validation.ErrorResponse;
+import actions.*;
+import actions.roles.Everyone;
+import play.mvc.With;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -30,14 +34,17 @@ public class UserController extends Controller {
     private final UserRepository userRepository;
     private final FormFactory formFactory;
     private final HttpExecutionContext httpExecutionContext;
+    private final Config config;
 
     @Inject
     public UserController(FormFactory formFactory,
                           UserRepository userRepository,
-                          HttpExecutionContext httpExecutionContext) {
+                          HttpExecutionContext httpExecutionContext,
+                          Config config) {
         this.userRepository = userRepository;
         this.formFactory = formFactory;
         this.httpExecutionContext = httpExecutionContext;
+        this.config = config;
     }
 
     /**
@@ -66,6 +73,18 @@ public class UserController extends Controller {
                 httpExecutionContext.current());
     }
 
+    /**
+     * Logs userout
+     * @param request The HTTP request sent, the body of this request should be a JSON User object
+     * @return Ok
+     */
+    @With({Everyone.class, Authenticator.class})
+    public Result logout(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        removeToken(user);
+        return ok();
+    }
+
 
     /**
      * Method to handle adding a new user to the database. The username provided must be unique,
@@ -77,8 +96,6 @@ public class UserController extends Controller {
     public CompletableFuture<Result> addNewUser(Http.Request request) {
         //Get the data from the request as a JSON object
         JsonNode data = request.body().asJson();
-
-
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new UserValidator(data).login();
 
@@ -103,13 +120,15 @@ public class UserController extends Controller {
                             return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
                         }
                     })
-                    .thenApplyAsync(uid -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
-                        if (uid == null) {
+                    .thenApplyAsync(user -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                        if (user == null) {
                             //Create the error to be sent to client
                             validatorResult.map("Email already in use", "other");
                             return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
                         } else {
-                            return ok(Json.toJson(uid));                 //If the uid is not null, return an ok message with the uid contained within
+                            System.out.println(user);
+                            String authToken = updateToken(user);
+                            return ok(Json.toJson(authToken));                 //If the uid is not null, return an ok message with the uid contained within
                         }
                     });
         }
@@ -145,10 +164,8 @@ public class UserController extends Controller {
            else {
                // Check if password given matches hashed and salted password on db
                if(CryptoManager.checkPasswordMatch(json.get("password").asText(""), foundUser.salt, foundUser.password)) {
-                   // Redact password specific fields and return json user object
-                   foundUser.password = null;
-                   foundUser.salt = null;
-                   return ok(Json.toJson(foundUser.id));
+                    String authToken = updateToken(foundUser);
+                    return ok(Json.toJson(authToken));
                }
                // If password was incorrect, return bad request
                else {
@@ -157,5 +174,27 @@ public class UserController extends Controller {
                }
            }
         });
+    }
+
+    /**
+     * Create Token and update user with it
+     * @param user User object to be updated
+     * @return authToken 
+     */
+    public String updateToken(User user) {
+        String authToken = CryptoManager.createToken(user.id, config.getString("play.http.secret.key"));
+        user.authToken = authToken;
+        userRepository.updateUser(user);
+        return authToken;
+    }
+    
+    /**
+     * Remove user cookie
+     * @param user User object to be updated
+     * @return authToken 
+     */
+    public void removeToken(User user) {
+        user.authToken = "";
+        userRepository.updateUser(user);
     }
 }
