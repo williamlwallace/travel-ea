@@ -1,5 +1,8 @@
 package controllers;
 
+import actions.*;
+import actions.roles.*;
+import play.mvc.With;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -45,11 +48,10 @@ public class createTripController extends Controller {
      *
      * @return displays the create trip or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(createTrip.render(user, tripList, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
+        String username = request.attrs().get(ActionState.USER).username;
+       return ok(createTrip.render(username, tripList, request, messagesApi.preferred(request)));
     }
 
 

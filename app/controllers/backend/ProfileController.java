@@ -1,6 +1,7 @@
 package controllers.backend;
 
-import actions.Authenticator;
+import actions.*;
+import actions.roles.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
@@ -169,7 +170,6 @@ public class ProfileController extends Controller {
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    @With(Authenticator.class)
     public CompletionStage<Result> getProfile(Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
@@ -295,13 +295,37 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
+    @With({Everyone.class, Authenticator.class})
+    public CompletionStage<Result> updateProfile(Http.Request request) {
+        //Get user
+        User user = request.attrs().get(ActionState.USER);
+        // Get json parameters
+        JsonNode json = request.body().asJson();
+        return updateProfileHelper(json, user.id);
+    }
+
+    /**
+     * Updates the profile received in the body of the request as well as the related nationalities, passports
+     * and traveller types
+     * @param request Contains the HTTP request info
+     * @return Ok if updated successfully, badRequest if profile json malformed
+     */
+    // TODO: set auth to admin role @With({Everyone.class, Authenticator.class})
     public CompletionStage<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode json = request.body().asJson();
+        return updateProfileHelper(json, userId);
+    }
 
+    /**
+     * Updates the profile received in the body of the request as well as the related nationalities, passports
+     * and traveller types
+     * @param request Contains the HTTP request info
+     * @return Ok if updated successfully, badRequest if profile json malformed
+     */
+    private CompletionStage<Result> updateProfileHelper(JsonNode json, Long userId) {
         // Run the Validator
         ErrorResponse errorResponse = new UserValidator(json).profile();
-
         if (errorResponse.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
         }
@@ -413,6 +437,7 @@ public class ProfileController extends Controller {
         }
     }
 
+    //TODO: Authorization for adminonly
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted ->
             (!rowsDeleted) ? badRequest(Json.toJson("No such Profile")) : ok(Json.toJson("Profile Deleted")));
