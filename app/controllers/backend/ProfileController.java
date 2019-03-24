@@ -119,7 +119,7 @@ public class ProfileController extends Controller {
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
