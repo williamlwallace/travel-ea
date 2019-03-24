@@ -72,6 +72,16 @@ public class UserRepository {
     }
 
     /**
+     * Find a user with a given token, if one exists, otherwise returns null
+     * @param Token Token to search with
+     * @return User with username, or null if none found
+     */
+    public CompletableFuture<User> findByToken(String token) {
+        return supplyAsync(() ->
+            User.find.query().where().eq("authToken", token).findOneOrEmpty().orElse(null));
+    }
+
+    /**
      * Update User with user object
      * @param updatedUser User object
      * @return uid of updated user
@@ -88,10 +98,10 @@ public class UserRepository {
      * @param  newUser User object with new user details
      * @return uid of new user
      */
-    public CompletableFuture<Long> insertUser(User newUser) {
+    public CompletableFuture<User> insertUser(User newUser) {
         return supplyAsync(() -> {
             ebeanServer.insert(newUser);
-            return newUser.id;
+            return newUser;
         }, executionContext);
     }
 
