@@ -1,13 +1,15 @@
 package controllers;
 
-
+import actions.*;
+import actions.roles.Everyone;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import views.html.*;
-
+import models.User;
 import javax.inject.Inject;
 
 
@@ -29,11 +31,11 @@ public class ApplicationController extends Controller {
      *
      * @return displays the home or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(home.render(user)))
-                .orElseGet(() -> redirect(controllers.frontend.routes.UserController.index()));
+        User user = request.attrs().get(ActionState.USER);
+        return ok(home.render(user.username));
+                
     }
 
     /**
