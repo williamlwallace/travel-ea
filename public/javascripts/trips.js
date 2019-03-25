@@ -1,9 +1,5 @@
 var countryDict = {};
 
-function getCountryName(countryId) {
-    return countryDict[countryId];
-};
-
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
@@ -28,14 +24,21 @@ function fillCountryInfo(getCountriesUrl) {
 
 function updateDestinationsCountryField() {
     // Iterate through all destinations to add
-    let tr = document.getElementsByTagName('tbody');
+    let tableBody = document.getElementsByTagName('tbody')[0];
+    let rowList = tableBody.getElementsByTagName('tr');
 
-    // for(let i = 0; i < tr.length; i++) {
-    //     countryElement = tr[0]
-    //     if(tr[i].id === "country"){
-    //         tds[i].innerHTML = countryDict[parseInt(tds[i].childNodes[0].data)]; // No idea why tds[i].value is not working
-    //     }
-    // }
+    console.log(rowList);
+    console.log(rowList[0]);
+
+    for (let i = 0; i < rowList.length; i++) {
+        let dataList = rowList[i].getElementsByTagName('td');
+
+        for (let j = 0; j < dataList.length; j++) {
+            if (dataList[j].getAttribute("id") === "country") {
+                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))]; // No idea why tds[i].value is not working
+            }
+        }
+    }
 }
 
 function fillDropDown() {
@@ -182,9 +185,9 @@ function listItemToTripData(listItem, index) {
     let DTInputs = listItem.getElementsByTagName("input");
 
     try {
-        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000Z";
+        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000+0000";
 
-        if (json["arrivalTime"].length !== 24) {
+        if (json["arrivalTime"].length <= 18) {
             json["arrivalTime"] = null;
         }
     }
@@ -193,9 +196,9 @@ function listItemToTripData(listItem, index) {
     }
 
     try {
-        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000Z";
+        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000+0000";
 
-        if (json["departureTime"].length !== 24) {
+        if (json["departureTime"].length <= 18) {
             json["departureTime"] = null;
         }
     }
