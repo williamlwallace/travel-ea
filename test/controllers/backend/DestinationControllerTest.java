@@ -10,6 +10,8 @@ import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
+import play.mvc.Http.Cookie;
+import play.mvc.Http.CookieBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
@@ -26,6 +28,7 @@ public class DestinationControllerTest extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
+    private static Cookie authCookie;
 
     /**
      * Configures system to use dest database, and starts a fake app
@@ -40,6 +43,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
+        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
 
         Helpers.start(fakeApp);
     }
@@ -148,6 +152,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(this.authCookie)
                 .uri("/api/destination");
 
         // Get result and check it was successful
