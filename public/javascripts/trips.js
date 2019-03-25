@@ -109,12 +109,12 @@ function addDestinationToTrip(dest) {
         '                <div class="modal-body mx-3">\n' +
         '                    <div>Arrival\n' +
         '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input type="date" name="arrivalDate" class="form-control validate"><input type="time" name="arrivalTime" class="form-control validate">\n' +
+        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
         '                        <label id="arrivalError"></label>\n' +
         '                    </div>\n' +
         '                    <div>Departure\n' +
         '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input type="date" name="departureDate" class="form-control validate"><input type="time" name="departureTime" class="form-control validate">\n' +
+        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
         '                        <label id="departureError"></label>\n' +
         '                    </div>\n' +
         '                </div>\n' +
@@ -142,7 +142,6 @@ function removeDestinationFromTrip(cardId) {
 }
 
 function createTrip(url, redirect) {
-    let productOrder = $( "#list" ).sortable('toArray');
 
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
@@ -152,7 +151,6 @@ function createTrip(url, redirect) {
     }
 
     let tripData = {
-        "userId": 0,    // TODO: Fix uid, arrivalTime and departureTime
         "tripDataCollection": tripDataList
     };
 
@@ -161,7 +159,7 @@ function createTrip(url, redirect) {
         response.json()
             .then(json => {
                 if (response.status === 400) {
-                    showErrors(json);    // TODO: Fix show errors
+                    showErrors(json);
                 } else if (response.status === 200) {
                     window.location.href = redirect;
                 } else {
@@ -181,15 +179,30 @@ function listItemToTripData(listItem, index) {
     // Read destination id
     json["destinationId"] = listItem.getElementsByTagName('label')[0].getAttribute("id");
 
-    // Fill in arrival time (if any)
-    try { json["arrivalTime"] = new Date(listItem.children.arrivalInput.value).toISOString(); }
-    catch {json["arrivalTime"] = null }
+    let DTInputs = listItem.getElementsByTagName("input");
 
-    // Fill in departure time (if any)
-    try { json["departureTime"] = new Date(listItem.children.departureInput.value).toISOString(); }
-    catch {json["departureTime"] = null }
+    try {
+        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000Z";
 
-    // Return created json object
+        if (json["arrivalTime"].length !== 24) {
+            json["arrivalTime"] = null;
+        }
+    }
+    catch {
+        json["arrivalTime"] = null;
+    }
+
+    try {
+        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000Z";
+
+        if (json["departureTime"].length !== 24) {
+            json["departureTime"] = null;
+        }
+    }
+    catch {
+        json["departureTime"] = null;
+    }
+
     return json;
 }
 
