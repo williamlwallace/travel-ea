@@ -3,8 +3,6 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-####TESTING
-GET     /api/profile/nationality        controllers.backend.ProfileController.getNationality()
 GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
 + nocsrf
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
