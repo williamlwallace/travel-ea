@@ -67,3 +67,8 @@ function addDestination(url, redirect) {
         });
     });
 }
+
+$(document).ready(function () {
+    $('#dtDestination').DataTable();
+    $('.dataTables_length').addClass('bs-select');
+});
