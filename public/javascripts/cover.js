@@ -32,6 +32,7 @@ function login(url, redirect) {
             if (response.status != 200) {
                 showErrors(json, "loginForm");
             } else {
+                setCookie("JWT-Auth", json);
                 window.location.href = redirect;
             }
         });
@@ -57,6 +58,7 @@ function signup(url, redirect) {
                 if (response.status != 200) {
                     showErrors(json, "signupForm");
                 } else {
+                    setCookie("JWT-Auth", json);
                     window.location.href = redirect;
                 }
             });
