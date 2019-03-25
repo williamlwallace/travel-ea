@@ -13,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name="Nationality")
 public class Nationality extends Model {
+    @Id
     public Long guid;
 
     @Constraints.Required
