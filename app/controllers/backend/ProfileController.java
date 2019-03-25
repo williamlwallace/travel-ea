@@ -170,7 +170,8 @@ public class ProfileController extends Controller {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
         try {
-            profile = profileRepository.findID(userId).get();
+            //profile = profileRepository.findID(userId).get();
+            profile = profileRepository.findIDModelBridging(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
@@ -351,7 +352,7 @@ public class ProfileController extends Controller {
                 // Creates found nationality object and stores in list
                 Nationality nationality = new Nationality();
                 nationality.userId = userID;
-                //nationality.countryId = foundCountry.id;
+                nationality.countryId = foundCountry.id;
 
                 nationalities.add(nationality);
             }

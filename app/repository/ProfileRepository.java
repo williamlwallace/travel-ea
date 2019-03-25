@@ -160,6 +160,17 @@ public class ProfileRepository {
         }
     }
 
+
+    public CompletableFuture<Profile> findIDModelBridging(Long id) {
+        return supplyAsync(() ->
+                ebeanServer.find(Profile.class)
+                .where()
+                .eq("user_id", id)
+                .findOneOrEmpty()
+                .orElse(null),
+            executionContext);
+    }
+
     /**
      * Deletes the profile having some ID if it exists, returns false if no profile with that id was found
      * @param id ID of profile to delete
