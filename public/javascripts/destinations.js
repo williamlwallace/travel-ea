@@ -49,6 +49,10 @@ function addDestination(url, redirect) {
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+    // Convert lat and long to double values, and id to int
+    data.latitude = parseFloat(data.latitude);
+    data.longitude = parseFloat(data.longitude);
+    data.countryId = parseInt(data.countryId);
     // Post json data to given url
     post(url,data)
     .then(response => {

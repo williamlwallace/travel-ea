@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Destination;
@@ -12,6 +13,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import util.validation.ErrorResponse;
 
 import java.io.IOException;
 import java.util.*;
@@ -32,7 +34,8 @@ public class DestinationControllerTest extends WithApplication {
     public static void setUp() {
         // Create custom settings that change the database to use test database instead of production
         Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.url", "jdbc:mysql://mysql2.csse.canterbury.ac.nz/seng302-2019-team400-test");
+        settings.put("db.default.driver", "org.h2.Driver");
+        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
 
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
@@ -119,6 +122,18 @@ public class DestinationControllerTest extends WithApplication {
     }
 
     @Test
+    public void deleteNonExistingDestination() {
+        // Create request to delete newly created user
+        Http.RequestBuilder request2 = Helpers.fakeRequest()
+                .method(DELETE)
+                .uri("/api/destination/100");
+
+        // Get result and check it was successful
+        Result result2 = route(fakeApp, request2);
+        assertEquals(BAD_REQUEST, result2.status());
+    }
+
+    @Test
     public void createDestination() throws IOException {
         // Create new json object node
         ObjectNode node = Json.newObject();
@@ -142,5 +157,41 @@ public class DestinationControllerTest extends WithApplication {
         // Get id of destination, check it is 2
         Long idOfDestination = new ObjectMapper().readValue(Helpers.contentAsString(result), Long.class);
         assertEquals(Long.valueOf(2), idOfDestination);
+    }
+
+    @Test
+    public void createImproperDestination() throws IOException {
+        // Create new json object node
+        ObjectNode node = Json.newObject();
+        // Fields missing: district, name, _type
+        node.put("latitude", -1000.0);
+        node.put("longitude", -2000.0);
+        node.put("countryId", 500);
+
+        // Create request to create a new destination
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(node)
+                .uri("/api/destination");
+
+        // Get result and check it was bad request
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Get error response
+        HashMap<String, String> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, String>>() {});
+
+        // Expected error messages
+        HashMap<String, String> expectedMessages = new HashMap<>();
+        expectedMessages.put("district", "district field must be present");
+        expectedMessages.put("latitude", "latitude must be at least -90.000000");
+        expectedMessages.put("name", "name field must be present");
+        expectedMessages.put("_type", "_type field must be present");
+        expectedMessages.put("longitude", "longitude must be at least -180.000000");
+
+        // Check all error messages were present
+        for(String key : response.keySet()) {
+            assertEquals(expectedMessages.get(key), response.get(key));
+        }
     }
 }

@@ -8,10 +8,13 @@ GET     /api/user/search                controllers.backend.UserController.paged
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
 + nocsrf
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
+
 + nocsrf
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
++ nocsrf
 GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
+
 + nocsrf
 POST    /api/profile/:userId               controllers.backend.ProfileController.updateProfile(request:Request, userId:Long)
 
@@ -47,7 +50,7 @@ DELETE  /api/trip/:id                   controllers.backend.TripController.delet
 GET     /                           controllers.frontend.UserController.index(request:Request)
 
 # signing up
-GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
+GET     /signUp                     controllers.frontend.ProfileController.createProfile(request: Request)
 
 # Logging in
 GET    /login                      controllers.frontend.UserController.login(request: Request)
@@ -69,16 +72,17 @@ GET     /trips/create               controllers.createTripController.index(reque
 # POST    /trips                      controllers.createTripController.save
 
 # The Travelea profile page
-GET     /profile                    controllers.ProfileController.index(request: Request)
-POST    /profile                    controllers.ProfileController.createProfile(request: Request)
+GET     /profile                    controllers.frontend.ProfileController.index(request: Request)
+POST    /profile                    controllers.frontend.ProfileController.createProfile(request: Request)
 
 # The TravelEA destinations page
 GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
 POST    /destinations               controllers.frontend.DestinationController.createDestination(request: Request)
 DELETE  /destinations               controllers.frontend.DestinationController.deleteDestination(request: Request)
 
-GET    /editProfile                 controllers.EditProfileController.index(request: Request)
-POST   /editProfile                 controllers.EditProfileController.updateProfile(request: Request)
+# Edit profile page
+GET    /editProfile                 controllers.frontend.ProfileController.editindex(request: Request)
+#POST   /editProfile                 controllers.frontend.UserController.updateProfile(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
