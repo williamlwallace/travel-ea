@@ -139,8 +139,11 @@ public class ProfileController extends Controller {
         }
         // If userId is free, add to database along with nationalities and passports and return ok
         else {
-            // TODO: Do these need to be .get(), also should these be a transaction?
-            profileRepository.addProfile(profile);
+            try {
+                profileRepository.addProfile(profile).get();
+            } catch (Exception e) {
+                return CompletableFuture.supplyAsync(() -> internalServerError("Failed to add profile to database"));
+            }
 
             // Adds all of the users nationalities in the database
             for (Nationality nationality : nationalities) {
@@ -156,11 +159,6 @@ public class ProfileController extends Controller {
         }
     }
 
-    public CompletionStage<Result> getNationality() {
-        return nationalityRepository.getAllNationalitiesOfUser(1L)
-                .thenApplyAsync(nationalities -> ok(Json.toJson(nationalities)));
-    }
-
     /**
      * Gets a profile based on the userID specified in the request
      * @param userId The user ID to return data for
@@ -170,8 +168,8 @@ public class ProfileController extends Controller {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
         try {
-            //profile = profileRepository.findID(userId).get();
-            profile = profileRepository.findIDModelBridging(userId).get();
+            profile = profileRepository.findID(userId).get();
+            //profile = profileRepository.findIDModelBridging(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
