@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Table(name="Passport")
 public class Passport extends Model {
-
+    @Id
     public Long guid;
 
     @Constraints.Required

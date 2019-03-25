@@ -26,7 +26,8 @@ public class Validator {
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field) {
-        if (this.form.get(field) == null || this.form.get(field).asText("").equals("")) {
+        if ((this.form.get(field) == null || this.form.get(field).asText("").equals(""))
+            && !this.form.get(field).isArray()) {
             this.errorResponse.map(String.format("%s field must be present", field), field);
             return false;
         }
