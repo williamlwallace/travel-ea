@@ -215,7 +215,10 @@ public class Validator {
             this.errorResponse.map("Invalid gender", field);
             return false;
         }
-        if (gender.equals("Male") || gender.equals("Female") || gender.equals("Other") || gender.isEmpty()) {
+        if (gender.equals("Select")) {
+            return false;
+        }
+        if (gender.equals("Male") || gender.equals("Female") || gender.equals("Other")) {
             return true;
         }
         this.errorResponse.map("Invalid gender", field);
