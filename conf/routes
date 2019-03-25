@@ -17,6 +17,7 @@ POST    /api/profile                    controllers.backend.ProfileController.ad
 + nocsrf
 GET     /api/profile/:userId               controllers.backend.ProfileController.getProfile(userId:Long)
 
++ nocsrf
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
