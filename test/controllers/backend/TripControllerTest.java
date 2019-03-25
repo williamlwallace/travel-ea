@@ -10,6 +10,8 @@ import org.junit.Test;
 import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
+import play.mvc.Http.Cookie;
+import play.mvc.Http.CookieBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
@@ -25,10 +27,12 @@ import static play.test.Helpers.*;
 public class TripControllerTest extends WithApplication {
 
     Application fakeApp;
+    private static Cookie authCookie;
 
     @Before
     public void setUp() {
         fakeApp = Helpers.fakeApplication();
+        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
     }
 
     @Test
@@ -65,6 +69,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
@@ -77,6 +82,7 @@ public class TripControllerTest extends WithApplication {
         // Create request to delete newly created trip
         Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(authCookie)
                 .uri("/api/trip/" + idOfCreatedTrip);
 
         // Get result and check it was successful
