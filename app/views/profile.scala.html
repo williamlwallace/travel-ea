@@ -1,5 +1,5 @@
 @import play.mvc.Http.Request
-@(user: String)
+@(user: String, id: Long)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
@@ -35,10 +35,10 @@
                                 <label for="genderPicker" class="control-label">Gender</label>
                                 <div class="ss-item-required validate">
                                     <select name="gender" id="gender" required>
-                                        <option value="" disabled hidden>Select</option>
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="other">Other</option>
+                                        <option value="" hidden>Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
                                     </select>
                                     <br/>
                                     <label id="genderError" class="error-messages"></label>
@@ -520,16 +520,17 @@
                                     <br/>
                                     <label id="travellerTypeError" class="error-messages"></label>
                                 </div>
+                                <label id="otherError"></label>
                             </div>
                         </form>
                         <div class="modal-footer d-flex justify-content-center">
                             <button class="btn btn-popup" onclick=
                             'signUp(
+                                    "@id",
                                     "@controllers.backend.routes.ProfileController.addNewProfile()",
                                     "@controllers.frontend.routes.ApplicationController.home()")'>
                                 Create
                             </button>
-                            <label id="otherError"></label>
                         </div>
                     </div>
                 </div>
