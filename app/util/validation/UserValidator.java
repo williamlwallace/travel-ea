@@ -20,7 +20,7 @@ public class UserValidator extends Validator {
             this.email("username");
         }
         if (this.required("password")) {
-            this.min("password", 3);
+            this.minTextLength("password", 3);
         }
         return this.getErrorResponse();
     }
