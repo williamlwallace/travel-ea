@@ -1,5 +1,3 @@
-var table = $('#dtDestinations').DataTable();
-
 $(document).ready(function () {
-    $('.dataTables_length').addClass('bs-select');
+    $('#dtDestinations').DataTable();
 });
