@@ -65,16 +65,29 @@ public class DestinationController extends Controller {
         });
     }
 
+    /**
+     * Gets all destinations. Returns a json list of all destinations.
+     * @return OK with list of destinations
+     */
     public CompletableFuture<Result> getAllDestinations() {
         return destinationRepository.getAllDestinations()
             .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
     }
 
+    /**
+     * Gets all countries. Returns a json list of all countries.
+     * @return OK with list of countries
+     */
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
-                .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+                .thenApplyAsync(allCountries -> ok(Json.toJson(allCountries)));
     }
 
+    /**
+     * Gets a destination with a given id. Returns a json with destination object.
+     * @param getId ID of wanted destination
+     * @return OK with a destination, notFound if destination does not exist
+     */
     public CompletableFuture<Result> getDestination(long getId) {
         return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
             if (destination.id == null) {
@@ -85,6 +98,15 @@ public class DestinationController extends Controller {
         });
     }
 
+    /**
+     * Gets a paged list of destinations conforming to the amount of destinations requested and the provided order and
+     * filters.
+     * @param page      The current page to display
+     * @param pageSize  The number of destinations per page
+     * @param order     The column to order by
+     * @param filter    The sort order (either asc or desc)
+     * @return OK with paged list of destinations
+     */
     public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
