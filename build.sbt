@@ -12,6 +12,7 @@ libraryDependencies += guice
 libraryDependencies += javaJdbc
 libraryDependencies += javaJdbc % Test
 libraryDependencies += "com.h2database" % "h2" % "1.4.192"
+libraryDependencies += "com.auth0" % "java-jwt" % "3.3.0"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
