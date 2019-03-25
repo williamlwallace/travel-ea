@@ -177,13 +177,14 @@ public class ProfileRepository {
      * @return True if a profile was found with the ID and then deleted
      */
     public CompletableFuture<Boolean> deleteProfile(Long id) {
-        return supplyAsync(() -> {
-            int rows = ebeanServer.find(Profile.class)
-                    .where()
-                    .eq("user_id",id)
-                    .delete();
-            return rows > 0;
-        }, executionContext);
+        SqlUpdate delete = Ebean.createSqlUpdate(
+                "DELETE FROM Nationality WHERE user_id=:userId;" +
+                "DELETE FROM Passport WHERE user_id=:userId;" +
+                "DELETE FROM TravellerType WHERE user_id=:userId;" +
+                "DELETE FROM Profile WHERE user_id=:userId");
+        delete.setParameter("userId", id);
+
+        return CompletableFuture.completedFuture(delete.execute() > 0);
     }
 
     /**
@@ -193,7 +194,34 @@ public class ProfileRepository {
      */
     public CompletableFuture<Result> updateProfile(Profile profile) {
         return supplyAsync(() -> {
-            ebeanServer.update(profile);
+
+            // Insert basic profile info
+            SqlUpdate update = Ebean.createSqlUpdate(
+                    "UPDATE Profile SET user_id=:userId, first_name=:firstName, last_name=:lastName, middle_name=:middleName, date_of_birth=:dateOfBirth, gender=:gender;");
+
+            // Set parameters
+            update.setParameter("userId", profile.userId);
+            update.setParameter("firstName", profile.firstName);
+            update.setParameter("lastName", profile.lastName);
+            update.setParameter("middleName", profile.middleName);
+            update.setParameter("dateOfBirth", profile.dateOfBirth);
+            update.setParameter("gender", profile.gender);
+
+            // Update profile information
+            update.execute();
+
+            // Delete all information regarding nationalities, types, passports
+            SqlUpdate delete = Ebean.createSqlUpdate(
+                "DELETE FROM Nationality WHERE user_id=:userId;" +
+                "DELETE FROM Passport WHERE user_id=:userId;" +
+                "DELETE FROM TravellerType WHERE user_id=:userId;");
+            delete.setParameter("userId", profile.userId);
+
+            // Now insert back into the foreign tables
+            ebeanServer.insertAll(profile.travellerTypes);
+            ebeanServer.insertAll(profile.nationalities);
+            ebeanServer.insertAll(profile.passports);
+
             return ok();
         }, executionContext);
     }
