@@ -194,7 +194,7 @@
                                         <tbody>
                                         @*TODO: Fix this section now that destinations controller has been removed*@
                                         @for(d <- destList) {
-                                            <tr>
+                                            <tr id="@d.id">
                                                 <td>@d.name</td>
                                                 <td>@d._type</td>
                                                 <td>@d.district</td>
