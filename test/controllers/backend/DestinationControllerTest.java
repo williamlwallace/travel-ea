@@ -118,6 +118,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(this.authCookie)
                 .uri("/api/destination/1");
 
         // Get result and check it was successful
@@ -130,6 +131,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(this.authCookie)
                 .uri("/api/destination/100");
 
         // Get result and check it was successful
@@ -177,6 +179,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(this.authCookie)
                 .uri("/api/destination");
 
         // Get result and check it was bad request
