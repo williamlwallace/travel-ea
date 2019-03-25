@@ -61,20 +61,23 @@ public class createTripController extends Controller {
      *
      * @return displays the create trip or start page.
      */
-    public CompletableFuture<Result> index(Http.Request request) {
-        return request.session().getOptional("connected").map(user -> {
-            return destinationController.getDestinations().thenApplyAsync(
-                    destList -> {
-                        return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), tripList, request, messagesApi.preferred(request))):internalServerError();
-                    },
-                    httpExecutionContext.current());
-        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.home())));
-    }
+//    public CompletableFuture<Result> index(Http.Request request) {
+//        return request.session().getOptional("connected").map(user -> {
+//            return destinationController.getDestinations().thenApplyAsync(
+//                    destList -> {
+//                        return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), tripList, request, messagesApi.preferred(request))):internalServerError();
+//                    },
+//                    httpExecutionContext.current());
+//        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.home())));
+//    }
 
-    // TODO: Merge these
-//    @With({Everyone.class, Authenticator.class})
-////    public Result index(Http.Request request) {
-////        String username = request.attrs().get(ActionState.USER).username;
-////        return ok(createTrip.render(username, tripList, request, messagesApi.preferred(request)));
-////    }
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> index(Http.Request request) {
+        String username = request.attrs().get(ActionState.USER).username;
+        return destinationController.getDestinations().thenApplyAsync(
+                destList -> {
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), tripList, request, messagesApi.preferred(request))):internalServerError();
+                },
+                httpExecutionContext.current());
+    }
 }

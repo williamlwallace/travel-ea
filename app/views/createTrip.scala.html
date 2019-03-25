@@ -35,6 +35,7 @@
                 </script>
             </head>
             <body>
+                <label id="tripError"></label>
                     <!-- Destination card deck -->
                 <div id="parent" class="parent">
                     <div id="list" class="list">
@@ -199,7 +200,7 @@
                                                 <td>@d.district</td>
                                                 <td>@d.latitude</td>
                                                 <td>@d.longitude</td>
-                                                <td>@d.countryId</td>
+                                                <td id="country">@d.countryId</td>
                                                 <td><button class="btn btn-popup" type="button" onclick='addDestinationToTrip(["@d.id", "@d.name", "@d._type", "@d.district", "@d.latitude", "@d.longitude", "@d.countryId"])'>Add</button></td>
                                             </tr>
                                         }
@@ -222,5 +223,5 @@
 }
 
 <script type="text/javascript">
-        fillCountryDropDown("@controllers.backend.routes.DestinationController.getAllCountries()");
+        fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
 </script>
