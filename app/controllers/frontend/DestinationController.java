@@ -1,6 +1,9 @@
 package controllers.frontend;
 
+import actions.*;
+import actions.roles.*;
 import models.Destination;
+import models.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,23 +42,14 @@ public class DestinationController extends Controller {
      *
      * @return displays the destinations or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> index(Http.Request request) {
-        //will remove session checks when middle ware done in story 9
-        return request.session().getOptional("connected").map(user -> {
-            return this.getDestinations().thenApplyAsync(
-                    destList -> {
-                        return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user)):internalServerError();
-                    },
-                    httpExecutionContext.current());
-        }).orElseGet(() -> CompletableFuture.supplyAsync(() -> redirect(controllers.frontend.routes.UserController.index())));
-    }
-
-    public Result createDestination(Http.Request request) {
-        return ok();
-    }
-
-    public Result deleteDestination(Http.Request request) {
-        return ok();
+        User user = request.attrs().get(ActionState.USER);
+        return this.getDestinations().thenApplyAsync(
+                destList -> {
+                    return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user.username)):internalServerError();
+                },
+                httpExecutionContext.current());
     }
 
     /**
