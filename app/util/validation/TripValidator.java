@@ -48,14 +48,16 @@ public class TripValidator {
         for (Object obj : tripDataCollection) {
             TripData trip = (TripData) obj;
             String errorString = "";
-            if(trip.position == null) {
+
+            if (trip.position == null) {
                 errorString += "position is null, ";
                 trip.position = -1L;
             }
-            if(trip.destinationId == null) errorString += "destinationId is null, ";
-            if(trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
-            if(trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.getTimestamp().after(trip.departureTime.getTimestamp())) errorString += "departure must be after arrival, ";
-            if(trip.arrivalTime != null || trip.departureTime != null) {
+
+            if (trip.destinationId == null) errorString += "destinationId is null, ";
+            if (trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
+            if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.getTimestamp().after(trip.departureTime.getTimestamp())) errorString += "departure must be after arrival, ";
+            if (trip.arrivalTime != null || trip.departureTime != null) {
                 //todo: fix this one
                 //if(!(mostRecentDate == null) && (trip.arrivalTime.before(mostRecentDate) || trip.departureTime.before(mostRecentDate))) {
                 //    errorString += "this stage cannot occur before a previous stage, ";
