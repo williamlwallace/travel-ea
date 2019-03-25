@@ -27,11 +27,9 @@ public class TripValidator {
      * @return ErrorResponse object
      */
     public ErrorResponse validateTrip(boolean isUpdating) throws IOException {
-        // Check if uid has a value
-        //Validation for trip as a whole
-        this.required("userId");
 
-        if(isUpdating) {
+        //Validation for trip as a whole
+        if (isUpdating) {
             this.required("id");
         }
 
@@ -39,6 +37,10 @@ public class TripValidator {
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
         ArrayList tripDataCollection = mapper.readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")), new TypeReference<ArrayList<TripData>>(){});
+
+        if (tripDataCollection.isEmpty()) {
+            this.response.map("a trip must contain at least 1 destination", "trip");
+        }
 
         Long lastDestinationID = 0L;
         Date mostRecentDate = null;
@@ -59,7 +61,7 @@ public class TripValidator {
                 //    errorString += "this stage cannot occur before a previous stage, ";
                 //}
                 // Set most recent time stamp to be latest value that is not null
-                mostRecentDate = ((trip.departureTime == null) ? trip.arrivalTime : trip.departureTime).getTimestamp();
+                mostRecentDate = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime).getTimestamp();
             }
 
             // Update most recent destination id
