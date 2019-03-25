@@ -246,12 +246,13 @@ public class TripController extends Controller {
 
         System.out.println(data);
 
+        // TODO: Fix trip validator dates
+
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
 
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
-            System.out.println(validatorResult.toJson());
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 
@@ -275,7 +276,6 @@ public class TripController extends Controller {
 
         // Assemble trip data
         ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip.id);
-        System.out.println("3");
 
         // Add trip to db
         if(tripAddResult.status() == ok().status()) {
