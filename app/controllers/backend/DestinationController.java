@@ -1,6 +1,7 @@
 package controllers.backend;
 
-
+import actions.*;
+import actions.roles.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,6 +15,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
 import util.validation.DestinationValidator;
@@ -49,6 +51,7 @@ public class DestinationController extends Controller {
      * @param request Request containing destination json object as body
      * @return Ok with id of destination on success, badRequest otherwise
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
         JsonNode data = request.body().asJson();
         //Sends the received data to the validator for checking
@@ -68,7 +71,12 @@ public class DestinationController extends Controller {
      * @param id ID of destination to delete
      * @return OK with number of rows deleted, badrequest if none deleted
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteDestination(Long id) {
+        // TODO: add authentication of user to destination
+        // return destinationRepository.getDestination(id).thenComposeAsync((destination) -> {
+        //     if (destination != null && destination.userId
+        // })
         return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted ->
             (rowsDeleted == 0) ? badRequest(Json.toJson("No such destination")) : ok(Json.toJson(rowsDeleted)));
     }
@@ -94,7 +102,4 @@ public class DestinationController extends Controller {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }
-
-
-
 }
