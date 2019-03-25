@@ -1,6 +1,6 @@
 package controllers;
 
-import models.frontend.Destination;
+import models.Destination;
 import models.frontend.Trip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,10 @@ public class TripsController extends Controller {
     public void TripController( MessagesApi messagesApi) {
         this.messagesApi = messagesApi;
         //Test data for accounts. should be replaced with account data from database.
-        Destination newDest = new Destination("UC", "Place", "Canterbury", 43.5235, 172.5839, "New Zealand");
-        this.destList.add(newDest);
-        Trip newTrip = new Trip(this.destList);
-        this.tripList = com.google.common.collect.Lists.newArrayList(newTrip);
+//        Destination newDest = new Destination("UC", "Place", "Canterbury", 43.5235, 172.5839, "New Zealand");
+//        this.destList.add(newDest);
+//        Trip newTrip = new Trip(this.destList);
+//        this.tripList = com.google.common.collect.Lists.newArrayList(newTrip);
     }
     /**
      * Displays the trips page. Called with the /trips URL and uses a GET request.
