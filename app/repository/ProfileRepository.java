@@ -6,15 +6,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.*;
-import models.CountryDefinition;
-import models.Nationality;
-import models.Profile;
-import models.TravellerTypeDefinition;
+import models.*;
 import play.db.ebean.EbeanConfig;
 import play.libs.Json;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -49,7 +47,7 @@ public class ProfileRepository {
             SqlUpdate insert = Ebean.createSqlUpdate(
                     "INSERT INTO Profile " +
                     "(user_id, first_name, last_name, middle_name, date_of_birth, gender) " +
-                    "VALUES (:userId, :firstName, :lastName, :middleName, :dateOfBirth, :gender");
+                    "VALUES (:userId, :firstName, :lastName, :middleName, :dateOfBirth, :gender);");
 
             // Set parameters
             insert.setParameter("userId", profile.userId);
@@ -61,10 +59,35 @@ public class ProfileRepository {
 
             insert.execute();
 
+            // Convert lists of destinations, to lists of mapping objects
+            List<TravellerType> travellerTypes = new ArrayList<>();
+            for(TravellerTypeDefinition def : profile.travellerTypes) {
+                TravellerType type = new TravellerType();
+                type.travellerTypeId = def.id;
+                type.userId = profile.userId;
+                travellerTypes.add(type);
+            }
+
+            List<Passport> passports = new ArrayList<>();
+            for(CountryDefinition def : profile.passports) {
+                Passport pass = new Passport();
+                pass.countryId = def.id;
+                pass.userId = profile.userId;
+                passports.add(pass);
+            }
+
+            List<Nationality> nationalities = new ArrayList<>();
+            for(CountryDefinition def : profile.nationalities) {
+                Nationality nat = new Nationality();
+                nat.countryId = def.id;
+                nat.userId = profile.userId;
+                nationalities.add(nat);
+            }
+
             // Insert all lists
-            ebeanServer.insertAll(profile.travellerTypes);
-            ebeanServer.insertAll(profile.nationalities);
-            ebeanServer.insertAll(profile.passports);
+            ebeanServer.insertAll(travellerTypes);
+            ebeanServer.insertAll(nationalities);
+            ebeanServer.insertAll(passports);
 
             return ok();
         }, executionContext);
@@ -197,7 +220,9 @@ public class ProfileRepository {
 
             // Insert basic profile info
             SqlUpdate update = Ebean.createSqlUpdate(
-                    "UPDATE Profile SET user_id=:userId, first_name=:firstName, last_name=:lastName, middle_name=:middleName, date_of_birth=:dateOfBirth, gender=:gender;");
+                    "UPDATE Profile " +
+                            "SET first_name=:firstName, last_name=:lastName, middle_name=:middleName, date_of_birth=:dateOfBirth, gender=:gender " +
+                            "WHERE user_id=:userId;");
 
             // Set parameters
             update.setParameter("userId", profile.userId);
@@ -218,9 +243,35 @@ public class ProfileRepository {
             delete.setParameter("userId", profile.userId);
 
             // Now insert back into the foreign tables
-            ebeanServer.insertAll(profile.travellerTypes);
-            ebeanServer.insertAll(profile.nationalities);
-            ebeanServer.insertAll(profile.passports);
+            // Convert lists of destinations, to lists of mapping objects
+            List<TravellerType> travellerTypes = new ArrayList<>();
+            for(TravellerTypeDefinition def : profile.travellerTypes) {
+                TravellerType type = new TravellerType();
+                type.travellerTypeId = def.id;
+                type.userId = profile.userId;
+                travellerTypes.add(type);
+            }
+
+            List<Passport> passports = new ArrayList<>();
+            for(CountryDefinition def : profile.passports) {
+                Passport pass = new Passport();
+                pass.countryId = def.id;
+                pass.userId = profile.userId;
+                passports.add(pass);
+            }
+
+            List<Nationality> nationalities = new ArrayList<>();
+            for(CountryDefinition def : profile.nationalities) {
+                Nationality nat = new Nationality();
+                nat.countryId = def.id;
+                nat.userId = profile.userId;
+                nationalities.add(nat);
+            }
+
+            // Insert all lists
+            ebeanServer.insertAll(travellerTypes);
+            ebeanServer.insertAll(nationalities);
+            ebeanServer.insertAll(passports);
 
             return ok();
         }, executionContext);
