@@ -1,7 +1,7 @@
 /* Display profile dropdowns with cool tag style in profile */
 $('#nationalities').picker();
 $('#passports').picker();
-$('#travellerTypes').picker();
+$('#travellerType').picker();
 $('#gender').picker();
 /* Automatically display profile form when signing up */
 $('#createProfileForm').modal('show');
@@ -12,10 +12,10 @@ $('#createProfileForm').modal('show');
  * @param url The route/url to send the request to
  * @param redirect The page to redirect to if no errors are found
  */
-function signUp(url, redirect) {
+function signUp(id, url, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("signUp"));
-    formData.append("userId", '1');
+    formData.append("userId", id);
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -30,7 +30,9 @@ function signUp(url, redirect) {
                 .then(json => {
                     if (response.status != 200) {
                         showErrors(json);
+                        console.log("WWOOOOHOOO SUCCESS");
                     } else {
+                        console.log("WWOOOOHOOO SUCCESS");
                         window.location.href = redirect;
                     }
                 });
