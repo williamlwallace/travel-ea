@@ -179,7 +179,7 @@ public class UserController extends Controller {
     /**
      * Create Token and update user with it
      * @param user User object to be updated
-     * @return authToken 
+     * @return authToken
      */
     public String createToken(User user) {
         String authToken = CryptoManager.createToken(user.id, config.getString("play.http.secret.key"));
