@@ -124,6 +124,13 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
+CREATE TABLE IF NOT EXISTS UserRoleDefinition
+  (
+    id                INT NOT NULL AUTO_INCREMENT,
+    name              VARCHAR(2048) NOT NULL,
+    PRIMARY KEY (id)
+  );
+
 -- Create UserRole table, which specifies the Roles of users
 CREATE TABLE IF NOT EXISTS UserRole
   (
@@ -131,18 +138,12 @@ CREATE TABLE IF NOT EXISTS UserRole
     user_id           INT NOT NULL,
     role_id           INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (role_id REFERENCES UserRoleDefinition(id),
+    FOREIGN KEY (role_id) REFERENCES UserRoleDefinition(id),
     PRIMARY KEY (guid),
     INDEX userole_index (user_id, role_id),
     UNIQUE(user_id, role_id)
-
-
-CREATE TABLE IF NOT EXISTS UserRoleDefinition
-  (
-    id                INT NOT NULL AUTO_INCREMENT,
-    name              VARCHAR(2048) NOT NULL,
-    PRIMARY KEY (id)
   );
+
 -- !Downs
 DROP TABLE TravellerType;
 DROP TABLE Passport;
