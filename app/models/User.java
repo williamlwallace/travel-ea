@@ -29,7 +29,7 @@ public class User extends Model {
 
     public String salt;
 
-    public String authToken;
+    // public String authToken;
 
     public static final Finder<Long, User> find = new Finder<>(User.class);
 }

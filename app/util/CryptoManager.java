@@ -2,6 +2,7 @@ package util;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.algorithms.Algorithm;
 import javax.crypto.SecretKey;
@@ -112,18 +113,17 @@ public class CryptoManager {
                 .sign(algorithm);
     }
 
-    public static Boolean veryifyToken(String token, Long userId, String secret) {
+    public static Long veryifyToken(String token, String secret) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
                 .withIssuer("TravelEA")
-                .withClaim("userId", userId)
                 .build();
-            verifier.verify(token);
-            return true;
+            DecodedJWT jwt = verifier.verify(token);
+            return jwt.getClaim("userId").asLong();
         } 
         catch (JWTVerificationException | java.io.UnsupportedEncodingException e) {
-            return false;
+            return null;
         }
     }
 }
