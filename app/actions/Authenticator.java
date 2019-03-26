@@ -90,7 +90,7 @@ public class Authenticator extends Action.Simple {
      * @param request Request object
      * @return Jwt token
      */
-    private String getTokenFromCookie(Http.Request request) {
+    public static String getTokenFromCookie(Http.Request request) {
         Optional<Cookie> option = request.cookies().getCookie("JWT-Auth");
         Cookie cookie = option.orElse(null);
         return (cookie != null ? cookie.value() : null);
