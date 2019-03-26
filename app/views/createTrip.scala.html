@@ -114,19 +114,6 @@
         </html>
 
 
-        <!-- Buttons to add/create destination and trip -->
-        <div style="float: left;">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
-            <button type="submit" class="btn btn-primary" onclick='getAllDestinations("@controllers.backend.routes.DestinationController.getAllDestinations()")'
-            data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
-        </div>
-
-        <div style="float: right;">
-            <button class="btn btn-primary" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()",
-                                                           "@controllers.frontend.routes.TripController.tripIndex()")'>Submit Trip</button>
-        </div>
-
-
         <!-- Create destination form -->
         <div class="container">
             <div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
