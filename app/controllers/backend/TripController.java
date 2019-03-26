@@ -82,19 +82,25 @@ public class TripController extends Controller {
 
         ArrayList<ObjectNode> returnedTrips = new ArrayList<>();
 
-        for(Long tripId : tripIds) {
-            try{
+        for (Long tripId : tripIds) {
+
+            try {
                 ArrayList<TripData> tripDataList = new ArrayList<>();
-                for(TripData tripData : tripDataRepository.getAllTripData(tripId).get()){
+
+                for (TripData tripData : tripDataRepository.getAllTripData(tripId).get()){
                     tripDataList.add(tripData);
                 }
+
                 // Create new JSON object to store returned data
                 ObjectNode node = Json.newObject();
+
                 // Put the UID that was previously found
                 node.put("userId", userId);
                 node.put("id", tripId);
+
                 // Convert found trip data points to an array node
                 ArrayNode array = new ObjectMapper().valueToTree(tripDataList);
+
                 // Add array node to return json object
                 node.putArray("tripDataCollection").addAll(array);
                 returnedTrips.add(node);
