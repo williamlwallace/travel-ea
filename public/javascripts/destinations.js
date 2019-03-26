@@ -53,6 +53,7 @@ function addDestination(url, redirect) {
     data.latitude = parseFloat(data.latitude);
     data.longitude = parseFloat(data.longitude);
     data.countryId = parseInt(data.countryId);
+    console.log(data.countryId);
     // Post json data to given url
     post(url,data)
     .then(response => {
