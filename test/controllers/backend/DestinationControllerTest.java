@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Destination;
@@ -9,9 +10,12 @@ import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
+import play.mvc.Http.Cookie;
+import play.mvc.Http.CookieBuilder;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import util.validation.ErrorResponse;
 
 import java.io.IOException;
 import java.util.*;
@@ -24,6 +28,7 @@ public class DestinationControllerTest extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
+    private static Cookie authCookie;
 
     /**
      * Configures system to use dest database, and starts a fake app
@@ -38,22 +43,23 @@ public class DestinationControllerTest extends WithApplication {
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
+        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
 
         Helpers.start(fakeApp);
     }
 
     /**
-     * Runs evolutions before each test
-     * These evolutions are found in conf/test/(whatever), and should contain minimal sql data needed for tests
+     * Runs trips before each test
+     * These trips are found in conf/test/(whatever), and should contain minimal sql data needed for tests
      */
     @Before
     public void applyEvolutions() {
-        // Only certain evolutions, namely initialisation, and destinations folders
+        // Only certain trips, namely initialisation, and destinations folders
         Evolutions.applyEvolutions(db, Evolutions.fromClassLoader(getClass().getClassLoader(), "test/destination/"));
     }
 
     /**
-     * Cleans up evolutions after each test, to allow for them to be re-run for next test
+     * Cleans up trips after each test, to allow for them to be re-run for next test
      */
     @After
     public void cleanupEvolutions() {
@@ -112,11 +118,25 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created destination
         Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(this.authCookie)
                 .uri("/api/destination/1");
 
         // Get result and check it was successful
         Result result2 = route(fakeApp, request2);
         assertEquals(OK, result2.status());
+    }
+
+    @Test
+    public void deleteNonExistingDestination() {
+        // Create request to delete newly created user
+        Http.RequestBuilder request2 = Helpers.fakeRequest()
+                .method(DELETE)
+                .cookie(this.authCookie)
+                .uri("/api/destination/100");
+
+        // Get result and check it was successful
+        Result result2 = route(fakeApp, request2);
+        assertEquals(BAD_REQUEST, result2.status());
     }
 
     @Test
@@ -134,6 +154,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(this.authCookie)
                 .uri("/api/destination");
 
         // Get result and check it was successful
@@ -143,5 +164,42 @@ public class DestinationControllerTest extends WithApplication {
         // Get id of destination, check it is 2
         Long idOfDestination = new ObjectMapper().readValue(Helpers.contentAsString(result), Long.class);
         assertEquals(Long.valueOf(2), idOfDestination);
+    }
+
+    @Test
+    public void createImproperDestination() throws IOException {
+        // Create new json object node
+        ObjectNode node = Json.newObject();
+        // Fields missing: district, name, _type
+        node.put("latitude", -1000.0);
+        node.put("longitude", -2000.0);
+        node.put("countryId", 500);
+
+        // Create request to create a new destination
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/destination");
+
+        // Get result and check it was bad request
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Get error response
+        HashMap<String, String> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, String>>() {});
+
+        // Expected error messages
+        HashMap<String, String> expectedMessages = new HashMap<>();
+        expectedMessages.put("district", "district field must be present");
+        expectedMessages.put("latitude", "latitude must be at least -90.000000");
+        expectedMessages.put("name", "name field must be present");
+        expectedMessages.put("_type", "_type field must be present");
+        expectedMessages.put("longitude", "longitude must be at least -180.000000");
+
+        // Check all error messages were present
+        for(String key : response.keySet()) {
+            assertEquals(expectedMessages.get(key), response.get(key));
+        }
     }
 }
