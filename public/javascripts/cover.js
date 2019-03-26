@@ -1,5 +1,6 @@
-/*
+/**
  * Checks if the password field and the confirm password field are matching.
+ *
  */
 $('#password, #confirm_password').on('keyup', function () {
     if ($('#password').val() == $('#confirm_password').val()) {
@@ -11,21 +12,69 @@ $('#password, #confirm_password').on('keyup', function () {
     }
 });
 
-/*
- * Displays the form on the start page that had the error.
+/**
+ * The JavaScript function to process a client logging in
+ *
+ * @param url The route/url to send the request to
+ * @param redirect The page to redirect to if no errors are found
  */
-$(document).ready(function() {
-    if ($('#flashMessage1').hasClass("loginError")) {
-        $("#loginBtn").click();
-    } if ($('#flashMessage2').hasClass("signUpError")) {
-        $("#signUpBtn").click();
-    }
-});
+function login(url, redirect) {
+    const formData = new FormData(document.getElementById("loginForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]]: pair[1],
+    }), {});
+    post(url,data)
+    .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+        .then(json => {
+            if (response.status != 200) {
+                showErrors(json, "loginForm");
+            } else {
+                // setCookie("JWT-Auth", json);
+                window.location.href = redirect;
+            }
+        });
+    });
+}
 
-/*
- * Hides error message if cancel is pressed on start page.
+/**
+ * The JavaScript function to process a client signing up
+ *
+ * @param url The route/url to send the request to
+ * @param redirect The page to redirect to if no errors are found
  */
-$('#cancelBtn1, #cancelBtn2').click(function () {
-    $("#flashMessage1").hide();
-    $("#flashMessage2").hide();
-});
+function signup(url, redirect) {
+    const formData = new FormData(document.getElementById("signupForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]] : pair[1],
+    }), {});
+    post(url, data)
+        .then(response => {
+            response.json()
+            .then(json => {
+                if (response.status != 200) {
+                    showErrors(json, "signupForm");
+                } else {
+                    // setCookie("JWT-Auth", json);
+                    window.location.href = redirect;
+                }
+            });
+    });
+}
+
+/**
+ * The JavaScript function to clear error messages and
+ * fields on the start page when the cancel button is pressed
+ */
+function cancel() {
+    const elements = document.getElementById("main").getElementsByTagName("input");
+    console.log(elements);
+    for (i in elements) {
+        elements[i].value = "";
+    }
+    hideErrors("signupForm");
+    hideErrors("loginForm");
+}

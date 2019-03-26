@@ -1,40 +1,53 @@
 package models;
 
-import io.ebean.Finder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Model;
 import play.data.validation.Constraints;
-import play.data.format.*;
-import javax.persistence.Column;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import java.util.Date;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * A class that represents a profile and hold information that is received from the database
  */
 @Entity
+@Table(name="Profile")
 public class Profile extends Model {
 
     @Id
     @Constraints.Required
-    public Long uid; //Unique user id
+    public Long userId; //Unique user id
 
-    @Column(name="firstName")
     @Constraints.Required
     public String firstName;
 
-    @Column(name="lastName")
     @Constraints.Required
     public String lastName;
 
-    @Column(name="middleName")
     public String middleName;
 
-    @Column(name="dateOfBirth")
-    @Constraints.Required
-    public String birthDate;
+    public String dateOfBirth;
 
     public String gender;
 
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name="TravellerType",
+//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+//            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
+    public List<TravellerTypeDefinition> travellerTypes;
+
+//    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name = "Nationality",
+//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    public List<CountryDefinition> nationalities;
+
+//    @ManyToMany
+//    @JoinTable(
+//            name = "Passport",
+//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    public List<CountryDefinition> passports;
 }
