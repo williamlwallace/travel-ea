@@ -173,11 +173,11 @@ public class PeopleController extends Controller {
     }
 
     /**
-     * Displays the people page. Called with the /people URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the people page if they are,
+     * Displays the people search page. Called with the /people/search URL and uses a GET request.
+     * Checks that a user is logged in. Takes them to the people search page if they are,
      * otherwise they are taken to the start page.
      *
-     * @return displays the people or start page.
+     * @return displays the people search or start page.
      */
     @With({Everyone.class, Authenticator.class})
     public Result search(Http.Request request, Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {

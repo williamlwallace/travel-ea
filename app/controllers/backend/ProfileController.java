@@ -323,6 +323,15 @@ public class ProfileController extends Controller {
         return travellerTypes;
     }
 
+    /**
+     * Retrieves all profiles, filters them and then returns the filtered result.
+     * @param nationalityId nationality request
+     * @param gender gender requested
+     * @param minAge minimum age for filter
+     * @param maxAge maximum age for filter
+     * @param travellerTypeId traveller type requested
+     * @return List of profiles within requested parameters
+     */
 
     public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
         return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
