@@ -23,26 +23,30 @@
             </div><br>
 
             <div>
+                <label id="tripError"></label>
                 <table id="dtTrips" class="table table-striped table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th class="th-sm">Name</th>
-                            <th class="th-sm">Number of Destinations</th>
-                            <th class="th-sm">Start</th>
-                            <th class="th-sm">End</th>
+                            <th class="th-sm">Start Destination</th>
+                            <th class="th-sm">End Destination</th>
+                            <th class="th-sm">Trip Length</th>
+                            <th class="th-sm">Date</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tripData">
                         @for(t <- tripList) {
                             <tr id=@t.id>
-                                @*<td>@t.tripData[0].destinationId</td>*@
-                                @*<td>@t.tripData[0].destinationId</td>*@
-                                @*<td>@t.tripData.length</td>*@
-                                <td id="startDestination">destStart</td>
-                                <td id="endDestination">destEnd</td>
-                                <td>tripLength</td>
-                                <td>tripDate</td>
-                                <td><button class="btn btn-popup" type="button" onclick=''>View</button></td>
+                                <td>@t.tripDataList(0).destination.name</td>
+
+                                @if(t.tripDataList.length >= 2) {
+                                    <td>@t.tripDataList(t.tripDataList.length - 1)</td>
+                                } else{
+                                    <td>-</td>
+                                }
+
+                                <td>@t.tripDataList.length</td>
+                                <td id="tripDate">tripDate</td>
+                                <td><button class="btn btn-popup" type="button" onclick='@controllers.frontend.routes.TripController.editTripIndex(t.id)'>View</button></td>
                             </tr>
                         }
                     </tbody>
@@ -53,5 +57,5 @@
 }
 
 <script type="text/javascript">
-        updateDestinationInfo("@controllers.backend.routes.DestinationController.getAllDestinations()");
+        updateTripDates(@tripList);
 </script>

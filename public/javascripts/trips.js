@@ -257,7 +257,7 @@ function showErrors(json) {
 var destinationDict = {};
 
 // Runs get countries method, then add country options to drop down
-function updateDestinationInfo(getDestinationsUrl) {
+function getDestinationInfo(getDestinationsUrl) {
     // Run a get request to fetch all destinations
     get(getDestinationsUrl)
     // Get the response of the request
@@ -276,29 +276,84 @@ function updateDestinationInfo(getDestinationsUrl) {
         });
 }
 
-function updateDestinationsInTable() {
-    let tableBody = document.getElementsByTagName('tbody')[0];
-    let rowList = tableBody.getElementsByTagName('tr');
-    for (let i = 0; i < rowList.length; i++) {
-        let dataList = rowList[i].getElementsByTagName('td');
+function updateTripDates(userTrips) {
+    let tripElements = Array.of(document.getElementById("tripData").children)[0];
 
-        for (let j = 0; j < dataList.length; j++) {
-            if (dataList[j].getAttribute("id") === "startDestination") {
-                dataList[j].innerHTML = destinationDict[parseInt(dataList[j].innerHTML)];
+    for (let trip in userTrips) {
+        let date = null;
+
+        for (let tripData in userTrips[trip].tripDataList) {
+            if (userTrips[trip].tripDataList[tripData].arrivalTime != null) {
+                date = userTrips[trip].tripDataList[tripData].arrivalTime;
+                break;
             }
-            else if (dataList[j].getAttribute("id") === "endDestination") {
-                dataList[j].innerHTML = destinationDict[parseInt(dataList[j].innerHTML)];
+            else if (userTrips[trip].tripDataList[tripData].departureTime != null) {
+                date = userTrips[trip].tripDataList[tripData].departureTime;
+                break;
+            }
+        }
+
+        for (let i in tripElements) {
+            let rows = tripElements[i].getElementsByTagName("td");
+
+            for (let j in rows) {
+                if (rows[j].getAttribute("id") === "tripDate" && date != null) {
+                    rows[j].innerHTML = date.substr(0, 10);
+                }
+                else if (rows[j].getAttribute("id") === "tripDate") {
+                    rows[j].innerHTML = "----/--/--";
+                }
             }
         }
     }
 }
 
-function updateTripOnServer(url) {
+function editTrip(trip) {
+    get("/trips/edit").then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+            .then(() => {
+                if (response.status === 200) {
+                    window.location.href = redirect;
+                }
+                else {
+                    document.getElementById("tripError").innerHTML = "Error opening trip for modification";
+                }
+            });
+    });
+}
+
+function updateTrip(url, redirect) {
+
+    let listItemArray = Array.of(document.getElementById("list").children);
+    let tripDataList = [];
+
+    for (let i = 0; i < listItemArray[0].length; i++) {
+        tripDataList.push(listItemToTripData(listItemArray[0][i], i));
+    }
+
+    let tripData = {
+        "tripDataCollection": tripDataList
+    };
+
+    post(url, tripData).then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+            .then(json => {
+                if (response.status === 400) {
+                    showErrors(json);
+                } else if (response.status === 200) {
+                    window.location.href = redirect;
+                } else {
+                    document.getElementById("destinationError").innerHTML = "Error(s): " + Object.values(json).join(", ");
+                }
+            });
+    });
+}
+
+function updateTripOnServer(url, tripId) {
     // Create array (which will be serialized)
     let tripDataCollection = [];
-
-    // Get user id to use
-    let uid = document.getElementById("userIDInput").value;
 
     // For each list item in list, convert it to a json object and add it to json array
     var listItemArray = Array.of(document.getElementById("tripStageList").children);
@@ -308,7 +363,6 @@ function updateTripOnServer(url) {
 
     // Now create final json object
     let data = {};
-    data["uid"] = uid;
     data["tripDataCollection"] = tripDataCollection;
     data["id"] = tripId;
     console.log(data);
@@ -318,9 +372,9 @@ function updateTripOnServer(url) {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-        if(response.status == 400) {
+        if(response.status === 400) {
         showErrors(json);
-    } else if (response.status == 200) {
+    } else if (response.status === 200) {
         document.getElementById("errorDisplay").innerHTML = "Successfully updated trip";
     } else {
         document.getElementById("errorDisplay").innerHTML = "Error(s): " + Object.values(json).join(", ");
