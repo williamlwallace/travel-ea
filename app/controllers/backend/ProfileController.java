@@ -18,6 +18,9 @@ import util.validation.UserValidator;
 import util.validation.ErrorResponse;
 
 import javax.inject.Inject;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -191,7 +194,6 @@ public class ProfileController extends Controller {
     /**
      * Updates the profile received in the body of the request as well as the related nationalities, passports
      * and traveller types
-     * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
     private CompletionStage<Result> updateProfileHelper(JsonNode json, Long userId) {
@@ -320,4 +322,50 @@ public class ProfileController extends Controller {
 
         return travellerTypes;
     }
+
+
+    public CompletableFuture<Result> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
+        return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
+            outerloop:
+            for (Profile profile : profiles) {
+                if (gender != null) {
+                    if (!profile.gender.equalsIgnoreCase(gender)) {
+                        profiles.remove(profile);
+                        continue;
+                    }
+                }
+
+                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+                int age = Period.between(birthDate, LocalDate.now()).getYears();
+
+                if (age < minAge || age > maxAge) {
+                    profiles.remove(profile);
+                    continue;
+                }
+
+                if (nationalityId != null) {
+                    for (CountryDefinition country : profile.nationalities) {
+                        if (!country.id.equals(nationalityId)) {
+                            profiles.remove(profile);
+                            continue outerloop;
+                        }
+                    }
+                }
+
+                if (travellerTypeId != null) {
+                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
+                        if (!travellerTypeDefinition.id.equals(travellerTypeId)) {
+                            profiles.remove(profile);
+                            continue outerloop;
+                        }
+                    }
+                }
+
+            }
+
+            return ok(Json.toJson(profiles));
+        });
+    }
 }
+
+
