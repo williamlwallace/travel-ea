@@ -134,10 +134,17 @@ function updateProfile(url, redirect) {
     });
 }
 
-function populateProfileData(profile) {
-    console.log(profile);
-    console.log(profile["nationalities"][0]["id"]);
-    $('#travellerTypes').picker('set', travellerTypes);
-    $('#nationalities').picker('set', test);
-    $('#passports').picker('set', passports);
+function populateProfileData(url) {
+    get(url)
+    .then(response => {
+        // Read response from server, which will be a json object
+        return response.json()
+    })
+    .then(json => {
+        console.log(json);
+        $('#travellerTypes').picker('set', travellerTypes);
+        $('#nationalities').picker('set', test);
+        $('#passports').picker('set', passports);
+    });
+    
 }

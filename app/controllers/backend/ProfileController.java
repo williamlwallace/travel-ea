@@ -129,11 +129,21 @@ public class ProfileController extends Controller {
     }
 
     /**
+     * Gets a profile based on the userID specified in auth
+     * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getMyProfile(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        return this.getProfile(request, user.id);
+    }
+
+    /**
      * Gets a profile based on the userID specified in the request
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    public CompletableFuture<Result> getProfile(Long userId) {
+    public CompletableFuture<Result> getProfile(Http.Request request, Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
         try {
