@@ -185,7 +185,7 @@ function listItemToTripData(listItem, index) {
     let DTInputs = listItem.getElementsByTagName("input");
 
     try {
-        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000+0000";
+        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000";
 
         if (json["arrivalTime"].length <= 18) {
             json["arrivalTime"] = null;
@@ -196,7 +196,7 @@ function listItemToTripData(listItem, index) {
     }
 
     try {
-        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000+0000";
+        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000";
 
         if (json["departureTime"].length <= 18) {
             json["departureTime"] = null;
