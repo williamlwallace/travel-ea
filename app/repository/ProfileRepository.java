@@ -279,6 +279,14 @@ public class ProfileRepository {
     }
 
     public CompletableFuture<List<Profile>> getAllProfiles() {
-        return supplyAsync(() -> ebeanServer.find(Profile.class).findList(), executionContext);
+        List<Profile> basicProfiles = ebeanServer.find(Profile.class).findList();
+        List<Profile> filledInList = new ArrayList<>();
+        return supplyAsync(() -> {
+            for(Profile prof : basicProfiles) {
+                findID(prof.userId).thenApply(result -> filledInList.add(result));
+            }
+
+            return filledInList;
+        });
     }
 }
