@@ -120,7 +120,7 @@ public class ProfileController extends Controller {
         else {
             try {
                 profileRepository.addProfile(profile).get();
-                return CompletableFuture.supplyAsync(() -> ok("Successfully added new profile to database"));
+                return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully added new profile to database")));
             } catch (Exception e) {
                 int i = 0;
                 return CompletableFuture.supplyAsync(() -> internalServerError("Failed to add profile to database"));
