@@ -44,7 +44,7 @@ PUT     /api/trip                       controllers.backend.TripController.updat
 
 GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
-GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
+GET     /api/trip/getAll                controllers.backend.TripController.getAllUserTrips(request:Request)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
