@@ -65,6 +65,9 @@ GET     /trips                      controllers.frontend.TripController.tripInde
 # The Travelea create trips page
 GET     /trips/create               controllers.frontend.TripController.createTripIndex(request: Request)
 
+# The Travelea create trips page
+GET     /trips/edit                 controllers.frontend.TripController.editTripIndex(request: Request)
+
 # The Travelea profile page
 GET     /profile                    controllers.ProfileController.index(request: Request)
 

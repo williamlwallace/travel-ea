@@ -34,11 +34,14 @@
                     </thead>
                     <tbody>
                         @for(t <- tripList) {
-                            <tr id="@t.id">
-                                <td>@t.tripData[0].destinationId</td>
-                                <td>@t.tripData[0].destinationId</td>
-                                <td>@t.tripData.length</td>
-                                <td>YYYY-MM-DD</td>
+                            <tr id=@t.id>
+                                @*<td>@t.tripData[0].destinationId</td>*@
+                                @*<td>@t.tripData[0].destinationId</td>*@
+                                @*<td>@t.tripData.length</td>*@
+                                <td id="startDestination">destStart</td>
+                                <td id="endDestination">destEnd</td>
+                                <td>tripLength</td>
+                                <td>tripDate</td>
                                 <td><button class="btn btn-popup" type="button" onclick=''>View</button></td>
                             </tr>
                         }
