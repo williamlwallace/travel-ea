@@ -59,6 +59,15 @@ public class ProfileController extends Controller {
     }
 
     /**
+     * Gets all possible traveller types currently stored in db
+     * @return JSON list of traveller types
+     */
+    public CompletableFuture<Result> getAllTravellerTypes() {
+        return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
+                .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
+    }
+
+    /**
      * Adds a new profile received as body of a post request to database
      *
      * @param request Contains the HTTP request info
@@ -191,7 +200,6 @@ public class ProfileController extends Controller {
     /**
      * Updates the profile received in the body of the request as well as the related nationalities, passports
      * and traveller types
-     * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
     private CompletionStage<Result> updateProfileHelper(JsonNode json, Long userId) {
