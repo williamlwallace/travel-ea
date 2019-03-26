@@ -100,48 +100,85 @@ function addDestinationToTrip(dest) {
         cardId += 1;
     }
     document.getElementById('list').insertAdjacentHTML('beforeend',
-        '<div class="sortable-card" id=' + cardId + '>\n' +
-        '<label id=' + dest[0] + '></label>' +
-        '    <!-- Card -->\n' +
-        '    <div class="card mb-4">\n' +
-        '        <!--Card image-->\n' +
-        '        <div class="view overlay">\n' +
-        '            <img class="card-img-top" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">\n' +
-        '            <a href="#!">\n' +
-        '                <div class="mask rgba-white-slight"></div>\n' +
-        '            </a>\n' +
-        '        </div>\n' +
-        '        <!--Card content-->\n' +
-        '        <div class="card-body">\n' +
-        '            <!--Title-->\n' +
-        '            <h4 class="card-title"> ' + dest[1] + '</h4>\n' +
-        '            <!--Text-->\n' +
-        '            <p class="card-text">' +
-        '                <b>Type: </b> '+ dest[2] + '<br/>' +
-        '                <b>District: </b> '+ dest[3] + '<br/>' +
-        '                <b>Latitude: </b>' + dest[4] + '<br/>' +
-        '                <b>Longitude: </b>' + dest[5] + '<br/>' +
-        '                <b>Country: </b>' + countryDict[dest[6]] +
-        '            </p>\n' +
-        '            <form id="arrivalDepartureForm">\n' +
-        '                <div class="modal-body mx-3">\n' +
-        '                    <div>Arrival\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
-        '                        <label id="arrivalError"></label>\n' +
-        '                    </div>\n' +
-        '                    <div>Departure\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
-        '                        <label id="departureError"></label>\n' +
-        '                    </div>\n' +
-        '                </div>\n' +
-        '            </form>\n' +
-        '            <label id="destinationError"></label><br/>\n' +
-        '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
-        '            <button type="button" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(' + cardId + ')">Remove</button>\n' +
-        '        </div>\n' +
-        '    </div>\n' +
+        // '<div class="sortable-card" id=' + cardId + '>\n' +
+        // '<label id=' + dest[0] + '></label>' +
+        // '    <!-- Card -->\n' +
+        // '    <div class="card mb-4">\n' +
+        // '        <!--Card image-->\n' +
+        // '        <div class="view overlay">\n' +
+        // '            <img class="card-img-left" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">\n' +
+        // '            <a href="#!">\n' +
+        // '                <div class="mask rgba-white-slight"></div>\n' +
+        // '            </a>\n' +
+        // '        </div>\n' +
+        // '        <!--Card content-->\n' +
+        // '        <div class="card-body">\n' +
+        // '            <!--Title-->\n' +
+        // '            <h4 class="card-title"> ' + dest[1] + '</h4>\n' +
+        // '            <!--Text-->\n' +
+        // '            <p class="card-text">' +
+        // '                <b>Type: </b> '+ dest[2] + '<br/>' +
+        // '                <b>District: </b> '+ dest[3] + '<br/>' +
+        // '                <b>Latitude: </b>' + dest[4] + '<br/>' +
+        // '                <b>Longitude: </b>' + dest[5] + '<br/>' +
+        // '                <b>Country: </b>' + countryDict[dest[6]] +
+        // '            </p>\n' +
+        // '            <form id="arrivalDepartureForm">\n' +
+        // '                <div class="modal-body mx-3">\n' +
+        // '                    <div>Arrival\n' +
+        // '                        <i class="fas prefix grey-text"></i>\n' +
+        // '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
+        // '                        <label id="arrivalError"></label>\n' +
+        // '                    </div>\n' +
+        // '                    <div>Departure\n' +
+        // '                        <i class="fas prefix grey-text"></i>\n' +
+        // '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
+        // '                        <label id="departureError"></label>\n' +
+        // '                    </div>\n' +
+        // '                </div>\n' +
+        // '            </form>\n' +
+        // '            <label id="destinationError"></label><br/>\n' +
+        // '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
+        // '            <button type="button" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(' + cardId + ')">Remove</button>\n' +
+        // '        </div>\n' +
+        // '    </div>\n' +
+        // '</div>'
+
+        '<div class="card flex-row" id=' + cardId + '>\n' +
+            '<label id=' + dest[0] + '></label>' +
+        '<div class="card-header border-0" style="height: 100%">\n' +
+            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +
+        '</div>\n' +
+        '<div class="card-block px-2">\n' +
+            '<div id="left">\n' +
+                '<h4 class="card-title">' + dest[1] + '</h4>\n' +
+                '<p class="card-text" id="card-text">' +
+                    '<b>Type: </b> '+ dest[2] + '<br/>' +
+                    '<b>District: </b> '+ dest[3] + '<br/>' +
+                    '<b>Latitude: </b>' + dest[4] + '<br/>' +
+                    '<b>Longitude: </b>' + dest[5] + '<br/>' +
+                    '<b>Country: </b>' + countryDict[dest[6]] +
+                '</p>\n' +
+            '</div>' +
+            '<div id="right">\n' +
+                '<form id="arrivalDepartureForm">\n' +
+    '                <div class="modal-body mx-3">\n' +
+    '                    <div id="arrival">Arrival\n' +
+    '                        <i class="fas prefix grey-text"></i>\n' +
+    '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
+    '                        <label id="arrivalError"></label>\n' +
+    '                    </div>\n' +
+    '                    <div id="depart">Departure\n' +
+    '                        <i class="fas prefix grey-text"></i>\n' +
+    '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
+    '                        <label id="departureError"></label>\n' +
+    '                    </div>\n' +
+    '                </div>\n' +
+    '            </form>\n' +
+    '            <label id="destinationError"></label><br/>\n' +
+    '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
+    '            <button type="button" style="float:right" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(' + cardId + ')">Remove</button>\n' +
+            '</div>\n' +
         '</div>'
     );
 }
