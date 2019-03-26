@@ -30,7 +30,7 @@ import java.util.Objects;
 public class TripData extends Model {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
-    public long guid;
+    public Long guid;
 
     @ManyToOne
     @JsonBackReference
