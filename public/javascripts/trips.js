@@ -16,12 +16,28 @@ function fillCountryInfo(getCountriesUrl) {
                     countryDict[data[i]['id']] = data[i]['name'];
                 }
 
-                console.log(countryDict);
                 // Now fill the drop down box, and list of destinations
+                updateCountryCardField();
                 fillDropDown();
                 updateDestinationsCountryField();
             });
         });
+}
+
+function updateCountryCardField() {
+    let cards = Array.of(document.getElementById("list").children)[0];
+
+    for (let i in cards) {
+        let labels = cards[i].getElementsByTagName("label");
+
+        for (let j in labels) {
+            if (labels[j].getAttribute("id") === "countryField") {
+                let destinationId = parseInt(labels[0].getAttribute("id"));
+                labels[j].innerHTML = countryDict[destinationId];
+                break;
+            }
+        }
+    }
 }
 
 function updateDestinationsCountryField() {
@@ -50,6 +66,7 @@ function fillDropDown() {
     }
 }
 
+
 function newDestination(url) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("addDestinationForm"));
@@ -76,10 +93,10 @@ function newDestination(url) {
 }
 
 function addDestinationToTrip(dest) {
-    let productOrder = $( "#list" ).sortable('toArray');
+    let cards = $( "#list" ).sortable('toArray');
     let cardId = 0;
 
-    while (productOrder.includes(cardId.toString())) {
+    while (cards.includes(cardId.toString())) {
         cardId += 1;
     }
     document.getElementById('list').insertAdjacentHTML('beforeend',
@@ -220,7 +237,14 @@ function showErrors(json) {
         let errorList = errors.split(", ");
 
         if (errorList[0] != null && !isNaN(parseInt(key))) {
-            listItemArray[0][parseInt(key)].getElementsByTagName("label")[2].innerHTML = errorList[0];
+            let labels = listItemArray[0][parseInt(key)].getElementsByTagName("label");
+
+            for (let i in labels) {
+                if (labels[i].getAttribute("id") === "destinationError") {
+                    listItemArray[0][parseInt(key)].getElementsByTagName("label")[2].innerHTML = errorList[0];
+                    break;
+                }
+            }
         }
         else if (errorList[0] != null) {
             document.getElementById("tripError").innerHTML = errorList[0];
@@ -241,17 +265,32 @@ function updateDestinationInfo(getDestinationsUrl) {
             // Convert the response to json
             response.json().then(data => {
                 // Json data is an array of destinations, iterate through it
-                for(let i = 0; i < data.length; i++) {
+                for (let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     countryDict[data[i]['id']] = data[i]['name'];
                 }
 
-                console.log(countryDict);
-                // Now fill the drop down box, and list of destinations
-                fillDropDown();
-                updateDestinationsCountryField();
+                // Now update the table with destination info
+                updateDestinationsInTable();
             });
         });
+}
+
+function updateDestinationsInTable() {
+    let tableBody = document.getElementsByTagName('tbody')[0];
+    let rowList = tableBody.getElementsByTagName('tr');
+    for (let i = 0; i < rowList.length; i++) {
+        let dataList = rowList[i].getElementsByTagName('td');
+
+        for (let j = 0; j < dataList.length; j++) {
+            if (dataList[j].getAttribute("id") === "startDestination") {
+                dataList[j].innerHTML = destinationDict[parseInt(dataList[j].innerHTML)];
+            }
+            else if (dataList[j].getAttribute("id") === "endDestination") {
+                dataList[j].innerHTML = destinationDict[parseInt(dataList[j].innerHTML)];
+            }
+        }
+    }
 }
 
 function updateTripOnServer(url) {

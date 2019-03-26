@@ -1,7 +1,7 @@
 @import play.mvc.Http.Request
 @import helper._
 
-@(user: String, destList: Seq[models.Destination])(implicit request: Request, messages: play.i18n.Messages)
+@(user: String, destList: Seq[models.Destination], trip: models.Trip)(implicit request: Request, messages: play.i18n.Messages)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
@@ -37,6 +37,66 @@
                     <!-- Destination card deck -->
                 <div id="parent" class="parent">
                     <div id="list" class="list">
+                        @for(i <- trip.tripData.indices) {
+                            <div class="sortable-card" id=@i>
+                                <label id=@trip.tripData(i).destinationId></label>
+                                    <!-- Card -->
+                                    <div class="card mb-4">
+                                        <!--Card image-->
+                                        <div class="view overlay">
+                                            <img class="card-img-top" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">
+                                            <a href="#!">
+                                                <div class="mask rgba-white-slight"></div>
+                                            </a>
+                                        </div>
+                                        <!--Card content-->
+                                        <div class="card-body">
+                                            @for(dest <- destList
+                                            if dest.id == trip.tripData(i).destinationId) {
+                                                    <!--Title-->
+                                                <h4 class="card-title">@dest.id</h4>
+                                                    <!--Text-->
+                                                <p class="card-text">
+
+                                                    <b>Type: </b>
+                                                    <label id="typeField">@dest._type</label>
+                                                    <br/>
+                                                    <b>District: </b>
+                                                    <label id="districtField">@dest.district</label>
+                                                    <br/>
+                                                    <b>Latitude: </b>
+                                                    <label id="latitudeField">@dest.latitude</label>
+                                                    <br/>
+                                                    <b>Longitude: </b>
+                                                    <label id="longitudeField">@dest.longitude</label>
+                                                    <br/>
+                                                    <b>Country: </b>
+                                                    <label id="countryField">loading...</label>
+                                                </p>
+                                            }
+                                            <form id="arrivalDepartureForm">
+                                                <div class="modal-body mx-3">
+                                                    <div>Arrival
+                                                        <i class="fas prefix grey-text"></i>
+                                                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">
+                                                        <label id="arrivalError"></label>
+                                                    </div>
+                                                    <div>Departure
+                                                        <i class="fas prefix grey-text"></i>
+                                                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">
+                                                        <label id="departureError"></label>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                            <label id="destinationError"></label><br/>
+                                            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
+                                            <button type="button" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(@i)">Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        }
+
                         <!-- Destinations inserted here -->
                     </div>
                 </div>
@@ -53,7 +113,7 @@
 
         <div style="float: right;">
             <button class="btn btn-primary" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()",
-                                                           "@controllers.routes.TripsController.index()")'>Done</button>
+                                                           "@controllers.frontend.routes.TripController.tripIndex()")'>Done</button>
         </div>
 
 
@@ -126,7 +186,7 @@
 
 
         <!-- Edit arrival depart times form -->
-        @helper.form(routes.createTripController.index()) {
+        @helper.form(controllers.frontend.routes.TripController.createTripIndex()) {
             @helper.CSRF.formField
             <div class="modal fade" id="modalEditForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
             aria-hidden="true">
@@ -162,7 +222,7 @@
         }
 
         <!-- Form to add destination to trip -->
-        @helper.form(routes.createTripController.index()) {
+        @helper.form(controllers.frontend.routes.TripController.createTripIndex()) {
             @helper.CSRF.formField
             <div class="modal fade" id="modalAddForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
             aria-hidden="true">
