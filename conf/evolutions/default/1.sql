@@ -145,6 +145,8 @@ CREATE TABLE IF NOT EXISTS UserRole
   );
 
 -- !Downs
+DROP TABLE UserRole;
+DROP TABLE UserRoleDefinition;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
@@ -155,8 +157,7 @@ DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
 DROP TABLE User;
-DROP TABLE UserRole;
-DROP TABLE UserRoleDefinition;
+
 
 
 
