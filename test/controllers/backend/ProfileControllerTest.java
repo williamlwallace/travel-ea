@@ -17,6 +17,7 @@ import play.test.Helpers;
 import play.test.WithApplication;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
+import play.mvc.Http.Cookie;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -34,9 +35,10 @@ public class ProfileControllerTest extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
+    private static Cookie authCookie;
 
     /**
-     * Configures system to use dest database, and starts a fake app
+     * Configures system to use profile database, and starts a fake app
      */
     @BeforeClass
     public static void setUp() {
@@ -48,6 +50,7 @@ public class ProfileControllerTest extends WithApplication {
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
+        authCookie = Http.Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
 
         Helpers.start(fakeApp);
     }
@@ -97,6 +100,7 @@ public class ProfileControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(authCookie)
                 .uri("/api/profile");
 
         // Get result and check it was successful
@@ -122,6 +126,7 @@ public class ProfileControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(authCookie)
                 .uri("/api/profile");
 
         // Get result and check it was successful
@@ -147,6 +152,7 @@ public class ProfileControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
+                .cookie(authCookie)
                 .uri("/api/profile");
 
         // Get result and check it was successful
@@ -251,6 +257,7 @@ public class ProfileControllerTest extends WithApplication {
         // Create request to delete newly created profile
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(this.authCookie)
                 .uri("/api/profile/1");
 
         // Get result and check it was successful
@@ -263,6 +270,7 @@ public class ProfileControllerTest extends WithApplication {
         // Create request to delete a profile that doesn't exist
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(this.authCookie)
                 .uri("/api/profile/10");
 
         // Get result and check it was not successful
