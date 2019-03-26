@@ -43,4 +43,3 @@ DELETE FROM Profile;
 DELETE FROM TravellerTypeDefinition;
 DELETE FROM CountryDefinition;
 DELETE FROM User;
-
