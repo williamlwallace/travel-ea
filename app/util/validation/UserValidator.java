@@ -30,7 +30,6 @@ public class UserValidator extends Validator {
      * @return ErrorResponse object
      */
     public ErrorResponse profile() {
-        this.required("userId");
         this.required("firstName");
         this.required("lastName");
         if (this.required("dateOfBirth")) {
