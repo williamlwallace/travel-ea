@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static play.mvc.Results.ok;
@@ -275,5 +276,9 @@ public class ProfileRepository {
 
             return ok();
         }, executionContext);
+    }
+
+    public CompletableFuture<List<Profile>> getAllProfiles() {
+        return supplyAsync(() -> ebeanServer.find(Profile.class).findList(), executionContext);
     }
 }
