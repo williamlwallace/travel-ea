@@ -62,7 +62,7 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         String username = request.attrs().get(ActionState.USER).username;
-        return this.getUserTrips().thenApplyAsync(
+        return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
                 tripList -> {
                     return ok(trips.render(username, asScala(tripList), request, messagesApi.preferred(request)));
                 },
@@ -108,11 +108,14 @@ public class TripController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips() {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/trip/getAll/").get().toCompletableFuture();
+    public CompletableFuture<List<Trip>> getUserTrips(String token) {
+        CompletableFuture<WSResponse> res = ws
+                                            .url("http://localhost:9000/api/trip/getAll/")
+                                            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+                                            .get()
+                                            .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
-
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                         new TypeReference<List<Trip>>() {});
