@@ -321,19 +321,9 @@ function updateTripDates() {
     }
 }
 
-function editTrip(trip) {
-    get("/trips/edit").then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-            .then(() => {
-                if (response.status === 200) {
-                    window.location.href = redirect;
-                }
-                else {
-                    document.getElementById("tripError").innerHTML = "Error opening trip for modification";
-                }
-            });
-    });
+function viewTrip(url) {
+    console.log(url);
+    window.location.href = url;
 }
 
 function updateTrip(url, redirect) {
