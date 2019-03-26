@@ -72,5 +72,4 @@ public class DestinationController extends Controller {
         });
 
     }
-
 }
