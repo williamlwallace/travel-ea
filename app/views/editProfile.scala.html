@@ -1,7 +1,6 @@
 @import play.mvc.Http.Request
 @import helper._
-@import com.fasterxml.jackson.databind.JsonNode
-@(profile: Profile, username: String, jsonProfile: JsonNode)
+@(profile: Profile, username: String)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/editProfile.js")" type="text/javascript"></script>
@@ -94,5 +93,5 @@
 <script type="text/javascript">
     fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
     fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");
-    populateProfileData("@jsonProfile");
+    populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
 </script>
