@@ -332,7 +332,6 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return List of profiles within requested parameters
      */
-
     public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
         return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
 
@@ -356,23 +355,23 @@ public class ProfileController extends Controller {
                     continue;
                 }
 
-//                if (nationalityId != 0) {
-//                    for (CountryDefinition country : profile.nationalities) {
-//                        if (!country.id.equals(nationalityId)) {
-//                            toReturn.remove(profile);
-//                            continue outerLoop;
-//                        }
-//                    }
-//                }
+                if (nationalityId != 0) {
+                    for (CountryDefinition country : profile.nationalities) {
+                        if (!country.id.equals(nationalityId)) {
+                            toReturn.remove(profile);
+                            continue outerLoop;
+                        }
+                    }
+                }
 
-//                if (travellerTypeId != 0) {
-//                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
-//                        if (!travellerTypeDefinition.id.equals(travellerTypeId)) {
-//                            toReturn.remove(profile);
-//                            continue outerLoop;
-//                        }
-//                    }
-//                }
+                if (travellerTypeId != 0) {
+                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
+                        if (!travellerTypeDefinition.id.equals(travellerTypeId)) {
+                            toReturn.remove(profile);
+                            continue outerLoop;
+                        }
+                    }
+                }
 
             }
 
