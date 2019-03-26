@@ -33,14 +33,14 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
-DELETE FROM TravellerType;
-DELETE FROM Passport;
-DELETE FROM Nationality;
-DELETE FROM TravellerTypeDefinition;
 DELETE FROM TripData;
-DELETE FROM Destination;
 DELETE FROM Trip;
-DELETE FROM CountryDefinition;
+DELETE FROM Destination;
+DELETE FROM Nationality;
+DELETE FROM Passport;
+DELETE FROM TravellerType;
 DELETE FROM Profile;
+DELETE FROM TravellerTypeDefinition;
+DELETE FROM CountryDefinition;
 DELETE FROM User;
 
