@@ -84,7 +84,7 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(),request, messagesApi.preferred(request))) : internalServerError();
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(), request, messagesApi.preferred(request))) : internalServerError();
                 },
                 httpExecutionContext.current());
     }
@@ -97,11 +97,11 @@ public class TripController extends Controller {
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> editTripIndex(Http.Request request, Trip trip) {
+    public CompletableFuture<Result> editTripIndex(Http.Request request) {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(),request, messagesApi.preferred(request))) : internalServerError();
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(), request, messagesApi.preferred(request))) : internalServerError();
                 },
                 httpExecutionContext.current());
     }
