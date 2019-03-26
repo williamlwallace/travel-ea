@@ -43,9 +43,6 @@ public class TripData extends Model {
     @Constraints.Required
     public Long position;
 
-    //@Constraints.Required
-    //public Long destinationId;
-
     @OneToOne
     @JoinTable(
             name = "Destination",
