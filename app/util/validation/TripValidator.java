@@ -43,7 +43,7 @@ public class TripValidator {
         }
 
         Long lastDestinationID = 0L;
-        Date mostRecentDate = null;
+        LocalDateTime mostRecentDateTime = null;
 
         for (Object obj : tripDataCollection) {
             TripData trip = (TripData) obj;
@@ -56,14 +56,14 @@ public class TripValidator {
 
             if (trip.destinationId == null) errorString += "destinationId is null, ";
             if (trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
-            if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.getTimestamp().after(trip.departureTime.getTimestamp())) errorString += "departure must be after arrival, ";
+            if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.isAfter(trip.departureTime)) errorString += "departure must be after arrival, ";
             if (trip.arrivalTime != null || trip.departureTime != null) {
                 //todo: fix this one
                 //if(!(mostRecentDate == null) && (trip.arrivalTime.before(mostRecentDate) || trip.departureTime.before(mostRecentDate))) {
                 //    errorString += "this stage cannot occur before a previous stage, ";
                 //}
                 // Set most recent time stamp to be latest value that is not null
-                mostRecentDate = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime).getTimestamp();
+                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime);
             }
 
             // Update most recent destination id
