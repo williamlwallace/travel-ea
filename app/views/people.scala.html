@@ -5,13 +5,9 @@
 }
 
 @layouts.imageHeader("People", user, "images/people-bg.jpg", scripts){
-    <div class="text-center">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Filter</button>
-    </div>
-
     @* The people table *@
     <div>
-        <table id="dtPeople" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+        <table id="dtPeople" class="table table-striped table-bordered" cellspacing="0" width="100%">
             <thead>
                 <tr>
                     <th class="th-sm">First Name</th>
