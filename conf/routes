@@ -27,6 +27,8 @@ DELETE  /api/user/:userId               controllers.backend.UserController.delet
 
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
 
+GET     /api/profile/getTravellerTypes/ controllers.backend.ProfileController.getAllTravellerTypes()
+
 + nocsrf
 POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
 
