@@ -37,8 +37,9 @@ public class UserValidator extends Validator {
             this.date("dateOfBirth");
         }
         this.gender("gender");
-        // In future need to check nationality is not just empty but string represents a valid nationality
         this.required("nationalities");
+        this.required("passports");
+        this.required("travellerTypes");
         return this.getErrorResponse();
     }
 }
