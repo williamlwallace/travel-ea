@@ -27,6 +27,7 @@ public class UserValidator extends Validator {
 
     /**
      * Validates addNewProfile data
+     * NB passports are not required
      * @return ErrorResponse object
      */
     public ErrorResponse profile() {
@@ -37,7 +38,6 @@ public class UserValidator extends Validator {
         }
         this.gender("gender");
         this.required("nationalities");
-        this.required("passports");
         this.required("travellerTypes");
         return this.getErrorResponse();
     }
