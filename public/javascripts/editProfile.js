@@ -134,6 +134,10 @@ function updateProfile(url, redirect) {
     });
 }
 
+/**
+ * The javascript method to populate the slect boxes on the edit profile scene
+ * @param url the route/url to send the request to to get the profile data
+ */
 function populateProfileData(url) {
     get(url)
     .then(response => {
@@ -141,10 +145,17 @@ function populateProfileData(url) {
         return response.json()
     })
     .then(json => {
-        console.log(json);
-        $('#travellerTypes').picker('set', travellerTypes);
-        $('#nationalities').picker('set', test);
-        $('#passports').picker('set', passports);
+        // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
+        for (i = 0; i < json.nationalities.length; i++) {
+            // iterates through the list of nationalities and adds them to the dropdown via their id
+        $('#nationalities').picker('set', json.nationalities[i].id);
+        }
+        for (i = 0; i < json.passports.length; i++) {
+            $('#passports').picker('set', json.passports[i].id);
+        }
+        for (i = 0; i < json.travellerTypes.length; i++) {
+            $('#travellerTypes').picker('set', json.travellerTypes[i].id);
+        }
+        $('#gender').picker('set', json.gender);
     });
-    
 }
