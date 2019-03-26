@@ -51,7 +51,7 @@ public class UserRepository {
      * @param id Unique ID of user to retrieve
      * @return User object with given ID, or null if none found
      */
-    public CompletableFuture<User> findID(int id) {
+    public CompletableFuture<User> findID(Long id) {
         return supplyAsync(() ->
             ebeanServer.find(User.class)
                 .where()
