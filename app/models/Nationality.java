@@ -1,12 +1,11 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Model;
 import play.data.validation.Constraints;
-import javax.persistence.Column;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * A class that represents a user's nationalities
@@ -14,13 +13,15 @@ import javax.persistence.Table;
 @Entity
 @Table(name="Nationality")
 public class Nationality extends Model {
-
     @Id
     public Long guid;
 
     @Constraints.Required
-    public Long userId;
+    public Long countryId;
 
     @Constraints.Required
-    public Long countryId;
+    public Long userId;
+
+//    @ManyToMany(mappedBy = "nationalities")
+//    public List<Profile> nationalities;
 }
