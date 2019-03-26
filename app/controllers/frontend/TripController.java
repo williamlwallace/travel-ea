@@ -87,14 +87,14 @@ public class TripController extends Controller {
     }
 
     /**
-     * Displays the create trip page. Called with the /trips/create URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the create trip page if they are,
+     * Displays the create trip page re-formatted for editing the selected trip. Called with the /trips/edit URL and uses a GET request.
+     * Checks that a user is logged in. Takes them to the edit trip page if they are,
      * otherwise they are taken to the start page.
      *
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> editTripIndex(Http.Request request) {
+    public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {

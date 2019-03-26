@@ -67,8 +67,8 @@ GET     /trips                      controllers.frontend.TripController.tripInde
 # The Travelea create trips page
 GET     /trips/create               controllers.frontend.TripController.createTripIndex(request: Request)
 
-# The Travelea create trips page
-#GET     /trips/edit                 controllers.frontend.TripController.editTripIndex(request: Request)
+# The Travelea edit trip page
+GET     /trips/edit/:id             controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
 
 # The Travelea profile page
 GET     /profile                    controllers.frontend.ProfileController.index(request: Request)
@@ -77,7 +77,7 @@ GET     /profile                    controllers.frontend.ProfileController.index
 GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
 
 # Edit profile page
-GET    /editProfile                 controllers.frontend.ProfileController.editindex(request: Request)
+GET     /editProfile                controllers.frontend.ProfileController.editindex(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
