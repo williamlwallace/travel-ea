@@ -6,6 +6,7 @@ import models.TravellerTypeDefinition;
 import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
@@ -18,6 +19,13 @@ public class TravellerTypeDefinitionRepository {
     public TravellerTypeDefinitionRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+    }
+
+    public CompletableFuture<List<TravellerTypeDefinition>> getAllTravellerTypeDefinitions() {
+        return supplyAsync(() ->
+            ebeanServer.find(TravellerTypeDefinition.class)
+                .findList(),
+            executionContext);
     }
 
     /**

@@ -20,6 +20,21 @@ function fillCountryInfo(getCountriesUrl) {
     });
 }
 
+function fillTravellerTypes(getTravellerTypesUrl) {
+    // Run a get request to fetch all travellers types
+    get(getTravellerTypesUrl)
+    // Get the response of the request
+        .then(response => {
+            // Convert the response to json
+            response.json().then(data => {
+
+                // "data" should now be a list of traveller type definitions
+                // E.g data[0] = { id:1, description:"backpacker"}
+
+            });
+        });
+}
+
 function fillNationalityDropDown() {
     for(let key in countryDict) {
         // For each destination, make a list element that is the json string of object
