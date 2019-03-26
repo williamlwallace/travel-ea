@@ -27,7 +27,7 @@ function fillCountryInfo(getCountriesUrl) {
 function updateCountryCardField() {
     let cards = Array.of(document.getElementById("list").children)[0];
 
-    for (let i in cards) {
+    for (let i = 0; i < cards.length; i++) {
         let labels = cards[i].getElementsByTagName("label");
 
         for (let j in labels) {
@@ -146,12 +146,10 @@ function addDestinationToTrip(dest) {
     );
 }
 
-// TODO: Get errors displaying correctly
 function removeDestinationFromTrip(cardId) {
     let destinations = Array.of(document.getElementById("list").children)[0];
 
     for (let i = 0; i < destinations.length; i++) {
-
         if (parseInt(destinations[i].getAttribute("id")) === cardId) {
             destinations[i].parentNode.removeChild(destinations[i]);
             break;
@@ -160,7 +158,6 @@ function removeDestinationFromTrip(cardId) {
 }
 
 function createTrip(url, redirect) {
-
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
