@@ -40,8 +40,13 @@
                         $( function() {
                             $( "#list" ).disableSelection().sortable({
                                 scroll: true,
-                                axis: 'x',
-                                revert: true
+                                axis: 'y',
+                                revert: true,
+                                helper: function(event, ui){
+                                    var $clone =  $(ui).clone();
+                                    $clone .css('position','absolute');
+                                    return $clone.get(0);
+                                },
                             });
                         } );
                 </script>
