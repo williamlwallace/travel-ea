@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
@@ -15,6 +16,7 @@ import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Http.Cookie;
 import play.test.Helpers;
 import play.test.WithApplication;
 
@@ -33,6 +35,7 @@ public class UserControllerTest extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
+    private static Cookie authCookie;
 
     /**
      * Configures system to use dest database, and starts a fake app
@@ -43,6 +46,7 @@ public class UserControllerTest extends WithApplication {
         Map<String, String> settings = new HashMap<>();
         settings.put("db.default.driver", "org.h2.Driver");
         settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
+        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
 
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
@@ -120,9 +124,9 @@ public class UserControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        // Get id of user, check it is 2
-        Long idOfUser = new ObjectMapper().readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(Long.valueOf(2), idOfUser);
+        // Get cookie created for the user, check its length is at least 10
+        String cookieOfUser = new ObjectMapper().readValue(Helpers.contentAsString(result), String.class);
+        assertTrue(cookieOfUser.length() > 10);
     }
 
     @Test
@@ -144,10 +148,10 @@ public class UserControllerTest extends WithApplication {
     }
 
     @Test
-    public void createUserNoUsername() {
+    public void createUserInvalidUsername() {
         // Create new json object node
         ObjectNode node = Json.newObject();
-        node.put("username", "");
+        node.put("username", "catsanddogs");
         node.put("password", "0hYeahYeah");
 
         // Create request to create a new user
@@ -162,11 +166,11 @@ public class UserControllerTest extends WithApplication {
     }
 
     @Test
-    public void createUserNoPassword() {
+    public void createUserInvalidPassword() {
         // Create new json object node
         ObjectNode node = Json.newObject();
         node.put("username", "catsinhats@live.com");
-        node.put("password", "");
+        node.put("password", "a");
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -177,6 +181,39 @@ public class UserControllerTest extends WithApplication {
         // Get result and check a 400 was sent back
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
+    }
+
+
+    @Test
+    public void createUserEmptyFields() throws IOException{
+        // Create new json object node
+        ObjectNode node = Json.newObject();
+        // Fields missing: district, name, _type
+        node.put("username", "");
+        node.put("password", "");
+
+        // Create request to create a new user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(node)
+                .uri("/api/user");
+
+        // Get result and check it was bad request
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Get error response
+        HashMap<String, String> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, String>>() {});
+
+        // Expected error messages
+        HashMap<String, String> expectedMessages = new HashMap<>();
+        expectedMessages.put("username", "username field must be present");
+        expectedMessages.put("password", "password field must be present");
+
+        // Check all error messages were present
+        for(String key : response.keySet()) {
+            assertEquals(expectedMessages.get(key), response.get(key));
+        }
     }
 
     @Test
@@ -234,10 +271,23 @@ public class UserControllerTest extends WithApplication {
     }
 
     @Test
+    public void logout() {
+        // Create request to login
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(POST)
+                .uri("/api/logout");
+
+        // Get result and check the user was redirected
+        Result result = route(fakeApp, request);
+        assertEquals(303, result.status());
+    }
+
+    @Test
     public void deleteValidUser() {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(authCookie)
                 .uri("/api/user/1");
 
         // Get result and check it was successful
@@ -250,6 +300,7 @@ public class UserControllerTest extends WithApplication {
         // Create request to delete a user that does not exist
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
+                .cookie(authCookie)
                 .uri("/api/user/12");
 
         // Get result and check it failed
@@ -257,48 +308,4 @@ public class UserControllerTest extends WithApplication {
         assertEquals(BAD_REQUEST, result.status());
     }
 
-    @Test
-    public void createAndDeleteProfile() throws IOException {
-        // Create new json object node
-        ObjectNode node = Json.newObject();
-        node.put("userId", "2");
-        node.put("firstName", "John");
-        node.put("middleName", "Nobody");
-        node.put("lastName", "Smith");
-        node.put("gender", "Male");
-        node.put("dateOfBirth", "1999-01-01");
-        node.put("nationalities", "France");
-        node.put("passports", "France");
-        node.put("travellerTypes", "backpacker");
-
-        // Create request to create a new user
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(POST)
-            .bodyJson(node)
-            .uri("/api/profile");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-
-        // Create request to delete newly created user
-        Http.RequestBuilder request2 = Helpers.fakeRequest()
-                .method(DELETE)
-                .uri("/api/profile/2");
-
-        // Get result and check it was successful
-        Result result2 = route(fakeApp, request2);
-        assertEquals(OK, result2.status());
-    }
-
-    @Test
-    public void getProfile() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/profile/1");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-    }
 }
