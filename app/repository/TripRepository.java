@@ -72,7 +72,7 @@ public class TripRepository {
         return supplyAsync(() ->
             ebeanServer.find(Trip.class)
                 .where()
-                .eq("uid", userID)
+                .eq("user_id", userID)
                 .findList(),
             executionContext);
     }
