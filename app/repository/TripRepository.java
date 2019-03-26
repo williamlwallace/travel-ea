@@ -38,6 +38,7 @@ public class TripRepository {
             ebeanServer.insert(newTrip);
             for(TripData data : newTrip.tripDataList) {
                 data.trip = newTrip;
+                System.out.println(Json.toJson(data));
             }
             ebeanServer.insertAll(newTrip.tripDataList);
             return ok();
@@ -61,12 +62,16 @@ public class TripRepository {
      * @return True if trip object deleted, false if object not found
      */
     public CompletableFuture<Integer> deleteTrip(Long id) {
-        return supplyAsync(() ->
-                ebeanServer.find(Trip.class)
+        return supplyAsync(() -> {
+                ebeanServer.find(TripData.class)
+                .where()
+                .eq("trip_id", id)
+                .delete();
+                return ebeanServer.find(Trip.class)
                 .where()
                 .eq("id", id)
-                .delete(),
-                executionContext);
+                .delete();
+            }, executionContext);
     }
 
     /**
