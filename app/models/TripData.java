@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Finder;
 import io.ebean.Model;
 import play.data.validation.Constraints;
@@ -18,9 +19,14 @@ import java.util.Objects;
 @Entity
 public class TripData extends Model {
 
-    @Id
-    public Long guid;
+    public long guid;
 
+    @ManyToOne
+    @JsonBackReference
+    public Trip trip;
+
+    @Id
+    @Column(name="trip_id")
     @Constraints.Required
     public Long tripId;
 
@@ -29,6 +35,12 @@ public class TripData extends Model {
 
     @Constraints.Required
     public Long destinationId;
+
+    @OneToOne
+    @JoinTable(
+            name = "Destination",
+            joinColumns=@JoinColumn(name="destination_id", referencedColumnName="id"))
+    public Destination destination;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     public Timestamp arrivalTime;
