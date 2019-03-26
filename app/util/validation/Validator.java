@@ -26,11 +26,13 @@ public class Validator {
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field) {
-        System.out.println("\n\n"+field);
-        if (this.form.has(field) && ((this.form.get(field) != null && !this.form.get(field).asText("").equals("")) || this.form.get(field).isArray())) {
-            return true;
+        if (this.form.has(field)) {
+            if (this.form.get(field) != null && !this.form.get(field).asText("").equals("")) {
+                return true;
+            } else if (this.form.get(field).isArray() && this.form.get(field).size() > 0) {
+                return true;
+            }
         }
-        System.out.println(this.form.has(field));
         this.errorResponse.map(String.format("%s field must be present", field), field);
         return false;
     }
