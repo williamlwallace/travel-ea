@@ -14,6 +14,9 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.192"
 libraryDependencies += "com.auth0" % "java-jwt" % "3.3.0"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8"
+libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.8"
+libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.8"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
 libraryDependencies += ws
 
