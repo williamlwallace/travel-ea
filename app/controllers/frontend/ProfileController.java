@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import controllers.frontend.routes;
 import models.Profile;
 import models.User;
+import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
@@ -67,7 +68,7 @@ public class ProfileController extends Controller {
         User user = request.attrs().get(ActionState.USER);
         return this.getProfile(user.id).thenApplyAsync(
                 profile -> {
-                    return ok(editProfile.render(profile, user.username));
+                    return ok(editProfile.render(profile, user.username, Json.toJson(profile)));
                 },
                 httpExecutionContext.current());
     }
@@ -82,6 +83,7 @@ public class ProfileController extends Controller {
         return res.thenApply(r -> {
             //System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
+            System.out.println(json);
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                         new TypeReference<Profile>() {
@@ -92,8 +94,6 @@ public class ProfileController extends Controller {
         });
 
     }
-
-
 
     public Result createProfile(Http.Request request) {
         return ok();

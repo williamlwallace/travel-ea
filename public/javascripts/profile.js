@@ -134,7 +134,6 @@ function signUp(id, url, redirect) {
             if (response.status != 200) {
                 showErrors(json);
             } else {
-                console.log("WHAT A LEGEND");
                 window.location.href = redirect;
             }
         });
