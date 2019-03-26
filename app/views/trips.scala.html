@@ -1,7 +1,7 @@
 @import play.mvc.Http.Request
 @import helper._
 
-@(user: String, tripList: List[models.frontend.Trip])(implicit request: Request, messages: play.i18n.Messages)
+@(user: String, tripList: List[models.Trip])(implicit request: Request, messages: play.i18n.Messages)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>

@@ -180,7 +180,9 @@ function listItemToTripData(listItem, index) {
     json["position"] = index;
 
     // Read destination id
-    json["destinationId"] = listItem.getElementsByTagName('label')[0].getAttribute("id");
+    let dest = {};
+    dest.id = listItem.getElementsByTagName('label')[0].getAttribute("id");
+    json["destination"] = dest;
 
     let DTInputs = listItem.getElementsByTagName("input");
 
@@ -245,7 +247,7 @@ function addTripToServer(url, redirect) {
 
     // Now create final json object
     let data = {};
-    data["uid"] = uid;
+    data["user_id"] = uid;
     data["tripDataCollection"] = tripDataCollection;
     console.log(data);
     // Post json object to server at given url
