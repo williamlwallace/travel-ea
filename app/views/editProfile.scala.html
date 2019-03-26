@@ -10,36 +10,36 @@
     <body>
         <div class="card mx-auto" style="width: fit-content; padding: 10px">
             <form id="editProfileForm">
-                    <div class="form-row mb-4">
-                        <div class="col">
-                                <!-- First name -->
-                            <input type="text" name="firstName" class="form-control" placeholder="First name" value="@profile.firstName" required>
-                            <label id="firstNameError" class="error-messages"></label>
-                        </div>
-                        <div class="col">
-                                <!-- Middle name -->
-                            <input type="text" name="middleName" class="form-control" placeholder="Middle name" value="@profile.middleName" required>
-                            <label id="middleNameError" class="error-messages"></label>
-                        </div>
-                        <div class="col">
-                                <!-- Last name -->
-                            <input type="text" name="lastName" class="form-control" placeholder="Last name" value="@profile.lastName" required>
-                            <label id="lastNameError" class="error-messages"></label>
-                        </div>
+                <div class="form-row mb-4">
+                    <div class="col">
+                            <!-- First name -->
+                        <input type="text" name="firstName" class="form-control" placeholder="First name" value="@profile.firstName" required>
+                        <label id="firstNameError" class="error-messages"></label>
                     </div>
-                    <div class="control-group">
-                        <label for="gender" class="control-label">Gender</label>
-                        <div>
-                            <select name="gender" id="gender" required>
-                                <option value="" disabled hidden>Select</option>
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <br/>
-                            <label id="genderError" class="error-messages"></label>
-                        </div>
+                    <div class="col">
+                            <!-- Middle name -->
+                        <input type="text" name="middleName" class="form-control" placeholder="Middle name" value="@profile.middleName" required>
+                        <label id="middleNameError" class="error-messages"></label>
                     </div>
+                    <div class="col">
+                            <!-- Last name -->
+                        <input type="text" name="lastName" class="form-control" placeholder="Last name" value="@profile.lastName" required>
+                        <label id="lastNameError" class="error-messages"></label>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label for="gender" class="control-label">Gender</label>
+                    <div>
+                        <select name="gender" id="gender" required>
+                            <option value="" disabled hidden>Select</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <br/>
+                        <label id="genderError" class="error-messages"></label>
+                    </div>
+                </div>
                 <br>
                 <div class="row">
                     <div class="form-group col-5">
@@ -50,7 +50,6 @@
                         <label id="dateOfBirthError" class="error-messages"></label>
                     </div>
                 </div>
-                <br/>
                 <label for="nationality" id="nationality" class="control-label">Nationalities</label>
                 <div>
                     <select name="nationalities" id="nationalities" multiple required>
