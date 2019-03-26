@@ -37,7 +37,6 @@ public class TripController extends Controller {
     private MessagesApi messagesApi;
     private HttpExecutionContext httpExecutionContext;
     private WSClient ws;
-    private TripController tripController;
     private DestinationController destinationController;
 
     @Inject
@@ -45,13 +44,11 @@ public class TripController extends Controller {
             MessagesApi messagesApi,
             HttpExecutionContext httpExecutionContext,
             WSClient ws,
-            TripController tripController,
             DestinationController destinationController) {
 
         this.messagesApi = messagesApi;
         this.httpExecutionContext = httpExecutionContext;
         this.ws = ws;
-        this.tripController = tripController;
         this.destinationController = destinationController;
     }
 
@@ -65,7 +62,7 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         String username = request.attrs().get(ActionState.USER).username;
-        return tripController.getUserTrips().thenApplyAsync(
+        return this.getUserTrips().thenApplyAsync(
                 tripList -> {
                     return ok(trips.render(username, asScala(tripList), request, messagesApi.preferred(request)));
                 },
