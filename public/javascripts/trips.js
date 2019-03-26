@@ -192,7 +192,9 @@ function listItemToTripData(listItem, index) {
     json["position"] = index;
 
     // Read destination id
-    json["destinationId"] = listItem.getElementsByTagName('label')[0].getAttribute("id");
+    json["destination"] = {
+        "id": listItem.getElementsByTagName('label')[0].getAttribute("id")
+    };
 
     let DTInputs = listItem.getElementsByTagName("input");
 
@@ -251,41 +253,55 @@ function showErrors(json) {
 
 // METHODS FOR TRIPS
 
-var destinationDict = {};
+var trips = {};
 
-// Runs get countries method, then add country options to drop down
-function getDestinationInfo(getDestinationsUrl) {
-    // Run a get request to fetch all destinations
-    get(getDestinationsUrl)
+function getUserTrips(getUserTripsUrl) {
+    get(getUserTripsUrl)
     // Get the response of the request
         .then(response => {
             // Convert the response to json
             response.json().then(data => {
-                // Json data is an array of destinations, iterate through it
+                console.log(data);
+                // Json data is an array of trips, iterate through it
                 for (let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    countryDict[data[i]['id']] = data[i]['name'];
+                    let tripDestinationData = [];
+                    console.log(data[i]["tripDataList"]);
+                    for (let j = 0; j < data[i]["tripDataList"].length; j++) {
+                        let destinationData = {
+                            arrivalTime: data[i]["tripDataList"][j]["arrivalTime"],
+                            departureTime: data[i]["tripDataList"][j]["departureTime"]
+                        };
+
+                        tripDestinationData.push(destinationData);
+                    }
+
+                    let trip = {
+                        id: data[i]["id"],
+                        tripDataList: tripDestinationData
+                    };
                 }
 
+                console.log(trips);
+
                 // Now update the table with destination info
-                updateDestinationsInTable();
+                updateTripDates();
             });
         });
 }
 
-function updateTripDates(userTrips) {
+function updateTripDates() {
     let tripElements = Array.of(document.getElementById("tripData").children)[0];
 
-    for (let trip in userTrips) {
+    for (let trip in trips) {
         let date = null;
 
-        for (let tripData in userTrips[trip].tripDataList) {
-            if (userTrips[trip].tripDataList[tripData].arrivalTime != null) {
-                date = userTrips[trip].tripDataList[tripData].arrivalTime;
+        for (let tripData in trips[trip].tripDataList) {
+            if (trips[trip].tripDataList[tripData].arrivalTime != null) {
+                date = trips[trip].tripDataList[tripData].arrivalTime;
                 break;
             }
-            else if (userTrips[trip].tripDataList[tripData].departureTime != null) {
-                date = userTrips[trip].tripDataList[tripData].departureTime;
+            else if (trips[trip].tripDataList[tripData].departureTime != null) {
+                date = trips[trip].tripDataList[tripData].departureTime;
                 break;
             }
         }
