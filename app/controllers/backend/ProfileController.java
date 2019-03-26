@@ -59,13 +59,22 @@ public class ProfileController extends Controller {
     }
 
     /**
+     * Gets all possible traveller types currently stored in db
+     * @return JSON list of traveller types
+     */
+    public CompletableFuture<Result> getAllTravellerTypes() {
+        return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
+                .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
+    }
+
+    /**
      * Adds a new profile received as body of a post request to database
      *
      * @param request Contains the HTTP request info
      * @return        Returns CompletionStage type: ok if profile created and added succesfully, badRequest if profile
      *                already exists
      */
-    public CompletionStage<Result> addNewProfile(Http.Request request) {
+    public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
         JsonNode json = request.body().asJson();
 
@@ -77,42 +86,7 @@ public class ProfileController extends Controller {
         }
 
         // Converts json to Profile object, sets uid to link profile and user
-        Profile profile = new Profile();
-        profile.userId = json.get("userId").asLong();
-        profile.firstName = json.get("firstName").asText();
-        profile.lastName = json.get("lastName").asText();
-        profile.middleName = json.get("middleName").asText();
-        profile.gender = json.get("gender").asText();
-        profile.dateOfBirth = json.get("dateOfBirth").asText();
-
-        // Converts users nationalities, passports and traveller types to arrays of strings
-        String[] nationalityStrings = json.get("nationalities").asText().split(",");
-        String[] passportStrings = json.get("passports").asText().split(",");
-        String[] travellerTypeStrings = json.get("travellerTypes").asText().split(",");
-
-        // Creates lists of nationality, passport and traveller type objects from CountryDefinition and TravellerTypeDefinition tables in database
-        List<Nationality> nationalities;
-        List<Passport> passports;
-        List<TravellerType> travellerTypes;
-
-        try {
-            nationalities = getValidNationalities(nationalityStrings, profile.userId);
-            passports = getValidPassports(passportStrings, profile.userId);
-            travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
-        }
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Database Exception", "other");
-                return internalServerError(errorResponse.toJson());
-            
-            });
-        }
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Thread exception", "other");
-                return internalServerError(errorResponse.toJson());
-            });
-        }
+        Profile profile = Json.fromJson(json, Profile.class);
 
         Profile foundProfile;
 
@@ -141,28 +115,27 @@ public class ProfileController extends Controller {
                 return badRequest(errorResponse.toJson());
             });
         }
-        // If userId is free, add to database along with nationalities and passports and return ok
+
+        // If userId is free, add to database
         else {
-            // TODO: Do these need to be .get(), also should these be a transaction?
-            profileRepository.addProfile(profile);
-
-            // Adds all of the users nationalities in the database
-            for (Nationality nationality : nationalities) {
-                nationalityRepository.insertNationality(nationality);
+            try {
+                profileRepository.addProfile(profile).get();
+                return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully added new profile to database")));
+            } catch (Exception e) {
+                int i = 0;
+                return CompletableFuture.supplyAsync(() -> internalServerError("Failed to add profile to database"));
             }
-
-            // Stores all the users passports in the database
-            for (Passport passport : passports) {
-                passportRepository.insertPassport(passport);
-            }
-
-            // Stores all the users traveller types in the database
-            for (TravellerType travellerType : travellerTypes) {
-                travellerTypeRepository.addTravellerTypeToProfile(travellerType);
-            }
-
-            return CompletableFuture.supplyAsync(() -> ok("Successfully added new profile to database"));
         }
+    }
+
+    /**
+     * Gets a profile based on the userID specified in auth
+     * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getMyProfile(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        return this.getProfile(request, user.id);
     }
 
     /**
@@ -170,16 +143,16 @@ public class ProfileController extends Controller {
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    public CompletionStage<Result> getProfile(Long userId) {
+    public CompletableFuture<Result> getProfile(Http.Request request, Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
-
         try {
             profile = profileRepository.findID(userId).get();
+            //profile = profileRepository.findIDModelBridging(userId).get();
         }
         catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
+                errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
             
             });
@@ -192,92 +165,9 @@ public class ProfileController extends Controller {
         }
 
         if (profile != null) {
-            // Creates lists for nationality, passport and traveller type objects to be stored in
-            List<Nationality> nationalities;
-            List<Passport> passports;
-            List<TravellerType> travellerTypes;
-
-            try {
-                nationalities = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
-                passports = passportRepository.getAllPassportsOfUser(profile.userId).get();
-                travellerTypes = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
-            }
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Database Exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                
-                });
-            }
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Thread exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                });
-            }
-
-            // Creates nationality, passport and traveller type strings to send
-            String nationalityString = "";
-            String passportString = "";
-            String travellerTypeString = "";
-
-            try {
-                if (nationalities != null) {
-                    for (Nationality nationality : nationalities) {
-                        CountryDefinition countryDefinition = countryDefinitionRepository.findCountryByID(nationality.countryId).get();
-
-                        if (countryDefinition != null) {
-                            nationalityString += countryDefinition.name + ",";
-                        }
-                    }
-
-                    nationalityString = nationalityString.substring(0, max(0, nationalityString.length() - 1));
-                }
-
-                if (passports != null) {
-                    for (Passport passport : passports) {
-                        CountryDefinition countryDefinition = countryDefinitionRepository.findCountryByID(passport.countryId).get();
-
-                        if (countryDefinition != null) {
-                            passportString += countryDefinition.name + ",";
-                        }
-                    }
-
-                    passportString = passportString.substring(0, max(0, passportString.length() - 1));
-                }
-
-                if (travellerTypes != null) {
-                    for (TravellerType travellerType : travellerTypes) {
-                        TravellerTypeDefinition travellerTypeDefinition = travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerType.travellerTypeId).get();
-
-                        if (travellerTypeDefinition != null) {
-                            travellerTypeString += travellerTypeDefinition.description + ",";
-                        }
-                    }
-
-                    travellerTypeString = travellerTypeString.substring(0, max(0, travellerTypeString.length() - 1));
-                }
-            }
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Database Exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                
-                });
-            }
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Thread exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                });
-            }
-
             // Converts profile to json and adds nationality, passport and traveller type properties
             JsonNode profileJson = Json.toJson(profile);
             ObjectNode customProfileJson = (ObjectNode)profileJson;
-            customProfileJson.put("nationalities", nationalityString);
-            customProfileJson.put("passports", passportString);
-            customProfileJson.put("travellerTypes", travellerTypeString);
 
             return CompletableFuture.supplyAsync(() -> ok(customProfileJson));
         }
@@ -320,7 +210,6 @@ public class ProfileController extends Controller {
     /**
      * Updates the profile received in the body of the request as well as the related nationalities, passports
      * and traveller types
-     * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
     private CompletionStage<Result> updateProfileHelper(JsonNode json, Long userId) {
@@ -330,102 +219,12 @@ public class ProfileController extends Controller {
             return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
         }
 
-        // Gets current profile from database
-        Profile profile;
-
-        try {
-            profile = profileRepository.findID(userId).get();
-        }
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Databse Exception", "other");
-                return internalServerError(errorResponse.toJson());
-            
-            });
-        }
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Thread exception", "other");
-                return internalServerError(errorResponse.toJson());
-            });
-        }
+        // Convert json to profile
+        Profile profile = Json.fromJson(json, Profile.class);
 
         if (profile != null) {
-            // Updates all profile fields
-            profile.firstName = json.get("firstName").asText();
-            profile.lastName = json.get("lastName").asText();
-            profile.middleName = json.get("middleName").asText();
-            profile.gender = json.get("gender").asText();
-            profile.dateOfBirth = json.get("dateOfBirth").asText();
-
-            // Converts users nationalities, passports and traveller types to arrays of strings
-            String[] nationalityStrings = json.get("nationalities").asText().split(",");
-            String[] passportStrings = json.get("passports").asText().split(",");
-            String[] travellerTypeStrings = json.get("travellerTypes").asText().split(",");
-
-            // Creates lists of nationality, passport and traveller type objects from CountryDefinition and TravellerTypeDefinition tables in database
-            List<Nationality> nationalities;
-            List<Passport> passports;
-            List<TravellerType> travellerTypes;
-
-            // Creates lists of nationality, passport and traveller type objects to be deleted from database
-            List<Nationality> nationalitiesToDelete;
-            List<Passport> passportsToDelete;
-            List<TravellerType> travellerTypesToDelete;
-
-            try {
-                // Gets objects to add
-                nationalities = getValidNationalities(nationalityStrings, profile.userId);
-                passports = getValidPassports(passportStrings, profile.userId);
-                travellerTypes = getValidTravellerTypes(travellerTypeStrings, profile.userId);
-
-                // Gets objects to delete
-                nationalitiesToDelete = nationalityRepository.getAllNationalitiesOfUser(profile.userId).get();
-                passportsToDelete = passportRepository.getAllPassportsOfUser(profile.userId).get();
-                travellerTypesToDelete = travellerTypeRepository.getAllTravellerTypesFromProfile(profile.userId).get();
-            }
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Database Exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                
-                });
-            }
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> {
-                    errorResponse.map("Thread exception", "other");
-                    return internalServerError(errorResponse.toJson());
-                });
-            }
-
             // Updates profile in database
             profileRepository.updateProfile(profile);
-
-            // Deletes old nationality, passport and traveller type objects from the database
-            for (Nationality nationality : nationalitiesToDelete) {
-                nationalityRepository.deleteNationality(nationality);
-            }
-
-            for (Passport passport : passportsToDelete) {
-                passportRepository.deletePassport(passport);
-            }
-
-            for (TravellerType travellerType : travellerTypesToDelete) {
-                travellerTypeRepository.deleteTravellerTypeFromProfile(travellerType);
-            }
-
-            // Adds new nationality, passport and traveller type objects to the database
-            for (Nationality nationality : nationalities) {
-                nationalityRepository.insertNationality(nationality);
-            }
-
-            for (Passport passport : passports) {
-                passportRepository.insertPassport(passport);
-            }
-
-            for (TravellerType travellerType : travellerTypes) {
-                travellerTypeRepository.addTravellerTypeToProfile(travellerType);
-            }
 
             return CompletableFuture.supplyAsync(() -> ok("Successfully updated profile in database"));
         }
@@ -525,26 +324,15 @@ public class ProfileController extends Controller {
      * @throws ExecutionException Thrown when database cannot be accessed
      * @throws InterruptedException Thrown when connection with database interrupted
      */
-    private List<TravellerType> getValidTravellerTypes(String[] travellerTypeStrings, long userID) throws ExecutionException, InterruptedException {
-        ArrayList<TravellerType> travellerTypes = new ArrayList<>();
+    private List<TravellerTypeDefinition> getValidTravellerTypes(String[] travellerTypeStrings, long userID) throws ExecutionException, InterruptedException {
+        ArrayList<TravellerTypeDefinition> travellerTypes = new ArrayList<>();
 
         // Iterates through travellerTypeStrings array and checks database for matching traveller types, stores traveller type if found
         for (String travellerTypeString : travellerTypeStrings) {
             TravellerTypeDefinition foundTravellerType;
-
-            try {
-                foundTravellerType = travellerTypeDefinitionRepository.getTravellerTypeDefinitionByDescription(travellerTypeString).get();
-            }
-            catch (ExecutionException | InterruptedException ex) {
-                throw ex;
-            }
-
+            foundTravellerType = travellerTypeDefinitionRepository.getTravellerTypeDefinitionByDescription(travellerTypeString).get();
             if (foundTravellerType != null) {
-                // Creates found travellerType object and stores in list
-                TravellerType travellerType = new TravellerType();
-                travellerType.userId = userID;
-                travellerType.travellerTypeId = foundTravellerType.id;
-                travellerTypes.add(travellerType);
+                travellerTypes.add(foundTravellerType);
             }
         }
 
