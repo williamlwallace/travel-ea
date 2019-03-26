@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.Destination;
 import models.TripData;
-import models.frontend.Trip;
+import models.Trip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
@@ -67,7 +67,7 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return tripController.getUserTrips().thenApplyAsync(
                 tripList -> {
-                    return (tripList.size() != 0) ? ok(trips.render(username, asScala(tripList), request, messagesApi.preferred(request))) : internalServerError();
+                    return ok(trips.render(username, asScala(tripList), request, messagesApi.preferred(request)));
                 },
                 httpExecutionContext.current());
     }
@@ -84,7 +84,24 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), request, messagesApi.preferred(request))) : internalServerError();
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(),request, messagesApi.preferred(request))) : internalServerError();
+                },
+                httpExecutionContext.current());
+    }
+
+    /**
+     * Displays the create trip page. Called with the /trips/create URL and uses a GET request.
+     * Checks that a user is logged in. Takes them to the create trip page if they are,
+     * otherwise they are taken to the start page.
+     *
+     * @return displays the create trip or start page.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> editTripIndex(Http.Request request, Trip trip) {
+        String username = request.attrs().get(ActionState.USER).username;
+        return destinationController.getDestinations().thenApplyAsync(
+                destList -> {
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(),request, messagesApi.preferred(request))) : internalServerError();
                 },
                 httpExecutionContext.current());
     }
@@ -94,15 +111,14 @@ public class TripController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<ObjectNode>> getUserTrips() {
+    public CompletableFuture<List<Trip>> getUserTrips() {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/trip/getAll").get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
 
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                        new TypeReference<List<Trip>>() {
-                        });
+                        new TypeReference<List<Trip>>() {});
             } catch (Exception e) {
                 return new ArrayList<>();
             }
