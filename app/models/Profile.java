@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,4 +54,15 @@ public class Profile extends Model {
 //            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
 //            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> passports;
+
+
+    public int getAge() {
+        LocalDate birthDate = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        return age;
+    }
+
+    public List<CountryDefinition> getNationalities() {
+        return nationalities;
+    }
 }
