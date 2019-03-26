@@ -29,6 +29,7 @@ import java.util.Objects;
 @Entity
 public class TripData extends Model {
 
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public long guid;
 
     @ManyToOne
@@ -37,14 +38,19 @@ public class TripData extends Model {
 
     @Id
     @Column(name="trip_id")
-    @Constraints.Required
     public Long tripId;
 
     @Constraints.Required
     public Long position;
 
-    @Constraints.Required
-    public Long destinationId;
+    //@Constraints.Required
+    //public Long destinationId;
+
+    @OneToOne
+    @JoinTable(
+            name = "Destination",
+            joinColumns=@JoinColumn(name="destination_id", referencedColumnName="id"))
+    public Destination destination;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime arrivalTime;

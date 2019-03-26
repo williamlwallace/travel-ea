@@ -2,7 +2,9 @@ package repository;
 
 import io.ebean.*;
 import models.Trip;
+import models.TripData;
 import play.db.ebean.EbeanConfig;
+import play.libs.Json;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -34,6 +36,10 @@ public class TripRepository {
     public CompletableFuture<Result> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
             ebeanServer.insert(newTrip);
+            for(TripData data : newTrip.tripDataList) {
+                data.trip = newTrip;
+            }
+            ebeanServer.insertAll(newTrip.tripDataList);
             return ok();
         }, executionContext);
     }

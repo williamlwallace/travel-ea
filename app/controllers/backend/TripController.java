@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import models.Destination;
 import models.Trip;
 import models.TripData;
 import play.data.FormFactory;
@@ -29,6 +30,7 @@ import util.validation.TripValidator;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -139,7 +141,7 @@ public class TripController extends Controller {
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
-        System.out.println(data);
+
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
 
@@ -151,8 +153,7 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
-        trip.tripDataList = Json.fromJson(data.get("tripDataCollection"), (new ArrayList<TripData>()).getClass());
-
+        trip.tripDataList = nodeToTripDataList(data, null);
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );
@@ -176,15 +177,15 @@ public class TripController extends Controller {
         for(JsonNode node : data.get("tripDataCollection")) {
             // Assemble trip data
             TripData tripData = new TripData();
-            tripData.tripId = tripId;
 
             // Get position and destinationId from json object, these must be present so no need for try catch
             tripData.position = node.get("position").asLong();
-            tripData.destinationId = node.get("destinationId").asLong();
+            tripData.destination = new Destination();
+            tripData.destination = Json.fromJson(node.get("destination"), Destination.class);
 
             // Try to get arrivalTime, but set to null if unable to deserialize
             try {
-                tripData.arrivalTime = Json.fromJson(node.get("arrivalTime"), Timestamp.class);
+                tripData.arrivalTime = Json.fromJson(node.get("arrivalTime"), LocalDateTime.class);
             }
             catch(Exception e) {
                 tripData.arrivalTime = null;
@@ -192,7 +193,7 @@ public class TripController extends Controller {
 
             // Try to get departureTime, but set to null if unable to deserialize
             try {
-                tripData.departureTime = Json.fromJson(node.get("departureTime"), Timestamp.class);
+                tripData.departureTime = Json.fromJson(node.get("departureTime"), LocalDateTime.class);
             }
             catch(Exception e) {
                 tripData.departureTime = null;

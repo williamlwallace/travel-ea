@@ -19,7 +19,6 @@ public class Trip extends Model {
     @Constraints.Required
     public Long userId;
 
-    @OneToMany
-    //@JoinTable(name = "TripData")
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<TripData> tripDataList;
 }
