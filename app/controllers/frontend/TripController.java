@@ -109,7 +109,7 @@ public class TripController extends Controller {
      * @return List of trips wrapped in completable future
      */
     public CompletableFuture<List<Trip>> getUserTrips() {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/trip/getAll").get().toCompletableFuture();
+        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/trip/getAll/").get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
 
