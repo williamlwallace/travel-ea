@@ -10,6 +10,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Http.Cookie;    
 import repository.*;
 import util.CryptoManager;
 import util.validation.UserValidator;
@@ -82,7 +83,7 @@ public class UserController extends Controller {
     public Result logout(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         // removeToken(user);
-        return ok();
+        return ok(Json.toJson("Success")).discardingCookie("JWT-Auth");
     }
 
 
@@ -98,7 +99,6 @@ public class UserController extends Controller {
         JsonNode data = request.body().asJson();
         //Sends the received data to the validator for checking
         ErrorResponse validatorResult = new UserValidator(data).login();
-
         //Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
@@ -110,10 +110,9 @@ public class UserController extends Controller {
             newUser.salt = CryptoManager.generateNewSalt();
             //Generate the salted password
             newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
-
             //This block ensures that the username (email) is not taken already, and returns a CompletableFuture<Result>
             return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
-                    .thenComposeAsync(user -> {                                 //Pass that result (a User object) into the new function using thenCompose
+                    .thenComposeAsync(user -> {                              //Pass that result (a User object) into the new function using thenCompose
                         if (user != null) {
                             return null;                          //If a user is found pass null into the next function
                         } else {
@@ -126,9 +125,7 @@ public class UserController extends Controller {
                             validatorResult.map("Email already in use", "other");
                             return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
                         } else {
-                            System.out.println(user);
-                            String authToken = createToken(user);
-                            return ok(Json.toJson(authToken));                 //If the uid is not null, return an ok message with the uid contained within
+                            return ok(Json.toJson("Success")).withCookies(Cookie.builder("JWT-Auth",createToken(user)).build());         //If the uid is not null, return an ok message with the uid contained within
                         }
                     });
         }
@@ -156,22 +153,21 @@ public class UserController extends Controller {
         // Find user with username on database
         return userRepository.findUserName(json.get("username").asText("")).thenApplyAsync(foundUser -> {
             // If no such user was found with that username, return bad request
-           if(foundUser == null) {
-               errorResponse.map("Unauthorised", "other");
-               return status(401,errorResponse.toJson());
-           }
+            if(foundUser == null) {
+                errorResponse.map("Unauthorised", "other");
+                return status(401,errorResponse.toJson());
+            }
            // Otherwise if a user was found, check if correct password
-           else {
+            else {
                // Check if password given matches hashed and salted password on db
-               if(CryptoManager.checkPasswordMatch(json.get("password").asText(""), foundUser.salt, foundUser.password)) {
-                    String authToken = createToken(foundUser);
-                    return ok(Json.toJson(authToken));
-               }
-               // If password was incorrect, return bad request
-               else {
-                    errorResponse.map("Unauthorised", "other");
-                    return status(401,errorResponse.toJson());
-               }
+            if(CryptoManager.checkPasswordMatch(json.get("password").asText(""), foundUser.salt, foundUser.password)) {
+                return ok(Json.toJson("Success")).withCookies(Cookie.builder("JWT-Auth",createToken(foundUser)).build());
+            }
+            // If password was incorrect, return bad request
+            else {
+                errorResponse.map("Unauthorised", "other");
+                return status(401,errorResponse.toJson());
+            }
            }
         });
     }
