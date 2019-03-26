@@ -9,7 +9,21 @@
 
 @layouts.imageHeader("Create Trip", user, "images/home-bg.jpg", scripts){
 
-    <main role="main" id="createTripContainer" class="container pb-3 mb-5">
+    <main role="main" id="createTripContainer">
+
+        <div style="padding-bottom: 60px;">
+                <!-- Buttons to add/create destination and trip -->
+            <div style="float: left;">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
+                <button type="submit" class="btn btn-primary" onclick='getAllDestinations("@controllers.backend.routes.DestinationController.getAllDestinations()")'
+                data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
+            </div>
+
+            <div style="float: right;">
+                <button class="btn btn-primary" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()",
+                        "@controllers.routes.TripsController.index()")'>Done</button>
+            </div>
+        </div>
 
         <!-- Destination cards -->
         <!doctype html>
@@ -35,7 +49,7 @@
             <body>
                 <label id="tripError"></label>
                     <!-- Destination card deck -->
-                <div id="parent" class="parent">
+                <div id="parent"  style="border:1px solid #cecece;" class="parent">
                     <div id="list" class="list">
                         @for(i <- trip.tripDataList.indices) {
                             <div class="sortable-card" id=@i>
