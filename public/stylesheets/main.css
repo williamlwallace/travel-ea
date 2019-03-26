@@ -34,10 +34,6 @@ code {
     padding-bottom: 12px;
 }
 
-/**
- * create trip card positioning
- */
-#sortable > div { float: left; }
 
 /*
  * Home page styling
@@ -158,10 +154,74 @@ code {
     border: 1px solid #ced4da !important;
 }
 
-.error-messages {
-    color: #FF1133 !important;
-    font-size: 12px;
-    height: 13px;
-    padding-left: 3px;
-    padding-top: 3px;
+/*
+ * List container for sortable destination cards
+ */
+.list {
+    /*white-space: nowrap;*/
+    /*overflow-y: scroll;*/
+    overflow-x: hidden;
+}
+
+/*
+ * Parent of list for sortable destination cards
+ */
+.parent {
+    overflow: auto;
+    height:840px;
+    width:1140px;
+}
+
+/*
+ * card header contains picture
+ */
+.card-header {
+    height:200px;
+    width:350px;
+}
+
+/*
+ * sortable destination cards
+ */
+.card {
+    height: 200px;
+    width: 1100px;
+    margin:20px;
+    cursor:pointer;
+}
+
+/*
+ * card block contains the details of the card
+ */
+.card-block {
+    height:200px;
+    width: 750px;
+}
+
+
+/*
+ * height determines the gap when a card is dragged into a new spot
+ */
+.ui-sortable-placeholder {
+    height: 200px;
+}
+
+/*
+ * the arrival/dest times from the
+ * destination info in destination cards
+ */
+#left { float:left }
+#right { float:right }
+
+/*
+ * set padding for arrival and destination times
+ * within destination card
+ */
+#arrival {
+    padding: 10px 10px 10px 10px;
+    float:left
+}
+#depart {
+    padding: 10px 10px 10px 10px;
+    float:right
 }

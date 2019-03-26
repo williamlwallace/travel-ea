@@ -3,6 +3,7 @@ package controllers.backend;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.Destination;
 import models.TripData;
 import org.junit.*;
 import play.Application;
@@ -33,7 +34,7 @@ public class TripControllerTest extends WithApplication {
     private static Cookie authCookie;
 
     /**
-     * Configures system to use trip database, and starts a fake app
+     * Configures system to use dest database, and starts a fake app
      */
     @BeforeClass
     public static void setUp() {
@@ -42,11 +43,10 @@ public class TripControllerTest extends WithApplication {
         settings.put("db.default.driver", "org.h2.Driver");
         settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
 
-        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
-
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
+        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
 
         Helpers.start(fakeApp);
     }
@@ -57,7 +57,7 @@ public class TripControllerTest extends WithApplication {
      */
     @Before
     public void applyEvolutions() {
-        // Only certain trips, namely initialisation, and profile folders
+        // Only certain evolutions, namely initialisation, and destinations folders
         Evolutions.applyEvolutions(db, Evolutions.fromClassLoader(getClass().getClassLoader(), "test/trip/"));
     }
 
@@ -69,22 +69,41 @@ public class TripControllerTest extends WithApplication {
         Evolutions.cleanupEvolutions(db);
     }
 
-    /**
-     * Stop the fake app
-     */
-    @AfterClass
-    public static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
+    @Test
+    public void getTrips() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .uri("/api/trip/1");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
     }
 
     @Test
-    public void createTrip() {
-        // Create new json object node
+    public void createTripTest() throws IOException {
+        // Create json object to store trip to add
         ObjectNode node = Json.newObject();
-        node.put("userId", 2);
 
-        // Create request to create a new destination
+        // Add sample trip data
+        TripData data1 = new TripData();
+        data1.position = 0L;
+        Destination dest = new Destination();
+        dest.id = 1L;
+        data1.destination = dest;
+        data1.arrivalTime = null;
+        data1.departureTime = null;
+        data1.guid = null;
+
+        // Map data to array node
+        ArrayList<TripData> dataArrayList = new ArrayList<>();
+        dataArrayList.add(data1);
+
+        // Put the array node in the json object to be sent
+        ArrayNode arrayNode = new ObjectMapper().valueToTree(dataArrayList);
+        node.putArray("tripDataCollection").addAll(arrayNode);
+
+        // Create request to create a new trip
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
@@ -97,113 +116,15 @@ public class TripControllerTest extends WithApplication {
     }
 
     @Test
-    public void createTripNoDest() {
-
-    }
-
-    @Test
-    public void createTripSameDestTwiceAdjacent() {
-
-    }
-
-    @Test
-    public void createTripOneDest() {
-
-    }
-
-    @Test
-    public void updateTrip() {
-
-    }
-
-    @Test
-    public void updateTripInvalidId() {
-
-    }
-
-    @Test
-    public void updateTripInvalidUpdate() {
-
-    }
-
-    @Test
-    public void getTrip(){
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/trip/1");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-    }
-
-    @Test
-    public void getTripInvalidId() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/trip/816");
-
-        // Get result and check it was not successful
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
-    }
-
-    @Test
-    public void getAllTrips() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(authCookie)
-                .uri("/api/trip/getAll");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-    }
-/*
-    @Test
-    public void getAllTripsInvalidId() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/trip/getAll/10");
-
-        // Get result and check it was not successful
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
-    }
-
-    @Test
-    public void getAllTripsHasNoTrips() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/trip/getAll/2");
-
-        // Get result and check it was not successful
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
-    }
-*/
-    @Test
-    public void deleteTrip() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
+    public void deleteTripTest() {
+        // Create request to delete newly created trip
+        Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
                 .cookie(authCookie)
                 .uri("/api/trip/1");
 
         // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        Result result2 = route(fakeApp, request2);
+        assertEquals(OK, result2.status());
     }
-
-    @Test
-    public void deleteTripInvalidId() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(DELETE)
-                .cookie(authCookie)
-                .uri("/api/trip/10");
-
-        // Get result and check it was not successful
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
-    }
-
 }

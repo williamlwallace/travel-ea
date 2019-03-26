@@ -2,7 +2,9 @@ package repository;
 
 import io.ebean.*;
 import models.Trip;
+import models.TripData;
 import play.db.ebean.EbeanConfig;
+import play.libs.Json;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -34,6 +36,11 @@ public class TripRepository {
     public CompletableFuture<Result> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
             ebeanServer.insert(newTrip);
+            for(TripData data : newTrip.tripDataList) {
+                data.trip = newTrip;
+                System.out.println(Json.toJson(data));
+            }
+            ebeanServer.insertAll(newTrip.tripDataList);
             return ok();
         }, executionContext);
     }
@@ -55,12 +62,16 @@ public class TripRepository {
      * @return True if trip object deleted, false if object not found
      */
     public CompletableFuture<Integer> deleteTrip(Long id) {
-        return supplyAsync(() ->
-                ebeanServer.find(Trip.class)
+        return supplyAsync(() -> {
+                ebeanServer.find(TripData.class)
+                .where()
+                .eq("trip_id", id)
+                .delete();
+                return ebeanServer.find(Trip.class)
                 .where()
                 .eq("id", id)
-                .delete(),
-                executionContext);
+                .delete();
+            }, executionContext);
     }
 
     /**
@@ -69,11 +80,20 @@ public class TripRepository {
      * @return List of Trip objects with the specified user ID
      */
     public CompletableFuture<List<Trip>> getAllUserTrips(long userID) {
-        return supplyAsync(() ->
-            ebeanServer.find(Trip.class)
-                .where()
-                .eq("uid", userID)
-                .findList(),
+        return supplyAsync(() -> {
+            List<Trip> list = ebeanServer.find(Trip.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .findList();
+
+            for(Trip trip : list) {
+                trip.tripDataList = ebeanServer.find(TripData.class)
+                        .where()
+                        .eq("trip_id", trip.id)
+                        .findList();
+                }
+                return list;
+            },
             executionContext);
     }
 
@@ -83,12 +103,19 @@ public class TripRepository {
      * @return Trip having given id, null if no such trip found
      */
     public CompletableFuture<Trip> getTripById(long tripId) {
-        return supplyAsync(() ->
-        ebeanServer.find(Trip.class)
-                .where()
-                .eq("id", tripId)
-                .findOneOrEmpty()
-                .orElse(null),
-                executionContext);
+        return supplyAsync(() -> {
+            Trip trip = ebeanServer.find(Trip.class)
+                    .where()
+                    .eq("id", tripId)
+                    .findOneOrEmpty()
+                    .orElse(null);
+            if(trip != null) {
+                trip.tripDataList = ebeanServer.find(TripData.class)
+                    .where()
+                    .eq("trip_id", trip.id)
+                    .findList();
+            }
+            return trip;
+        }, executionContext);
     }
 }
