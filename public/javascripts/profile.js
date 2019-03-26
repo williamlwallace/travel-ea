@@ -1,4 +1,5 @@
 var countryDict = {};
+var travellerTypeDict = {};
 
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
@@ -13,7 +14,7 @@ function fillCountryInfo(getCountriesUrl) {
                         // Also add the item to the dictionary
                         countryDict[data[i]['id']] = data[i]['name'];
                     }
-                // Now fill the drop down box, and list of destinations
+                // Now fill the selects
                 fillNationalityDropDown();
                 fillPassportDropDown();
         });
@@ -27,12 +28,17 @@ function fillTravellerTypes(getTravellerTypesUrl) {
         .then(response => {
             // Convert the response to json
             response.json().then(data => {
-
                 // "data" should now be a list of traveller type definitions
                 // E.g data[0] = { id:1, description:"backpacker"}
+                for(let i = 0; i < data.length; i++) {
+                    // Also add the item to the dictionary
+                    travellerTypeDict[data[i]['id']] = data[i]['description'];
+                }
+            // Now fill the drop down box, and list of destinations
+            fillTravellerDropDown();
 
-            });
         });
+    });
 }
 
 function fillNationalityDropDown() {
@@ -44,6 +50,7 @@ function fillNationalityDropDown() {
         // Add list element to drop down list
         document.getElementById("nationalities").appendChild(item);
     }
+    // implements the plug in multi selector
     $('#nationalities').picker();
 }
 
@@ -56,11 +63,25 @@ function fillPassportDropDown() {
         // Add list element to drop down list
         document.getElementById("passports").appendChild(item);
     }
+    // implements the plug in multi selector
     $('#passports').picker();
 }
 
-/* Display profile dropdowns with cool tag style in profile */
-$('#travellerType').picker();
+function fillTravellerDropDown() {
+    for(let key in travellerTypeDict) {
+        // For each Traveller type, make a list element that is the json string of object
+        let item = document.createElement("OPTION");
+        item.innerHTML = travellerTypeDict[key];
+        item.value = key;
+        // Add list element to drop down list
+        document.getElementById("travellerTypes").appendChild(item);
+    }
+    // implements the plug in multi selector
+    $('#travellerTypes').picker();
+}
+
+
+/* Display gender drop down the same as the others */
 $('#gender').picker();
 /* Automatically display profile form when signing up */
 $('#createProfileForm').modal('show');
@@ -80,28 +101,42 @@ function signUp(id, url, redirect) {
         ...memo,
         [pair[0]] : pair[1],
     }), {});
-    // Convert nationalities, passports and Traveller Types to Arrays
-    // if (data.nationalities) {
-    //     const temp = data.nationalities.split(",");
-    //     data.nationalities = $.map(temp,Number);
-    // }
-    data.nationalities = $.map($(document.getElementById("nationalities")).picker('get'),Number);
-    data.passports = $.map($(document.getElementById("passports")).picker('get'),Number);
-    if (data.travellerTypes) data.travellerTypes = data.travellerTypes.split(",");
 
+    // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
+    data.nationalities = [];
+    let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
+    for (i = 0; i < nat_ids.length; i++) {
+        let nat = {};
+        nat.id = nat_ids[i];
+        data.nationalities.push(nat);
+    }
+    data.passports = [];
+    let passport_ids = $.map($(document.getElementById("passports")).picker('get'),Number)
+    for (i = 0; i < passport_ids.length; i++) {
+        let passport = {};
+        passport.id = passport_ids[i];
+        data.passports.push(passport);
+    }
+    data.travellerTypes  = [];
+    let type_ids = $.map($(document.getElementById("travellerTypes")).picker('get'),Number);
+    for (i = 0; i < type_ids.length; i++) {
+        let type = {};
+        type.id = type_ids[i];
+        data.travellerTypes.push(type);
+    }
     // Post json data to given url
     post(url, data)
-        .then(response => {
+    .then(response => {
         // Read response from server, which will be a json object
-            response.json()
-                .then(json => {
-                    if (response.status != 200) {
-                        showErrors(json);
-                        console.log("WWOOOOHOOO SUCCESS");
-                    } else {
-                        console.log("WWOOOOHOOO SUCCESS");
-                        window.location.href = redirect;
-                    }
-                });
+        response.json()
+        .then(json => {
+            console.log(json)
+            if (response.status != 200) {
+                showErrors(json);
+            } else {
+                console.log("WHAT A LEGEND");
+                window.location.href = redirect;
+            }
         });
+    });
 }
