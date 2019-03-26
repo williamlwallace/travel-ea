@@ -29,6 +29,7 @@ import util.validation.TripValidator;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.security.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -315,7 +316,7 @@ public class TripController extends Controller {
 
             // Try to get arrivalTime, but set to null if unable to deserialize
             try {
-                tripData.arrivalTime = Json.fromJson(node.get("arrivalTime"), Timestamp.class);
+                tripData.arrivalTime = Json.fromJson(node.get("arrivalTime"), LocalDateTime.class);
             }
             catch(Exception e) {
                 tripData.arrivalTime = null;
@@ -323,7 +324,7 @@ public class TripController extends Controller {
 
             // Try to get departureTime, but set to null if unable to deserialize
             try {
-                tripData.departureTime = Json.fromJson(node.get("departureTime"), Timestamp.class);
+                tripData.departureTime = Json.fromJson(node.get("departureTime"), LocalDateTime.class);
             }
             catch(Exception e) {
                 tripData.departureTime = null;
