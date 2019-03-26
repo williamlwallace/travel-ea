@@ -81,7 +81,7 @@ public class UserController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public Result logout(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        removeToken(user);
+        // removeToken(user);
         return ok();
     }
 
@@ -127,7 +127,7 @@ public class UserController extends Controller {
                             return badRequest(validatorResult.toJson());    //If the uid is null, return a badRequest message...
                         } else {
                             System.out.println(user);
-                            String authToken = updateToken(user);
+                            String authToken = createToken(user);
                             return ok(Json.toJson(authToken));                 //If the uid is not null, return an ok message with the uid contained within
                         }
                     });
@@ -164,7 +164,7 @@ public class UserController extends Controller {
            else {
                // Check if password given matches hashed and salted password on db
                if(CryptoManager.checkPasswordMatch(json.get("password").asText(""), foundUser.salt, foundUser.password)) {
-                    String authToken = updateToken(foundUser);
+                    String authToken = createToken(foundUser);
                     return ok(Json.toJson(authToken));
                }
                // If password was incorrect, return bad request
@@ -179,22 +179,22 @@ public class UserController extends Controller {
     /**
      * Create Token and update user with it
      * @param user User object to be updated
-     * @return authToken 
+     * @return authToken
      */
-    public String updateToken(User user) {
+    public String createToken(User user) {
         String authToken = CryptoManager.createToken(user.id, config.getString("play.http.secret.key"));
-        user.authToken = authToken;
-        userRepository.updateUser(user);
+        //user.authToken = authToken;
+        //userRepository.updateUser(user);
         return authToken;
     }
     
-    /**
-     * Remove user cookie
-     * @param user User object to be updated
-     * @return authToken 
-     */
-    public void removeToken(User user) {
-        user.authToken = "";
-        userRepository.updateUser(user);
-    }
+    // /**
+    //  * Remove user cookie
+    //  * @param user User object to be updated
+    //  * @return authToken 
+    //  */
+    // public void removeToken(User user) {
+    //     user.authToken = "";
+    //     userRepository.updateUser(user);
+    // }
 }
