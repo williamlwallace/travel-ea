@@ -324,46 +324,50 @@ public class ProfileController extends Controller {
     }
 
 
-    public CompletableFuture<Result> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
+    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
         return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
-            outerloop:
+
+            List<Profile> toReturn = new ArrayList<>(profiles);
+
+            outerLoop:
             for (Profile profile : profiles) {
                 if (gender != null) {
                     if (!profile.gender.equalsIgnoreCase(gender)) {
-                        profiles.remove(profile);
+                        toReturn.remove(profile);
                         continue;
                     }
                 }
 
-                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-                int age = Period.between(birthDate, LocalDate.now()).getYears();
+//                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+//                int age = Period.between(birthDate, LocalDate.now()).getYears();
+                int age = profile.getAge();
 
                 if (age < minAge || age > maxAge) {
-                    profiles.remove(profile);
+                    toReturn.remove(profile);
                     continue;
                 }
 
-                if (nationalityId != null) {
-                    for (CountryDefinition country : profile.nationalities) {
-                        if (!country.id.equals(nationalityId)) {
-                            profiles.remove(profile);
-                            continue outerloop;
-                        }
-                    }
-                }
+//                if (nationalityId != 0) {
+//                    for (CountryDefinition country : profile.nationalities) {
+//                        if (!country.id.equals(nationalityId)) {
+//                            toReturn.remove(profile);
+//                            continue outerLoop;
+//                        }
+//                    }
+//                }
 
-                if (travellerTypeId != null) {
-                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
-                        if (!travellerTypeDefinition.id.equals(travellerTypeId)) {
-                            profiles.remove(profile);
-                            continue outerloop;
-                        }
-                    }
-                }
+//                if (travellerTypeId != 0) {
+//                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
+//                        if (!travellerTypeDefinition.id.equals(travellerTypeId)) {
+//                            toReturn.remove(profile);
+//                            continue outerLoop;
+//                        }
+//                    }
+//                }
 
             }
 
-            return ok(Json.toJson(profiles));
+            return toReturn;
         });
     }
 }
