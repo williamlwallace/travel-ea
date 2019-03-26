@@ -214,6 +214,7 @@ public class TripController extends Controller {
      * @return 1 if trip found and deleted, 0 otherwise
      */
     // TODO: Add Authorization so only owner can do it
+    // TODO: Handle invalid trip id
     public CompletableFuture<Result> deleteTrip(Long id) {
         // Delete all existing trip data
         try {

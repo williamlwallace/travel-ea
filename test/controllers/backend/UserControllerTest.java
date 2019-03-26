@@ -22,7 +22,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.*;
 
 public class UserControllerTest extends WithApplication {
-
+/*
     Application fakeApp;
 
     @Before
@@ -119,5 +119,5 @@ public class UserControllerTest extends WithApplication {
     @After
     public void cleanUp() {
 
-    }
+    }*/
 }
