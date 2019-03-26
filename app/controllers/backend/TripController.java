@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Manages trips in the database
+ */
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
@@ -30,6 +33,11 @@ public class TripController extends Controller {
         this.tripRepository = tripRepository;
     }
 
+    /**
+     * Attempts to get all user trips for a given userID.
+     * @param userId the ID of the user
+     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     */
     public CompletableFuture<Result> getAllUserTrips(Long userId) {
         return tripRepository.getAllUserTrips(userId)
                 .thenApplyAsync(tripList -> {
@@ -59,7 +67,6 @@ public class TripController extends Controller {
      * object with 2 fields:
      * uid: This field represents the id of the user who owns the trip
      * tripDataCollection: An array storing all stages of the trip as tripData objects
-     *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
@@ -71,7 +78,6 @@ public class TripController extends Controller {
     /**
      * Validates and then updates a trip on the database. This is done by dropping all tripData already linked to the trip
      * and adding all new data. Trying to update individual rows would lead to all sorts of potential traps for data corruption.
-     *
      * @param request Request containing JSON trip object to update
      * @return Returns trip id (as json) on success, otherwise bad request
      * @throws IOException
@@ -110,7 +116,6 @@ public class TripController extends Controller {
 
     /**
      * Deletes a trip (and all trip data) of a trip with given ID
-     *
      * @param tripId ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
      */
@@ -139,7 +144,6 @@ public class TripController extends Controller {
 
     /**
      * Validates and inserts a trip into the database.
-     *
      * @param request Request where body is a json object of trip
      * @return JSON object containing id of newly created trip
      * @throws IOException Thrown by failure deserializing

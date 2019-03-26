@@ -15,6 +15,9 @@ import util.validation.ErrorResponse;
 import javax.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Manages destinations in the database
+ */
 public class DestinationController extends Controller {
 
     private final DestinationRepository destinationRepository;

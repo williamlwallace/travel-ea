@@ -33,10 +33,9 @@ public class ProfileController extends Controller {
 
     /**
      * Adds a new profile received as body of a post request to database
-     *
      * @param request Contains the HTTP request info
-     * @return        Returns CompletionStage type: ok if profile created and added succesfully, badRequest if profile
-     *                already exists
+     * @return Returns CompletableFuture type: ok if profile created and added successfully, badRequest if profile
+     *         already exists
      */
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
@@ -171,7 +170,12 @@ public class ProfileController extends Controller {
                     });
         }
     }
-
+    /**
+     * Deletes a profile based on the userID specified in the request
+     * @param id Contains the HTTP request info
+     * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile
+     *         is not found for that userID.
+     */
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
             if (rowsDeleted < 1) {

@@ -17,7 +17,6 @@ import javax.inject.Inject;
 import java.util.Base64;
 import java.util.concurrent.*;
 
-
 /**
  * Manage a database of users
  */
