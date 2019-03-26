@@ -63,6 +63,7 @@ function addDestination(url, redirect) {
                 showErrors(json);
             } else {
                 window.location.href = redirect;
+                location.reload(); // When we load destination data using js, we can change this to just reload the data and repopulate tables
             }
         });
     });
@@ -70,5 +71,4 @@ function addDestination(url, redirect) {
 
 $(document).ready(function () {
     $('#dtDestination').DataTable();
-    $('.dataTables_length').addClass('bs-select');
 });
