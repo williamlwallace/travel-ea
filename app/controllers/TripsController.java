@@ -1,5 +1,7 @@
 package controllers;
 
+import actions.*;
+import actions.roles.*;
 import models.frontend.Destination;
 import models.frontend.Trip;
 import org.slf4j.Logger;
@@ -30,10 +32,10 @@ public class TripsController extends Controller {
     public void TripController( MessagesApi messagesApi) {
         this.messagesApi = messagesApi;
         //Test data for accounts. should be replaced with account data from database.
-        Destination newDest = new Destination("UC", "Place", "Canterbury", 43.5235, 172.5839, "New Zealand");
-        this.destList.add(newDest);
-        Trip newTrip = new Trip(this.destList);
-        this.tripList = com.google.common.collect.Lists.newArrayList(newTrip);
+//        Destination newDest = new Destination("UC", "Place", "Canterbury", 43.5235, 172.5839, "New Zealand");
+//        this.destList.add(newDest);
+//        Trip newTrip = new Trip(this.destList);
+//        this.tripList = com.google.common.collect.Lists.newArrayList(newTrip);
     }
     /**
      * Displays the trips page. Called with the /trips URL and uses a GET request.
@@ -42,11 +44,9 @@ public class TripsController extends Controller {
      *
      * @return displays the trips or start page.
      */
+    @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
-        return request.session()
-                .getOptional("connected")
-                .map(user -> ok(trips.render(user, tripList, request, messagesApi.preferred(request))))
-                .orElseGet(() -> redirect(routes.StartController.index()));
+        String username = request.attrs().get(ActionState.USER).username;
+        return ok(trips.render(username, tripList, request, messagesApi.preferred(request)));
     }
-
 }
