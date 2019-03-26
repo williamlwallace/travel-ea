@@ -12,12 +12,11 @@
         <title>TravelEA - @title</title>
         @* Adds all stylesheets to files using the layout template. *@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap-select.min.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/picker.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
 
-        @* Font Awesome *@
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+        @* Imports Datatables CSS. *@
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/datatables.min.css")">
 
         @* The browser tab icon *@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
@@ -72,18 +71,14 @@
 
         @* Import javascript files to the template. Speeds up page load times importing here. *@
         <script src="@routes.Assets.at("javascripts/common/jquery-3.3.1.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/common/jquery-ui.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/popper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/bootstrap.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/picker.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/common/jquery.validate.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/mainLayout.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/common/bootstrap-select.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/common/jquery-ui.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/common/jquery-ui.min.js")" type="text/javascript"></script>
 
         @* Imports MBBootstrap Datatables JS. *@
-        <script src="@routes.Assets.at("javascripts/common/mdb.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/datatables.min.js")" type="text/javascript"></script>
 
         @scripts
