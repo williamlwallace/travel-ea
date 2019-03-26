@@ -54,67 +54,8 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserTrips(Http.Request request) {
         Long userId = request.attrs().get(ActionState.USER).id;
-        ArrayList<Long> tripIds = new ArrayList<>();
 
-        // Trip to get the trip with a given ID
-        try {
-            // Query DB for trip with id
-            ArrayList<Trip> trips = new ArrayList<>();
-            for(Trip data: tripRepository.getAllUserTrips(userId).get()){
-                trips.add(data);
-            }
-            // If trip returned is null, then trip with given ID exists, return bad request
-            if(trips == null) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("User has no trips")));
-            }
-            for(Trip trip : trips) {
-                tripIds.add(trip.id);
-            }
-        }
-        // Catch error conditions from getting result
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-        }
-        // If the operation was interrupted before completion
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-        }
-
-        ArrayList<ObjectNode> returnedTrips = new ArrayList<>();
-
-        for(Long tripId : tripIds) {
-            try{
-                ArrayList<TripData> tripDataList = new ArrayList<>();
-                for(TripData tripData : tripDataRepository.getAllTripData(tripId).get()){
-                    tripDataList.add(tripData);
-                }
-                // Create new JSON object to store returned data
-                ObjectNode node = Json.newObject();
-                // Put the UID that was previously found
-                node.put("userId", userId);
-                node.put("id", tripId);
-                // Convert found trip data points to an array node
-                ArrayNode array = new ObjectMapper().valueToTree(tripDataList);
-                // Add array node to return json object
-                node.putArray("tripDataCollection").addAll(array);
-                returnedTrips.add(node);
-            }
-            // Catch error conditions from getting result
-            catch (ExecutionException ex) {
-                return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-            }
-            // If the operation was interrupted before completion
-            catch (InterruptedException ex) {
-                return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-            }
-        }
-        ObjectNode returnNode = Json.newObject();
-        ObjectMapper mapper = new ObjectMapper();
-
-        ArrayNode arrayNode = mapper.valueToTree(returnedTrips);
-        returnNode.putArray("allTrips").addAll(arrayNode);
-
-        return CompletableFuture.supplyAsync(() -> ok(returnNode));
+        return tripRepository.getAllUserTrips(userId).thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }
 
     /**
@@ -183,20 +124,7 @@ public class TripController extends Controller {
      */
     // TODO: Add Authorization so only owner can do it
     public CompletableFuture<Result> deleteTrip(Long id) {
-        // Delete all existing trip data
-        try {
-            tripDataRepository.deleteAllTripData(id).get();
-        }
-        // Catch error conditions from getting result
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-        }
-        // If operation was interrupted before completion
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-        }
-
-        // Now delete trip record in trips table
+        // Delete trip record in trips table
         return tripRepository.deleteTrip(id).thenApplyAsync(rows ->
                 ok(Json.toJson(rows)));
     }
@@ -214,7 +142,7 @@ public class TripController extends Controller {
         System.out.println(data);
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
-        System.out.println("2");
+
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
@@ -223,35 +151,11 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
+        trip.tripDataList = Json.fromJson(data.get("tripDataCollection"), (new ArrayList<TripData>()).getClass());
 
-        // Store result of trip adding operation
-        Result tripAddResult;
-        // Attempt to add the trip to database, and (by blocking) get the result
-        try {
-            tripAddResult = tripRepository.insertTrip(trip).get();
-        }
-        // Catch error conditions from getting result
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-        }
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-        }
-
-        // Assemble trip data
-        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip.id);
-        System.out.println("3");
-
-        // Add trip to db
-        if(tripAddResult.status() == ok().status()) {
-            return CompletableFuture.supplyAsync(() -> {
-                tripDataRepository.insertTripDataList(tripDataList);
-                return ok(Json.toJson(trip.id));
-            });
-        } else {
-            return CompletableFuture.supplyAsync(() -> internalServerError());
-        }
-
+        return tripRepository.insertTrip(trip).thenApplyAsync(result ->
+            ok(Json.toJson("Successfully added trip"))
+        );
     }
 
     /**
