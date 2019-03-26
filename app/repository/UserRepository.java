@@ -51,7 +51,7 @@ public class UserRepository {
      * @param id Unique ID of user to retrieve
      * @return User object with given ID, or null if none found
      */
-    public CompletableFuture<User> findID(int id) {
+    public CompletableFuture<User> findID(Long id) {
         return supplyAsync(() ->
             ebeanServer.find(User.class)
                 .where()
@@ -71,15 +71,15 @@ public class UserRepository {
             User.find.query().where().eq("username", username).findOneOrEmpty().orElse(null));
     }
 
-    /**
-     * Find a user with a given token, if one exists, otherwise returns null
-     * @param Token Token to search with
-     * @return User with username, or null if none found
-     */
-    public CompletableFuture<User> findByToken(String token) {
-        return supplyAsync(() ->
-            User.find.query().where().eq("authToken", token).findOneOrEmpty().orElse(null));
-    }
+    // /**
+    //  * Find a user with a given token, if one exists, otherwise returns null
+    //  * @param Token Token to search with
+    //  * @return User with username, or null if none found
+    //  */
+    // public CompletableFuture<User> findByToken(String token) {
+    //     return supplyAsync(() ->
+    //         User.find.query().where().eq("authToken", token).findOneOrEmpty().orElse(null));
+    // }
 
     /**
      * Update User with user object
