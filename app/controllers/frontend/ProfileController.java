@@ -6,6 +6,7 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import controllers.frontend.routes;
 import models.Profile;
 import models.User;
@@ -68,10 +69,11 @@ public class ProfileController extends Controller {
         User user = request.attrs().get(ActionState.USER);
         return this.getProfile(user.id).thenApplyAsync(
                 profile -> {
-                    return ok(editProfile.render(profile, user.username, Json.toJson(profile)));
+                    return ok(editProfile.render(profile, user.username));
                 },
                 httpExecutionContext.current());
     }
+
 
     /**
      * Gets Destinations from api endpoint via get request
