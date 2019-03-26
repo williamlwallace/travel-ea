@@ -1,6 +1,7 @@
 -- !Ups
 
 -- Add sample user
+INSERT INTO User(username, password, salt, auth_token) VALUES ('admin@travelea.co.nz', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw');
 INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass', 'salt');
 INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', 'pass', 'salt');
 
@@ -32,14 +33,13 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
-DELETE FROM TravellerType;
-DELETE FROM Passport;
-DELETE FROM Nationality;
-DELETE FROM TravellerTypeDefinition;
 DELETE FROM TripData;
-DELETE FROM Destination;
 DELETE FROM Trip;
-DELETE FROM CountryDefinition;
+DELETE FROM Destination;
+DELETE FROM Nationality;
+DELETE FROM Passport;
+DELETE FROM TravellerType;
 DELETE FROM Profile;
+DELETE FROM TravellerTypeDefinition;
+DELETE FROM CountryDefinition;
 DELETE FROM User;
-
