@@ -42,9 +42,9 @@ POST    /api/trip                       controllers.backend.TripController.inser
 
 PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
 
-GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
-
 GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
+
+GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
