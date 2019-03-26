@@ -85,7 +85,6 @@ public class ProfileController extends Controller {
         return res.thenApply(r -> {
             //System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
-            System.out.println(json);
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                         new TypeReference<Profile>() {
