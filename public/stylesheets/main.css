@@ -34,10 +34,6 @@ code {
     padding-bottom: 12px;
 }
 
-/**
- * create trip card positioning
- */
-#sortable > div { float: left; }
 
 /*
  * Home page styling
@@ -158,10 +154,39 @@ code {
     border: 1px solid #ced4da !important;
 }
 
-.error-messages {
-    color: #FF1133 !important;
-    font-size: 12px;
-    height: 13px;
-    padding-left: 3px;
-    padding-top: 3px;
+/*
+ *List container for sortable destination cards
+ */
+.list {
+    white-space:nowrap;
+    overflow-x:scroll;
+    overflow-y:hidden;
 }
+
+/*
+ *Parent of list for sortable destination cards
+ */
+.parent {
+    height:800px;
+    width:1300px;
+}
+
+/*
+ *sortable destination cards
+ */
+.sortable-card {
+    height:700px;
+    width:300px;
+    margin:20px;
+    cursor:pointer;
+    display:inline-block;
+}
+
+/*
+ *Fixes visual bug in jquery ui for sortable cards
+ */
+.ui-sortable-placeholder {
+    display: inline-block;
+    height: 1px;
+}
+
