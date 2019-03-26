@@ -126,42 +126,10 @@ public class TripController extends Controller {
      * @return JSON object with uid and trip data
      */
     public CompletableFuture<Result> getTrip(Long id) {
-        // Store user ID
-        Long userId;
-        // Trip to get the trip with a given ID
-        try {
-            // Query DB for trip with id
-            Trip trip = tripRepository.getTripById(id).get();
-            // If trip returned is null, then trip with given ID exists, return bad request
-            if(trip == null) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No such trip")));
-            }
-            // If trip was found, keep track of who owned that trip (this is not stored in tripData)
-            userId = trip.userId;
-        }
-        // Catch error conditions from getting result
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-        }
-        // If the operation was interrupted before completion
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-        }
-
         // Get all the trip data (asynchronously) and then construct and return the json object to send
-        return tripDataRepository.getAllTripData(id).thenApplyAsync(
-                allDestinations -> { // All found tripData objects for the trip
-                    // Create new JSON object to store returned data
-                    ObjectNode node = Json.newObject();
-                    // Put the UID that was previously found
-                    node.put("userId", userId);
-                    // Convert found trip data points to an array node
-                    ArrayNode array = new ObjectMapper().valueToTree(allDestinations);
-                    // Add array node to return json object
-                    node.putArray("tripDataCollection").addAll(array);
-                    // Return ok status with return json object
-                    return ok(node);
-                });
+        return tripRepository.getTripById(id).thenApplyAsync(
+                trip -> ok(Json.toJson(trip))
+        );
     }
 
     /**
