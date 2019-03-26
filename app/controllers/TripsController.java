@@ -2,13 +2,14 @@ package controllers;
 
 import actions.*;
 import actions.roles.*;
-import models.frontend.Destination;
-import models.frontend.Trip;
+import models.Destination;
+import models.Trip;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
+import play.libs.Json;
 import play.mvc.*;
 import views.html.*;
 
@@ -26,7 +27,6 @@ public class TripsController extends Controller {
 
     public static MessagesApi messagesApi;
     public static List<Trip> tripList;
-    private final ArrayList<Destination> destList = new ArrayList<Destination>();
 
     @Inject
     public void TripController( MessagesApi messagesApi) {
@@ -47,6 +47,7 @@ public class TripsController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
         String username = request.attrs().get(ActionState.USER).username;
+        tripList = new ArrayList<>(); // TODO get this to actually load trips
         return ok(trips.render(username, tripList, request, messagesApi.preferred(request)));
     }
 }

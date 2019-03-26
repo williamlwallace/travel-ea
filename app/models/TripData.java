@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Finder;
 import io.ebean.Model;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -28,17 +29,25 @@ import java.util.Objects;
 @Entity
 public class TripData extends Model {
 
-    @Id
-    public Long guid;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public long guid;
 
-    @Constraints.Required
+    @ManyToOne
+    @JsonBackReference
+    public Trip trip;
+
+    @Id
+    @Column(name="trip_id")
     public Long tripId;
 
     @Constraints.Required
     public Long position;
 
-    @Constraints.Required
-    public Long destinationId;
+    @OneToOne
+    @JoinTable(
+            name = "Destination",
+            joinColumns=@JoinColumn(name="destination_id", referencedColumnName="id"))
+    public Destination destination;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime arrivalTime;
