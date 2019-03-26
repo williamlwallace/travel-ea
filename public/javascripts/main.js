@@ -27,7 +27,10 @@ function put(url, data) {
 function showErrors(json, parentElement="main") {
     const elements = document.getElementById(parentElement).getElementsByTagName("label");
     for (i in elements) {
-        elements[i].innerHTML = "";
+        var error = elements[i].id.slice(-5) === "Error";
+        if (error) {
+            elements[i].innerHTML = "";
+        }
         for (const key of Object.keys(json)) {
             if (elements[i].id == (key+"Error")) {
                 const data = json[key]
@@ -42,7 +45,10 @@ function showErrors(json, parentElement="main") {
 function hideErrors(parentElement) {
     const elements = document.getElementById(parentElement).getElementsByTagName("label");
     for (i in elements) {
-        elements[i].innerHTML = "";
+        var error = elements[i].id.slice(-5) === "Error";
+        if (error) {
+            elements[i].innerHTML = "";
+        }
     }
 }
 
