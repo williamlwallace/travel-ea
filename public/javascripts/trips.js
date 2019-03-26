@@ -1,3 +1,5 @@
+// METHODS FOR CREATE TRIPS
+
 var countryDict = {};
 
 // Runs get countries method, then add country options to drop down
@@ -23,12 +25,8 @@ function fillCountryInfo(getCountriesUrl) {
 }
 
 function updateDestinationsCountryField() {
-    // Iterate through all destinations to add
     let tableBody = document.getElementsByTagName('tbody')[0];
     let rowList = tableBody.getElementsByTagName('tr');
-
-    console.log(rowList);
-    console.log(rowList[0]);
 
     for (let i = 0; i < rowList.length; i++) {
         let dataList = rowList[i].getElementsByTagName('td');
@@ -230,38 +228,29 @@ function showErrors(json) {
     }
 }
 
-function addTripToServer(url, redirect) {
-    // Create array (which will be serialized)
-    let tripDataCollection = [];
+// METHODS FOR TRIPS
 
-    // Get user id to use
-    let uid = document.getElementById("userIDInput").value;
+var destinationDict = {};
 
-    // For each list item in list, convert it to a json object and add it to json array
-    var listItemArray = Array.of(document.getElementById("tripStageList").children);
-    for(let i = 0; i < listItemArray[0].length; i++) {
-        tripDataCollection.push(listItemToTripData(listItemArray[0][i], i));
-    }
-
-    // Now create final json object
-    let data = {};
-    data["uid"] = uid;
-    data["tripDataCollection"] = tripDataCollection;
-    console.log(data);
-    // Post json object to server at given url
-    post(url,data)
+// Runs get countries method, then add country options to drop down
+function updateDestinationInfo(getDestinationsUrl) {
+    // Run a get request to fetch all destinations
+    get(getDestinationsUrl)
+    // Get the response of the request
         .then(response => {
-            // Read response from server, which will be a json object
-            response.json()
-                .then(json => {
-                    if(response.status == 400) {
-                        showErrors(json);
-                    } else if (response.status == 200) {
-                        window.location.href = redirect + JSON.parse(json);
-                    } else {
-                        document.getElementById("errorDisplay").innerHTML = "Error(s): " + Object.values(json).join(", ");
-                    }
-                });
+            // Convert the response to json
+            response.json().then(data => {
+                // Json data is an array of destinations, iterate through it
+                for(let i = 0; i < data.length; i++) {
+                    // Also add the item to the dictionary
+                    countryDict[data[i]['id']] = data[i]['name'];
+                }
+
+                console.log(countryDict);
+                // Now fill the drop down box, and list of destinations
+                fillDropDown();
+                updateDestinationsCountryField();
+            });
         });
 }
 
@@ -324,15 +313,4 @@ function getAllTripsOfUser(url, viewUrl) {
     }
 });
 });
-}
-
-function showErrorsDefault(json) {
-    const elements = document.getElementsByTagName("pre");
-    console.log(json);
-    for (i in elements) {
-        elements[i].innerHTML = "";
-    }
-    for (const key of Object.keys(json)) {
-        document.getElementById("errorDisplay").innerHTML += (parseInt(key) + 1) + " " + json[key];
-    }
 }

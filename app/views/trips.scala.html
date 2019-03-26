@@ -1,9 +1,13 @@
 @import play.mvc.Http.Request
 @import helper._
 
-@(user: String, tripList: List[models.frontend.Trip])(implicit request: Request, messages: play.i18n.Messages)
+@(user: String, tripList: Seq[models.Trip])(implicit request: Request, messages: play.i18n.Messages)
 
-@layouts.imageHeader("Trips", user, "images/trips-bg.jpg"){
+@scripts = {
+    <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
+}
+
+@layouts.imageHeader("Trips", user, "images/trips-bg.jpg", scripts){
 
     <head>
         @* Imports MBBootstrap Datatables CSS. *@
@@ -29,29 +33,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Trip to the Bahamas</td>
-                            <td>@tripList.size</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>Holiday in Bikini Bottom</td>
-                            <td>3</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td>Vacation in Erskine</td>
-                            <td>2</td>
-                            <td>-</td>
-                            <td>-</td>
-                        </tr>
-
+                        @for(t <- tripList) {
+                            <tr id="@t.id">
+                                <td>@t.tripData[0].destinationId</td>
+                                <td>@t.tripData[0].destinationId</td>
+                                <td>@t.tripData.length</td>
+                                <td>YYYY-MM-DD</td>
+                                <td><button class="btn btn-popup" type="button" onclick=''>View</button></td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
         </div>
     </body>
-
 }
+
+<script type="text/javascript">
+        updateDestinationInfo("@controllers.backend.routes.DestinationController.getAllDestinations()");
+</script>
