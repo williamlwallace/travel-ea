@@ -49,17 +49,17 @@ public class DestinationControllerTest extends WithApplication {
     }
 
     /**
-     * Runs evolutions before each test
-     * These evolutions are found in conf/test/(whatever), and should contain minimal sql data needed for tests
+     * Runs trips before each test
+     * These trips are found in conf/test/(whatever), and should contain minimal sql data needed for tests
      */
     @Before
     public void applyEvolutions() {
-        // Only certain evolutions, namely initialisation, and destinations folders
+        // Only certain trips, namely initialisation, and destinations folders
         Evolutions.applyEvolutions(db, Evolutions.fromClassLoader(getClass().getClassLoader(), "test/destination/"));
     }
 
     /**
-     * Cleans up evolutions after each test, to allow for them to be re-run for next test
+     * Cleans up trips after each test, to allow for them to be re-run for next test
      */
     @After
     public void cleanupEvolutions() {
@@ -115,7 +115,7 @@ public class DestinationControllerTest extends WithApplication {
 
     @Test
     public void deleteDestination() {
-        // Create request to delete newly created user
+        // Create request to delete newly created destination
         Http.RequestBuilder request2 = Helpers.fakeRequest()
                 .method(DELETE)
                 .cookie(this.authCookie)
