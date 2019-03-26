@@ -19,8 +19,10 @@ public class TravellerType extends Model {
     public Long guid;
 
     @Constraints.Required
+    @Column(name="user_id")
     public Long userId;
 
     @Constraints.Required
+    @Column(name="traveller_type_id")
     public Long travellerTypeId;
 }

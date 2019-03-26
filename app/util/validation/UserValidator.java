@@ -27,18 +27,18 @@ public class UserValidator extends Validator {
 
     /**
      * Validates addNewProfile data
+     * NB passports are not required
      * @return ErrorResponse object
      */
     public ErrorResponse profile() {
-        this.required("userId");
         this.required("firstName");
         this.required("lastName");
         if (this.required("dateOfBirth")) {
             this.date("dateOfBirth");
         }
         this.gender("gender");
-        // In future need to check nationality is not just empty but string represents a valid nationality
         this.required("nationalities");
+        this.required("travellerTypes");
         return this.getErrorResponse();
     }
 }
