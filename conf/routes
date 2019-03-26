@@ -45,7 +45,7 @@ GET     /api/destination/search         controllers.backend.DestinationControlle
 
 + nocsrf
 POST    /api/trip                       controllers.backend.TripController.insertTrip(request:Request)
-
++ nocsrf
 PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
 
 GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
