@@ -37,9 +37,9 @@
                     <!-- Destination card deck -->
                 <div id="parent" class="parent">
                     <div id="list" class="list">
-                        @for(i <- trip.tripData.indices) {
+                        @for(i <- trip.tripDataList.indices) {
                             <div class="sortable-card" id=@i>
-                                <label id=@trip.tripData(i).destinationId></label>
+                                <label id=@trip.tripDataList(i)></label>
                                     <!-- Card -->
                                     <div class="card mb-4">
                                         <!--Card image-->
@@ -51,29 +51,25 @@
                                         </div>
                                         <!--Card content-->
                                         <div class="card-body">
-                                            @for(dest <- destList
-                                            if dest.id == trip.tripData(i).destinationId) {
-                                                    <!--Title-->
-                                                <h4 class="card-title">@dest.id</h4>
-                                                    <!--Text-->
-                                                <p class="card-text">
-
-                                                    <b>Type: </b>
-                                                    <label id="typeField">@dest._type</label>
-                                                    <br/>
-                                                    <b>District: </b>
-                                                    <label id="districtField">@dest.district</label>
-                                                    <br/>
-                                                    <b>Latitude: </b>
-                                                    <label id="latitudeField">@dest.latitude</label>
-                                                    <br/>
-                                                    <b>Longitude: </b>
-                                                    <label id="longitudeField">@dest.longitude</label>
-                                                    <br/>
-                                                    <b>Country: </b>
-                                                    <label id="countryField">loading...</label>
-                                                </p>
-                                            }
+                                            <!--Title-->
+                                            <h4 class="card-title">@trip.tripDataList(i).destination.id</h4>
+                                            <!--Text-->
+                                            <p class="card-text">
+                                                <b>Type: </b>
+                                                <label id="typeField">@trip.tripDataList(i).destination._type</label>
+                                                <br/>
+                                                <b>District: </b>
+                                                <label id="districtField">@trip.tripDataList(i).destination.district</label>
+                                                <br/>
+                                                <b>Latitude: </b>
+                                                <label id="latitudeField">@trip.tripDataList(i).destination.latitude</label>
+                                                <br/>
+                                                <b>Longitude: </b>
+                                                <label id="longitudeField">@trip.tripDataList(i).destination.longitude</label>
+                                                <br/>
+                                                <b>Country: </b>
+                                                <label id="countryField">loading...</label>
+                                            </p>
                                             <form id="arrivalDepartureForm">
                                                 <div class="modal-body mx-3">
                                                     <div>Arrival
