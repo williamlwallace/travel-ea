@@ -124,6 +124,7 @@ function updateProfile(url, redirect) {
     }
     console.log("zza");
     // Post json data to given url
+    console.log(data);
     put(url,data)
         .then(response => {
         // Read response from server, which will be a json object
@@ -132,12 +133,22 @@ function updateProfile(url, redirect) {
             if (response.status != 200) {
                 showErrors(json);
             } else {
-                window.location.href = redirect;
+                hideErrors("updateProfileForm");
+                let element = document.getElementById("SuccessMessage");
+                element.innerHTML = "Successfully Updated";
+                return sleep(3000);
             }
-        });
+        })
+        .then(() => {
+            let element = document.getElementById("SuccessMessage");
+            element.innerHTML = "";
+    })
     });
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 /**
  * The javascript method to populate the slect boxes on the edit profile scene
  * @param url the route/url to send the request to to get the profile data
