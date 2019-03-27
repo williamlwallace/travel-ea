@@ -1,3 +1,5 @@
+-- !Ups
+
 INSERT INTO CountryDefinition (name) VALUES
 ('Afghanistan'),
 ('Albania'),
@@ -249,3 +251,6 @@ INSERT INTO CountryDefinition (name) VALUES
 ('Yemen'),
 ('Zambia'),
 ('Zimbabwe');
+
+-- !Downs
+DELETE FROM CountryDefinition;
