@@ -18,10 +18,8 @@ This document outlines manual testing for TravelEA
 - Clicking cancel will hide the log in form and display the log in sign up buttons again
 - Pressing the Log In button before filling out the email and/or password fields
   will display warnings that the fields must be filled out
-- Entering an email that isn't registered will display an error message in red saying
-  "Email: <the email address> is not registered!"
-- Entering a registered email address with an incorrect password will display the error
-  message "Incorrect password!"
+- Entering a email address with an incorrect password or an unrregistered email will display the error
+  message "Unauthorised"
 - Entering a registered email with its corresponding password will log the user in
   and take them to the home page at /home
 
@@ -34,24 +32,26 @@ This document outlines manual testing for TravelEA
 - Pressing the register button before filling out the fields will display warnings that
   the fields must be filled out
 - Entering an email that is already linked to an account will display an error message
-  in red saying "Email: <the email address> is already in use!"
+  in red saying "Email already in use!"
 - If the password and repeat password fields do not match, an error message will be
   displayed reading "Password not matching!" and disabling the register button.
 - If the email is valid and the passwords are matching, the account will be created
   and the user will be taken to the profile page at /profile to create their profile
   
-  #### Create Profile:
+#### Create profile:
+
   - Profile page is automatically opened with the create new profile card showing.
-  - User enters First Middle and Last name.
-  - If first or last name are missing and user attempts to create profile, a small alert box appears 
-  asking the user to fill in the field
+  - User can enter First, Middle and Last name.
   - Gender and DOB are both cllickable drop downs with a placeholder initially selected. Scene will not
   move on until these are selected
   - Nationalities, Passport and Traveller Types are clickable drop downs like gender and DOB, but these three
   are multi select, when one option is selectedm it appears as a removable tag. These tags keep apearing next to
   each other as subsequent values are selected. The selected value is removed from the list. If the selected tags are 
   too long for one line, they form a second line etc.
-  -Nationalities and Traveller Types are required so attempting to create without any selected will not do anyting. 
+  - Nationalities, Traveller Types, Names, gender and DOB are required so attempting to create without these things inputed
+or selected causes red erors to be displayed
+ - Once all required fields are entered and valid, the profile is created, added to the database and the 
+   scene is redirected to home page
 
 ## Destinations Page
 
@@ -88,8 +88,10 @@ This document outlines manual testing for TravelEA
 - The profile page, accessible through clicking on the email on the navbar and then selecting profile.
 - On the page is a form, which appears as a spread out version of the profile card
 - The values can be edited
-- A button to update profile is at the bottom, this does nothing if required fields are not selected
-- A profile Updated message is displayed if the profile is successfully updated
+- A button to update profile is at the bottom
+- If any entered data is iinvalid or required data not included, red error messages appear under the approopiate field
+- A Profile Updated message is displayed at the bottom, above the update button, once a profile  has been succesfully updated.
+- This disapears after 3 seconds
 - The profile fields are pre filled with relevant values
 
 ## Trip page
