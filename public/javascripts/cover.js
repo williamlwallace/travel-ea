@@ -72,7 +72,7 @@ function signup(url, redirect) {
 function cancel() {
     const elements = document.getElementById("main").getElementsByTagName("input");
     console.log(elements);
-    for (i in elements) {
+    for (let i in elements) {
         elements[i].value = "";
     }
     hideErrors("signupForm");
