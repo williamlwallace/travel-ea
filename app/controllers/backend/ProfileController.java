@@ -220,9 +220,10 @@ public class ProfileController extends Controller {
 
         if (profile != null) {
             // Updates profile in database
+            profile.userId = userId;
             profileRepository.updateProfile(profile);
 
-            return CompletableFuture.supplyAsync(() -> ok("Successfully updated profile in database"));
+            return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully updated profile in database")));
         }
         else {
             return CompletableFuture.supplyAsync(() -> {
