@@ -10,7 +10,6 @@ import play.mvc.Result;
 import repository.CountryDefinitionRepository;
 import scala.collection.JavaConverters;
 import views.html.people;
-import views.html.peopleSearch;
 import actions.*;
 import actions.roles.*;
 import play.mvc.With;
@@ -27,20 +26,14 @@ import scala.collection.JavaConversions;
  */
 public class PeopleController extends Controller {
 
-//    private final List<Account> accounts;
-
-    private final List<CountryDefinition> countries;
     private final ProfileController profileController;
-//    private final CountryDefinitionRepository countryDefinitionRepository;
     /**
      * Used to create example data while building GUI
      */
     @Inject
-    public PeopleController(CountryDefinitionRepository countryDefinitionRepository,
-                            ProfileController profileController) {
-//        this.countryDefinitionRepository = countryDefinitionRepository;
+    public PeopleController(ProfileController profileController) {
+
         this.profileController = profileController;
-        countries = countryDefinitionRepository.getAllCountries().join();
 
 
 //        //Test data for accounts. should be replaced with account data from database.
@@ -158,6 +151,7 @@ public class PeopleController extends Controller {
 //        );
     }
 
+
     /**
      * Displays the people page. Called with the /people URL and uses a GET request.
      * Checks that a user is logged in. Takes them to the people page if they are,
@@ -166,23 +160,10 @@ public class PeopleController extends Controller {
      * @return displays the people or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public Result index(Http.Request request) {
-        String username = request.attrs().get(ActionState.USER).username;
-        return ok(people.render(username, countries));
-    }
-
-    /**
-     * Displays the people search page. Called with the /people/search URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the people search page if they are,
-     * otherwise they are taken to the start page.
-     *
-     * @return displays the people search or start page.
-     */
-    @With({Everyone.class, Authenticator.class})
     public Result search(Http.Request request, Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
         String username = request.attrs().get(ActionState.USER).username;
         List<Profile> profiles = profileController.searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId).join(); //This is so bad
-        return ok(peopleSearch.render(username, profiles));
+        return ok(people.render(username, profiles));
     }
 
 }
