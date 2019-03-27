@@ -75,12 +75,6 @@
                 return;
             }
 
-            if(this.$elem[0].hasAttribute('required')) {
-                if(this.currentData.length == 0) {
-                    console.log("Holy Fuck")
-                }
-            }
-
             this._build();
             this.$elem.hide();
 
