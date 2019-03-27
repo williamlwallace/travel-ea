@@ -90,13 +90,16 @@ $('#gender').picker();
  * @param redirect The page to redirect to if no errors are found
  */
 function updateProfile(url, redirect) {
+    console.log("zza");
     // Read data from destination form
     const formData = new FormData(document.getElementById("updateProfileForm"));
+    console.log("zza");
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+    console.log("zza");
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = [];
     let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
@@ -119,8 +122,10 @@ function updateProfile(url, redirect) {
         type.id = type_ids[i];
         data.travellerTypes.push(type);
     }
+    console.log("zza");
     // Post json data to given url
-    post(url,data)
+    console.log(data);
+    put(url,data)
         .then(response => {
         // Read response from server, which will be a json object
         response.json()
@@ -128,12 +133,22 @@ function updateProfile(url, redirect) {
             if (response.status != 200) {
                 showErrors(json);
             } else {
-                window.location.href = redirect;
+                hideErrors("updateProfileForm");
+                let element = document.getElementById("SuccessMessage");
+                element.innerHTML = "Successfully Updated!";
+                return sleep(3000);
             }
-        });
+        })
+        .then(() => {
+            let element = document.getElementById("SuccessMessage");
+            element.innerHTML = "";
+    })
     });
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 /**
  * The javascript method to populate the slect boxes on the edit profile scene
  * @param url the route/url to send the request to to get the profile data

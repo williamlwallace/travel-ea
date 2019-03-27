@@ -13,17 +13,13 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.*;
-import util.CryptoManager;
 import util.validation.UserValidator;
 import util.validation.ErrorResponse;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.*;
-
-import static java.lang.Math.max;
 
 /**
  * Manage a database of users
@@ -120,7 +116,7 @@ public class ProfileController extends Controller {
         else {
             try {
                 profileRepository.addProfile(profile).get();
-                return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully added new profile to database")));
+                return CompletableFuture.supplyAsync(() -> created(Json.toJson("Successfully added new profile to database")));
             } catch (Exception e) {
                 int i = 0;
                 return CompletableFuture.supplyAsync(() -> internalServerError("Failed to add profile to database"));
@@ -224,9 +220,10 @@ public class ProfileController extends Controller {
 
         if (profile != null) {
             // Updates profile in database
+            profile.userId = userId;
             profileRepository.updateProfile(profile);
 
-            return CompletableFuture.supplyAsync(() -> ok("Successfully updated profile in database"));
+            return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully updated profile in database")));
         }
         else {
             return CompletableFuture.supplyAsync(() -> {
@@ -238,8 +235,10 @@ public class ProfileController extends Controller {
 
     //TODO: Authorization for adminonly
     public CompletableFuture<Result> deleteProfile(Long id) {
-        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted ->
-            (!rowsDeleted) ? badRequest(Json.toJson("No such Profile")) : ok(Json.toJson("Profile Deleted")));
+        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
+            System.out.println(rowsDeleted);
+            return (!rowsDeleted) ? badRequest(Json.toJson("No such Profile")) : ok(Json.toJson("Profile Deleted"));
+        });
     }
 
     // Private Methods
@@ -338,4 +337,84 @@ public class ProfileController extends Controller {
 
         return travellerTypes;
     }
+
+    /**
+     * Retrieves all profiles, filters them and then returns the filtered list of profiles.
+     * @param nationalityId nationality request
+     * @param gender gender requested
+     * @param minAge minimum age for filter
+     * @param maxAge maximum age for filter
+     * @param travellerTypeId traveller type requested
+     * @return List of profiles within requested parameters
+     */
+    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
+        return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
+
+            List<Profile> toReturn = new ArrayList<>(profiles);
+
+            outerLoop:
+            for (Profile profile : profiles) {
+                if (gender != null) {
+                    if (!profile.gender.equalsIgnoreCase(gender)) {
+                        toReturn.remove(profile);
+                        continue;
+                    }
+                }
+
+//                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+//                int age = Period.between(birthDate, LocalDate.now()).getYears();
+                int age = profile.calculateAge();
+
+                if (age < minAge || age > maxAge) {
+                    toReturn.remove(profile);
+                    continue;
+                }
+
+                if (nationalityId != 0) {
+                    boolean found = false;
+                    for (CountryDefinition country : profile.nationalities) {
+                        if (country.id.equals(nationalityId)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        toReturn.remove(profile);
+                        continue outerLoop;
+                    }
+                }
+
+                if (travellerTypeId != 0) {
+                    boolean found = false;
+                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
+                        if (travellerTypeDefinition.id.equals(travellerTypeId)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        toReturn.remove(profile);
+                        continue outerLoop;
+                    }
+                }
+
+            }
+
+            return toReturn;
+        });
+    }
+
+    /**
+     * Retrieves all profiles, filters them and returns the result inside a Result object as JSON
+     * @param nationalityId nationality request
+     * @param gender gender requested
+     * @param minAge minimum age for filter
+     * @param maxAge maximum age for filter
+     * @param travellerTypeId traveller type requested
+     * @return A ok result containing the JSON of the profiles matching search criteria
+     */
+    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
+         return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId).thenApplyAsync(profiles ->
+                 ok(Json.toJson(profiles)));
+    }
 }
+
+
