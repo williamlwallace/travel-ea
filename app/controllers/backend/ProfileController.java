@@ -367,7 +367,7 @@ public class ProfileController extends Controller {
 
 //                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 //                int age = Period.between(birthDate, LocalDate.now()).getYears();
-                int age = profile.getAge();
+                int age = profile.calculateAge();
 
                 if (age < minAge || age > maxAge) {
                     toReturn.remove(profile);
@@ -396,6 +396,11 @@ public class ProfileController extends Controller {
 
             return toReturn;
         });
+    }
+
+    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
+         return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId).thenApplyAsync(profiles ->
+                 ok(Json.toJson(profiles)));
     }
 }
 
