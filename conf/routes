@@ -13,9 +13,11 @@ POST    /api/logout                     controllers.backend.UserController.logou
 
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
+GET     /api/profile/search             controllers.backend.ProfileController.searchProfilesJson(nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+
 GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
 
-GET     /api/profile/                   controllers.backend.ProfileController.getMyProfile(request:Request)
+GET     /api/profile                   controllers.backend.ProfileController.getMyProfile(request:Request)
 
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
