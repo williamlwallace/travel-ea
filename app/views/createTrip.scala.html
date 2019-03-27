@@ -68,8 +68,11 @@
                                     <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>
                                 </div>
                                 <div class="card-block px-2">
-                                    <div id="left">
+                                    <div id="topCardBlock">
                                         <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
+                                        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(@i)"></button>
+                                    </div>
+                                    <div id="left">
                                         <p class="card-text" id="card-text">
                                             <b>Type: </b>
                                             @trip.tripDataList(i).destination._type
@@ -104,7 +107,6 @@
                                         </form>
                                         <label id="destinationError"></label><br/>
                                             <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
-                                        <button type="button" style="float:right" class="btn btn-primary btn-md" onclick='removeDestinationFromTrip(@i)'>Remove</button>
                                     </div>
                                 </div>
                             </div>
