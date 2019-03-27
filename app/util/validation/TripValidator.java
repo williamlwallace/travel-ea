@@ -54,8 +54,8 @@ public class TripValidator {
                 trip.position = -1L;
             }
 
-            //if (trip.destinationId == null) errorString += "destinationId is null, ";
-            //if (trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
+            if (trip.destination.id == null) errorString += "destinationId is null, ";
+            if (trip.destination.id == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
             if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.isAfter(trip.departureTime)) errorString += "departure must be after arrival, ";
             if (trip.arrivalTime != null || trip.departureTime != null) {
                 //todo: fix this one

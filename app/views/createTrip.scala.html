@@ -57,59 +57,52 @@
                 <div id="parent"  style="border:1px solid #cecece;" class="parent">
                     <div id="list" class="list">
                         @for(i <- trip.tripDataList.indices) {
-                            <div class="sortable-card" id=@i>
-                                <label id=@trip.tripDataList(i)></label>
-                                    <!-- Card -->
-                                    <div class="card mb-4">
-                                        <!--Card image-->
-                                        <div class="view overlay">
-                                            <img class="card-img-top" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">
-                                            <a href="#!">
-                                                <div class="mask rgba-white-slight"></div>
-                                            </a>
-                                        </div>
-                                        <!--Card content-->
-                                        <div class="card-body">
-                                            <!--Title-->
-                                            <h4 class="card-title">@trip.tripDataList(i).destination.id</h4>
-                                            <!--Text-->
-                                            <p class="card-text">
-                                                <b>Type: </b>
-                                                <label id="typeField">@trip.tripDataList(i).destination._type</label>
-                                                <br/>
-                                                <b>District: </b>
-                                                <label id="districtField">@trip.tripDataList(i).destination.district</label>
-                                                <br/>
-                                                <b>Latitude: </b>
-                                                <label id="latitudeField">@trip.tripDataList(i).destination.latitude</label>
-                                                <br/>
-                                                <b>Longitude: </b>
-                                                <label id="longitudeField">@trip.tripDataList(i).destination.longitude</label>
-                                                <br/>
-                                                <b>Country: </b>
-                                                <label id="countryField">loading...</label>
-                                            </p>
-                                            <form id="arrivalDepartureForm">
-                                                <div class="modal-body mx-3">
-                                                    <div>Arrival
-                                                        <i class="fas prefix grey-text"></i>
-                                                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">
-                                                        <label id="arrivalError"></label>
-                                                    </div>
-                                                    <div>Departure
-                                                        <i class="fas prefix grey-text"></i>
-                                                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">
-                                                        <label id="departureError"></label>
-                                                    </div>
+                            <div class="card flex-row" id=@i >
+                                <label id=@trip.tripDataList(i).destination.id></label>
+                                <div class="card-header border-0" style="height: 100%">
+                                    <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>
+                                </div>
+                                <div class="card-block px-2">
+                                    <div id="left">
+                                        <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
+                                        <p class="card-text" id="card-text">
+                                            <b>Type: </b>
+                                            @trip.tripDataList(i).destination._type
+                                            <br/>
+                                            <b>District: </b>
+                                            @trip.tripDataList(i).destination.district
+                                            <br/>
+                                            <b>Latitude: </b>
+                                            @trip.tripDataList(i).destination.latitude
+                                            <br/>
+                                            <b>Longitude: </b>
+                                            @trip.tripDataList(i).destination.longitude
+                                            <br/>
+                                            <b>Country: </b>
+                                            loading...
+                                        </p>
+                                    </div>
+                                    <div id="right">
+                                        <form id="arrivalDepartureForm">
+                                            <div class="modal-body mx-3">
+                                                <div id="arrival">Arrival
+                                                    <i class="fas prefix grey-text"></i>
+                                                    <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">
+                                                    <label id="arrivalError"></label>
                                                 </div>
-                                            </form>
-                                            <label id="destinationError"></label><br/>
+                                                <div id="depart">Departure
+                                                    <i class="fas prefix grey-text"></i>
+                                                    <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">
+                                                    <label id="departureError"></label>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <label id="destinationError"></label><br/>
                                             <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
-                                            <button type="button" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(@i)">Remove</button>
-                                        </div>
+                                        <button type="button" style="float:right" class="btn btn-primary btn-md" onclick='removeDestinationFromTrip(@i)'>Remove</button>
                                     </div>
                                 </div>
-                            );
+                            </div>
                         }
 
                         <!-- Destinations inserted here -->
@@ -277,5 +270,4 @@
 
 <script type="text/javascript">
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
-        getTripData("@controllers.backend.routes.TripController.getTrip(trip.id)", @trip.id);
 </script>
