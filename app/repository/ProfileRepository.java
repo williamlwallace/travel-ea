@@ -1,8 +1,6 @@
 package repository;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.ebean.*;
@@ -15,11 +13,9 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.List;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static play.mvc.Results.ok;
-import static play.mvc.Results.unauthorized;
 
 public class ProfileRepository {
 

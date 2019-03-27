@@ -1,6 +1,5 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 

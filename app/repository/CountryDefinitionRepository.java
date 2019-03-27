@@ -7,7 +7,6 @@ import models.CountryDefinition;
 import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 

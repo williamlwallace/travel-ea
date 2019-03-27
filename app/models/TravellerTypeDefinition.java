@@ -6,7 +6,6 @@ import play.data.validation.Constraints;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.ManyToMany;
 import java.util.List;
 
 /**
