@@ -188,8 +188,6 @@
 
 
         <!-- Edit arrival depart times form -->
-        @helper.form(controllers.frontend.routes.TripController.createTripIndex()) {
-            @helper.CSRF.formField
             <div class="modal fade" id="modalEditForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
             aria-hidden="true">
                 <div class="modal-dialog" role="document">
@@ -221,11 +219,9 @@
                     </div>
                 </div>
             </div>
-        }
+
 
         <!-- Form to add destination to trip -->
-        @helper.form(controllers.frontend.routes.TripController.createTripIndex()) {
-            @helper.CSRF.formField
             <div class="modal fade" id="modalAddForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
             aria-hidden="true">
                 <div class="modal-dialog modal-lg" role="document">
@@ -275,7 +271,6 @@
                     </div>
                 </div>
             </div>
-        }
 
      </div>
     </main>

@@ -145,7 +145,6 @@ function addDestinationToTrip(dest) {
         // '</div>'
 
         '<div class="card flex-row" id=' + cardId + '>\n' +
-        console.log("in card: " + cardId)
             '<label id=' + dest[0] + '></label>' +
         '<div class="card-header border-0" style="height: 100%">\n' +
             '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +
@@ -182,6 +181,7 @@ function addDestinationToTrip(dest) {
             '</div>\n' +
         '</div>'
     );
+    console.log("create cardId: " + cardId)
 }
 
 function removeDestinationFromTrip(cardId) {
@@ -189,6 +189,7 @@ function removeDestinationFromTrip(cardId) {
 
     for (let i = 0; i < destinations.length; i++) {
         if (parseInt(destinations[i].getAttribute("id")) === cardId) {
+            console.log("remove cardId: " + cardId)
             destinations[i].parentNode.removeChild(destinations[i]);
             break;
         }
