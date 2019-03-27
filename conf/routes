@@ -4,23 +4,19 @@
 
 # ~~~~~backend~~~~~~
 GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
-+ nocsrf
+
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
-+ nocsrf
+
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
-+ nocsrf
+
 POST    /api/logout                     controllers.backend.UserController.logout(request:Request)
 
-+ nocsrf
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-+ nocsrf
 GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
 
-+ nocsrf
 GET     /api/profile/                   controllers.backend.ProfileController.getMyProfile(request:Request)
 
-+ nocsrf
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
@@ -32,7 +28,6 @@ GET     /api/destination/getCountries   controllers.backend.DestinationControlle
 
 GET     /api/profile/getTravellerTypes/ controllers.backend.ProfileController.getAllTravellerTypes()
 
-+ nocsrf
 POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET     /api/destination                controllers.backend.DestinationController.getAllDestinations()
