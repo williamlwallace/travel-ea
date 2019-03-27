@@ -38,9 +38,8 @@ GET     /api/destination/:id            controllers.backend.DestinationControlle
 
 GET     /api/destination/search         controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 
-+ nocsrf
 POST    /api/trip                       controllers.backend.TripController.insertTrip(request:Request)
-+ nocsrf
+
 PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
 
 GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
