@@ -22,10 +22,11 @@ public class CountryDefinition extends Model {
 
     @Override
     public String toString() {
-        return "CountryDefinition{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                '}';
+        return name;
+//        return "CountryDefinition{" +
+//                "id=" + id +
+//                ", name='" + name + '\'' +
+//                '}';
     }
 
     //    @JsonBackReference
