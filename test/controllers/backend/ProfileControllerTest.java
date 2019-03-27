@@ -2,7 +2,6 @@ package controllers.backend;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.CountryDefinition;
@@ -17,16 +16,10 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import util.validation.ErrorResponse;
-import util.validation.UserValidator;
 import play.mvc.Http.Cookie;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -86,48 +79,60 @@ public class ProfileControllerTest extends WithApplication {
 
     @Test
     public void createProfile() {
-        // Create new json object node
-        ObjectNode node = Json.newObject();
-        node.put("userId", 2);
-        node.put("firstName", "Harry");
-        node.put("middleName", "Small");
-        node.put("lastName", "Test");
-        node.put("dateOfBirth", "1986-11-05");
-        node.put("gender", "Male");
-        node.put("nationalities", "['Test Country 1', 'Test Country 3']");
-        node.put("passports", "['Test Country 3', 'Test Country 2']");
-        node.put("travellerTypes", "[\"Test TravellerType 1\", \"Test TravellerType 3\"]");
+        //Create the profile
+        Profile newProfile = new Profile();
+
+        newProfile.userId = Long.valueOf(5);
+        newProfile.firstName = "NotDave";
+        newProfile.lastName = "DefinitelyNotSmith";
+        newProfile.dateOfBirth = "1186-11-05";
+        newProfile.gender = "Male";
+
+        CountryDefinition france = new CountryDefinition();
+        france.name = "France"; france.id = Long.valueOf(2);
+
+        TravellerTypeDefinition backpacker = new TravellerTypeDefinition();
+        backpacker.description = "Backpacker"; backpacker.id = Long.valueOf(2);
+
+        newProfile.nationalities = new ArrayList<>();
+        newProfile.nationalities.add(france);
+
+        newProfile.passports = new ArrayList<>();
+        newProfile.passports.add(france);
+
+        newProfile.travellerTypes = new ArrayList<>();
+        newProfile.travellerTypes.add(backpacker);
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
-                .bodyJson(node)
+                .bodyJson(Json.toJson(newProfile))
                 .cookie(authCookie)
                 .uri("/api/profile");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        assertEquals(CREATED, result.status());
     }
 
     @Test
     public void createProfileUserAlreadyHasProfile() {
-        // Create new json object node
-        ObjectNode node = Json.newObject();
-        node.put("userId", 1);
-        node.put("firstName", "Harry");
-        node.put("middleName", "Small");
-        node.put("lastName", "Test");
-        node.put("dateOfBirth", "1986-11-05");
-        node.put("gender", "Male");
-        node.put("nationalities", "['Test Country 1', 'Test Country 3']");
-        node.put("passports", "['Test Country 3', 'Test Country 2']");
-        node.put("travellerTypes", "[\"Test TravellerType 1\", \"Test TravellerType 3\"]");
+        //Create the profile
+        Profile newProfile = new Profile();
+
+        newProfile.userId = Long.valueOf(1);
+        newProfile.firstName = "NotDave";
+        newProfile.lastName = "DefinitelyNotSmith";
+        newProfile.dateOfBirth = "1186-11-05";
+        newProfile.gender = "Male";
+        newProfile.nationalities = new ArrayList<>();
+        newProfile.passports = new ArrayList<>();
+        newProfile.travellerTypes = new ArrayList<>();
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
-                .bodyJson(node)
+                .bodyJson(Json.toJson(newProfile))
                 .cookie(authCookie)
                 .uri("/api/profile");
 
@@ -167,11 +172,11 @@ public class ProfileControllerTest extends WithApplication {
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
         expectedMessages.put("firstName", "firstName field must be present");
-        //expectedMessages.put("middleName", "middleName field must be present");
         expectedMessages.put("lastName", "lastName field must be present");
         expectedMessages.put("dateOfBirth", "Invalid date");
         expectedMessages.put("gender", "Invalid gender");
         expectedMessages.put("nationalities", "nationalities field must be present");
+        expectedMessages.put("travellerTypes", "travellerTypes field must be present");
 
         // Check all error messages were present
         for(String key : response.keySet()) {
@@ -190,68 +195,57 @@ public class ProfileControllerTest extends WithApplication {
         assertEquals(OK, result.status());
 
         // Get response
-        HashMap<String, String> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, String>>() {});
+        Profile profile = new ObjectMapper().readValue(Helpers.contentAsString(result), Profile.class);
 
-        // Expected response messages
-        HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("userId", "1");
-        expectedMessages.put("firstName", "Dave");
-        expectedMessages.put("middleName", "Jimmy");
-        expectedMessages.put("lastName", "Smith");
-        expectedMessages.put("dateOfBirth", "1986-11-05");
-        expectedMessages.put("gender", "Male");
-        expectedMessages.put("nationalities", "Test Country 1,Test Country 3");
-        expectedMessages.put("passports", "Test Country 1,Test Country 2");
-        expectedMessages.put("travellerTypes", "Test TravellerType 1,Test TravellerType 2");
+        //Check the profile is not null
+        assert(profile != null);
 
-        // Check all error messages were present
-        for(String key : response.keySet()) {
-            assertEquals(expectedMessages.get(key), response.get(key));
-        }
+        //Check the user id is correct
+        assertEquals(Long.valueOf(1), profile.userId);
 
+        //Check the name is correct
+        assertEquals("Dave", profile.firstName);
+
+        //Check the right number of passports is valid
+        assertEquals(2, profile.passports.size());
     }
 
     @Test
     public void getProfileIdDoesntExist() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
-                .uri("/api/profile/2");
+                .uri("/api/profile/5");
 
         // Get result and check it was not successful
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
-
     }
 
     @Test
-    public void getProfileAll() throws IOException {
+    public void getMyProfileNoAuth() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .uri("/api/profile");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
+
+        //Check that user was redirected due to lack of auth token
+        assertEquals(SEE_OTHER, result.status());
+    }
+
+    @Test
+    public void getMyProfileAuth() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(this.authCookie)
+                .uri("/api/profile");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+
+        //Check that the request was successful
         assertEquals(OK, result.status());
-
-        // Get response
-        HashMap<String, String> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, String>>() {});
-
-        // Expected response messages
-        HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("userId", "1");
-        expectedMessages.put("firstName", "Dave");
-        expectedMessages.put("middleName", "Jimmy");
-        expectedMessages.put("lastName", "Smith");
-        expectedMessages.put("dateOfBirth", "1986-11-05");
-        expectedMessages.put("gender", "Male");
-        expectedMessages.put("nationalities", "Test Country 1,Test Country 3");
-        expectedMessages.put("passports", "Test Country 1,Test Country 2");
-        expectedMessages.put("travellerTypes", "Test TravellerType 1,Test TravellerType 2");
-
-        // Check all error messages were present
-        for(String key : response.keySet()) {
-            assertEquals(expectedMessages.get(key), response.get(key));
-        }
     }
 
     private List<Profile> searchProfiles (String parameters) throws IOException{
@@ -273,29 +267,24 @@ public class ProfileControllerTest extends WithApplication {
 
         //Check that id and first name are correct for each profile
 
-        long testUserId = 1;
-
         //User 1: Dave
         Profile dave = profiles.get(0);
-        assertEquals(testUserId, (long) dave.userId);
+        assertEquals(Long.valueOf(1), dave.userId);
         assertEquals("Dave", dave.firstName);
 
         //User 2: Steve
         Profile steve = profiles.get(1);
-        testUserId = 2;
-        assertEquals(testUserId, (long) steve.userId);
+        assertEquals(Long.valueOf(2), steve.userId);
         assertEquals("Steve", steve.firstName);
 
         //User 1: Jim
         Profile jim = profiles.get(2);
-        testUserId = 3;
-        assertEquals(testUserId, (long) jim.userId);
+        assertEquals(Long.valueOf(3), jim.userId);
         assertEquals("Jim", jim.firstName);
 
         //User 1: Ya boi
         Profile yaBoi = profiles.get(3);
-        testUserId = 4;
-        assertEquals(testUserId, (long) yaBoi.userId);
+        assertEquals(Long.valueOf(4), yaBoi.userId);
         assertEquals("YA BOI", yaBoi.firstName);
     }
 
@@ -402,23 +391,18 @@ public class ProfileControllerTest extends WithApplication {
         //Expect 1 profiles to be found
         assertEquals(1, profiles.size());
 
-        long travellerTypeId = 2;
-
         for (Profile profile : profiles) {
             assert(profile.calculateAge() >= 30);
 
             boolean found = false;
             for (TravellerTypeDefinition travellerType : profile.travellerTypes) {
-                if (travellerType.id == travellerTypeId) {
+                if (travellerType.id == Long.valueOf(2)) {
                     found = true;
                 }
             }
             assert(found);
         }
     }
-
-
-
 
     @Test
     public void deleteProfileId() {
