@@ -17,7 +17,7 @@ function fillCountryInfo(getCountriesUrl) {
                 }
 
                 // Now fill the drop down box, and list of destinations
-                // updateCountryCardField();
+                updateCountryCardField();
                 fillDropDown();
                 updateDestinationsCountryField();
             });
@@ -84,7 +84,6 @@ function newDestination(url) {
             if (response.status != 200) {
                 showErrors(json);
             } else {
-                // Toggles aria-hidden to hide add destination form
                 // TODO: Get toggle working
                 document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
             }
@@ -171,8 +170,6 @@ function createTrip(url, redirect) {
                     showErrors(json);
                 } else if (response.status === 200) {
                     window.location.href = redirect;
-                } else {
-                    document.getElementById("destinationError").innerHTML = "Error(s): " + Object.values(json).join(", ");
                 }
             });
         });
@@ -229,19 +226,22 @@ function showErrors(json) {
 
         let errorList = errors.split(", ");
 
-        if (errorList[0] != null && !isNaN(parseInt(key))) {
-            let labels = listItemArray[0][parseInt(key)].getElementsByTagName("label");
+        document.getElementById("tripError").innerHTML = errorList[0];
+        break;
 
-            for (let i in labels) {
-                if (labels[i].getAttribute("id") === "destinationError") {
-                    listItemArray[0][parseInt(key)].getElementsByTagName("label")[2].innerHTML = errorList[0];
-                    break;
-                }
-            }
-        }
-        else if (errorList[0] != null) {
-            document.getElementById("tripError").innerHTML = errorList[0];
-        }
+        // if (errorList[0] != null && !isNaN(parseInt(key))) {
+        //     let labels = listItemArray[0][parseInt(key)].getElementsByTagName("label");
+        //
+        //     for (let i in labels) {
+        //         if (labels[i].getAttribute("id") === "destinationError") {
+        //             listItemArray[0][parseInt(key)].getElementsByTagName("label")[2].innerHTML = errorList[0];
+        //             break;
+        //         }
+        //     }
+        // }
+        // else if (errorList[0] != null) {
+        //     document.getElementById("tripError").innerHTML = errorList[0];
+        // }
     }
 }
 
