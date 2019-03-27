@@ -1,0 +1,110 @@
+@import helper._
+
+<html>
+
+<head>
+    @* Page title. *@
+    <title>TravelEA</title>
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")"> 
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cover.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+ </head> 
+ <body class="text-center bg">
+    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+        <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column parent">
+            <main role="main" class="child cover" id="main">
+                <img src="@routes.Assets.at("images/travelEA.png")" style="width: 500px">
+                <p class="lead txt-shadow">Enjoy the journey</p>
+                @* Sign Up Form *@
+                <div class="collapse form-style" id="collapseSignUp">
+                    <div class="container">
+                        <form id="signupForm">
+                            <h1>Sign Up</h1>
+                            <p>Please fill in this form to create an account.</p>
+                            <div id="otherError" class="error"></div>
+                            <hr>
+                            <label id="otherError" class="error-messages"></label>
+                            <div class = field-container>
+                                <input type="email" placeholder="Enter Email" name="username">
+                                <label id="usernameError" class="error-messages"></label>
+                            </div>
+                            <div class = field-container>
+                                <input type="password" id="password" placeholder="Enter Password" name="password">
+                                <label id="passwordError" class="error-messages"></label>
+                            </div>
+                            <div class = field-container>
+                                <input type="password" id="confirm_password" placeholder="Repeat Password"
+                                    name="password-repeat" required>
+                                <label id='message' class="error-messages"></label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="clearfix" style="padding-top: 10px">
+                        <button type="button" onclick="cancel(); document.getElementById('LogInSignUpBtns').style.display='block'"
+                            class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseSignUp" role="button"
+                            aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
+                        <button class="btn btn-lg btn-secondary"
+                            id="registerBtn"
+                            onclick='signup("@controllers.backend.routes.UserController.addNewUser()","@controllers.frontend.routes.ProfileController.index()")'>
+                            Register
+                        </button>
+                    </div>
+                </div>
+
+                @* Log In Form *@
+                <div class="collapse form-style" id="collapseLogIn">
+                    <div class="container">
+                        <form id="loginForm">
+                            <h1>Log In</h1>
+                            <p>Enter your login details below.</p>
+                            <hr>
+                            <label id="otherError" class="error-messages"></label>
+                            <div class = field-container>
+                                <input type="email" placeholder="Enter Email" name="username">
+                                <label id="usernameError" class="error-messages"></label>
+                            </div>
+                            <div class = field-container>
+                                <input type="password" placeholder="Enter Password" name="password">
+                                <label id="passwordError" class="error-messages"></label>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="clearfix" style="padding-top: 10px">
+                        <button type="button" onclick="cancel(); document.getElementById('LogInSignUpBtns').style.display='block'"
+                            class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseLogIn" role="button"
+                            aria-expanded="false" aria-controls="collapseLogIn" id="cancelBtn2">Cancel</button>
+                        <button
+                            class="btn btn-lg btn-secondary"
+                            onclick='login("@controllers.backend.routes.UserController.login()","@controllers.frontend.routes.ApplicationController.home()")'>
+                            Log In
+                        </button>
+                    </div>
+                </div>
+
+                <p class="lead" id="LogInSignUpBtns">
+                    <a id="loginBtn" class="btn btn-lg btn-secondary"
+                        onclick="document.getElementById('LogInSignUpBtns').style.display='none'" data-toggle="collapse"
+                        href="#collapseLogIn" role="button" aria-expanded="false" aria-controls="collapseLogIn">Log
+                        In</a>
+                    <a id="signUpBtn" class="btn btn-lg btn-secondary"
+                        onclick="document.getElementById('LogInSignUpBtns').style.display='none'" data-toggle="collapse"
+                        href="#collapseSignUp" role="button" aria-expanded="false" aria-controls="collapseSignUp">Sign
+                        Up</a>
+                </p>
+            </main>
+        </div>
+
+
+        @* Imports javascript files to the template. Speeds up page load times importing here. *@
+        <script src="@routes.Assets.at("javascripts/common/jquery-3.3.1.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/common/bootstrap.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/cover.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/main.js")" type="text/javascript"></script>
+    </div>
+
+
+    </body>
+
+</html>
