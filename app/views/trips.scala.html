@@ -37,7 +37,7 @@
                         @for(t <- tripList) {
                             <tr id=@t.id>
                                 <td id="startDestination">@t.tripDataList(0).destination.name</td>
-                                <td id="endDestination">@t.tripDataList(0).destination.name</td>
+                                <td id="endDestination">loading...</td>
 
                                 @*if(t.tripDataList.length >= 2) {*@
                                     @*<td>@t.tripDataList(2).destination.name</td>*@

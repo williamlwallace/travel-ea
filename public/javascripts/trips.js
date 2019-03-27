@@ -268,6 +268,8 @@ function getUserTrips(getUserTripsUrl) {
                     console.log(data[i]["tripDataList"]);
                     for (let j = 0; j < data[i]["tripDataList"].length; j++) {
                         let destinationData = {
+                            id: data[i]["tripDataList"][j]["id"],
+                            name: data[i]["tripDataList"][j]["name"],
                             arrivalTime: data[i]["tripDataList"][j]["arrivalTime"],
                             departureTime: data[i]["tripDataList"][j]["departureTime"]
                         };
@@ -314,7 +316,7 @@ function updateTripDates() {
                     rows[j].innerHTML = date.substr(0, 10);
                 }
                 else if (rows[j].getAttribute("id") === "tripDate") {
-                    rows[j].innerHTML = "----/--/--";
+                    rows[j].innerHTML = "No Date";
                 }
             }
         }
