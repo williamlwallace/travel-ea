@@ -253,6 +253,21 @@ public class ProfileControllerTest extends WithApplication {
     }
 
     @Test
+    public void searchProfiles() throws IOException {
+        String searchParams = "gender=male";
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .uri("/api/profile/search");
+
+        Result result = route(fakeApp, request);
+
+        List<Profile> profiles = Arrays.asList(new ObjectMapper().readValue(Helpers.contentAsString(result), Profile[].class));
+
+        System.out.println(profiles);
+    }
+
+    @Test
     public void deleteProfileId() {
         // Create request to delete newly created profile
         Http.RequestBuilder request = Helpers.fakeRequest()

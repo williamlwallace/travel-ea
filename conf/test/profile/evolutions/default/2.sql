@@ -2,6 +2,10 @@
 -- Create test users
 INSERT INTO User (username, password, salt) VALUES ('tester1@gmail.com', 'password', 'salt');
 INSERT INTO User (username, password, salt) VALUES ('tester2@gmail.com', 'password', 'salt');
+INSERT INTO User (username, password, salt) VALUES ('tester3@gmail.com', 'password', 'salt');
+INSERT INTO User (username, password, salt) VALUES ('tester4@gmail.com', 'password', 'salt');
+INSERT INTO User (username, password, salt) VALUES ('tester5@gmail.com', 'password', 'salt');
+
 
 -- Insert traveller types for testing
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Test TravellerType 1');
@@ -15,6 +19,10 @@ INSERT INTO CountryDefinition (name) VALUES ('Test Country 3');
 
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'Jimmy', 'Smith', '1986-11-05', 'Male');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (3, 'Jim', 'Jimmy', 'Smith', '1986-11-05', 'Male');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (4, 'YA BOI SKINNY', 'Jimmy', 'P', '1986-11-05', 'Male');
+
 
 -- Add nationalities to profile
 INSERT INTO Nationality (user_id, country_id) VALUES (1, 1);
