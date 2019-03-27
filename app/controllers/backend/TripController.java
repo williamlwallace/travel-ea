@@ -82,7 +82,7 @@ public class TripController extends Controller {
      * @return Returns trip id (as json) on success, otherwise bad request
      * @throws IOException
      */
-    // TODO: Add Authorization so only owner can do it
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
@@ -133,8 +133,7 @@ public class TripController extends Controller {
      * @param id ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
      */
-    // TODO: Add Authorization so only owner can do it
-    // TODO: Handle invalid trip id
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteTrip(Long id) {
         // Delete trip record in trips table
         return tripRepository.deleteTrip(id).thenApplyAsync(rows ->
@@ -182,11 +181,6 @@ public class TripController extends Controller {
     private ArrayList<TripData> nodeToTripDataList(JsonNode data, Trip trip){
         // Store created data points in list
         ArrayList<TripData> tripDataList = new ArrayList<>();
-        Long tripId = data.get("id").asLong();
-
-        if (data.get("trip") != null) {
-            trip = Json.fromJson(data.get("trip"), Trip.class);
-        }
 
         // For each item in the json node, deserialize to a single trip data
         for(JsonNode node : data.get("tripDataCollection")) {
@@ -195,10 +189,13 @@ public class TripController extends Controller {
 
             if (trip != null) {
                 tripData.trip = trip;
+                tripData.tripId = trip.id;
+            }
+            else {
+                tripData.tripId = null;
             }
 
             // Get position and destinationId from json object, these must be present so no need for try catch
-            tripData.tripId = tripId;
             tripData.position = node.get("position").asLong();
             tripData.destination = new Destination();
             tripData.destination = Json.fromJson(node.get("destination"), Destination.class);
