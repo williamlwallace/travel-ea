@@ -331,10 +331,13 @@ function updateTrip(url, redirect, tripId) {
 
     let tripData = {
         "id": tripId,
+        "trip": {
+            "id": tripId
+        },
         "tripDataCollection": tripDataList
     };
 
-    post(url, tripData).then(response => {
+    put(url, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
             .then(json => {
