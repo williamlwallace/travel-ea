@@ -36,17 +36,22 @@
                     <tbody id="tripData">
                         @for(t <- tripList) {
                             <tr id=@t.id>
-                                <td id="startDestination">@t.tripDataList(0).destination.name</td>
-                                <td id="endDestination">loading...</td>
+                                <td>@t.tripDataList(0).destination.name</td>
 
-                                @*if(t.tripDataList.length >= 2) {*@
-                                    @*<td>@t.tripDataList(2).destination.name</td>*@
-                                @*} else{*@
-                                    @*<td>-</td>*@
-                                @*}*@
+                                @if(t.tripDataList.length >= 2) {
+                                    <td>@t.tripDataList(t.tripDataList.length - 1).destination.name</td>
+                                } else{
+                                    <td>-</td>
+                                }
 
                                 <td>@t.tripDataList.length</td>
-                                <td id="tripDate">----/--/--</td>
+
+                                @if(t.findFirstTripDate() != null) {
+                                    <td>@t.findFirstTripDate()</td>
+                                } else{
+                                    <td>No Date</td>
+                                }
+
                                 <td><button class="btn btn-popup" type="button" onclick='@controllers.frontend.routes.TripController.editTripIndex(t.id)'>View</button></td>
                             </tr>
                         }
