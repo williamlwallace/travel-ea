@@ -75,6 +75,14 @@ code {
 }
 
 /**
+* Style for labels that are <pre> so that addiing  errors doesnt clear them
+ */
+pre {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+}
+
+/**
 * Style for Primary button
  */
 .btn-primary {
