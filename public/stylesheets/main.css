@@ -71,6 +71,14 @@ code {
 }
 
 /**
+* Style for labels that are <pre> so that addiing  errors doesnt clear them
+ */
+pre {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+}
+
+/**
 * Style for Primary button
  */
 .btn-primary {
@@ -168,8 +176,9 @@ code {
  */
 .parent {
     overflow: auto;
-    height:840px;
-    width:1140px;
+    min-height: 240px;
+    max-height:840px;
+    width:1110px;
 }
 
 /*
@@ -178,6 +187,7 @@ code {
 .card-header {
     height:200px;
     width:350px;
+    background-color: rgba(0,0,0,0) !important;
 }
 
 /*
@@ -185,15 +195,18 @@ code {
  */
 .card {
     height: 200px;
-    width: 1100px;
+    width: 1065px;
     margin:20px;
     cursor:pointer;
+
+    background-color: #ececed !important
 }
 
 /*
  * card block contains the details of the card
  */
 .card-block {
+    padding-top: 8px;
     height:200px;
     width: 750px;
 }
@@ -218,10 +231,34 @@ code {
  * within destination card
  */
 #arrival {
-    padding: 10px 10px 10px 10px;
-    float:left
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    float:left;
+    vertical-align: top;
 }
 #depart {
-    padding: 10px 10px 10px 10px;
-    float:right
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    float:right;
+    vertical-align: top;
 }
+
+#removeTrip {
+    /*background:url(../images/closeCross.png) no-repeat;*/
+    cursor:pointer;
+    width: 20px;
+    height: 20px;
+    background-size:contain;
+    position:absolute;
+    top:0;
+    right:0;
+    margin-top: 10px;
+    margin-right: 10px;
+    border: 0;
+    background: transparent url(../images/closeCross.png) no-repeat center top;
+}
+
