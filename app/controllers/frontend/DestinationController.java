@@ -57,7 +57,7 @@ public class DestinationController extends Controller {
      * 
      * @return List of destinations wrapped in completable future
      */
-    private CompletableFuture<List<Destination>> getDestinations() {
+    public CompletableFuture<List<Destination>> getDestinations() {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/destination").get().toCompletableFuture();
         return res.thenApply(r -> {
             //System.out.println(r.getBody());
@@ -72,5 +72,4 @@ public class DestinationController extends Controller {
         });
 
     }
-
 }
