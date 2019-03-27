@@ -1,4 +1,4 @@
-name := "SENG302 TEAM 13"
+name := "SENG302 TEAM 400 - Proffat"
 
 version := "0.0.1-SNAPSHOT"
 
