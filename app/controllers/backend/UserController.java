@@ -29,17 +29,14 @@ import java.util.concurrent.*;
 public class UserController extends Controller {
 
     private final UserRepository userRepository;
-    private final FormFactory formFactory;
     private final HttpExecutionContext httpExecutionContext;
     private final Config config;
 
     @Inject
-    public UserController(FormFactory formFactory,
-                          UserRepository userRepository,
+    public UserController(UserRepository userRepository,
                           HttpExecutionContext httpExecutionContext,
                           Config config) {
         this.userRepository = userRepository;
-        this.formFactory = formFactory;
         this.httpExecutionContext = httpExecutionContext;
         this.config = config;
     }

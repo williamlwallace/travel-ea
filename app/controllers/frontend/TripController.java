@@ -5,14 +5,7 @@ import actions.roles.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.Destination;
-import models.TripData;
 import models.Trip;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.data.Form;
-import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
@@ -22,9 +15,7 @@ import play.mvc.*;
 import views.html.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -34,19 +25,16 @@ import static play.libs.Scala.asScala;
  */
 public class TripController extends Controller {
 
-    private MessagesApi messagesApi;
     private HttpExecutionContext httpExecutionContext;
     private WSClient ws;
     private DestinationController destinationController;
 
     @Inject
     public void TripController(
-            MessagesApi messagesApi,
             HttpExecutionContext httpExecutionContext,
             WSClient ws,
             DestinationController destinationController) {
 
-        this.messagesApi = messagesApi;
         this.httpExecutionContext = httpExecutionContext;
         this.ws = ws;
         this.destinationController = destinationController;
