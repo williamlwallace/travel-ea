@@ -1,7 +1,6 @@
 package repository;
 
 import io.ebean.*;
-import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
 import play.libs.Json;

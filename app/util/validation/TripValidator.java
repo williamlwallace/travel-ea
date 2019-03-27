@@ -3,15 +3,11 @@ package util.validation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import models.Trip;
 import models.TripData;
-import play.libs.Json;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class TripValidator {
     private final JsonNode form;

@@ -1,7 +1,5 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import io.ebean.Finder;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 
