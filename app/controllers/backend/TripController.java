@@ -82,10 +82,12 @@ public class TripController extends Controller {
      * @return Returns trip id (as json) on success, otherwise bad request
      * @throws IOException
      */
-    // TODO: Add Authorization so only owner can do it
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
+
+        System.out.println(data);
 
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(true);
@@ -108,8 +110,15 @@ public class TripController extends Controller {
             return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
         }
 
+        Trip trip = Json.fromJson(data.get("trip"), Trip.class);
+        trip.userId = request.attrs().get(ActionState.USER).id;
+
         // Assemble trip data
-        ArrayList<TripData> tripDataList = nodeToTripDataList(data, data.get("id").asLong());
+        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
+
+        for (TripData td : tripDataList) {
+            System.out.println(td.tripId + ", " + td.destination.id);
+        }
 
         // Add new trip data to db
         return CompletableFuture.supplyAsync(() -> {
@@ -124,8 +133,7 @@ public class TripController extends Controller {
      * @param id ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
      */
-    // TODO: Add Authorization so only owner can do it
-    // TODO: Handle invalid trip id
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteTrip(Long id) {
         // Delete trip record in trips table
         return tripRepository.deleteTrip(id).thenApplyAsync(rows ->
@@ -167,10 +175,10 @@ public class TripController extends Controller {
      * fields to be present when deserializing, but as per our design requirements, the
      * arrival and departure times for each point must be able to not be specified
      * @param data JSON object storing list of tripData
-     * @param tripId ID of trip to set to tripData objects
+     * @param trip Trip object to be referenced to by tripData
      * @return Arraylist of tripData that has been deserialized from node
      */
-    private ArrayList<TripData> nodeToTripDataList(JsonNode data, Long tripId){
+    private ArrayList<TripData> nodeToTripDataList(JsonNode data, Trip trip){
         // Store created data points in list
         ArrayList<TripData> tripDataList = new ArrayList<>();
 
@@ -178,6 +186,14 @@ public class TripController extends Controller {
         for(JsonNode node : data.get("tripDataCollection")) {
             // Assemble trip data
             TripData tripData = new TripData();
+
+            if (trip != null) {
+                tripData.trip = trip;
+                tripData.tripId = trip.id;
+            }
+            else {
+                tripData.tripId = null;
+            }
 
             // Get position and destinationId from json object, these must be present so no need for try catch
             tripData.position = node.get("position").asLong();

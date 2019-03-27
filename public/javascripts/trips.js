@@ -1,6 +1,6 @@
 // METHODS FOR CREATE TRIPS
 
-var countryDict = {};
+let countryDict = {};
 
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
@@ -17,7 +17,7 @@ function fillCountryInfo(getCountriesUrl) {
                 }
 
                 // Now fill the drop down box, and list of destinations
-                updateCountryCardField();
+                // updateCountryCardField();
                 fillDropDown();
                 updateDestinationsCountryField();
             });
@@ -100,59 +100,17 @@ function addDestinationToTrip(dest) {
         cardId += 1;
     }
     document.getElementById('list').insertAdjacentHTML('beforeend',
-        // '<div class="sortable-card" id=' + cardId + '>\n' +
-        // '<label id=' + dest[0] + '></label>' +
-        // '    <!-- Card -->\n' +
-        // '    <div class="card mb-4">\n' +
-        // '        <!--Card image-->\n' +
-        // '        <div class="view overlay">\n' +
-        // '            <img class="card-img-left" src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" alt="Card image cap">\n' +
-        // '            <a href="#!">\n' +
-        // '                <div class="mask rgba-white-slight"></div>\n' +
-        // '            </a>\n' +
-        // '        </div>\n' +
-        // '        <!--Card content-->\n' +
-        // '        <div class="card-body">\n' +
-        // '            <!--Title-->\n' +
-        // '            <h4 class="card-title"> ' + dest[1] + '</h4>\n' +
-        // '            <!--Text-->\n' +
-        // '            <p class="card-text">' +
-        // '                <b>Type: </b> '+ dest[2] + '<br/>' +
-        // '                <b>District: </b> '+ dest[3] + '<br/>' +
-        // '                <b>Latitude: </b>' + dest[4] + '<br/>' +
-        // '                <b>Longitude: </b>' + dest[5] + '<br/>' +
-        // '                <b>Country: </b>' + countryDict[dest[6]] +
-        // '            </p>\n' +
-        // '            <form id="arrivalDepartureForm">\n' +
-        // '                <div class="modal-body mx-3">\n' +
-        // '                    <div>Arrival\n' +
-        // '                        <i class="fas prefix grey-text"></i>\n' +
-        // '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
-        // '                        <label id="arrivalError"></label>\n' +
-        // '                    </div>\n' +
-        // '                    <div>Departure\n' +
-        // '                        <i class="fas prefix grey-text"></i>\n' +
-        // '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
-        // '                        <label id="departureError"></label>\n' +
-        // '                    </div>\n' +
-        // '                </div>\n' +
-        // '            </form>\n' +
-        // '            <label id="destinationError"></label><br/>\n' +
-        // '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
-        // '            <button type="button" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(' + cardId + ')">Remove</button>\n' +
-        // '        </div>\n' +
-        // '    </div>\n' +
-        // '</div>'
-
         '<div class="card flex-row" id=' + cardId + '>\n' +
-        console.log("in card: " + cardId)
             '<label id=' + dest[0] + '></label>' +
         '<div class="card-header border-0" style="height: 100%">\n' +
             '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +
         '</div>\n' +
         '<div class="card-block px-2">\n' +
-            '<div id="left">\n' +
+            '<div id="topCardBlock">\n' +
                 '<h4 class="card-title">' + dest[1] + '</h4>\n' +
+        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(' + cardId + ')"></button>\n' +
+            '</div>\n' +
+            '<div id="left">\n' +
                 '<p class="card-text" id="card-text">' +
                     '<b>Type: </b> '+ dest[2] + '<br/>' +
                     '<b>District: </b> '+ dest[3] + '<br/>' +
@@ -176,9 +134,7 @@ function addDestinationToTrip(dest) {
     '                    </div>\n' +
     '                </div>\n' +
     '            </form>\n' +
-    '            <label id="destinationError"></label><br/>\n' +
-    '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
-    '            <button type="button" style="float:right" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(' + cardId + ')">Remove</button>\n' +
+    '            <label id="destinationError" class="error-messages"></label><br/>\n' +
             '</div>\n' +
         '</div>'
     );
@@ -230,7 +186,9 @@ function listItemToTripData(listItem, index) {
     json["position"] = index;
 
     // Read destination id
-    json["destinationId"] = listItem.getElementsByTagName('label')[0].getAttribute("id");
+    json["destination"] = {
+        "id": listItem.getElementsByTagName('label')[0].getAttribute("id")
+    };
 
     let DTInputs = listItem.getElementsByTagName("input");
 
@@ -289,41 +247,57 @@ function showErrors(json) {
 
 // METHODS FOR TRIPS
 
-var destinationDict = {};
+var trips = {};
 
-// Runs get countries method, then add country options to drop down
-function getDestinationInfo(getDestinationsUrl) {
-    // Run a get request to fetch all destinations
-    get(getDestinationsUrl)
+function getUserTrips(getUserTripsUrl) {
+    get(getUserTripsUrl)
     // Get the response of the request
         .then(response => {
             // Convert the response to json
             response.json().then(data => {
-                // Json data is an array of destinations, iterate through it
+                console.log(data);
+                // Json data is an array of trips, iterate through it
                 for (let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    countryDict[data[i]['id']] = data[i]['name'];
+                    let tripDestinationData = [];
+                    console.log(data[i]["tripDataList"]);
+                    for (let j = 0; j < data[i]["tripDataList"].length; j++) {
+                        let destinationData = {
+                            id: data[i]["tripDataList"][j]["id"],
+                            name: data[i]["tripDataList"][j]["name"],
+                            arrivalTime: data[i]["tripDataList"][j]["arrivalTime"],
+                            departureTime: data[i]["tripDataList"][j]["departureTime"]
+                        };
+
+                        tripDestinationData.push(destinationData);
+                    }
+
+                    let trip = {
+                        id: data[i]["id"],
+                        tripDataList: tripDestinationData
+                    };
                 }
 
+                console.log(trips);
+
                 // Now update the table with destination info
-                updateDestinationsInTable();
+                updateTripDates();
             });
         });
 }
 
-function updateTripDates(userTrips) {
+function updateTripDates() {
     let tripElements = Array.of(document.getElementById("tripData").children)[0];
 
-    for (let trip in userTrips) {
+    for (let trip in trips) {
         let date = null;
 
-        for (let tripData in userTrips[trip].tripDataList) {
-            if (userTrips[trip].tripDataList[tripData].arrivalTime != null) {
-                date = userTrips[trip].tripDataList[tripData].arrivalTime;
+        for (let tripData in trips[trip].tripDataList) {
+            if (trips[trip].tripDataList[tripData].arrivalTime != null) {
+                date = trips[trip].tripDataList[tripData].arrivalTime;
                 break;
             }
-            else if (userTrips[trip].tripDataList[tripData].departureTime != null) {
-                date = userTrips[trip].tripDataList[tripData].departureTime;
+            else if (trips[trip].tripDataList[tripData].departureTime != null) {
+                date = trips[trip].tripDataList[tripData].departureTime;
                 break;
             }
         }
@@ -336,30 +310,19 @@ function updateTripDates(userTrips) {
                     rows[j].innerHTML = date.substr(0, 10);
                 }
                 else if (rows[j].getAttribute("id") === "tripDate") {
-                    rows[j].innerHTML = "----/--/--";
+                    rows[j].innerHTML = "No Date";
                 }
             }
         }
     }
 }
 
-function editTrip(trip) {
-    get("/trips/edit").then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-            .then(() => {
-                if (response.status === 200) {
-                    window.location.href = redirect;
-                }
-                else {
-                    document.getElementById("tripError").innerHTML = "Error opening trip for modification";
-                }
-            });
-    });
+function viewTrip(url) {
+    console.log(url);
+    window.location.href = url;
 }
 
-function updateTrip(url, redirect) {
-
+function updateTrip(url, redirect, tripId) {
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -368,10 +331,14 @@ function updateTrip(url, redirect) {
     }
 
     let tripData = {
+        "id": tripId,
+        "trip": {
+            "id": tripId
+        },
         "tripDataCollection": tripDataList
     };
 
-    post(url, tripData).then(response => {
+    put(url, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
             .then(json => {

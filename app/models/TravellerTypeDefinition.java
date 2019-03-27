@@ -2,7 +2,6 @@ package models;
 
 import io.ebean.Model;
 import play.data.validation.Constraints;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -22,6 +21,24 @@ public class TravellerTypeDefinition extends Model {
 
     @Constraints.Required
     public String description;
+
+    @Override
+    public String toString() {
+        String toReturn = description.substring(0, 1).toUpperCase();
+
+        //Captialises the traveller type properly
+        for (int i = 1; i < description.length(); i++) {
+            char c = description.charAt(i - 1);
+            if (c == '/' || c == '\\' || c == ' ') {
+                 toReturn += description.substring(i, i + 1).toUpperCase();
+            } else {
+                toReturn += description.substring(i, i + 1);
+            }
+        }
+        return toReturn;
+//        return description.substring(0, 1).toUpperCase() + description.substring(1);
+    }
+
 
 //    @ManyToMany(mappedBy = "travellerTypes")
 //    @JsonBackReference
