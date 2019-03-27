@@ -6,9 +6,11 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import controllers.frontend.routes;
 import models.Profile;
 import models.User;
+import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
@@ -72,6 +74,7 @@ public class ProfileController extends Controller {
                 httpExecutionContext.current());
     }
 
+
     /**
      * Gets Destinations from api endpoint via get request
      *
@@ -92,8 +95,6 @@ public class ProfileController extends Controller {
         });
 
     }
-
-
 
     public Result createProfile(Http.Request request) {
         return ok();
