@@ -112,14 +112,15 @@ public class UserController extends Controller {
             newUser.password = CryptoManager.hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
             //This block ensures that the username (email) is not taken already, and returns a CompletableFuture<Result>
             return userRepository.findUserName(newUser.username)                //Check whether the username is already in the database
-                    .thenComposeAsync(user -> {                              //Pass that result (a User object) into the new function using thenCompose
+                    .thenComposeAsync(user -> {                             //Pass that result (a User object) into the new function using thenCompose
                         if (user != null) {
-                            return null;                          //If a user is found pass null into the next function
+                            return CompletableFuture.supplyAsync(() -> null);                          //If a user is found pass null into the next function
                         } else {
                             return userRepository.insertUser(newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
                         }
                     })
-                    .thenApplyAsync(user -> {   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                    .thenApplyAsync(user -> {
+                        System.out.println("meowouch");   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
                         if (user == null) {
                             //Create the error to be sent to client
                             validatorResult.map("Email already in use", "other");
