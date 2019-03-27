@@ -7249,7 +7249,7 @@ function Datepicker() {
 		showMonthAfterYear: false, // True if the year select precedes month, false for month then year
 		yearSuffix: "" // Additional text to append to the year in the month headers
 	};
-	this._defaults = { // Global defaults for all the date picker instances
+	this._defaults = { // Global default for all the date picker instances
 		showOn: "focus", // "focus" for popup on focus,
 			// "button" for trigger button, or "both" for either
 		showAnim: "fadeIn", // Name of jQuery animation for popup
@@ -7318,7 +7318,7 @@ $.extend( Datepicker.prototype, {
 	},
 
 	/* Override the default settings for all instances of the date picker.
-	 * @param  settings  object - the new settings to use as defaults (anonymous object)
+	 * @param  settings  object - the new settings to use as default (anonymous object)
 	 * @return the manager object
 	 */
 	setDefaults: function( settings ) {
@@ -7651,7 +7651,7 @@ $.extend( Datepicker.prototype, {
 	 * @param  name	object - the new settings to update or
 	 *				string - the name of the setting to change or retrieve,
 	 *				when retrieving also "all" for all instance settings or
-	 *				"defaults" for all global defaults
+	 *				"default" for all global default
 	 * @param  value   any - the new value for the setting
 	 *				(omit if above is an object or to retrieve a value)
 	 */
