@@ -13,20 +13,13 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.*;
-import util.CryptoManager;
 import util.validation.UserValidator;
 import util.validation.ErrorResponse;
 
 import javax.inject.Inject;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.*;
-
-import static java.lang.Math.max;
 
 /**
  * Manage a database of users
@@ -343,7 +336,7 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Retrieves all profiles, filters them and then returns the filtered result.
+     * Retrieves all profiles, filters them and then returns the filtered list of profiles.
      * @param nationalityId nationality request
      * @param gender gender requested
      * @param minAge minimum age for filter

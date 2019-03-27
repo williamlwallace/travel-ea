@@ -3,12 +3,7 @@ package controllers;
 import actions.*;
 import actions.roles.*;
 import play.mvc.With;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.data.Form;
-import play.data.FormFactory;
 import play.i18n.MessagesApi;
-import play.libs.Scala;
 import play.mvc.*;
 
 import views.html.*;
@@ -16,13 +11,10 @@ import models.frontend.Trip;
 import models.frontend.Destination;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.inject.Inject;
-import java.util.List;
-
-import static play.libs.Scala.asScala;
 
 /**
+ * The front end controller for the Create Trip page
  */
 public class createTripController extends Controller {
 
