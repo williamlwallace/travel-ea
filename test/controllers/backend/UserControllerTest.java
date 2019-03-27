@@ -102,8 +102,8 @@ public class UserControllerTest extends WithApplication {
         User user = users.get(0);
         assertEquals(Long.valueOf(1), user.id);
         assertEquals("dave@gmail.com", user.username);
-        assertEquals("ByT98//U0kAJsniaZyDXOsm7p4/3ALXUAs1Y9lsIyo0=", user.password); //MeowMeow123
-        assertEquals("5w8mhT42p9uS2f716RLMQTG8r+/+nfeMbwQGBpGqMao=", user.salt);
+        assertEquals("kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=", user.password); //cat
+        assertEquals("L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=", user.salt);
     }
 
     @Test
@@ -123,9 +123,9 @@ public class UserControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        // Get cookie created for the user, check its length is at least 10
-        String cookieOfUser = new ObjectMapper().readValue(Helpers.contentAsString(result), String.class);
-        assertTrue(cookieOfUser.length() > 10);
+        // Check a success message was sent
+        String message = new ObjectMapper().readValue(Helpers.contentAsString(result), String.class);
+        assertEquals("Success", message);
     }
 
     @Test
@@ -220,7 +220,7 @@ public class UserControllerTest extends WithApplication {
         // Create new new user, so password is hashed
         ObjectNode node = Json.newObject();
         node.put("username", "dave@gmail.com");
-        node.put("password", "MeowMeow123");
+        node.put("password", "cats");
 
         // Create request to login
         Http.RequestBuilder request = Helpers.fakeRequest()

@@ -38,8 +38,8 @@ public class TripValidator {
         ObjectMapper mapper = new ObjectMapper();
         ArrayList tripDataCollection = mapper.readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")), new TypeReference<ArrayList<TripData>>(){});
 
-        if (tripDataCollection.isEmpty()) {
-            this.response.map("a trip must contain at least 1 destination", "trip");
+        if (tripDataCollection.size() < 2) {
+            this.response.map("a trip must contain at least 2 destinations", "trip");
         }
 
         Long lastDestinationID = 0L;
@@ -54,8 +54,8 @@ public class TripValidator {
                 trip.position = -1L;
             }
 
-            //if (trip.destinationId == null) errorString += "destinationId is null, ";
-            //if (trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
+            if (trip.destination.id == null) errorString += "destinationId is null, ";
+            if (trip.destination.id == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
             if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.isAfter(trip.departureTime)) errorString += "departure must be after arrival, ";
             if (trip.arrivalTime != null || trip.departureTime != null) {
                 //todo: fix this one
@@ -66,8 +66,8 @@ public class TripValidator {
                 mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime);
             }
 
-            // Update most recent destination id
-            //lastDestinationID = trip.destinationId;
+            // TODO: Uncomment this
+            // lastDestinationID = trip.destination.id;
 
             // If any errors were added to string, add this to error response map
             if(!errorString.equals("")) {

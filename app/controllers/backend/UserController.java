@@ -2,7 +2,6 @@ package controllers.backend;
 
 import com.typesafe.config.Config;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
 import play.data.FormFactory;
 import play.libs.Json;
@@ -20,12 +19,9 @@ import actions.roles.Everyone;
 import play.mvc.With;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
 import java.util.concurrent.*;
 
-import static java.lang.Math.max;
 
 /**
  * Manage a database of users
