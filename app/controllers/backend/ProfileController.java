@@ -367,6 +367,7 @@ public class ProfileController extends Controller {
 
 //                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
 //                int age = Period.between(birthDate, LocalDate.now()).getYears();
+//                System.out.println(profile);
                 int age = profile.calculateAge();
 
                 if (age < minAge || age > maxAge) {
@@ -375,20 +376,28 @@ public class ProfileController extends Controller {
                 }
 
                 if (nationalityId != 0) {
+                    boolean found = false;
                     for (CountryDefinition country : profile.nationalities) {
-                        if (!country.id.equals(nationalityId)) {
-                            toReturn.remove(profile);
-                            continue outerLoop;
+                        if (country.id.equals(nationalityId)) {
+                            found = true;
                         }
+                    }
+                    if (!found) {
+                        toReturn.remove(profile);
+                        continue outerLoop;
                     }
                 }
 
                 if (travellerTypeId != 0) {
+                    boolean found = false;
                     for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
-                        if (!travellerTypeDefinition.id.equals(travellerTypeId)) {
-                            toReturn.remove(profile);
-                            continue outerLoop;
+                        if (travellerTypeDefinition.id.equals(travellerTypeId)) {
+                            found = true;
                         }
+                    }
+                    if (!found) {
+                        toReturn.remove(profile);
+                        continue outerLoop;
                     }
                 }
 
