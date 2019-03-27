@@ -119,8 +119,6 @@ public class ProfileRepository {
         // If profile equals null, return null
         if(profile == null) { return CompletableFuture.completedFuture(null); }
 
-        System.out.println(profile.firstName);
-
         // Get nationalities of the profile
         rawSql = RawSqlBuilder
                 .parse("SELECT C.id, C.name FROM Nationality N JOIN CountryDefinition C ON N.country_id=C.id WHERE N.user_id = :userId;")
