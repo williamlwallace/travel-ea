@@ -1,6 +1,36 @@
 // METHODS FOR CREATE TRIPS
 
-var countryDict = {};
+let tripData = {};
+let countryDict = {};
+
+function getTripData(getTripUrl, id) {
+    if (id != null) {
+        get(getTripUrl).then(response => {
+            response.json().then(data => {
+                if (parseInt(data["id"]) === id) {
+                    tripData = data;
+                    fillDestinationInfo();
+                }
+            });
+        });
+    }
+}
+
+function fillDestinationInfo() {
+    for (let i = 0; i < tripData["tripDataList"].length; i++) {
+        let destinationDetails = [
+            tripData["tripDataList"][i]["destination"]["id"],
+            tripData["tripDataList"][i]["destination"]["name"],
+            tripData["tripDataList"][i]["destination"]["_type"],
+            tripData["tripDataList"][i]["destination"]["district"],
+            tripData["tripDataList"][i]["destination"]["latitude"],
+            tripData["tripDataList"][i]["destination"]["longitude"],
+            tripData["tripDataList"][i]["destination"]["countryId"]
+        ];
+
+        addDestinationToTrip(destinationDetails);
+    }
+}
 
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
@@ -17,7 +47,7 @@ function fillCountryInfo(getCountriesUrl) {
                 }
 
                 // Now fill the drop down box, and list of destinations
-                updateCountryCardField();
+                // updateCountryCardField();
                 fillDropDown();
                 updateDestinationsCountryField();
             });
