@@ -28,29 +28,14 @@ public class ProfileController extends Controller {
 
     private final ProfileRepository profileRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
-    private final NationalityRepository nationalityRepository;
-    private final PassportRepository passportRepository;
-    private final TravellerTypeRepository travellerTypeRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
-    private final FormFactory formFactory;
-    private final HttpExecutionContext httpExecutionContext;
 
     @Inject
-    public ProfileController(FormFactory formFactory,
-                          ProfileRepository profileRepository,
+    public ProfileController(ProfileRepository profileRepository,
                           CountryDefinitionRepository countryDefinitionRepository,
-                          NationalityRepository nationalityRepository,
-                          PassportRepository passportRepository,
-                          HttpExecutionContext httpExecutionContext,
-                          TravellerTypeRepository travellerTypeRepository,
                           TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
         this.profileRepository = profileRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
-        this.nationalityRepository = nationalityRepository;
-        this.passportRepository = passportRepository;
-        this.formFactory = formFactory;
-        this.httpExecutionContext = httpExecutionContext;
-        this.travellerTypeRepository = travellerTypeRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
     }
 
