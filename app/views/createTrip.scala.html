@@ -24,9 +24,8 @@
                     <button class="btn btn-primary" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()", @*controllers.backend.routes.TripController.insertTrip()",*@
                             "@controllers.frontend.routes.TripController.tripIndex()")'>Submit Trip</button>
                 } else{
-                    <button class="btn btn-primary"
-                    @* COMMENTED OUT UNTIL FUNCTIONALITY FIXED onclick='updateTrip("@controllers.backend.routes.TripController.updateTrip()", "@controllers.frontend.routes.TripController.tripIndex()", @trip.id)'*@
-                    >Update Trip</button>
+                    <button class="btn btn-primary" onclick='updateTrip(
+                        "@controllers.backend.routes.TripController.updateTrip()", "@controllers.frontend.routes.TripController.tripIndex()", @trip.id)'>Update Trip</button>
                 }
             </div>
         </div>
@@ -85,7 +84,7 @@
                                             @trip.tripDataList(i).destination.longitude
                                             <br/>
                                             <b>Country: </b>
-                                            loading...
+                                            <label id="countryField">loading...</label>
                                         </p>
                                     </div>
                                     <div id="right">
