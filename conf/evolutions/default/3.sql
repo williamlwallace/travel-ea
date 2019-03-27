@@ -6,7 +6,7 @@ INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass',
 INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', 'pass', 'salt');
 
 -- Add sample data for TravellerTypeDefinitions
-INSERT INTO TravellerTypeDefinition (description) VALUES ('backpacker'), ('functional/business traveller'), ('groupies'), ('thrillseeker'), ('frequent weekender'), ('gap year');
+INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional / Business traveller'), ('Groupies'), ('Thrill-seeker'), ('Frequent weekender'), ('Gap year');
 
 -- Add sample Profile
 INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
