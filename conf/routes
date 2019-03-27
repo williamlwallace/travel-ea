@@ -64,20 +64,20 @@ GET     /home                controllers.frontend.ApplicationController.home(req
 GET     /people              controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 # The Travelea trips page
-GET     /trips               controllers.TripsController.index(request: Request)
+GET     /trips               controllers.frontend.TripsController.index(request: Request)
 
 # The Travelea create trips page
-GET     /trips/create        controllers.createTripController.index(request: Request)
-# POST    /trips                      controllers.createTripController.save
+GET     /trips/create        controllers.frontend.createTripController.index(request: Request)
+# POST    /trips                      controllers.frontend.createTripController.save
 
 # The Travelea profile page
 GET     /profile             controllers.frontend.ProfileController.index(request: Request)
 
 # The TravelEA destinations page
-GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
+GET     /destinations        controllers.frontend.DestinationController.index(request: Request)
 
 # Edit profile page
-GET    /editProfile                 controllers.frontend.ProfileController.editindex(request: Request)
+GET    /editProfile          controllers.frontend.ProfileController.editindex(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
