@@ -131,7 +131,7 @@ function signUp(id, url, redirect) {
         response.json()
         .then(json => {
             console.log(json)
-            if (response.status != 200) {
+            if (response.status != 201) {
                 showErrors(json);
             } else {
                 window.location.href = redirect;
