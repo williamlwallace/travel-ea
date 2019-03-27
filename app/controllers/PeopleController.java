@@ -168,7 +168,6 @@ public class PeopleController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
         String username = request.attrs().get(ActionState.USER).username;
-        List<CountryDefinition> test = com.google.common.collect.Lists.newArrayList(countries);
         return ok(people.render(username, countries));
     }
 

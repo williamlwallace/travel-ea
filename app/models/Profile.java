@@ -56,7 +56,7 @@ public class Profile extends Model {
     public List<CountryDefinition> passports;
 
 
-    public int getAge() {
+    public int calculateAge() {
         LocalDate birthDate = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         int age = Period.between(birthDate, LocalDate.now()).getYears();
         return age;
