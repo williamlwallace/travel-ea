@@ -64,7 +64,7 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
                 tripList -> {
-                    return ok(trips.render(username, asScala(tripList), request, messagesApi.preferred(request)));
+                    return ok(trips.render(username, asScala(tripList)));
                 },
                 httpExecutionContext.current());
     }
@@ -81,7 +81,7 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(), request, messagesApi.preferred(request))) : internalServerError();
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip())) : internalServerError();
                 },
                 httpExecutionContext.current());
     }
@@ -96,9 +96,14 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         String username = request.attrs().get(ActionState.USER).username;
-        return destinationController.getDestinations().thenApplyAsync(
+        return destinationController.getDestinations().thenComposeAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(), request, messagesApi.preferred(request))) : internalServerError();
+                    return this.getTrip(Authenticator.getTokenFromCookie(request), tripId).thenApplyAsync(
+                            trip -> {
+                                return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), trip)) : internalServerError();
+                            },
+                            httpExecutionContext.current()
+                    );
                 },
                 httpExecutionContext.current());
     }
@@ -121,6 +126,28 @@ public class TripController extends Controller {
                         new TypeReference<List<Trip>>() {});
             } catch (Exception e) {
                 return new ArrayList<>();
+            }
+        });
+    }
+
+    /**
+     * Gets trip by tripId from api endpoint via get request
+     *
+     * @return Trip object wrapped in completable future
+     */
+    public CompletableFuture<Trip> getTrip(String token, Long tripId) {
+        CompletableFuture<WSResponse> res = ws
+                .url("http://localhost:9000/api/trip/" + tripId)
+                .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+                .get()
+                .toCompletableFuture();
+        return res.thenApply(r -> {
+            JsonNode json = r.getBody(WSBodyReadables.instance.json());
+            try {
+                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
+                        new TypeReference<Trip>() {});
+            } catch (Exception e) {
+                return new Trip();
             }
         });
     }
