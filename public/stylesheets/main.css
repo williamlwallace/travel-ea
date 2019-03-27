@@ -178,6 +178,7 @@ code {
 .card-header {
     height:200px;
     width:350px;
+    background-color: rgba(0,0,0,0) !important;
 }
 
 /*
@@ -188,12 +189,15 @@ code {
     width: 1100px;
     margin:20px;
     cursor:pointer;
+
+    background-color: #d4d4d444 !important;
 }
 
 /*
  * card block contains the details of the card
  */
 .card-block {
+    padding-top: 8px;
     height:200px;
     width: 750px;
 }
@@ -225,3 +229,4 @@ code {
     padding: 10px 10px 10px 10px;
     float:right
 }
+
