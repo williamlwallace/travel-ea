@@ -264,7 +264,9 @@ public class ProfileControllerTest extends WithApplication {
 
         List<Profile> profiles = Arrays.asList(new ObjectMapper().readValue(Helpers.contentAsString(result), Profile[].class));
 
-        System.out.println(profiles);
+        for (Profile profile : profiles) {
+            System.out.println(profile);
+        }
     }
 
     @Test
