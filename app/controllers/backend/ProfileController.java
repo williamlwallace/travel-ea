@@ -62,6 +62,15 @@ public class ProfileController extends Controller {
     }
 
     /**
+     * Gets all possible traveller types currently stored in db
+     * @return JSON list of traveller types
+     */
+    public CompletableFuture<Result> getAllTravellerTypes() {
+        return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
+                .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
+    }
+
+    /**
      * Adds a new profile received as body of a post request to database
      *
      * @param request Contains the HTTP request info
@@ -114,7 +123,7 @@ public class ProfileController extends Controller {
         else {
             try {
                 profileRepository.addProfile(profile).get();
-                return CompletableFuture.supplyAsync(() -> ok("Successfully added new profile to database"));
+                return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully added new profile to database")));
             } catch (Exception e) {
                 int i = 0;
                 return CompletableFuture.supplyAsync(() -> internalServerError("Failed to add profile to database"));
@@ -123,11 +132,21 @@ public class ProfileController extends Controller {
     }
 
     /**
+     * Gets a profile based on the userID specified in auth
+     * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getMyProfile(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        return this.getProfile(request, user.id);
+    }
+
+    /**
      * Gets a profile based on the userID specified in the request
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
-    public CompletableFuture<Result> getProfile(Long userId) {
+    public CompletableFuture<Result> getProfile(Http.Request request, Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
         Profile profile;
         try {
