@@ -14,7 +14,11 @@ POST    /api/logout                     controllers.backend.UserController.logou
 + nocsrf
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(userId:Long)
++ nocsrf
+GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
+
++ nocsrf
+GET     /api/profile/                   controllers.backend.ProfileController.getMyProfile(request:Request)
 
 + nocsrf
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
@@ -25,6 +29,8 @@ DELETE  /api/profile/:userId            controllers.backend.ProfileController.de
 DELETE  /api/user/:userId               controllers.backend.UserController.deleteUser(userId:Long)
 
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
+
+GET     /api/profile/getTravellerTypes/ controllers.backend.ProfileController.getAllTravellerTypes()
 
 + nocsrf
 POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
@@ -39,7 +45,7 @@ GET     /api/destination/search         controllers.backend.DestinationControlle
 
 + nocsrf
 POST    /api/trip                       controllers.backend.TripController.insertTrip(request:Request)
-
++ nocsrf
 PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
 
 GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
