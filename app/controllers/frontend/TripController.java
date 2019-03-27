@@ -64,7 +64,7 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
                 tripList -> {
-                    return ok(trips.render(username, asScala(tripList), request, messagesApi.preferred(request)));
+                    return ok(trips.render(username, asScala(tripList)));
                 },
                 httpExecutionContext.current());
     }
@@ -81,7 +81,7 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip(), request, messagesApi.preferred(request))) : internalServerError();
+                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip())) : internalServerError();
                 },
                 httpExecutionContext.current());
     }
@@ -100,7 +100,7 @@ public class TripController extends Controller {
                 destList -> {
                     return this.getTrip(Authenticator.getTokenFromCookie(request), tripId).thenApplyAsync(
                             trip -> {
-                                return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), trip, request, messagesApi.preferred(request))) : internalServerError();
+                                return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), trip)) : internalServerError();
                             },
                             httpExecutionContext.current()
                     );
