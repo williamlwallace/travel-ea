@@ -61,10 +61,7 @@ GET     /signUp                     controllers.frontend.ProfileController.creat
 GET     /home                       controllers.frontend.ApplicationController.home(request: Request)
 
 # People page
-GET     /people                     controllers.PeopleController.index(request: Request)
-
-# People page
-GET     /people/search              controllers.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET     /people                     controllers.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 # The Travelea trips page
 GET     /trips                      controllers.TripsController.index(request: Request)
