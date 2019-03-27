@@ -135,7 +135,7 @@ function updateProfile(url, redirect) {
             } else {
                 hideErrors("updateProfileForm");
                 let element = document.getElementById("SuccessMessage");
-                element.innerHTML = "Successfully Updated";
+                element.innerHTML = "Successfully Updated!";
                 return sleep(3000);
             }
         })
