@@ -66,8 +66,8 @@ public class TripValidator {
                 mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime);
             }
 
-            // Update most recent destination id
-            //lastDestinationID = trip.destinationId;
+            // TODO: Uncomment this
+            // lastDestinationID = trip.destination.id;
 
             // If any errors were added to string, add this to error response map
             if(!errorString.equals("")) {

@@ -87,6 +87,8 @@ public class TripController extends Controller {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
+        System.out.println(data);
+
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(true);
 
@@ -108,10 +110,15 @@ public class TripController extends Controller {
             return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
         }
 
-        // Assemble trip data
-        ArrayList<TripData> tripDataList = nodeToTripDataList(data, data.get("id").asLong());
+        Trip trip = Json.fromJson(data.get("trip"), Trip.class);
+        trip.userId = request.attrs().get(ActionState.USER).id;
 
-        System.out.println(tripDataList);
+        // Assemble trip data
+        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
+
+        for (TripData td : tripDataList) {
+            System.out.println(td.tripId + ", " + td.destination.id);
+        }
 
         // Add new trip data to db
         return CompletableFuture.supplyAsync(() -> {
@@ -144,11 +151,9 @@ public class TripController extends Controller {
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
-        System.out.println(data);
 
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
-        System.out.println(validatorResult);
 
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
@@ -171,19 +176,29 @@ public class TripController extends Controller {
      * fields to be present when deserializing, but as per our design requirements, the
      * arrival and departure times for each point must be able to not be specified
      * @param data JSON object storing list of tripData
-     * @param tripId ID of trip to set to tripData objects
+     * @param trip Trip object to be referenced to by tripData
      * @return Arraylist of tripData that has been deserialized from node
      */
-    private ArrayList<TripData> nodeToTripDataList(JsonNode data, Long tripId){
+    private ArrayList<TripData> nodeToTripDataList(JsonNode data, Trip trip){
         // Store created data points in list
         ArrayList<TripData> tripDataList = new ArrayList<>();
+        Long tripId = data.get("id").asLong();
+
+        if (data.get("trip") != null) {
+            trip = Json.fromJson(data.get("trip"), Trip.class);
+        }
 
         // For each item in the json node, deserialize to a single trip data
         for(JsonNode node : data.get("tripDataCollection")) {
             // Assemble trip data
             TripData tripData = new TripData();
 
+            if (trip != null) {
+                tripData.trip = trip;
+            }
+
             // Get position and destinationId from json object, these must be present so no need for try catch
+            tripData.tripId = tripId;
             tripData.position = node.get("position").asLong();
             tripData.destination = new Destination();
             tripData.destination = Json.fromJson(node.get("destination"), Destination.class);
