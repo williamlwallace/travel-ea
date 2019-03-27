@@ -2,26 +2,86 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+# ~~~~~backend~~~~~~
+GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
++ nocsrf
+POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
++ nocsrf
+POST    /api/login                      controllers.backend.UserController.login(request:Request)
++ nocsrf
+POST    /api/logout                     controllers.backend.UserController.logout(request:Request)
+
++ nocsrf
+POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
+
++ nocsrf
+GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
+
++ nocsrf
+GET     /api/profile/                   controllers.backend.ProfileController.getMyProfile(request:Request)
+
++ nocsrf
+PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
+# admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
+
+DELETE  /api/profile/:userId            controllers.backend.ProfileController.deleteProfile(userId:Long)
+
+DELETE  /api/user/:userId               controllers.backend.UserController.deleteUser(userId:Long)
+
+GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
+
+GET     /api/profile/getTravellerTypes/ controllers.backend.ProfileController.getAllTravellerTypes()
+
++ nocsrf
+POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
+
+GET     /api/destination                controllers.backend.DestinationController.getAllDestinations()
+
+DELETE  /api/destination/:id            controllers.backend.DestinationController.deleteDestination(id:Long)
+
+GET     /api/destination/:id            controllers.backend.DestinationController.getDestination(id:Long)
+
+GET     /api/destination/search         controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
+
+POST    /api/trip                       controllers.backend.TripController.insertTrip(request:Request)
+
+PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
+
+GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
+
+GET     /api/trip/getAll                controllers.backend.TripController.getAllUserTrips(request:Request)
+
+DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
+
+# ~~~~~~frontend~~~~~~~
+# Start page
+GET     /                           controllers.frontend.ApplicationController.cover(request:Request)
+
+# signing up
+GET     /signUp                     controllers.frontend.ProfileController.createProfile(request: Request)
+
 # Home page
-GET     /                           controllers.HomeController.index
+GET     /home                       controllers.frontend.ApplicationController.home(request: Request)
 
-# Widgets
-GET     /widgets                    controllers.WidgetController.listWidgets(request: Request)
-POST    /widgets                    controllers.WidgetController.createWidget(request: Request)
+# People page
+GET     /people                     controllers.PeopleController.index(request: Request)
 
-# Computers list (look at the default values for pagination parameters)
-GET     /computers                  controllers.HomeController.list(request: Request, p:Int ?= 0, s ?= "name", o ?= "asc", f ?= "")
+# The Travelea trips page
+GET     /trips                      controllers.TripsController.index(request: Request)
 
-# Add computer
-GET     /computers/new              controllers.HomeController.create(request: Request)
-POST    /computers                  controllers.HomeController.save(request: Request)
+# The Travelea create trips page
+GET     /trips/create               controllers.createTripController.index(request: Request)
+# POST    /trips                      controllers.createTripController.save
 
-# Edit existing computer
-GET     /computers/:id              controllers.HomeController.edit(request: Request, id:Long)
-POST    /computers/:id              controllers.HomeController.update(request: Request, id:Long)
+# The Travelea profile page
+GET     /profile                    controllers.frontend.ProfileController.index(request: Request)
 
-# Delete a computer
-POST    /computers/:id/delete       controllers.HomeController.delete(id:Long)
+# The TravelEA destinations page
+GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
+
+# Edit profile page
+GET    /editProfile                 controllers.frontend.ProfileController.editindex(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
