@@ -1,6 +1,11 @@
 var countryDict = {};
 var travellerTypeDict = {};
 
+// Capitalizes the first letter of a string
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
@@ -31,7 +36,7 @@ function fillTravellerTypes(getTravellerTypesUrl) {
         // E.g data[0] = { id:1, description:"backpacker"}
         for(let i = 0; i < data.length; i++) {
         // Also add the item to the dictionary
-        travellerTypeDict[data[i]['id']] = data[i]['description'];
+        travellerTypeDict[data[i]['id']] = capitalizeFirstLetter(data[i]['description']);
     }
     // Now fill the drop down box, and list of destinations
     fillTravellerDropDown();
@@ -89,7 +94,7 @@ function searchParams(){
     var minAge = document.getElementById('minAge').value;
     var maxAge = document.getElementById('maxAge').value;
     var travellerType = document.getElementById('travellerType').value;
-    var url = '/people/search?';
+    var url = '/people?';
     if (nationality) {
         url += "nationalityId=" + nationality + "&";
     }
