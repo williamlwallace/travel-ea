@@ -202,14 +202,35 @@ public class ProfileRepository {
      * @return True if a profile was found with the ID and then deleted
      */
     public CompletableFuture<Boolean> deleteProfile(Long id) {
-        SqlUpdate delete = ebeanServer.createSqlUpdate(
-                "DELETE FROM Nationality WHERE user_id=:userId;" +
-                "DELETE FROM Passport WHERE user_id=:userId;" +
-                "DELETE FROM TravellerType WHERE user_id=:userId;" +
-                "DELETE FROM Profile WHERE user_id=:userId");
-        delete.setParameter("userId", id);
+        return supplyAsync(() -> {
 
-        return CompletableFuture.completedFuture(delete.execute() > 0);
+            // Delete all information regarding nationalities, types, passports
+            SqlUpdate deleteNat = ebeanServer.createSqlUpdate(
+                    "DELETE FROM Nationality WHERE user_id=:userId;");
+            deleteNat.setParameter("userId", id);
+//            int nationalityResult = deleteNat.execute();
+
+            // Delete all information regarding nationalities, types, passports
+            SqlUpdate deleteType = ebeanServer.createSqlUpdate(
+                    "DELETE FROM TravellerType WHERE user_id=:userId;");
+            deleteType.setParameter("userId", id);
+//            int travellerTypeResult = deleteType.execute();
+
+            // Delete all information regarding nationalities, types, passports
+            SqlUpdate deletePass = ebeanServer.createSqlUpdate(
+                    "DELETE FROM Passport WHERE user_id=:userId;");
+            deletePass.setParameter("userId", id);
+//            int passportsResult = deletePass.execute();
+
+            // Delete profile itself
+            SqlUpdate deleteProfile = ebeanServer.createSqlUpdate(
+                    "DELETE FROM Profile WHERE user_id=:userId;");
+            deleteProfile.setParameter("userId", id);
+            int profileResult = deleteProfile.execute();
+
+            return (profileResult > 0);
+        }, executionContext);
+//        return CompletableFuture.completedFuture(delete.execute() > 0);
     }
 
     /**

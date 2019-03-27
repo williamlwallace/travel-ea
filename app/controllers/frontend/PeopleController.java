@@ -1,4 +1,4 @@
-package controllers;
+package controllers.frontend;
 
 import controllers.backend.ProfileController;
 import models.Profile;
