@@ -23,6 +23,12 @@ public class TravellerTypeDefinition extends Model {
     @Constraints.Required
     public String description;
 
+    @Override
+    public String toString() {
+        return description;
+    }
+
+
 //    @ManyToMany(mappedBy = "travellerTypes")
 //    @JsonBackReference
 //    public List<Profile> profiles;
