@@ -1,0 +1,102 @@
+@import play.mvc.Http.Request
+@(user: String, id: Long)
+
+@scripts = {
+    <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
+}
+
+@layouts.imageHeader("Profile", user, "images/profile-bg.jpg", scripts){
+    <body>
+        <div class="modal fade" id="createProfileForm"  tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
+            data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Create New Profile</h4>
+                        </div>
+                        <form id="signUp">
+                            <div class="modal-body mx-3">
+                                <div class="form-row mb-4">
+                                    <div class="col">
+                                            <!-- First name -->
+                                        <input type="text" name="firstName" class="form-control validate" placeholder="First name" required>
+                                        <label id="firstNameError" class="error-messages"></label>
+                                    </div>
+                                    <div class="col">
+                                            <!-- Middle name -->
+                                        <input type="text" name="middleName" class="form-control" placeholder="Middle name">
+                                    </div>
+                                    <div class="col">
+                                            <!-- Last name -->
+                                        <input type="text" name="lastName" class="form-control validate" placeholder="Last name" required>
+                                        <label id="lastNameError" class="error-messages"></label>
+                                    </div>
+                                </div>
+                                <label for="genderPicker" class="control-label">Gender</label>
+                                <div class="ss-item-required validate">
+                                    <select name="gender" id="gender" required>
+                                        <option value="" hidden>Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <br/>
+                                    <label id="genderError" class="error-messages"></label>
+                                </div>
+                                <br>
+                                <div class="control-group">
+                                    <label for="dateOfBirth" class="control-label">Date of Birth</label>
+                                    <!-- TODO restrict birth date to before today -->
+                                    <input type="date" name="dateOfBirth" class="form-control validate">
+                                    <label id="dateOfBirthError" class="error-messages"></label>
+                                </div>
+                                <label for="nationality" id="nationality" class="control-label">Nationalities</label>
+                                <div>
+                                    <select name="nationalities" id="nationalities" multiple required>
+                                    <option value="" disabled hidden>Select Nationalities</option>
+                                    </select>
+                                    <br/>
+                                    <label id="nationalitiesError" class="error-messages"></label>
+                                </div>
+                                <br/>
+                                <label for="country" id="country" class="control-label">Passports</label>
+                                <div>
+                                    <select name="passports" id="passports"multiple>
+                                    <option value="" disabled hidden>Select Passports</option>
+                                </select>
+                                </div>
+                                <br/>
+                                <label class="control-label">Traveller Types</label>
+                                <br/>
+                                <small>These will be used to give you recommendations and help match you with like minded travelers.
+                                    They can be edited any time in the profile scene</small>
+                                <div>
+                                    <br/>
+                                    <select name="travellerTypes" id="travellerTypes" multiple required>
+                                        <option value="" disabled hidden>Select Traveller Type</option>
+                                    </select>
+                                    <br/>
+                                    <label id="travellerTypesError" class="error-messages"></label>
+                                </div>
+                                <label id="otherError"></label>
+                            </div>
+                        </form>
+                        <div class="modal-footer d-flex justify-content-center">
+                            <button class="btn btn-popup" onclick=
+                            'signUp(
+                                    "@id",
+                                    "@controllers.backend.routes.ProfileController.addNewProfile()",
+                                    "@controllers.frontend.routes.ApplicationController.home()")'>
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </body>
+}
+
+<script type="text/javascript">
+    fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
+    fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()")
+</script>
