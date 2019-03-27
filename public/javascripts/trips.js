@@ -75,6 +75,8 @@ function newDestination(url) {
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+
+    console.log(data);
     // Post json data to given url
     post(url,data)
         .then(response => {
