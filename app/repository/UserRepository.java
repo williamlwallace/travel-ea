@@ -68,7 +68,7 @@ public class UserRepository {
      */
     public CompletableFuture<User> findUserName(String username) {
         return supplyAsync(() ->
-            User.find.query().where().eq("username", username).findOneOrEmpty().orElse(null));
+            ebeanServer.find(User.class).where().eq("username", username).findOneOrEmpty().orElse(null));
     }
 
     // /**

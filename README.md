@@ -1,21 +1,24 @@
-# SENG302 project template
-
-[<img src="https://img.shields.io/travis/playframework/play-java-forms-example.svg"/>](https://travis-ci.org/playframework/play-java-forms-example)
-
-[<img src="https://img.shields.io/travis/playframework/play-java-ebean-example.svg"/>](https://travis-ci.org/playframework/play-java-ebean-example)
-
-This template is a combination of the Play forms and Ebean samples. Update this README file to make it your own.
+# TravelEA -SENG302 Team Proffat
 
 ## How to run
 
-Start the Play app:
+### Starting the application
+- Clone the git repository onto your computer
+- Navigate into the folder `team-400/`
+- Open a command window / terminal within this directory
+- Type `sbt dist` into the command window / terminal and press `enter`
+- Wait for the message `(Server started, use Enter to stop and go back to the console...)`
+- Open your preferred browser and type `http://localhost:9000` in as a url then press `enter`
+- You should now be viewing the TravelEA start page and can login or sign up from here
 
-```bash
-sbt run
-```
+### Stopping the application
+- Navigate to your open command window / terminal where the application is running
+- Press `enter` to shut the application down
 
-And open <http://localhost:9000/>
-
+## Basic Project Structure
+ - `app/` Your application source
+ - `doc/` User and design documentation
+ - `doc/examples/` Demo example files for use with your application
 ## Documentation
 
 
