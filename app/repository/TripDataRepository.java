@@ -4,6 +4,7 @@ import io.ebean.*;
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
+import play.libs.Json;
 import play.mvc.Result;
 
 import javax.inject.Inject;
@@ -48,6 +49,7 @@ public class TripDataRepository {
      */
     public CompletableFuture<Result> insertTripDataList(Collection<TripData> tripDataList) {
         return supplyAsync(() -> {
+            System.out.println(Json.toJson(tripDataList));
             ebeanServer.insertAll(tripDataList);
             return ok();
         }, executionContext);
