@@ -6,7 +6,7 @@
 - Clone the git repository onto your computer
 - Navigate into the folder `team-400/`
 - Open a command window / terminal within this directory
-- Type `sbt run` into the command window / terminal and press `enter`
+- Type `sbt dist` into the command window / terminal and press `enter`
 - Wait for the message `(Server started, use Enter to stop and go back to the console...)`
 - Open your preferred browser and type `http://localhost:9000` in as a url then press `enter`
 - You should now be viewing the TravelEA start page and can login or sign up from here
