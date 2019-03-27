@@ -2,39 +2,25 @@ package controllers.backend;
 
 import actions.*;
 import actions.roles.*;
-import akka.http.javadsl.model.HttpRequest;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import models.Destination;
 import models.Trip;
 import models.TripData;
-import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import repository.DestinationRepository;
 import repository.TripDataRepository;
 import repository.TripRepository;
-import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.security.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -42,15 +28,12 @@ public class TripController extends Controller {
 
     private final TripRepository tripRepository;
     private final TripDataRepository tripDataRepository;
-    private final HttpExecutionContext httpExecutionContext;
 
     @Inject
     public TripController(TripRepository tripRepository,
-                         TripDataRepository tripDataRepository,
-                         HttpExecutionContext httpExecutionContext) {
+                         TripDataRepository tripDataRepository) {
         this.tripDataRepository = tripDataRepository;
         this.tripRepository = tripRepository;
-        this.httpExecutionContext = httpExecutionContext;
     }
 
     @With({Everyone.class, Authenticator.class})

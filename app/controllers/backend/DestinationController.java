@@ -3,11 +3,7 @@ package controllers.backend;
 import actions.*;
 import actions.roles.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.CountryDefinition;
 import models.Destination;
-import play.data.Form;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.libs.Json;
@@ -28,21 +24,12 @@ public class DestinationController extends Controller {
 
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
-    private final FormFactory formFactory;
-    private final HttpExecutionContext httpExecutionContext;
-    private final MessagesApi messagesApi;
 
     @Inject
-    public DestinationController(FormFactory formFactory,
-                                 DestinationRepository destinationRepository,
-                                 HttpExecutionContext httpExecutionContext,
-                                 MessagesApi messagesApi,
+    public DestinationController(DestinationRepository destinationRepository,
                                  CountryDefinitionRepository countryDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
-        this.formFactory = formFactory;
-        this.httpExecutionContext = httpExecutionContext;
-        this.messagesApi = messagesApi;
     }
 
     /**
