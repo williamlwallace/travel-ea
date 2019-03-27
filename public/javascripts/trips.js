@@ -1,36 +1,6 @@
 // METHODS FOR CREATE TRIPS
 
-let tripData = {};
 let countryDict = {};
-
-function getTripData(getTripUrl, id) {
-    if (id != null) {
-        get(getTripUrl).then(response => {
-            response.json().then(data => {
-                if (parseInt(data["id"]) === id) {
-                    tripData = data;
-                    fillDestinationInfo();
-                }
-            });
-        });
-    }
-}
-
-function fillDestinationInfo() {
-    for (let i = 0; i < tripData["tripDataList"].length; i++) {
-        let destinationDetails = [
-            tripData["tripDataList"][i]["destination"]["id"],
-            tripData["tripDataList"][i]["destination"]["name"],
-            tripData["tripDataList"][i]["destination"]["_type"],
-            tripData["tripDataList"][i]["destination"]["district"],
-            tripData["tripDataList"][i]["destination"]["latitude"],
-            tripData["tripDataList"][i]["destination"]["longitude"],
-            tripData["tripDataList"][i]["destination"]["countryId"]
-        ];
-
-        addDestinationToTrip(destinationDetails);
-    }
-}
 
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
@@ -182,7 +152,6 @@ function removeDestinationFromTrip(cardId) {
 
 function createTrip(url, redirect) {
     let listItemArray = Array.of(document.getElementById("list").children);
-    console.log(listItemArray[0]);
     let tripDataList = [];
 
     for (let i = 0; i < listItemArray[0].length; i++) {
@@ -352,8 +321,7 @@ function viewTrip(url) {
     window.location.href = url;
 }
 
-function updateTrip(url, redirect) {
-
+function updateTrip(url, redirect, tripId) {
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -362,6 +330,7 @@ function updateTrip(url, redirect) {
     }
 
     let tripData = {
+        "id": tripId,
         "tripDataCollection": tripDataList
     };
 
