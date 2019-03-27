@@ -34,12 +34,14 @@ public class Authenticator extends Action.Simple {
     public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromCookie(request);
         if (token != null) {
-            return userRepository.findByToken(token).thenComposeAsync((user) -> {
-                if (user != null && CryptoManager.veryifyToken(token, user.id, config.getString("play.http.secret.key"))) {
+            Long userId = CryptoManager.veryifyToken(token, config.getString("play.http.secret.key"));
+            if (userId != null) {
+                return userRepository.findID(userId).thenComposeAsync((user) -> {
                     return roleMatch(request, user);
-                }
-                return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
-            });
+                });
+            }
+            return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
+            // });
         } else if (getRoles(request).isEmpty()) {
             // if no roles specified, do nothing (for homepage)
             return delegate.call(request).toCompletableFuture();
