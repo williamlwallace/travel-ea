@@ -19,6 +19,7 @@ import java.util.List;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static play.mvc.Results.ok;
+import static play.mvc.Results.unauthorized;
 
 public class ProfileRepository {
 
@@ -218,13 +219,16 @@ public class ProfileRepository {
      */
     public CompletableFuture<Result> updateProfile(Profile profile) {
         return supplyAsync(() -> {
-
+            System.out.println(Json.toJson(profile));
             // Insert basic profile info
             SqlUpdate update = ebeanServer.createSqlUpdate(
                     "UPDATE Profile " +
-                            "SET first_name=:firstName, last_name=:lastName, middle_name=:middleName, date_of_birth=:dateOfBirth, gender=:gender " +
-                            "WHERE user_id=:userId;");
-
+                            "SET first_name = :firstName, " +
+                            "last_name = :lastName, " +
+                            "middle_name = :middleName, " +
+                            "date_of_birth = :dateOfBirth, " +
+                            "gender = :gender " +
+                            "WHERE user_id = :userId;");
             // Set parameters
             update.setParameter("userId", profile.userId);
             update.setParameter("firstName", profile.firstName);
@@ -237,11 +241,22 @@ public class ProfileRepository {
             update.execute();
 
             // Delete all information regarding nationalities, types, passports
-            SqlUpdate delete = ebeanServer.createSqlUpdate(
-                "DELETE FROM Nationality WHERE user_id=:userId;" +
-                "DELETE FROM Passport WHERE user_id=:userId;" +
-                "DELETE FROM TravellerType WHERE user_id=:userId;");
-            delete.setParameter("userId", profile.userId);
+            SqlUpdate deleteNat = ebeanServer.createSqlUpdate(
+                "DELETE FROM Nationality WHERE user_id=:userId;");
+            deleteNat.setParameter("userId", profile.userId);
+            deleteNat.execute();
+
+            // Delete all information regarding nationalities, types, passports
+            SqlUpdate deleteType = ebeanServer.createSqlUpdate(
+                    "DELETE FROM TravellerType WHERE user_id=:userId;");
+            deleteType.setParameter("userId", profile.userId);
+            deleteType.execute();
+
+            // Delete all information regarding nationalities, types, passports
+            SqlUpdate deletePass = ebeanServer.createSqlUpdate(
+                    "DELETE FROM Passport WHERE user_id=:userId;");
+            deletePass.setParameter("userId", profile.userId);
+            deletePass.execute();
 
             // Now insert back into the foreign tables
             // Convert lists of destinations, to lists of mapping objects
