@@ -106,8 +106,11 @@ function addDestinationToTrip(dest) {
             '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +
         '</div>\n' +
         '<div class="card-block px-2">\n' +
-            '<div id="left">\n' +
+            '<div id="topCardBlock">\n' +
                 '<h4 class="card-title">' + dest[1] + '</h4>\n' +
+        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(' + cardId + ')"></button>\n' +
+            '</div>\n' +
+            '<div id="left">\n' +
                 '<p class="card-text" id="card-text">' +
                     '<b>Type: </b> '+ dest[2] + '<br/>' +
                     '<b>District: </b> '+ dest[3] + '<br/>' +
@@ -131,9 +134,7 @@ function addDestinationToTrip(dest) {
     '                    </div>\n' +
     '                </div>\n' +
     '            </form>\n' +
-    '            <label id="destinationError"></label><br/>\n' +
-    '            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->\n' +
-    '            <button type="button" style="float:right" class="btn btn-primary btn-md" onclick="removeDestinationFromTrip(' + cardId + ')">Remove</button>\n' +
+    '            <label id="destinationError" class="error-messages"></label><br/>\n' +
             '</div>\n' +
         '</div>'
     );
