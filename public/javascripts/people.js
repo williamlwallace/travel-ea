@@ -88,6 +88,7 @@ $(document).ready(function () {
     } );
 });
 
+//Function for filtering people table, returns url with query parameters.
 function searchParams(){
     var nationality = document.getElementById('nationality').value;
     var gender = document.getElementById('gender').value;

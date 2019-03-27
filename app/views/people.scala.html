@@ -19,7 +19,7 @@
                 </tr>
             </thead>
             <tbody>
-                @* Populate the table with a list of Accounts details *@
+                @* Populate the table with a list of profile details *@
                 @for(person <- people){
                     <tr>
                         <td>@person.firstName</td>
@@ -99,6 +99,7 @@
 
 }
 
+@*Importing javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
         fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");

@@ -4,23 +4,16 @@ import actions.*;
 import actions.roles.*;
 import models.frontend.Destination;
 import models.frontend.Trip;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.data.Form;
-import play.data.FormFactory;
 import play.i18n.MessagesApi;
 import play.mvc.*;
 import views.html.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.util.List;
 
-import static play.libs.Scala.asScala;
-
 /**
+ * The front end controller for the Trips page
  */
 public class TripsController extends Controller {
 
@@ -30,12 +23,9 @@ public class TripsController extends Controller {
 
     @Inject
     public void TripController( MessagesApi messagesApi) {
+
         this.messagesApi = messagesApi;
-        //Test data for accounts. should be replaced with account data from database.
-//        Destination newDest = new Destination("UC", "Place", "Canterbury", 43.5235, 172.5839, "New Zealand");
-//        this.destList.add(newDest);
-//        Trip newTrip = new Trip(this.destList);
-//        this.tripList = com.google.common.collect.Lists.newArrayList(newTrip);
+
     }
     /**
      * Displays the trips page. Called with the /trips URL and uses a GET request.
