@@ -87,8 +87,6 @@ public class TripController extends Controller {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
-        System.out.println(data);
-
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(true);
 
@@ -115,10 +113,6 @@ public class TripController extends Controller {
 
         // Assemble trip data
         ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
-
-        for (TripData td : tripDataList) {
-            System.out.println(td.tripId + ", " + td.destination.id);
-        }
 
         // Add new trip data to db
         return CompletableFuture.supplyAsync(() -> {
