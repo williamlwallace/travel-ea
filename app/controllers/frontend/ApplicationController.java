@@ -8,7 +8,6 @@ import play.mvc.Result;
 import play.mvc.With;
 import views.html.*;
 import models.User;
-import javax.inject.Inject;
 
 
 /**
