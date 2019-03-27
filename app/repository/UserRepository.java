@@ -5,7 +5,6 @@ import models.User;
 import play.db.ebean.EbeanConfig;
 
 import javax.inject.Inject;
-import javax.naming.spi.DirStateFactory.Result;
 
 import java.util.concurrent.CompletableFuture;
 

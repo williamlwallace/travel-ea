@@ -4,7 +4,6 @@ import io.ebean.*;
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
-import play.libs.Json;
 import play.mvc.Result;
 
 import javax.inject.Inject;
