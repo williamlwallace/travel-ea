@@ -111,6 +111,8 @@ public class TripController extends Controller {
         // Assemble trip data
         ArrayList<TripData> tripDataList = nodeToTripDataList(data, data.get("id").asLong());
 
+        System.out.println(tripDataList);
+
         // Add new trip data to db
         return CompletableFuture.supplyAsync(() -> {
             tripDataRepository.insertTripDataList(tripDataList);
