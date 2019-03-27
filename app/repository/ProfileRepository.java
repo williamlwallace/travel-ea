@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static play.mvc.Results.ok;
@@ -44,7 +45,7 @@ public class ProfileRepository {
         return supplyAsync(() -> {
 
             // Insert basic profile info
-            SqlUpdate insert = Ebean.createSqlUpdate(
+            SqlUpdate insert = ebeanServer.createSqlUpdate(
                     "INSERT INTO Profile " +
                     "(user_id, first_name, last_name, middle_name, date_of_birth, gender) " +
                     "VALUES (:userId, :firstName, :lastName, :middleName, :dateOfBirth, :gender);");
@@ -109,7 +110,7 @@ public class ProfileRepository {
                 "FROM Profile " +
                 "WHERE user_id = :userId;").create();
 
-        Query<Profile> query = Ebean.find(Profile.class);
+        Query<Profile> query = ebeanServer.find(Profile.class);
         query.setRawSql(rawSql);
         query.setParameter("userId", id);
 
@@ -125,7 +126,7 @@ public class ProfileRepository {
                 .columnMapping("C.name", "name")
                 .create();
 
-        Query<CountryDefinition> query2 = Ebean.find(CountryDefinition.class);
+        Query<CountryDefinition> query2 = ebeanServer.find(CountryDefinition.class);
         query2.setRawSql(rawSql);
         query2.setParameter("userId", id);
 
@@ -138,7 +139,7 @@ public class ProfileRepository {
                 .columnMapping("C.name", "name")
                 .create();
 
-        Query<CountryDefinition> query3 = Ebean.find(CountryDefinition.class);
+        Query<CountryDefinition> query3 = ebeanServer.find(CountryDefinition.class);
         query3.setRawSql(rawSql);
         query3.setParameter("userId", id);
 
@@ -151,7 +152,7 @@ public class ProfileRepository {
                 .columnMapping("TD.description", "description")
                 .create();
 
-        Query<TravellerTypeDefinition> query4 = Ebean.find(TravellerTypeDefinition.class);
+        Query<TravellerTypeDefinition> query4 = ebeanServer.find(TravellerTypeDefinition.class);
         query4.setRawSql(rawSql);
         query4.setParameter("userId", id);
 
@@ -200,7 +201,7 @@ public class ProfileRepository {
      * @return True if a profile was found with the ID and then deleted
      */
     public CompletableFuture<Boolean> deleteProfile(Long id) {
-        SqlUpdate delete = Ebean.createSqlUpdate(
+        SqlUpdate delete = ebeanServer.createSqlUpdate(
                 "DELETE FROM Nationality WHERE user_id=:userId;" +
                 "DELETE FROM Passport WHERE user_id=:userId;" +
                 "DELETE FROM TravellerType WHERE user_id=:userId;" +
@@ -219,7 +220,7 @@ public class ProfileRepository {
         return supplyAsync(() -> {
 
             // Insert basic profile info
-            SqlUpdate update = Ebean.createSqlUpdate(
+            SqlUpdate update = ebeanServer.createSqlUpdate(
                     "UPDATE Profile " +
                             "SET first_name=:firstName, last_name=:lastName, middle_name=:middleName, date_of_birth=:dateOfBirth, gender=:gender " +
                             "WHERE user_id=:userId;");
@@ -236,7 +237,7 @@ public class ProfileRepository {
             update.execute();
 
             // Delete all information regarding nationalities, types, passports
-            SqlUpdate delete = Ebean.createSqlUpdate(
+            SqlUpdate delete = ebeanServer.createSqlUpdate(
                 "DELETE FROM Nationality WHERE user_id=:userId;" +
                 "DELETE FROM Passport WHERE user_id=:userId;" +
                 "DELETE FROM TravellerType WHERE user_id=:userId;");
@@ -275,5 +276,17 @@ public class ProfileRepository {
 
             return ok();
         }, executionContext);
+    }
+
+    public CompletableFuture<List<Profile>> getAllProfiles() {
+        List<Profile> basicProfiles = ebeanServer.find(Profile.class).findList();
+        List<Profile> filledInList = new ArrayList<>();
+        return supplyAsync(() -> {
+            for(Profile prof : basicProfiles) {
+                findID(prof.userId).thenApply(result -> filledInList.add(result));
+            }
+
+            return filledInList;
+        });
     }
 }
