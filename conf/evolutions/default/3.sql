@@ -10,7 +10,7 @@ INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Funct
 
 -- Add sample Profile
 INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES ((SELECT id FROM User LIMIT 1), 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
-INSERT INTO TravellerType (user_id, traveller_type_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1)), ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) + 2);
+INSERT INTO TravellerType (user_id, traveller_type_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM TravellerTypeDefinition LIMIT 1)), ((SELECT id FROM User LIMIT 1),(SELECT id FROM TravellerTypeDefinition LIMIT 1) + 2);
 INSERT INTO Passport (user_id, country_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) );
 INSERT INTO Nationality (user_id, country_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) + 5), ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) + 2);
 
