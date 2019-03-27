@@ -255,11 +255,9 @@ function getUserTrips(getUserTripsUrl) {
         .then(response => {
             // Convert the response to json
             response.json().then(data => {
-                console.log(data);
                 // Json data is an array of trips, iterate through it
                 for (let i = 0; i < data.length; i++) {
                     let tripDestinationData = [];
-                    console.log(data[i]["tripDataList"]);
                     for (let j = 0; j < data[i]["tripDataList"].length; j++) {
                         let destinationData = {
                             id: data[i]["tripDataList"][j]["id"],
@@ -277,7 +275,6 @@ function getUserTrips(getUserTripsUrl) {
                     };
                 }
 
-                console.log(trips);
 
                 // Now update the table with destination info
                 updateTripDates();
@@ -318,7 +315,6 @@ function updateTripDates() {
 }
 
 function viewTrip(url) {
-    console.log(url);
     window.location.href = url;
 }
 
@@ -367,7 +363,6 @@ function updateTripOnServer(url, tripId) {
     let data = {};
     data["tripDataCollection"] = tripDataCollection;
     data["id"] = tripId;
-    console.log(data);
     // Post json object to server at given url
     put(url,data)
         .then(response => {
