@@ -98,9 +98,10 @@ public class TripController extends Controller {
         String username = request.attrs().get(ActionState.USER).username;
         return destinationController.getDestinations().thenComposeAsync(
                 destList -> {
+                    // TODO: Remove getTrip if not necessary
                     return this.getTrip(Authenticator.getTokenFromCookie(request), tripId).thenApplyAsync(
                             trip -> {
-                                return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), trip, request, messagesApi.preferred(request))) : internalServerError();
+                                return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), tripId, request, messagesApi.preferred(request))) : internalServerError();
                             },
                             httpExecutionContext.current()
                     );
