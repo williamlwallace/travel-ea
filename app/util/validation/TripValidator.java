@@ -38,8 +38,8 @@ public class TripValidator {
         ObjectMapper mapper = new ObjectMapper();
         ArrayList tripDataCollection = mapper.readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")), new TypeReference<ArrayList<TripData>>(){});
 
-        if (tripDataCollection.isEmpty()) {
-            this.response.map("a trip must contain at least 1 destination", "trip");
+        if (tripDataCollection.size() < 2) {
+            this.response.map("a trip must contain at least 2 destinations", "trip");
         }
 
         Long lastDestinationID = 0L;
