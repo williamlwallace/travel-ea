@@ -2,7 +2,6 @@ package models;
 
 import io.ebean.Model;
 import play.data.validation.Constraints;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
 import java.util.List;
