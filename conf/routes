@@ -44,11 +44,11 @@ POST    /api/trip                       controllers.backend.TripController.inser
 
 PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
 
+GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
+
 GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
-GET     /api/trip/getAll                controllers.backend.TripController.getAllUserTrips(request:Request)
-
-DELETE  /api/trip/:id        controllers.backend.TripController.deleteTrip(id:Long)
+DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
@@ -64,11 +64,13 @@ GET     /home                controllers.frontend.ApplicationController.home(req
 GET     /people              controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 # The Travelea trips page
-GET     /trips               controllers.frontend.TripsController.index(request: Request)
+GET     /trips               controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET     /trips/create        controllers.frontend.createTripController.index(request: Request)
-# POST    /trips                      controllers.frontend.createTripController.save
+GET     /trips/create        controllers.frontend.TripController.createTripIndex(request: Request)
+
+# The Travelea edit trip page
+GET     /trips/edit/:id      controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
 
 # The Travelea profile page
 GET     /profile             controllers.frontend.ProfileController.index(request: Request)
