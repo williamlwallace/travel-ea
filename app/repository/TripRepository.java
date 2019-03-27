@@ -38,7 +38,6 @@ public class TripRepository {
             ebeanServer.insert(newTrip);
             for(TripData data : newTrip.tripDataList) {
                 data.trip = newTrip;
-                System.out.println(Json.toJson(data));
             }
             ebeanServer.insertAll(newTrip.tripDataList);
             return ok();
