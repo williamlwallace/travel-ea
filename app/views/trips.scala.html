@@ -1,7 +1,7 @@
 @import play.mvc.Http.Request
 @import helper._
 
-@(user: String, tripList: Seq[models.Trip])(implicit request: Request, messages: play.i18n.Messages)
+@(user: String, tripList: Seq[models.Trip])
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
@@ -39,13 +39,19 @@
                                 <td>@t.tripDataList(0).destination.name</td>
 
                                 @if(t.tripDataList.length >= 2) {
-                                    <td>@t.tripDataList(2).destination.name</td>
+                                    <td>@t.tripDataList(t.tripDataList.length - 1).destination.name</td>
                                 } else{
                                     <td>-</td>
                                 }
 
                                 <td>@t.tripDataList.length</td>
-                                <td id="tripDate">tripDate</td>
+
+                                @if(t.findFirstTripDate() != null) {
+                                    <td>@t.findFirstTripDate()</td>
+                                } else{
+                                    <td>No Date</td>
+                                }
+
                                 <td><button class="btn btn-popup" type="button" onclick='@controllers.frontend.routes.TripController.editTripIndex(t.id)'>View</button></td>
                             </tr>
                         }
@@ -57,5 +63,5 @@
 }
 
 <script type="text/javascript">
-        updateTripDates("@controllers.backend.routes.TripController.getAllUserTrips()");
+        getUserTrips("@controllers.backend.routes.TripController.getAllUserTrips()");
 </script>

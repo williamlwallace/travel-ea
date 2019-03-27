@@ -1,6 +1,36 @@
 // METHODS FOR CREATE TRIPS
 
-var countryDict = {};
+let tripData = {};
+let countryDict = {};
+
+function getTripData(getTripUrl, id) {
+    if (id != null) {
+        get(getTripUrl).then(response => {
+            response.json().then(data => {
+                if (parseInt(data["id"]) === id) {
+                    tripData = data;
+                    fillDestinationInfo();
+                }
+            });
+        });
+    }
+}
+
+function fillDestinationInfo() {
+    for (let i = 0; i < tripData["tripDataList"].length; i++) {
+        let destinationDetails = [
+            tripData["tripDataList"][i]["destination"]["id"],
+            tripData["tripDataList"][i]["destination"]["name"],
+            tripData["tripDataList"][i]["destination"]["_type"],
+            tripData["tripDataList"][i]["destination"]["district"],
+            tripData["tripDataList"][i]["destination"]["latitude"],
+            tripData["tripDataList"][i]["destination"]["longitude"],
+            tripData["tripDataList"][i]["destination"]["countryId"]
+        ];
+
+        addDestinationToTrip(destinationDetails);
+    }
+}
 
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
@@ -17,7 +47,7 @@ function fillCountryInfo(getCountriesUrl) {
                 }
 
                 // Now fill the drop down box, and list of destinations
-                updateCountryCardField();
+                // updateCountryCardField();
                 fillDropDown();
                 updateDestinationsCountryField();
             });
@@ -307,6 +337,8 @@ function getUserTrips(getUserTripsUrl) {
                     console.log(data[i]["tripDataList"]);
                     for (let j = 0; j < data[i]["tripDataList"].length; j++) {
                         let destinationData = {
+                            id: data[i]["tripDataList"][j]["id"],
+                            name: data[i]["tripDataList"][j]["name"],
                             arrivalTime: data[i]["tripDataList"][j]["arrivalTime"],
                             departureTime: data[i]["tripDataList"][j]["departureTime"]
                         };
@@ -353,26 +385,16 @@ function updateTripDates() {
                     rows[j].innerHTML = date.substr(0, 10);
                 }
                 else if (rows[j].getAttribute("id") === "tripDate") {
-                    rows[j].innerHTML = "----/--/--";
+                    rows[j].innerHTML = "No Date";
                 }
             }
         }
     }
 }
 
-function editTrip(trip) {
-    get("/trips/edit").then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-            .then(() => {
-                if (response.status === 200) {
-                    window.location.href = redirect;
-                }
-                else {
-                    document.getElementById("tripError").innerHTML = "Error opening trip for modification";
-                }
-            });
-    });
+function viewTrip(url) {
+    console.log(url);
+    window.location.href = url;
 }
 
 function updateTrip(url, redirect) {
