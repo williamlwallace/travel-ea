@@ -26,8 +26,8 @@
                         <td>@person.lastName</td>
                         <td>@person.gender</td>
                         <td>@person.calculateAge.toString()</td>
-                        <td>@person.nationalities.toString()</td>
-                        <td>@person.travellerTypes.toString()</td>
+                        <td>@person.nationalities.toString().substring(1, person.nationalities.toString.length - 1)</td>
+                        <td>@person.travellerTypes.toString().substring(1, person.travellerTypes.toString.length - 1)</td>
                     </tr>
                 }
             </tbody>
