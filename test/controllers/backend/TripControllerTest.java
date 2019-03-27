@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -17,10 +18,7 @@ import play.test.Helpers;
 import play.test.WithApplication;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
@@ -81,9 +79,21 @@ public class TripControllerTest extends WithApplication {
     @Test
     public void createTrip() {
         // Create new json object node
+        /*ObjectNode destination = Json.newObject();
+        destination.put("guid", 1);
+        destination.put("tripId", 1);
+        destination.put("position", 0);
+        destination.put("destinationId", 1);  //TODO: will need to be updated
+        destination.put("arrivalTime", "");
+        destination.put("departureTime", "");
+
+        ArrayNode tripDataCollection = destination.putArray("tripDataCollection");
+
         ObjectNode node = Json.newObject();
         node.put("userId", 2);
+        node.put("tripDataCollection", tripDataCollection);
 
+        // Create request to create a new destination
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
@@ -93,37 +103,37 @@ public class TripControllerTest extends WithApplication {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        assertEquals(OK, result.status());*/
     }
 
     @Test
     public void createTripNoDest() {
-
+        assertEquals(1, 2);
     }
 
     @Test
     public void createTripSameDestTwiceAdjacent() {
-
+        assertEquals(1, 2);
     }
 
     @Test
     public void createTripOneDest() {
-
+        assertEquals(1, 2);
     }
 
     @Test
     public void updateTrip() {
-
+        assertEquals(1, 2);
     }
 
     @Test
     public void updateTripInvalidId() {
-
+        assertEquals(1, 2);
     }
 
     @Test
     public void updateTripInvalidUpdate() {
-
+        assertEquals(1, 2);
     }
 
     @Test
@@ -159,7 +169,7 @@ public class TripControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
     }
-/*
+
     @Test
     public void getAllTripsInvalidId() {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -181,7 +191,7 @@ public class TripControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
     }
-*/
+
     @Test
     public void deleteTrip() {
         Http.RequestBuilder request = Helpers.fakeRequest()
