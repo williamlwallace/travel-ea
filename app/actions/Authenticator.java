@@ -40,7 +40,7 @@ public class Authenticator extends Action.Simple {
                     return roleMatch(request, user);
                 });
             }
-            return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
+            return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()).discardingCookie("JWT-Auth"));
             // });
         } else if (getRoles(request).isEmpty()) {
             // if no roles specified, do nothing (for homepage)
