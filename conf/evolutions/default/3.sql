@@ -10,7 +10,7 @@ INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Funct
 
 -- Add sample Profile
 INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES ((SELECT id FROM User LIMIT 1), 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
-INSERT INTO TravellerType (user_id, traveller_type_id) VALUES ((SELECT id FROM User LIMIT 1),1), ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) + 2);
+INSERT INTO TravellerType (user_id, traveller_type_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM TravellerTypeDefinition LIMIT 1)), ((SELECT id FROM User LIMIT 1),(SELECT id FROM TravellerTypeDefinition LIMIT 1) + 2);
 INSERT INTO Passport (user_id, country_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) );
 INSERT INTO Nationality (user_id, country_id) VALUES ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) + 5), ((SELECT id FROM User LIMIT 1),(SELECT id FROM CountryDefinition LIMIT 1) + 2);
 
@@ -27,7 +27,7 @@ INSERT INTO Destination (name, type, district, latitude, longitude, country_id) 
 INSERT INTO Trip (user_id) VALUES ((SELECT id FROM User LIMIT 1));
 
 -- Add sample tripData for the sample trip
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES ((SELECT id FROM Trip LIMIT 1), 0, 1, NULL, NULL);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES ((SELECT id FROM Trip LIMIT 1), 0, (SELECT id FROM Destination LIMIT 1), NULL, NULL);
 
 -- !Downs
 DELETE FROM TripData;
