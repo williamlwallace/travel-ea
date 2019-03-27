@@ -26,7 +26,7 @@ function put(url, data) {
 
 function showErrors(json, parentElement="main") {
     const elements = document.getElementById(parentElement).getElementsByTagName("label");
-    for (i in elements) {
+    for (let i in elements) {
         elements[i].innerHTML = "";
         for (const key of Object.keys(json)) {
             if (elements[i].id == (key+"Error")) {
@@ -41,7 +41,7 @@ function showErrors(json, parentElement="main") {
 
 function hideErrors(parentElement) {
     const elements = document.getElementById(parentElement).getElementsByTagName("label");
-    for (i in elements) {
+    for (let i in elements) {
         elements[i].innerHTML = "";
     }
 }
