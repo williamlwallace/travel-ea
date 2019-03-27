@@ -1,6 +1,6 @@
 # User Manual - Manual Testing
 
-This document outlines manual testing for TravelEA
+This document outlines user manual testing for TravelEA
 
 ## Start Page - Logging in and Signing up
 
@@ -59,7 +59,7 @@ This document outlines manual testing for TravelEA
   page at /destinations.
 - The destination page allows users to view all user created destinations and also create new ones.
 - On the destinations page there is a button for creating a new destination and below that is a 
-  table of all the users previously entered destinations.
+  table of all the users' previously entered destinations.
   
 #### Creating a new destination:
 
@@ -69,8 +69,7 @@ This document outlines manual testing for TravelEA
   attempts to click the create button the form will prompt the user 'Please fill in this field' 
   on the corresponding field.
 - The latitude and longitude fields are required to be numeric decimal values only. If the user
-  enters anything other than this and attempts to click the create button they will be prompted 
-  with 'Please match the format requested' on the corresponding field.
+  enters anything other than this and attempts to click the create button an error message will display.
 - If all the fields are filled and match the required format, when the user clicks the create
   button the popup will close, the page will be reloaded and the created destination will be 
   automatically added to the destination table.
@@ -138,5 +137,7 @@ order of travel.
     first name, last name, gender, age, nationalities and traveller types.
 - The user can interact with this table in various ways including; sorting by columns, changing number of entries 
   displayed per page, and using the search bar to quickly find travellers with specific attributes.
-- The table also has a filter button that allows the user to create a very detailed filter on what should be displayed
-  in the table.
+- The table also has a filter button that allows the user to perform a more precise search and display only the filtered results in the table.
+- When the filter button is clicked, a modal with popup with 5 different attributes the user can filter by. This includes nationality, gender, 
+age range (minimum age and maximum age) and also traveller type. A user can enter as many of these fields as they require and when apply is
+clicked the filtered results will be displayed in the table. If the user clicks cancel, the modal will close and the table will remain the same.
