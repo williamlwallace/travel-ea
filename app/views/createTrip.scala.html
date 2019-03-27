@@ -1,7 +1,7 @@
 @import play.mvc.Http.Request
 @import helper._
 
-@(user: String, destList: Seq[models.Destination], trip: models.Trip)(implicit request: Request, messages: play.i18n.Messages)
+@(user: String, destList: Seq[models.Destination], trip: models.Trip)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
@@ -220,7 +220,6 @@
                 </div>
             </div>
 
-
         <!-- Form to add destination to trip -->
             <div class="modal fade" id="modalAddForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
             aria-hidden="true">
@@ -278,4 +277,5 @@
 
 <script type="text/javascript">
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
+        getTripData("@controllers.backend.routes.TripController.getTrip(trip.id)", @trip.id);
 </script>
