@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div class="control-group">
-                    <label for="gender" class="control-label">Gender</label>
+                    <pre for="gender" class="control-label">Gender</pre>
                     <div>
                         <select name="gender" id="gender" required>
                             <option value="" disabled hidden>Select</option>
@@ -43,14 +43,14 @@
                 <br>
                 <div class="row">
                     <div class="form-group col-5">
-                        <label for="dateOfBirth" class="control-label">Date of Birth</label>
+                        <pre for="dateOfBirth" class="control-label">Date of Birth</pre>
                             <!-- TODO restrict birth date to before today -->
                         <input type="date" name="dateOfBirth" size="8" class="form-control validate" value="@profile.dateOfBirth">
                         <br/>
                         <label id="dateOfBirthError" class="error-messages"></label>
                     </div>
                 </div>
-                <label for="nationality" id="nationality" class="control-label">Nationalities</label>
+                <pre for="nationality" id="nationality" class="control-label">Nationalities</pre>
                 <div>
                     <select name="nationalities" id="nationalities" multiple required>
                         <option value="" disabled hidden>Select Nationalities</option>
@@ -59,14 +59,14 @@
                     <label id="nationalitiesError" class="error-messages"></label>
                 </div>
                 <br/>
-                <label for="country" id="country" class="control-label">Passports</label>
+                <pre for="country" id="country" class="control-label">Passports</pre>
                 <div>
                     <select name="passports" id="passports" multiple>
                         <option value="" disabled hidden>Select Passports</option>
                     </select>
                 </div>
                 <br/>
-                <label class="control-label">Traveller Types</label>
+                <pre class="control-label">Traveller Types</pre>
                 <div>
                     <br/>
                     <select name="travellerTypes" id="travellerTypes" multiple required>
@@ -74,6 +74,7 @@
                     </select>
                     <br/>
                     <label id="travellerTypesError" class="error-messages"></label>
+                    <label id="SuccessMessage"></label>
                 </div>
             </form>
             <div class="modal-footer d-flex justify-content-center">
