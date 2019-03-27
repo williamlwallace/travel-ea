@@ -1,4 +1,4 @@
-package controllers;
+package controllers.frontend;
 
 import actions.*;
 import actions.roles.*;
