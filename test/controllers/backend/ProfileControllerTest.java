@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.CountryDefinition;
 import models.Profile;
+import models.TravellerTypeDefinition;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
@@ -252,22 +254,171 @@ public class ProfileControllerTest extends WithApplication {
         }
     }
 
-    @Test
-    public void searchProfiles() throws IOException {
-        String searchParams = "gender=male";
-
+    private List<Profile> searchProfiles (String parameters) throws IOException{
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
-                .uri("/api/profile/search");
+                .uri("/api/profile/search?" + parameters);
 
         Result result = route(fakeApp, request);
 
-        List<Profile> profiles = Arrays.asList(new ObjectMapper().readValue(Helpers.contentAsString(result), Profile[].class));
+        return Arrays.asList(new ObjectMapper().readValue(Helpers.contentAsString(result), Profile[].class));
+    }
+
+    @Test
+    public void searchProfilesNoFilter() throws IOException {
+        List<Profile> profiles = searchProfiles("");
+
+        //Expect 4 profiles to be returned
+        assertEquals(4, profiles.size());
+
+        //Check that id and first name are correct for each profile
+
+        long testUserId = 1;
+
+        //User 1: Dave
+        Profile dave = profiles.get(0);
+        assertEquals(testUserId, (long) dave.userId);
+        assertEquals("Dave", dave.firstName);
+
+        //User 2: Steve
+        Profile steve = profiles.get(1);
+        testUserId = 2;
+        assertEquals(testUserId, (long) steve.userId);
+        assertEquals("Steve", steve.firstName);
+
+        //User 1: Jim
+        Profile jim = profiles.get(2);
+        testUserId = 3;
+        assertEquals(testUserId, (long) jim.userId);
+        assertEquals("Jim", jim.firstName);
+
+        //User 1: Ya boi
+        Profile yaBoi = profiles.get(3);
+        testUserId = 4;
+        assertEquals(testUserId, (long) yaBoi.userId);
+        assertEquals("YA BOI", yaBoi.firstName);
+    }
+
+    @Test
+    public void searchProfilesGenderMale() throws IOException {
+        List<Profile> profiles = searchProfiles("gender=male");
+
+        //Expect 2 profiles to be found
+        assertEquals(2, profiles.size());
 
         for (Profile profile : profiles) {
-            System.out.println(profile);
+            assertEquals("male", profile.gender.toLowerCase());
         }
     }
+
+    @Test
+    public void searchProfilesGenderOther() throws IOException {
+        List<Profile> profiles = searchProfiles("gender=other");
+
+        //Expect 1 profiles to be found
+        assertEquals(1, profiles.size());
+
+        for (Profile profile : profiles) {
+            assertEquals("other", profile.gender.toLowerCase());
+        }
+    }
+
+    @Test
+    public void searchProfilesNationalityFrance() throws IOException {
+        List<Profile> profiles = searchProfiles("nationalityId=2");
+
+        long countryId = 2;
+
+        //Expect 3 profiles to be found
+        assertEquals(3, profiles.size());
+
+        for (Profile profile : profiles) {
+            boolean found = false;
+            for (CountryDefinition country : profile.nationalities) {
+                if (country.id == countryId) {
+                    found = true;
+                }
+            }
+            assert(found);
+        }
+    }
+
+    @Test
+    public void searchProfilesTravellerTypeBackpacker() throws IOException {
+        List<Profile> profiles = searchProfiles("travellerTypeId=2");
+
+        long travellerTypeId = 2;
+
+        //Expect 2 profiles to be found
+        assertEquals(2, profiles.size());
+
+        for (Profile profile : profiles) {
+            boolean found = false;
+            for (TravellerTypeDefinition travellerType : profile.travellerTypes) {
+                if (travellerType.id == travellerTypeId) {
+                    found = true;
+                }
+            }
+            assert(found);
+        }
+    }
+
+    @Test
+    public void searchProfilesMinAge30() throws IOException {
+        List<Profile> profiles = searchProfiles("minAge=30");
+
+        //Expect 2 profiles to be found
+        assertEquals(2, profiles.size());
+
+        for (Profile profile : profiles) {
+            assert(profile.calculateAge() >= 30);
+        }
+    }
+
+    @Test
+    public void searchProfilesMaxAge40() throws IOException {
+        List<Profile> profiles = searchProfiles("maxAge=40");
+
+        //Expect 3 profiles to be found
+        assertEquals(3, profiles.size());
+
+        for (Profile profile : profiles) {
+            assert(profile.calculateAge() <= 40);
+        }
+    }
+
+    @Test
+    public void searchProfilesNoneFound() throws IOException {
+        List<Profile> profiles = searchProfiles("minAge=999");
+
+        //Expect 0 profiles to be found
+        assertEquals(0, profiles.size());
+    }
+
+    @Test
+    public void searchProfilesMultipleParams() throws IOException {
+        List<Profile> profiles = searchProfiles("minAge=30&travellerTypeId=2");
+
+        //Expect 1 profiles to be found
+        assertEquals(1, profiles.size());
+
+        long travellerTypeId = 2;
+
+        for (Profile profile : profiles) {
+            assert(profile.calculateAge() >= 30);
+
+            boolean found = false;
+            for (TravellerTypeDefinition travellerType : profile.travellerTypes) {
+                if (travellerType.id == travellerTypeId) {
+                    found = true;
+                }
+            }
+            assert(found);
+        }
+    }
+
+
+
 
     @Test
     public void deleteProfileId() {
