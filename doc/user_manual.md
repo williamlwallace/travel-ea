@@ -103,9 +103,9 @@ This document outlines user manual testing for TravelEA
 ## Create a Trip page
 
 - Upon clicking the 'Create New Trip' button the user will be taken to the create trips page at /trips/create
-- This page lets the user create; a new destination, add a destination to the trip, edit the arrival and departure 
-times of destinations, and rearrange the order of traverse.
-- When the user has finalised their Trip, pressing the 'Done' button will add the Trip to their current Trips,
+- This page lets the user create; a new destination, add a destination to the trip, remove destinations from the trip, edit the arrival and departure 
+times of destinations, and rearrange the order of traverse by dragging and dropping destinations.
+- When the user has finalised their Trip, pressing the 'Submit Trip' button will add the Trip to their current Trips,
  which can be viewed under the 'Trips' tab in the navigation bar.
 
 #### Create new destination:
