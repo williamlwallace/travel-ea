@@ -9,20 +9,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * A class that represents a profile and hold information that is received from the database
+ * A class that represents a profile
  */
-@Entity
-@Table(name="Profile")
-public class Profile extends Model {
+public class Profile {
 
-    @Id
-    @Constraints.Required
     public Long userId; //Unique user id
 
-    @Constraints.Required
     public String firstName;
 
-    @Constraints.Required
     public String lastName;
 
     public String middleName;
@@ -31,27 +25,11 @@ public class Profile extends Model {
 
     public String gender;
 
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name="TravellerType",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
-//    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name = "Nationality",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> nationalities;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "Passport",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> passports;
-
 
     public int calculateAge() {
         LocalDate birthDate = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));

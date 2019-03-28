@@ -1,10 +1,9 @@
-package models;
+package models.dbOnly;
 
 import io.ebean.Model;
 import play.data.validation.Constraints;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * A class that represents a user's nationalities
@@ -12,7 +11,8 @@ import java.util.List;
 @Entity
 @Table(name="Nationality")
 public class Nationality extends Model {
-    @Id
+
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long guid;
 
     @Constraints.Required
@@ -21,6 +21,4 @@ public class Nationality extends Model {
     @Constraints.Required
     public Long userId;
 
-//    @ManyToMany(mappedBy = "nationalities")
-//    public List<Profile> nationalities;
 }
