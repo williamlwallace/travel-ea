@@ -6,6 +6,7 @@ import play.mvc.Result;
 import play.mvc.Action;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
+import java.util.NoSuchElementException;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.util.ArrayList;
