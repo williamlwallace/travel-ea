@@ -25,7 +25,7 @@ public class ApplicationController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public Result home(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return ok(home.render(user.username));
+        return ok(home.render(user));
                 
     }
 

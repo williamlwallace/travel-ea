@@ -24,6 +24,12 @@ function put(url, data) {
     })
 }
 
+function _delete(url) {
+    return fetch(url, {
+        method: "DELETE"
+    })
+}
+
 function showErrors(json, parentElement="main") {
     const elements = document.getElementById(parentElement).getElementsByTagName("label");
     for (let i in elements) {

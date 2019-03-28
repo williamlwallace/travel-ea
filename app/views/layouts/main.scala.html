@@ -1,6 +1,7 @@
 @import play.mvc.Http.Request
 @import helper._
-@(title: String, user: String, scripts: Html = Html(""))(content: Html)
+@import models.User
+@(title: String, user: User, scripts: Html = Html(""))(content: Html)
 
 @* Shows the current tab as active. Thanks to user2518430 of stackoverflow *@
 @activeLink(currentPath:String) = @{
@@ -44,12 +45,17 @@
                     <li class="nav-item">
                         <a class="nav-link @activeLink("/people")" href="/people">People</a>
                     </li>
+                    @if(user.admin) {
+                        <li class="nav-item">
+                            <a class="nav-link @activeLink("/admin")" href="/admin">Admin</a>
+                        </li>
+                    }
                 </ul>
                 <ul class="nav pull-right">
                     <li class="dropdown">
                         <a class="dropdown-toggle dropdown-style @activeLink("/profile")" href="/editProfile" id="navbarDropdown"
                             role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        @user
+                        @user.username
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="/editProfile">Profile</a>

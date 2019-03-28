@@ -81,6 +81,22 @@ public class Authenticator extends Action.Simple {
         if (roles.contains("everyone")) {
             return delegate.call(request.addAttr(ActionState.USER, user));
         }
+        for (String role : roles) { //Loop through roles (this is only for future proofing for when we need more roles)
+            switch(role) {
+                case "everyone":
+                    return delegate.call(request.addAttr(ActionState.USER, user));
+                case "admin":
+                    if (user.admin) {
+                        return delegate.call(request.addAttr(ActionState.USER, user));
+                    }
+                    break;
+                case "generalUser":
+                    if (!user.admin) { //add other roles when they come
+                        return delegate.call(request.addAttr(ActionState.USER, user));
+                    }
+                    break;
+            }
+        }
         return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
         // TODO: implement role check.
     }

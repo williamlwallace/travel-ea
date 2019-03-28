@@ -47,7 +47,7 @@ public class DestinationController extends Controller {
         User user = request.attrs().get(ActionState.USER);
         return this.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user.username)):internalServerError();
+                    return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user)):internalServerError();
                 },
                 httpExecutionContext.current());
     }

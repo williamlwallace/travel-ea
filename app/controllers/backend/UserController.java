@@ -15,7 +15,7 @@ import util.CryptoManager;
 import util.validation.UserValidator;
 import util.validation.ErrorResponse;
 import actions.*;
-import actions.roles.Everyone;
+import actions.roles.*;
 import play.mvc.With;
 
 import javax.inject.Inject;
@@ -49,21 +49,53 @@ public class UserController extends Controller {
      * @param filter Filter applied on user names
      * @return Returns a CompletionStage ok type for successful query
      */
-    public CompletionStage<Result> pagedUsers(int page, String order, String filter) {
+    @With({Admin.class, Authenticator.class})
+    public CompletionStage<Result> userSearch(Http.Request request, String order, String filter) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.page(page, 10, order, filter).thenApplyAsync(users ->
-                ok(Json.toJson(users.getList())), httpExecutionContext.current());
+        return userRepository.search(order, filter).thenApplyAsync(users ->
+                ok(Json.toJson(users)), httpExecutionContext.current());
     }
 
     /**
-     * Delete a user with given uid
+     * Delete a users account
      *
      * @param userId ID of user to delete
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
-    public CompletionStage<Result> deleteUser(Long userId) {
-        return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted ->
-                        (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found"),
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> deleteUser(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        return deleteUserHelper(user.id);
+    }
+
+    /**
+     * Delete a user with given uid admin only
+     *
+     * @param userId ID of user to delete
+     * @return Ok if user successfully deleted, badrequest if no such user found
+     */
+    @With({Admin.class, Authenticator.class})
+    public CompletableFuture<Result> deleteOtherUser(Http.Request request, Long userId) {
+        System.out.println("yeow");
+        if (userId != 1) { //make sure master user not deleted
+            return deleteUserHelper(userId);
+        } else {
+            return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Cannot delete Master user")));
+        }
+    }
+
+    /**
+     * Delete a user with given uid helper function
+     *
+     * @param userId ID of user to delete
+     * @return Ok if user successfully deleted, badrequest if no such user found
+     */
+    private CompletableFuture<Result> deleteUserHelper(Long userId) {
+        System.out.println("yeow");
+        return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted -> {
+                        System.out.println("yeow");
+                        return (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found");
+                },
                 httpExecutionContext.current());
     }
 

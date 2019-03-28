@@ -1,6 +1,6 @@
 @import play.mvc.Http.Request
 @import helper._
-@(profile: Profile, username: String)
+@(profile: Profile, username: models.User)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/editProfile.js")" type="text/javascript"></script>

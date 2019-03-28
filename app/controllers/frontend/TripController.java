@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import models.Trip;
+import models.User;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
@@ -49,10 +50,10 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> tripIndex(Http.Request request) {
-        String username = request.attrs().get(ActionState.USER).username;
+        User user = request.attrs().get(ActionState.USER);
         return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
                 tripList -> {
-                    return ok(trips.render(username, asScala(tripList)));
+                    return ok(trips.render(user, asScala(tripList)));
                 },
                 httpExecutionContext.current());
     }
@@ -66,10 +67,10 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> createTripIndex(Http.Request request) {
-        String username = request.attrs().get(ActionState.USER).username;
+        User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenApplyAsync(
                 destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), new Trip())) : internalServerError();
+                    return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), new Trip())) : internalServerError();
                 },
                 httpExecutionContext.current());
     }
@@ -83,12 +84,12 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
-        String username = request.attrs().get(ActionState.USER).username;
+        User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenComposeAsync(
                 destList -> {
                     return this.getTrip(Authenticator.getTokenFromCookie(request), tripId).thenApplyAsync(
                             trip -> {
-                                return (destList.size() != 0) ? ok(createTrip.render(username, asScala(destList), trip)) : internalServerError();
+                                return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), trip)) : internalServerError();
                             },
                             httpExecutionContext.current()
                     );

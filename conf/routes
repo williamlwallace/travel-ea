@@ -3,7 +3,15 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
+POST    /api/admin/grant/:id            controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
+
+POST    /api/admin/revoke/:id           controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
+
+GET     /api/user/search                controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
+
+DELETE  /api/user/:id                   controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
+
+DELETE  /api/user/                      controllers.backend.UserController.deleteUser(request:Request)
 
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
 
@@ -17,14 +25,12 @@ GET     /api/profile/search             controllers.backend.ProfileController.se
 
 GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
 
-GET     /api/profile                   controllers.backend.ProfileController.getMyProfile(request:Request)
+GET     /api/profile                    controllers.backend.ProfileController.getMyProfile(request:Request)
 
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
 DELETE  /api/profile/:userId            controllers.backend.ProfileController.deleteProfile(userId:Long)
-
-DELETE  /api/user/:userId               controllers.backend.UserController.deleteUser(userId:Long)
 
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
 

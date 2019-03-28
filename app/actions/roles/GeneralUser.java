@@ -11,10 +11,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import java.util.ArrayList;
 
-public class Admin extends Action.Simple {
+public class GeneralUser extends Action.Simple {
     public CompletionStage<Result> call(Http.Request request) {
         List<String> roles = Authenticator.getRoles(request);
-        roles.add("admin");
+        roles.add("generalUser");
         return delegate.call(request.addAttr(ActionState.ROLES, roles));
     }
 }

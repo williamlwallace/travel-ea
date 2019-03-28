@@ -2,6 +2,7 @@ package controllers.frontend;
 
 import controllers.backend.ProfileController;
 import models.Profile;
+import models.User;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -40,8 +41,8 @@ public class PeopleController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public Result search(Http.Request request, Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
-        String username = request.attrs().get(ActionState.USER).username;
+        User user = request.attrs().get(ActionState.USER);
         List<Profile> profiles = profileController.searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId).join(); //This is so bad
-        return ok(people.render(username, profiles));
+        return ok(people.render(user, profiles));
     }
 }

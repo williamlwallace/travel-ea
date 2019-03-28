@@ -49,7 +49,7 @@ public class ProfileController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return ok(profile.render(user.username, user.id));
+        return ok(profile.render(user, user.id));
     }
 
     /**
@@ -64,7 +64,7 @@ public class ProfileController extends Controller {
         User user = request.attrs().get(ActionState.USER);
         return this.getProfile(user.id).thenApplyAsync(
                 profile -> {
-                    return ok(editProfile.render(profile, user.username));
+                    return ok(editProfile.render(profile, user));
                 },
                 httpExecutionContext.current());
     }

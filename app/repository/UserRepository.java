@@ -3,6 +3,7 @@ package repository;
 import io.ebean.*;
 import models.User;
 import play.db.ebean.EbeanConfig;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -33,15 +34,13 @@ public class UserRepository {
      * @param order    Sort order (either or asc or desc)
      * @param filter   Filter applied on the name column
      */
-    public CompletableFuture<PagedList<User>> page(int page, int pageSize, String order, String filter) {
+    public CompletableFuture<List<User>> search(String order, String filter) {
         return supplyAsync(() ->
             ebeanServer.find(User.class)
                 .where()
                 .ilike("username", "%" + filter + "%")
                 .orderBy("username " + order)
-                .setFirstRow(page * pageSize)
-                .setMaxRows(pageSize)
-                .findPagedList(),
+                .findList(),
                 executionContext);
     }
 
