@@ -165,7 +165,6 @@ public class TripController extends Controller {
             TripData tripData = new TripData();
 
             if (trip != null) {
-                tripData.trip = trip;
                 tripData.tripId = trip.id;
             }
             else {

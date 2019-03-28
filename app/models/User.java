@@ -9,16 +9,25 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-public class User {
+/**
+ * User entity managed by Ebean
+ */
+@Entity
+@Table(name="User")
+public class User extends Model {
 
+    @Id
     public Long id;
 
+    @Constraints.Required
+    @Constraints.Email
+    @Column(unique = true)
     public String username;
 
+    @Constraints.Required
     public String password;
 
     public String salt;
 
     public Boolean admin = false;
-    
 }

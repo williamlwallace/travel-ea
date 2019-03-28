@@ -79,7 +79,7 @@ public class ProfileController extends Controller {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
-            
+
             });
         }
         catch (InterruptedException ex) {
@@ -125,39 +125,13 @@ public class ProfileController extends Controller {
      * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
      */
     public CompletableFuture<Result> getProfile(Http.Request request, Long userId) {
-        ErrorResponse errorResponse = new ErrorResponse();
-        Profile profile;
-        try {
-            profile = profileRepository.findID(userId).get();
-            //profile = profileRepository.findIDModelBridging(userId).get();
-        }
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Database Exception", "other");
-                return internalServerError(errorResponse.toJson());
-            
-            });
-        }
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Thread exception", "other");
-                return internalServerError(errorResponse.toJson());
-            });
-        }
-
-        if (profile != null) {
-            // Converts profile to json and adds nationality, passport and traveller type properties
-            JsonNode profileJson = Json.toJson(profile);
-            ObjectNode customProfileJson = (ObjectNode)profileJson;
-
-            return CompletableFuture.supplyAsync(() -> ok(customProfileJson));
-        }
-        else {
-            return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Could not find profile in database", "other");
-                return badRequest(errorResponse.toJson());
-            });
-        }
+        return profileRepository.findID(userId).thenApplyAsync(profile -> {
+            if(profile == null) {
+                return badRequest("No such profile");
+            } else {
+                return ok(Json.toJson(profile));
+            }
+        });
     }
 
     /**
