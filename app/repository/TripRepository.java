@@ -35,9 +35,6 @@ public class TripRepository {
     public CompletableFuture<Result> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
             ebeanServer.insert(newTrip);
-            for(TripData data : newTrip.tripDataList) {
-                data.trip = newTrip;
-            }
             ebeanServer.insertAll(newTrip.tripDataList);
             return ok();
         }, executionContext);
@@ -51,6 +48,15 @@ public class TripRepository {
     public CompletableFuture<Boolean> deleteTrip(Trip trip) {
         return supplyAsync(() ->
             ebeanServer.delete(trip),
+            executionContext);
+    }
+
+    public CompletableFuture<Boolean> updateTrip(Trip trip) {
+        return supplyAsync(() -> {
+                ebeanServer.find(TripData.class).where().eq("trip_id", trip.id).delete();
+                ebeanServer.insertAll(trip.tripDataList);
+                return true;
+            },
             executionContext);
     }
 

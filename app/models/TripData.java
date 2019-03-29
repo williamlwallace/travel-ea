@@ -24,10 +24,6 @@ public class TripData extends Model {
     @JsonBackReference
     public Trip trip;
 
-
-    @Column(name="trip_id")
-    public Long tripId;
-
     @Constraints.Required
     public Long position;
 
