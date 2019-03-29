@@ -35,7 +35,6 @@ public class TripRepository {
     public CompletableFuture<Result> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
             ebeanServer.insert(newTrip);
-            ebeanServer.insertAll(newTrip.tripDataList);
             return ok();
         }, executionContext);
     }
