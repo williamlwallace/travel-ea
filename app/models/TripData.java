@@ -19,8 +19,10 @@ public class TripData extends Model {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long guid;
-    
-    public Long tripId;
+
+    @ManyToOne
+    @JsonBackReference
+    public Trip trip;
 
     @Constraints.Required
     public Long position;

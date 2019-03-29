@@ -51,6 +51,15 @@ public class TripRepository {
             executionContext);
     }
 
+    public CompletableFuture<Boolean> updateTrip(Trip trip) {
+        return supplyAsync(() -> {
+                ebeanServer.find(TripData.class).where().eq("trip_id", trip.id).delete();
+                ebeanServer.insertAll(trip.tripDataList);
+                return true;
+            },
+            executionContext);
+    }
+
     /**
      * Deletes trip from database by id
      * @param id ID of trip object to be deleted
