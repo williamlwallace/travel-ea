@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @Entity
 public class TripData extends Model {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long guid;
 
@@ -23,7 +24,7 @@ public class TripData extends Model {
     @JsonBackReference
     public Trip trip;
 
-    @Id
+
     @Column(name="trip_id")
     public Long tripId;
 
