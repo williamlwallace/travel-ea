@@ -52,8 +52,7 @@ public class TripRepository {
 
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
         return supplyAsync(() -> {
-                ebeanServer.find(TripData.class).where().eq("trip_id", trip.id).delete();
-                ebeanServer.insertAll(trip.tripDataList);
+                ebeanServer.update(trip);
                 return true;
             },
             executionContext);
