@@ -1,9 +1,12 @@
-package models.dbOnly;
+package models;
 
 import io.ebean.Model;
 import play.data.validation.Constraints;
+import javax.persistence.Column;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  * A class that stores information regarding users and which country passports they hold
@@ -12,7 +15,7 @@ import javax.persistence.*;
 @Table(name="TravellerType")
 public class TravellerType extends Model {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
     public Long guid;
 
     @Constraints.Required
@@ -22,5 +25,4 @@ public class TravellerType extends Model {
     @Constraints.Required
     @Column(name="traveller_type_id")
     public Long travellerTypeId;
-
 }

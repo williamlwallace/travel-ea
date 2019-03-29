@@ -25,7 +25,7 @@ public class TravellerTypeDefinition extends Model {
     public String toString() {
         String toReturn = description.substring(0, 1).toUpperCase();
 
-        // Captialises the traveller type properly
+        //Captialises the traveller type properly
         for (int i = 1; i < description.length(); i++) {
             char c = description.charAt(i - 1);
             if (c == '/' || c == '\\' || c == ' ') {
@@ -35,6 +35,11 @@ public class TravellerTypeDefinition extends Model {
             }
         }
         return toReturn;
+//        return description.substring(0, 1).toUpperCase() + description.substring(1);
     }
 
+
+//    @ManyToMany(mappedBy = "travellerTypes")
+//    @JsonBackReference
+//    public List<Profile> profiles;
 }
