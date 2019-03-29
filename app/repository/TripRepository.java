@@ -81,12 +81,6 @@ public class TripRepository {
                     .eq("user_id", userID)
                     .findList();
 
-            for(Trip trip : list) {
-                trip.tripDataList = ebeanServer.find(TripData.class)
-                        .where()
-                        .eq("trip_id", trip.id)
-                        .findList();
-                }
                 return list;
             },
             executionContext);
@@ -104,12 +98,6 @@ public class TripRepository {
                     .eq("id", tripId)
                     .findOneOrEmpty()
                     .orElse(null);
-            if(trip != null) {
-                trip.tripDataList = ebeanServer.find(TripData.class)
-                    .where()
-                    .eq("trip_id", trip.id)
-                    .findList();
-            }
             return trip;
         }, executionContext);
     }

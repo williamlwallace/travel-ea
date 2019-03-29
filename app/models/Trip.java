@@ -1,16 +1,25 @@
 package models;
 
+import io.ebean.Model;
+import play.data.validation.Constraints;
+
+import javax.persistence.*;
 import java.util.List;
 
 /**
  * A class that models the trip database table
  */
-public class Trip {
+@Entity
+@Table(name="Trip")
+public class Trip extends Model {
 
+    @Id
     public Long id;
 
+    @Constraints.Required
     public Long userId;
 
+    @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
 
     public String findFirstTripDate() {

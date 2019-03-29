@@ -12,15 +12,23 @@ import java.time.LocalDateTime;
 /**
  * A class that models the tripData database table
  */
-public class TripData {
+@Table(name="TripData")
+@Entity
+public class TripData extends Model {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long guid;
-
+    
     public Long tripId;
 
+    @Constraints.Required
     public Long position;
 
+    @OneToOne
+    @JoinTable(
+            name = "Destination",
+            joinColumns=@JoinColumn(name="destination_id", referencedColumnName="id"))
     public Destination destination;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
