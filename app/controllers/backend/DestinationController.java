@@ -1,13 +1,12 @@
 package controllers.backend;
 
-import actions.*;
-import actions.roles.*;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
 import models.Destination;
-import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -17,9 +16,6 @@ import repository.DestinationRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
-import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-
 public class DestinationController extends Controller {
 
     private final DestinationRepository destinationRepository;
@@ -27,7 +23,7 @@ public class DestinationController extends Controller {
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-                                 CountryDefinitionRepository countryDefinitionRepository) {
+        CountryDefinitionRepository countryDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
     }
@@ -35,6 +31,7 @@ public class DestinationController extends Controller {
     /**
      * Adds a new destination to the database. Destination object to be added must be a json object
      * in the request of the body
+     *
      * @param request Request containing destination json object as body
      * @return Ok with id of destination on success, badRequest otherwise
      */
@@ -48,13 +45,16 @@ public class DestinationController extends Controller {
         } else {
             //Else, no errors found, continue with adding to the database
             Destination newDestination = Json.fromJson(data, Destination.class);
-            return destinationRepository.addDestination(newDestination).thenApplyAsync(id -> ok(Json.toJson(id)));
+            return destinationRepository.addDestination(newDestination)
+                .thenApplyAsync(id -> ok(Json.toJson(id)));
         }
     }
 
     /**
-     * Deletes a destination with given id. Return a result with a json int which represents the number
-     * of rows that were deleted. So if the return value is 0, no destination was found to delete
+     * Deletes a destination with given id. Return a result with a json int which represents the
+     * number of rows that were deleted. So if the return value is 0, no destination was found to
+     * delete
+     *
      * @param id ID of destination to delete
      * @return OK with number of rows deleted, badrequest if none deleted
      */
@@ -62,7 +62,8 @@ public class DestinationController extends Controller {
     public CompletableFuture<Result> deleteDestination(Long id) {
         // TODO: add authentication of user to destination
         return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted ->
-            (rowsDeleted == 0) ? badRequest(Json.toJson("No such destination")) : ok(Json.toJson(rowsDeleted)));
+            (rowsDeleted == 0) ? badRequest(Json.toJson("No such destination"))
+                : ok(Json.toJson(rowsDeleted)));
     }
 
     public CompletableFuture<Result> getAllDestinations() {
@@ -72,17 +73,21 @@ public class DestinationController extends Controller {
 
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
-                .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+            .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
     }
 
     public CompletableFuture<Result> getDestination(long getId) {
         return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
-            if (destination.id == null) return notFound(Json.toJson(getId));
-            else return ok(Json.toJson(destination));
+            if (destination.id == null) {
+                return notFound(Json.toJson(getId));
+            } else {
+                return ok(Json.toJson(destination));
+            }
         });
     }
 
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
+    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order,
+        String filter) {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }

@@ -1,28 +1,9 @@
 package controllers.backend;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.TripData;
-import org.junit.*;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Http.Cookie;
-import play.mvc.Http.CookieBuilder;
-import play.mvc.Result;
-import play.test.Helpers;
-import play.test.WithApplication;
-
-import java.io.IOException;
-import java.util.*;
-
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.*;
+
+import org.junit.Test;
+import play.test.WithApplication;
 
 public class TripControllerTest extends WithApplication {
 

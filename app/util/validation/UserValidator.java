@@ -13,6 +13,7 @@ public class UserValidator extends Validator {
 
     /**
      * Validates login data
+     *
      * @return ErrorResponse object
      */
     public ErrorResponse login() {
@@ -26,8 +27,8 @@ public class UserValidator extends Validator {
     }
 
     /**
-     * Validates addNewProfile data
-     * NB passports are not required
+     * Validates addNewProfile data NB passports are not required
+     *
      * @return ErrorResponse object
      */
     public ErrorResponse profile() {

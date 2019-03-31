@@ -1,18 +1,20 @@
 package models;
 
 import io.ebean.Model;
-import play.data.validation.Constraints;
-import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import play.data.validation.Constraints;
 
 /**
  * A class that represents a profile and hold information that is received from the database
  */
 @Entity
-@Table(name="Profile")
+@Table(name = "Profile")
 public class Profile extends Model {
 
     @Id
@@ -31,21 +33,21 @@ public class Profile extends Model {
 
     public String gender;
 
-//    @ManyToMany(cascade = CascadeType.ALL)
+    //    @ManyToMany(cascade = CascadeType.ALL)
 //    @JoinTable(
 //            name="TravellerType",
 //            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
 //            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
-//    @ManyToMany(cascade = CascadeType.ALL)
+    //    @ManyToMany(cascade = CascadeType.ALL)
 //    @JoinTable(
 //            name = "Nationality",
 //            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
 //            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> nationalities;
 
-//    @ManyToMany
+    //    @ManyToMany
 //    @JoinTable(
 //            name = "Passport",
 //            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
@@ -54,7 +56,8 @@ public class Profile extends Model {
 
 
     public int calculateAge() {
-        LocalDate birthDate = LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate birthDate = LocalDate
+            .parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         int age = Period.between(birthDate, LocalDate.now()).getYears();
         return age;
     }

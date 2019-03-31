@@ -1,16 +1,16 @@
 package models;
 
 import io.ebean.Model;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
-
-import javax.persistence.*;
-import java.util.List;
 
 /**
  * A class that represents a country and holds information received from the database
  */
 @Entity
-@Table(name="CountryDefinition")
+@Table(name = "CountryDefinition")
 public class CountryDefinition extends Model {
 
     @Id
