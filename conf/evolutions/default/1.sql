@@ -158,7 +158,3 @@ DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
 DROP TABLE User;
-
-
-
-

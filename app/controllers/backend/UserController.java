@@ -76,7 +76,6 @@ public class UserController extends Controller {
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteOtherUser(Http.Request request, Long userId) {
-        System.out.println("yeow");
         if (userId != 1) { //make sure master user not deleted
             return deleteUserHelper(userId);
         } else {
@@ -91,9 +90,7 @@ public class UserController extends Controller {
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
-        System.out.println("yeow");
         return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted -> {
-                        System.out.println("yeow");
                         return (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId) : badRequest("No user with such uid found");
                 },
                 httpExecutionContext.current());
@@ -145,7 +142,7 @@ public class UserController extends Controller {
                         }
                     })
                     .thenApplyAsync(user -> {
-                        System.out.println("meowouch");   //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                        //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
                         if (user == null) {
                             //Create the error to be sent to client
                             validatorResult.map("Email already in use", "other");

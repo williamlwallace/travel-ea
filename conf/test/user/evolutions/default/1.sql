@@ -20,10 +20,11 @@ CREATE TABLE IF NOT EXISTS User
     username          VARCHAR(64) NOT NULL,
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
-    auth_token        VARCHAR(128),
+    -- auth_token        VARCHAR(128),
+    admin             BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (id),
-    UNIQUE (username),
-    UNIQUE (auth_token)
+    UNIQUE (username)
+    -- UNIQUE (auth_token)
   );
 
 -- Create Profile table

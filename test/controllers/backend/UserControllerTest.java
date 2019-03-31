@@ -35,7 +35,7 @@ public class UserControllerTest extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
-    private static Cookie authCookie;
+    private static Cookie adminAuthCookie;
 
     /**
      * Configures system to use dest database, and starts a fake app
@@ -46,7 +46,7 @@ public class UserControllerTest extends WithApplication {
         Map<String, String> settings = new HashMap<>();
         settings.put("db.default.driver", "org.h2.Driver");
         settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
+        adminAuthCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
 
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
@@ -86,6 +86,7 @@ public class UserControllerTest extends WithApplication {
         //Create request to GET all users
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
+                .cookie(adminAuthCookie)
                 .uri("/api/user/search");
 
         // Get result and check it was successful
@@ -286,7 +287,7 @@ public class UserControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
-                .cookie(authCookie)
+                .cookie(adminAuthCookie)
                 .uri("/api/user/1");
 
         // Get result and check it was successful
@@ -299,7 +300,7 @@ public class UserControllerTest extends WithApplication {
         // Create request to delete a user that does not exist
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
-                .cookie(authCookie)
+                .cookie(adminAuthCookie)
                 .uri("/api/user/12");
 
         // Get result and check it failed
