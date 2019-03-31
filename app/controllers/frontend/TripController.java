@@ -1,26 +1,29 @@
 package controllers.frontend;
 
-import actions.*;
-import actions.roles.*;
+import static play.libs.Scala.asScala;
+
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
 import models.Trip;
 import models.User;
-import play.i18n.MessagesApi;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.mvc.*;
-import views.html.*;
-
-import java.util.ArrayList;
-import javax.inject.Inject;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
-import static play.libs.Scala.asScala;
+import play.mvc.Controller;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
+import views.html.createTrip;
+import views.html.trips;
 
 /**
  */
@@ -32,9 +35,9 @@ public class TripController extends Controller {
 
     @Inject
     public void TripController(
-            HttpExecutionContext httpExecutionContext,
-            WSClient ws,
-            DestinationController destinationController) {
+        HttpExecutionContext httpExecutionContext,
+        WSClient ws,
+        DestinationController destinationController) {
 
         this.httpExecutionContext = httpExecutionContext;
         this.ws = ws;
@@ -42,9 +45,9 @@ public class TripController extends Controller {
     }
 
     /**
-     * Displays the trips page. Called with the /trips URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the trips page if they are,
-     * otherwise they are taken to the start page.
+     * Displays the trips page. Called with the /trips URL and uses a GET request. Checks that a
+     * user is logged in. Takes them to the trips page if they are, otherwise they are taken to the
+     * start page.
      *
      * @return displays the trips or start page.
      */
@@ -52,16 +55,16 @@ public class TripController extends Controller {
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
-                tripList -> {
-                    return ok(trips.render(user, asScala(tripList)));
-                },
-                httpExecutionContext.current());
+            tripList -> {
+                return ok(trips.render(user, asScala(tripList)));
+            },
+            httpExecutionContext.current());
     }
 
     /**
      * Displays the create trip page. Called with the /trips/create URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the create trip page if they are,
-     * otherwise they are taken to the start page.
+     * Checks that a user is logged in. Takes them to the create trip page if they are, otherwise
+     * they are taken to the start page.
      *
      * @return displays the create trip or start page.
      */
@@ -69,16 +72,17 @@ public class TripController extends Controller {
     public CompletableFuture<Result> createTripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenApplyAsync(
-                destList -> {
-                    return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), new Trip())) : internalServerError();
-                },
-                httpExecutionContext.current());
+            destList -> {
+                return (destList.size() != 0) ? ok(
+                    createTrip.render(user, asScala(destList), new Trip())) : internalServerError();
+            },
+            httpExecutionContext.current());
     }
 
     /**
-     * Displays the create trip page re-formatted for editing the selected trip. Called with the /trips/edit URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the edit trip page if they are,
-     * otherwise they are taken to the start page.
+     * Displays the create trip page re-formatted for editing the selected trip. Called with the
+     * /trips/edit URL and uses a GET request. Checks that a user is logged in. Takes them to the
+     * edit trip page if they are, otherwise they are taken to the start page.
      *
      * @return displays the create trip or start page.
      */
@@ -86,15 +90,18 @@ public class TripController extends Controller {
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenComposeAsync(
-                destList -> {
-                    return this.getTrip(Authenticator.getTokenFromCookie(request), tripId).thenApplyAsync(
-                            trip -> {
-                                return (destList.size() != 0) ? ok(createTrip.render(user, asScala(destList), trip)) : internalServerError();
-                            },
-                            httpExecutionContext.current()
+            destList -> {
+                return this.getTrip(Authenticator.getTokenFromCookie(request), tripId)
+                    .thenApplyAsync(
+                        trip -> {
+                            return (destList.size() != 0) ? ok(
+                                createTrip.render(user, asScala(destList), trip))
+                                : internalServerError();
+                        },
+                        httpExecutionContext.current()
                     );
-                },
-                httpExecutionContext.current());
+            },
+            httpExecutionContext.current());
     }
 
     /**
@@ -104,15 +111,16 @@ public class TripController extends Controller {
      */
     public CompletableFuture<List<Trip>> getUserTrips(String token) {
         CompletableFuture<WSResponse> res = ws
-                                            .url("http://localhost:9000/api/trip/getAll/")
-                                            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
-                                            .get()
-                                            .toCompletableFuture();
+            .url("http://localhost:9000/api/trip/getAll/")
+            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+            .get()
+            .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                        new TypeReference<List<Trip>>() {});
+                    new TypeReference<List<Trip>>() {
+                    });
             } catch (Exception e) {
                 return new ArrayList<>();
             }
@@ -126,15 +134,16 @@ public class TripController extends Controller {
      */
     public CompletableFuture<Trip> getTrip(String token, Long tripId) {
         CompletableFuture<WSResponse> res = ws
-                .url("http://localhost:9000/api/trip/" + tripId)
-                .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
-                .get()
-                .toCompletableFuture();
+            .url("http://localhost:9000/api/trip/" + tripId)
+            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+            .get()
+            .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                        new TypeReference<Trip>() {});
+                    new TypeReference<Trip>() {
+                    });
             } catch (Exception e) {
                 return new Trip();
             }

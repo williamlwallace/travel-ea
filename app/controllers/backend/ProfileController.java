@@ -1,25 +1,32 @@
 package controllers.backend;
 
-import actions.*;
-import actions.roles.*;
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import models.*;
-import play.data.FormFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import models.CountryDefinition;
+import models.Nationality;
+import models.Passport;
+import models.Profile;
+import models.TravellerTypeDefinition;
+import models.User;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import repository.*;
-import util.validation.UserValidator;
+import repository.CountryDefinitionRepository;
+import repository.ProfileRepository;
+import repository.TravellerTypeDefinitionRepository;
 import util.validation.ErrorResponse;
-
-import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
+import util.validation.UserValidator;
 
 /**
  * Manage a database of users
@@ -32,8 +39,8 @@ public class ProfileController extends Controller {
 
     @Inject
     public ProfileController(ProfileRepository profileRepository,
-                          CountryDefinitionRepository countryDefinitionRepository,
-                          TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
+        CountryDefinitionRepository countryDefinitionRepository,
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
         this.profileRepository = profileRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
@@ -41,19 +48,20 @@ public class ProfileController extends Controller {
 
     /**
      * Gets all possible traveller types currently stored in db
+     *
      * @return JSON list of traveller types
      */
     public CompletableFuture<Result> getAllTravellerTypes() {
         return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
-                .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
+            .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
     }
 
     /**
      * Adds a new profile received as body of a post request to database
      *
      * @param request Contains the HTTP request info
-     * @return        Returns CompletionStage type: ok if profile created and added succesfully, badRequest if profile
-     *                already exists
+     * @return Returns CompletionStage type: ok if profile created and added succesfully, badRequest
+     * if profile already exists
      */
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
@@ -74,15 +82,13 @@ public class ProfileController extends Controller {
         // Check if profile already exists
         try {
             foundProfile = profileRepository.findID(profile.userId).get();
-        }
-        catch (ExecutionException ex) {
+        } catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
-            
+
             });
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Thread exception", "other");
                 return internalServerError(errorResponse.toJson());
@@ -92,7 +98,7 @@ public class ProfileController extends Controller {
         // If userId was already in use
         if (foundProfile != null) {
             return CompletableFuture.supplyAsync(() -> {
-                errorResponse.map("Profile already created for this user id","other");
+                errorResponse.map("Profile already created for this user id", "other");
                 return badRequest(errorResponse.toJson());
             });
         }
@@ -101,17 +107,21 @@ public class ProfileController extends Controller {
         else {
             try {
                 profileRepository.addProfile(profile).get();
-                return CompletableFuture.supplyAsync(() -> created(Json.toJson("Successfully added new profile to database")));
+                return CompletableFuture.supplyAsync(
+                    () -> created(Json.toJson("Successfully added new profile to database")));
             } catch (Exception e) {
                 int i = 0;
-                return CompletableFuture.supplyAsync(() -> internalServerError("Failed to add profile to database"));
+                return CompletableFuture
+                    .supplyAsync(() -> internalServerError("Failed to add profile to database"));
             }
         }
     }
 
     /**
      * Gets a profile based on the userID specified in auth
-     * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
+     *
+     * @return Ok with profile json object if profile found, badRequest if request malformed or
+     * profile not found
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getMyProfile(Http.Request request) {
@@ -121,8 +131,10 @@ public class ProfileController extends Controller {
 
     /**
      * Gets a profile based on the userID specified in the request
+     *
      * @param userId The user ID to return data for
-     * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
+     * @return Ok with profile json object if profile found, badRequest if request malformed or
+     * profile not found
      */
     public CompletableFuture<Result> getProfile(Http.Request request, Long userId) {
         ErrorResponse errorResponse = new ErrorResponse();
@@ -130,15 +142,13 @@ public class ProfileController extends Controller {
         try {
             profile = profileRepository.findID(userId).get();
             //profile = profileRepository.findIDModelBridging(userId).get();
-        }
-        catch (ExecutionException ex) {
+        } catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Database Exception", "other");
                 return internalServerError(errorResponse.toJson());
-            
+
             });
-        }
-        catch (InterruptedException ex) {
+        } catch (InterruptedException ex) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Thread exception", "other");
                 return internalServerError(errorResponse.toJson());
@@ -148,11 +158,10 @@ public class ProfileController extends Controller {
         if (profile != null) {
             // Converts profile to json and adds nationality, passport and traveller type properties
             JsonNode profileJson = Json.toJson(profile);
-            ObjectNode customProfileJson = (ObjectNode)profileJson;
+            ObjectNode customProfileJson = (ObjectNode) profileJson;
 
             return CompletableFuture.supplyAsync(() -> ok(customProfileJson));
-        }
-        else {
+        } else {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Could not find profile in database", "other");
                 return badRequest(errorResponse.toJson());
@@ -161,8 +170,9 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Updates the profile received in the body of the request as well as the related nationalities, passports
-     * and traveller types
+     * Updates the profile received in the body of the request as well as the related nationalities,
+     * passports and traveller types
+     *
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
@@ -176,8 +186,9 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Updates the profile received in the body of the request as well as the related nationalities, passports
-     * and traveller types
+     * Updates the profile received in the body of the request as well as the related nationalities,
+     * passports and traveller types
+     *
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
@@ -189,8 +200,9 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Updates the profile received in the body of the request as well as the related nationalities, passports
-     * and traveller types
+     * Updates the profile received in the body of the request as well as the related nationalities,
+     * passports and traveller types
+     *
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
     private CompletionStage<Result> updateProfileHelper(JsonNode json, Long userId) {
@@ -208,12 +220,12 @@ public class ProfileController extends Controller {
             profile.userId = userId;
             profileRepository.updateProfile(profile);
 
-            return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully updated profile in database")));
-        }
-        else {
+            return CompletableFuture
+                .supplyAsync(() -> ok(Json.toJson("Successfully updated profile in database")));
+        } else {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Could not find profile to update", "other");
-                 return badRequest(errorResponse.toJson());
+                return badRequest(errorResponse.toJson());
             });
         }
     }
@@ -222,21 +234,26 @@ public class ProfileController extends Controller {
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
             System.out.println(rowsDeleted);
-            return (!rowsDeleted) ? badRequest(Json.toJson("No such Profile")) : ok(Json.toJson("Profile Deleted"));
+            return (!rowsDeleted) ? badRequest(Json.toJson("No such Profile"))
+                : ok(Json.toJson("Profile Deleted"));
         });
     }
 
     // Private Methods
 
     /**
-     * Retrieves IDs from country definition table and creates nationality objects to be stored in nationality table
-     * @param nationalityStrings Array of country names from which IDs will be retrieved from database
+     * Retrieves IDs from country definition table and creates nationality objects to be stored in
+     * nationality table
+     *
+     * @param nationalityStrings Array of country names from which IDs will be retrieved from
+     * database
      * @param userID Id of the profile which the nationality objects created will use
      * @return List of Nationality objects to be inserted into database
      * @throws ExecutionException Thrown when database cannot be accessed
      * @throws InterruptedException Thrown when connection with database interrupted
      */
-    private List<Nationality> getValidNationalities(String[] nationalityStrings, long userID) throws ExecutionException, InterruptedException {
+    private List<Nationality> getValidNationalities(String[] nationalityStrings, long userID)
+        throws ExecutionException, InterruptedException {
         ArrayList<Nationality> nationalities = new ArrayList<>();
 
         // Iterates through nationality array and checks database for matching country,
@@ -245,9 +262,9 @@ public class ProfileController extends Controller {
             CountryDefinition foundCountry;
 
             try {
-                foundCountry = countryDefinitionRepository.findCountryByExactName(nationalityString).get();
-            }
-            catch (ExecutionException | InterruptedException ex) {
+                foundCountry = countryDefinitionRepository.findCountryByExactName(nationalityString)
+                    .get();
+            } catch (ExecutionException | InterruptedException ex) {
                 throw ex;
             }
 
@@ -266,14 +283,17 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Retrieves IDs from country definition table and creates passport objects to be stored in passport table
+     * Retrieves IDs from country definition table and creates passport objects to be stored in
+     * passport table
+     *
      * @param passportStrings Array of country names from which IDs will be retrieved from database
      * @param userID Id of the profile which the passport objects created will use
      * @return List of Passport objects to be inserted into database
      * @throws ExecutionException Thrown when database cannot be accessed
      * @throws InterruptedException Thrown when connection with database interrupted
      */
-    private List<Passport> getValidPassports(String[] passportStrings, long userID) throws ExecutionException, InterruptedException {
+    private List<Passport> getValidPassports(String[] passportStrings, long userID)
+        throws ExecutionException, InterruptedException {
         ArrayList<Passport> passports = new ArrayList<>();
 
         // Iterates through passportStrings array and checks database for matching country, stores country if found
@@ -281,9 +301,9 @@ public class ProfileController extends Controller {
             CountryDefinition foundCountry;
 
             try {
-                foundCountry = countryDefinitionRepository.findCountryByExactName(passportString).get();
-            }
-            catch (ExecutionException | InterruptedException ex) {
+                foundCountry = countryDefinitionRepository.findCountryByExactName(passportString)
+                    .get();
+            } catch (ExecutionException | InterruptedException ex) {
                 throw ex;
             }
 
@@ -301,20 +321,25 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Retrieves IDs from traveller type definition table and creates traveller type objects to be stored in traveller type table
-     * @param travellerTypeStrings Array of traveller type descriptions from which IDs will be retrieved from database
+     * Retrieves IDs from traveller type definition table and creates traveller type objects to be
+     * stored in traveller type table
+     *
+     * @param travellerTypeStrings Array of traveller type descriptions from which IDs will be
+     * retrieved from database
      * @param userID Id of the profile which the traveller type objects created will use
      * @return List of TravellerType objects to be inserted into database
      * @throws ExecutionException Thrown when database cannot be accessed
      * @throws InterruptedException Thrown when connection with database interrupted
      */
-    private List<TravellerTypeDefinition> getValidTravellerTypes(String[] travellerTypeStrings, long userID) throws ExecutionException, InterruptedException {
+    private List<TravellerTypeDefinition> getValidTravellerTypes(String[] travellerTypeStrings,
+        long userID) throws ExecutionException, InterruptedException {
         ArrayList<TravellerTypeDefinition> travellerTypes = new ArrayList<>();
 
         // Iterates through travellerTypeStrings array and checks database for matching traveller types, stores traveller type if found
         for (String travellerTypeString : travellerTypeStrings) {
             TravellerTypeDefinition foundTravellerType;
-            foundTravellerType = travellerTypeDefinitionRepository.getTravellerTypeDefinitionByDescription(travellerTypeString).get();
+            foundTravellerType = travellerTypeDefinitionRepository
+                .getTravellerTypeDefinitionByDescription(travellerTypeString).get();
             if (foundTravellerType != null) {
                 travellerTypes.add(foundTravellerType);
             }
@@ -325,6 +350,7 @@ public class ProfileController extends Controller {
 
     /**
      * Retrieves all profiles, filters them and then returns the filtered list of profiles.
+     *
      * @param nationalityId nationality request
      * @param gender gender requested
      * @param minAge minimum age for filter
@@ -332,7 +358,8 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return List of profiles within requested parameters
      */
-    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
+    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender,
+        int minAge, int maxAge, Long travellerTypeId) {
         return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
 
             List<Profile> toReturn = new ArrayList<>(profiles);
@@ -389,6 +416,7 @@ public class ProfileController extends Controller {
 
     /**
      * Retrieves all profiles, filters them and returns the result inside a Result object as JSON
+     *
      * @param nationalityId nationality request
      * @param gender gender requested
      * @param minAge minimum age for filter
@@ -396,9 +424,11 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return A ok result containing the JSON of the profiles matching search criteria
      */
-    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
-         return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId).thenApplyAsync(profiles ->
-                 ok(Json.toJson(profiles)));
+    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender,
+        int minAge, int maxAge, Long travellerTypeId) {
+        return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId)
+            .thenApplyAsync(profiles ->
+                ok(Json.toJson(profiles)));
     }
 }
 

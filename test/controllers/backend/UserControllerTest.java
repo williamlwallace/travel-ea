@@ -1,35 +1,37 @@
 package controllers.backend;
 
+import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.BAD_REQUEST;
+import static play.test.Helpers.DELETE;
+import static play.test.Helpers.GET;
+import static play.test.Helpers.POST;
+import static play.test.Helpers.UNAUTHORIZED;
+import static play.test.Helpers.route;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.ImmutableMap;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import models.User;
-import org.junit.*;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
-import play.libs.Json;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.Http.Cookie;
-import play.test.Helpers;
-import play.test.WithApplication;
-
-import java.beans.Transient;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.*;
+import models.User;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import play.Application;
+import play.db.Database;
+import play.db.evolutions.Evolutions;
+import play.libs.Json;
+import play.mvc.Http;
+import play.mvc.Http.Cookie;
+import play.mvc.Result;
+import play.test.Helpers;
+import play.test.WithApplication;
 
 public class UserControllerTest extends WithApplication {
 
@@ -46,30 +48,15 @@ public class UserControllerTest extends WithApplication {
         Map<String, String> settings = new HashMap<>();
         settings.put("db.default.driver", "org.h2.Driver");
         settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-        authCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
+        authCookie = Cookie.builder("JWT-Auth",
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
+            .withPath("/").build();
 
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
 
         Helpers.start(fakeApp);
-    }
-
-    /**
-     * Runs evolutions before each test
-     * These evolutions are found in conf/test/(whatever), and should contain minimal sql data needed for tests
-     */
-    @Before
-    public void applyEvolutions() {
-        Evolutions.applyEvolutions(db, Evolutions.fromClassLoader(getClass().getClassLoader(), "test/user/"));
-    }
-
-    /**
-     * Cleans up evolutions after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
     }
 
     /**
@@ -81,19 +68,38 @@ public class UserControllerTest extends WithApplication {
         Helpers.stop(fakeApp);
     }
 
+    /**
+     * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
+     * should contain minimal sql data needed for tests
+     */
+    @Before
+    public void applyEvolutions() {
+        Evolutions.applyEvolutions(db,
+            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/user/"));
+    }
+
+    /**
+     * Cleans up evolutions after each test, to allow for them to be re-run for next test
+     */
+    @After
+    public void cleanupEvolutions() {
+        Evolutions.cleanupEvolutions(db);
+    }
+
     @Test
     public void searchUsers() throws IOException {
         //Create request to GET all users
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/user/search");
+            .method(GET)
+            .uri("/api/user/search");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
         // Deserialize result to list of users
-        List<User> users = Arrays.asList(new ObjectMapper().readValue(Helpers.contentAsString(result), User[].class));
+        List<User> users = Arrays
+            .asList(new ObjectMapper().readValue(Helpers.contentAsString(result), User[].class));
 
         // Check that list has exactly one result
         assertEquals(1, users.size());
@@ -115,16 +121,17 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user");
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/user");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
         // Check a success message was sent
-        String message = new ObjectMapper().readValue(Helpers.contentAsString(result), String.class);
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
         assertEquals("Success", message);
     }
 
@@ -137,9 +144,9 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user");
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/user");
 
         // Get result and check a 400 was sent back
         Result result = route(fakeApp, request);
@@ -155,9 +162,9 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user");
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/user");
 
         // Get result and check a 400 was sent back
         Result result = route(fakeApp, request);
@@ -173,9 +180,9 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user");
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/user");
 
         // Get result and check a 400 was sent back
         Result result = route(fakeApp, request);
@@ -184,7 +191,7 @@ public class UserControllerTest extends WithApplication {
 
 
     @Test
-    public void createUserEmptyFields() throws IOException{
+    public void createUserEmptyFields() throws IOException {
         // Create new json object node
         ObjectNode node = Json.newObject();
         // Fields missing: district, name, _type
@@ -193,16 +200,19 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user");
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/user");
 
         // Get result and check it was bad request
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
 
         // Get error response
-        HashMap<String, String> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, String>>() {});
+        HashMap<String, String> response = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result),
+                new TypeReference<HashMap<String, String>>() {
+                });
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
@@ -210,7 +220,7 @@ public class UserControllerTest extends WithApplication {
         expectedMessages.put("password", "password field must be present");
 
         // Check all error messages were present
-        for(String key : response.keySet()) {
+        for (String key : response.keySet()) {
             assertEquals(expectedMessages.get(key), response.get(key));
         }
     }
@@ -224,9 +234,9 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to login
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/login");
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/login");
 
         // Get result and check OK was sent back
         Result result = route(fakeApp, request);
@@ -242,9 +252,9 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to login
         Http.RequestBuilder request2 = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node2)
-                .uri("/api/login");
+            .method(POST)
+            .bodyJson(node2)
+            .uri("/api/login");
 
         // Get result and check 401 was sent back
         Result result2 = route(fakeApp, request2);
@@ -260,9 +270,9 @@ public class UserControllerTest extends WithApplication {
 
         // Create request to login
         Http.RequestBuilder request2 = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node2)
-                .uri("/api/login");
+            .method(POST)
+            .bodyJson(node2)
+            .uri("/api/login");
 
         // Get result and check 401 was sent back
         Result result2 = route(fakeApp, request2);
@@ -273,8 +283,8 @@ public class UserControllerTest extends WithApplication {
     public void logout() {
         // Create request to login
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .uri("/api/logout");
+            .method(POST)
+            .uri("/api/logout");
 
         // Get result and check the user was redirected
         Result result = route(fakeApp, request);
@@ -285,9 +295,9 @@ public class UserControllerTest extends WithApplication {
     public void deleteValidUser() {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(DELETE)
-                .cookie(authCookie)
-                .uri("/api/user/1");
+            .method(DELETE)
+            .cookie(authCookie)
+            .uri("/api/user/1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -298,9 +308,9 @@ public class UserControllerTest extends WithApplication {
     public void deleteInvalidUser() {
         // Create request to delete a user that does not exist
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(DELETE)
-                .cookie(authCookie)
-                .uri("/api/user/12");
+            .method(DELETE)
+            .cookie(authCookie)
+            .uri("/api/user/12");
 
         // Get result and check it failed
         Result result = route(fakeApp, request);

@@ -1,21 +1,30 @@
 package repository;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static play.mvc.Results.ok;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ebean.*;
-import models.*;
-import play.db.ebean.EbeanConfig;
-import play.libs.Json;
-import play.mvc.Result;
-
-import javax.inject.Inject;
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import io.ebean.Query;
+import io.ebean.RawSql;
+import io.ebean.RawSqlBuilder;
+import io.ebean.SqlUpdate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static play.mvc.Results.ok;
+import javax.inject.Inject;
+import models.CountryDefinition;
+import models.Nationality;
+import models.Passport;
+import models.Profile;
+import models.TravellerType;
+import models.TravellerTypeDefinition;
+import play.db.ebean.EbeanConfig;
+import play.libs.Json;
+import play.mvc.Result;
 
 public class ProfileRepository {
 
@@ -31,9 +40,9 @@ public class ProfileRepository {
     /**
      * Adds a new profile to the database
      *
-     * This method should be simpler, but at the moment it can't be.
-     * Because play is brain-dead, and is broken.
-     * We have working bridging code, that play fails on, except when we run app as production.
+     * This method should be simpler, but at the moment it can't be. Because play is brain-dead, and
+     * is broken. We have working bridging code, that play fails on, except when we run app as
+     * production.
      *
      * @param profile Profile to add
      * @return Ok on success
@@ -43,7 +52,7 @@ public class ProfileRepository {
 
             // Insert basic profile info
             SqlUpdate insert = ebeanServer.createSqlUpdate(
-                    "INSERT INTO Profile " +
+                "INSERT INTO Profile " +
                     "(user_id, first_name, last_name, middle_name, date_of_birth, gender) " +
                     "VALUES (:userId, :firstName, :lastName, :middleName, :dateOfBirth, :gender);");
 
@@ -59,7 +68,7 @@ public class ProfileRepository {
 
             // Convert lists of destinations, to lists of mapping objects
             List<TravellerType> travellerTypes = new ArrayList<>();
-            for(TravellerTypeDefinition def : profile.travellerTypes) {
+            for (TravellerTypeDefinition def : profile.travellerTypes) {
                 TravellerType type = new TravellerType();
                 type.travellerTypeId = def.id;
                 type.userId = profile.userId;
@@ -67,7 +76,7 @@ public class ProfileRepository {
             }
 
             List<Passport> passports = new ArrayList<>();
-            for(CountryDefinition def : profile.passports) {
+            for (CountryDefinition def : profile.passports) {
                 Passport pass = new Passport();
                 pass.countryId = def.id;
                 pass.userId = profile.userId;
@@ -75,7 +84,7 @@ public class ProfileRepository {
             }
 
             List<Nationality> nationalities = new ArrayList<>();
-            for(CountryDefinition def : profile.nationalities) {
+            for (CountryDefinition def : profile.nationalities) {
                 Nationality nat = new Nationality();
                 nat.countryId = def.id;
                 nat.userId = profile.userId;
@@ -94,16 +103,17 @@ public class ProfileRepository {
     /**
      * Gets the profile with some id from the database, or null if no such profile exists
      *
-     * This method should be far, far simpler, but at the moment it can't be.
-     * Because play is brain-dead, and is broken.
-     * We have working bridging code, that play fails on, except when we run app as production.
+     * This method should be far, far simpler, but at the moment it can't be. Because play is
+     * brain-dead, and is broken. We have working bridging code, that play fails on, except when we
+     * run app as production.
      *
      * @param id Unique ID of profile (owning user's id) to retrieve
      * @return Profile object with given ID, or null if none found
      */
     public CompletableFuture<Profile> findID(Long id) {
         // Find the profile from the server
-        RawSql rawSql = RawSqlBuilder.parse("SELECT user_id, first_name, last_name, middle_name, date_of_birth, gender " +
+        RawSql rawSql = RawSqlBuilder
+            .parse("SELECT user_id, first_name, last_name, middle_name, date_of_birth, gender " +
                 "FROM Profile " +
                 "WHERE user_id = :userId;").create();
 
@@ -114,14 +124,17 @@ public class ProfileRepository {
         Profile profile = query.findOne();
 
         // If profile equals null, return null
-        if(profile == null) { return CompletableFuture.completedFuture(null); }
+        if (profile == null) {
+            return CompletableFuture.completedFuture(null);
+        }
 
         // Get nationalities of the profile
         rawSql = RawSqlBuilder
-                .parse("SELECT C.id, C.name FROM Nationality N JOIN CountryDefinition C ON N.country_id=C.id WHERE N.user_id = :userId;")
-                .columnMapping("C.id", "id")
-                .columnMapping("C.name", "name")
-                .create();
+            .parse(
+                "SELECT C.id, C.name FROM Nationality N JOIN CountryDefinition C ON N.country_id=C.id WHERE N.user_id = :userId;")
+            .columnMapping("C.id", "id")
+            .columnMapping("C.name", "name")
+            .create();
 
         Query<CountryDefinition> query2 = ebeanServer.find(CountryDefinition.class);
         query2.setRawSql(rawSql);
@@ -131,10 +144,11 @@ public class ProfileRepository {
 
         // Get passports of the profile
         rawSql = RawSqlBuilder
-                .parse("SELECT C.id, C.name FROM Passport P JOIN CountryDefinition C ON P.country_id=C.id WHERE P.user_id = :userId;")
-                .columnMapping("C.id", "id")
-                .columnMapping("C.name", "name")
-                .create();
+            .parse(
+                "SELECT C.id, C.name FROM Passport P JOIN CountryDefinition C ON P.country_id=C.id WHERE P.user_id = :userId;")
+            .columnMapping("C.id", "id")
+            .columnMapping("C.name", "name")
+            .create();
 
         Query<CountryDefinition> query3 = ebeanServer.find(CountryDefinition.class);
         query3.setRawSql(rawSql);
@@ -144,10 +158,11 @@ public class ProfileRepository {
 
         // Get travellers types of the profile
         rawSql = RawSqlBuilder
-                .parse("SELECT TD.id, TD.description FROM TravellerType T JOIN TravellerTypeDefinition TD ON T.traveller_type_id=TD.id WHERE T.user_id = :userId;")
-                .columnMapping("TD.id", "id")
-                .columnMapping("TD.description", "description")
-                .create();
+            .parse(
+                "SELECT TD.id, TD.description FROM TravellerType T JOIN TravellerTypeDefinition TD ON T.traveller_type_id=TD.id WHERE T.user_id = :userId;")
+            .columnMapping("TD.id", "id")
+            .columnMapping("TD.description", "description")
+            .create();
 
         Query<TravellerTypeDefinition> query4 = ebeanServer.find(TravellerTypeDefinition.class);
         query4.setRawSql(rawSql);
@@ -168,15 +183,14 @@ public class ProfileRepository {
 
         // Add lists to object
         ObjectMapper mapper = new ObjectMapper();
-        node.putArray("nationalities").addAll((ArrayNode)mapper.valueToTree(nationalities));
-        node.putArray("passports").addAll((ArrayNode)mapper.valueToTree(passports));
-        node.putArray("travellerTypes").addAll((ArrayNode)mapper.valueToTree(travellerTypes));
+        node.putArray("nationalities").addAll((ArrayNode) mapper.valueToTree(nationalities));
+        node.putArray("passports").addAll((ArrayNode) mapper.valueToTree(passports));
+        node.putArray("travellerTypes").addAll((ArrayNode) mapper.valueToTree(travellerTypes));
 
         try {
             // Deserialize object into profile object and return
             return CompletableFuture.completedFuture(Json.fromJson(node, Profile.class));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -185,15 +199,17 @@ public class ProfileRepository {
     public CompletableFuture<Profile> findIDModelBridging(Long id) {
         return supplyAsync(() ->
                 ebeanServer.find(Profile.class)
-                .where()
-                .eq("user_id", id)
-                .findOneOrEmpty()
-                .orElse(null),
+                    .where()
+                    .eq("user_id", id)
+                    .findOneOrEmpty()
+                    .orElse(null),
             executionContext);
     }
 
     /**
-     * Deletes the profile having some ID if it exists, returns false if no profile with that id was found
+     * Deletes the profile having some ID if it exists, returns false if no profile with that id was
+     * found
+     *
      * @param id ID of profile to delete
      * @return True if a profile was found with the ID and then deleted
      */
@@ -202,25 +218,25 @@ public class ProfileRepository {
 
             // Delete all information regarding nationalities, types, passports
             SqlUpdate deleteNat = ebeanServer.createSqlUpdate(
-                    "DELETE FROM Nationality WHERE user_id=:userId;");
+                "DELETE FROM Nationality WHERE user_id=:userId;");
             deleteNat.setParameter("userId", id);
 //            int nationalityResult = deleteNat.execute();
 
             // Delete all information regarding nationalities, types, passports
             SqlUpdate deleteType = ebeanServer.createSqlUpdate(
-                    "DELETE FROM TravellerType WHERE user_id=:userId;");
+                "DELETE FROM TravellerType WHERE user_id=:userId;");
             deleteType.setParameter("userId", id);
 //            int travellerTypeResult = deleteType.execute();
 
             // Delete all information regarding nationalities, types, passports
             SqlUpdate deletePass = ebeanServer.createSqlUpdate(
-                    "DELETE FROM Passport WHERE user_id=:userId;");
+                "DELETE FROM Passport WHERE user_id=:userId;");
             deletePass.setParameter("userId", id);
 //            int passportsResult = deletePass.execute();
 
             // Delete profile itself
             SqlUpdate deleteProfile = ebeanServer.createSqlUpdate(
-                    "DELETE FROM Profile WHERE user_id=:userId;");
+                "DELETE FROM Profile WHERE user_id=:userId;");
             deleteProfile.setParameter("userId", id);
             int profileResult = deleteProfile.execute();
 
@@ -231,6 +247,7 @@ public class ProfileRepository {
 
     /**
      * Updates a profile on the database, ID must not have been changed though
+     *
      * @param profile New profile object
      * @return OK on success
      */
@@ -239,13 +256,13 @@ public class ProfileRepository {
             System.out.println(Json.toJson(profile));
             // Insert basic profile info
             SqlUpdate update = ebeanServer.createSqlUpdate(
-                    "UPDATE Profile " +
-                            "SET first_name = :firstName, " +
-                            "last_name = :lastName, " +
-                            "middle_name = :middleName, " +
-                            "date_of_birth = :dateOfBirth, " +
-                            "gender = :gender " +
-                            "WHERE user_id = :userId;");
+                "UPDATE Profile " +
+                    "SET first_name = :firstName, " +
+                    "last_name = :lastName, " +
+                    "middle_name = :middleName, " +
+                    "date_of_birth = :dateOfBirth, " +
+                    "gender = :gender " +
+                    "WHERE user_id = :userId;");
             // Set parameters
             update.setParameter("userId", profile.userId);
             update.setParameter("firstName", profile.firstName);
@@ -265,20 +282,20 @@ public class ProfileRepository {
 
             // Delete all information regarding nationalities, types, passports
             SqlUpdate deleteType = ebeanServer.createSqlUpdate(
-                    "DELETE FROM TravellerType WHERE user_id=:userId;");
+                "DELETE FROM TravellerType WHERE user_id=:userId;");
             deleteType.setParameter("userId", profile.userId);
             deleteType.execute();
 
             // Delete all information regarding nationalities, types, passports
             SqlUpdate deletePass = ebeanServer.createSqlUpdate(
-                    "DELETE FROM Passport WHERE user_id=:userId;");
+                "DELETE FROM Passport WHERE user_id=:userId;");
             deletePass.setParameter("userId", profile.userId);
             deletePass.execute();
 
             // Now insert back into the foreign tables
             // Convert lists of destinations, to lists of mapping objects
             List<TravellerType> travellerTypes = new ArrayList<>();
-            for(TravellerTypeDefinition def : profile.travellerTypes) {
+            for (TravellerTypeDefinition def : profile.travellerTypes) {
                 TravellerType type = new TravellerType();
                 type.travellerTypeId = def.id;
                 type.userId = profile.userId;
@@ -286,7 +303,7 @@ public class ProfileRepository {
             }
 
             List<Passport> passports = new ArrayList<>();
-            for(CountryDefinition def : profile.passports) {
+            for (CountryDefinition def : profile.passports) {
                 Passport pass = new Passport();
                 pass.countryId = def.id;
                 pass.userId = profile.userId;
@@ -294,7 +311,7 @@ public class ProfileRepository {
             }
 
             List<Nationality> nationalities = new ArrayList<>();
-            for(CountryDefinition def : profile.nationalities) {
+            for (CountryDefinition def : profile.nationalities) {
                 Nationality nat = new Nationality();
                 nat.countryId = def.id;
                 nat.userId = profile.userId;
@@ -314,7 +331,7 @@ public class ProfileRepository {
         List<Profile> basicProfiles = ebeanServer.find(Profile.class).findList();
         List<Profile> filledInList = new ArrayList<>();
         return supplyAsync(() -> {
-            for(Profile prof : basicProfiles) {
+            for (Profile prof : basicProfiles) {
                 findID(prof.userId).thenApply(result -> filledInList.add(result));
             }
 

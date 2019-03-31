@@ -1,17 +1,18 @@
 package models;
 
 import io.ebean.Model;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
-
-import javax.persistence.*;
-import java.util.List;
 
 /**
  * A class that represents a user's nationalities
  */
 @Entity
-@Table(name="Nationality")
+@Table(name = "Nationality")
 public class Nationality extends Model {
+
     @Id
     public Long guid;
 
