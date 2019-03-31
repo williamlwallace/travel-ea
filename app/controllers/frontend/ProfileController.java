@@ -78,7 +78,7 @@ public class ProfileController extends Controller {
     private CompletableFuture<Profile> getProfile(Long userId) {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId).get().toCompletableFuture();
         return res.thenApply(r -> {
-            //System.out.println(r.getBody());
+            System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),

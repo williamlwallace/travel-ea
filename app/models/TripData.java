@@ -16,16 +16,13 @@ import java.time.LocalDateTime;
 @Entity
 public class TripData extends Model {
 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Long guid;
 
     @ManyToOne
     @JsonBackReference
     public Trip trip;
-
-    @Id
-    @Column(name="trip_id")
-    public Long tripId;
 
     @Constraints.Required
     public Long position;

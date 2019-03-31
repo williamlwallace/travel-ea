@@ -34,8 +34,8 @@ public class DestinationValidator extends Validator{
         }
 
         //Check that the destination's country id is present, is text, and not empty
-        if(this.required("countryId") && this.isInt("countryId")) {
-            // TODO: Check if country ID is a valid country ID
+        if(this.required("country")) {
+            // TODO: Check if country is a valid countryDefinition object
         }
 
         //Check that the latitude is present and within bounds

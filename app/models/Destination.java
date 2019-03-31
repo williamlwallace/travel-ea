@@ -33,7 +33,8 @@ public class Destination extends Model {
     @Constraints.Required
     public Double longitude;
 
+    @ManyToOne
     @Constraints.Required
-    public Long countryId;
+    public CountryDefinition country;
 
 }

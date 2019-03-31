@@ -76,6 +76,14 @@ function newDestination(url) {
         [pair[0]]: pair[1],
     }), {});
 
+    // Convert lat and long to double values, and id to int
+    data.latitude = parseFloat(data.latitude);
+    data.longitude = parseFloat(data.longitude);
+    // Convert country id to country object
+    data.countryId = parseInt(data.countryId);
+    data.country = {"id": data.countryId};
+    delete data.countryId;
+
     console.log(data);
     // Post json data to given url
     post(url,data)

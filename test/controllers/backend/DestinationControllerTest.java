@@ -3,6 +3,7 @@ package controllers.backend;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import models.CountryDefinition;
 import models.Destination;
 import org.junit.*;
 import play.Application;
@@ -98,7 +99,7 @@ public class DestinationControllerTest extends WithApplication {
         assertEquals("Paris", dest.district);
         assertEquals(Double.valueOf(10.0), dest.latitude);
         assertEquals(Double.valueOf(20.0), dest.longitude);
-        assertEquals(Long.valueOf(1), dest.countryId);
+        assertEquals(Long.valueOf(1), dest.country.id);
         assertEquals(Long.valueOf(1), dest.id);
     }
 
@@ -148,7 +149,9 @@ public class DestinationControllerTest extends WithApplication {
         node.put("district", "Canterbury");
         node.put("latitude", 10.0);
         node.put("longitude", 20.0);
-        node.put("countryId", 1);
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
+        node.set("country", Json.toJson(countryDefinition));
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -173,7 +176,6 @@ public class DestinationControllerTest extends WithApplication {
         // Fields missing: district, name, _type
         node.put("latitude", -1000.0);
         node.put("longitude", -2000.0);
-        node.put("countryId", 500);
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -196,6 +198,7 @@ public class DestinationControllerTest extends WithApplication {
         expectedMessages.put("name", "name field must be present");
         expectedMessages.put("_type", "_type field must be present");
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
+        expectedMessages.put("country", "country field must be present");
 
         // Check all error messages were present
         for(String key : response.keySet()) {

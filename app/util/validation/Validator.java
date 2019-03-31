@@ -25,7 +25,8 @@ public class Validator {
      */
     protected Boolean required(String field) {
         if (this.form.has(field)) {
-            if (this.form.get(field) != null && !this.form.get(field).asText("").equals("")) {
+            if ((this.form.get(field) != null && !this.form.get(field).asText("").equals("")) ||
+                    this.form.get(field).isObject()) {
                 return true;
             } else if (this.form.get(field).isArray() && this.form.get(field).size() > 0) {
                 return true;

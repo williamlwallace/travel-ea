@@ -61,9 +61,6 @@ public class DestinationController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteDestination(Long id) {
         // TODO: add authentication of user to destination
-        // return destinationRepository.getDestination(id).thenComposeAsync((destination) -> {
-        //     if (destination != null && destination.userId
-        // })
         return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted ->
             (rowsDeleted == 0) ? badRequest(Json.toJson("No such destination")) : ok(Json.toJson(rowsDeleted)));
     }

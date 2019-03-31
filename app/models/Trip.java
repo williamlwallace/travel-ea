@@ -19,7 +19,7 @@ public class Trip extends Model {
     @Constraints.Required
     public Long userId;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
 
     public String findFirstTripDate() {

@@ -7,12 +7,10 @@ import models.Destination;
 import models.Trip;
 import models.TripData;
 import play.libs.Json;
-import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import repository.TripDataRepository;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -22,17 +20,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
-    private final TripDataRepository tripDataRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository,
-                         TripDataRepository tripDataRepository) {
-        this.tripDataRepository = tripDataRepository;
+    public TripController(TripRepository tripRepository) {
         this.tripRepository = tripRepository;
     }
 
@@ -78,31 +72,17 @@ public class TripController extends Controller {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 
-        // Delete all existing trip data
-        try {
-            tripDataRepository.deleteAllTripData(data.get("id").asLong()).get();
-        }
-        // Catch error conditions from getting result
-        catch (ExecutionException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Could not access data from database")));
-        }
-        // If operation was interrupted before completion
-        catch (InterruptedException ex) {
-            return CompletableFuture.supplyAsync(() -> status(500, Json.toJson("Interrupted connection with database")));
-        }
-
         Trip trip = Json.fromJson(data.get("trip"), Trip.class);
         trip.userId = request.attrs().get(ActionState.USER).id;
 
         // Assemble trip data
         ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
+        trip.tripDataList = tripDataList;
 
         // Add new trip data to db
-        return CompletableFuture.supplyAsync(() -> {
-            tripDataRepository.insertTripDataList(tripDataList);
-            // Return json id of updated trip
-            return ok(Json.toJson(data.get("id").asLong()));
-        });
+        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
+                ok(Json.toJson(data.get("id").asLong()))
+        );
     }
 
     /**
@@ -139,7 +119,7 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
-        trip.tripDataList = nodeToTripDataList(data, null);
+        trip.tripDataList = nodeToTripDataList(data, trip);
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );
@@ -164,13 +144,8 @@ public class TripController extends Controller {
             // Assemble trip data
             TripData tripData = new TripData();
 
-            if (trip != null) {
-                tripData.trip = trip;
-                tripData.tripId = trip.id;
-            }
-            else {
-                tripData.tripId = null;
-            }
+            // Assign tripdata to correct trip
+            tripData.trip = trip;
 
             // Get position and destinationId from json object, these must be present so no need for try catch
             tripData.position = node.get("position").asLong();
