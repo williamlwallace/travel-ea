@@ -33,20 +33,24 @@ public class Authenticator extends Action.Simple {
 
     public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromCookie(request);
+        
         if (token != null) {
             Long userId = CryptoManager.veryifyToken(token, config.getString("play.http.secret.key"));
             if (userId != null) {
                 return userRepository.findID(userId).thenComposeAsync((user) -> {
-                    return roleMatch(request, user);
+                    if (user != null) {
+                        return roleMatch(request, user);
+                    } else {
+                        // if user is no longer in database
+                        return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()).discardingCookie("JWT-Auth"));
+                    }
                 });
             }
-            return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()).discardingCookie("JWT-Auth"));
-            // });
         } else if (getRoles(request).isEmpty()) {
             // if no roles specified, do nothing (for homepage)
             return delegate.call(request).toCompletableFuture();
         }
-        return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()));
+        return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover()).discardingCookie("JWT-Auth"));
     }
 
     /**
