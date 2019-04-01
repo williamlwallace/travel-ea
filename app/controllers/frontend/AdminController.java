@@ -46,36 +46,35 @@ public class AdminController extends Controller {
      * @return displays the admin, home or start page.
      */
     @With({Admin.class, Authenticator.class})
-    public CompletableFuture<Result> index(Http.Request request) {
+    public Result index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return getUsers(Authenticator.getTokenFromCookie(request)).thenApplyAsync((users ->
-            ok(admin.render(user, users))
-        ), httpExecutionContext.current());
+        return ok(admin.render(user));
     }
 
-    /**
-     * Gets Users from api endpoint via get request
-     *
-     * @return List of users wrapped in completable future
-     */
-    public CompletableFuture<List<User>> getUsers(String token) {
-        CompletableFuture<WSResponse> res = ws
-            .url("http://localhost:9000/api/user/search")
-            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
-            .get()
-            .toCompletableFuture();
-        return res.thenApply(r -> {
-            //System.out.println(r.getBody());
-            JsonNode json = r.getBody(WSBodyReadables.instance.json());
-            try {
-                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<List<User>>() {
-                    });
-            } catch (Exception e) {
-                return new ArrayList<User>();
-            }
-        });
+    // /**
+    //  * Gets Users from api endpoint via get request
+    //  *
+    //  * @return List of users wrapped in completable future
+    //  */
+    // public CompletableFuture<List<User>> getUsers(String token) {
+    //     CompletableFuture<WSResponse> res = ws
+    //         .url("http://localhost:9000/api/user/search")
+    //         .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+    //         .get()
+    //         .toCompletableFuture();
+    //     return res.thenApply(r -> {
+    //         //System.out.println(r.getBody());
+    //         JsonNode json = r.getBody(WSBodyReadables.instance.json());
+    //         try {
+    //             return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
+    //                 new TypeReference<List<User>>() {
+    //                 });
+    //         } catch (Exception e) {
+    //             e.printStackTrace();
+    //             return new ArrayList<User>();
+    //         }
+    //     });
 
-    }
+    // }
 
 }

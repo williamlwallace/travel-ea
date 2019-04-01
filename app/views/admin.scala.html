@@ -1,6 +1,6 @@
 @import play.mvc.Http.Request
 @import models.User
-@(user: User, users: List[models.User])
+@(user: User)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/admin.js")" type="text/javascript"></script>
@@ -24,7 +24,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @* Populate the table with a list of profile details *@
+                    @* Populate the table with a list of profile details
                     @for(otherUser <- users){
                         @if(otherUser.id != user.id) {
                             <tr>
@@ -54,7 +54,7 @@
                                 </td>
                             </tr>
                         }
-                    }
+                    }  *@
                 </tbody>
             </table>
         </div>
