@@ -1,0 +1,97 @@
+/**
+ * The left hand summary of the users details/profile-picture
+ */
+div.profile-summary {
+    background-color: #FFFFFF;
+    width: 300px;
+    height: 500px;
+    margin-top: -100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top: 5px;
+}
+
+/**
+ * The profile picture
+ */
+div.profile-picture {
+    background-color: #FFFFFF;
+    width: 290px;
+    height: 290px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/**
+ * The profile details under the profile picture
+ */
+div.profile-details {
+    padding-top: 10px;
+    padding-left: 5px;
+}
+
+/**
+ * The profile details under the profile picture
+ */
+div.profile-main {
+    max-width: 100%;
+    height: auto;
+    margin-right: 10%;
+    margin-top: 30px;
+}
+
+/**
+ * Test paragraph styling
+ */
+p {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+
+/**
+ * The photo Gallery
+ */
+div.photo-gallery {
+    height: 45%;
+    width: auto;
+}
+
+/**
+ * Deals with image sizing and styling
+ */
+img {
+    width: 25%;
+    height: auto;
+    float: left;
+    max-width: 235px;
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+/**
+ * The titles for each section of the profile
+ */
+div.section-title {
+    padding: 10px 5px 10px 5px;
+    font-weight: 500;
+}
+
+a,
+a:hover {
+    color: #1b1e21;
+    text-decoration: underline !important;
+}
+
+a:hover {
+    color: #6d6d6e;
+}
+
+span {
+    text-decoration: inherit;
+}
+
+section {
+    height: auto;
+    width: auto;
+}
