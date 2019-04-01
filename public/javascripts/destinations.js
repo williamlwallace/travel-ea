@@ -53,6 +53,11 @@ function addDestination(url, redirect) {
     data.latitude = parseFloat(data.latitude);
     data.longitude = parseFloat(data.longitude);
     data.countryId = parseInt(data.countryId);
+
+    // Convert country id to country object
+    data.country = {"id": data.countryId};
+    delete data.countryId;
+
     // Post json data to given url
     post(url,data)
     .then(response => {
@@ -71,5 +76,4 @@ function addDestination(url, redirect) {
 
 $(document).ready(function () {
     $('#dtDestination').DataTable();
-    $('.dataTables_length').addClass('bs-select');
 });

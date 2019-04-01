@@ -1,21 +1,21 @@
 package models;
 
-import io.ebean.Finder;
 import io.ebean.Model;
-import play.data.validation.Constraints;
-import play.data.format.*;
-import javax.persistence.Column;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import play.data.validation.Constraints;
 
 /**
  * A class that represents a profile and hold information that is received from the database
  */
 @Entity
-@Table(name="Profile")
+@Table(name = "Profile")
 public class Profile extends Model {
 
     @Id
@@ -32,6 +32,40 @@ public class Profile extends Model {
 
     public String dateOfBirth;
 
+    public LocalDateTime creationDate;
+
     public String gender;
 
+    //    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name="TravellerType",
+//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+//            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
+    public List<TravellerTypeDefinition> travellerTypes;
+
+    //    @ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//            name = "Nationality",
+//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    public List<CountryDefinition> nationalities;
+
+    //    @ManyToMany
+//    @JoinTable(
+//            name = "Passport",
+//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    public List<CountryDefinition> passports;
+
+
+    public int calculateAge() {
+        LocalDate birthDate = LocalDate
+            .parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        return age;
+    }
+
+    public List<CountryDefinition> getNationalities() {
+        return nationalities;
+    }
 }

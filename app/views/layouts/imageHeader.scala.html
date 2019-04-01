@@ -1,4 +1,5 @@
-@(title: String, user: String, imagePath: String, scripts: Html = Html(""))(body: Html)
+@import models.User
+@(title: String, user: User, imagePath: String, scripts: Html = Html(""))(body: Html)
 
 @main(title, user, scripts) {
     @* The title section with background image *@

@@ -10,10 +10,12 @@ CREATE TABLE IF NOT EXISTS User
     username          VARCHAR(64) NOT NULL,
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
-    auth_token        VARCHAR(128),
+    -- auth_token        VARCHAR(128),
+    admin             BOOLEAN NOT NULL DEFAULT false,
+    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE (username),
-    UNIQUE (auth_token)
+    UNIQUE (username)
+    -- UNIQUE (auth_token)
   );
 
 -- Create Profile table
@@ -25,8 +27,9 @@ CREATE TABLE IF NOT EXISTS Profile
     last_name         VARCHAR(64) NOT NULL,
     date_of_birth     DATE,
     gender            VARCHAR(32),
+    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id),
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
   );
 
 CREATE TABLE IF NOT EXISTS CountryDefinition
@@ -43,8 +46,8 @@ CREATE TABLE IF NOT EXISTS Nationality
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     country_id        INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX nationality_index (user_id, country_id),
     UNIQUE (user_id, country_id)
@@ -56,8 +59,8 @@ CREATE TABLE IF NOT EXISTS Passport
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     country_id        INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX passport_index (user_id, country_id),
     UNIQUE (user_id, country_id)
@@ -77,8 +80,8 @@ CREATE TABLE IF NOT EXISTS TravellerType
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     traveller_type_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX travellertype_index (user_id, traveller_type_id),
     UNIQUE(user_id, traveller_type_id)
@@ -94,7 +97,7 @@ CREATE TABLE IF NOT EXISTS Destination
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
-    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
 
@@ -103,7 +106,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
   );
@@ -117,14 +120,69 @@ CREATE TABLE IF NOT EXISTS TripData
     destination_id    INT NOT NULL,
     arrival_time      DATETIME,
     departure_time    DATETIME,
-    FOREIGN KEY (trip_id) REFERENCES Trip(id),
-    FOREIGN KEY (destination_id) REFERENCES Destination(id),
+    FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
   );
 
+-- CREATE TABLE IF NOT EXISTS UserRoleDefinition
+--   (
+--     id                INT NOT NULL AUTO_INCREMENT,
+--     name              VARCHAR(2048) NOT NULL,
+--     PRIMARY KEY (id)
+--   );
+
+-- -- Create UserRole table, which specifies the Roles of users
+-- CREATE TABLE IF NOT EXISTS UserRole
+--   (
+--     guid              INT NOT NULL AUTO_INCREMENT,
+--     user_id           INT NOT NULL,
+--     role_id           INT NOT NULL,
+--     FOREIGN KEY (user_id) REFERENCES User(id),
+--     FOREIGN KEY (role_id) REFERENCES UserRoleDefinition(id),
+--     PRIMARY KEY (guid),
+--     INDEX userole_index (user_id, role_id),
+--     UNIQUE(user_id, role_id)
+--   );
+
+-- Add countries
+INSERT INTO CountryDefinition (name) VALUES
+('Afghanistan'),('Albania'),('Algeria'),('Andorra'),('Angola'),('Anguilla'),('Antarctica'),('Antigua and Barbuda'),('Saudi Arabia'),('Argentina'),('Armenia'),('Aruba'),('Australia'),('Austria'),('Azerbaijan'),('Bahamas'),('Bahrain'),('Bangladesh'),('Barbados'),('Belgium'),('Belize'),('Benin'),('Bermuda'),('Bhutan'),('Belarus'),('Myanmar [Burma]'),('Bolivia'),('Bosnia and Herzegovina'),('Botswana'),('Brazil'),('Brunei'),('Bulgaria'),('Burkina Faso'),('Burundi'),('Cambodia'),('Cameroon'),('Canada'),('Cape Verde'),('Bonaire'),('Chad'),('Chile'),('China'),('Cyprus'),('Colombia'),('Comoros'),('Republic of the Congo'),('North Korea'),('South Korea'),('Kosovo'),('Costa Rica'),('Ivory Coast'),('Croatia'),('Cuba'),('Curacao'),('Denmark'),('Dominica'),('Ecuador'),('Egypt'),('El Salvador'),('United Arab Emirates'),('Eritrea'),('Estonia'),('Ethiopia'),('Fiji'),('Philippines'),('Finland'),('France'),('Gabon'),('Gambia'),('Georgia'),('South Georgia and the South Sandwich Islands'),('Germany'),('Ghana'),('Jamaica'),('Japan'),('Gibraltar'),('Djibouti'),('Jordan'),('Greece'),('Grenada'),('Greenland'),('Guadeloupe'),('Guam'),('Guatemala'),('Guernsey'),('French Guiana'),('Guinea'),('Equatorial Guinea'),('Guinea-Bissau'),('Guyana'),('Haiti'),('Honduras'),('Hong Kong'),('India'),('Indonesia'),('Iran'),('Iraq'),('Ireland'),('Iceland'),('Bouvet Island'),('Norfolk Island'),('Christmas Island'),('Isle of Man'),('Cayman Islands'),('Cocos [Keeling] Islands'),('Cook Islands'),('Falkland Islands'),('Faroe Islands'),('Heard Island and McDonald Islands'),('Northern Mariana Islands'),('Marshall Islands'),('Solomon Islands'),('Turks and Caicos Islands'),('U.S. Virgin Islands'),('British Virgin Islands'),('U.S. Minor Outlying Islands'),('Åland'),('Israel'),('Italy'),('Jersey'),('Kazakhstan'),('Kenya'),('Kyrgyzstan'),('Kiribati'),('Kuwait'),('Laos'),('Lesotho'),('Latvia'),('Lebanon'),('Liberia'),('Libya'),('Liechtenstein'),('Lithuania'),('Luxembourg'),('Macao'),('Macedonia'),('Madagascar'),('Malawi'),('Maldives'),('Malaysia'),('Mali'),('Malta'),('Morocco'),('Martinique'),('Mauritania'),('Mauritius'),('Mayotte'),('Mexico'),('Micronesia'),('Moldova'),('Monaco'),('Mongolia'),('Montenegro'),('Montserrat'),('Mozambique'),('Namibia'),('Nauru'),('Nepal'),('Nicaragua'),('Niger'),('Nigeria'),('Niue'),('Norway'),('New Caledonia'),('New Zealand'),('Oman'),('Netherlands'),('Pakistan'),('Palau'),('Palestine'),('Panama'),('Papua New Guinea'),('Paraguay'),('Peru'),('Pitcairn Islands'),('French Polynesia'),('Poland'),('Portugal'),('Puerto Rico'),('Qatar'),('United Kingdom'),('Czechia'),('Central African Republic'),('Democratic Republic of the Congo'),('Dominican Republic'),('Romania'),('Rwanda'),('Russia'),('Réunion'),('Western Sahara'),('Saint Kitts and Nevis'),('Saint Martin'),('Saint Pierre and Miquelon'),('Saint Vincent and the Grenadines'),('Samoa'),('American Samoa'),('Saint Barthélemy'),('San Marino'),('Saint Lucia'),('Saint Helena'),('Senegal'),('Serbia'),('Seychelles'),('Sierra Leone'),('Singapore'),('Sint Maarten'),('Syria'),('Slovakia'),('Slovenia'),('Somalia'),('Spain'),('Sri Lanka'),('United States'),('South Africa'),('Sudan'),('South Sudan'),('Suriname'),('Svalbard and Jan Mayen'),('Sweden'),('Switzerland'),('Swaziland'),('São Tomé and Príncipe'),('Tajikistan'),('Taiwan'),('Tanzania'),('French Southern Territories'),('British Indian Ocean Territory'),('Thailand'),('East Timor'),('Togo'),('Tokelau'),('Tonga'),('Trinidad and Tobago'),('Tunisia'),('Turkey'),('Turkmenistan'),('Tuvalu'),('Ukraine'),('Uganda'),('Hungary'),('Uruguay'),('Uzbekistan'),('Vanuatu'),('Vatican City'),('Venezuela'),('Vietnam'),('Wallis and Futuna'),('Yemen'),('Zambia'),('Zimbabwe');
+
+-- Add sample user
+INSERT INTO User(username, password, salt, admin) VALUES ('admin@travelea.co.nz', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', true);
+INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass', 'salt');
+INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', 'pass', 'salt');
+
+-- Add sample data for TravellerTypeDefinitions
+INSERT INTO TravellerTypeDefinition (description) VALUES ('backpacker'), ('functional/business traveller'), ('groupies'), ('thrillseeker'), ('frequent weekender'), ('gap year');
+
+-- Add sample Profile
+INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
+INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3);
+INSERT INTO Passport (user_id, country_id) VALUES (1,1);
+INSERT INTO Nationality (user_id, country_id) VALUES (1,1), (1,3);
+
+-- Add sample data for destination
+INSERT INTO Destination (name, type, district, latitude, longitude, country_id) VALUES
+    ('Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1),
+    ('Stonehenge', 'Monument', 'Salisbury', 20.0, 30.0, 2),
+    ('Sky Tower', 'Monument', 'Auckland', 40.0, 50.0, 3),
+    ('Sydney Opera House', 'Monument', 'Sydney', 50.0, 60.0, 4),
+    ('Brandenburg Gate', 'Monument', 'Berlin', 60.0, 70.0, 5),
+    ('Statue of Liberty', 'Monument', 'New York', 70.0, 80.0, 6);
+
+-- Add sample data for trip
+INSERT INTO Trip (user_id) VALUES (1);
+
+-- Add sample tripData for the sample trip
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
+
 -- !Downs
+-- DROP TABLE UserRole;
+-- DROP TABLE UserRoleDefinition;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
@@ -135,6 +193,3 @@ DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
 DROP TABLE User;
-
-
-

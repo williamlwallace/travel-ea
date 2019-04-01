@@ -1,27 +1,3 @@
-@font-face {
-    font-family: 'Roboto';
-    src: url(../font/roboto/Roboto-Regular.eot) format('embedded-opentype'),
-         url(../font/roboto/Roboto-Regular.ttf) format('truetype'),
-         url(../font/roboto/Roboto-Regular.woff) format('woff'),
-         url(../font/roboto/Roboto-Regular.woff2) format('woff2');
-}
-
-@font-face {
-    font-family: 'Roboto';
-    src: url(../font/roboto/Roboto-Bold.eot) format('embedded-opentype'),
-         url(../font/roboto/Roboto-Bold.ttf) format('truetype'),
-         url(../font/roboto/Roboto-Bold.woff) format('woff'),
-         url(../font/roboto/Roboto-Bold.woff2) format('woff2');
-    font-weight: bold;
-}
-
-/*h1, p {*/
-    /*font-family: 'Roboto', sans-serif;*/
-/*}*/
-
-/*h1 {*/
-    /*font-weight: bold;*/
-/*}*/
 
 body > .container {
     font-family: 'Roboto', sans-serif;
@@ -58,10 +34,6 @@ code {
     padding-bottom: 12px;
 }
 
-/**
- * create trip card positioning
- */
-#sortable > div { float: left; }
 
 /*
  * Home page styling
@@ -79,7 +51,7 @@ code {
  */
 .home-bg {
     /* The image used */
-    background-image: url("../images/start-background-2.jpg");
+    background-image: url("../images/wakatipu.jpeg");
 
     /* Full height */
     height: 100%;
@@ -96,6 +68,14 @@ code {
     padding: 0;
     width: 100%;
     display: table;
+}
+
+/**
+* Style for labels that are <pre> so that addiing  errors doesnt clear them
+ */
+pre {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
 }
 
 /**
@@ -182,6 +162,106 @@ code {
     border: 1px solid #ced4da !important;
 }
 
+/*
+ * List container for sortable destination cards
+ */
+.list {
+    /*white-space: nowrap;*/
+    /*overflow-y: scroll;*/
+    overflow-x: hidden;
+}
+
+/*
+ * Parent of list for sortable destination cards
+ */
+.parent {
+    overflow: auto;
+    min-height: 240px;
+    max-height:840px;
+    width:1110px;
+}
+
+/*
+ * card header contains picture
+ */
+.card-header {
+    height:200px;
+    width:350px;
+    background-color: rgba(0,0,0,0) !important;
+}
+
+/*
+ * sortable destination cards
+ */
+.card {
+    height: 200px;
+    width: 1065px;
+    margin:20px;
+    cursor:pointer;
+
+    background-color: #ececed !important
+}
+
+/*
+ * card block contains the details of the card
+ */
+.card-block {
+    padding-top: 8px;
+    height:200px;
+    width: 750px;
+}
+
+
+/*
+ * height determines the gap when a card is dragged into a new spot
+ */
+.ui-sortable-placeholder {
+    height: 200px;
+}
+
+/*
+ * the arrival/dest times from the
+ * destination info in destination cards
+ */
+#left { float:left }
+#right { float:right }
+
+/*
+ * set padding for arrival and destination times
+ * within destination card
+ */
+#arrival {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    float:left;
+    vertical-align: top;
+}
+#depart {
+    padding-bottom: 0px;
+    padding-top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    float:right;
+    vertical-align: top;
+}
+
+#removeTrip {
+    /*background:url(../images/closeCross.png) no-repeat;*/
+    cursor:pointer;
+    width: 20px;
+    height: 20px;
+    background-size:contain;
+    position:absolute;
+    top:0;
+    right:0;
+    margin-top: 10px;
+    margin-right: 10px;
+    border: 0;
+    background: transparent url(../images/closeCross.png) no-repeat center top;
+}
+
 .error-messages {
     color: #FF1133 !important;
     font-size: 12px;
@@ -189,3 +269,4 @@ code {
     padding-left: 3px;
     padding-top: 3px;
 }
+

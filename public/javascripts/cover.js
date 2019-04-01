@@ -32,7 +32,7 @@ function login(url, redirect) {
             if (response.status != 200) {
                 showErrors(json, "loginForm");
             } else {
-                setCookie("JWT-Auth", json);
+                // setCookie("JWT-Auth", json);
                 window.location.href = redirect;
             }
         });
@@ -58,7 +58,7 @@ function signup(url, redirect) {
                 if (response.status != 200) {
                     showErrors(json, "signupForm");
                 } else {
-                    setCookie("JWT-Auth", json);
+                    // setCookie("JWT-Auth", json);
                     window.location.href = redirect;
                 }
             });
@@ -72,7 +72,7 @@ function signup(url, redirect) {
 function cancel() {
     const elements = document.getElementById("main").getElementsByTagName("input");
     console.log(elements);
-    for (i in elements) {
+    for (let i in elements) {
         elements[i].value = "";
     }
     hideErrors("signupForm");

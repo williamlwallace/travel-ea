@@ -3,28 +3,39 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-GET     /api/user/search                controllers.backend.UserController.pagedUsers(p:Int ?= 0, o ?= "asc", f ?= "")
-+ nocsrf
+POST    /api/admin/grant/:id            controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
+
+POST    /api/admin/revoke/:id           controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
+
+GET     /api/user/search                controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
+
+DELETE  /api/user/:id                   controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
+
+DELETE  /api/user/                      controllers.backend.UserController.deleteUser(request:Request)
+
 POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
-+ nocsrf
+
 POST    /api/login                      controllers.backend.UserController.login(request:Request)
-+ nocsrf
+
 POST    /api/logout                     controllers.backend.UserController.logout(request:Request)
 
 POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(userId:Long)
+GET     /api/profile/search             controllers.backend.ProfileController.searchProfilesJson(nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+
+GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
+
+GET     /api/profile                    controllers.backend.ProfileController.getMyProfile(request:Request)
 
 PUT     /api/profile/                   controllers.backend.ProfileController.updateProfile(request:Request)
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
 DELETE  /api/profile/:userId            controllers.backend.ProfileController.deleteProfile(userId:Long)
 
-DELETE  /api/user/:userId               controllers.backend.UserController.deleteUser(userId:Long)
-
 GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
 
-+ nocsrf
+GET     /api/profile/getTravellerTypes/ controllers.backend.ProfileController.getAllTravellerTypes()
+
 POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET     /api/destination                controllers.backend.DestinationController.getAllDestinations()
@@ -39,38 +50,45 @@ POST    /api/trip                       controllers.backend.TripController.inser
 
 PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
 
-GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
-
 GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
+
+GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
 
 DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
-GET     /                           controllers.frontend.ApplicationController.cover(request:Request)
+GET     /                    controllers.frontend.ApplicationController.cover(request:Request)
 
 # signing up
-GET     /signUp                     controllers.ProfileController.createProfile(request: Request)
+GET     /signUp              controllers.frontend.ProfileController.createProfile(request: Request)
 
 # Home page
-GET     /home                       controllers.frontend.ApplicationController.home(request: Request)
+GET     /home                controllers.frontend.ApplicationController.home(request: Request)
 
 # People page
-GET     /people                     controllers.PeopleController.index(request: Request)
+GET     /people              controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 # The Travelea trips page
-GET     /trips                      controllers.TripsController.index(request: Request)
+GET     /trips               controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET     /trips/create               controllers.createTripController.index(request: Request)
-# POST    /trips                      controllers.createTripController.save
+GET     /trips/create        controllers.frontend.TripController.createTripIndex(request: Request)
+
+# The Travelea edit trip page
+GET     /trips/edit/:id      controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
 
 # The Travelea profile page
-GET     /profile                    controllers.ProfileController.index(request: Request)
+GET     /profile             controllers.frontend.ProfileController.index(request: Request)
 
 # The TravelEA destinations page
-GET     /destinations               controllers.frontend.DestinationController.index(request: Request)
-GET    /editProfile                 controllers.EditProfileController.index(request: Request)
+GET     /destinations        controllers.frontend.DestinationController.index(request: Request)
+
+# Edit profile page
+GET    /editProfile          controllers.frontend.ProfileController.editindex(request: Request)
+
+# Admin page
+GET     /admin                      controllers.frontend.AdminController.index(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

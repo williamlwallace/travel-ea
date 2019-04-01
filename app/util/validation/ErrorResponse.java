@@ -1,20 +1,20 @@
 package util.validation;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.JsonNode;
 import play.libs.Json;
 
 /**
  * Class to track errors and be sent back to client
  */
 public class ErrorResponse {
+
     private Map<String, String> inputErrors = new HashMap<String, String>();
 
     /**
      * return whether there has been any errors
+     *
      * @return Boolean
      */
     public Boolean error() {
@@ -23,6 +23,7 @@ public class ErrorResponse {
 
     /**
      * adds an error message to the errors map
+     *
      * @param error Error message
      * @param field Field name
      */
@@ -33,6 +34,7 @@ public class ErrorResponse {
 
     /**
      * jsonifies this object
+     *
      * @return json object
      */
     public JsonNode toJson() {
