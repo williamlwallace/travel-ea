@@ -2,6 +2,7 @@ package models;
 
 import io.ebean.Model;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -30,6 +31,8 @@ public class Profile extends Model {
     public String middleName;
 
     public String dateOfBirth;
+
+    public LocalDateTime creationDate;
 
     public String gender;
 

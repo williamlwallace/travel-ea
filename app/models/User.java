@@ -1,12 +1,13 @@
 package models;
 
-import io.ebean.Finder;
 import io.ebean.Model;
+import play.data.validation.Constraints;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import play.data.validation.Constraints;
+import java.time.LocalDateTime;
 
 /**
  * User entity managed by Ebean
@@ -15,16 +16,20 @@ import play.data.validation.Constraints;
 @Table(name = "User")
 public class User extends Model {
 
-    public static final Finder<Long, User> find = new Finder<>(User.class);
     @Id
     public Long id;
+
     @Constraints.Required
     @Constraints.Email
     @Column(unique = true)
     public String username;
+
     @Constraints.Required
     public String password;
+
     public String salt;
+
+    public LocalDateTime creationDate;
 
     // public String authToken;
     public Boolean admin = false;
