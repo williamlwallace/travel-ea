@@ -31,11 +31,19 @@ public class CountryDefinition extends Model {
 //                '}';
     }
 
-    @JsonBackReference
-    @ManyToMany
+    @JsonBackReference(value="passports-reference")
+    @ManyToMany(mappedBy = "passports")
     @JoinTable(
             name = "Nationality",
             joinColumns=@JoinColumn(name="country_id", referencedColumnName="id"),
             inverseJoinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"))
-    public List<Profile> profiles;
+    public List<Profile> nationalityProfiles;
+
+    @JsonBackReference(value="nationalities-reference")
+    @ManyToMany(mappedBy = "nationalities")
+    @JoinTable(
+            name = "Passport",
+            joinColumns=@JoinColumn(name="country_id", referencedColumnName="id"),
+            inverseJoinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"))
+    public List<Profile> passportProfiles;
 }

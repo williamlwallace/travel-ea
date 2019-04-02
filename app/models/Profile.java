@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public class Profile extends Model {
 
     public String dateOfBirth;
 
+    @JsonIgnore
     public LocalDateTime creationDate;
 
     public String gender;
@@ -42,14 +44,14 @@ public class Profile extends Model {
             inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
-    @ManyToMany(mappedBy = "profiles")
+    @ManyToMany(mappedBy = "nationalityProfiles")
     @JoinTable(
             name = "Nationality",
             joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
             inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> nationalities;
 
-    @ManyToMany(mappedBy = "profiles")
+    @ManyToMany(mappedBy = "passportProfiles")
     @JoinTable(
             name = "Passport",
             joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),

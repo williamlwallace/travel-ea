@@ -110,7 +110,6 @@ public class ProfileController extends Controller {
                 return CompletableFuture.supplyAsync(
                     () -> created(Json.toJson("Successfully added new profile to database")));
             } catch (Exception e) {
-                int i = 0;
                 return CompletableFuture
                     .supplyAsync(() -> internalServerError("Failed to add profile to database"));
             }
@@ -232,7 +231,6 @@ public class ProfileController extends Controller {
     //TODO: Authorization for adminonly
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
-            System.out.println(rowsDeleted);
             return (!rowsDeleted) ? badRequest(Json.toJson("No such Profile"))
                 : ok(Json.toJson("Profile Deleted"));
         });
