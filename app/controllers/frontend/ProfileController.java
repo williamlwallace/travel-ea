@@ -16,7 +16,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import views.html.profileOld;
+import views.html.createProfile;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,24 +39,24 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Displays the profile page. Called with the /profile URL and uses a GET request. Checks that a
+     * Displays the create profile page. Called with the /profile/create URL and uses a GET request. Checks that a
      * user is logged in. Takes them to the profile page if they are, otherwise they are taken to
      * the start page.
      *
-     * @return displays the profile or start page.
+     * @return displays the create profile or start page.
      */
     @With({Everyone.class, Authenticator.class})
     public Result createProfileIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return ok(profileOld.render(user, user.id));
+        return ok(createProfile.render(user, user.id));
     }
 
     /**
-     * Displays the  edit profile page. Called with the /editProfile URL and uses a GET request.
-     * Checks that a user is logged in. Takes them to the edit profile page if they are, otherwise
+     * Displays the  edit profile page. Called with the /Profile URL and uses a GET request.
+     * Checks that a user is logged in. Takes them to the profile page if they are, otherwise
      * they are taken to the start page.
      *
-     * @return displays the edit profile or start page.
+     * @return displays the profile or start page.
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> index(Http.Request request) {
@@ -67,7 +67,6 @@ public class ProfileController extends Controller {
             },
             httpExecutionContext.current());
     }
-
 
     /**
      * Gets Destinations from api endpoint via get request
