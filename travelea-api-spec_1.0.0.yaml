@@ -41,7 +41,6 @@ paths:
         - application/json
       parameters:
         - in: body
-          name: User
           description: User object to create
           schema:
             type: object
@@ -57,12 +56,6 @@ paths:
       responses:
         200:
           description: Success
-          schema:
-            type: object
-            properties:
-              userId:
-                type: integer
-                description: ID of created user
           headers:
             JWT-Auth:
               type: string
@@ -112,6 +105,59 @@ paths:
           description: Successfully deleted user with uid&#58; {userId}
         400:
           description: No user with such uid found | Cannot delete Master user
+
+  /login:
+    post:
+      tags:
+        - Users
+      summary: Login to user account.
+      description: |
+        Provides authentication to user logging in and stores in database.
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          description: User object to create
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+                format: email
+              password:
+                type: string
+      responses:
+        200:
+          description: Success
+          headers:
+            JWT-Auth:
+              type: string
+              description: Authentication cookie
+        400:
+          description: Invalid user data
+        401:
+          description: Unauthorised
+
+  /logout:
+    post:
+      tags:
+        - Users
+      summary: Logout of user account.
+      description: |
+        Removes authentication attached to user from database.
+      parameters:
+        - in: header
+          name: JWT-Auth
+          type: string
+          required: true
+          description: Authentication cookie.
+      responses:
+        200:
+          description: Success
+
 
   /inventory:
     get:
