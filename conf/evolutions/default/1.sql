@@ -10,12 +10,10 @@ CREATE TABLE IF NOT EXISTS User
     username          VARCHAR(64) NOT NULL,
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
-    -- auth_token        VARCHAR(128),
     admin             BOOLEAN NOT NULL DEFAULT false,
     creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)
-    -- UNIQUE (auth_token)
   );
 
 -- Create Profile table
@@ -127,29 +125,9 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
--- CREATE TABLE IF NOT EXISTS UserRoleDefinition
---   (
---     id                INT NOT NULL AUTO_INCREMENT,
---     name              VARCHAR(2048) NOT NULL,
---     PRIMARY KEY (id)
---   );
-
--- -- Create UserRole table, which specifies the Roles of users
--- CREATE TABLE IF NOT EXISTS UserRole
---   (
---     guid              INT NOT NULL AUTO_INCREMENT,
---     user_id           INT NOT NULL,
---     role_id           INT NOT NULL,
---     FOREIGN KEY (user_id) REFERENCES User(id),
---     FOREIGN KEY (role_id) REFERENCES UserRoleDefinition(id),
---     PRIMARY KEY (guid),
---     INDEX userole_index (user_id, role_id),
---     UNIQUE(user_id, role_id)
---   );
-
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES
-('Afghanistan'),('Albania'),('Algeria'),('Andorra'),('Angola'),('Anguilla'),('Antarctica'),('Antigua and Barbuda'),('Saudi Arabia'),('Argentina'),('Armenia'),('Aruba'),('Australia'),('Austria'),('Azerbaijan'),('Bahamas'),('Bahrain'),('Bangladesh'),('Barbados'),('Belgium'),('Belize'),('Benin'),('Bermuda'),('Bhutan'),('Belarus'),('Myanmar [Burma]'),('Bolivia'),('Bosnia and Herzegovina'),('Botswana'),('Brazil'),('Brunei'),('Bulgaria'),('Burkina Faso'),('Burundi'),('Cambodia'),('Cameroon'),('Canada'),('Cape Verde'),('Bonaire'),('Chad'),('Chile'),('China'),('Cyprus'),('Colombia'),('Comoros'),('Republic of the Congo'),('North Korea'),('South Korea'),('Kosovo'),('Costa Rica'),('Ivory Coast'),('Croatia'),('Cuba'),('Curacao'),('Denmark'),('Dominica'),('Ecuador'),('Egypt'),('El Salvador'),('United Arab Emirates'),('Eritrea'),('Estonia'),('Ethiopia'),('Fiji'),('Philippines'),('Finland'),('France'),('Gabon'),('Gambia'),('Georgia'),('South Georgia and the South Sandwich Islands'),('Germany'),('Ghana'),('Jamaica'),('Japan'),('Gibraltar'),('Djibouti'),('Jordan'),('Greece'),('Grenada'),('Greenland'),('Guadeloupe'),('Guam'),('Guatemala'),('Guernsey'),('French Guiana'),('Guinea'),('Equatorial Guinea'),('Guinea-Bissau'),('Guyana'),('Haiti'),('Honduras'),('Hong Kong'),('India'),('Indonesia'),('Iran'),('Iraq'),('Ireland'),('Iceland'),('Bouvet Island'),('Norfolk Island'),('Christmas Island'),('Isle of Man'),('Cayman Islands'),('Cocos [Keeling] Islands'),('Cook Islands'),('Falkland Islands'),('Faroe Islands'),('Heard Island and McDonald Islands'),('Northern Mariana Islands'),('Marshall Islands'),('Solomon Islands'),('Turks and Caicos Islands'),('U.S. Virgin Islands'),('British Virgin Islands'),('U.S. Minor Outlying Islands'),('Åland'),('Israel'),('Italy'),('Jersey'),('Kazakhstan'),('Kenya'),('Kyrgyzstan'),('Kiribati'),('Kuwait'),('Laos'),('Lesotho'),('Latvia'),('Lebanon'),('Liberia'),('Libya'),('Liechtenstein'),('Lithuania'),('Luxembourg'),('Macao'),('Macedonia'),('Madagascar'),('Malawi'),('Maldives'),('Malaysia'),('Mali'),('Malta'),('Morocco'),('Martinique'),('Mauritania'),('Mauritius'),('Mayotte'),('Mexico'),('Micronesia'),('Moldova'),('Monaco'),('Mongolia'),('Montenegro'),('Montserrat'),('Mozambique'),('Namibia'),('Nauru'),('Nepal'),('Nicaragua'),('Niger'),('Nigeria'),('Niue'),('Norway'),('New Caledonia'),('New Zealand'),('Oman'),('Netherlands'),('Pakistan'),('Palau'),('Palestine'),('Panama'),('Papua New Guinea'),('Paraguay'),('Peru'),('Pitcairn Islands'),('French Polynesia'),('Poland'),('Portugal'),('Puerto Rico'),('Qatar'),('United Kingdom'),('Czechia'),('Central African Republic'),('Democratic Republic of the Congo'),('Dominican Republic'),('Romania'),('Rwanda'),('Russia'),('Réunion'),('Western Sahara'),('Saint Kitts and Nevis'),('Saint Martin'),('Saint Pierre and Miquelon'),('Saint Vincent and the Grenadines'),('Samoa'),('American Samoa'),('Saint Barthélemy'),('San Marino'),('Saint Lucia'),('Saint Helena'),('Senegal'),('Serbia'),('Seychelles'),('Sierra Leone'),('Singapore'),('Sint Maarten'),('Syria'),('Slovakia'),('Slovenia'),('Somalia'),('Spain'),('Sri Lanka'),('United States'),('South Africa'),('Sudan'),('South Sudan'),('Suriname'),('Svalbard and Jan Mayen'),('Sweden'),('Switzerland'),('Swaziland'),('São Tomé and Príncipe'),('Tajikistan'),('Taiwan'),('Tanzania'),('French Southern Territories'),('British Indian Ocean Territory'),('Thailand'),('East Timor'),('Togo'),('Tokelau'),('Tonga'),('Trinidad and Tobago'),('Tunisia'),('Turkey'),('Turkmenistan'),('Tuvalu'),('Ukraine'),('Uganda'),('Hungary'),('Uruguay'),('Uzbekistan'),('Vanuatu'),('Vatican City'),('Venezuela'),('Vietnam'),('Wallis and Futuna'),('Yemen'),('Zambia'),('Zimbabwe');
+('France'),('England'),('New Zealand'),('Australia'),('Germany'),('United States');
 
 -- Add sample user
 INSERT INTO User(username, password, salt, admin) VALUES ('admin@travelea.co.nz', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', true);
@@ -181,8 +159,6 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
--- DROP TABLE UserRole;
--- DROP TABLE UserRoleDefinition;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
