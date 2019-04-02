@@ -388,7 +388,7 @@ paths:
         '404':
           description: No such destination found
 
-  '/api/destination/search':
+  '/destination/search':
     get:
       tags:
         - Destinations
@@ -420,11 +420,206 @@ paths:
         '200':
           description: Successfully retrieved (possibly zero) destinations
 
+  '/profile/getTravellerTypes/':
+    get:
+      tags:
+        - Profiles
+      summary: Get all possible traveller types
+      responses:
+        '200':
+          description: Successfully retrieved all traveller types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TravellerTypeDefinition'
+
+  '/profile':
+    post:
+      tags:
+        - Profiles
+      summary: Add a new profile (NEEDS TO BE MADE FOR LOGGED IN USER ONLY)
+      description: |
+        Inserts a profile for the currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '409':
+          description: Profile already exists for this user
+
+    get:
+      tags:
+        - Profiles
+      summary: Get profile of currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: Authentication failed
+
+    put:
+      tags:
+        - Profiles
+      summary: Update profile of currently logged in user
+      description: |
+        Updates the profile of an existing user who is currently logged in
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '200':
+          description: Successfully updated profile
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+
+  '/profile/search':
+    get:
+      tags:
+        - Profiles
+      summary: Searches through all profiles based on some criteria
+      parameters:
+        - in: query
+          name: nationalityId
+          description: ID of some nationality to search by
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - in: query
+          name: travellerTypeId
+          description: ID of some traveller type to search by
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - in: query
+          name: gender
+          description: A gender to search for
+          schema:
+            type: string
+        - in: query
+          name: minAge
+          description: The minimum age of people for whom to show profiles
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: maxAge
+          description: The maximum age of people for whom to show profiles
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Successfully retrieved (possibly zero) profiles
+
+  '/profile/{userId}':
+    get:
+      tags:
+        - Profiles
+      summary: Get profile of user with given ID
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: The ID of the user for whom to retrieve their profile
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '404':
+          description: No such destination found
+
+    delete:
+      tags:
+        - Profiles
+      summary: Delete the profile of user with specified ID
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: The user ID to delete the profile of
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Successfully deleted profile'
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '404':
+          description: No profile found for that user
+
 servers:
   - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
 components:
   requestBodies:
-  
+
     postUser:
       content:
         application/json:
@@ -440,7 +635,7 @@ components:
               password:
                 type: string
       description: User object to create
-      
+
     postTrip:
       content:
         application/json:
@@ -460,7 +655,7 @@ components:
                 items:
                   $ref: '#/components/schemas/TripData'
       description: 'Trip data necessary for new trip to be added. Note: destination field only needs to include id property, nothing else.'
-      
+
     putTrip:
       content:
         application/json:
@@ -486,7 +681,7 @@ components:
                 items:
                   $ref: '#/components/schemas/TripData'
       description: 'Trip data necessary for new trip to be added. Note: destination field only needs to include id property, nothing else.'
-      
+
   schemas:
     User:
       type: object
@@ -522,7 +717,7 @@ components:
           type: string
           format: ISO Datetime
           description: Generated automatically at the time of creation of the user
-          
+
     Profile:
       type: object
       required:
@@ -551,7 +746,8 @@ components:
           example: Smith
         gender:
           type: string
-          example: 'Male, Female, or Other'
+          description: 'Male, Female, or Other'
+          example: 'Male'
         dateOfBirth:
           type: string
           format: date yyyy/mm/dd

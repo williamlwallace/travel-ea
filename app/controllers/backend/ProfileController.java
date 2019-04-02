@@ -99,7 +99,7 @@ public class ProfileController extends Controller {
         if (foundProfile != null) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Profile already created for this user id", "other");
-                return badRequest(errorResponse.toJson());
+                return status(409, errorResponse.toJson());
             });
         }
 
@@ -164,7 +164,7 @@ public class ProfileController extends Controller {
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Could not find profile in database", "other");
-                return badRequest(errorResponse.toJson());
+                return notFound(errorResponse.toJson());
             });
         }
     }
@@ -232,11 +232,10 @@ public class ProfileController extends Controller {
 
     //TODO: Authorization for adminonly
     public CompletableFuture<Result> deleteProfile(Long id) {
-        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
-            System.out.println(rowsDeleted);
-            return (!rowsDeleted) ? badRequest(Json.toJson("No such Profile"))
-                : ok(Json.toJson("Profile Deleted"));
-        });
+        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted ->
+            (!rowsDeleted) ? notFound(Json.toJson("No such Profile"))
+                : ok(Json.toJson("Profile Deleted"))
+        );
     }
 
     // Private Methods
