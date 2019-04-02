@@ -2,16 +2,6 @@
 -- MODIFIED: 14/3/2019 2.00PM
 
 -- !Ups
-DROP TABLE IF EXISTS TravellerType;
-DROP TABLE IF EXISTS Passport;
-DROP TABLE IF EXISTS Nationality;
-DROP TABLE IF EXISTS TravellerTypeDefinition;
-DROP TABLE IF EXISTS TripData;
-DROP TABLE IF EXISTS Destination;
-DROP TABLE IF EXISTS Trip;
-DROP TABLE IF EXISTS CountryDefinition;
-DROP TABLE IF EXISTS Profile;
-DROP TABLE IF EXISTS User;
 
 -- Create User table
 CREATE TABLE IF NOT EXISTS User
@@ -22,6 +12,7 @@ CREATE TABLE IF NOT EXISTS User
     salt              VARCHAR(64) NOT NULL,
     -- auth_token        VARCHAR(128),
     admin             BOOLEAN NOT NULL DEFAULT false,
+    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)
     -- UNIQUE (auth_token)
@@ -36,8 +27,9 @@ CREATE TABLE IF NOT EXISTS Profile
     last_name         VARCHAR(64) NOT NULL,
     date_of_birth     DATE,
     gender            VARCHAR(32),
+    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id),
-    FOREIGN KEY (user_id) REFERENCES User(id)
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
   );
 
 CREATE TABLE IF NOT EXISTS CountryDefinition
@@ -54,8 +46,8 @@ CREATE TABLE IF NOT EXISTS Nationality
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     country_id        INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX nationality_index (user_id, country_id),
     UNIQUE (user_id, country_id)
@@ -67,8 +59,8 @@ CREATE TABLE IF NOT EXISTS Passport
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     country_id        INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX passport_index (user_id, country_id),
     UNIQUE (user_id, country_id)
@@ -88,8 +80,8 @@ CREATE TABLE IF NOT EXISTS TravellerType
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     traveller_type_id INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
-    FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX travellertype_index (user_id, traveller_type_id),
     UNIQUE(user_id, traveller_type_id)
@@ -105,7 +97,7 @@ CREATE TABLE IF NOT EXISTS Destination
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
-    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id),
+    FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
 
@@ -114,7 +106,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
   );
@@ -128,14 +120,38 @@ CREATE TABLE IF NOT EXISTS TripData
     destination_id    INT NOT NULL,
     arrival_time      DATETIME,
     departure_time    DATETIME,
-    FOREIGN KEY (trip_id) REFERENCES Trip(id),
-    FOREIGN KEY (destination_id) REFERENCES Destination(id),
+    FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
   );
 
+-- CREATE TABLE IF NOT EXISTS UserRoleDefinition
+--   (
+--     id                INT NOT NULL AUTO_INCREMENT,
+--     name              VARCHAR(2048) NOT NULL,
+--     PRIMARY KEY (id)
+--   );
+
+-- -- Create UserRole table, which specifies the Roles of users
+-- CREATE TABLE IF NOT EXISTS UserRole
+--   (
+--     guid              INT NOT NULL AUTO_INCREMENT,
+--     user_id           INT NOT NULL,
+--     role_id           INT NOT NULL,
+--     FOREIGN KEY (user_id) REFERENCES User(id),
+--     FOREIGN KEY (role_id) REFERENCES UserRoleDefinition(id),
+--     PRIMARY KEY (guid),
+--     INDEX userole_index (user_id, role_id),
+--     UNIQUE(user_id, role_id)
+--   );
+
+
+
 -- !Downs
+-- DROP TABLE UserRole;
+-- DROP TABLE UserRoleDefinition;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
@@ -146,6 +162,3 @@ DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
 DROP TABLE User;
-
-
-
