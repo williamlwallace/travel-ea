@@ -12,6 +12,8 @@ import io.ebean.Query;
 import io.ebean.RawSql;
 import io.ebean.RawSqlBuilder;
 import io.ebean.SqlUpdate;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -53,8 +55,8 @@ public class ProfileRepository {
             // Insert basic profile info
             SqlUpdate insert = ebeanServer.createSqlUpdate(
                 "INSERT INTO Profile " +
-                    "(user_id, first_name, last_name, middle_name, date_of_birth, gender) " +
-                    "VALUES (:userId, :firstName, :lastName, :middleName, :dateOfBirth, :gender);");
+                    "(user_id, first_name, last_name, middle_name, date_of_birth, gender, creation_date) " +
+                    "VALUES (:userId, :firstName, :lastName, :middleName, :dateOfBirth, :gender, :creationDate);");
 
             // Set parameters
             insert.setParameter("userId", profile.userId);
@@ -63,6 +65,7 @@ public class ProfileRepository {
             insert.setParameter("middleName", profile.middleName);
             insert.setParameter("dateOfBirth", profile.dateOfBirth);
             insert.setParameter("gender", profile.gender);
+            insert.setParameter("creationDate", LocalDateTime.now());
 
             insert.execute();
 
