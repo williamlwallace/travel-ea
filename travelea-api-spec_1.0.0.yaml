@@ -41,13 +41,15 @@ paths:
           description: Invalid user data | Email already in use
       requestBody:
         $ref: '#/components/requestBodies/postUser'
-        
+
     delete:
       tags:
         - Users
       summary: Delete the user logged in.
       description: |
         Deletes the logged in user from the database
+      security:
+        - UserToken: []
       parameters:
         - in: header
           name: JWT-Auth
@@ -62,9 +64,9 @@ paths:
           description: No user with such uid found | Cannot delete Master user
         '401':
           description: Authentication failed
-        '403': 
+        '403':
           description: User not authorised for this action
-          
+
   '/user/{id}':
     delete:
       tags:
@@ -72,6 +74,8 @@ paths:
       summary: Delete the user with specified ID.
       description: |
         Deletes the user specified by id parameter from the database
+      security:
+        - UserToken: []
       parameters:
         - in: path
           name: id
@@ -93,9 +97,9 @@ paths:
           description: No user with such uid found | Cannot delete Master user
         '401':
           description: Authentication failed
-        '403': 
+        '403':
           description: User not authorised for this action
-          
+
   '/login':
     post:
       tags:
@@ -117,7 +121,7 @@ paths:
           description: Unauthorised
       requestBody:
         $ref: '#/components/requestBodies/postUser'
-        
+
   '/logout':
     post:
       tags:
@@ -125,6 +129,8 @@ paths:
       summary: Logout of user account.
       description: |
         Removes authentication attached to user from database.
+      security:
+        - UserToken: []
       parameters:
         - in: header
           name: JWT-Auth
@@ -137,9 +143,9 @@ paths:
           description: Success
         '401':
           description: Authentication failed
-        '403': 
+        '403':
           description: User not authorised for this action
-          
+
   '/trip':
     post:
       tags:
@@ -147,7 +153,9 @@ paths:
       summary: Add a new trip
       description: |
         Inserts a new trip into the database, for the currently logged in user
-      parameters: 
+      security:
+        - UserToken: []
+      parameters:
         - in: header
           name: JWT-Auth
           required: true
@@ -170,6 +178,8 @@ paths:
       summary: Update an existing trip
       description: |
         Updates an existing trip on the database, for the currently logged in user
+      security:
+        - UserToken: []
       parameters:
         - in: header
           name: JWT-Auth
@@ -186,9 +196,9 @@ paths:
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
           description: Authentication failed
-        '403': 
+        '403':
           description: User not authorised for this action
-    
+
   '/trip/{id}':
     get:
       tags:
@@ -211,11 +221,13 @@ paths:
                 $ref: '#/components/schemas/Trip'
         '404':
           description: No such trip found
-          
+
     delete:
       tags:
         - Trips
       summary: Delete trip with given ID
+      security:
+        - UserToken: []
       parameters:
         - in: path
           name: id
@@ -235,16 +247,18 @@ paths:
           description: Successfully deleted trip
         '401':
           description: Authentication failed
-        '403': 
+        '403':
           description: User not authorised for this action
         '404':
           description: No such trip found
-          
-  '/api/trip/getAll/':
+
+  '/trip/getAll/':
     get:
       tags:
         - Trips
       summary: Get all trips belonging to currently logged in user
+      security:
+        - UserToken: []
       parameters:
         - in: header
           name: JWT-Auth
@@ -264,7 +278,147 @@ paths:
         '401':
           description: Authentication failed
 
-  
+  '/destination/getCountries':
+    get:
+      tags:
+        - Destinations
+      summary: Get all possible country options
+      responses:
+        '200':
+          description: Successfully retrieved all countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CountryDefinition'
+
+  '/destination':
+    get:
+      tags:
+        - Destinations
+      summary: Get all destinations
+      responses:
+        '200':
+          description: Successfully retrieved all destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Destination'
+    post:
+      tags:
+        - Destinations
+      summary: Add a new destination
+      description: |
+        Inserts a destination into the database, that is owned by the current user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+
+  '/destination/{id}':
+    get:
+      tags:
+        - Destinations
+      summary: Get destination with given ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the destination to retrieve
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved destination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Destination'
+        '404':
+          description: No such destination found
+
+    delete:
+      tags:
+        - Destinations
+      summary: Delete destination with given ID
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the destination to delete
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted destination
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '404':
+          description: No such destination found
+
+  '/api/destination/search':
+    get:
+      tags:
+        - Destinations
+      summary: Searches through all destinations based on some criteria
+      parameters:
+        - in: query
+          name: p
+          description: Number of page to get
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: pSize
+          description: Number of results to show per page
+          schema:
+            type: integer
+        - in: query
+          name: filter
+          description: Filter criteria by which to search desinations
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: Whether to sort ascending or descending
+          schema:
+            type: string
+            description: "Either 'asc' or 'desc'"
+      responses:
+        '200':
+          description: Successfully retrieved (possibly zero) destinations
 
 servers:
   - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
