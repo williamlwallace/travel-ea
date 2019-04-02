@@ -208,7 +208,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper().readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(trips.get(0).get("tripDataList").size(), 1); //TODO change this number when the creation step and evolutions work
+        assertEquals(1, trips.get(0).get("tripDataList").size()); //TODO change this number when the creation step and evolutions work
     }
 
     @And("only my trips")
@@ -222,6 +222,6 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper().readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(trips.get(0).get("userId").asInt(), 1); //TODO change this number to created user's Id when the creation step and evolutions work
+        assertEquals(1, trips.get(0).get("userId").asInt()); //TODO change this number to created user's Id when the creation step and evolutions work
     }
 }
