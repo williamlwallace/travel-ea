@@ -141,7 +141,6 @@ public class ProfileController extends Controller {
         Profile profile;
         try {
             profile = profileRepository.findID(userId).get();
-            //profile = profileRepository.findIDModelBridging(userId).get();
         } catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Database Exception", "other");

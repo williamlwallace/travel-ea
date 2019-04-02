@@ -1,10 +1,9 @@
 package models;
 
 import io.ebean.Model;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+
+import javax.persistence.*;
+
 import play.data.validation.Constraints;
 
 /**
@@ -21,7 +20,8 @@ public class TravellerType extends Model {
     @Column(name = "user_id")
     public Long userId;
 
+    @ManyToOne
     @Constraints.Required
-    @Column(name = "traveller_type_id")
-    public Long travellerTypeId;
+    public TravellerTypeDefinition travellerTypeDefinition;
+
 }

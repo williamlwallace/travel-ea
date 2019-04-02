@@ -6,9 +6,8 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import play.data.validation.Constraints;
 
 /**
@@ -36,27 +35,26 @@ public class Profile extends Model {
 
     public String gender;
 
-    //    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name="TravellerType",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name="TravellerType",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
-    //    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name = "Nationality",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    @ManyToMany(mappedBy = "profiles")
+    @JoinTable(
+            name = "Nationality",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> nationalities;
 
-    //    @ManyToMany
-//    @JoinTable(
-//            name = "Passport",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    @ManyToMany(mappedBy = "profiles")
+    @JoinTable(
+            name = "Passport",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> passports;
-
 
     public int calculateAge() {
         LocalDate birthDate = LocalDate

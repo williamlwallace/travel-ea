@@ -1,10 +1,14 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
+
+import java.util.List;
 
 /**
  * A class that represents a traveller type and holds information received from database
@@ -36,7 +40,7 @@ public class TravellerTypeDefinition extends Model {
 //        return description.substring(0, 1).toUpperCase() + description.substring(1);
     }
 
-//    @ManyToMany(mappedBy = "travellerTypes")
-//    @JsonBackReference
-//    public List<Profile> profiles;
+    @ManyToMany(mappedBy = "travellerTypes")
+    @JsonBackReference
+    public List<Profile> travellerTypes;
 }

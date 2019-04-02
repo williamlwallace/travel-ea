@@ -70,7 +70,7 @@ public class ProfileRepository {
             List<TravellerType> travellerTypes = new ArrayList<>();
             for (TravellerTypeDefinition def : profile.travellerTypes) {
                 TravellerType type = new TravellerType();
-                type.travellerTypeId = def.id;
+                //type.travellerTypeId = def.id;
                 type.userId = profile.userId;
                 travellerTypes.add(type);
             }
@@ -100,6 +100,17 @@ public class ProfileRepository {
         }, executionContext);
     }
 
+
+    public CompletableFuture<Profile> findID(Long id) {
+        return supplyAsync(() ->
+            ebeanServer.find(Profile.class)
+                    .where()
+                    .eq("user_id", id)
+                    .findOneOrEmpty()
+                    .orElse(null),
+                executionContext);
+    }
+
     /**
      * Gets the profile with some id from the database, or null if no such profile exists
      *
@@ -110,7 +121,7 @@ public class ProfileRepository {
      * @param id Unique ID of profile (owning user's id) to retrieve
      * @return Profile object with given ID, or null if none found
      */
-    public CompletableFuture<Profile> findID(Long id) {
+    public CompletableFuture<Profile> findIDWorkaround(Long id) {
         // Find the profile from the server
         RawSql rawSql = RawSqlBuilder
             .parse("SELECT user_id, first_name, last_name, middle_name, date_of_birth, gender " +
@@ -193,17 +204,6 @@ public class ProfileRepository {
         } catch (Exception e) {
             return null;
         }
-    }
-
-
-    public CompletableFuture<Profile> findIDModelBridging(Long id) {
-        return supplyAsync(() ->
-                ebeanServer.find(Profile.class)
-                    .where()
-                    .eq("user_id", id)
-                    .findOneOrEmpty()
-                    .orElse(null),
-            executionContext);
     }
 
     /**
@@ -297,7 +297,7 @@ public class ProfileRepository {
             List<TravellerType> travellerTypes = new ArrayList<>();
             for (TravellerTypeDefinition def : profile.travellerTypes) {
                 TravellerType type = new TravellerType();
-                type.travellerTypeId = def.id;
+                //type.travellerTypeId = def.id;
                 type.userId = profile.userId;
                 travellerTypes.add(type);
             }
