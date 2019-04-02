@@ -13,53 +13,136 @@ info:
 
 # tags are used for organizing operations
 tags:
-- name: Users
-  description: User account calls
+  - name: Users
+    description: User account calls
 
-- name: Profiles
-  description: Profile calls
+  - name: Profiles
+    description: Profile calls
 
-- name: Destinations
-  description: Destination calls
+  - name: Destinations
+    description: Destination calls
 
-- name: Trips
-  description: Trip calls
+  - name: Trips
+    description: Trip calls
 
-- name: Admins
-  description: Secured Admin-only calls
+  - name: Admins
+    description: Secured Admin-only calls
 
 
 paths:
+  /user:
+    post:
+      tags:
+        - Users
+      summary: Register a new user.
+      description: |
+        Creates a new user and adds to database
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: User
+          description: User object to create
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+                format: email
+              password:
+                type: string
+      responses:
+        200:
+          description: Success
+          schema:
+            type: object
+            properties:
+              userId:
+                type: integer
+                description: ID of created user
+          headers:
+            JWT-Auth:
+              type: string
+              description: Authentication cookie
+        400:
+          description: Invalid user data | Email already in use
+
+    delete:
+      tags:
+        - Users
+      summary: Delete the user logged in.
+      description: |
+        Deletes the logged in user from the database
+      parameters:
+        - in: header
+          name: JWT-Auth
+          type: string
+          required: true
+          description: Authentication cookie.
+      responses:
+        200:
+          description: Successfully deleted user with uid&#58; {userId}
+        400:
+          description: No user with such uid found | Cannot delete Master user
+
+  /user/{id}:
+    delete:
+      tags:
+        - Users
+      summary: Delete the user with specified ID.
+      description: |
+        Deletes the user specified by id parameter from the database
+      parameters:
+        - in: path
+          name: id
+          type: integer
+          required: true
+          minimum: 1
+          description: The user ID to be deleted.
+        - in: header
+          name: JWT-Auth
+          type: string
+          required: true
+          description: Authentication cookie.
+      responses:
+        200:
+          description: Successfully deleted user with uid&#58; {userId}
+        400:
+          description: No user with such uid found | Cannot delete Master user
+
   /inventory:
     get:
       tags:
-      - Admins
+        - Admins
       summary: searches inventory
       operationId: searchInventory
       description: |
         By passing in the appropriate options, you can search for
         available inventory in the system
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: query
-        name: searchString
-        description: pass an optional search string for looking up inventory
-        required: false
-        type: string
-      - in: query
-        name: skip
-        description: number of records to skip for pagination
-        type: integer
-        format: int32
-        minimum: 0
-      - in: query
-        name: limit
-        description: maximum number of records to return
-        type: integer
-        format: int32
-        minimum: 0
-        maximum: 50
+        - in: query
+          name: searchString
+          description: pass an optional search string for looking up inventory
+          required: false
+          type: string
+        - in: query
+          name: skip
+          description: number of records to skip for pagination
+          type: integer
+          format: int32
+          minimum: 0
+        - in: query
+          name: limit
+          description: maximum number of records to return
+          type: integer
+          format: int32
+          minimum: 0
+          maximum: 50
       responses:
         200:
           description: search results matching criteria
@@ -71,20 +154,20 @@ paths:
           description: bad input parameter
     post:
       tags:
-      - Admins
+        - Admins
       summary: adds an inventory item
       operationId: addInventory
       description: Adds an item to the system
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: inventoryItem
-        description: Inventory item to add
-        schema:
-          $ref: '#/definitions/Profile'
+        - in: body
+          name: inventoryItem
+          description: Inventory item to add
+          schema:
+            $ref: '#/definitions/Profile'
       responses:
         201:
           description: item created
@@ -92,13 +175,13 @@ paths:
           description: invalid input, object invalid
         409:
           description: an existing item already exists
-definitions:
 
+definitions:
   User:
     type: object
     required:
-    - username
-    - password
+      - username
+      - password
     properties:
       id:
         type: integer
@@ -178,7 +261,7 @@ definitions:
   CountryDefinition:
     type: object
     required:
-    - id
+      - id
     properties:
       id:
         type: integer
@@ -191,7 +274,7 @@ definitions:
   TravellerTypeDefinition:
     type: object
     required:
-    - id
+      - id
     properties:
       id:
         type: integer
@@ -204,12 +287,12 @@ definitions:
   Destination:
     type: object
     required:
-    - name
-    - type
-    - district
-    - latitude
-    - longitude
-    - country
+      - name
+      - type
+      - district
+      - latitude
+      - longitude
+      - country
     properties:
       id:
         type: integer
@@ -242,8 +325,8 @@ definitions:
   Trip:
     type: object
     required:
-    - userId
-    - tripDataList
+      - userId
+      - tripDataList
     properties:
       id:
         type: integer
@@ -263,8 +346,8 @@ definitions:
   TripData:
     type: object
     required:
-    - position
-    - destination
+      - position
+      - destination
     description: "IMPORTANT NOTE: When specifying the destination this trip data corresponds to, only the destination's id field must be filled in."
     properties:
       guid:
@@ -288,6 +371,11 @@ definitions:
         format: ISO date-time
         example: "2019-04-20T10:30:00.000"
 
+
+
+
+
+
 # Added by API Auto Mocking Plugin
 # host: csse-s302g4.canterbury.ac.nz:8080
 # basePath: /
@@ -297,5 +385,5 @@ definitions:
 host: virtserver.swaggerhub.com
 basePath: /seng302-team400/Travel-EA/1.0.0
 schemes:
- - https
- - http
+  - https
+  - http
