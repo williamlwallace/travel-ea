@@ -1,6 +1,5 @@
-@import play.mvc.Http.Request
-@import helper._
-@import models.User
+@ @
+import models.User
 @(title: String, user: User, scripts: Html = Html(""))(content: Html)
 
 @* Shows the current tab as active. Thanks to user2518430 of stackoverflow *@
@@ -53,12 +52,12 @@
                 </ul>
                 <ul class="nav pull-right">
                     <li class="dropdown">
-                        <a class="dropdown-toggle dropdown-style @activeLink("/profile")" href="/editProfile" id="navbarDropdown"
+                        <a class="dropdown-toggle dropdown-style @activeLink("/profile")" href="/profile" id="navbarDropdown"
                             role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @user.username
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/editProfile">Profile</a>
+                            <a class="dropdown-item" href="/profile">profile</a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick=
                             'logout("@controllers.backend.routes.UserController.logout()",

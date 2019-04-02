@@ -1,23 +1,19 @@
 /**
+ * The full profile page
+ */
+div.profile {
+    padding-right: 4%;
+    padding-left: 4%;
+}
+
+/**
  * The left hand summary of the users details/profile-picture
  */
 div.profile-summary {
     background-color: #FFFFFF;
-    width: 300px;
+    width: 68%;
     height: 500px;
     margin-top: -100px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-top: 5px;
-}
-
-/**
- * The profile picture
- */
-div.profile-picture {
-    background-color: #FFFFFF;
-    width: 290px;
-    height: 290px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -36,37 +32,74 @@ div.profile-details {
 div.profile-main {
     max-width: 100%;
     height: auto;
-    margin-right: 10%;
+    margin-right: auto;
+    margin-left: auto;
     margin-top: 30px;
 }
 
 /**
- * Test paragraph styling
+ * Text paragraph styling
  */
 p {
     font-family: 'Roboto', sans-serif;
+    font-size: 20px;
     font-weight: 400;
 }
 
+/**
+ * Section titles
+ */
+p.heading {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/**
+ * The users info text titles
+ */
+span.section-title {
+    float: left;
+    font-weight: 600;
+}
+
+/**
+ * The users info text
+ */
+span.user-info {
+    font-weight: 400;
+}
 
 /**
  * The photo Gallery
  */
 div.photo-gallery {
-    height: 45%;
-    width: auto;
+    display: inline-block;
+    width: 100%;
 }
 
 /**
  * Deals with image sizing and styling
  */
-img {
+img.thumb {
     width: 25%;
     height: auto;
     float: left;
-    max-width: 235px;
     border: none !important;
     background-color: rgba(0, 0, 0, 0) !important;
+}
+
+/**
+ * The profile picture image styling
+ */
+img.profile-picture {
+    width: 100%;
+    height: auto;
+    float: left;
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    padding: 2%;
 }
 
 /**
@@ -77,21 +110,24 @@ div.section-title {
     font-weight: 500;
 }
 
-a,
-a:hover {
+/**
+ * Styling for the section buttons
+ */
+a.button-secondary {
     color: #1b1e21;
-    text-decoration: underline !important;
 }
 
-a:hover {
+a.button-secondary:hover {
     color: #6d6d6e;
 }
 
-span {
-    text-decoration: inherit;
+a.button-secondary:active {
+    color: #1b1e21;
 }
 
-section {
-    height: auto;
-    width: auto;
+span.profile-button {
+    text-decoration: inherit;
+    color: inherit;
+    font-size: 20px;
+    font-weight: 300;
 }

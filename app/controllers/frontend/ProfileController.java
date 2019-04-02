@@ -6,9 +6,6 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.concurrent.CompletableFuture;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import models.Profile;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
@@ -19,8 +16,11 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import views.html.editProfile;
-import views.html.profile;
+import views.html.profileOld;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -46,9 +46,9 @@ public class ProfileController extends Controller {
      * @return displays the profile or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public Result index(Http.Request request) {
+    public Result createProfileIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return ok(profile.render(user, user.id));
+        return ok(profileOld.render(user, user.id));
     }
 
     /**
@@ -59,11 +59,11 @@ public class ProfileController extends Controller {
      * @return displays the edit profile or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> editindex(Http.Request request) {
+    public CompletableFuture<Result> index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getProfile(user.id).thenApplyAsync(
             profile -> {
-                return ok(editProfile.render(profile, user));
+                return ok(views.html.profile.render(profile, user));
             },
             httpExecutionContext.current());
     }

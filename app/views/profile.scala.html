@@ -1,8 +1,8 @@
 @import play.mvc.Http.Request
-@(user: models.User, id: Long)
+@(profile: Profile, user: models.User)
 
 @scripts = {
-    @*<script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>*@
+    <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", user, scripts){
@@ -13,94 +13,197 @@
     <div class="title-frame" id="title-frame">
         <div class="title-bg" style="background-image: url(@routes.Assets.at("images/profile-bg.jpg"))">
             <div class="title-text-wrap">
-                <p class="title-text">Dave Smith</p>
+                <p class="title-text">@profile.firstName @profile.lastName</p>
             </div>
         </div>
     </div>
 
     <body style="margin:auto">
-        <div class="row"  id="startchange">
+        <div class="row profile" id="startchange">
             <div class="col-12 col-md-3">
                 @* Profile Detail *@
                 <div class="profile-summary">
-                    <div class="profile-picture" style="background-image: url(@routes.Assets.at("images/default-profile-picture.jpg"))"></div>
+                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" class="img-thumbnail profile-picture">
                     <div class="profile-details">
-                        <p>Email Max&#64;gmail.com</p>
-                        <p>Gender Male</p>
-                        <p>Nationalities Australia</p>
-                        <p>Traveller Types groupies, backpacker</p>
-                        <p>Passports Australia</p>
+                        <p class="heading">Email <span class="user-info">@user.username</span></p>
+                        <p class="heading">Gender <span class="user-info">@profile.gender</span></p>
+                        <p class="heading">Nationalities <span class="user-info">@profile.nationalities.toString.substring(1, profile.nationalities.toString.length - 1)</span></p>
+                        <p class="heading">Traveller Types <span class="user-info">@profile.travellerTypes.toString.substring(1, profile.travellerTypes.toString.length - 1)</span></p>
+                        @if(!profile.passports.isEmpty) {
+                            <p class="heading">Passports
+                                <span class="user-info">
+                                    @profile.passports.toString.substring(1, profile.passports.toString.length - 1)
+                                </span>
+                            </p>
+                        }
+                        <a class="button-secondary" data-toggle="modal" data-target="#editProfileModal">
+                            <span class="profile-button" style="float: left; padding-top: 10px">Edit Profile</span>
+                        </a>
                     </div>
                 </div>
             </div>
-            <div class="col-6 col-md-9">
+            <div class="col-12 col-md-9">
                 @* Body Content *@
                 <div class="profile-main">
-                    <div class = "section">
+                    <div>
                         <div class="section-title">
                             <p>
-                                <span style="float: left">Pictures</span>
-                                <a href="#"><span style="float: right; padding-left:10px;">View All</span></a>
-                                <a href="#"><span style="float: right">Add Photo</span></a>
+                                <span class="section-title">Pictures</span>
+                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right; padding-left:10px;">View All</span></a>
+                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right">Add Photo</span></a>
                             </p>
                         </div>
 
                         <div class="photo-gallery">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
                         </div>
                     </div>
 
-                    <div class = "section">
+                    <div>
                         <div class="section-title">
                             <p>
-                                <span style="float: left">Trips</span>
-                                <a href="#"><span style="float: right; padding-left:10px;">View All</span></a>
-                                <a href="#"><span style="float: right">Create Trip</span></a>
+                                <span class="section-title">Pictures</span>
+                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right; padding-left:10px;">View All</span></a>
+                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right">Add Photo</span></a>
                             </p>
                         </div>
 
                         <div class="photo-gallery">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
                         </div>
                     </div>
 
-                    <div class = "section">
+                    <div>
                         <div class="section-title">
                             <p>
-                                <span style="float: left">Other</span>
-                                <a href="#"><span style="float: right; padding-left:10px;">For Testing</span></a>
-                                <a href="#"><span style="float: right">Scroll</span></a>
+                                <span class="section-title">Pictures</span>
+                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right; padding-left:10px;">View All</span></a>
+                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right">Add Photo</span></a>
                             </p>
                         </div>
 
                         <div class="photo-gallery">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
-                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
+                            <img src="https://mdbootstrap.com/img/Photos/Horizontal/Nature/4-col/img%20(73).jpg" class="img-thumbnail thumb">
                         </div>
                     </div>
 
                 </div>
             </div>
         </div>
+
+        @* Edit Profile Modal *@
+        <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
+        data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="mx-auto" style="width: fit-content; padding: 10px">
+                        <form id="updateProfileForm">
+                            <div class="form-row mb-4">
+                                <div class="col">
+                                        <!-- First name -->
+                                    <input type="text" name="firstName" class="form-control" placeholder="First name" value="@profile.firstName" required>
+                                    <label id="firstNameError" class="error-messages"></label>
+                                </div>
+                                <div class="col">
+                                        <!-- Middle name -->
+                                    <input type="text" name="middleName" class="form-control" placeholder="Middle name" value="@profile.middleName" required>
+                                    <label id="middleNameError" class="error-messages"></label>
+                                </div>
+                                <div class="col">
+                                        <!-- Last name -->
+                                    <input type="text" name="lastName" class="form-control" placeholder="Last name" value="@profile.lastName" required>
+                                    <label id="lastNameError" class="error-messages"></label>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <pre for="gender" class="control-label">Gender</pre>
+                                <div>
+                                    <select name="gender" id="gender" required>
+                                        <option value="" disabled hidden>Select</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <br/>
+                                    <label id="genderError" class="error-messages"></label>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="form-group col-5">
+                                    <pre for="dateOfBirth" class="control-label">Date of Birth</pre>
+                                        <!-- TODO restrict birth date to before today -->
+                                    <input type="date" name="dateOfBirth" size="8" class="form-control validate" value="@profile.dateOfBirth">
+                                    <br/>
+                                    <label id="dateOfBirthError" class="error-messages"></label>
+                                </div>
+                            </div>
+                            <pre for="nationality" id="nationality" class="control-label">Nationalities</pre>
+                            <div>
+                                <select name="nationalities" id="nationalities" multiple required>
+                                    <option value="" disabled hidden>Select Nationalities</option>
+                                </select>
+                                <br/>
+                                <label id="nationalitiesError" class="error-messages"></label>
+                            </div>
+                            <br/>
+                            <pre for="country" id="country" class="control-label">Passports</pre>
+                            <div>
+                                <select name="passports" id="passports" multiple>
+                                    <option value="" disabled hidden>Select Passports</option>
+                                </select>
+                            </div>
+                            <br/>
+                            <pre class="control-label">Traveller Types</pre>
+                            <div>
+                                <select name="travellerTypes" id="travellerTypes" multiple required>
+                                    <option value="" disabled hidden>Select Traveller Type</option>
+                                </select>
+                                <label id="travellerTypesError" class="error-messages"></label>
+                                <label id="SuccessMessage"></label>
+                            </div>
+                        </form>
+                        <div class="modal-footer d-flex justify-content-center">
+                            <button class="btn btn-popup" type="button" data-toggle="modal" data-target="#editProfileModal">Cancel</button>
+                            <button class="btn btn-popup" onclick=
+                            'updateProfile(
+                                    "@controllers.backend.routes.ProfileController.updateProfile()",
+                                    "@controllers.frontend.routes.ApplicationController.home()")'>
+                                Update Profile
+                            </button>
+                            <label id="otherError"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </body>
 }
+
+<script type="text/javascript">
+    fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
+    fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");
+    populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
+</script>

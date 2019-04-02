@@ -1,4 +1,4 @@
-@import helper._
+
 
 <html>
 
@@ -47,7 +47,7 @@
                             aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
                         <button class="btn btn-lg btn-secondary"
                             id="registerBtn"
-                            onclick='signup("@controllers.backend.routes.UserController.addNewUser()","@controllers.frontend.routes.ProfileController.index()")'>
+                        onclick='signup("@controllers.backend.routes.UserController.addNewUser()", "@controllers.frontend.routes.ProfileController.createProfileIndex()")'>
                             Register
                         </button>
                     </div>

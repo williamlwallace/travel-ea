@@ -52,44 +52,44 @@ PUT     /api/trip                       controllers.backend.TripController.updat
 
 GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
 
-GET     /api/trip/:id                   controllers.backend.TripController.getTrip(id:Long)
+GET           /api/trip/:id          controllers.backend.TripController.getTrip(id:Long)
 
-DELETE  /api/trip/:id                   controllers.backend.TripController.deleteTrip(id:Long)
+DELETE        /api/trip/:id          controllers.backend.TripController.deleteTrip(id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
-GET     /                    controllers.frontend.ApplicationController.cover(request:Request)
+GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
 
 # signing up
-GET     /signUp              controllers.frontend.ProfileController.createProfile(request: Request)
+GET           /signUp                controllers.frontend.ProfileController.createProfile(request: Request)
 
 # Home page
-GET     /home                controllers.frontend.ApplicationController.home(request: Request)
+GET           /home                  controllers.frontend.ApplicationController.home(request: Request)
 
 # People page
-GET     /people              controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /people                controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 # The Travelea trips page
-GET     /trips               controllers.frontend.TripController.tripIndex(request: Request)
+GET           /trips                 controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET     /trips/create        controllers.frontend.TripController.createTripIndex(request: Request)
+GET           /trips/create          controllers.frontend.TripController.createTripIndex(request: Request)
 
 # The Travelea edit trip page
-GET     /trips/edit/:id      controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
+GET           /trips/edit/:id        controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
 
-# The Travelea profile page
-GET     /profile             controllers.frontend.ProfileController.index(request: Request)
+# Create new profile
+GET           /profile/create        controllers.frontend.ProfileController.createProfileIndex(request: Request)
 
 # The TravelEA destinations page
-GET     /destinations        controllers.frontend.DestinationController.index(request: Request)
+GET           /destinations          controllers.frontend.DestinationController.index(request: Request)
 
-# Edit profile page
-GET    /editProfile          controllers.frontend.ProfileController.editindex(request: Request)
+# The profile page
+GET           /profile               controllers.frontend.ProfileController.index(request: Request)
 
 # Admin page
-GET     /admin                      controllers.frontend.AdminController.index(request: Request)
+GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET           /assets/*file          controllers.Assets.at(path="/public", file)
 
