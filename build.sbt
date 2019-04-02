@@ -28,3 +28,8 @@ testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-Werror")
 
+libraryDependencies += "io.cucumber" % "cucumber-core" % "4.2.0" % " test "
+libraryDependencies += "io.cucumber" % "cucumber-jvm" % "4.2.0" % " test "
+libraryDependencies += "io.cucumber" % "cucumber-junit" % "4.2.0" % " test "
+libraryDependencies += "io.cucumber" % "cucumber-java" % "4.2.0"
+

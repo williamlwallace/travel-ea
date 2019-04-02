@@ -22,6 +22,4 @@ public class Nationality extends Model {
     @Constraints.Required
     public Long userId;
 
-//    @ManyToMany(mappedBy = "nationalities")
-//    public List<Profile> nationalities;
 }
