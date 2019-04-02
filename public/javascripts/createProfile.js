@@ -6,25 +6,19 @@ function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
     get(getCountriesUrl)
     // Get the response of the request
-        .then(response = > {
+        .then(response => {
         // Convert the response to json
-        response.json().then(data = > {
+        response.json().then(data => {
             // Json data is an array of destinations, iterate through it
-            for(let i = 0;
-    i < data.length;
-    i++
-)
-    {
+            for(let i = 0; i < data.length; i++) {
         // Also add the item to the dictionary
         countryDict[data[i]['id']] = data[i]['name'];
     }
     // Now fill the selects
     fillNationalityDropDown();
     fillPassportDropDown();
-})
-    ;
-})
-    ;
+});
+});
 }
 
 function fillTravellerTypes(getTravellerTypesUrl) {
@@ -33,24 +27,18 @@ function fillTravellerTypes(getTravellerTypesUrl) {
     // Get the response of the request
         .then(response => {
         // Convert the response to json
-        response.json().then(data = > {
+        response.json().then(data => {
             // "data" should now be a list of traveller type definitions
             // E.g data[0] = { id:1, description:"backpacker"}
-            for(let i = 0;
-    i < data.length;
-    i++
-)
-    {
+            for(let i = 0; i < data.length; i++) {
         // Also add the item to the dictionary
         travellerTypeDict[data[i]['id']] = data[i]['description'];
     }
     // Now fill the drop down box, and list of destinations
     fillTravellerDropDown();
 
-})
-    ;
-})
-    ;
+});
+});
 }
 
 function fillNationalityDropDown() {
@@ -111,7 +99,7 @@ function signUp(id, url, redirect) {
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
-        [pair[0]]: pair[1],
+        [pair[0]] : pair[1],
     }), {});
 
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
@@ -138,19 +126,16 @@ function signUp(id, url, redirect) {
     }
     // Post json data to given url
     post(url, data)
-        .then(response = > {
+        .then(response => {
         // Read response from server, which will be a json object
         response.json()
-        .then(json => {
+            .then(json => {
             console.log(json)
-            if(response.status != 201
-)
-    {
-                showErrors(json);
-            } else {
+            if (response.status != 201) {
+        showErrors(json);
+    } else {
         window.location.href = redirect;
-            }
-})
-    ;
-    });
+    }
+});
+});
 }
