@@ -7,8 +7,12 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import javax.persistence.*;
-
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
@@ -37,7 +41,7 @@ public class Profile extends Model {
 
     public String gender;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "travellerTypes")
     @JoinTable(
             name="TravellerType",
             joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
@@ -65,7 +69,7 @@ public class Profile extends Model {
         return age;
     }
 
-    public List<CountryDefinition> getNationalities() {
-        return nationalities;
-    }
+//    public List<CountryDefinition> getNationalities() {
+//        return nationalities;
+//    }
 }

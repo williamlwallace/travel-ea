@@ -361,7 +361,6 @@ public class ProfileController extends Controller {
 
             List<Profile> toReturn = new ArrayList<>(profiles);
 
-            outerLoop:
             for (Profile profile : profiles) {
                 if (gender != null) {
                     if (!profile.gender.equalsIgnoreCase(gender)) {
@@ -388,7 +387,7 @@ public class ProfileController extends Controller {
                     }
                     if (!found) {
                         toReturn.remove(profile);
-                        continue outerLoop;
+                        continue;
                     }
                 }
 
@@ -401,7 +400,6 @@ public class ProfileController extends Controller {
                     }
                     if (!found) {
                         toReturn.remove(profile);
-                        continue outerLoop;
                     }
                 }
 
