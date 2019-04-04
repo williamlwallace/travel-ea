@@ -93,8 +93,8 @@ public class UserController extends Controller {
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
         return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted -> {
-                return (rowsDeleted > 0) ? ok("Successfully deleted user with uid: " + userId)
-                    : badRequest("No user with such uid found");
+                return (rowsDeleted > 0) ? ok(Json.toJson("Successfully deleted user with uid: " + userId))
+                    : badRequest(Json.toJson("No user with such uid found"));
             },
             httpExecutionContext.current());
     }

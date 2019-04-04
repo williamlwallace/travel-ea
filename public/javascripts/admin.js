@@ -13,7 +13,7 @@ $('#dtUser').on('click', 'button', function() {
     }
 })
 
-function deleteUser(cell, tableAPI, id) {
+function deleteUser(button, tableAPI, id) {
     _delete('api/user/'+id)
     .then(response => {
         //need access to response status, so cant return promise
@@ -22,13 +22,14 @@ function deleteUser(cell, tableAPI, id) {
             if (response.status != 200) {
                 document.getElementById("adminError").innerHTML = json;
             } else {
-                tableAPI.row( $(cell).parents('tr') ).remove().draw(false);
+                console.log("Yeezy");
+                tableAPI.row( $(button).parents('tr') ).remove().draw(false);
             }
         });
     });
 }
 
-function toggleAdmin(cell, tableAPI, id) {
+function toggleAdmin(button, tableAPI, id) {
     let url;
     let innerHTML;
     if (button.innerHTML.trim().startsWith("Revoke")) {
@@ -62,12 +63,15 @@ function populateTable(table) {
             } else {
                 for (const user in json) {
                     const id = json[user].id;
-                    const username = json[user].username
+                    const username = json[user].username;
                     let admin = "Master";
+                    let deleteUser = "Master";
                     if (id != 1) {
                         admin = "<button class=\"btn btn-secondary\">" + ((json[user].admin) ? "Revoke admin" : "Grant admin") + "</button>";
+                        deleteUser = "<button class=\"btn btn-danger\">Delete</button>"
                     }
-                    table.row.add([id,username,admin,1]).draw(false);
+                    
+                    table.row.add([id,username,admin,deleteUser]).draw(false);
                 }
             }
         });
