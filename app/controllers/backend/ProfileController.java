@@ -99,7 +99,7 @@ public class ProfileController extends Controller {
         if (foundProfile != null) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Profile already created for this user id", "other");
-                return badRequest(errorResponse.toJson());
+                return status(409, errorResponse.toJson());
             });
         }
 
@@ -110,7 +110,6 @@ public class ProfileController extends Controller {
                 return CompletableFuture.supplyAsync(
                     () -> created(Json.toJson("Successfully added new profile to database")));
             } catch (Exception e) {
-                int i = 0;
                 return CompletableFuture
                     .supplyAsync(() -> internalServerError("Failed to add profile to database"));
             }
@@ -141,7 +140,6 @@ public class ProfileController extends Controller {
         Profile profile;
         try {
             profile = profileRepository.findID(userId).get();
-            //profile = profileRepository.findIDModelBridging(userId).get();
         } catch (ExecutionException ex) {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Database Exception", "other");
@@ -164,7 +162,7 @@ public class ProfileController extends Controller {
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 errorResponse.map("Could not find profile in database", "other");
-                return badRequest(errorResponse.toJson());
+                return notFound(errorResponse.toJson());
             });
         }
     }
@@ -232,11 +230,10 @@ public class ProfileController extends Controller {
 
     //TODO: Authorization for adminonly
     public CompletableFuture<Result> deleteProfile(Long id) {
-        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
-            System.out.println(rowsDeleted);
-            return (!rowsDeleted) ? badRequest(Json.toJson("No such Profile"))
-                : ok(Json.toJson("Profile Deleted"));
-        });
+        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted ->
+            (!rowsDeleted) ? notFound(Json.toJson("No such Profile"))
+                : ok(Json.toJson("Profile Deleted"))
+        );
     }
 
     // Private Methods
@@ -364,7 +361,6 @@ public class ProfileController extends Controller {
 
             List<Profile> toReturn = new ArrayList<>(profiles);
 
-            outerLoop:
             for (Profile profile : profiles) {
                 if (gender != null) {
                     if (!profile.gender.equalsIgnoreCase(gender)) {
@@ -391,7 +387,7 @@ public class ProfileController extends Controller {
                     }
                     if (!found) {
                         toReturn.remove(profile);
-                        continue outerLoop;
+                        continue;
                     }
                 }
 
@@ -404,7 +400,6 @@ public class ProfileController extends Controller {
                     }
                     if (!found) {
                         toReturn.remove(profile);
-                        continue outerLoop;
                     }
                 }
 

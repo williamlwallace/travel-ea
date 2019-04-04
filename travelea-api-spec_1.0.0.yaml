@@ -1,0 +1,887 @@
+openapi: 3.0.0
+
+info:
+  description: SENG302 Team 400 - Travel EA
+  version: "1.0.0-oas3"
+  title: Travel EA
+  contact:
+    email: s302team400@cosc.canterbury.ac.nz
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+
+tags:
+  - name: Users
+    description: User account calls
+  - name: Profiles
+    description: Profile calls
+  - name: Destinations
+    description: Destination calls
+  - name: Trips
+    description: Trip calls
+
+paths:
+
+  '/user':
+    post:
+      tags:
+        - Users
+      summary: Register a new user.
+      description: |
+        Creates a new user and adds to database
+      responses:
+        '200':
+          description: Success
+          headers:
+            JWT-Auth:
+              description: Authentication cookie
+              schema:
+                type: string
+        '400':
+          description: Invalid user data | Email already in use
+      requestBody:
+        $ref: '#/components/requestBodies/postUser'
+
+    delete:
+      tags:
+        - Users
+      summary: Delete the user logged in.
+      description: |
+        Deletes the logged in user from the database
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Successfully deleted user with uid&#58; {userId}'
+        '400':
+          description: No user with such uid found | Cannot delete Master user
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+
+  '/user/{id}':
+    delete:
+      tags:
+        - Users
+      summary: Delete the user with specified ID.
+      description: |
+        Deletes the user specified by id parameter from the database
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to be deleted.
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Successfully deleted user with uid&#58; {userId}'
+        '400':
+          description: No user with such uid found | Cannot delete Master user
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+
+  '/login':
+    post:
+      tags:
+        - Users
+      summary: Login to user account.
+      description: |
+        Provides authentication to user logging in and stores in database.
+      responses:
+        '200':
+          description: Success
+          headers:
+            JWT-Auth:
+              description: Authentication cookie
+              schema:
+                type: string
+        '400':
+          description: Invalid user data
+        '401':
+          description: Unauthorised
+      requestBody:
+        $ref: '#/components/requestBodies/postUser'
+
+  '/logout':
+    post:
+      tags:
+        - Users
+      summary: Logout of user account.
+      description: |
+        Removes authentication attached to user from database.
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+
+  '/trip':
+    post:
+      tags:
+       - Trips
+      summary: Add a new trip
+      description: |
+        Inserts a new trip into the database, for the currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/postTrip'
+      responses:
+        '200':
+          description: Successfully added trip
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+
+    put:
+      tags:
+      - Trips
+      summary: Update an existing trip
+      description: |
+        Updates an existing trip on the database, for the currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/putTrip'
+      responses:
+        '200':
+          description: Successfully updated trip
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+
+  '/trip/{id}':
+    get:
+      tags:
+        - Trips
+      summary: Get trip with given ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the trip to retrieve
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved trip
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '404':
+          description: No such trip found
+
+    delete:
+      tags:
+        - Trips
+      summary: Delete trip with given ID
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the trip to delete
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted trip
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '404':
+          description: No such trip found
+
+  '/trip/getAll/':
+    get:
+      tags:
+        - Trips
+      summary: Get all trips belonging to currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All trips of user (may be empty list)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trip'
+        '401':
+          description: Authentication failed
+
+  '/destination/getCountries':
+    get:
+      tags:
+        - Destinations
+      summary: Get all possible country options
+      responses:
+        '200':
+          description: Successfully retrieved all countries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CountryDefinition'
+
+  '/destination':
+    get:
+      tags:
+        - Destinations
+      summary: Get all destinations
+      responses:
+        '200':
+          description: Successfully retrieved all destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Destination'
+    post:
+      tags:
+        - Destinations
+      summary: Add a new destination
+      description: |
+        Inserts a destination into the database, that is owned by the current user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+
+  '/destination/{id}':
+    get:
+      tags:
+        - Destinations
+      summary: Get destination with given ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the destination to retrieve
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved destination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Destination'
+        '404':
+          description: No such destination found
+
+    delete:
+      tags:
+        - Destinations
+      summary: Delete destination with given ID
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the destination to delete
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted destination
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '404':
+          description: No such destination found
+
+  '/destination/search':
+    get:
+      tags:
+        - Destinations
+      summary: Searches through all destinations based on some criteria
+      parameters:
+        - in: query
+          name: p
+          description: Number of page to get
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: pSize
+          description: Number of results to show per page
+          schema:
+            type: integer
+        - in: query
+          name: filter
+          description: Filter criteria by which to search desinations
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: Whether to sort ascending or descending
+          schema:
+            type: string
+            description: "Either 'asc' or 'desc'"
+      responses:
+        '200':
+          description: Successfully retrieved (possibly zero) destinations
+
+  '/profile/getTravellerTypes/':
+    get:
+      tags:
+        - Profiles
+      summary: Get all possible traveller types
+      responses:
+        '200':
+          description: Successfully retrieved all traveller types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TravellerTypeDefinition'
+
+  '/profile':
+    post:
+      tags:
+        - Profiles
+      summary: Add a new profile (NEEDS TO BE MADE FOR LOGGED IN USER ONLY)
+      description: |
+        Inserts a profile for the currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '409':
+          description: Profile already exists for this user
+
+    get:
+      tags:
+        - Profiles
+      summary: Get profile of currently logged in user
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: Authentication failed
+
+    put:
+      tags:
+        - Profiles
+      summary: Update profile of currently logged in user
+      description: |
+        Updates the profile of an existing user who is currently logged in
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '200':
+          description: Successfully updated profile
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+
+  '/profile/search':
+    get:
+      tags:
+        - Profiles
+      summary: Searches through all profiles based on some criteria
+      parameters:
+        - in: query
+          name: nationalityId
+          description: ID of some nationality to search by
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - in: query
+          name: travellerTypeId
+          description: ID of some traveller type to search by
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - in: query
+          name: gender
+          description: A gender to search for
+          schema:
+            type: string
+        - in: query
+          name: minAge
+          description: The minimum age of people for whom to show profiles
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: maxAge
+          description: The maximum age of people for whom to show profiles
+          schema:
+            type: integer
+            minimum: 0
+      responses:
+        '200':
+          description: Successfully retrieved (possibly zero) profiles
+
+  '/profile/{userId}':
+    get:
+      tags:
+        - Profiles
+      summary: Get profile of user with given ID
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: The ID of the user for whom to retrieve their profile
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '404':
+          description: No such destination found
+
+    delete:
+      tags:
+        - Profiles
+      summary: Delete the profile of user with specified ID
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: The user ID to delete the profile of
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Successfully deleted profile'
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '404':
+          description: No profile found for that user
+
+servers:
+  - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
+components:
+  requestBodies:
+
+    postUser:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+                format: email
+              password:
+                type: string
+      description: User object to create
+
+    postTrip:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - userId
+              - tripDataCollection
+            properties:
+              userId:
+                type: integer
+                minimum: 1
+                format: int64
+                description: References a the id of an existing user
+              tripDataCollection:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripData'
+      description: 'Trip data necessary for new trip to be added. Note: destination field only needs to include id property, nothing else.'
+
+    putTrip:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - userId
+              - tripId
+              - tripDataCollection
+            properties:
+              userId:
+                type: integer
+                minimum: 1
+                format: int64
+                description: References a the id of an existing user
+              tripId:
+                type: integer
+                minimum: 1
+                format: int64
+                description: References a the id of the trip that is being updated
+              tripDataCollection:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TripData'
+      description: 'Trip data necessary for new trip to be added. Note: destination field only needs to include id property, nothing else.'
+
+  schemas:
+    User:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          format: int64
+          description: >-
+            Automatically generated when user is signed up, should never be
+            specified manually
+        username:
+          type: string
+          format: email
+          example: dave@gmail.com
+        password:
+          type: string
+          minLength: 6
+          example: MeowMeow123
+          description: >-
+            Password is only plaintext when uploading user object for the first
+            time, or updating the user password
+        salt:
+          type: string
+          description: Randomly generated salt used for hashing password
+        admin:
+          type: boolean
+          description: Indicates whether or not this user is an admin
+        creationDate:
+          type: string
+          format: ISO Datetime
+          description: Generated automatically at the time of creation of the user
+
+    Profile:
+      type: object
+      required:
+        - userId
+        - firstName
+        - lastName
+        - gender
+        - dateOfBirth
+        - nationalities
+        - passports
+        - travellerTypes
+      properties:
+        userId:
+          type: integer
+          minimum: 1
+          format: int64
+          description: References a the id of an existing user
+        firstName:
+          type: string
+          example: Dave
+        middleName:
+          type: string
+          example: Robert
+        lastName:
+          type: string
+          example: Smith
+        gender:
+          type: string
+          description: 'Male, Female, or Other'
+          example: 'Male'
+        dateOfBirth:
+          type: string
+          format: date yyyy/mm/dd
+          example: '1990-04-25'
+        creationDate:
+          type: string
+          format: ISO Datetime
+          description: Generated automatically at the time of creation of the profile
+        nationalities:
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryDefinition'
+        passports:
+          type: array
+          items:
+            $ref: '#/components/schemas/CountryDefinition'
+        travellerTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TravellerTypeDefinition'
+            
+    CountryDefinition:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          example: France
+    TravellerTypeDefinition:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        description:
+          type: string
+          example: Backpacker
+          
+    Destination:
+      type: object
+      required:
+        - name
+        - type
+        - district
+        - latitude
+        - longitude
+        - country
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Generated automatically when the destination is first uploaded
+        name:
+          type: string
+          example: Eiffel Tower
+        type:
+          type: string
+          example: Monument
+          description: 'Type of destination, e.g monument, national park, etc.'
+        district:
+          type: string
+          example: Paris
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+          example: 48.858093
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+          example: 2.294694
+        country:
+          $ref: '#/components/schemas/CountryDefinition'
+          
+    Trip:
+      type: object
+      required:
+        - userId
+        - tripDataList
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Generated automatically when the destination is first uploaded
+        userId:
+          type: integer
+          minimum: 1
+          format: int64
+          description: References a the id of an existing user
+        tripDataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/TripData'
+            
+    TripData:
+      type: object
+      required:
+        - position
+        - destination
+      description: >-
+        IMPORTANT NOTE: When specifying the destination this trip data
+        corresponds to, only the destination's id field must be filled in.
+      properties:
+        guid:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Generated automatically when the tripdata is first uploaded
+        position:
+          type: integer
+          format: int64
+          minimum: 0
+          description: >-
+            The position during the trip at which this tripdata occurs. I.e
+            first destination visited has position 0, then position 1, and so
+            on.
+        destination:
+          $ref: '#/components/schemas/Destination'
+        arrivalTime:
+          type: string
+          format: ISO date-time
+          example: '2019-04-01T23:26:00.000'
+        departureTime:
+          type: string
+          format: ISO date-time
+          example: '2019-04-20T10:30:00.000'

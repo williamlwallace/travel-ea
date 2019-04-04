@@ -100,11 +100,11 @@ public class UserControllerTest extends WithApplication {
         List<User> users = Arrays
             .asList(new ObjectMapper().readValue(Helpers.contentAsString(result), User[].class));
 
-        // Check that list has exactly one result
-        assertEquals(1, users.size());
+        // Check that list has exactly two results
+        assertEquals(2, users.size());
 
         // Check that the user is what we expect having run destination test evolution
-        User user = users.get(0);
+        User user = users.get(1);
         assertEquals(Long.valueOf(1), user.id);
         assertEquals("dave@gmail.com", user.username);
         assertEquals("kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=", user.password); //cat
@@ -296,7 +296,7 @@ public class UserControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(DELETE)
                 .cookie(adminAuthCookie)
-                .uri("/api/user/1");
+                .uri("/api/user/2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
