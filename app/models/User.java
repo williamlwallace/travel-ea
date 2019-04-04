@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -29,6 +30,8 @@ public class User extends Model {
 
     public String salt;
 
+//    @JsonFormat(pattern = "YYYY-MM-dd HH:mm")
+    @JsonIgnore
     public LocalDateTime creationDate;
 
     // public String authToken;

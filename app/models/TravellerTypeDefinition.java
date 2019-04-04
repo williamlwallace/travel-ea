@@ -1,8 +1,13 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.Model;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -36,7 +41,12 @@ public class TravellerTypeDefinition extends Model {
 //        return description.substring(0, 1).toUpperCase() + description.substring(1);
     }
 
-//    @ManyToMany(mappedBy = "travellerTypes")
-//    @JsonBackReference
-//    public List<Profile> profiles;
+    @ManyToMany(mappedBy = "travellerTypes")
+    @JsonBackReference
+    @JoinTable(
+        name = "TravellerType",
+        joinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"))
+
+    public List<Profile> travellerTypes;
 }

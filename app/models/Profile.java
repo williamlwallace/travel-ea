@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -32,31 +36,31 @@ public class Profile extends Model {
 
     public String dateOfBirth;
 
+    @JsonIgnore
     public LocalDateTime creationDate;
 
     public String gender;
 
-    //    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name="TravellerType",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
+    @ManyToMany(mappedBy = "travellerTypes")
+    @JoinTable(
+            name="TravellerType",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
-    //    @ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//            name = "Nationality",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    @ManyToMany(mappedBy = "nationalityProfiles")
+    @JoinTable(
+            name = "Nationality",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> nationalities;
 
-    //    @ManyToMany
-//    @JoinTable(
-//            name = "Passport",
-//            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-//            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+    @ManyToMany(mappedBy = "passportProfiles")
+    @JoinTable(
+            name = "Passport",
+            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
+            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
     public List<CountryDefinition> passports;
-
 
     public int calculateAge() {
         LocalDate birthDate = LocalDate
@@ -65,7 +69,7 @@ public class Profile extends Model {
         return age;
     }
 
-    public List<CountryDefinition> getNationalities() {
-        return nationalities;
-    }
+//    public List<CountryDefinition> getNationalities() {
+//        return nationalities;
+//    }
 }

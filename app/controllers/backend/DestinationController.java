@@ -78,8 +78,8 @@ public class DestinationController extends Controller {
 
     public CompletableFuture<Result> getDestination(long getId) {
         return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
-            if (destination.id == null) {
-                return notFound(Json.toJson(getId));
+            if (destination == null) {
+                return notFound();
             } else {
                 return ok(Json.toJson(destination));
             }

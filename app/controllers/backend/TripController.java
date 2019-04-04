@@ -49,7 +49,7 @@ public class TripController extends Controller {
     public CompletableFuture<Result> getTrip(Long id) {
         // Get all the trip data (asynchronously) and then construct and return the json object to send
         return tripRepository.getTripById(id).thenApplyAsync(
-            trip -> ok(Json.toJson(trip))
+            trip -> (trip != null) ? ok(Json.toJson(trip)) : notFound()
         );
     }
 
@@ -97,7 +97,7 @@ public class TripController extends Controller {
     public CompletableFuture<Result> deleteTrip(Long id) {
         // Delete trip record in trips table
         return tripRepository.deleteTrip(id).thenApplyAsync(rows ->
-            ok(Json.toJson(rows)));
+                (rows > 0) ? ok(Json.toJson(rows)) : notFound());
     }
 
     /**

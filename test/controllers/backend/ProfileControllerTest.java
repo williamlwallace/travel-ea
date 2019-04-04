@@ -3,6 +3,7 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.CREATED;
 import static play.test.Helpers.DELETE;
@@ -239,7 +240,7 @@ public class ProfileControllerTest extends WithApplication {
 
         // Get result and check it was not successful
         Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        assertEquals(NOT_FOUND, result.status());
     }
 
     @Test
@@ -449,6 +450,6 @@ public class ProfileControllerTest extends WithApplication {
 
         // Get result and check it was not successful
         Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        assertEquals(NOT_FOUND, result.status());
     }
 }
