@@ -109,7 +109,7 @@ public class UserController extends Controller {
     public Result logout(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         // removeToken(user);
-        return ok(Json.toJson("Success")).discardingCookie("JWT-Auth");
+        return ok(Json.toJson("Success")).discardingCookie("JWT-Auth").discardingCookie("User-ID");
     }
 
 
@@ -201,7 +201,10 @@ public class UserController extends Controller {
                         .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
                             foundUser.password)) {
                         return ok(Json.toJson("Success")).withCookies(
-                            Cookie.builder("JWT-Auth", createToken(foundUser)).build());
+                            Cookie.builder("JWT-Auth", createToken(foundUser)).build(),
+                            Cookie.builder("User-ID", foundUser.id.toString())
+                                .withHttpOnly(false)
+                                .build());
                     }
                     // If password was incorrect, return bad request
                     else {
@@ -210,6 +213,22 @@ public class UserController extends Controller {
                     }
                 }
             });
+    }
+
+    /**
+     * Returns user id in body and sets cookie to store it. This will be used 
+     * incase a user is authenticated but the user-id cookie is somehow removed
+     * 
+     * @param request Request object that stores details of the incoming request
+     * @return user id in json
+     */
+    @With({Everyone.class, Authenticator.class})
+    public Result setId(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        return ok(Json.toJson(user.id)).withCookies(
+            Cookie.builder("User-ID", user.id.toString())
+                .withHttpOnly(false)
+                .build());
     }
 
     /**

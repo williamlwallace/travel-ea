@@ -31,7 +31,7 @@
                                 <td>@otherUser.id</td>
                                 <td>@otherUser.username</td>
                                 <td>
-                                    @if(otherUser.username == "admin@travelea.co.nz") {
+                                    @if(otherUser.id == 1) {
                                         Master
                                     } else {
                                         <button class="btn btn-secondary" onclick="toggleAdmin('@controllers.backend.routes.AdminController.revokeAdmin(otherUser.id)', '@controllers.backend.routes.AdminController.grantAdmin(otherUser.id)', this)">
@@ -44,7 +44,7 @@
                                     }
                                 </td>
                                 <td>
-                                    @if(otherUser.username == "admin@travelea.co.nz") {
+                                    @if(otherUser.id == 1) {
                                         Master
                                     } else {
                                         <button class="btn btn-danger">

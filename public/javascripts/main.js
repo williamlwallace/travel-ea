@@ -66,36 +66,57 @@ function insertFieldData(json) {
     }
 }
 
+// get userid from cookie or api else redirect
+function getUserId() {
+    const CNAME = "User-ID";
+    let value = getCookie(CNAME);
+    if (value != "") {
+        return Promise.resolve(value);
+    }
+    return get('api/user/setid')
+    .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+        .then(json => {
+            if (response.status != 200) {
+                window.location.href = '/'
+            } else {
+                return json;
+            }
+        });
+    });
+}
+
 // function setCookie(name, value) { //default expiry is 1 day in future
 //     let date = new Date()
 //     date.setTime(date.getTime()+(60*1000*60*24))
 //     document.cookie = name + '=' + value + "; expires=" + date.toUTCString() + ";path=/";
 // }
 
-// function getCookie(cname) {
-//     var name = cname + "=";
-//     var decodedCookie = decodeURIComponent(document.cookie);
-//     var ca = decodedCookie.split(';');
-//     for(var i = 0; i <ca.length; i++) {
-//       var c = ca[i];
-//       while (c.charAt(0) == ' ') {
-//         c = c.substring(1);
-//       }
-//       if (c.indexOf(name) == 0) {
-//         return c.substring(name.length, c.length);
-//       }
-//     }
-//     return "";
-// }
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+}
 
-// function checkCookie(cname) {
-//     let cvalue = getCookie(cname);
-//     if (cvalue != "") {
-//       return true;
-//     } else {
-//       return false;
-//     }
-// }
+function checkCookie(cname) {
+    let cvalue = getCookie(cname);
+    if (cvalue != "") {
+      return true;
+    } else {
+      return false;
+    }
+}
 
 // function deleteCookie(cname) {
 //     let date = new Date()

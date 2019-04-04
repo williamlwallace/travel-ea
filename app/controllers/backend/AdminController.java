@@ -55,7 +55,7 @@ public class AdminController extends Controller {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.findID(id).thenApplyAsync(user -> {
             if (user != null
-                && user.username != "admin@travelea.co.nz") { //check user is not master admin
+                && user.id != 1) { //check user is not master admin
                 user.admin = false;
                 userRepository.updateUser(user);
                 return ok(Json.toJson("Succefuly deadminified"));

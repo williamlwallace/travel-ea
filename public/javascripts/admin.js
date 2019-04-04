@@ -1,6 +1,10 @@
 $(document).ready(function () {
     //Initialises the data table and adds the data
     populateTable($('#dtUser').DataTable());
+    getUserId()
+    .then((value) => {
+        console.log(value);
+    })
 });
 
 $('#dtUser').on('click', 'button', function() {
