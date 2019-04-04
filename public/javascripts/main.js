@@ -66,7 +66,7 @@ function insertFieldData(json) {
     }
 }
 
-// get userid from cookie or api else redirect
+// return promise with value of userid from cookie or api else redirect
 function getUserId() {
     const CNAME = "User-ID";
     let value = getCookie(CNAME);
