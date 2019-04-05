@@ -146,10 +146,74 @@ paths:
         '403':
           description: User not authorised for this action
 
+  '/user/search':
+    get:
+      tags:
+        - Users
+      summary: Get list of users which match search criteria
+      description: |
+        Allows admin to retrieve a list of users which match the search criteria
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Admin authentication cookie.
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: asc or desc
+          schema:
+            type: string
+        - in: query
+          name: filter
+          description: Username search filter
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  '/user/setId':
+    get:
+      tags:
+        - Users
+      summary: Reset user cookie
+      description: |
+        Resets the users cookie when user is authenticated but user-id cookie is deleted
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: The authenticated user's id
+
   '/trip':
     post:
       tags:
-       - Trips
+        - Trips
       summary: Add a new trip
       description: |
         Inserts a new trip into the database, for the currently logged in user
@@ -174,7 +238,7 @@ paths:
 
     put:
       tags:
-      - Trips
+        - Trips
       summary: Update an existing trip
       description: |
         Updates an existing trip on the database, for the currently logged in user
@@ -768,7 +832,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TravellerTypeDefinition'
-            
+
     CountryDefinition:
       type: object
       required:
@@ -781,6 +845,7 @@ components:
         name:
           type: string
           example: France
+
     TravellerTypeDefinition:
       type: object
       required:
@@ -793,7 +858,7 @@ components:
         description:
           type: string
           example: Backpacker
-          
+
     Destination:
       type: object
       required:
@@ -831,7 +896,7 @@ components:
           example: 2.294694
         country:
           $ref: '#/components/schemas/CountryDefinition'
-          
+
     Trip:
       type: object
       required:
@@ -852,7 +917,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TripData'
-            
+
     TripData:
       type: object
       required:
