@@ -57,6 +57,8 @@ GET           /api/trip/:id          controllers.backend.TripController.getTrip(
 
 DELETE        /api/trip/:id          controllers.backend.TripController.deleteTrip(id:Long)
 
+POST    /api/photo                      controllers.backend.PhotoController.upload(request: Request)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
