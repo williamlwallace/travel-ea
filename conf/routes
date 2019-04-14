@@ -59,6 +59,8 @@ DELETE        /api/trip/:id          controllers.backend.TripController.deleteTr
 
 POST    /api/photo                      controllers.backend.PhotoController.upload(request: Request)
 
+GET     /api/photo/getAll/              controllers.backend.PhotoController.getAllUserPhotos(request:Request)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)

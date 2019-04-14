@@ -3,6 +3,8 @@ package controllers.backend;
 import akka.util.*;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import models.Photo;
 import org.apache.commons.io.FileUtils;
 import play.db.Database;
 import org.hamcrest.CoreMatchers;
@@ -21,6 +23,10 @@ import java.util.*;
 import java.util.Collections;
 
 import static org.apache.commons.io.FileUtils.getFile;
+import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.GET;
+import static play.test.Helpers.route;
 
 public class PhotoControllerTest extends WithApplication {
 
@@ -132,5 +138,17 @@ public class PhotoControllerTest extends WithApplication {
         Result result = Helpers.route(app, request);
         String content = Helpers.contentAsString(result);
         Assert.assertThat(content, CoreMatchers.equalTo("File uploaded"));
+    }
+
+    @Test
+    public void getAllUserPhotos() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(this.authCookie)
+                .uri("/api/photo/getAll/");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
     }
 }
