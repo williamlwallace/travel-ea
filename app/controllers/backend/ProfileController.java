@@ -81,7 +81,7 @@ public class ProfileController extends Controller {
                         validatorResult.map("Profile already created for this user", "other");
                         return badRequest(validatorResult.toJson());
                     } else {
-                        return ok(Json.toJson(insertedId));
+                        return created(Json.toJson(insertedId));
                     }
                 });
         }
@@ -234,7 +234,7 @@ public class ProfileController extends Controller {
             if (rowsDeleted < 1) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.map("Profile not found for that user", "other");
-                return badRequest(errorResponse.toJson());
+                return notFound(errorResponse.toJson());
             } else {
                 return ok(Json.toJson(rowsDeleted));
             }
