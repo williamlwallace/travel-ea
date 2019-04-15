@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that represents a traveller type and holds information received from database
+ * A class that represents a traveller type and holds information received from database.
  */
 @Entity
 @Table(name = "TravellerTypeDefinition")
@@ -23,24 +23,6 @@ public class TravellerTypeDefinition extends Model {
 
     @Constraints.Required
     public String description;
-
-    @Override
-    public String toString() {
-        String toReturn = description.substring(0, 1).toUpperCase();
-
-        //Captialises the traveller type properly
-        for (int i = 1; i < description.length(); i++) {
-            char c = description.charAt(i - 1);
-            if (c == '/' || c == '\\' || c == ' ') {
-                toReturn += description.substring(i, i + 1).toUpperCase();
-            } else {
-                toReturn += description.substring(i, i + 1);
-            }
-        }
-        return toReturn;
-//        return description.substring(0, 1).toUpperCase() + description.substring(1);
-    }
-
     @ManyToMany(mappedBy = "travellerTypes")
     @JsonBackReference
     @JoinTable(
@@ -49,4 +31,22 @@ public class TravellerTypeDefinition extends Model {
         inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"))
 
     public List<Profile> travellerTypes;
+
+    @Override
+    public String toString() {
+        StringBuilder toReturn = new StringBuilder();
+
+        toReturn.append(description.substring(0, 1).toUpperCase());
+
+        //Captialises the traveller type properly
+        for (int i = 1; i < description.length(); i++) {
+            char c = description.charAt(i - 1);
+            if (c == '/' || c == '\\' || c == ' ') {
+                toReturn.append(description.substring(i, i + 1).toUpperCase());
+            } else {
+                toReturn.append(description.substring(i, i + 1));
+            }
+        }
+        return toReturn.toString();
+    }
 }

@@ -5,6 +5,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
 public class SortTripsTestSteps {
+
     @Given("I have at least two future trips")
     public void i_have_at_least_two_future_trips() {
         // Write code here that turns the phrase above into concrete actions
@@ -28,7 +29,6 @@ public class SortTripsTestSteps {
         // Write code here that turns the phrase above into concrete actions
         throw new cucumber.api.PendingException();
     }
-
 
 
     @Given("I have at least two trips")

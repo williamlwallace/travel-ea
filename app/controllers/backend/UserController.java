@@ -30,6 +30,10 @@ public class UserController extends Controller {
     private final UserRepository userRepository;
     private final HttpExecutionContext httpExecutionContext;
     private final Config config;
+    private static final String SUCCESS = "Success";
+    private static final String JWT_AUTH = "JWT-Auth";
+    private static final String U_ID = "User-ID";
+    private static final String ERR_OTHER = "other";
 
     @Inject
     public UserController(UserRepository userRepository,
@@ -56,7 +60,7 @@ public class UserController extends Controller {
     }
 
     /**
-     * Delete a users account
+     * Delete a users account.
      *
      * @param request HTTP request
      * @return Ok if user successfully deleted, badrequest if no such user found
@@ -68,7 +72,7 @@ public class UserController extends Controller {
     }
 
     /**
-     * Delete a user with given uid admin only
+     * Delete a user with given uid admin only.
      *
      * @param userId ID of user to delete
      * @return Ok if user successfully deleted, badrequest if no such user found
@@ -84,7 +88,7 @@ public class UserController extends Controller {
     }
 
     /**
-     * Delete a user with given uid helper function
+     * Delete a user with given uid helper function.
      *
      * @param userId ID of user to delete
      * @return Ok if user successfully deleted, badrequest if no such user found
@@ -98,22 +102,20 @@ public class UserController extends Controller {
     }
 
     /**
-     * Logs userout
+     * Logs user out.
      *
      * @param request The HTTP request sent, the body of this request should be a JSON User object
      * @return Ok
      */
     @With({Everyone.class, Authenticator.class})
     public Result logout(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-        // removeToken(user);
-        return ok(Json.toJson("Success")).discardingCookie("JWT-Auth").discardingCookie("User-ID");
+        return ok(Json.toJson(SUCCESS)).discardingCookie(JWT_AUTH).discardingCookie(U_ID);
     }
 
 
     /**
      * Method to handle adding a new user to the database. The username provided must be unique, and
-     * the password field must be non-empty
+     * the password field must be non-empty.
      *
      * @param request The HTTP request sent, the body of this request should be a JSON User object
      * @return OK if user is successfully added to DB, badRequest otherwise
@@ -152,12 +154,12 @@ public class UserController extends Controller {
                     //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
                     if (user == null) {
                         //Create the error to be sent to client
-                        validatorResult.map("Email already in use", "other");
+                        validatorResult.map("Email already in use", ERR_OTHER);
                         return badRequest(validatorResult
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
-                        return ok(Json.toJson("Success")).withCookies(
-                            Cookie.builder("JWT-Auth", createToken(user))
+                        return ok(Json.toJson(SUCCESS)).withCookies(
+                            Cookie.builder(JWT_AUTH, createToken(user))
                                 .build());         //If the uid is not null, return an ok message with the uid contained within
                     }
                 });
@@ -189,7 +191,7 @@ public class UserController extends Controller {
             .thenApplyAsync(foundUser -> {
                 // If no such user was found with that username, return bad request
                 if (foundUser == null) {
-                    errorResponse.map("Unauthorised", "other");
+                    errorResponse.map("Unauthorised", ERR_OTHER);
                     return status(401, errorResponse.toJson());
                 }
                 // Otherwise if a user was found, check if correct password
@@ -198,15 +200,15 @@ public class UserController extends Controller {
                     if (CryptoManager
                         .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
                             foundUser.password)) {
-                        return ok(Json.toJson("Success")).withCookies(
-                            Cookie.builder("JWT-Auth", createToken(foundUser)).build(),
-                            Cookie.builder("User-ID", foundUser.id.toString())
+                        return ok(Json.toJson(SUCCESS)).withCookies(
+                            Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
+                            Cookie.builder(U_ID, foundUser.id.toString())
                                 .withHttpOnly(false)
                                 .build());
                     }
                     // If password was incorrect, return bad request
                     else {
-                        errorResponse.map("Unauthorised", "other");
+                        errorResponse.map("Unauthorised", ERR_OTHER);
                         return status(401, errorResponse.toJson());
                     }
                 }
@@ -215,7 +217,7 @@ public class UserController extends Controller {
 
     /**
      * Returns user id in body and sets cookie to store it. This will be used incase a user is
-     * authenticated but the user-id cookie is somehow removed
+     * authenticated but the user-id cookie is somehow removed.
      *
      * @param request Request object that stores details of the incoming request
      * @return user id in json
@@ -224,13 +226,13 @@ public class UserController extends Controller {
     public Result setId(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return ok(Json.toJson(user.id)).withCookies(
-            Cookie.builder("User-ID", user.id.toString())
+            Cookie.builder(U_ID, user.id.toString())
                 .withHttpOnly(false)
                 .build());
     }
 
     /**
-     * Create Token and update user with it
+     * Create Token and update user with it.
      *
      * @param user User object to be updated
      * @return authToken
@@ -238,17 +240,5 @@ public class UserController extends Controller {
     private String createToken(User user) {
         return CryptoManager
             .createToken(user.id, config.getString("play.http.secret.key"));
-        //user.authToken = authToken;
-        //userRepository.updateUser(user);
     }
-
-    // /**
-    //  * Remove user cookie
-    //  * @param user User object to be updated
-    //  * @return authToken
-    //  */
-    // public void removeToken(User user) {
-    //     user.authToken = "";
-    //     userRepository.updateUser(user);
-    // }
 }

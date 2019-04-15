@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that models the trip database table
+ * A class that models the trip database table.
  */
 @Entity
 @Table(name = "Trip")

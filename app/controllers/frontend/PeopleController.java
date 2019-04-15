@@ -23,7 +23,7 @@ public class PeopleController extends Controller {
     private final ProfileController profileController;
 
     /**
-     * Used to create example data while building GUI
+     * Used to create example data while building GUI.
      */
     @Inject
     public PeopleController(ProfileController profileController) {

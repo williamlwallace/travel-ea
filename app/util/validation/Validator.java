@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
 /**
- * Provides validation for json form data
+ * Provides validation for json form data.
  */
 public class Validator {
 
@@ -19,7 +19,7 @@ public class Validator {
     }
 
     /**
-     * Checks field is not empty
+     * Checks field is not empty.
      *
      * @param field json field name
      * @return Boolean whether validation succeeds
@@ -38,7 +38,7 @@ public class Validator {
     }
 
     /**
-     * Checks field is longer then given length
+     * Checks field is longer then given length.
      *
      * @param field json field name
      * @param min Min field length
@@ -54,7 +54,7 @@ public class Validator {
     }
 
     /**
-     * Checks field is shorter then given length
+     * Checks field is shorter then given length.
      *
      * @param field json field name
      * @param max maxTextLength field length
@@ -70,7 +70,7 @@ public class Validator {
     }
 
     /**
-     * Checks if value of field is integer
+     * Checks if value of field is integer.
      *
      * @param field json field name
      * @return Boolean whether condition is met
@@ -84,7 +84,7 @@ public class Validator {
     }
 
     /**
-     * Checks if value of field is integer
+     * Checks if value of field is integer.
      *
      * @param field json field name
      * @return Boolean whether condition is met
@@ -98,7 +98,7 @@ public class Validator {
     }
 
     /**
-     * Checks if value of field is long
+     * Checks if value of field is long.
      *
      * @param field json field name
      * @return Boolean whether condition is met
@@ -112,7 +112,7 @@ public class Validator {
     }
 
     /**
-     * Checks if value of field is double or int
+     * Checks if value of field is double or int.
      *
      * @param field json field name
      * @return Boolean whether condition is met
@@ -126,7 +126,7 @@ public class Validator {
     }
 
     /**
-     * Checks integer value of field, must already be confirmed to be integer
+     * Checks integer value of field, must already be confirmed to be integer.
      *
      * @param field json field name
      * @param max maxTextLength value of integer in field
@@ -142,7 +142,7 @@ public class Validator {
     }
 
     /**
-     * Checks integer value of field, must already be confirmed to be integer
+     * Checks integer value of field, must already be confirmed to be integer.
      *
      * @param field json field name
      * @param min minTextLength value of integer in field
@@ -157,7 +157,7 @@ public class Validator {
     }
 
     /**
-     * Checks integer value of field, must already be confirmed to be integer
+     * Checks integer value of field, must already be confirmed to be integer.
      *
      * @param field json field name
      * @param max maxTextLength value of integer in field
@@ -173,7 +173,7 @@ public class Validator {
     }
 
     /**
-     * Checks integer value of field, must already be confirmed to be integer
+     * Checks integer value of field, must already be confirmed to be integer.
      *
      * @param field json field name
      * @param min minTextLength value of integer in field
@@ -188,7 +188,7 @@ public class Validator {
     }
 
     /**
-     * Checks field if valid email
+     * Checks field if valid email.
      *
      * @param field json field name
      * @return Boolean whether validation succeeds
@@ -204,7 +204,7 @@ public class Validator {
     }
 
     /**
-     * Checks field if valid date
+     * Checks field if valid date.
      *
      * @param field json field name
      * @return Boolean whether validation succeeds
@@ -221,7 +221,7 @@ public class Validator {
     }
 
     /**
-     * Checks field if valid gender
+     * Checks field if valid gender.
      *
      * @param field json field name
      * @return Boolean whether validation succeeds
@@ -245,7 +245,7 @@ public class Validator {
     }
 
     /**
-     * errorResponse getter
+     * errorResponse getter.
      *
      * @return ErrorResponse
      */

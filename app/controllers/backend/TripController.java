@@ -86,10 +86,6 @@ public class TripController extends Controller {
         Trip trip = Json.fromJson(data.get("trip"), Trip.class);
         trip.userId = request.attrs().get(ActionState.USER).id;
 
-//        // Assemble trip data
-//        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
-//        trip.tripDataList = tripDataList;
-
         // Add new trip data to db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
             ok(Json.toJson(data.get("id").asLong()))

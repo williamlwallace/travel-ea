@@ -10,8 +10,14 @@ import play.mvc.Result;
 
 public class Everyone extends Action.Simple {
 
+    /**
+     * TODO: Campbell add javadoc.
+     *
+     * @param request HTTP request
+     * @return TODO
+     */
     public CompletionStage<Result> call(Http.Request request) {
-        List<String> roles = new ArrayList<String>();
+        List<String> roles = new ArrayList<>();
         roles.add("everyone");
         return delegate.call(request.addAttr(ActionState.ROLES, roles));
     }

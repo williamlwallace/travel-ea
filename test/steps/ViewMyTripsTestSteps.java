@@ -1,45 +1,36 @@
 package steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.GET;
+import static play.test.Helpers.POST;
+import static play.test.Helpers.route;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
 import cucumber.api.java.AfterStep;
-import cucumber.api.java.Before;
 import cucumber.api.java.BeforeStep;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import models.CountryDefinition;
-import models.Destination;
-import models.TripData;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.AfterClass;
 import play.Application;
 import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
 
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.*;
-
-
 public class ViewMyTripsTestSteps extends WithApplication {
+
     private static Application fakeApp;
     private static Database db;
     private static Http.Cookie authCookie;
@@ -73,7 +64,6 @@ public class ViewMyTripsTestSteps extends WithApplication {
     }
 
 
-
     @Given("I am logged in")
     public void i_am_logged_in() throws IOException {
         // Create custom settings that change the database to use test database instead of production
@@ -85,8 +75,8 @@ public class ViewMyTripsTestSteps extends WithApplication {
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
         authCookie = Http.Cookie.builder("JWT-Auth",
-                "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
-                .withPath("/").build();
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
+            .withPath("/").build();
 
         Helpers.start(fakeApp);
 
@@ -97,9 +87,9 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
         // Create request to create a new user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .uri("/api/user"); //TODO change to "/api/login" when evolutions work
+            .method(POST)
+            .bodyJson(node)
+            .uri("/api/user"); //TODO change to "/api/login" when evolutions work
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -107,7 +97,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
         // Check a success message was sent
         String message = new ObjectMapper()
-                .readValue(Helpers.contentAsString(result), String.class);
+            .readValue(Helpers.contentAsString(result), String.class);
         assertEquals("Success", message);
     }
 
@@ -115,8 +105,8 @@ public class ViewMyTripsTestSteps extends WithApplication {
     public void viewing_my_profile() {
         // Create request to view profile
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .uri("/api/profile/1"); //TODO change to the created user when evolutions work
+            .method(GET)
+            .uri("/api/profile/1"); //TODO change to the created user when evolutions work
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -167,16 +157,16 @@ public class ViewMyTripsTestSteps extends WithApplication {
 //        Result result = route(fakeApp, request);
 //        assertEquals(OK, result.status());
 
-        assertEquals(1,1);
+        assertEquals(1, 1);
     }
 
     @When("I click view my trips")
     public void i_click_view_my_trips() {
         // Create request to get trips
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(this.authCookie)
-                .uri("/api/trip/getAll/");
+            .method(GET)
+            .cookie(this.authCookie)
+            .uri("/api/trip/getAll/");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -187,13 +177,14 @@ public class ViewMyTripsTestSteps extends WithApplication {
     public void a_list_of_trips_is_shown() throws IOException {
         // Create request to view trips
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(this.authCookie)
-                .uri("/api/trip/getAll/");
+            .method(GET)
+            .cookie(this.authCookie)
+            .uri("/api/trip/getAll/");
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper().readValue(Helpers.contentAsString(result), JsonNode.class);
+        JsonNode trips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertTrue(!(trips.get(0).get("tripDataList") == null));
     }
 
@@ -201,27 +192,31 @@ public class ViewMyTripsTestSteps extends WithApplication {
     public void it_shows_all_of_my_trips() throws IOException {
         // Create request to view trips
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(this.authCookie)
-                .uri("/api/trip/getAll/");
+            .method(GET)
+            .cookie(this.authCookie)
+            .uri("/api/trip/getAll/");
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper().readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(1, trips.get(0).get("tripDataList").size()); //TODO change this number when the creation step and evolutions work
+        JsonNode trips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals(1, trips.get(0).get("tripDataList")
+            .size()); //TODO change this number when the creation step and evolutions work
     }
 
     @And("only my trips")
     public void only_my_trips() throws IOException {
         // Create request to view trips
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(this.authCookie)
-                .uri("/api/trip/getAll/");
+            .method(GET)
+            .cookie(this.authCookie)
+            .uri("/api/trip/getAll/");
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper().readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(1, trips.get(0).get("userId").asInt()); //TODO change this number to created user's Id when the creation step and evolutions work
+        JsonNode trips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals(1, trips.get(0).get("userId")
+            .asInt()); //TODO change this number to created user's Id when the creation step and evolutions work
     }
 }

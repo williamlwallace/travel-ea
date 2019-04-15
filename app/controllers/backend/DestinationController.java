@@ -17,7 +17,7 @@ import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
 /**
- * Manages destinations in the database
+ * Manages destinations in the database.
  */
 public class DestinationController extends Controller {
 
@@ -29,7 +29,6 @@ public class DestinationController extends Controller {
         CountryDefinitionRepository countryDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
-
     }
 
     /**

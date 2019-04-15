@@ -30,7 +30,7 @@ public class TravellerTypeDefinitionRepository {
     }
 
     /**
-     * Gets a TravellerTypeDefinition given that TravellerTypeDefinition's id
+     * Gets a TravellerTypeDefinition given that TravellerTypeDefinition's id.
      *
      * @param id The id of the TravellerTypeDefinition
      * @return The TravellerTypeDefinition with matching id, null if no TravellerTypeDefinition
@@ -47,7 +47,7 @@ public class TravellerTypeDefinitionRepository {
 
     /**
      * Gets a TravellerTypeDefinition given a string that matches part or all of a
-     * TravellerTypeDefinition description
+     * TravellerTypeDefinition description.
      *
      * @param description The full or partial description to search for
      * @return The first TravellerTypeDefinition which has a matching description, or null if no

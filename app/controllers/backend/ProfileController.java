@@ -24,10 +24,11 @@ import util.validation.ErrorResponse;
 import util.validation.UserValidator;
 
 /**
- * Manage a database of users
+ * Manage a database of users.
  */
 public class ProfileController extends Controller {
 
+    private static final String ERR_OTHER = "other";
     private final ProfileRepository profileRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
 
@@ -39,7 +40,7 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Gets all possible traveller types currently stored in db
+     * Gets all possible traveller types currently stored in db.
      *
      * @return JSON list of traveller types
      */
@@ -49,7 +50,7 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Adds a new profile received as body of a post request to database
+     * Adds a new profile received as body of a post request to database.
      *
      * @param request Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
@@ -78,7 +79,7 @@ public class ProfileController extends Controller {
                 })
                 .thenApplyAsync(insertedId -> {
                     if (insertedId == null) {
-                        validatorResult.map("Profile already created for this user", "other");
+                        validatorResult.map("Profile already created for this user", ERR_OTHER);
                         return badRequest(validatorResult.toJson());
                     } else {
                         return created(Json.toJson(insertedId));
@@ -113,53 +114,17 @@ public class ProfileController extends Controller {
             .thenApplyAsync(profile -> {
                 if (profile == null) {
                     ErrorResponse errorResponse = new ErrorResponse();
-                    errorResponse.map("Profile for that user not found", "other");
+                    errorResponse.map("Profile for that user not found", ERR_OTHER);
                     return notFound(errorResponse.toJson());
                 } else {
                     return ok(Json.toJson(profile));
-////                        List<Long> travellerTypes = new ArrayList<>();
-////                        List<Long> nationalities = new ArrayList<>();
-////                        List<Long> passports = new ArrayList<>();
-//                        String travellerTypes = "";
-//                        String nationalities = "";
-//                        String passports = "";
-//
-//                        for (TravellerTypeDefinition travellerType : profile.travellerTypes) {
-////                            travellerTypes.add(travellerType.id);
-//                            travellerTypes += travellerType.id + ",";
-//                        }
-//                        travellerTypes = travellerTypes
-//                            .substring(0, max(0, travellerTypes.length() - 1));
-//
-//                        for (CountryDefinition country : profile.nationalities) {
-////                            nationalities.add(country.id);
-//                            nationalities += country.id + ",";
-//                        }
-//                        nationalities = nationalities
-//                            .substring(0, max(0, nationalities.length() - 1));
-//
-//                        for (CountryDefinition country : profile.passports) {
-////                            passports.add(country.id);
-//                            passports += country.id + ",";
-//                        }
-//                        passports = passports.substring(0, max(0, passports.length() - 1));
-//
-//                        JsonNode profileJson = Json.toJson(profile);
-//                        ObjectNode customProfileJson = (ObjectNode) profileJson;
-//
-//                        customProfileJson.put("travellerTypes", travellerTypes);
-//                        customProfileJson.put("nationalities", nationalities);
-//                        customProfileJson.put("passports", passports);
-//
-//                        return ok(customProfileJson);
                 }
             });
-
     }
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types
+     * passports and traveller types.
      *
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
@@ -175,7 +140,7 @@ public class ProfileController extends Controller {
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types
+     * passports and traveller types.
      *
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
@@ -212,7 +177,7 @@ public class ProfileController extends Controller {
                     }
                 }).thenApplyAsync(updatedUserId -> {
                     if (updatedUserId == null) {
-                        errorResponse.map("Profile for that user not found", "other");
+                        errorResponse.map("Profile for that user not found", ERR_OTHER);
                         return badRequest(errorResponse.toJson());
                     } else {
                         return ok(Json.toJson(updatedUserId));
@@ -233,7 +198,7 @@ public class ProfileController extends Controller {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
             if (rowsDeleted < 1) {
                 ErrorResponse errorResponse = new ErrorResponse();
-                errorResponse.map("Profile not found for that user", "other");
+                errorResponse.map("Profile not found for that user", ERR_OTHER);
                 return notFound(errorResponse.toJson());
             } else {
                 return ok(Json.toJson(rowsDeleted));
@@ -258,17 +223,12 @@ public class ProfileController extends Controller {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
-                if (gender != null) {
-                    if (!profile.gender.equalsIgnoreCase(gender)) {
-                        toReturn.remove(profile);
-                        continue;
-                    }
+                if (gender != null && !profile.gender.equalsIgnoreCase(gender)) {
+                    toReturn.remove(profile);
+                    continue;
                 }
 
-//                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-//                int age = Period.between(birthDate, LocalDate.now()).getYears();
                 int age = profile.calculateAge();
-
                 if (age < minAge || age > maxAge) {
                     toReturn.remove(profile);
                     continue;
@@ -322,5 +282,3 @@ public class ProfileController extends Controller {
                 ok(Json.toJson(profiles)));
     }
 }
-
-
