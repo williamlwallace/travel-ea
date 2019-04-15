@@ -53,6 +53,11 @@ function addDestination(url, redirect) {
     data.latitude = parseFloat(data.latitude);
     data.longitude = parseFloat(data.longitude);
     data.countryId = parseInt(data.countryId);
+
+    // Convert country id to country object
+    data.country = {"id": data.countryId};
+    delete data.countryId;
+
     // Post json data to given url
     post(url,data)
     .then(response => {
@@ -63,13 +68,12 @@ function addDestination(url, redirect) {
                 showErrors(json);
             } else {
                 window.location.href = redirect;
+                location.reload(); // When we load destination data using js, we can change this to just reload the data and repopulate tables
             }
         });
     });
 }
 
-function get(url) {
-    return fetch(url, {
-        method: "GET"
-    })
-}
+$(document).ready(function () {
+    $('#dtDestination').DataTable();
+});

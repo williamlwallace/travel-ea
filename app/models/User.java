@@ -1,6 +1,6 @@
 package models;
 
-import io.ebean.Finder;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Model;
 import play.data.validation.Constraints;
 
@@ -8,12 +8,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 
 /**
  * User entity managed by Ebean
  */
 @Entity
-@Table(name="User")
+@Table(name = "User")
 public class User extends Model {
 
     @Id
@@ -29,7 +30,10 @@ public class User extends Model {
 
     public String salt;
 
-    public String authToken;
+//    @JsonFormat(pattern = "YYYY-MM-dd HH:mm")
+    @JsonIgnore
+    public LocalDateTime creationDate;
 
-    public static final Finder<Long, User> find = new Finder<>(User.class);
+    // public String authToken;
+    public Boolean admin = false;
 }

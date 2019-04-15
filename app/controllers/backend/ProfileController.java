@@ -1,15 +1,35 @@
 package controllers.backend;
 
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import models.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import models.CountryDefinition;
+import models.Nationality;
+import models.Passport;
+import models.Profile;
+import models.TravellerTypeDefinition;
+import models.User;
 import play.libs.Json;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.*;
 
 import util.validation.UserValidator;
+import play.mvc.With;
+import repository.CountryDefinitionRepository;
+import repository.ProfileRepository;
+import repository.TravellerTypeDefinitionRepository;
 import util.validation.ErrorResponse;
 
 import javax.inject.Inject;
@@ -18,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.*;
 
 import static java.lang.Math.max;
+import util.validation.UserValidator;
 
 /**
  * Manage a database of users
@@ -25,10 +46,27 @@ import static java.lang.Math.max;
 public class ProfileController extends Controller {
 
     private final ProfileRepository profileRepository;
+    private final CountryDefinitionRepository countryDefinitionRepository;
+    private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
 
     @Inject
+    public ProfileController(ProfileRepository profileRepository,
+        CountryDefinitionRepository countryDefinitionRepository,
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
     public ProfileController(ProfileRepository profileRepository) {
         this.profileRepository = profileRepository;
+        this.countryDefinitionRepository = countryDefinitionRepository;
+        this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
+    }
+
+    /**
+     * Gets all possible traveller types currently stored in db
+     *
+     * @return JSON list of traveller types
+     */
+    public CompletableFuture<Result> getAllTravellerTypes() {
+        return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
+            .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
     }
 
     /**
@@ -47,19 +85,6 @@ public class ProfileController extends Controller {
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         } else {
-            // Converts json to Profile object, sets uid to link profile and user
-//        Profile profile = new Profile();
-//        profile.userId = json.get("userId").asLong();
-//        profile.firstName = json.get("firstName").asText();
-//        profile.lastName = json.get("lastName").asText();
-//        profile.middleName = json.get("middleName").asText();
-//        profile.gender = json.get("gender").asText();
-//        profile.dateOfBirth = json.get("dateOfBirth").asText();
-
-            //{profile:
-
-            // "travellerTypes": [{id: 1, string: "hello"}]
-
             //We are assuming that the json is sent perfectly, object may have to be hand-created later
             Profile newProfile = Json.fromJson(data, Profile.class);
 
@@ -84,8 +109,10 @@ public class ProfileController extends Controller {
 
     /**
      * Gets a profile based on the userID specified in the request
+     *
      * @param userId The user ID to return data for
-     * @return Ok with profile json object if profile found, badRequest if request malformed or profile not found
+     * @return Ok with profile json object if profile found, badRequest if request malformed or
+     * profile not found
      */
     public CompletableFuture<Result> getProfile(Long userId) {
         return profileRepository.findID(userId)
@@ -135,15 +162,42 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Updates the profile received in the body of the request as well as the related nationalities, passports
-     * and traveller types
+     * Updates the profile received in the body of the request as well as the related nationalities,
+     * passports and traveller types
+     *
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
+    @With({Everyone.class, Authenticator.class})
+    public CompletionStage<Result> updateProfile(Http.Request request) {
+        //Get user
+        User user = request.attrs().get(ActionState.USER);
+        // Get json parameters
+        JsonNode json = request.body().asJson();
+        return updateProfileHelper(json, user.id);
+    }
+
+    /**
+     * Updates the profile received in the body of the request as well as the related nationalities,
+     * passports and traveller types
+     *
+     * @param request Contains the HTTP request info
+     * @return Ok if updated successfully, badRequest if profile json malformed
+     */
+    // TODO: set auth to admin role @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode data = request.body().asJson();
+        return updateProfileHelper(data, userId);
+    }
 
+    /**
+     * Updates the profile received in the body of the request as well as the related nationalities,
+     * passports and traveller types
+     *
+     * @return Ok if updated successfully, badRequest if profile json malformed
+     */
+    private CompletionStage<Result> updateProfileHelper(JsonNode json, Long userId) {
         // Run the Validator
         ErrorResponse errorResponse = new UserValidator(data).profile();
 
@@ -176,6 +230,7 @@ public class ProfileController extends Controller {
      * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile
      *         is not found for that userID.
      */
+    //TODO: Authorization for adminonly
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
             if (rowsDeleted < 1) {
@@ -187,4 +242,87 @@ public class ProfileController extends Controller {
             }
         });
     }
+
+    /**
+     * Retrieves all profiles, filters them and then returns the filtered list of profiles.
+     *
+     * @param nationalityId nationality request
+     * @param gender gender requested
+     * @param minAge minimum age for filter
+     * @param maxAge maximum age for filter
+     * @param travellerTypeId traveller type requested
+     * @return List of profiles within requested parameters
+     */
+    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender,
+        int minAge, int maxAge, Long travellerTypeId) {
+        return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
+
+            List<Profile> toReturn = new ArrayList<>(profiles);
+
+            for (Profile profile : profiles) {
+                if (gender != null) {
+                    if (!profile.gender.equalsIgnoreCase(gender)) {
+                        toReturn.remove(profile);
+                        continue;
+                    }
+                }
+
+//                LocalDate birthDate = LocalDate.parse(profile.dateOfBirth, DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+//                int age = Period.between(birthDate, LocalDate.now()).getYears();
+                int age = profile.calculateAge();
+
+                if (age < minAge || age > maxAge) {
+                    toReturn.remove(profile);
+                    continue;
+                }
+
+                if (nationalityId != 0) {
+                    boolean found = false;
+                    for (CountryDefinition country : profile.nationalities) {
+                        if (country.id.equals(nationalityId)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        toReturn.remove(profile);
+                        continue;
+                    }
+                }
+
+                if (travellerTypeId != 0) {
+                    boolean found = false;
+                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
+                        if (travellerTypeDefinition.id.equals(travellerTypeId)) {
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        toReturn.remove(profile);
+                    }
+                }
+
+            }
+
+            return toReturn;
+        });
+    }
+
+    /**
+     * Retrieves all profiles, filters them and returns the result inside a Result object as JSON
+     *
+     * @param nationalityId nationality request
+     * @param gender gender requested
+     * @param minAge minimum age for filter
+     * @param maxAge maximum age for filter
+     * @param travellerTypeId traveller type requested
+     * @return A ok result containing the JSON of the profiles matching search criteria
+     */
+    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender,
+        int minAge, int maxAge, Long travellerTypeId) {
+        return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId)
+            .thenApplyAsync(profiles ->
+                ok(Json.toJson(profiles)));
+    }
 }
+
+

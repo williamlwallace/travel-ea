@@ -1,26 +1,27 @@
 package models;
 
 import io.ebean.Model;
-import play.data.validation.Constraints;
-import javax.persistence.Column;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
+import play.data.validation.Constraints;
 
 /**
  * A class that stores information regarding users and which country passports they hold
  */
 @Entity
-@Table(name="TravellerType")
+@Table(name = "TravellerType")
 public class TravellerType extends Model {
 
     @Id
     public Long guid;
 
     @Constraints.Required
+    @Column(name = "user_id")
     public Long userId;
 
+    @ManyToOne
     @Constraints.Required
-    public Long travellerTypeId;
+    public TravellerTypeDefinition travellerTypeDefinition;
+
 }

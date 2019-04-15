@@ -3,17 +3,13 @@ package util.validation;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import models.Trip;
-import models.TripData;
-import play.libs.Json;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Date;
+import models.TripData;
 
 public class TripValidator {
+
     private final JsonNode form;
     private ErrorResponse response;
 
@@ -24,49 +20,64 @@ public class TripValidator {
 
     /**
      * Validates addNewTrip data
+     *
      * @return ErrorResponse object
      */
     public ErrorResponse validateTrip(boolean isUpdating) throws IOException {
-        // Check if uid has a value
-        //Validation for trip as a whole
-        this.required("userId");
 
-        if(isUpdating) {
+        //Validation for trip as a whole
+        if (isUpdating) {
             this.required("id");
         }
 
         //Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
-        ArrayList tripDataCollection = mapper.readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")), new TypeReference<ArrayList<TripData>>(){});
+        ArrayList tripDataCollection = mapper
+            .readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")),
+                new TypeReference<ArrayList<TripData>>() {
+                });
+
+        if (tripDataCollection.size() < 2) {
+            this.response.map("a trip must contain at least 2 destinations", "trip");
+        }
 
         Long lastDestinationID = 0L;
-        Date mostRecentDate = null;
+        LocalDateTime mostRecentDateTime = null;
 
         for (Object obj : tripDataCollection) {
             TripData trip = (TripData) obj;
             String errorString = "";
-            if(trip.position == null) {
+
+            if (trip.position == null) {
                 errorString += "position is null, ";
                 trip.position = -1L;
             }
-            if(trip.destinationId == null) errorString += "destinationId is null, ";
-            if(trip.destinationId == lastDestinationID) errorString += "cannot attend same destination twice in a row, ";
-            if(trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.getTimestamp().after(trip.departureTime.getTimestamp())) errorString += "departure must be after arrival, ";
-            if(trip.arrivalTime != null || trip.departureTime != null) {
+
+            if (trip.destination.id == null) {
+                errorString += "destinationId is null, ";
+            }
+            if (trip.destination.id == lastDestinationID) {
+                errorString += "cannot attend same destination twice in a row, ";
+            }
+            if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime
+                .isAfter(trip.departureTime)) {
+                errorString += "departure must be after arrival, ";
+            }
+            if (trip.arrivalTime != null || trip.departureTime != null) {
                 //todo: fix this one
                 //if(!(mostRecentDate == null) && (trip.arrivalTime.before(mostRecentDate) || trip.departureTime.before(mostRecentDate))) {
                 //    errorString += "this stage cannot occur before a previous stage, ";
                 //}
                 // Set most recent time stamp to be latest value that is not null
-                mostRecentDate = ((trip.departureTime == null) ? trip.arrivalTime : trip.departureTime).getTimestamp();
+                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime
+                    : trip.arrivalTime);
             }
 
-            // Update most recent destination id
-            lastDestinationID = trip.destinationId;
+            lastDestinationID = trip.destination.id;
 
             // If any errors were added to string, add this to error response map
-            if(!errorString.equals("")) {
+            if (!errorString.equals("")) {
                 this.response.map(errorString, trip.position.toString());
             }
 
@@ -76,6 +87,7 @@ public class TripValidator {
 
     /**
      * Checks field is not empty
+     *
      * @param field json field name
      * @return Boolean whether validation succeeds
      */

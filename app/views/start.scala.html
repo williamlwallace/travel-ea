@@ -47,7 +47,7 @@
                             aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
                         <button class="btn btn-lg btn-secondary"
                             id="registerBtn"
-                            onclick='signup("@controllers.backend.routes.UserController.addNewUser()","@controllers.routes.ProfileController.index()")'>
+                            onclick='signup("@controllers.backend.routes.UserController.addNewUser()","@controllers.frontend.routes.ProfileController.index()")'>
                             Register
                         </button>
                     </div>
@@ -77,7 +77,7 @@
                             aria-expanded="false" aria-controls="collapseLogIn" id="cancelBtn2">Cancel</button>
                         <button
                             class="btn btn-lg btn-secondary"
-                            onclick='login("@controllers.backend.routes.UserController.login()","@controllers.routes.ApplicationController.index()")'>
+                            onclick='login("@controllers.backend.routes.UserController.login()","@controllers.frontend.routes.ApplicationController.home()")'>
                             Log In
                         </button>
                     </div>

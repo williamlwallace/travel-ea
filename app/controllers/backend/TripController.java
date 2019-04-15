@@ -1,6 +1,15 @@
 package controllers.backend;
 
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
+import models.Destination;
 import models.Trip;
 import models.TripData;
 import play.libs.Json;
@@ -8,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.TripDataRepository;
+import play.mvc.With;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -27,9 +37,7 @@ public class TripController extends Controller {
     private final TripDataRepository tripDataRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository,
-                          TripDataRepository tripDataRepository) {
-        this.tripDataRepository = tripDataRepository;
+    public TripController(TripRepository tripRepository) {
         this.tripRepository = tripRepository;
     }
 
@@ -38,50 +46,37 @@ public class TripController extends Controller {
      * @param userId the ID of the user
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
-    public CompletableFuture<Result> getAllUserTrips(Long userId) {
-        return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(tripList -> {
-                    if (tripList.size() < 1) {
-                        ErrorResponse errorResponse = new ErrorResponse();
-                        errorResponse.map("User has no trips", "other");
-                        return notFound(errorResponse.toJson());
-                    } else {
-                        ArrayList<CompletableFuture<List<TripData>>> futures = new ArrayList<>();
-                        for (Trip trip : tripList) {
-                            futures.add(tripDataRepository.getAllTripData(trip.id));
-                        }
-                        CompletableFuture cf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-                        cf.join();
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllUserTrips(Http.Request request) {
+        Long userId = request.attrs().get(ActionState.USER).id;
 
-                        ArrayList<List<TripData>> result = new ArrayList<>();
-                        for (CompletableFuture<List<TripData>> future : futures) {
-                            result.add(future.join());
-                        }
-                        return ok(Json.toJson(result));
-                    }
-                });
+        return tripRepository.getAllUserTrips(userId)
+            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }
 
     /**
-     * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON
-     * object with 2 fields:
-     * uid: This field represents the id of the user who owns the trip
+     * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
+     * with 2 fields: uid: This field represents the id of the user who owns the trip
      * tripDataCollection: An array storing all stages of the trip as tripData objects
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
     public CompletableFuture<Result> getTrip(Long tripId) {
-        return tripDataRepository.getAllTripData(tripId)
-                .thenApplyAsync(tripData -> ok(Json.toJson(tripData)));
+        // Get all the trip data (asynchronously) and then construct and return the json object to send
+        return tripRepository.getTripById(tripId).thenApplyAsync(
+            trip -> (trip != null) ? ok(Json.toJson(trip)) : notFound()
+        );
     }
 
     /**
-     * Validates and then updates a trip on the database. This is done by dropping all tripData already linked to the trip
-     * and adding all new data. Trying to update individual rows would lead to all sorts of potential traps for data corruption.
+     * Validates and then updates a trip on the database. This is done by dropping all tripData
+     * already linked to the trip and adding all new data. Trying to update individual rows would
+     * lead to all sorts of potential traps for data corruption.
+     *
      * @param request Request containing JSON trip object to update
      * @return Returns trip id (as json) on success, otherwise bad request
-     * @throws IOException
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
@@ -92,26 +87,19 @@ public class TripController extends Controller {
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        } else {
-            Trip updatedTrip = Json.fromJson(data, Trip.class);
-            return tripDataRepository.deleteAllTripData(updatedTrip.id)
-                    .thenComposeAsync(deletedRows -> {
-                        if (deletedRows < 1) {
-                            return null;
-                        } else {
-                            return tripDataRepository.insertTripDataList(updatedTrip.tripDataList, updatedTrip.id);
-                        }
-                    })
-                    .thenApplyAsync(tripId -> {
-                        if (tripId == null) {
-                            validatorResult.map("Bad request", "other");
-                            return badRequest(validatorResult.toJson());
-                        } else {
-                            return ok(Json.toJson(tripId));
-                        }
-                    });
         }
 
+        Trip trip = Json.fromJson(data.get("trip"), Trip.class);
+        trip.userId = request.attrs().get(ActionState.USER).id;
+
+        // Assemble trip data
+        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
+        trip.tripDataList = tripDataList;
+
+        // Add new trip data to db
+        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
+            ok(Json.toJson(data.get("id").asLong()))
+        );
     }
 
     /**
@@ -119,35 +107,21 @@ public class TripController extends Controller {
      * @param tripId ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteTrip(Long tripId) {
-        return tripDataRepository.deleteAllTripData(tripId)
-                .thenComposeAsync(rowsDeletedTripData -> {
-                    if (rowsDeletedTripData < 1) {
-                        return null;
-                    } else {
-                        return tripRepository.deleteTrip(tripId);
-                    }
-                }).thenApplyAsync(rowsDeletedTrip -> {
-                    if (rowsDeletedTrip == null) {
-                        ErrorResponse errorResponse = new ErrorResponse();
-                        errorResponse.map("Error deleting trip data, trip id not found", "other");
-                        return badRequest(errorResponse.toJson());
-                    } else if (rowsDeletedTrip < 1) {
-                        ErrorResponse errorResponse = new ErrorResponse();
-                        errorResponse.map("Error deleting trip, trip id not found", "other");
-                        return badRequest(errorResponse.toJson());
-                    } else {
-                        return ok(Json.toJson(rowsDeletedTrip));
-                    }
-                });
+        // Delete trip record in trips table
+        return tripRepository.deleteTrip(tripId).thenApplyAsync(rows ->
+                (rows > 0) ? ok(Json.toJson(rows)) : notFound());
     }
 
     /**
      * Validates and inserts a trip into the database.
+     *
      * @param request Request where body is a json object of trip
      * @return JSON object containing id of newly created trip
      * @throws IOException Thrown by failure deserializing
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
@@ -158,25 +132,62 @@ public class TripController extends Controller {
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        } else {
-            Trip newTrip = Json.fromJson(data, Trip.class);
+        }
 
-            return tripRepository.insertTrip(newTrip)
-                    .thenComposeAsync(newTripId -> {
-                        if (newTripId < 1) {
-                            return null;
-                        } else {
-                            return tripDataRepository.insertTripDataList(newTrip.tripDataList, newTripId);
-                        }
-                    }).thenApplyAsync(tripId -> {
-                        if (tripId == null) {
-                            ErrorResponse errorResponse = new ErrorResponse();
-                            errorResponse.map("Error inserting new trip", "other");
-                            return internalServerError(errorResponse.toJson());
-                        } else {
-                            return ok(Json.toJson(tripId));
-                        }
-                    });
+        // Assemble trip
+        Trip trip = new Trip();
+        trip.userId = request.attrs().get(ActionState.USER).id;
+        trip.tripDataList = nodeToTripDataList(data, trip);
+        return tripRepository.insertTrip(trip).thenApplyAsync(result ->
+            ok(Json.toJson("Successfully added trip"))
+        );
+    }
+
+    /**
+     * Helper method to convert some json node of the format that is sent by the front end, to an
+     * arraylist of trip data, which is much more usable by the rest of the java code. By taking
+     * this approach, we are also able to avoid the issue where jackson required all fields to be
+     * present when deserializing, but as per our design requirements, the arrival and departure
+     * times for each point must be able to not be specified
+     *
+     * @param data JSON object storing list of tripData
+     * @param trip Trip object to be referenced to by tripData
+     * @return Arraylist of tripData that has been deserialized from node
+     */
+    private ArrayList<TripData> nodeToTripDataList(JsonNode data, Trip trip) {
+        // Store created data points in list
+        ArrayList<TripData> tripDataList = new ArrayList<>();
+
+        // For each item in the json node, deserialize to a single trip data
+        for (JsonNode node : data.get("tripDataCollection")) {
+            // Assemble trip data
+            TripData tripData = new TripData();
+
+            // Assign tripdata to correct trip
+            tripData.trip = trip;
+
+            // Get position and destinationId from json object, these must be present so no need for try catch
+            tripData.position = node.get("position").asLong();
+            tripData.destination = new Destination();
+            tripData.destination = Json.fromJson(node.get("destination"), Destination.class);
+
+            // Try to get arrivalTime, but set to null if unable to deserialize
+            try {
+                tripData.arrivalTime = Json.fromJson(node.get("arrivalTime"), LocalDateTime.class);
+            } catch (Exception e) {
+                tripData.arrivalTime = null;
+            }
+
+            // Try to get departureTime, but set to null if unable to deserialize
+            try {
+                tripData.departureTime = Json
+                    .fromJson(node.get("departureTime"), LocalDateTime.class);
+            } catch (Exception e) {
+                tripData.departureTime = null;
+            }
+
+            // Add created tripData object to list
+            tripDataList.add(tripData);
         }
     }
 }
