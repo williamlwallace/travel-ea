@@ -16,9 +16,6 @@ import repository.DestinationRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
-import javax.inject.Inject;
-import java.util.concurrent.CompletableFuture;
-
 /**
  * Manages destinations in the database
  */
@@ -29,7 +26,7 @@ public class DestinationController extends Controller {
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-                                 CountryDefinitionRepository countryDefinitionRepository) {
+        CountryDefinitionRepository countryDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
 
@@ -81,6 +78,7 @@ public class DestinationController extends Controller {
 
     /**
      * Gets all destinations. Returns a json list of all destinations.
+     *
      * @return OK with list of destinations
      */
     public CompletableFuture<Result> getAllDestinations() {
@@ -90,15 +88,17 @@ public class DestinationController extends Controller {
 
     /**
      * Gets all countries. Returns a json list of all countries.
+     *
      * @return OK with list of countries
      */
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
-                .thenApplyAsync(allCountries -> ok(Json.toJson(allCountries)));
+            .thenApplyAsync(allCountries -> ok(Json.toJson(allCountries)));
     }
 
     /**
      * Gets a destination with a given id. Returns a json with destination object.
+     *
      * @param getId ID of wanted destination
      * @return OK with a destination, notFound if destination does not exist
      */
@@ -113,15 +113,17 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Gets a paged list of destinations conforming to the amount of destinations requested and the provided order and
-     * filters.
-     * @param page      The current page to display
-     * @param pageSize  The number of destinations per page
-     * @param order     The column to order by
-     * @param filter    The sort order (either asc or desc)
+     * Gets a paged list of destinations conforming to the amount of destinations requested and the
+     * provided order and filters.
+     *
+     * @param page The current page to display
+     * @param pageSize The number of destinations per page
+     * @param order The column to order by
+     * @param filter The sort order (either asc or desc)
      * @return OK with paged list of destinations
      */
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
+    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order,
+        String filter) {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }

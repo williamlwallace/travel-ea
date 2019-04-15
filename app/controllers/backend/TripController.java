@@ -16,17 +16,10 @@ import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import repository.TripDataRepository;
 import play.mvc.With;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Manages trips in the database
@@ -34,7 +27,6 @@ import java.util.concurrent.CompletableFuture;
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
-    private final TripDataRepository tripDataRepository;
 
     @Inject
     public TripController(TripRepository tripRepository) {
@@ -43,7 +35,8 @@ public class TripController extends Controller {
 
     /**
      * Attempts to get all user trips for a given userID.
-     * @param userId the ID of the user
+     *
+     * @param request the HTTP request
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
     @With({Everyone.class, Authenticator.class})
@@ -58,6 +51,7 @@ public class TripController extends Controller {
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
      * with 2 fields: uid: This field represents the id of the user who owns the trip
      * tripDataCollection: An array storing all stages of the trip as tripData objects
+     *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
@@ -92,9 +86,9 @@ public class TripController extends Controller {
         Trip trip = Json.fromJson(data.get("trip"), Trip.class);
         trip.userId = request.attrs().get(ActionState.USER).id;
 
-        // Assemble trip data
-        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
-        trip.tripDataList = tripDataList;
+//        // Assemble trip data
+//        ArrayList<TripData> tripDataList = nodeToTripDataList(data, trip);
+//        trip.tripDataList = tripDataList;
 
         // Add new trip data to db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
@@ -104,6 +98,7 @@ public class TripController extends Controller {
 
     /**
      * Deletes a trip (and all trip data) of a trip with given ID
+     *
      * @param tripId ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
      */
@@ -111,7 +106,7 @@ public class TripController extends Controller {
     public CompletableFuture<Result> deleteTrip(Long tripId) {
         // Delete trip record in trips table
         return tripRepository.deleteTrip(tripId).thenApplyAsync(rows ->
-                (rows > 0) ? ok(Json.toJson(rows)) : notFound());
+            (rows > 0) ? ok(Json.toJson(rows)) : notFound());
     }
 
     /**
@@ -189,5 +184,7 @@ public class TripController extends Controller {
             // Add created tripData object to list
             tripDataList.add(tripData);
         }
+        // Return create trip data list
+        return tripDataList;
     }
 }

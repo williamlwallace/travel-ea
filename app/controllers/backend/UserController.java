@@ -5,12 +5,9 @@ import actions.Authenticator;
 import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
-import models.*;
-import play.data.FormFactory;
 import com.typesafe.config.Config;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.User;
 import play.libs.Json;
@@ -24,11 +21,6 @@ import repository.UserRepository;
 import util.CryptoManager;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
-
-
-import javax.inject.Inject;
-import java.util.Base64;
-import java.util.concurrent.*;
 
 /**
  * Manage a database of users
@@ -51,7 +43,7 @@ public class UserController extends Controller {
     /**
      * Display the paginated list of users.
      *
-     * @param page Current page number (starts from 0)
+     * @param request HTTP request
      * @param order Sort order (either asc or desc)
      * @param filter Filter applied on user names
      * @return Returns a CompletionStage ok type for successful query
@@ -66,7 +58,7 @@ public class UserController extends Controller {
     /**
      * Delete a users account
      *
-     * @param userId ID of user to delete
+     * @param request HTTP request
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
     @With({Everyone.class, Authenticator.class})
@@ -98,11 +90,11 @@ public class UserController extends Controller {
      * @return Ok if user successfully deleted, badrequest if no such user found
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
-        return userRepository.deleteUser(userId).thenApplyAsync(rowsDeleted -> {
-                return (rowsDeleted > 0) ? ok(Json.toJson("Successfully deleted user with uid: " + userId))
-                    : badRequest(Json.toJson("No user with such uid found"));
-            },
-            httpExecutionContext.current());
+        return userRepository.deleteUser(userId)
+            .thenApplyAsync(rowsDeleted -> (rowsDeleted > 0) ? ok(
+                Json.toJson("Successfully deleted user with uid: " + userId))
+                    : badRequest(Json.toJson("No user with such uid found")),
+                httpExecutionContext.current());
     }
 
     /**
@@ -222,8 +214,8 @@ public class UserController extends Controller {
     }
 
     /**
-     * Returns user id in body and sets cookie to store it. This will be used
-     * incase a user is authenticated but the user-id cookie is somehow removed
+     * Returns user id in body and sets cookie to store it. This will be used incase a user is
+     * authenticated but the user-id cookie is somehow removed
      *
      * @param request Request object that stores details of the incoming request
      * @return user id in json
@@ -243,12 +235,11 @@ public class UserController extends Controller {
      * @param user User object to be updated
      * @return authToken
      */
-    public String createToken(User user) {
-        String authToken = CryptoManager
+    private String createToken(User user) {
+        return CryptoManager
             .createToken(user.id, config.getString("play.http.secret.key"));
         //user.authToken = authToken;
         //userRepository.updateUser(user);
-        return authToken;
     }
 
     // /**
