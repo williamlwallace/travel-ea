@@ -20,7 +20,7 @@ import util.CryptoManager;
 
 public class Authenticator extends Action.Simple {
 
-    private static final String JwtStr = "JWT-Auth"; //Here for sonarqube
+    private static final String JWT_AUTH = "JWT-Auth"; //Here for sonarqube
     private final Config config;
     private final UserRepository userRepository;
 
@@ -53,7 +53,7 @@ public class Authenticator extends Action.Simple {
      * @return Jwt token
      */
     public static String getTokenFromCookie(Http.Request request) {
-        Optional<Cookie> option = request.cookies().getCookie(JwtStr);
+        Optional<Cookie> option = request.cookies().getCookie(JWT_AUTH);
         Cookie cookie = option.orElse(null);
         return (cookie != null ? cookie.value() : null);
     }
@@ -78,7 +78,7 @@ public class Authenticator extends Action.Simple {
                         // if user is no longer in database
                         return supplyAsync(() -> redirect(
                             controllers.frontend.routes.ApplicationController.cover())
-                            .discardingCookie(JwtStr));
+                            .discardingCookie(JWT_AUTH));
                     }
                 });
             }
@@ -87,7 +87,7 @@ public class Authenticator extends Action.Simple {
             return delegate.call(request).toCompletableFuture();
         }
         return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover())
-            .discardingCookie(JwtStr));
+            .discardingCookie(JWT_AUTH));
     }
 
     /**

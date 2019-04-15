@@ -94,7 +94,8 @@ public class CountryDefinitionRepository {
         return supplyAsync(() ->
                 ebeanServer.find(CountryDefinition.class)
                     .where()
-                    .ilike("name", "%" + criteria + "%") // Where criteria found in any part of string
+                    //Where criteria found in any part of string
+                    .ilike("name", "%" + criteria + "%")
                     .orderBy("name " + ((sortAscending) ? "asc" : "desc"))
                     .setFirstRow(pageNumber * pageSize)
                     .setMaxRows(pageSize)

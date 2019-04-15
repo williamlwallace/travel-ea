@@ -62,6 +62,11 @@ public class Profile extends Model {
         inverseJoinColumns = @JoinColumn(name = "country_id", referencedColumnName = "id"))
     public List<CountryDefinition> passports;
 
+    /**
+     * Calculates age based on the birth date.
+     *
+     * @return age
+     */
     public int calculateAge() {
         LocalDate birthDate = LocalDate
             .parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));

@@ -25,6 +25,11 @@ public class Trip extends Model {
     @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
 
+    /**
+     * Finds the first date in a trip, if there is one.
+     *
+     * @return the date found  as a string or null if no date was found
+     */
     public String findFirstTripDate() {
         for (TripData tripData : tripDataList) {
             if (tripData.arrivalTime != null) {

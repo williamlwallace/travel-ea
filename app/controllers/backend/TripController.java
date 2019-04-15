@@ -22,7 +22,7 @@ import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
 /**
- * Manages trips in the database
+ * Manages trips in the database.
  */
 public class TripController extends Controller {
 
@@ -56,7 +56,8 @@ public class TripController extends Controller {
      * @return JSON object with uid and trip data
      */
     public CompletableFuture<Result> getTrip(Long tripId) {
-        // Get all the trip data (asynchronously) and then construct and return the json object to send
+        // Get all the trip data (asynchronously) and then
+        // construct and return the json object to send
         return tripRepository.getTripById(tripId).thenApplyAsync(
             trip -> (trip != null) ? ok(Json.toJson(trip)) : notFound()
         );
@@ -93,7 +94,7 @@ public class TripController extends Controller {
     }
 
     /**
-     * Deletes a trip (and all trip data) of a trip with given ID
+     * Deletes a trip (and all trip data) of a trip with given ID.
      *
      * @param tripId ID of trip to delete
      * @return 1 if trip found and deleted, 0 otherwise
@@ -157,7 +158,8 @@ public class TripController extends Controller {
             // Assign tripdata to correct trip
             tripData.trip = trip;
 
-            // Get position and destinationId from json object, these must be present so no need for try catch
+            // Get position and destinationId from json object,
+            // must be present so no need for try catch
             tripData.position = node.get("position").asLong();
             tripData.destination = new Destination();
             tripData.destination = Json.fromJson(node.get("destination"), Destination.class);

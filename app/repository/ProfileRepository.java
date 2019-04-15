@@ -84,6 +84,11 @@ public class ProfileRepository {
         }, executionContext);
     }
 
+    /**
+     * Gets all the profiles in the database.
+     *
+     * @return A list of all profiles
+     */
     public CompletableFuture<List<Profile>> getAllProfiles() {
         return supplyAsync(() -> {
             ArrayList<Profile> profiles = new ArrayList<>(

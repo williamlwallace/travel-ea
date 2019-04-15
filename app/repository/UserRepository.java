@@ -83,7 +83,7 @@ public class UserRepository {
     }
 
     /**
-     * Insert New user
+     * Insert New user.
      *
      * @param newUser User object with new user details.
      * @return uid of new user

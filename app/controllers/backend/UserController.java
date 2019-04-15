@@ -23,17 +23,17 @@ import util.validation.ErrorResponse;
 import util.validation.UserValidator;
 
 /**
- * Manage a database of users
+ * Manage a database of users.
  */
 public class UserController extends Controller {
 
-    private final UserRepository userRepository;
-    private final HttpExecutionContext httpExecutionContext;
-    private final Config config;
     private static final String SUCCESS = "Success";
     private static final String JWT_AUTH = "JWT-Auth";
     private static final String U_ID = "User-ID";
     private static final String ERR_OTHER = "other";
+    private final UserRepository userRepository;
+    private final HttpExecutionContext httpExecutionContext;
+    private final Config config;
 
     @Inject
     public UserController(UserRepository userRepository,
@@ -132,24 +132,28 @@ public class UserController extends Controller {
             //Else, no errors found, continue with adding to the database
             //Create a new user from the request data, basing off the User class
             User newUser = Json.fromJson(data, User.class);
+
             //Generate a new salt for the new user
             newUser.salt = CryptoManager.generateNewSalt();
+
             //Generate the salted password
             newUser.password = CryptoManager
                 .hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
-            //This block ensures that the username (email) is not taken already, and returns a CompletableFuture<Result>
-            return userRepository.findUserName(
-                newUser.username)                //Check whether the username is already in the database
-                .thenComposeAsync(
-                    user -> {                             //Pass that result (a User object) into the new function using thenCompose
-                        if (user != null) {
-                            return CompletableFuture.supplyAsync(
-                                () -> null);                          //If a user is found pass null into the next function
-                        } else {
-                            return userRepository.insertUser(
-                                newUser);         //If a user is not found pass the result of insertUser (a Long) ito the next function
-                        }
-                    })
+
+            //This block ensures that the username (email) is
+            // not taken already, and returns a CompletableFuture<Result>
+            //Check whether the username is already in the database
+            return userRepository.findUserName(newUser.username)
+                //Pass that result (a User object) into the new function using thenCompose
+                .thenComposeAsync(user -> {
+                    if (user != null) {
+                        //If a user is found pass null into the next function
+                        return CompletableFuture.supplyAsync(() -> null);
+                    } else {
+                        //If a user is not found pass the result of insertUser (a Long) ito the next function
+                        return userRepository.insertUser(newUser);
+                    }
+                })
                 .thenApplyAsync(user -> {
                     //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
                     if (user == null) {
@@ -158,9 +162,9 @@ public class UserController extends Controller {
                         return badRequest(validatorResult
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
-                        return ok(Json.toJson(SUCCESS)).withCookies(
-                            Cookie.builder(JWT_AUTH, createToken(user))
-                                .build());         //If the uid is not null, return an ok message with the uid contained within
+                        //If the uid is not null, return an ok message with the uid contained within
+                        return ok(Json.toJson(SUCCESS))
+                            .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
                     }
                 });
         }
@@ -173,7 +177,7 @@ public class UserController extends Controller {
      *
      * @param request HTTP request with username and password in body
      * @return OK with User JSON data on successful login, otherwise badRequest with specific error
-     * message
+     *  message
      */
     public CompletableFuture<Result> login(Http.Request request) {
         // Get json parameters

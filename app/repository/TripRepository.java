@@ -37,6 +37,20 @@ public class TripRepository {
             return newTrip.id;
         }, executionContext);
     }
+    
+    /**
+     * Updates a trip
+     *
+     * @param trip the updated trip
+     * @return true or an error is thrown
+     */
+    public CompletableFuture<Boolean> updateTrip(Trip trip) {
+        return supplyAsync(() -> {
+                ebeanServer.update(trip);
+                return true;
+            },
+            executionContext);
+    }
 
     /**
      * Deletes trip from database.
@@ -47,14 +61,6 @@ public class TripRepository {
     public CompletableFuture<Boolean> deleteTrip(Trip trip) {
         return supplyAsync(() ->
                 ebeanServer.delete(trip),
-            executionContext);
-    }
-
-    public CompletableFuture<Boolean> updateTrip(Trip trip) {
-        return supplyAsync(() -> {
-                ebeanServer.update(trip);
-                return true;
-            },
             executionContext);
     }
 
@@ -101,9 +107,9 @@ public class TripRepository {
     public CompletableFuture<Trip> getTripById(long tripId) {
         return supplyAsync(() ->
                 ebeanServer.find(Trip.class)
-                .where()
-                .eq("id", tripId)
-                .findOneOrEmpty()
+                    .where()
+                    .eq("id", tripId)
+                    .findOneOrEmpty()
                     .orElse(null)
             , executionContext);
     }

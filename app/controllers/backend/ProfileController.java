@@ -54,7 +54,7 @@ public class ProfileController extends Controller {
      *
      * @param request Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
-     * badRequest if profile already exists
+     *  badRequest if profile already exists
      */
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
@@ -66,7 +66,8 @@ public class ProfileController extends Controller {
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         } else {
-            //We are assuming that the json is sent perfectly, object may have to be hand-created later
+            //We are assuming that the json is sent perfectly,
+            // object may have to be hand-created later
             Profile newProfile = Json.fromJson(data, Profile.class);
 
             return profileRepository.findID(newProfile.userId)
@@ -90,10 +91,10 @@ public class ProfileController extends Controller {
 
 
     /**
-     * Gets a profile based on the userID specified in auth
+     * Gets a profile based on the userID specified in auth.
      *
      * @return Ok with profile json object if profile found, badRequest if request malformed or
-     * profile not found
+     *  profile not found
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getMyProfile(Http.Request request) {
@@ -103,7 +104,7 @@ public class ProfileController extends Controller {
 
 
     /**
-     * Gets a profile based on the userID specified in the request
+     * Gets a profile based on the userID specified in the request.
      *
      * @param userId The user ID to return data for
      * @return Ok with profile json object if profile found, badRequest if request malformed or
@@ -154,7 +155,7 @@ public class ProfileController extends Controller {
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types
+     * passports and traveller types.
      *
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
@@ -187,11 +188,11 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Deletes a profile based on the userID specified in the request
+     * Deletes a profile based on the userID specified in the request.
      *
      * @param id Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
-     * not found for that userID.
+     *  not found for that userID.
      */
     //TODO: Authorization for admin only
     public CompletableFuture<Result> deleteProfile(Long id) {
@@ -266,7 +267,7 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Retrieves all profiles, filters them and returns the result inside a Result object as JSON
+     * Retrieves all profiles, filters them and returns the result inside a Result object as JSON.
      *
      * @param nationalityId nationality request
      * @param gender gender requested
