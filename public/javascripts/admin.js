@@ -22,7 +22,6 @@ function deleteUser(button, tableAPI, id) {
             if (response.status != 200) {
                 document.getElementById("adminError").innerHTML = json;
             } else {
-                console.log("Yeezy");
                 tableAPI.row( $(button).parents('tr') ).remove().draw(false);
             }
         });
@@ -76,4 +75,29 @@ function populateTable(table) {
             }
         });
     })
+}
+
+/**
+ * The JavaScript function to process a client signing up
+ *
+ * @param url The route/url to send the request to
+ */
+function createUser(url, redirect) {
+    const formData = new FormData(document.getElementById("signupForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]] : pair[1],
+    }), {});
+    post(url, data)
+        .then(response => {
+            response.json()
+            .then(json => {
+                if (response.status != 200) {
+                    showErrors(json, "signupForm");
+                } else {
+                    window.location.href = redirect;
+                    location.reload();
+                }
+            });
+    });
 }
