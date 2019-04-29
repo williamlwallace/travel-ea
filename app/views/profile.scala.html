@@ -4,6 +4,7 @@
 @scripts = {
     <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript" xmlns="http://www.w3.org/1999/html"></script>
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", user, scripts){
@@ -11,6 +12,7 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/profile.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/cropper.min.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -26,7 +28,8 @@
             <div class="col-12 col-md-3">
                 @* Profile Detail *@
                 <div class="profile-summary">
-                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" class="img-thumbnail profile-picture">
+                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")"
+                        class="img-thumbnail profile-picture" data-toggle="modal" data-target="#changeProfilePictureModal">
                     <div class="profile-details">
                         <p class="heading">Email <span class="user-info">@user.username</span></p>
                         <p class="heading">Age <span class="user-info">@profile.calculateAge()</span></p>
@@ -273,6 +276,105 @@
                                 Update Profile
                             </button>
                             <label id="otherError"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Change Profile Picture Modal *@
+        <div class="modal fade" id="changeProfilePictureModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
+        data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Change Profile Picture</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="mx-auto" style="width: 80%; padding: 10px">
+
+                        @* Photo Gallery *@
+                        <div class="container gallery-container">
+                            <div class="tz-gallery">
+                                <div class="row">
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/uploadPlus.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+
+                                    <div class="col-sm-6 col-md-4">
+                                        <a class="lightbox" data-dismiss="modal" data-toggle="modal" href="#cropProfilePictureModal">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Crop Profile Picture Modal *@
+        <div class="modal fade" id="cropProfilePictureModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
+        data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Crop Profile Picture</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+
+                    <div class="mx-auto" style="width: 80%; padding: 10px">
+                        <a class="button-secondary" data-dismiss="modal" data-toggle="modal" href="#changeProfilePictureModal">
+                            <span class="profile-button" style="float: left; padding-top: 10px">Back</span>
+                        </a>
+
+                        <div>
+                            <img id="image" src="@routes.Assets.at("images/boats.jpg")">
                         </div>
                     </div>
                 </div>
