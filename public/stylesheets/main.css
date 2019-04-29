@@ -262,6 +262,42 @@ pre {
     background: transparent url(../images/closeCross.png) no-repeat center top;
 }
 
+
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.addPhotoButton {
+    width: 100px;
+    height: 100px;
+    border: 0;
+    background: transparent url(../images/addPhoto.png) no-repeat center top;
+}
+
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+#addPhoto {
+    cursor:pointer;
+    width: 100px;
+    height: 100px;
+    background-size:contain;
+    position:absolute;
+    top:0;
+    right:0;
+    margin-top: 10px;
+    margin-right: 10px;
+    border: 0;
+    background: transparent url(../images/addPhoto.png) no-repeat center top;
+}
+
 .error-messages {
     color: #FF1133 !important;
     font-size: 12px;

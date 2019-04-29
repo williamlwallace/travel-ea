@@ -53,9 +53,9 @@
                         <div class="section-title">
                             <p>
                                 <span class="section-title">Pictures</span>
-                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right; padding-left:10px;">View All</span></a>
-                                <a class="button-secondary" href="#"><span class="profile-button" style="float: right">Add Photo</span></a>
-                                <input type="file" class="form-control-file" accept="image/jpeg">
+                                <a class="button-secondary" data-toggle="modal" data-target="#uploadPhotoModal">
+                                    <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
+                                </a>
                             </p>
                         </div>
 
@@ -166,7 +166,26 @@
                 </div>
             </div>
         </div>
-
+        </div>
+        @* Upload Photo Modal *@
+        <div class="modal fade" id="uploadPhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Upload a New Photo</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="upload-btn-wrapper">
+                            <button class="addPhotoButton"></button>
+                            <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         @* Edit Profile Modal *@
         <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
         data-backdrop="static" data-keyboard="false">
@@ -174,6 +193,9 @@
                 <div class="modal-content">
                     <div class="modal-header text-center">
                         <h4 class="modal-title w-100 font-weight-bold">Edit Profile</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                     <div class="mx-auto" style="width: fit-content; padding: 10px">
                         <form id="updateProfileForm">
@@ -256,7 +278,6 @@
                 </div>
             </div>
         </div>
-
     </body>
 }
 
