@@ -10,7 +10,7 @@ import play.data.validation.Constraints;
 
 /**
  * This class models the destination table in the database, with all requirements met. A finder is
- * also supplied for easy and concise queries
+ * also supplied for easy and concise queries.
  */
 @Entity
 @Table(name = "Destination")

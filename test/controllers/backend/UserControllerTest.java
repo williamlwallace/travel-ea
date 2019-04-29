@@ -48,7 +48,9 @@ public class UserControllerTest extends WithApplication {
         Map<String, String> settings = new HashMap<>();
         settings.put("db.default.driver", "org.h2.Driver");
         settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-        adminAuthCookie = Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
+        adminAuthCookie = Cookie.builder("JWT-Auth",
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
+            .withPath("/").build();
 
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
@@ -88,9 +90,9 @@ public class UserControllerTest extends WithApplication {
     public void searchUsers() throws IOException {
         //Create request to GET all users
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(adminAuthCookie)
-                .uri("/api/user/search");
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/search");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -294,9 +296,9 @@ public class UserControllerTest extends WithApplication {
     public void deleteValidUser() {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(DELETE)
-                .cookie(adminAuthCookie)
-                .uri("/api/user/2");
+            .method(DELETE)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -307,9 +309,9 @@ public class UserControllerTest extends WithApplication {
     public void deleteInvalidUser() {
         // Create request to delete a user that does not exist
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(DELETE)
-                .cookie(adminAuthCookie)
-                .uri("/api/user/12");
+            .method(DELETE)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/12");
 
         // Get result and check it failed
         Result result = route(fakeApp, request);

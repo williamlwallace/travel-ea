@@ -1,7 +1,11 @@
 -- !Ups
 -- Create test users
-INSERT INTO User (username, password, salt) VALUES ('tester1@gmail.com', 'password', 'salt');
-INSERT INTO User (username, password, salt) VALUES ('tester2@gmail.com', 'password', 'salt');
+INSERT INTO User (username, password, salt, admin) VALUES ('dave@gmail.com', 'kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=', 'L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=', 1);
+INSERT INTO User (username, password, salt, admin) VALUES ('tester1@gmail.com', 'password', 'salt', 1);
+INSERT INTO User (username, password, salt, admin) VALUES ('tester2@gmail.com', 'password', 'salt', 1);
+
+-- Create profile for tester1@gmail.com
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
 
 -- Insert countries for testing
 INSERT INTO CountryDefinition (name) VALUES ('France');
@@ -31,4 +35,5 @@ DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM Destination;
 DELETE FROM CountryDefinition;
+DELETE FROM Profile;
 DELETE FROM User;

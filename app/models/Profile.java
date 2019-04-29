@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that represents a profile and hold information that is received from the database
+ * A class that represents a profile and hold information that is received from the database.
  */
 @Entity
 @Table(name = "Profile")
@@ -43,33 +43,33 @@ public class Profile extends Model {
 
     @ManyToMany(mappedBy = "travellerTypes")
     @JoinTable(
-            name="TravellerType",
-            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-            inverseJoinColumns=@JoinColumn(name="traveller_type_id", referencedColumnName="id"))
+        name = "TravellerType",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
     @ManyToMany(mappedBy = "nationalityProfiles")
     @JoinTable(
-            name = "Nationality",
-            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+        name = "Nationality",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "country_id", referencedColumnName = "id"))
     public List<CountryDefinition> nationalities;
 
     @ManyToMany(mappedBy = "passportProfiles")
     @JoinTable(
-            name = "Passport",
-            joinColumns=@JoinColumn(name="user_id", referencedColumnName="user_id"),
-            inverseJoinColumns=@JoinColumn(name="country_id", referencedColumnName="id"))
+        name = "Passport",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "country_id", referencedColumnName = "id"))
     public List<CountryDefinition> passports;
 
+    /**
+     * Calculates age based on the birth date.
+     *
+     * @return age
+     */
     public int calculateAge() {
         LocalDate birthDate = LocalDate
             .parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        int age = Period.between(birthDate, LocalDate.now()).getYears();
-        return age;
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
-
-//    public List<CountryDefinition> getNationalities() {
-//        return nationalities;
-//    }
 }

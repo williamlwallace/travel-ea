@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that represents a user's nationalities
+ * A class that represents a user's nationalities.
  */
 @Entity
 @Table(name = "Nationality")

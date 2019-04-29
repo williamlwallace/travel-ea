@@ -3,19 +3,11 @@ package controllers.frontend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Admin;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
-import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
-import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -30,12 +22,10 @@ import views.html.admin;
 public class AdminController extends Controller {
 
     private WSClient ws;
-    private HttpExecutionContext httpExecutionContext;
 
     @Inject
-    public void DestController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+    public AdminController(WSClient ws, HttpExecutionContext httpExecutionContext) {
         this.ws = ws;
-        this.httpExecutionContext = httpExecutionContext;
     }
 
     /**

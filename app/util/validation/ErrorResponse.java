@@ -6,23 +6,23 @@ import java.util.Map;
 import play.libs.Json;
 
 /**
- * Class to track errors and be sent back to client
+ * Class to track errors and be sent back to client.
  */
 public class ErrorResponse {
 
-    private Map<String, String> inputErrors = new HashMap<String, String>();
+    private Map<String, String> inputErrors = new HashMap<>();
 
     /**
-     * return whether there has been any errors
+     * Return whether there has been any errors.
      *
      * @return Boolean
      */
     public Boolean error() {
-        return (this.inputErrors.size() == 0) ? false : true;
+        return (this.inputErrors.size() != 0);
     }
 
     /**
-     * adds an error message to the errors map
+     * Adds an error message to the errors map.
      *
      * @param error Error message
      * @param field Field name
@@ -33,7 +33,7 @@ public class ErrorResponse {
     }
 
     /**
-     * jsonifies this object
+     * jsonifies this object.
      *
      * @return json object
      */

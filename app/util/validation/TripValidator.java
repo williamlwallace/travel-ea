@@ -19,7 +19,7 @@ public class TripValidator {
     }
 
     /**
-     * Validates addNewTrip data
+     * Validates addNewTrip data.
      *
      * @return ErrorResponse object
      */
@@ -86,7 +86,7 @@ public class TripValidator {
     }
 
     /**
-     * Checks field is not empty
+     * Checks field is not empty.
      *
      * @param field json field name
      * @return Boolean whether validation succeeds

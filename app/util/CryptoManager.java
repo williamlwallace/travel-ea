@@ -17,12 +17,16 @@ import javax.crypto.spec.PBEKeySpec;
 
 /**
  * Hashes and salts passwords and handles password verification as well as securely generating
- * authentication tokens
+ * authentication tokens.
  */
 public class CryptoManager {
 
+    private CryptoManager() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
-     * Check if a password attempt matches the existing salted hash
+     * Check if a password attempt matches the existing salted hash.
      *
      * @param passwordToCheck New password being attempted
      * @param salt Salt data associated with user account (In string format)
@@ -36,7 +40,7 @@ public class CryptoManager {
     }
 
     /**
-     * Check if a password attempt matches the existing salted hash
+     * Check if a password attempt matches the existing salted hash.
      *
      * @param passwordToCheck New password being attempted
      * @param salt Salt data associated with user account
@@ -53,7 +57,7 @@ public class CryptoManager {
     }
 
     /**
-     * Hash a password with a given salt
+     * Hash a password with a given salt.
      *
      * @param password Password to hash
      * @param salt Salt for password
@@ -78,14 +82,14 @@ public class CryptoManager {
     }
 
     /**
-     * Generates a new random base64 string to use as a password salt
+     * Generates a new random base64 string to use as a password salt.
      */
     public static String generateNewSalt() {
         return Base64.getEncoder().encodeToString(generateNewSaltBytes());
     }
 
     /**
-     * Generates a 32 byte salt to use when salting a new password MAKE SURE TO SAVE THE SALT
+     * Generates a 32 byte salt to use when salting a new password MAKE SURE TO SAVE THE SALT.
      *
      * @return 32 byte salt
      */
@@ -100,7 +104,7 @@ public class CryptoManager {
     }
 
     /**
-     * Generate JSON web token
+     * Generate JSON web token.
      *
      * @return JWT
      */
