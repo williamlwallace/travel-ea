@@ -3,70 +3,72 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-POST    /api/admin/grant/:id            controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
+POST          /api/admin/grant/:id                   controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
 
-POST    /api/admin/revoke/:id           controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
+POST          /api/admin/revoke/:id                  controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
 
-GET     /api/user/search                controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
+GET           /api/user/setid                        controllers.backend.UserController.setId(request:Request)
 
-DELETE  /api/user/:id                   controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
+GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
 
-DELETE  /api/user                      controllers.backend.UserController.deleteUser(request:Request)
+DELETE        /api/user/:id                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
-POST    /api/user                       controllers.backend.UserController.addNewUser(request:Request)
+DELETE        /api/user                              controllers.backend.UserController.deleteUser(request:Request)
 
-POST    /api/login                      controllers.backend.UserController.login(request:Request)
+POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
-POST    /api/logout                     controllers.backend.UserController.logout(request:Request)
+POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
-POST    /api/profile                    controllers.backend.ProfileController.addNewProfile(request:Request)
+POST          /api/logout                            controllers.backend.UserController.logout(request:Request)
 
-GET     /api/profile                    controllers.backend.ProfileController.getMyProfile(request:Request)
+POST          /api/profile                           controllers.backend.ProfileController.addNewProfile(request:Request)
 
-PUT     /api/profile                   controllers.backend.ProfileController.updateProfile(request:Request)
+GET           /api/profile                           controllers.backend.ProfileController.getMyProfile(request:Request)
 
-GET     /api/profile/search             controllers.backend.ProfileController.searchProfilesJson(nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+PUT           /api/profile                           controllers.backend.ProfileController.updateProfile(request:Request)
 
-GET     /api/profile/:userId            controllers.backend.ProfileController.getProfile(request:Request, userId:Long)
+GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
-DELETE  /api/profile/:userId            controllers.backend.ProfileController.deleteProfile(userId:Long)
+GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
-GET     /api/profile/getTravellerTypes/ controllers.backend.ProfileController.getAllTravellerTypes()
+DELETE        /api/profile/:userId                   controllers.backend.ProfileController.deleteProfile(userId:Long)
+
+GET           /api/profile/getTravellerTypes/        controllers.backend.ProfileController.getAllTravellerTypes()
 
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-GET     /api/destination/getCountries   controllers.backend.DestinationController.getAllCountries()
+GET           /api/destination/getCountries          controllers.backend.DestinationController.getAllCountries()
 
-POST    /api/destination                controllers.backend.DestinationController.addNewDestination(request:Request)
+POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
-GET     /api/destination                controllers.backend.DestinationController.getAllDestinations()
+GET           /api/destination                       controllers.backend.DestinationController.getAllDestinations()
 
-DELETE  /api/destination/:id            controllers.backend.DestinationController.deleteDestination(id:Long)
+DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(id:Long)
 
-GET     /api/destination/search         controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
+GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 
-GET     /api/destination/:id            controllers.backend.DestinationController.getDestination(id:Long)
+GET           /api/destination/:id                   controllers.backend.DestinationController.getDestination(id:Long)
 
-POST    /api/trip                       controllers.backend.TripController.insertTrip(request:Request)
+POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
-PUT     /api/trip                       controllers.backend.TripController.updateTrip(request:Request)
+PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
 
-GET     /api/trip/getAll/               controllers.backend.TripController.getAllUserTrips(request:Request)
+GET           /api/trip/getAll/                      controllers.backend.TripController.getAllUserTrips(request:Request)
 
-GET           /api/trip/:id          controllers.backend.TripController.getTrip(id:Long)
+GET           /api/trip/:id                          controllers.backend.TripController.getTrip(id:Long)
 
-DELETE        /api/trip/:id          controllers.backend.TripController.deleteTrip(id:Long)
+DELETE        /api/trip/:id                          controllers.backend.TripController.deleteTrip(id:Long)
 
-POST    /api/photo                      controllers.backend.PhotoController.upload(request: Request)
+POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-GET     /api/photo/getAll/              controllers.backend.PhotoController.getAllUserPhotos(request:Request)
+GET           /api/photo/getAll/                     controllers.backend.PhotoController.getAllUserPhotos(request:Request)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
 
 # signing up
-GET           /signUp                controllers.frontend.ProfileController.createProfile(request: Request)
+GET           /signUp                controllers.frontend.ProfileController.createProfile()
 
 # Home page
 GET           /home                  controllers.frontend.ApplicationController.home(request: Request)

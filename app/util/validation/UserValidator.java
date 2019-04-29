@@ -3,7 +3,7 @@ package util.validation;
 import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Validator subclass to provide validation for the user controller
+ * Validator subclass to provide validation for the user controller.
  */
 public class UserValidator extends Validator {
 
@@ -27,7 +27,7 @@ public class UserValidator extends Validator {
     }
 
     /**
-     * Validates addNewProfile data NB passports are not required
+     * Validates addNewProfile data NB passports are not required.
      *
      * @return ErrorResponse object
      */

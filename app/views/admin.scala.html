@@ -1,6 +1,6 @@
 @import play.mvc.Http.Request
 @import models.User
-@(user: User, users: List[models.User])
+@(user: User)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/admin.js")" type="text/javascript"></script>
@@ -24,14 +24,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @* Populate the table with a list of profile details *@
+                    @* Populate the table with a list of profile details
                     @for(otherUser <- users){
                         @if(otherUser.id != user.id) {
                             <tr>
                                 <td>@otherUser.id</td>
                                 <td>@otherUser.username</td>
                                 <td>
-                                    @if(otherUser.username == "admin@travelea.co.nz") {
+                                    @if(otherUser.id == 1) {
                                         Master
                                     } else {
                                         <button class="btn btn-secondary" onclick="toggleAdmin('@controllers.backend.routes.AdminController.revokeAdmin(otherUser.id)', '@controllers.backend.routes.AdminController.grantAdmin(otherUser.id)', this)">
@@ -44,7 +44,7 @@
                                     }
                                 </td>
                                 <td>
-                                    @if(otherUser.username == "admin@travelea.co.nz") {
+                                    @if(otherUser.id == 1) {
                                         Master
                                     } else {
                                         <button class="btn btn-danger">
@@ -54,11 +54,57 @@
                                 </td>
                             </tr>
                         }
-                    }
+                    }  *@
                 </tbody>
             </table>
         </div>
     </div>
 
     <div id="startchange"></div>
+
+    @* Sign Up Form *@
+    <div class="modal fade" id="createUser" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+    aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Create New User</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="signupForm">
+                    <div class="modal-body mx-3">
+                        <div id="otherError" class="error"></div>
+                        <label id="otherError" class="error-messages"></label>
+                        <div>
+                            <input type="email" placeholder="Enter Email" name="username" class="form-control validate">
+                            <label id="usernameError" class="error-messages"></label>
+                        </div>
+                        <div>
+                            <input type="password" id="password" placeholder="Enter Password" name="password" class="form-control validate">
+                            <label id="passwordError" class="error-messages"></label>
+                        </div>
+                        <div>
+                            <input type="password" id="confirm_password" placeholder="Repeat Password" class="form-control validate"
+                            name="password-repeat" required>
+                            <label id='message' class="error-messages"></label>
+                        </div>
+                    </div>
+                </form>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#createUser">
+                        Cancel<i class="fas fa-paper-plane-o ml-1"></i>
+                    </button>
+                    <button class="btn btn-popup" onclick=
+                    'createUser("@controllers.backend.routes.UserController.addNewUser()", "@controllers.frontend.routes.ApplicationController.home()")'>
+                        Create
+                    </button>
+                    <label id="otherError"></label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="createUserBtn" class="btn btn-primary" data-toggle="modal" data-target="#createUser">Add User</button>
 }

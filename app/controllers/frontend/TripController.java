@@ -25,8 +25,6 @@ import play.mvc.With;
 import views.html.createTrip;
 import views.html.trips;
 
-/**
- */
 public class TripController extends Controller {
 
     private HttpExecutionContext httpExecutionContext;
@@ -34,7 +32,7 @@ public class TripController extends Controller {
     private DestinationController destinationController;
 
     @Inject
-    public void TripController(
+    public TripController(
         HttpExecutionContext httpExecutionContext,
         WSClient ws,
         DestinationController destinationController) {
@@ -55,10 +53,7 @@ public class TripController extends Controller {
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
-            tripList -> {
-                return ok(trips.render(user, asScala(tripList)));
-            },
-            httpExecutionContext.current());
+            tripList -> ok(trips.render(user, asScala(tripList))), httpExecutionContext.current());
     }
 
     /**
@@ -72,10 +67,8 @@ public class TripController extends Controller {
     public CompletableFuture<Result> createTripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenApplyAsync(
-            destList -> {
-                return (destList.size() != 0) ? ok(
-                    createTrip.render(user, asScala(destList), new Trip())) : internalServerError();
-            },
+            destList -> (destList.isEmpty()) ? ok(
+                createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
             httpExecutionContext.current());
     }
 
@@ -90,22 +83,17 @@ public class TripController extends Controller {
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenComposeAsync(
-            destList -> {
-                return this.getTrip(Authenticator.getTokenFromCookie(request), tripId)
+            destList ->
+                this.getTrip(Authenticator.getTokenFromCookie(request), tripId)
                     .thenApplyAsync(
-                        trip -> {
-                            return (destList.size() != 0) ? ok(
-                                createTrip.render(user, asScala(destList), trip))
-                                : internalServerError();
-                        },
-                        httpExecutionContext.current()
-                    );
-            },
+                        trip -> (destList.isEmpty()) ? ok(
+                            createTrip.render(user, asScala(destList), trip))
+                            : internalServerError(), httpExecutionContext.current()),
             httpExecutionContext.current());
     }
 
     /**
-     * Gets trips from api endpoint via get request
+     * Gets trips from api endpoint via get request.
      *
      * @return List of trips wrapped in completable future
      */
@@ -128,7 +116,7 @@ public class TripController extends Controller {
     }
 
     /**
-     * Gets trip by tripId from api endpoint via get request
+     * Gets trip by tripId from api endpoint via get request.
      *
      * @return Trip object wrapped in completable future
      */

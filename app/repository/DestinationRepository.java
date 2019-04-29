@@ -12,7 +12,7 @@ import models.Destination;
 import play.db.ebean.EbeanConfig;
 
 /**
- * A repository that executes database operations for the Destination table
+ * A repository that executes database operations for the Destination table.
  */
 public class DestinationRepository {
 
@@ -27,7 +27,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Adds a new destination to the database
+     * Adds a new destination to the database.
      *
      * @param destination the new destination to add
      * @return A CompletableFuture with the new destination's id
@@ -40,7 +40,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Deletes a destination from the database
+     * Deletes a destination from the database.
      *
      * @param id Unique destination ID of destination to be deleted
      * @return The number of rows deleted
@@ -55,7 +55,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Updates a destination
+     * Updates a destination.
      *
      * @param destination The destination object to update, with the updated parameters
      * @return The updated destination
@@ -68,7 +68,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets a single destination given the destination ID
+     * Gets a single destination given the destination ID.
      *
      * @param id Unique destination ID of the requested destination
      * @return A single destination with the requested ID, or null if none was found
@@ -82,7 +82,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets a list of all the destinations in the database
+     * Gets a list of all the destinations in the database.
      *
      * @return list of destinations
      */
