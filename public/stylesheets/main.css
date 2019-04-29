@@ -116,6 +116,7 @@ pre {
  */
 .title-frame {
     background-color: #818182;
+    pointer-events: none;
     text-align: center;
     height: 30vh;
     max-height: 70rem;
