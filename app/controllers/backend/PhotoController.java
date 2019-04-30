@@ -1,49 +1,54 @@
 package controllers.backend;
 
-import actions.ActionState;
-import actions.Authenticator;
-import actions.roles.Everyone;
+import com.google.inject.Inject;
 import play.Environment;
+import play.Mode;
+import play.api.Play;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.With;
-import repository.PhotoRepository;
 
-import javax.inject.Inject;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class PhotoController extends Controller {
 
-    private final PhotoRepository photoRepository;
-
     @Inject
-    public PhotoController(PhotoRepository photoRepository) {
-        this.photoRepository = photoRepository;
-    }
+    public PhotoController() {
 
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserPhotos(Http.Request request) {
-        Long userId = request.attrs().get(ActionState.USER).id;
-
-        return photoRepository.getAllUserPhotos(userId)
-                .thenApplyAsync(photos -> ok(Json.toJson(photos)));
     }
 
     /**
      * Uploads any number of photos from a multipart/form-data request
-     *
-     * @param request Request where body is a json object of trip
      * @return Result of query
      */
-    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> upload(Http.Request request) {
         return CompletableFuture.supplyAsync(() -> {
             // Get the request body, and turn it into a multipart formdata collection of temporary files
             Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+
+            // Store in a boolean whether or not this is a test file
+            boolean isTest = false;
+            // Keep track of which file should be uploaded as a profile
+            String profilePhotoFilename = null;
+
+            // Iterate through all keys in the request
+            for(Map.Entry<String, String[]> entry : body.asFormUrlEncoded().entrySet()) {
+                // Check whether or not this is a test file
+                if(entry.getKey().equals("isTest")) {
+                    isTest = Boolean.parseBoolean(entry.getValue()[0]);
+                }
+                // Check if one of these if meant to be a profile photo
+                if(entry.getKey().equals("profilePhotoName")) {
+                    profilePhotoFilename = entry.getValue()[0];
+                }
+            }
+
             // Iterate through all files in the request
             for(Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()){
                 if (file != null) {
@@ -53,7 +58,7 @@ public class PhotoController extends Controller {
                     String contentType = file.getContentType();
                     // Store the file locally, using the provided filename and current epoch milliseconds
                     Files.TemporaryFile tempFile = file.getRef();
-                    if(Environment.simple().isTest()) {
+                    if(isTest) {
                         tempFile.copyTo(Paths.get("storage/photos/test/" + System.currentTimeMillis() + "_" + fileName), true);
                     } else {
                         tempFile.copyTo(Paths.get("storage/photos/" + System.currentTimeMillis() + "_" + fileName), true);
@@ -65,7 +70,7 @@ public class PhotoController extends Controller {
                 }
             }
             // Return OK if no issues were encountered
-            return ok("File uploaded");
+            return ok("File(s) uploaded successfully");
         });
     }
 }
