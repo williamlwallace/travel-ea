@@ -270,13 +270,6 @@ pre {
     display: inline-block;
 }
 
-.addPhotoButton {
-    width: 100px;
-    height: 100px;
-    border: 0;
-    background: transparent url(../images/addPhoto.png) no-repeat center top;
-}
-
 .upload-btn-wrapper input[type=file] {
     font-size: 100px;
     position: absolute;
@@ -285,16 +278,7 @@ pre {
     opacity: 0;
 }
 
-#addPhoto {
-    cursor:pointer;
-    width: 100px;
-    height: 100px;
-    background-size:contain;
-    position:absolute;
-    top:0;
-    right:0;
-    margin-top: 10px;
-    margin-right: 10px;
+#add-photo-dropzone {
     border: 0;
     background: transparent url(../images/addPhoto.png) no-repeat center top;
 }

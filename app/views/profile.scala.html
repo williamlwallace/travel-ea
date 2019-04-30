@@ -182,7 +182,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="justify-content-center">
+                    <div>
                         <div class="upload-btn-wrapper">
                             <button class="addPhotoButton"></button>
                             <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
@@ -411,6 +411,9 @@
         acceptedFiles: '.jpeg,.png,.jpg',
         addRemoveLinks: true,
         dictRemoveFile: "remove",
+        thumbnailWidth: 200,
+        thumbnailHeight: 200,
+        dictDefaultMessage: '',
         init: function() {
             this.on("addedfile", function () {
                 // Enable add button
