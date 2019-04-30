@@ -179,8 +179,6 @@ function populateProfileData(url) {
 var confirmBtn = $('#confirmBtn');
 var cropGallery = $('#cropGallery');
 var image = document.getElementById('image');
-var cropBoxData;
-var canvasData;
 var cropper;
 
 /**
@@ -197,38 +195,44 @@ $(document).ready(function() {
             minContainerWidth: 290,
             minContainerHeight: 290,
             minCropBoxHeight: 290,
-            minCropBoxWidth: 290,
-            ready: function () {
-                //Should set crop box data first here
-                cropper.setCropBoxData(cropBoxData).setCanvasData(canvasData);
-            }
+            minCropBoxWidth: 290
         });
     }).on('hidden.bs.modal', function () {
-        cropBoxData = cropper.getCropBoxData();
-        canvasData = cropper.getCanvasData();
         cropper.destroy();
     });
 });
 
 /**
- * Handles the onclick event of the confirm button on the cropping modal
+ * Handles the onclick event of the confirm button on the cropping modal.
+ * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
 confirmBtn.on('click', function() {
-    //Get the cropped image variables
-    cropBoxData = cropper.getCropBoxData();
-    canvasData = cropper.getCanvasData();
-    cropper.destroy();
 
-    console.log(cropBoxData);
-    console.log(canvasData);
+    //Get the cropped image and set the size to 290px x 290px
+    var imageData = cropper.getCroppedCanvas({width: 290, height: 290}).toDataURL();
+    //Sets the profile picture to the new image
+    $('#ProfilePicture').attr('src', imageData);
+
+    //Needs to upload imageData to the database as the users new ProfilePicture
+    //Needs to also refresh the users picture gallery if the photo is new
+
+    cropper.destroy();
 });
 
+/**
+ * Displays the full size image of the thumbnail picture clicked in the cropper window.
+ * Also hides the changeProfilePictureModal and shows the cropProfilePictureModal
+ */
 cropGallery.on('click','img',function() {
+    //Get the path for the pictures thumbnail
+    var thumbnailPath = $(this).attr("src");
+    //Convert the thumbnailPath to the fullPicturePath
+    var fullPicturePath = thumbnailPath.replace('thumbnails/','');
+    //Set the croppers image to this
+    image.setAttribute('src', fullPicturePath);
+    //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
 
-    image = $(this);
-
     console.log(image);
-
 });

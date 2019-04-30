@@ -28,7 +28,7 @@
             <div class="col-12 col-md-3">
                 @* Profile Detail *@
                 <div class="profile-summary">
-                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")"
+                    <img id="ProfilePicture" src= "@routes.Assets.at("images/default-profile-picture.jpg")"
                         class="img-thumbnail profile-picture" data-toggle="modal" data-target="#changeProfilePictureModal">
                     <div class="profile-details">
                         <p class="heading">Email <span class="user-info">@user.username</span></p>
@@ -310,7 +310,7 @@
 
                                     <div class="col-sm-6 col-md-4">
                                         <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/boats.jpg")" alt="Park">
+                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
                                         </a>
                                     </div>
 
@@ -321,7 +321,7 @@
                                     </div>
 
                                     <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/cats.jpg")">
+                                        <a class="lightbox">
                                             <img src="@routes.Assets.at("images/thumbnails/cats.jpg")" alt="Park">
                                         </a>
                                     </div>
