@@ -2,9 +2,10 @@
 @(profile: Profile, user: models.User, tripList: Seq[models.Trip])
 
 @scripts = {
-    <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript" xmlns="http://www.w3.org/1999/html"></script>
+    <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/dropzone.js")" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", user, scripts){
@@ -13,6 +14,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/cropper.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/dropzone.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -180,11 +182,20 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div>
+                    <div class="justify-content-center">
                         <div class="upload-btn-wrapper">
                             <button class="addPhotoButton"></button>
                             <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
                         </div>
+                        <form action="/upload-target" class="dropzone" id="add-photo-dropzone"></form>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-popup waves-effect waves-light" data-dismiss="modal">
+                            Cancel<i class="fas fa-paper-plane-o ml-1"></i>
+                        </button>
+                        <button class="btn btn-popup" id="submit-all"> @* on click stuff goes here *@
+                            Add
+                        </button>
                     </div>
                 </div>
             </div>
@@ -396,6 +407,10 @@
 
 
 <script type="text/javascript">
+    Dropzone.options.addPhotoDropzone = {
+        acceptedFiles: '.jpeg,.png,.jpg',
+        addRemoveLinks: true
+    }
     baguetteBox.run('.tz-gallery');
     fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
     fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");

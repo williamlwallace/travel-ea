@@ -246,3 +246,11 @@ cropGallery.on('click','img',function() {
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
 });
+
+/**
+ * Sets up the dropzone properties, like having a remove button
+ */
+Dropzone.options.addPhotoDropzone = {
+    acceptedFiles: '.jpeg,.png,.jpg',
+    addRemoveLinks: true
+}
