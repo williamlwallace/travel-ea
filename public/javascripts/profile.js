@@ -149,6 +149,7 @@ function updateProfile(url, redirect) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 /**
  * The javascript method to populate the select boxes on the edit profile scene
  * @param url the route/url to send the request to to get the profile data
@@ -175,26 +176,59 @@ function populateProfileData(url) {
 });
 }
 
+var confirmBtn = $('#confirmBtn');
+var cropGallery = $('#cropGallery');
+var image = document.getElementById('image');
+var cropBoxData;
+var canvasData;
+var cropper;
 
 /**
- * Loads the cropper into the page when it loads.
+ * Loads the cropper into the page when the cropProfilePictureModal opens
  */
 $(document).ready(function() {
-    var $image = $('#image');
-
-    $image.cropper({
-        aspectRatio: 1,
-        crop: function (event) {
-            console.log(event.detail.x);
-            console.log(event.detail.y);
-            console.log(event.detail.width);
-            console.log(event.detail.height);
-            console.log(event.detail.rotate);
-            console.log(event.detail.scaleX);
-            console.log(event.detail.scaleY);
-        }
+    $('#cropProfilePictureModal').on('shown.bs.modal', function () {
+        cropper = new Cropper(image, {
+            autoCropArea: 0.5,
+            aspectRatio: 1, //Makes the picture a square
+            viewMode: 3, //Cannot zoom out past the default picture size
+            dragMode: 'none',
+            guides: false,
+            minContainerWidth: 290,
+            minContainerHeight: 290,
+            minCropBoxHeight: 290,
+            minCropBoxWidth: 290,
+            ready: function () {
+                //Should set crop box data first here
+                cropper.setCropBoxData(cropBoxData).setCanvasData(canvasData);
+            }
+        });
+    }).on('hidden.bs.modal', function () {
+        cropBoxData = cropper.getCropBoxData();
+        canvasData = cropper.getCanvasData();
+        cropper.destroy();
     });
 });
 
-// Get the Cropper.js instance after initialized
-var cropper = $image.data('cropper');
+/**
+ * Handles the onclick event of the confirm button on the cropping modal
+ */
+confirmBtn.on('click', function() {
+    //Get the cropped image variables
+    cropBoxData = cropper.getCropBoxData();
+    canvasData = cropper.getCanvasData();
+    cropper.destroy();
+
+    console.log(cropBoxData);
+    console.log(canvasData);
+});
+
+cropGallery.on('click','img',function() {
+    $('#changeProfilePictureModal').modal('hide');
+    $('#cropProfilePictureModal').modal('show');
+
+    image = $(this);
+
+    console.log(image);
+
+});
