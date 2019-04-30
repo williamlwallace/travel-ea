@@ -176,26 +176,39 @@ function populateProfileData(url) {
 });
 }
 
+/**
+ * Variables for selecting and cropping the profile picture.
+ */
 var confirmBtn = $('#confirmBtn');
 var cropGallery = $('#cropGallery');
 var image = document.getElementById('image');
+var profilePictureSize = 350;
 var cropper;
 
 /**
  * Loads the cropper into the page when the cropProfilePictureModal opens
+ * Ensures that a crop cannot be smaller than the profilePictureSize
  */
 $(document).ready(function() {
     $('#cropProfilePictureModal').on('shown.bs.modal', function () {
         cropper = new Cropper(image, {
-            autoCropArea: 0.5,
-            aspectRatio: 1, //Makes the picture a square
-            viewMode: 3, //Cannot zoom out past the default picture size
+            autoCropArea: 1,
+            aspectRatio: 1, //Makes crop area a square
+            viewMode: 1,
             dragMode: 'none',
+            zoomable: false,
             guides: false,
-            minContainerWidth: 290,
-            minContainerHeight: 290,
-            minCropBoxHeight: 290,
-            minCropBoxWidth: 290
+            minContainerWidth: profilePictureSize,
+            minContainerHeight: profilePictureSize,
+            cropmove: function(event) {
+                var data = cropper.getData();
+                if (data.width < profilePictureSize) {
+                    event.preventDefault();
+                    data.width = profilePictureSize;
+                    data.height = profilePictureSize;
+                    cropper.setData(data);
+                }
+            }
         });
     }).on('hidden.bs.modal', function () {
         cropper.destroy();
@@ -207,9 +220,8 @@ $(document).ready(function() {
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
 confirmBtn.on('click', function() {
-
     //Get the cropped image and set the size to 290px x 290px
-    var imageData = cropper.getCroppedCanvas({width: 290, height: 290}).toDataURL();
+    var imageData = cropper.getCroppedCanvas({width: 350, height: 350}).toDataURL();
     //Sets the profile picture to the new image
     $('#ProfilePicture').attr('src', imageData);
 
@@ -233,6 +245,4 @@ cropGallery.on('click','img',function() {
     //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
-
-    console.log(image);
 });
