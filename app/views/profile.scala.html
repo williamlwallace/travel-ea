@@ -187,13 +187,13 @@
                             <button class="addPhotoButton"></button>
                             <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
                         </div>
-                        <form action="/upload-target" class="dropzone" id="add-photo-dropzone"></form>
+                        <form action='/api/photo' class="dropzone" id="add-photo-dropzone"></form>
                     </div>
                     <div class="modal-footer d-flex justify-content-center">
                         <button class="btn btn-popup waves-effect waves-light" data-dismiss="modal">
                             Cancel<i class="fas fa-paper-plane-o ml-1"></i>
                         </button>
-                        <button class="btn btn-popup" id="submit-all"> @* on click stuff goes here *@
+                        <button class="btn btn-popup" id="submit-all" disabled> @* on click stuff goes here *@
                             Add
                         </button>
                     </div>
@@ -409,8 +409,16 @@
 <script type="text/javascript">
     Dropzone.options.addPhotoDropzone = {
         acceptedFiles: '.jpeg,.png,.jpg',
-        addRemoveLinks: true
-    }
+        addRemoveLinks: true,
+        dictRemoveFile: "remove",
+        init: function() {
+            this.on("addedfile", function () {
+                // Enable add button
+                var button = document.getElementById("submit-all")
+                button.disabled = false;
+            });
+        }
+    };
     baguetteBox.run('.tz-gallery');
     fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
     fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");
