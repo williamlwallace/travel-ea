@@ -19,6 +19,8 @@ tags:
     description: Destination calls
   - name: Trips
     description: Trip calls
+  - name: Admin
+    description: Admin calls
 
 paths:
 
@@ -671,13 +673,55 @@ paths:
             type: string
       responses:
         '200':
-          description: 'Successfully deleted profile'
+          description: Successfully deleted profile
         '401':
           description: Authentication failed
         '403':
           description: User not authorised for this action
         '404':
           description: No profile found for that user
+
+  '/admin/grant/{id}':
+    post:
+      tags:
+        - Admin
+      summary: Grants user admin privileges
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to adminify
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully promoted user to admin
+        '400':
+          description: User not found
+
+  '/admin/revoke/{id}':
+    post:
+      tags:
+        - Admin
+      summary: Revokes admin privilages from user
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to revoke privilages
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully demoted user from admin
+        '400':
+          description: User not found
 
 servers:
   - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
