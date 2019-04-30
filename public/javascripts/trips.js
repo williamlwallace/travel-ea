@@ -172,6 +172,15 @@ function createTrip(url, redirect) {
         "tripDataCollection": tripDataList
     };
 
+    let privacy = document.getElementById("tripPrivacy").checked;
+
+    if (privacy) {
+        tripData["tripPrivacy"] = 1;
+    }
+    else {
+        tripData["tripPrivacy"] = 0;
+    }
+
     post(url, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
@@ -271,7 +280,7 @@ function updateTrip(url, redirect, tripId) {
 
     let tripData = {
         "id": tripId,
-        "trip": {
+        "trip": {    // TODO: Is this necessary?
             "id": tripId
         },
         "tripDataCollection": tripDataList

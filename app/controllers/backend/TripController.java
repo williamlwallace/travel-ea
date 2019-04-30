@@ -84,12 +84,22 @@ public class TripController extends Controller {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 
+        // Assemble trip
+        Trip trip = new Trip();
+        trip.id = data.get("id").asLong();
+        trip.userId = request.attrs().get(ActionState.USER).id;
+        trip.tripDataList = nodeToTripDataList(data, trip);
+        trip.privacy = data.get("tripPrivacy").asLong();
+
+        // TODO: Does this work, if so rework this and insert trip
+        /*
         Trip trip = Json.fromJson(data.get("trip"), Trip.class);
         trip.userId = request.attrs().get(ActionState.USER).id;
+         */
 
-        // Add new trip data to db
+        // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-            ok(Json.toJson(data.get("id").asLong()))
+            ok(Json.toJson(trip.id))
         );
     }
 
@@ -130,6 +140,8 @@ public class TripController extends Controller {
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
+        trip.privacy = data.get("tripPrivacy").asLong();
+
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );

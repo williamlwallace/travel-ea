@@ -72,6 +72,15 @@ public class TripController extends Controller {
             httpExecutionContext.current());
     }
 
+    /*
+    private void temp() {
+        return ok(
+                createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
+                httpExecutionContext.current());
+    }
+    */
+
+
     /**
      * Displays the create trip page re-formatted for editing the selected trip. Called with the
      * /trips/edit URL and uses a GET request. Checks that a user is logged in. Takes them to the
@@ -97,7 +106,7 @@ public class TripController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(String token) {
+    private CompletableFuture<List<Trip>> getUserTrips(String token) {
         CompletableFuture<WSResponse> res = ws
             .url("http://localhost:9000/api/trip/getAll/")
             .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
@@ -120,7 +129,7 @@ public class TripController extends Controller {
      *
      * @return Trip object wrapped in completable future
      */
-    public CompletableFuture<Trip> getTrip(String token, Long tripId) {
+    private CompletableFuture<Trip> getTrip(String token, Long tripId) {
         CompletableFuture<WSResponse> res = ws
             .url("http://localhost:9000/api/trip/" + tripId)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", token))

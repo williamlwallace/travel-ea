@@ -30,6 +30,9 @@ public class TripValidator {
             this.required("id");
         }
 
+        // Validation for trip privacy
+        this.required("tripPrivacy");
+
         //Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();

@@ -25,6 +25,9 @@ public class Trip extends Model {
     @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
 
+    // @Constraints.Required
+    public Long privacy;
+
     /**
      * Finds the first date in a trip, if there is one.
      *
