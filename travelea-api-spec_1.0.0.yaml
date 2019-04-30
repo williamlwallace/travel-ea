@@ -621,7 +621,39 @@ paths:
     post:
       tags:
       - Photos
-      summary: TBD
+      summary: Uploading of any and all files, form parameters specify details
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                isTest:
+                  type: string
+                  description: 'When true, the uploaded files should be placed in test directory to be later wiped'
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                    description: Any number of .png or .jpg files
+
+      responses:
+        '201':
+          description: Successfully uploaded one or more files
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
