@@ -621,7 +621,7 @@ paths:
     post:
       tags:
       - Photos
-      summary: Uploading of any and all files, form parameters specify details
+      summary: 'Uploading of any and all files, form parameters specify details'
       security:
       - UserToken: []
       parameters:
@@ -640,12 +640,20 @@ paths:
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
+                profilePhotoFileName:
+                  type: string
+                  description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
+                publicPhotoFileNames:
+                  type: array
+                  description: 'Include here the filenames of all uploads that are to be publicly visible, any files that are not referenced here will be set to private by default'
+                  items:
+                    type: string
                 files:
                   type: array
+                  description: Any number of .png and .jpg files, does not need to have any particular key
                   items:
                     type: string
                     format: binary
-                    description: Any number of .png or .jpg files
 
       responses:
         '201':
@@ -654,6 +662,12 @@ paths:
           description: Authentication failed
         '403':
           description: User not authorised for this action
+        '500':
+          description: One or more files failed to upload, check response body for specific errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
@@ -925,3 +939,20 @@ components:
           type: string
           format: ISO date-time
           example: '2019-04-20T10:30:00.000'
+
+    ErrorResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/KeyValuePair'
+
+    KeyValuePair:
+      type: object
+      description: Key value pair of error name and error description
+      properties:
+        key:
+          type: string
+          description: Name of error returned
+          example: LastNameError
+        value:
+          type: string
+          description:
