@@ -322,7 +322,7 @@ paths:
     get:
       tags:
         - Trips
-      summary: Get all trips belonging to currently logged in user
+      summary: Get all trips belonging to logged in user
       security:
         - UserToken: []
       parameters:
@@ -685,7 +685,7 @@ paths:
     post:
       tags:
         - Admin
-      summary: Grants user admin privileges
+      summary: Gives admin privileges to user
       security:
         - UserToken: []
       parameters:
@@ -706,7 +706,7 @@ paths:
     post:
       tags:
         - Admin
-      summary: Revokes admin privilages from user
+      summary: Removes admin privilages from user
       security:
         - UserToken: []
       parameters:
