@@ -59,10 +59,10 @@ public class Authenticator extends Action.Simple {
     }
 
     /**
-     * TODO: Campbell add Javadoc.
-     *
+     * Action entry point. Should only let users pass that have benn authenticated to the correct degree
+     * otherwise redirect or return forbiden
      * @param request HTTP request
-     * @return TODO
+     * @return Play result dpending on authenticaiton
      */
     public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromCookie(request);
@@ -86,7 +86,7 @@ public class Authenticator extends Action.Simple {
             // if no roles specified, do nothing (for homepage)
             return delegate.call(request).toCompletableFuture();
         }
-        return supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover())
+        return supplyAsync(() -> forbiden()
             .discardingCookie(JWT_AUTH));
     }
 
@@ -130,6 +130,5 @@ public class Authenticator extends Action.Simple {
         }
         return supplyAsync(
             () -> redirect(controllers.frontend.routes.ApplicationController.cover()));
-        // TODO: implement role check.
     }
 }
