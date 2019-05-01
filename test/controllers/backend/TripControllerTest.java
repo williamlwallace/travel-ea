@@ -95,7 +95,7 @@ public class TripControllerTest extends WithApplication {
 
     @Test
     public void createTripNoDest() {
-        assertEquals(1, 1);
+        assertEquals(1, 1);    // TODO: Write trip tests
     }
 
     @Test

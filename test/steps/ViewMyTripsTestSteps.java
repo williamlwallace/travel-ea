@@ -212,17 +212,14 @@ public class ViewMyTripsTestSteps extends WithApplication {
         tripData2.destination = dest2;
 
         Trip trip = new Trip();
-        List<TripData> tripArray = new ArrayList<TripData>();
+        ArrayList<TripData> tripArray = new ArrayList<>();
         tripArray.add(tripData1);
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
         trip.userId = 2L;
+        trip.privacy = 0L;
 
-
-        JsonNode node = Json.toJson(trip); // .deepCopy();
-
-        System.out.println(node);
-
+        JsonNode node = Json.toJson(trip);
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -233,7 +230,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(OK, result.status()); //TODO can't figure out how to assemble trip properly
+        assertEquals(OK, result.status());    //TODO can't figure out how to assemble trip properly
     }
 
     @When("I click view my trips")
