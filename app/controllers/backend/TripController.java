@@ -130,6 +130,7 @@ public class TripController extends Controller {
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
+        System.out.println(Json.toJson(trip));
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );

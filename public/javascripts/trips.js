@@ -274,7 +274,7 @@ function updateTrip(url, redirect, tripId) {
         "trip": {
             "id": tripId
         },
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
 
     put(url, tripData).then(response => {

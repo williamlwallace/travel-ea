@@ -19,8 +19,15 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import models.CountryDefinition;
+import models.Destination;
+import models.Trip;
+import models.TripData;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -121,46 +128,65 @@ public class ViewMyTripsTestSteps extends WithApplication {
     @Given("have created some trips")
     public void have_created_some_trips() throws IOException {
         // Create new json object node
-        ObjectNode trip = Json.newObject();
-        ObjectNode tripData = Json.newObject();
-        ObjectNode destData = Json.newObject();
-        ObjectNode country = Json.newObject();
-        trip.put("userId", 2);
-//        trip.put("userId", 1);
-        ArrayNode tripArray = trip.putArray("tripDataCollection");
-//        tripData.put("guid", 1);
-        tripData.set("arrivalTime", NullNode.instance);
-        tripData.set("departureTime", NullNode.instance);
-//        tripData.put("destination", "");
-        tripData.put("position", 0);
-        destData.put("id", "1");
-        destData.put("name", "Eiffel Tower");
-        destData.put("_type", "Monument");
-        destData.put("district", "Paris");
-        destData.put("latitude", 10.0);
-        destData.put("longitude", 20.0);
-        destData.put("country", "");
-        country.put("id", 1);
-        country.put("name", "Afghanistan");
-        destData.set("country", country);
-        tripData.set("destination", destData);
+//        ObjectNode trip = Json.newObject();
+//        ObjectNode tripData = Json.newObject();
+//        ObjectNode destData = Json.newObject();
+//        ObjectNode country = Json.newObject();
+//        trip.put("userId", 2);
+//        ArrayNode tripArray = trip.putArray("tripDataCollection");
+//        tripData.set("arrivalTime", NullNode.instance);
+//        tripData.set("departureTime", NullNode.instance);
+//        tripData.put("position", 0);
+//        destData.put("id", "1");
+//        destData.put("name", "Eiffel Tower");
+//        destData.put("_type", "Monument");
+//        destData.put("district", "Paris");
+//        destData.put("latitude", 10.0);
+//        destData.put("longitude", 20.0);
+//        destData.put("country", "");
+//        country.put("id", 1);
+//        country.put("name", "Afghanistan");
+//        destData.set("country", country);
+//        tripData.set("destination", destData);
+//        tripArray.add(tripData);
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
+
+        Destination dest = new Destination();
+//        dest.name = "Test Destination";
+//        dest._type = "Monument";
+//        dest.district = "Canterbury";
+//        dest.latitude = 10.0;
+//        dest.longitude = 20.0;
+        dest.id = 1L;
+        dest.country = countryDefinition;
+
+        TripData tripData = new TripData();
+        tripData.position = 0L;
+        tripData.destination = dest;
+
+        Trip trip = new Trip();
+        List<TripData> tripArray = new ArrayList<TripData>();
         tripArray.add(tripData);
+        trip.tripDataList = tripArray;
+        trip.userId = 2L;
 
 
+        ObjectNode node = Json.toJson(trip).deepCopy();
 
-        System.out.println(trip);
+        System.out.println(node);
 
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
-                .bodyJson(trip)
+                .bodyJson(node)
                 .cookie(this.authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-//        assertEquals(OK, result.status()); //TODO can't figure out how to assemble trip properly
+        assertEquals(OK, result.status()); //TODO can't figure out how to assemble trip properly
 
         assertEquals(1, 1);
     }
