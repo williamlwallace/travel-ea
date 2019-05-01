@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
-    -- privacy           BIT NOT NULL,
+    privacy           BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -125,6 +125,21 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
   );
+
+-- Create Photo table, which stores the filenames and details for all photos
+CREATE TABLE IF NOT EXISTS Photo
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
+    filename              VARCHAR(256) NOT NULL,
+    thumbnail_filename    VARCHAR(256) NOT NULL,
+    is_public             BOOLEAN NOT NULL,
+    uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_profile            BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
 
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES
@@ -160,6 +175,7 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
+DROP TABLE Photo;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
