@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.typesafe.config.Config;
 import java.util.ArrayList;
 import java.util.List;
+import play.libs.Json;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -62,10 +63,18 @@ public class Authenticator extends Action.Simple {
      * Action entry point. Should only let users pass that have benn authenticated to the correct degree
      * otherwise redirect or return forbiden
      * @param request HTTP request
-     * @return Play result dpending on authenticaiton
+     * @return Play
      */
     public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromCookie(request);
+        // Check if api or not and set failure response
+        Result fail;
+        if (request.uri().contains("/api/")) {
+            fail = forbidden(Json.toJson("Forbidden"));
+        } else {
+            fail = redirect(controllers.frontend.routes.ApplicationController.cover())
+            .discardingCookie(JWT_AUTH);
+        }
 
         if (token != null) {
             Long userId = CryptoManager
@@ -76,9 +85,7 @@ public class Authenticator extends Action.Simple {
                         return roleMatch(request, user);
                     } else {
                         // if user is no longer in database
-                        return supplyAsync(() -> redirect(
-                            controllers.frontend.routes.ApplicationController.cover())
-                            .discardingCookie(JWT_AUTH));
+                        return supplyAsync(() -> fail);
                     }
                 });
             }
@@ -86,8 +93,7 @@ public class Authenticator extends Action.Simple {
             // if no roles specified, do nothing (for homepage)
             return delegate.call(request).toCompletableFuture();
         }
-        return supplyAsync(() -> forbiden()
-            .discardingCookie(JWT_AUTH));
+        return supplyAsync(() -> fail);
     }
 
     /**
