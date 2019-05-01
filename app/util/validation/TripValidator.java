@@ -92,7 +92,7 @@ public class TripValidator {
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field) {
-        if (this.form.get(field).asText("") == "") {
+        if (this.form.get(field).asText("").equals("")) {
             this.response.map(String.format("%s required", field), field);
             return false;
         }

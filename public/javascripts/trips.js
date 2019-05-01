@@ -169,7 +169,7 @@ function createTrip(url, redirect) {
     }
 
     let tripData = {
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
 
     post(url, tripData).then(response => {
