@@ -125,6 +125,23 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
+-- Create Photo table, which stores the filenames and details for all photos
+CREATE TABLE IF NOT EXISTS Photo
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
+    filename              VARCHAR(256) NOT NULL,
+    thumbnail_filename    VARCHAR(256) NOT NULL,
+    is_public             BOOLEAN NOT NULL,
+    uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_profile            BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    FULLTEXT(filename),
+    FULLTEXT(thumbnail_filename)
+  );
+
+
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES
 ('France'),('England'),('New Zealand'),('Australia'),('Germany'),('United States');
