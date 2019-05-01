@@ -89,7 +89,7 @@ public class TripController extends Controller {
         trip.id = data.get("id").asLong();
         trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("tripPrivacy").asLong();
+        trip.privacy = data.get("privacy").asLong();
 
         // TODO: Does this work, if so rework this and insert trip
         /*
@@ -140,7 +140,7 @@ public class TripController extends Controller {
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("tripPrivacy").asLong();
+        trip.privacy = data.get("privacy").asLong();
 
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))

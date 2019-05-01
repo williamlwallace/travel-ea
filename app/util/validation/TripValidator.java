@@ -31,7 +31,7 @@ public class TripValidator {
         }
 
         // Validation for trip privacy
-        this.required("tripPrivacy");
+        this.required("privacy");
 
         //Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
