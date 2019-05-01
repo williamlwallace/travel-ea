@@ -67,7 +67,7 @@ public class TripController extends Controller {
     public CompletableFuture<Result> createTripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations().thenApplyAsync(
-            destList -> (destList.isEmpty()) ? ok(
+            destList -> (!destList.isEmpty()) ? ok(
                 createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
             httpExecutionContext.current());
     }

@@ -18,9 +18,9 @@ server.pid
 *.db
 
 # Ignore all files inside storage, except the placeholder text files, which make sure that git includes the directories
-/storage
-!/storage/photos/placeholder.txt
-!/storage/photos/test/placeholder.txt
+/public/storage
+!/public/storage/photos/placeholder.txt
+!/public/storage/photos/test/placeholder.txt
 
 # Things that don't belong under source control see https://github.com/github/gitignore
 

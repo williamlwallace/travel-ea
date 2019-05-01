@@ -37,7 +37,7 @@ public class AdminController extends Controller {
             if (user != null) {
                 user.admin = true;
                 userRepository.updateUser(user);
-                return ok(Json.toJson("Successfully adminified"));
+                return ok(Json.toJson("Successfully promoted user to admin"));
             }
             return badRequest(Json.toJson("User not found"));
         });
@@ -58,7 +58,7 @@ public class AdminController extends Controller {
                 && user.id != 1) { //check user is not master admin
                 user.admin = false;
                 userRepository.updateUser(user);
-                return ok(Json.toJson("Succefuly deadminified"));
+                return ok(Json.toJson("Successfully demoted user from admin"));
             }
             return badRequest(Json.toJson("User not found"));
         });
