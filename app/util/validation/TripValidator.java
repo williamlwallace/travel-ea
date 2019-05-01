@@ -37,7 +37,7 @@ public class TripValidator {
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
         ArrayList tripDataCollection = mapper
-            .readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")),
+            .readValue(mapper.treeAsTokens(this.form.get("tripDataList")),
                 new TypeReference<ArrayList<TripData>>() {
                 });
 
@@ -95,7 +95,7 @@ public class TripValidator {
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field) {
-        if (this.form.get(field).asText("") == "") {
+        if (this.form.get(field).asText("").equals("")) {
             this.response.map(String.format("%s required", field), field);
             return false;
         }

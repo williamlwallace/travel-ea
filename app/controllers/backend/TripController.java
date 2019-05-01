@@ -50,7 +50,7 @@ public class TripController extends Controller {
     /**
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
      * with 2 fields: uid: This field represents the id of the user who owns the trip
-     * tripDataCollection: An array storing all stages of the trip as tripData objects
+     * tripDataList: An array storing all stages of the trip as tripData objects
      *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
@@ -163,7 +163,7 @@ public class TripController extends Controller {
         ArrayList<TripData> tripDataList = new ArrayList<>();
 
         // For each item in the json node, deserialize to a single trip data
-        for (JsonNode node : data.get("tripDataCollection")) {
+        for (JsonNode node : data.get("tripDataList")) {
             // Assemble trip data
             TripData tripData = new TripData();
 

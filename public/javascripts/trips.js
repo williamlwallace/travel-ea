@@ -169,7 +169,7 @@ function createTrip(url, redirect) {
     }
 
     let tripData = {
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
 
     let privacy = document.getElementById("tripPrivacy").checked;
@@ -283,7 +283,7 @@ function updateTrip(url, redirect, tripId) {
         "trip": {    // TODO: Is this necessary?
             "id": tripId
         },
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
 
     put(url, tripData).then(response => {
