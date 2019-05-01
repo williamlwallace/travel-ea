@@ -52,7 +52,7 @@ public class DestinationController extends Controller {
     public CompletableFuture<Result> index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getDestinations().thenApplyAsync(
-            destList -> (destList.isEmpty()) ? ok(destinations.render(asScala(destList), user))
+            destList -> (!destList.isEmpty()) ? ok(destinations.render(asScala(destList), user))
                 : internalServerError(), httpExecutionContext.current());
     }
 
