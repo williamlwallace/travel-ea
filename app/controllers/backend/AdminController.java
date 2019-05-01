@@ -12,7 +12,7 @@ import play.mvc.With;
 import repository.UserRepository;
 
 /**
- * Manage a database of users
+ * Manage a database of users.
  */
 public class AdminController extends Controller {
 
@@ -24,7 +24,7 @@ public class AdminController extends Controller {
     }
 
     /**
-     * Grant admin priveledges to user
+     * Grant admin privileges to user.
      *
      * @param request Request object
      * @param id Id of user to be granted
@@ -37,14 +37,14 @@ public class AdminController extends Controller {
             if (user != null) {
                 user.admin = true;
                 userRepository.updateUser(user);
-                return ok(Json.toJson("Succefuly adminified"));
+                return ok(Json.toJson("Successfully promoted user to admin"));
             }
             return badRequest(Json.toJson("User not found"));
         });
     }
 
     /**
-     * Revoke admin priveledges to user
+     * Revoke admin privileges to user.
      *
      * @param request Request object
      * @param id Id of user to be granted
@@ -55,10 +55,10 @@ public class AdminController extends Controller {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.findID(id).thenApplyAsync(user -> {
             if (user != null
-                && user.username != "admin@travelea.co.nz") { //check user is not master admin
+                && user.id != 1) { //check user is not master admin
                 user.admin = false;
                 userRepository.updateUser(user);
-                return ok(Json.toJson("Succefuly deadminified"));
+                return ok(Json.toJson("Successfully demoted user from admin"));
             }
             return badRequest(Json.toJson("User not found"));
         });

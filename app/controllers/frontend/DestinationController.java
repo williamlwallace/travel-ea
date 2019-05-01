@@ -36,7 +36,7 @@ public class DestinationController extends Controller {
     private HttpExecutionContext httpExecutionContext;
 
     @Inject
-    public void DestController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+    public DestinationController(WSClient ws, HttpExecutionContext httpExecutionContext) {
         this.ws = ws;
         this.httpExecutionContext = httpExecutionContext;
     }
@@ -52,15 +52,12 @@ public class DestinationController extends Controller {
     public CompletableFuture<Result> index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getDestinations().thenApplyAsync(
-            destList -> {
-                return (destList.size() != 0) ? ok(destinations.render(asScala(destList), user))
-                    : internalServerError();
-            },
-            httpExecutionContext.current());
+            destList -> (!destList.isEmpty()) ? ok(destinations.render(asScala(destList), user))
+                : internalServerError(), httpExecutionContext.current());
     }
 
     /**
-     * Gets Destinations from api endpoint via get request
+     * Gets Destinations from api endpoint via get request.
      *
      * @return List of destinations wrapped in completable future
      */
@@ -68,14 +65,13 @@ public class DestinationController extends Controller {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/destination").get()
             .toCompletableFuture();
         return res.thenApply(r -> {
-            //System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                     new TypeReference<List<Destination>>() {
                     });
             } catch (Exception e) {
-                return new ArrayList<Destination>();
+                return new ArrayList<>();
             }
         });
 

@@ -70,7 +70,7 @@ public class ProfileController extends Controller {
 
 
     /**
-     * Gets Destinations from api endpoint via get request
+     * Gets Destinations from api endpoint via get request.
      *
      * @return List of destinations wrapped in completable future
      */
@@ -78,7 +78,6 @@ public class ProfileController extends Controller {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId)
             .get().toCompletableFuture();
         return res.thenApply(r -> {
-            System.out.println(r.getBody());
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
@@ -91,7 +90,7 @@ public class ProfileController extends Controller {
 
     }
 
-    public Result createProfile(Http.Request request) {
+    public Result createProfile() {
         return ok();
     }
 }

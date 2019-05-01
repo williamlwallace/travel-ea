@@ -11,6 +11,8 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 
 tags:
+- name: Admin
+  description: Admin calls
 - name: Users
   description: User account calls
 - name: Profiles
@@ -148,6 +150,70 @@ paths:
         '403':
           description: User not authorised for this action
 
+  '/user/search':
+    get:
+      tags:
+        - Users
+      summary: Get list of users which match search criteria
+      description: |
+        Allows admin to retrieve a list of users which match the search criteria
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Admin authentication cookie.
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: asc or desc
+          schema:
+            type: string
+        - in: query
+          name: filter
+          description: Username search filter
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  '/user/setId':
+    get:
+      tags:
+        - Users
+      summary: Reset user cookie
+      description: |
+        Resets the users cookie when user is authenticated but user-id cookie is deleted
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: The authenticated user's id
+
   '/trip':
     post:
       tags:
@@ -176,7 +242,7 @@ paths:
 
     put:
       tags:
-      - Trips
+        - Trips
       summary: Update an existing trip
       description: |
         Updates an existing trip on the database, for the currently logged in user
@@ -609,13 +675,55 @@ paths:
           type: string
       responses:
         '200':
-          description: 'Successfully deleted profile'
+          description: Successfully deleted profile
         '401':
           description: Authentication failed
         '403':
           description: User not authorised for this action
         '404':
           description: No profile found for that user
+
+  '/admin/grant/{id}':
+    post:
+      tags:
+        - Admin
+      summary: Grants user admin privileges
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to adminify
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully promoted user to admin
+        '400':
+          description: User not found
+
+  '/admin/revoke/{id}':
+    post:
+      tags:
+        - Admin
+      summary: Revokes admin privilages from user
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to revoke privilages
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully demoted user from admin
+        '400':
+          description: User not found
 
   '/photo':
     post:
@@ -835,6 +943,7 @@ components:
         name:
           type: string
           example: France
+
     TravellerTypeDefinition:
       type: object
       required:
@@ -939,20 +1048,3 @@ components:
           type: string
           format: ISO date-time
           example: '2019-04-20T10:30:00.000'
-
-    ErrorResponse:
-      type: array
-      items:
-        $ref: '#/components/schemas/KeyValuePair'
-
-    KeyValuePair:
-      type: object
-      description: Key value pair of error name and error description
-      properties:
-        key:
-          type: string
-          description: Name of error returned
-          example: LastNameError
-        value:
-          type: string
-          description:

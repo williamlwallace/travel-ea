@@ -25,7 +25,7 @@ public class CountryDefinitionRepository {
 
     /**
      * Insert a new country definition to database, autoincrements a new id for definition and
-     * returns this id
+     * returns this id.
      *
      * @param definition Country definition to add, ID field is not used
      * @return The ID of the newly created country definition
@@ -42,7 +42,7 @@ public class CountryDefinitionRepository {
 
     /**
      * Finds the country with exact name as specified E.g When getting the id of a country from a
-     * dropdown box
+     * dropdown box.
      *
      * @param name Exact name of country to retrieve
      * @return CountryDefinition object if one found, otherwise null
@@ -58,7 +58,7 @@ public class CountryDefinitionRepository {
     }
 
     /**
-     * Finds the country with the id specified
+     * Finds the country with the id specified.
      *
      * @param id Exact country to retrieve
      * @return CountryDefinition of object found, otherwise null
@@ -94,7 +94,8 @@ public class CountryDefinitionRepository {
         return supplyAsync(() ->
                 ebeanServer.find(CountryDefinition.class)
                     .where()
-                    .ilike("name", "%" + criteria + "%") // Where criteria found in any part of string
+                    //Where criteria found in any part of string
+                    .ilike("name", "%" + criteria + "%")
                     .orderBy("name " + ((sortAscending) ? "asc" : "desc"))
                     .setFirstRow(pageNumber * pageSize)
                     .setMaxRows(pageSize)

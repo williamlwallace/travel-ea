@@ -10,6 +10,12 @@ import play.mvc.Result;
 
 public class Admin extends Action.Simple {
 
+    /**
+     * TODO: Campbell add javadoc.
+     *
+     * @param request HTTP request
+     * @return TODO
+     */
     public CompletionStage<Result> call(Http.Request request) {
         List<String> roles = Authenticator.getRoles(request);
         roles.add("admin");

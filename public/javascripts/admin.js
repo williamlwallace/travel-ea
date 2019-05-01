@@ -1,14 +1,19 @@
 $(document).ready(function () {
-    //Initialises the data table and adds the filter button to the right of the search field
-    $('#dtUser').DataTable();
+    //Initialises the data table and adds the data
+    populateTable($('#dtUser').DataTable());
 });
 
 $('#dtUser').on('click', 'button', function() {
-    if ($(this).parents('td').index() != 3) {
-        return;
-    }
     let tableAPI = $('#dtUser').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
+    if ($(this).parents('td').index() == 2) {
+        toggleAdmin(this, tableAPI, id);
+    } else if ($(this).parents('td').index() == 3) {
+        deleteUser(this, tableAPI, id);
+    }
+})
+
+function deleteUser(button, tableAPI, id) {
     _delete('api/user/'+id)
     .then(response => {
         //need access to response status, so cant return promise
@@ -17,25 +22,22 @@ $('#dtUser').on('click', 'button', function() {
             if (response.status != 200) {
                 document.getElementById("adminError").innerHTML = json;
             } else {
-                tableAPI.row( $(this).parents('tr') ).remove().draw(false);
+                tableAPI.row( $(button).parents('tr') ).remove().draw(false);
             }
         });
     });
-})
+}
 
-function toggleAdmin(revokeURL, grantURL, button) {
+function toggleAdmin(button, tableAPI, id) {
     let url;
     let innerHTML;
-    console.log("-"+button.innerHTML.trim());
     if (button.innerHTML.trim().startsWith("Revoke")) {
-        url = revokeURL;
+        url = 'api/admin/revoke/' + id;
         innerHTML = "Grant admin";
     } else {
-        url = grantURL;
+        url = 'api/admin/grant/' + id;
         innerHTML = "Revoke admin";
     }
-    console.log(url);
-    console.log(innerHTML);
     post(url, "")   
     .then(response => {
         //need access to response status, so cant return promise
@@ -50,4 +52,52 @@ function toggleAdmin(revokeURL, grantURL, button) {
     });
 }
 
-deleteUser()
+function populateTable(table) {
+    get('api/user/search')
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                for (const user in json) {
+                    const id = json[user].id;
+                    const username = json[user].username;
+                    let admin = "Master";
+                    let deleteUser = "Master";
+                    if (id != 1) {
+                        admin = "<button class=\"btn btn-secondary\">" + ((json[user].admin) ? "Revoke admin" : "Grant admin") + "</button>";
+                        deleteUser = "<button class=\"btn btn-danger\">Delete</button>"
+                    }
+                    
+                    table.row.add([id,username,admin,deleteUser]).draw(false);
+                }
+            }
+        });
+    })
+}
+
+/**
+ * The JavaScript function to process a client signing up
+ *
+ * @param url The route/url to send the request to
+ */
+function createUser(url, redirect) {
+    const formData = new FormData(document.getElementById("signupForm"));
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]] : pair[1],
+    }), {});
+    post(url, data)
+        .then(response => {
+            response.json()
+            .then(json => {
+                if (response.status != 200) {
+                    showErrors(json, "signupForm");
+                } else {
+                    window.location.href = redirect;
+                    location.reload();
+                }
+            });
+    });
+}
