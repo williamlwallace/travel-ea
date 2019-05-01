@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
-    privacy           BIT NOT NULL,
+    privacy           BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
