@@ -136,9 +136,7 @@ CREATE TABLE IF NOT EXISTS Photo
     uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
     is_profile            BOOLEAN NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
-    PRIMARY KEY (guid),
-    FULLTEXT(filename),
-    FULLTEXT(thumbnail_filename)
+    PRIMARY KEY (guid)
   );
 
 
@@ -176,6 +174,7 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
+DROP TABLE Photo;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;

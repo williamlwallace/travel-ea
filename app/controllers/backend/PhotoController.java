@@ -104,9 +104,9 @@ public class PhotoController extends Controller {
             for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
             {
                 if(isTest) {
-                    pair.getValue().getRef().copyTo(Paths.get("storage/photos/test/" + pair.getKey().filename), true);
+                    pair.getValue().getRef().copyTo(Paths.get("public/storage/photos/test/" + pair.getKey().filename), true);
                 } else {
-                    pair.getValue().getRef().copyTo(Paths.get("storage/photos/" + pair.getKey().filename), true);
+                    pair.getValue().getRef().copyTo(Paths.get("public/storage/photos/" + pair.getKey().filename), true);
                 }
                 // Collect all keys from the list to upload
                 photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
@@ -118,7 +118,7 @@ public class PhotoController extends Controller {
             }
 
             // Return OK if no issues were encountered
-            return ok("File(s) uploaded successfully");
+            return status(201, "File(s) uploaded successfully");
         });
     }
 }

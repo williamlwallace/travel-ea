@@ -10,12 +10,10 @@ CREATE TABLE IF NOT EXISTS User
     username          VARCHAR(64) NOT NULL,
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
-    -- auth_token        VARCHAR(128),
     admin             BOOLEAN NOT NULL DEFAULT false,
     creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)
-    -- UNIQUE (auth_token)
   );
 
 -- Create Profile table
@@ -127,31 +125,23 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
--- CREATE TABLE IF NOT EXISTS UserRoleDefinition
---   (
---     id                INT NOT NULL AUTO_INCREMENT,
---     name              VARCHAR(2048) NOT NULL,
---     PRIMARY KEY (id)
---   );
-
--- -- Create UserRole table, which specifies the Roles of users
--- CREATE TABLE IF NOT EXISTS UserRole
---   (
---     guid              INT NOT NULL AUTO_INCREMENT,
---     user_id           INT NOT NULL,
---     role_id           INT NOT NULL,
---     FOREIGN KEY (user_id) REFERENCES User(id),
---     FOREIGN KEY (role_id) REFERENCES UserRoleDefinition(id),
---     PRIMARY KEY (guid),
---     INDEX userole_index (user_id, role_id),
---     UNIQUE(user_id, role_id)
---   );
-
+-- Create Photo table, which stores the filenames and details for all photos
+CREATE TABLE IF NOT EXISTS Photo
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
+    filename              VARCHAR(256) NOT NULL,
+    thumbnail_filename    VARCHAR(256) NOT NULL,
+    is_public             BOOLEAN NOT NULL,
+    uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_profile            BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
 
 
 -- !Downs
--- DROP TABLE UserRole;
--- DROP TABLE UserRoleDefinition;
+DROP TABLE Photo;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
