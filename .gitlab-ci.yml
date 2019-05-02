@@ -34,7 +34,8 @@ release-artifacts:
 start-server-dev:
   stage: deploy
   script:
-    - sbt dist && unzip target/universal/*.zip -d target/universal && ./target/universal/seng302-team-400-proffat-0.0.1-SNAPSHOT/bin/seng302-team-400-proffat -Dhttp.port=8443
+    - sbt dist
+    - unzip target/universal/*.zip -d /opt/server-dev/
   only:
     - master-dev@seng302-2019/team-400
     - dedicated@seng302-2019/team-400
