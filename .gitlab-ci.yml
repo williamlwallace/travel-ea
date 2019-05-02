@@ -35,7 +35,7 @@ start-server-dev:
   stage: deploy
   script:
     - sbt dist
-    - unzip target/universal/*.zip -d /opt/server-dev/
+    - sudo unzip target/universal/*.zip -d /opt/server-dev/
   only:
     - master-dev@seng302-2019/team-400
     - dedicated@seng302-2019/team-400
