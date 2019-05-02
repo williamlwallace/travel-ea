@@ -53,6 +53,9 @@ code {
     /* The image used */
     background-image: url("../images/wakatipu.jpeg");
 
+    /* Default background colour */
+    background-color: #818182;
+
     /* Full height */
     height: 100%;
 

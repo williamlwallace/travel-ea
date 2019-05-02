@@ -11,6 +11,8 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 
 tags:
+- name: Admin
+  description: Admin calls
 - name: Users
   description: User account calls
 - name: Profiles
@@ -609,7 +611,7 @@ paths:
           type: string
       responses:
         '200':
-          description: 'Successfully deleted profile'
+          description: Successfully deleted profile
         '401':
           description: Authentication failed
         '403':
@@ -617,11 +619,53 @@ paths:
         '404':
           description: No profile found for that user
 
+  '/admin/grant/{id}':
+    post:
+      tags:
+        - Admin
+      summary: Grants user admin privileges
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to adminify
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully promoted user to admin
+        '400':
+          description: User not found
+
+  '/admin/revoke/{id}':
+    post:
+      tags:
+        - Admin
+      summary: Revokes admin privilages from user
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID to revoke privilages
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully demoted user from admin
+        '400':
+          description: User not found
+
   '/photo':
     post:
       tags:
       - Photos
-      summary: Uploading of any and all files, form parameters specify details
+      summary: 'Uploading of any and all files, form parameters specify details'
       security:
       - UserToken: []
       parameters:
@@ -640,12 +684,20 @@ paths:
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
+                profilePhotoFileName:
+                  type: string
+                  description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
+                publicPhotoFileNames:
+                  type: array
+                  description: 'Include here the filenames of all uploads that are to be publicly visible, any files that are not referenced here will be set to private by default'
+                  items:
+                    type: string
                 files:
                   type: array
+                  description: Any number of .png and .jpg files, does not need to have any particular key
                   items:
                     type: string
                     format: binary
-                    description: Any number of .png or .jpg files
 
       responses:
         '201':
@@ -654,6 +706,12 @@ paths:
           description: Authentication failed
         '403':
           description: User not authorised for this action
+        '500':
+          description: One or more files failed to upload, check response body for specific errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'

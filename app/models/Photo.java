@@ -1,31 +1,36 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
+import org.joda.time.DateTime;
 import play.data.validation.Constraints;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.time.LocalDateTime;
 
 /**
- * A class that models the photo database table
+ * A class that models the Photo database table
  */
-@Entity
 @Table(name = "Photo")
+@Entity
 public class Photo extends Model {
 
     @Id
-    public Long photoId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    public Long guid;
 
-    @Constraints.Required
-    @Column(name = "user_id")
     public Long userId;
 
-    @Constraints.Required
-    public String fileName;
+    public String filename;
 
-    public Long publicPhoto;
+    public String thumbnailFilename;
 
-    public Long profilePhoto;
+    public Boolean isPublic;
+
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    public DateTime uploaded;
+
+    public Boolean isProfile;
 }

@@ -103,21 +103,21 @@ function updateProfile(url, redirect) {
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = [];
     let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
-    for (i = 0; i < nat_ids.length; i++) {
+    for (let i = 0; i < nat_ids.length; i++) {
         let nat = {};
         nat.id = nat_ids[i];
         data.nationalities.push(nat);
     }
     data.passports = [];
     let passport_ids = $.map($(document.getElementById("passports")).picker('get'),Number)
-    for (i = 0; i < passport_ids.length; i++) {
+    for (let i = 0; i < passport_ids.length; i++) {
         let passport = {};
         passport.id = passport_ids[i];
         data.passports.push(passport);
     }
     data.travellerTypes  = [];
     let type_ids = $.map($(document.getElementById("travellerTypes")).picker('get'),Number);
-    for (i = 0; i < type_ids.length; i++) {
+    for (let i = 0; i < type_ids.length; i++) {
         let type = {};
         type.id = type_ids[i];
         data.travellerTypes.push(type);
@@ -179,9 +179,8 @@ function populateProfileData(url) {
 /**
  * Variables for selecting and cropping the profile picture.
  */
-var confirmBtn = $('#confirmBtn');
 var cropGallery = $('#cropGallery');
-var image = document.getElementById('image');
+var profilePicture = document.getElementById('image');
 var profilePictureSize = 350;
 var cropper;
 
@@ -191,7 +190,7 @@ var cropper;
  */
 $(document).ready(function() {
     $('#cropProfilePictureModal').on('shown.bs.modal', function () {
-        cropper = new Cropper(image, {
+        cropper = new Cropper(profilePicture, {
             autoCropArea: 1,
             aspectRatio: 1, //Makes crop area a square
             viewMode: 1,
@@ -216,20 +215,39 @@ $(document).ready(function() {
 });
 
 /**
- * Handles the onclick event of the confirm button on the cropping modal.
+ * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
-confirmBtn.on('click', function() {
+ function uploadProfilePicture(url) {
     //Get the cropped image and set the size to 290px x 290px
-    var imageData = cropper.getCroppedCanvas({width: 350, height: 350}).toDataURL();
-    //Sets the profile picture to the new image
-    $('#ProfilePicture').attr('src', imageData);
+    //var imageData = cropper.getCroppedCanvas({width: 350, height: 350}).toDataURL();
+    //TODO: Avoid blob as it is not supported in edge
+    cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
+        var formData = new FormData();
+        formData.append("profilePhotoName", "profilepic.jpg");
+        formData.append("file", blob, "profilepic.jpg");
 
-    //Needs to upload imageData to the database as the users new ProfilePicture
+        //TODO: Handle the response
+        postMultipart(url, formData).then(response => {
+            // Read response from server, which will be a json object
+            /*response.json()
+                .then(json => {
+                    console.log(json);
+                    if (response.status === 201) {
+                        //Sets the profile picture to the new image
+                        $('#ProfilePicture').attr('src', blob);
+                    } else {
+                        document.getElementById("photoError").innerHTML = "Error(s): " + Object.values(json).join(", ");
+                    }
+                });*/
+        });
+    });
+
     //Needs to also refresh the users picture gallery if the photo is new
 
+    $('#cropProfilePictureModal').modal('hide');
     cropper.destroy();
-});
+}
 
 /**
  * Displays the full size image of the thumbnail picture clicked in the cropper window.
@@ -241,7 +259,7 @@ cropGallery.on('click','img',function() {
     //Convert the thumbnailPath to the fullPicturePath
     var fullPicturePath = thumbnailPath.replace('thumbnails/','');
     //Set the croppers image to this
-    image.setAttribute('src', fullPicturePath);
+    profilePicture.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
@@ -253,4 +271,4 @@ cropGallery.on('click','img',function() {
 Dropzone.options.addPhotoDropzone = {
     acceptedFiles: '.jpeg,.png,.jpg',
     addRemoveLinks: true
-}
+};

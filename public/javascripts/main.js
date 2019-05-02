@@ -14,6 +14,13 @@ function post(url, data) {
     })
 }
 
+function postMultipart(url, formData) {
+    return fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+}
+
 function put(url, data) {
     return fetch(url, {
         method: "PUT",
@@ -111,11 +118,7 @@ function getCookie(cname) {
 
 function checkCookie(cname) {
     let cvalue = getCookie(cname);
-    if (cvalue != "") {
-      return true;
-    } else {
-      return false;
-    }
+    return cvalue != "";
 }
 
 // function deleteCookie(cname) {

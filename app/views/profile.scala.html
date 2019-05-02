@@ -172,6 +172,7 @@
             </div>
         </div>
         </div>
+
         @* Upload Photo Modal *@
         <div class="modal fade" id="uploadPhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog" role="document">
@@ -200,6 +201,7 @@
                 </div>
             </div>
         </div>
+
         @* Edit Profile Modal *@
         <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
         data-backdrop="static" data-keyboard="false">
@@ -395,7 +397,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-popup mr-auto" data-dismiss="modal" data-toggle="modal" href="#changeProfilePictureModal">Back</button>
-                        <button id="confirmBtn" type="button" class="btn btn-primary" data-dismiss="modal">Confirm</button>
+                        <button onclick='uploadProfilePicture("@controllers.backend.routes.PhotoController.upload()")'
+                                type="button" class="btn btn-primary">Confirm</button>
                     </div>
                 </div>
             </div>

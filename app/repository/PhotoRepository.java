@@ -8,6 +8,7 @@ import play.mvc.Result;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
@@ -33,9 +34,9 @@ public class PhotoRepository {
      * @param newPhoto Photo to be added
      * @return Ok on success
      */
-    public CompletableFuture<Result> insertPhoto(Photo newPhoto) {
+    public CompletableFuture<Result> addPhoto(Photo photo) {
         return supplyAsync(() -> {
-            ebeanServer.insert(newPhoto);
+            ebeanServer.insert(photo);
             return ok();
         }, executionContext);
     }
@@ -59,4 +60,10 @@ public class PhotoRepository {
     }
 
 
+    public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
+        return supplyAsync(() -> {
+            ebeanServer.insertAll(photos);
+            return ok();
+        }, executionContext);
+    }
 }
