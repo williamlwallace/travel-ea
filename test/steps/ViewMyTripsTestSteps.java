@@ -94,7 +94,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
     @After
     public static void stopApp() {
         // Stop the fake app running
-        Helpers.stop(fakeApp);
+        Helpers.stop(fakeApp); //TODO: sometimes test fails because of two @After tags
     }
 
     @Given("I am logged in")
@@ -164,38 +164,11 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
 
     @Given("I have created some trips")
-    public void have_created_some_trips() throws IOException {
-        // Create new json object node
-//        ObjectNode trip = Json.newObject();
-//        ObjectNode tripData = Json.newObject();
-//        ObjectNode destData = Json.newObject();
-//        ObjectNode country = Json.newObject();
-//        trip.put("userId", 2);
-//        ArrayNode tripArray = trip.putArray("tripDataCollection");
-//        tripData.set("arrivalTime", NullNode.instance);
-//        tripData.set("departureTime", NullNode.instance);
-//        tripData.put("position", 0);
-//        destData.put("id", "1");
-//        destData.put("name", "Eiffel Tower");
-//        destData.put("_type", "Monument");
-//        destData.put("district", "Paris");
-//        destData.put("latitude", 10.0);
-//        destData.put("longitude", 20.0);
-//        destData.put("country", "");
-//        country.put("id", 1);
-//        country.put("name", "Afghanistan");
-//        destData.set("country", country);
-//        tripData.set("destination", destData);
-//        tripArray.add(tripData);
+    public void have_created_some_trips() {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
 
         Destination dest1 = new Destination();
-//        dest.name = "Test Destination";
-//        dest._type = "Monument";
-//        dest.district = "Canterbury";
-//        dest.latitude = 10.0;
-//        dest.longitude = 20.0;
         dest1.id = 1L;
         dest1.country = countryDefinition;
 
@@ -204,27 +177,22 @@ public class ViewMyTripsTestSteps extends WithApplication {
         dest2.country = countryDefinition;
 
         TripData tripData1 = new TripData();
-        tripData1.position = 0L;
+        tripData1.position = 1L;
         tripData1.destination = dest1;
 
         TripData tripData2 = new TripData();
-        tripData2.position = 1L;
+        tripData2.position = 2L;
         tripData2.destination = dest2;
 
         Trip trip = new Trip();
-        List<TripData> tripArray = new ArrayList<TripData>();
+        List<TripData> tripArray = new ArrayList<>();
         tripArray.add(tripData1);
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
-        trip.userId = 2L;
 
+        JsonNode node = Json.toJson(trip);
 
-        JsonNode node = Json.toJson(trip); // .deepCopy();
-
-        System.out.println(node);
-
-
-        // Create request to create a new destination
+        // Create request to create a new trip
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
@@ -233,7 +201,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(OK, result.status()); //TODO can't figure out how to assemble trip properly
+        assertEquals(OK, result.status());
     }
 
     @When("I click view my trips")

@@ -53,13 +53,17 @@ public class TripValidator {
                 errorString += "position is null, ";
                 trip.position = -1L;
             }
+            if (trip.destination != null) {
+                if (trip.destination.id == null) {
+                    errorString += "destinationId is null, ";
+                }
+                if (trip.destination.id == lastDestinationID) {
+                    errorString += "cannot attend same destination twice in a row, ";
+                }
+            } else {
+                errorString += "destination is null, ";
+            }
 
-            if (trip.destination.id == null) {
-                errorString += "destinationId is null, ";
-            }
-            if (trip.destination.id == lastDestinationID) {
-                errorString += "cannot attend same destination twice in a row, ";
-            }
             if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime
                 .isAfter(trip.departureTime)) {
                 errorString += "departure must be after arrival, ";
@@ -74,7 +78,9 @@ public class TripValidator {
                     : trip.arrivalTime);
             }
 
-            lastDestinationID = trip.destination.id;
+            if (trip.destination != null) {
+                lastDestinationID = trip.destination.id;
+            }
 
             // If any errors were added to string, add this to error response map
             if (!errorString.equals("")) {
