@@ -35,7 +35,6 @@ start-server-dev:
   stage: deploy
   script:
     - sbt dist
-    - sudo systemctl status travelEAdev
     - travelEAdev stop
     - sudo rm -d -r /opt/server-dev/**
     - sudo unzip target/universal/*.zip -d /opt/server-dev/
