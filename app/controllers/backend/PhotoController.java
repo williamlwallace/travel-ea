@@ -6,9 +6,6 @@ import actions.roles.Everyone;
 import com.google.inject.Inject;
 import models.Photo;
 import org.joda.time.DateTime;
-import play.Environment;
-import play.Mode;
-import play.api.Play;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -19,8 +16,6 @@ import repository.PhotoRepository;
 import util.customObjects.Pair;
 
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -30,8 +25,6 @@ public class PhotoController extends Controller {
     private PhotoRepository photoRepository;
 
     @Inject
-    public PhotoController(PhotoRepository photoRepository) {
-        this.photoRepository = photoRepository;
     public PhotoController(PhotoRepository photoRepository) {
         this.photoRepository = photoRepository;
     }
