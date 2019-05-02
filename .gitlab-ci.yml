@@ -35,7 +35,10 @@ start-server-dev:
   stage: deploy
   script:
     - sbt dist
+    - travelEAdev stop
+    - sudo rm -d -r /opt/server-dev/**
     - sudo unzip target/universal/*.zip -d /opt/server-dev/
+    - travelEAdev start
   only:
     - master-dev@seng302-2019/team-400
     - dedicated@seng302-2019/team-400
