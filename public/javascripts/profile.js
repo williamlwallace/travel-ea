@@ -268,7 +268,44 @@ cropGallery.on('click','img',function() {
 /**
  * Sets up the dropzone properties, like having a remove button
  */
-Dropzone.options.addPhotoDropzone = {
-    acceptedFiles: '.jpeg,.png,.jpg',
-    addRemoveLinks: true
-};
+function setupDropZone() {
+    Dropzone.options.addPhotoDropzone = {
+        acceptedFiles: '.jpeg,.png,.jpg',
+        addRemoveLinks: true,
+        dictRemoveFile: "remove",
+        thumbnailWidth: 200,
+        thumbnailHeight: 200,
+        dictDefaultMessage: '',
+        autoProcessQueue: false,
+
+        init: function() {
+            var submitButton = document.querySelector("#submit-all");
+            var cancelButton = document.querySelector("#remove-all");
+
+            this.on("addedfile", function () {
+                // Enable add button
+                submitButton.disabled = false;
+                submitButton.innerText = "Add"
+            });
+
+            submitButton.addEventListener("click", function() {
+                if (submitButton.innerText === "Add") {
+                    this.processQueue(); // Tell Dropzone to process all queued files.
+                    submitButton.innerText = "Done";
+                } else {
+                    $('#uploadPhotoModal').modal('hide');
+                }
+            });
+
+            cancelButton.addEventListener("click", function() {
+                this.removeAllFiles(true);
+                submitButton.disabled = true;
+                submitButton.innerText = "Add"
+            });
+        }
+    };
+
+    baguetteBox.run('.tz-gallery');
+}
+
+
