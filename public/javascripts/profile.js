@@ -269,6 +269,9 @@ cropGallery.on('click','img',function() {
  * Sets up the dropzone properties, like having a remove button
  */
 function setupDropZone() {
+
+    var maxImageWidth = 350, maxImageHeight = 350;
+
     Dropzone.options.addPhotoDropzone = {
         acceptedFiles: '.jpeg,.png,.jpg',
         addRemoveLinks: true,
@@ -281,6 +284,7 @@ function setupDropZone() {
         init: function() {
             var submitButton = document.querySelector("#submit-all");
             var cancelButton = document.querySelector("#remove-all");
+            addPhotoDropzone = this;
 
             this.on("addedfile", function () {
                 // Enable add button
@@ -288,9 +292,20 @@ function setupDropZone() {
                 submitButton.innerText = "Add"
             });
 
+            this.on("thumbnail", function(file) {
+                // Do the dimension checks you want to do
+                if (file.width < maxImageWidth || file.height < maxImageHeight) {
+                    file.rejectDimensions()
+                }
+                else {
+                    file.acceptDimensions();
+                }
+            });
+
+
             submitButton.addEventListener("click", function() {
                 if (submitButton.innerText === "Add") {
-                    this.processQueue(); // Tell Dropzone to process all queued files.
+                    addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.
                     submitButton.innerText = "Done";
                 } else {
                     $('#uploadPhotoModal').modal('hide');
@@ -298,10 +313,16 @@ function setupDropZone() {
             });
 
             cancelButton.addEventListener("click", function() {
-                this.removeAllFiles(true);
+                addPhotoDropzone.removeAllFiles(true);
                 submitButton.disabled = true;
                 submitButton.innerText = "Add"
             });
+        },
+        accept: function(file, done) {
+            file.acceptDimensions = done;
+            file.rejectDimensions = function() {
+                done("Image too small.");
+            };
         }
     };
 
