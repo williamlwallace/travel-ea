@@ -6,6 +6,7 @@
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/dropzone.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", user, scripts){
@@ -65,51 +66,9 @@
                         </div>
 
                         @* Photo Gallery *@
-                        <div class="container gallery-container">
+                        <div id="content">You don't have any photos yet, add some to see them here</div>
+                        <div id="page-selection"></div>
 
-                            <div class="tz-gallery">
-
-                                <div class="row">
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/boats.jpg")">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/boats.jpg")">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/boats.jpg")">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/cats.jpg")">
-                                            <img src="@routes.Assets.at("images/thumbnails/cats.jpg")" alt="Park">
-                                        </a>
-                                    </div>
-
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/boats.jpg")">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox" href="@routes.Assets.at("images/boats.jpg")">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")" alt="Park">
-                                        </a>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
                     <div>
                         <div class="section-title">
                             <p>
@@ -411,6 +370,7 @@
 
 <script type="text/javascript">
     setupDropZone();
+    fillGallery("@controllers.backend.routes.PhotoController.getAllUserPhotos()");
     fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
     fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");
     populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");

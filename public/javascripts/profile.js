@@ -1,5 +1,7 @@
 var countryDict = {};
 var travellerTypeDict = {};
+var usersPhotos = [];
+var galleryObjects = [];
 
 // Runs get countries method, then add country options to drop down
 function fillCountryInfo(getCountriesUrl) {
@@ -262,6 +264,96 @@ cropGallery.on('click','img',function() {
     $('#cropProfilePictureModal').modal('show');
 });
 
+
+/**
+ * Function to populate gallery with current users photos
+ */
+function fillGallery(getPhotosUrl) {
+    console.log(getPhotosUrl)
+    // Run a get request to fetch all users photos
+    get(getPhotosUrl)
+    // Get the response of the request
+        .then(response => {
+            // Convert the response to json
+            response.json().then(data => {
+                // "data" should now be a list of photo models for the given user
+                // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+                for(let i = 0; i < data.length; i++) {
+                    // Also add the item to the dictionary
+                    usersPhotos[i] = data[i];
+                }
+                // data.length is the total number of photos
+                if (data.length > 0) {
+                    // Now create gallery objects
+                    createGalleryObjects();
+                    // And populate the gallery!
+                    addPhotos();
+                }
+            });
+        });
+}
+
+function createGalleryObjects() {
+    var numPages = Math.ceil(usersPhotos.length / 6);
+    for(let page = 0; page < numPages; page++) {
+        // page is the page number starting from 0
+        // Create a gallery which will have 6 photos
+        var newGallery = document.createElement("div");
+        newGallery.id = "page" + page;
+        newGallery.setAttribute("class", "tz-gallery");
+        // create the row div
+        var row = document.createElement("div");
+        row.setAttribute("class", "row");
+        // create each photo tile
+        for (let position = 0; position <= 5 && (6 * page + position) < usersPhotos.length; position++) {
+            var tile = document.createElement("div");
+            tile.setAttribute("class", "col-sm6 col-md-4");
+            var photo = document.createElement("a");
+            photo.setAttribute("class", "lightbox");
+            // 6 * page + position finds the correct photo index in the dictionary
+            var filename = usersPhotos[(6 * page + position)]["filename"];
+            var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
+            photo.href = "assets/" + filename;
+            // thumbnail
+            var thumb = document.createElement("img");
+            thumb.src = "assets/storage/photos/" + thumbnail;
+            // add image to photo a
+            photo.appendChild(thumb);
+            // add photo a to the tile div
+            tile.appendChild(photo);
+            // add the entire tile, with image and thumbnail to the row div
+            row.appendChild(tile);
+        // row should now have 6 or less individual 'tiles' in it.
+        // add the row to the gallery div
+        newGallery.appendChild(row);
+
+        // newGallery is now the completed gallery for a single page
+            // add it to the list of gallery objects at the page index
+        galleryObjects[page] = newGallery;
+
+        }
+    }
+}
+
+function addPhotos() {
+    var numPages = Math.ceil(usersPhotos.length / 6);
+
+    // init bootpag
+    $('#page-selection').bootpag({
+        total: numPages,
+        maxVisible: 5,
+        leaps: false,
+        href: "#gallery-page-{{number}}",
+    }).on("page", function(event, num){
+        var gallery = galleryObjects[(num-1)];
+        $("#content").html(gallery);
+        baguetteBox.run('.tz-gallery');
+    });
+    // set first page
+    $("#content").html(galleryObjects[(0)]);
+    baguetteBox.run('.tz-gallery');
+}
+
 /**
  * Sets up the dropzone properties, like having a remove button
  */
@@ -281,7 +373,7 @@ function setupDropZone() {
         init: function() {
             var submitButton = document.querySelector("#submit-all");
             var cancelButton = document.querySelector("#remove-all");
-            addPhotoDropzone = this;
+            var addPhotoDropzone = this;
 
             this.on("addedfile", function () {
                 // Enable add button
@@ -306,6 +398,7 @@ function setupDropZone() {
                     submitButton.innerText = "Done";
                 } else {
                     $('#uploadPhotoModal').modal('hide');
+                    fillGallery("/api/photo/getAll");
                 }
             });
 
@@ -322,8 +415,6 @@ function setupDropZone() {
             };
         }
     };
-
-    baguetteBox.run('.tz-gallery');
 }
 
 var profilePictureControllerUrl;

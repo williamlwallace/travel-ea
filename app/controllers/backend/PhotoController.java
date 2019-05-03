@@ -58,7 +58,7 @@ public class PhotoController extends Controller {
     /**
      * Uploads any number of photos from a multipart/form-data request
      *
-     * @param request Request where body is a json object of trip
+     * @param request Request where body is a json object of the photos
      * @return Result of query
      */
     @With({Everyone.class, Authenticator.class})
