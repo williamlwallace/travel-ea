@@ -4,7 +4,6 @@ import akka.util.*;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
 import play.db.Database;
 import org.hamcrest.CoreMatchers;
@@ -15,6 +14,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import util.customObjects.Pair;
 
 import java.io.File;
 import java.io.IOException;

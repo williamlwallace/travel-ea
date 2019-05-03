@@ -4,7 +4,6 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.google.inject.Inject;
-import javafx.util.Pair;
 import models.Photo;
 import org.joda.time.DateTime;
 import play.Environment;
@@ -17,6 +16,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.PhotoRepository;
+import util.customObjects.Pair;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
