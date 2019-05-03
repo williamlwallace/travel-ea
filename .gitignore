@@ -22,6 +22,8 @@ server.pid
 !/public/storage/photos/placeholder.txt
 !/public/storage/photos/test/placeholder.txt
 
+/storage/*
+
 # Things that don't belong under source control see https://github.com/github/gitignore
 
 # Java
