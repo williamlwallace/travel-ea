@@ -9,7 +9,7 @@ import static play.test.Helpers.CREATED;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
-import static play.test.Helpers.SEE_OTHER;
+import static play.test.Helpers.FORBIDDEN;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -253,7 +253,7 @@ public class ProfileControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
 
         //Check that user was redirected due to lack of auth token
-        assertEquals(SEE_OTHER, result.status());
+        assertEquals(FORBIDDEN, result.status());
     }
 
     @Test
