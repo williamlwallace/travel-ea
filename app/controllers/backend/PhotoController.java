@@ -23,8 +23,8 @@ import java.util.stream.Collectors;
 public class PhotoController extends Controller {
 
     // Constant fields defining the directories of regular photos and test photos
-    private static final String PHOTO_DIRECTORY = "public/storage/photos/";
-    private static final String TEST_PHOTO_DIRECTORY = "public/storage/photos/test/";
+    private static final String PHOTO_DIRECTORY = "storage/photos/";
+    private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
     // Photo repository to handle DB transactions
     private PhotoRepository photoRepository;
@@ -62,7 +62,7 @@ public class PhotoController extends Controller {
                 if (file != null) {
                     try {
                         // Store file with photo in list to be added later
-                        photos.add(new Pair<>(readFileToPhoto(file, profilePhotoFilename, publicPhotoFileNames, request.attrs().get(ActionState.USER).id), file));
+                        photos.add(new Pair<>(readFileToPhoto(file, profilePhotoFilename, publicPhotoFileNames, request.attrs().get(ActionState.USER).id, isTest), file));
                     } catch (IOException e) {
                         // If an invalid file type given, return bad request with error message generated in exception
                         return badRequest(e.getMessage());
@@ -77,7 +77,7 @@ public class PhotoController extends Controller {
             if(photos.isEmpty()) {
                 return badRequest("No files given");
             } else {
-                saveMultiplePhotos(photos, isTest);
+                saveMultiplePhotos(photos);
             }
 
             // Return OK if no issues were encountered
@@ -88,17 +88,12 @@ public class PhotoController extends Controller {
     /**
      * Saves multiple photo files to storage folder, and inserts reference to them to database
      * @param photos Collection of pairs of <Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>
-     * @param isTest Whether or not these photos should be added to test folder of storage
      */
-    private void saveMultiplePhotos(Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos, boolean isTest) {
+    private void saveMultiplePhotos(Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos) {
         // Add all the photos we found to the database
         for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
         {
-            if(isTest) {
-                pair.getValue().getRef().copyTo(Paths.get(TEST_PHOTO_DIRECTORY + pair.getKey().filename), true);
-            } else {
-                pair.getValue().getRef().copyTo(Paths.get(PHOTO_DIRECTORY + pair.getKey().filename), true);
-            }
+            pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
         }
         // Collect all keys from the list to upload
         photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
@@ -110,10 +105,11 @@ public class PhotoController extends Controller {
      * @param profilePhotoFilename Name (if any) of photo to be set as profile picture
      * @param publicPhotoFileNames Names (if any) of photos to be set to public, defaults to private if referenced here
      * @param userId ID of user who is uploading the files
+     * @param isTest Whether or not these photos should be added to test folder of storage
      * @return Photo object to be added to database
      * @throws IOException Thrown when an unsupported filetype added (i.e not image/jpeg or image/png)
      */
-    private Photo readFileToPhoto(Http.MultipartFormData.FilePart<Files.TemporaryFile> file, String profilePhotoFilename, HashSet<String> publicPhotoFileNames, long userId) throws IOException {
+    private Photo readFileToPhoto(Http.MultipartFormData.FilePart<Files.TemporaryFile> file, String profilePhotoFilename, HashSet<String> publicPhotoFileNames, long userId, boolean isTest) throws IOException {
         // Get the filename, file size and content-type of the file
         String fileName = System.currentTimeMillis() + "_" + file.getFilename();
 
@@ -125,7 +121,7 @@ public class PhotoController extends Controller {
 
         // Create a photo object
         Photo photo = new Photo();
-        photo.filename = fileName;
+        photo.filename = (((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY) + fileName);
         photo.isProfile = profilePhotoFilename != null && profilePhotoFilename.equals(file.getFilename());
         photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
         photo.thumbnailFilename = fileName;
