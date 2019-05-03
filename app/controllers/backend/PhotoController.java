@@ -15,6 +15,7 @@ import play.mvc.With;
 import repository.PhotoRepository;
 import util.customObjects.Pair;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +23,11 @@ import java.util.stream.Collectors;
 
 public class PhotoController extends Controller {
 
+    // Constant fields defining the directories of regular photos and test photos
+    private static final String PHOTO_DIRECTORY = "storage/photos/";
+    private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
+
+    // Photo repository to handle DB transactions
     private PhotoRepository photoRepository;
 
     @Inject
@@ -37,6 +43,18 @@ public class PhotoController extends Controller {
                 .thenApplyAsync(photos -> ok(Json.toJson(photos)));
     }
 
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getProfilePicture(Long id) {
+        return photoRepository.getUserProfilePicture(id)
+                .thenApplyAsync(photo -> {
+                    if(photo == null) {
+                        return notFound(Json.toJson("No profile picture found for user"));
+                    } else {
+                        return ok(Json.toJson(photo));
+                    }
+                });
+    }
+
     /**
      * Uploads any number of photos from a multipart/form-data request
      *
@@ -46,84 +64,94 @@ public class PhotoController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> upload(Http.Request request) {
         return CompletableFuture.supplyAsync(() -> {
-            // Get the request body, and turn it into a multipart formdata collection of temporary files
+            // Get the request body, and turn it into a multipart form data collection of temporary files
             Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
 
+            // Get all basic string keys in multipart form
+            Map<String, String[]> formKeys = body.asFormUrlEncoded();
+
             // Store in a boolean whether or not this is a test file
-            boolean isTest = false;
+            boolean isTest = Boolean.parseBoolean(formKeys.getOrDefault("isTest", new String[] {"false"})[0]);
             // Keep track of which file should be uploaded as a profile
-            String profilePhotoFilename = null;
+            String profilePhotoFilename = formKeys.getOrDefault("profilePhotoName", new String[] {null})[0];
             // Keep track of which photos are marked as public
-            HashSet<String> publicPhotoFileNames = new HashSet<>();
+            HashSet<String> publicPhotoFileNames = new HashSet<>(Arrays.asList(formKeys.getOrDefault("publicPhotoFileNames", new String[] {""})[0].split(",")));
 
-            // Iterate through all keys in the request
-            for(Map.Entry<String, String[]> entry : body.asFormUrlEncoded().entrySet()) {
-                // Check whether or not this is a test file
-                if(entry.getKey().equals("isTest")) {
-                    isTest = Boolean.parseBoolean(entry.getValue()[0]);
-                }
-                // Check if one of these if meant to be a profile photo
-                if(entry.getKey().equals("profilePhotoName")) {
-                    profilePhotoFilename = entry.getValue()[0];
-                }
-                // Check if any photos are marked as public
-                if(entry.getKey().equals("publicPhotoFileNames")) {
-                    publicPhotoFileNames = new HashSet<>(Arrays.asList(entry.getValue()[0].split(",")));
-                }
-            }
-
-            // Store photos
+            // Store photos in a list to allow them all to be uploaded at the end if all are read successfully
             ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos = new ArrayList<>();
 
             // Iterate through all files in the request
             for(Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()){
                 if (file != null) {
-                    // Get the filename, filesize and content-type of the file
-                    String fileName = System.currentTimeMillis() + "_" + file.getFilename();
-
-                    String contentType = file.getContentType();
-                    if(!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
-                        // If any file is found that is not a png or jpeg reject all files with error message
-                        return badRequest("Invalid file type given: " + contentType);
+                    try {
+                        // Store file with photo in list to be added later
+                        photos.add(new Pair<>(readFileToPhoto(file, profilePhotoFilename, publicPhotoFileNames, request.attrs().get(ActionState.USER).id, isTest), file));
+                    } catch (IOException e) {
+                        // If an invalid file type given, return bad request with error message generated in exception
+                        return badRequest(e.getMessage());
                     }
-
-                    // Create a photo object
-                    Photo photo = new Photo();
-                    photo.filename = fileName;
-                    photo.isProfile = profilePhotoFilename != null && profilePhotoFilename.equals(file.getFilename());
-                    photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
-                    photo.thumbnailFilename = fileName;
-                    photo.uploaded = DateTime.now();
-                    photo.userId = request.attrs().get(ActionState.USER).id;
-
-                    // Store file with photo in list to be added later
-                    photos.add(new Pair<>(photo, file));
-
                 } else {
                     // If any uploads fail, return bad request immediately
                     return badRequest("Missing file");
                 }
             }
 
-            // Add all the photos we found to the database
-            for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
-            {
-                if(isTest) {
-                    pair.getValue().getRef().copyTo(Paths.get("public/storage/photos/test/" + pair.getKey().filename), true);
-                } else {
-                    pair.getValue().getRef().copyTo(Paths.get("public/storage/photos/" + pair.getKey().filename), true);
-                }
-                // Collect all keys from the list to upload
-                photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
-            }
-
             // If no photos were actually found, and no other error has been thrown, throw it now
             if(photos.isEmpty()) {
                 return badRequest("No files given");
+            } else {
+                saveMultiplePhotos(photos);
             }
 
             // Return OK if no issues were encountered
-            return status(201, "File(s) uploaded successfully");
+            return status(201, Json.toJson("File(s) uploaded successfully"));
         });
+    }
+
+    /**
+     * Saves multiple photo files to storage folder, and inserts reference to them to database
+     * @param photos Collection of pairs of <Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>
+     */
+    private void saveMultiplePhotos(Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos) {
+        // Add all the photos we found to the database
+        for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
+        {
+            pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
+        }
+        // Collect all keys from the list to upload
+        photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
+    }
+
+    /**
+     * Reads a file part from the multipart form and returns a Photo object to add to the database
+     * @param file File part from form
+     * @param profilePhotoFilename Name (if any) of photo to be set as profile picture
+     * @param publicPhotoFileNames Names (if any) of photos to be set to public, defaults to private if referenced here
+     * @param userId ID of user who is uploading the files
+     * @param isTest Whether or not these photos should be added to test folder of storage
+     * @return Photo object to be added to database
+     * @throws IOException Thrown when an unsupported filetype added (i.e not image/jpeg or image/png)
+     */
+    private Photo readFileToPhoto(Http.MultipartFormData.FilePart<Files.TemporaryFile> file, String profilePhotoFilename, HashSet<String> publicPhotoFileNames, long userId, boolean isTest) throws IOException {
+        // Get the filename, file size and content-type of the file
+        String fileName = System.currentTimeMillis() + "_" + file.getFilename();
+
+        String contentType = file.getContentType();
+        if(!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+            // If any file is found that is not a png or jpeg reject all files with error message
+            throw new IOException("Invalid file type given: " + contentType);
+        }
+
+        // Create a photo object
+        Photo photo = new Photo();
+        photo.filename = (((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY) + fileName);
+        photo.isProfile = profilePhotoFilename != null && profilePhotoFilename.equals(file.getFilename());
+        photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
+        photo.thumbnailFilename = fileName;
+        photo.uploaded = DateTime.now();
+        photo.userId = userId;
+
+        // Return the created photo object
+        return photo;
     }
 }

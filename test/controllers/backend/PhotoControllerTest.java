@@ -3,10 +3,7 @@ package controllers.backend;
 import akka.util.*;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.io.FileUtils;
 import play.db.Database;
-import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import play.Application;
 import play.db.evolutions.Evolutions;
@@ -20,11 +17,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.Collections;
 
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
-import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.route;
 
 public class PhotoControllerTest extends WithApplication {
@@ -59,6 +54,12 @@ public class PhotoControllerTest extends WithApplication {
     @AfterClass
     public static void stopApp() {
         // Clear the files created
+        File directory = new File("./public/storage/photos/test/");
+        for(File file : Objects.requireNonNull(directory.listFiles())) {
+            if(!file.getName().equals("placeholder.txt")) {
+                file.deleteOnExit();
+            }
+        }
 
         // Stop the fake app running
         Helpers.stop(fakeApp);
@@ -76,7 +77,7 @@ public class PhotoControllerTest extends WithApplication {
     }
 
     /**
-     * Cleans up trips after each test, to allow for them to be re-run for next test
+     * Cleans up any added sql data after each test, to allow for them to be re-run for next test
      */
     @After
     public void cleanupEvolutions() {
@@ -87,26 +88,42 @@ public class PhotoControllerTest extends WithApplication {
     public void testFileUpload() throws IOException {
         // Load a file from the public images to upload
         File file = getFile("./public/images/favicon.png");
+
+        // List of objects that will be appended to the body of our multipart/form-data
+        List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
+
+        // Add text field parts
+        for(Pair<String, String> pair : Arrays.asList(
+                new Pair<>("isTest", "true"),
+                new Pair<>("profilePhotoName", "favicon.png"),
+                new Pair<>("publicPhotoFileNames", "")
+        )) {
+            partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
+        }
+
         // Convert this file to a multipart form data part
-        Http.MultipartFormData.Part<Source<ByteString, ?>> part =
-                new Http.MultipartFormData.FilePart<>("picture", "testPhoto.png", "image/png",
+        partsList.add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto.png", "image/png",
                         FileIO.fromPath(file.toPath()),
-                        Files.size(file.toPath()));
+                        Files.size(file.toPath())));
 
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
                 .method("POST")
                 .cookie(authCookie)
                 .bodyRaw(
-                    Collections.singletonList(part),
+                    partsList,
                     play.libs.Files.singletonTemporaryFileCreator(),
                     app.asScala().materializer()
                 );
 
         // Post to url and get result, checking that a success was returned
-        Result result = Helpers.route(app, request);
-        String content = Helpers.contentAsString(result);
-        //Assert.assertThat(content, CoreMatchers.equalTo("File uploaded"));
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(201, result.status());
+
+        // Check a success message was sent
+        String message = Helpers.contentAsString(result);
+        assertEquals("File(s) uploaded successfully", message);
     }
 
     @Test

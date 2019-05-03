@@ -684,12 +684,15 @@ paths:
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
+                  example: 'true'
                 profilePhotoFileName:
                   type: string
                   description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
+                  example:  'my_new_profile_pic.jpg'
                 publicPhotoFileNames:
                   type: array
                   description: 'Include here the filenames of all uploads that are to be publicly visible, any files that are not referenced here will be set to private by default'
+                  example: 'holiday_pic_1.jpg,holiday_pic_2.png'
                   items:
                     type: string
                 files:
@@ -698,20 +701,62 @@ paths:
                   items:
                     type: string
                     format: binary
-
       responses:
         '201':
           description: Successfully uploaded one or more files
+        '400':
+          description: One or more files given were missing or of an unsupported filetype
         '401':
           description: Authentication failed
         '403':
           description: User not authorised for this action
-        '500':
-          description: One or more files failed to upload, check response body for specific errors
+
+  '/photo/{id}':
+    get:
+      tags:
+      - Photos
+      summary: 'Get all photos belonging to the profile of some user specified by their id'
+      description: 'In order to receive any photo information in response the client requesting must be authenticated. If the authentication ID matches the ID to request photos for (i.e a user is requesting their OWN photos) then all photos are returned, public and private. However if the authentication ID does not match the ID to request photos for (i.e a user is requesting the photos of SOMEONE ELSE then only publicly accesible photo information is returned.'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to retrieve photos of
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: page
+        required: true
+        description: 'The page number to return, starts at 0'
+        schema:
+          type: integer
+          minimum: 0
+      - in: path
+        name: count
+        required: true
+        description: 'The number of photos to be returned per page'
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved (any number of) photos for a user'
           content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Photo'
+
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
@@ -983,3 +1028,37 @@ components:
           type: string
           format: ISO date-time
           example: '2019-04-20T10:30:00.000'
+
+    Photo:
+      type: object
+      description: 'Object containing references of where to find files for a particular photo'
+      properties:
+        guid:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Generated automatically when the photo is first uploaded
+        userId:
+          type: integer
+          format: int64
+          minimum: 1
+          description: ID of the user to whom the photo belongs
+        filename:
+          type: string
+          format: url
+          example: '/assets/storage/photos/1556841259327_my_image.jpg'
+          description: 'The relative URL where the full size file can be found'
+        thumbnailFilename:
+          type: string
+          format: url
+          example: '/assets/storage/photos/1556841259327_thumbnail_my_image.jpg'
+        isPublic:
+          type: boolean
+          description: 'Boolean stating whether or not this photo is publicly accesible'
+        isProfile:
+          type: boolean
+          description: 'Boolean stating whether or not this photo is the profile picture of the user'
+        uploaded:
+          type: string
+          format: ISO date-time
+          example: '2019-04-01T23:26:00.000'

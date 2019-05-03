@@ -86,7 +86,7 @@ public class TripController extends Controller {
             destList ->
                 this.getTrip(Authenticator.getTokenFromCookie(request), tripId)
                     .thenApplyAsync(
-                        trip -> (destList.isEmpty()) ? ok(
+                        trip -> (!destList.isEmpty()) ? ok(
                             createTrip.render(user, asScala(destList), trip))
                             : internalServerError(), httpExecutionContext.current()),
             httpExecutionContext.current());

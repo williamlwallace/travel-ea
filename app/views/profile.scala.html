@@ -406,12 +406,13 @@
 
 
     </body>
-}
 
+}
 
 <script type="text/javascript">
     setupDropZone();
     fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
     fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()");
     populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
+    getProfilePicture("@controllers.backend.routes.PhotoController.getProfilePicture(user.id)");
 </script>
