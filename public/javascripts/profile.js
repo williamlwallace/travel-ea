@@ -180,7 +180,7 @@ function populateProfileData(url) {
  * Variables for selecting and cropping the profile picture.
  */
 var cropGallery = $('#cropGallery');
-var profilePicture = document.getElementById('image');
+var profilePictureToCrop = document.getElementById('image');
 var profilePictureSize = 350;
 var cropper;
 
@@ -190,7 +190,7 @@ var cropper;
  */
 $(document).ready(function() {
     $('#cropProfilePictureModal').on('shown.bs.modal', function () {
-        cropper = new Cropper(profilePicture, {
+        cropper = new Cropper(profilePictureToCrop, {
             autoCropArea: 1,
             aspectRatio: 1, //Makes crop area a square
             viewMode: 1,
@@ -228,19 +228,16 @@ $(document).ready(function() {
         formData.append("file", blob, "profilepic.jpg");
 
         //TODO: Handle the response
-        postMultipart(url, formData);/*.then(response => {
-            // Read response from server, which will be a json object
-            response.json()
-                .then(json => {
-                    console.log(json);
+        postMultipart(url, formData).then(response => {
+                // Read response from server, which will be a json object
+                response.json().then(data => {
+                    console.log(data);
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
-                        $('#ProfilePicture').attr('src', blob);
-                    } else {
-                        document.getElementById("photoError").innerHTML = "Error(s): " + Object.values(json).join(", ");
+                        getProfilePicture(profilePictureControllerUrl);
                     }
                 });
-        });*/
+        });
     });
 
     //Needs to also refresh the users picture gallery if the photo is new
@@ -259,7 +256,7 @@ cropGallery.on('click','img',function() {
     //Convert the thumbnailPath to the fullPicturePath
     var fullPicturePath = thumbnailPath.replace('thumbnails/','');
     //Set the croppers image to this
-    profilePicture.setAttribute('src', fullPicturePath);
+    profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
@@ -308,4 +305,24 @@ function setupDropZone() {
     baguetteBox.run('.tz-gallery');
 }
 
+var profilePictureControllerUrl;
 
+/**
+ * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
+ * the profile picture path to it.
+ *
+ * @param url the backend PhotoController url
+ */
+function getProfilePicture(url) {
+    profilePictureControllerUrl = url;
+    get(profilePictureControllerUrl).then(response => {
+        // Read response from server, which will be a json object
+        if (response.status === 200) {
+            response.json().then(data => {
+                $("#ProfilePicture").attr("src", data.filename);
+            });
+        }
+    });
+
+
+}

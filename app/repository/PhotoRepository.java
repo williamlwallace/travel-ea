@@ -7,6 +7,7 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -44,26 +45,50 @@ public class PhotoRepository {
     /**
      * Finds all photos in database related to the given user ID
      *
-     * @param userID User to find all trips for
+     * @param userID User to find all photos for
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
-        return supplyAsync(() -> {
-                    List<Photo> list = ebeanServer.find(Photo.class)
+        return supplyAsync(() -> ebeanServer.find(Photo.class)
                             .where()
                             .eq("user_id", userID)
-                            .findList();
-
-                    return list;
-                },
+                            .findList(),
                 executionContext);
     }
 
+    /**
+     * Finds the profile picture in the database for the given user ID
+     *
+     * @param userID User to find profile picture for
+     * @return a photo
+     */
+    public CompletableFuture<Photo> getUserProfilePicture(Long userID) {
+        return supplyAsync(() -> {
+            Photo photo = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .eq("is_profile", true)
+                    .findOneOrEmpty().orElse(null);
+            if(photo != null) {
+                photo.filename = "assets/" + photo.filename;
+                photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
+            }
+            return photo;
+                }, executionContext);
+    }
 
     public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
         return supplyAsync(() -> {
             ebeanServer.insertAll(photos);
             return ok();
         }, executionContext);
+    }
+
+    private Collection<Photo> appendAssetsUrl(Collection<Photo> photos) {
+        for(Photo photo : photos) {
+            photo.filename = "assets/" + photo.filename;
+            photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
+        }
+        return photos;
     }
 }

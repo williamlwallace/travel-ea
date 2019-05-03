@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import models.Photo;
 import org.joda.time.DateTime;
 import play.libs.Files;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -40,6 +41,18 @@ public class PhotoController extends Controller {
 
         return photoRepository.getAllUserPhotos(userId)
                 .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+    }
+
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getProfilePicture(Long id) {
+        return photoRepository.getUserProfilePicture(id)
+                .thenApplyAsync(photo -> {
+                    if(photo == null) {
+                        return notFound(Json.toJson("No profile picture found for user"));
+                    } else {
+                        return ok(Json.toJson(photo));
+                    }
+                });
     }
 
     /**
@@ -91,7 +104,7 @@ public class PhotoController extends Controller {
             }
 
             // Return OK if no issues were encountered
-            return status(201, "File(s) uploaded successfully");
+            return status(201, Json.toJson("File(s) uploaded successfully"));
         });
     }
 
