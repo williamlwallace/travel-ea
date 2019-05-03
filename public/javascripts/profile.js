@@ -316,7 +316,7 @@ function createGalleryObjects() {
             photo.href = "assets/" + filename;
             // thumbnail
             var thumb = document.createElement("img");
-            thumb.src = "assets/storage/photos/" + thumbnail;
+            thumb.src = "assets/" + thumbnail;
             // add image to photo a
             photo.appendChild(thumb);
             // add photo a to the tile div
