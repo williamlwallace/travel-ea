@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import models.Photo;
 import org.joda.time.DateTime;
 import play.libs.Files;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -14,6 +15,10 @@ import play.mvc.With;
 import repository.PhotoRepository;
 import util.customObjects.Pair;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -25,6 +30,10 @@ public class PhotoController extends Controller {
     // Constant fields defining the directories of regular photos and test photos
     private static final String PHOTO_DIRECTORY = "storage/photos/";
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
+
+    // Default dimensions of thumbnail images
+    private static final int THUMB_WIDTH = 400;
+    private static final int THUMB_HEIGHT = 266;
 
     // Photo repository to handle DB transactions
     private PhotoRepository photoRepository;
@@ -45,7 +54,7 @@ public class PhotoController extends Controller {
     /**
      * Uploads any number of photos from a multipart/form-data request
      *
-     * @param request Request where body is a json object of trip
+     * @param request Request where body is a multipart form-data
      * @return Result of query
      */
     @With({Everyone.class, Authenticator.class})
@@ -103,7 +112,12 @@ public class PhotoController extends Controller {
         // Add all the photos we found to the database
         for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
         {
-            pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
+            try {
+                pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
+                createThumbnailFromFile(pair.getValue().getRef()).copyTo(Paths.get("public/" + pair.getKey().thumbnailFilename));
+            } catch (IOException e) {
+
+            }
         }
         // Collect all keys from the list to upload
         photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
@@ -134,11 +148,60 @@ public class PhotoController extends Controller {
         photo.filename = (((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY) + fileName);
         photo.isProfile = profilePhotoFilename != null && profilePhotoFilename.equals(file.getFilename());
         photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
-        photo.thumbnailFilename = fileName;
+        photo.thumbnailFilename = (((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY) + "thumbnails/" + fileName);
         photo.uploaded = DateTime.now();
         photo.userId = userId;
 
         // Return the created photo object
         return photo;
     }
+
+    /**
+     * Creates a new image at default thumbnail size of a given image
+     * @param fullImageFile The full image to create a filename for
+     * @return Temporary file of thumbnail
+     */
+    private Files.TemporaryFile createThumbnailFromFile(Files.TemporaryFile fullImageFile) throws IOException {
+        // Convert full image file to java.awt image
+        BufferedImage fullImage = ImageIO.read(fullImageFile.path().toFile());
+
+        BufferedImage tThumbImage = new BufferedImage( THUMB_WIDTH, THUMB_HEIGHT, BufferedImage.TYPE_INT_RGB );
+        Graphics2D tGraphics2D = tThumbImage.createGraphics(); //create a graphics object to paint to
+        tGraphics2D.setBackground( Color.WHITE );
+        tGraphics2D.setPaint( Color.WHITE );
+        tGraphics2D.fillRect(0, 0, THUMB_WIDTH, THUMB_HEIGHT);
+        tGraphics2D.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR );
+        //tGraphics2D.drawImage( fullImage, 0, 0, THUMB_WIDTH, THUMB_HEIGHT, null ); //draw the image scaled
+        // If image is smaller than thumbnail size then center with bars on each side
+        if(fullImage.getWidth() < THUMB_WIDTH && fullImage.getHeight() < THUMB_HEIGHT){
+            tGraphics2D.drawImage(fullImage,THUMB_WIDTH / 2 - fullImage.getWidth() / 2, THUMB_HEIGHT / 2 - fullImage.getHeight() / 2, fullImage.getWidth(), fullImage.getHeight(), null);
+        } // Otherwise scale image down so biggest side is set to max of thumbnail and rest is scaled proportionally
+        else {
+            // Determine which side is proportionally bigger
+            boolean fitWidth = fullImage.getWidth() / THUMB_WIDTH > fullImage.getHeight() / THUMB_HEIGHT;
+            double scaleFactor = (fitWidth) ? (double)THUMB_WIDTH / (double)fullImage.getWidth() : (double)THUMB_HEIGHT / (double)fullImage.getHeight();
+            if(fitWidth) {
+                int newHeight = (int)Math.floor(fullImage.getHeight() * scaleFactor);
+                tGraphics2D.drawImage(fullImage, 0, THUMB_HEIGHT / 2 - newHeight / 2, THUMB_WIDTH, newHeight, null);
+            } else {
+                int newWidth = (int)Math.floor(fullImage.getWidth() * scaleFactor);
+                tGraphics2D.drawImage(fullImage, THUMB_WIDTH / 2 - newWidth/ 2, 0, newWidth, THUMB_HEIGHT, null);
+            }
+        }
+
+        // Create file to store output of thumbnail write
+        File thumbFile = new File("public/storage/photos/test/tempThumb.jpg");
+
+        // Write buffered image to thumbnail file
+        ImageIO.write(tThumbImage, "jpg", thumbFile);
+
+        // Return temporary file created from the file
+        Files.TemporaryFile temporaryFile = (new Files.SingletonTemporaryFileCreator()).create(thumbFile.toPath());
+
+        // Delete the file that it was buffered to
+        thumbFile.deleteOnExit();
+
+        return temporaryFile;
+    }
+
 }

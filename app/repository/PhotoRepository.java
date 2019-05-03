@@ -31,7 +31,7 @@ public class PhotoRepository {
     /**
      *  Inserts new photo into database
      *
-     * @param newPhoto Photo to be added
+     * @param photo Photo to be added
      * @return Ok on success
      */
     public CompletableFuture<Result> addPhoto(Photo photo) {
@@ -48,15 +48,12 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
-        return supplyAsync(() -> {
-                    List<Photo> list = ebeanServer.find(Photo.class)
-                            .where()
-                            .eq("user_id", userID)
-                            .findList();
-
-                    return list;
-                },
-                executionContext);
+        return supplyAsync(() ->
+             ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .findList(),
+            executionContext);
     }
 
 
