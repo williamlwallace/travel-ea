@@ -228,9 +228,9 @@ $(document).ready(function() {
         formData.append("file", blob, "profilepic.jpg");
 
         //TODO: Handle the response
-        postMultipart(url, formData).then(response => {
+        postMultipart(url, formData);/*.then(response => {
             // Read response from server, which will be a json object
-            /*response.json()
+            response.json()
                 .then(json => {
                     console.log(json);
                     if (response.status === 201) {
@@ -239,8 +239,8 @@ $(document).ready(function() {
                     } else {
                         document.getElementById("photoError").innerHTML = "Error(s): " + Object.values(json).join(", ");
                     }
-                });*/
-        });
+                });
+        });*/
     });
 
     //Needs to also refresh the users picture gallery if the photo is new
