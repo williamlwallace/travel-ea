@@ -16,11 +16,15 @@ server.pid
 .cache
 *.log
 *.db
+/.idea/*
+.idea/*
 
 # Ignore all files inside storage, except the placeholder text files, which make sure that git includes the directories
 /public/storage
 !/public/storage/photos/placeholder.txt
 !/public/storage/photos/test/placeholder.txt
+!/public/storage/photos/thumbnails/placeholder.txt
+!/public/storage/photos/test/thumbnails/placeholder.txt
 
 /storage/*
 
