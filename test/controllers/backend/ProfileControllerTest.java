@@ -273,6 +273,7 @@ public class ProfileControllerTest extends WithApplication {
     private List<Profile> searchProfiles(String parameters) throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
+            .cookie(this.authCookie)
             .uri("/api/profile/search?" + parameters);
 
         Result result = route(fakeApp, request);
@@ -286,27 +287,21 @@ public class ProfileControllerTest extends WithApplication {
         List<Profile> profiles = searchProfiles("");
 
         //Expect 4 profiles to be returned
-        assertEquals(4, profiles.size());
+        assertEquals(3, profiles.size());
 
         //Check that id and first name are correct for each profile
-
-        //User 1: Dave
-        Profile dave = profiles.get(0);
-        assertEquals(Long.valueOf(1), dave.userId);
-        assertEquals("Dave", dave.firstName);
-
-        //User 2: Steve
-        Profile steve = profiles.get(1);
+        //User 1: Steve
+        Profile steve = profiles.get(0);
         assertEquals(Long.valueOf(2), steve.userId);
         assertEquals("Steve", steve.firstName);
 
-        //User 1: Jim
-        Profile jim = profiles.get(2);
+        //User 2: Jim
+        Profile jim = profiles.get(1);
         assertEquals(Long.valueOf(3), jim.userId);
         assertEquals("Jim", jim.firstName);
 
-        //User 1: Ya boi
-        Profile yaBoi = profiles.get(3);
+        //User 3: Ya boi
+        Profile yaBoi = profiles.get(2);
         assertEquals(Long.valueOf(4), yaBoi.userId);
         assertEquals("YA BOI", yaBoi.firstName);
     }
@@ -316,7 +311,7 @@ public class ProfileControllerTest extends WithApplication {
         List<Profile> profiles = searchProfiles("gender=male");
 
         //Expect 2 profiles to be found
-        assertEquals(2, profiles.size());
+        assertEquals(1, profiles.size());
 
         for (Profile profile : profiles) {
             assertEquals("male", profile.gender.toLowerCase());
@@ -342,7 +337,7 @@ public class ProfileControllerTest extends WithApplication {
         long countryId = 2;
 
         //Expect 3 profiles to be found
-        assertEquals(3, profiles.size());
+        assertEquals(2, profiles.size());
 
         for (Profile profile : profiles) {
             boolean found = false;
@@ -362,7 +357,7 @@ public class ProfileControllerTest extends WithApplication {
         long travellerTypeId = 2;
 
         //Expect 2 profiles to be found
-        assertEquals(2, profiles.size());
+        assertEquals(1, profiles.size());
 
         for (Profile profile : profiles) {
             boolean found = false;
@@ -380,7 +375,7 @@ public class ProfileControllerTest extends WithApplication {
         List<Profile> profiles = searchProfiles("minAge=30");
 
         //Expect 2 profiles to be found
-        assertEquals(2, profiles.size());
+        assertEquals(1, profiles.size());
 
         for (Profile profile : profiles) {
             assert (profile.calculateAge() >= 30);
@@ -392,7 +387,7 @@ public class ProfileControllerTest extends WithApplication {
         List<Profile> profiles = searchProfiles("maxAge=40");
 
         //Expect 3 profiles to be found
-        assertEquals(3, profiles.size());
+        assertEquals(2, profiles.size());
 
         for (Profile profile : profiles) {
             assert (profile.calculateAge() <= 40);
@@ -409,13 +404,13 @@ public class ProfileControllerTest extends WithApplication {
 
     @Test
     public void searchProfilesMultipleParams() throws IOException {
-        List<Profile> profiles = searchProfiles("minAge=30&travellerTypeId=2");
+        List<Profile> profiles = searchProfiles("minAge=20&travellerTypeId=1");
 
         //Expect 1 profiles to be found
-        assertEquals(1, profiles.size());
+        assertEquals(2, profiles.size());
 
         for (Profile profile : profiles) {
-            assert (profile.calculateAge() >= 30);
+            assert (profile.calculateAge() >= 20);
 
             boolean found = false;
             for (TravellerTypeDefinition travellerType : profile.travellerTypes) {
