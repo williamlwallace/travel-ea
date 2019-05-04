@@ -217,10 +217,11 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return List of profiles within requested parameters
      */
-    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender,
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId, String gender,
         int minAge, int maxAge, Long travellerTypeId) {
-        return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
-
+        long userId = request.attrs().get(ActionState.USER).id;
+        return profileRepository.getAllProfiles(userId).thenApplyAsync(profiles -> {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
@@ -276,9 +277,9 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return A ok result containing the JSON of the profiles matching search criteria
      */
-    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender,
+    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId, String gender,
         int minAge, int maxAge, Long travellerTypeId) {
-        return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId)
+        return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .thenApplyAsync(profiles ->
                 ok(Json.toJson(profiles)));
     }

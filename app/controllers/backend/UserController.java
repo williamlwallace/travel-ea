@@ -55,7 +55,7 @@ public class UserController extends Controller {
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> userSearch(Http.Request request, String order, String filter) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.search(order, filter).thenApplyAsync(users ->
+        return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id).thenApplyAsync(users ->
             ok(Json.toJson(users)), httpExecutionContext.current());
     }
 
