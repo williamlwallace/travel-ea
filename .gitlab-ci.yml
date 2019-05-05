@@ -35,7 +35,7 @@ start-server-dev:
   stage: deploy
   script:
     - sbt dist
-    - source $HOME/runServerScript.sh
+    - source /home/sengstudent/runServerScript.sh
     - stopDev
     - setupDev
     - startDev
