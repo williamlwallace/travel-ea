@@ -85,6 +85,21 @@ public class PhotoRepository {
         }, executionContext);
     }
 
+    /**
+     * Deletes a photo from the database.
+     *
+     * @param id Unique photo ID of destination to be deleted
+     * @return The number of rows deleted
+     */
+    public CompletableFuture<Integer> deletePhoto(Long id) {
+        return supplyAsync(() ->
+                        ebeanServer.find(Photo.class)
+                                .where()
+                                .eq("guid", id)
+                                .delete()
+                , executionContext);
+    }
+
     private Collection<Photo> appendAssetsUrl(Collection<Photo> photos) {
         for(Photo photo : photos) {
             photo.filename = "assets/" + photo.filename;

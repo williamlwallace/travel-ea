@@ -269,7 +269,6 @@ cropGallery.on('click','img',function() {
  * Function to populate gallery with current users photos
  */
 function fillGallery(getPhotosUrl) {
-    console.log(getPhotosUrl)
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -413,6 +412,14 @@ function setupDropZone() {
             file.rejectDimensions = function() {
                 done("Image too small.");
             };
+        },
+        success: function(file, response) {
+            file.serverFileName = response[0];
+            console.log(response);
+        },
+        removedfile: function (file, data) {
+            var deleteUrl = "api/photo/:25";
+            _delete(deleteUrl)
         }
     };
 }

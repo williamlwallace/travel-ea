@@ -14,6 +14,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import repository.PhotoRepository;
 import util.customObjects.Pair;
+import util.validation.ErrorResponse;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -214,6 +215,28 @@ public class PhotoController extends Controller {
         thumbFile.deleteOnExit();
 
         return temporaryFile;
+    }
+
+    /**
+     * Deletes a photo with given id. Return a result with a json int which represents the
+     * number of rows that were deleted. So if the return value is 0, no photo was found to
+     * delete
+     *
+     * @param id ID of photo to delete
+     * @return OK with number of rows deleted, badrequest if none deleted
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> deletePhoto(Long id) {
+        // TODO: add authentication of user
+        return photoRepository.deletePhoto(id).thenApplyAsync(rowsDeleted -> {
+            if (rowsDeleted < 1) {
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.map("Photo not found", "other");
+                return badRequest(errorResponse.toJson());
+            } else {
+                return ok(Json.toJson(rowsDeleted));
+            }
+        });
     }
 
 }
