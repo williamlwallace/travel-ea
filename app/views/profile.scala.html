@@ -3,7 +3,6 @@
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/dropzone.js")" type="text/javascript"></script>
@@ -76,7 +75,7 @@
                             <p>
                                 <span class="section-title">Trips</span>
                             </p>
-                        </div>
+                        </div><br>
 
                         <div>
                             <label id="tripError"></label>
@@ -96,7 +95,7 @@
                                         <th class="th-sm">Date</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tripData">
+                                <tbody id="tripData" class="tripTable">
                                 @for(t <- tripList) {
                                     @if(t.tripDataList.length > 0) {
                                         <tr id="@t.id" class="clickable-row" data-toggle="modal" data-target="#modal-@t.id">
@@ -120,23 +119,35 @@
                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="exampleModalLongTitle">Trip</h5>
+                                                            <h5 class="modal-title w-100 font-weight-bold" id="exampleModalLongTitle">Trip Details</h5>
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
                                                         </div>
-                                                        <div class="modal-body">
+                                                        <div class="modal-body text-center">
                                                             @for(dest <- t.tripDataList) {
                                                                 @if(dest.eq(t.tripDataList.last)) {
-                                                                    @dest.destination.name
+                                                                    <br>
+                                                                    <div>@dest.destination.name
+                                                                        <p>@dest.destination.country</p>
+                                                                    </div>
                                                                 } else {
-                                                                    @dest.destination.name ->
+                                                                    <br>
+                                                                    <div>@dest.destination.name
+                                                                        <p>@dest.destination.country</p>
+                                                                    </div>
+                                                                    <img class="tripArrow" src= "@routes.Assets.at("images/arrow.png")"><br>
                                                                 }
                                                             }
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                            <button type="button" class="btn btn-secondary" onclick='viewTrip("@controllers.frontend.routes.TripController.editTripIndex(tripList(1).id)")'>Edit Trip</button>
+                                                            <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
+                                                            <button id="editTrip" type="button" class="btn btn-popup" onclick="viewTrip(@t.id)">Edit Trip</button>
+                                                            <script>
+                                                                function viewTrip(url) {
+                                                                    window.location.href = "trips/edit/" + url;
+                                                                }
+                                                            </script>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -143,6 +143,17 @@ span.profile-button:hover {
     text-decoration-line: underline;
 }
 
+.tripTable tr{
+    cursor: pointer;
+}
+
+.tripArrow {
+    transform: rotate(90deg);
+    height: 10px;
+    max-height: 10%;
+    max-width: 10%;
+}
+
 /* Limit image width to avoid overflow the container */
 img {
     max-width: 100%; /* This rule is very important, please do not ignore this! */
