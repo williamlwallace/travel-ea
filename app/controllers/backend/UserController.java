@@ -162,9 +162,13 @@ public class UserController extends Controller {
                         return badRequest(validatorResult
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
-                        //If the uid is not null, return an ok message with the uid contained within
-                        return ok(Json.toJson(SUCCESS))
-                            .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
+                        if (request.header("Cookie").toString() == "Optional.empty") {
+                            //If the uid is not null, return an ok message with the uid contained within
+                            return ok(Json.toJson(SUCCESS))
+                                    .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
+                        } else {
+                            return ok(Json.toJson(SUCCESS));
+                        }
                     }
                 });
         }

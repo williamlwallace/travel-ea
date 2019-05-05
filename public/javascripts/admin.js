@@ -1,6 +1,7 @@
 //Initialises the data table and adds the data
 $(document).ready(function () {
     populateTable($('#dtUser').DataTable());
+    populateTrips($('#dtTrips').DataTable());
 });
 
 //Click listener that handles clicks in admin table
@@ -14,12 +15,17 @@ $('#dtUser').on('click', 'button', function() {
     }
 })
 
-/**
- * Deletes a user from db and rmeoves from data table
- * @param {Object} button - Html button element
- * @param {Object} tableAPI - data table api
- * @param {Number} id - user id
- */
+$('#dtTrips').on('click', 'button', function() {
+    let tableAPI = $('#dtTrips').dataTable().api();
+    let id = tableAPI.cell($(this).parents('tr'), 0).data();
+    if ($(this).parents('td').index() == 4) {
+        updateTrip(this, tableAPI, id);
+    } else if ($(this).parents('td').index() == 5) {
+        deleteTrip(this, tableAPI, id);
+    }
+})
+
+
 function deleteUser(button, tableAPI, id) {
     _delete('api/user/'+id)
     .then(response => {
@@ -92,6 +98,52 @@ function populateTable(table) {
             }
         });
     })
+}
+
+function populateTrips(table) {
+    get('api/trip/getAllTrips/')
+        .then(response => {
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                console.log(json);
+                for (const trip in json) {
+                    const id = json[trip].id;
+                    const tripDataList = json[trip].tripDataList;
+                    const startDest = tripDataList[0].destination.name;
+                    const endDest = tripDataList[(tripDataList.length - 1)].destination.name;
+                    const tripLength = tripDataList.length;
+
+                    update = "<button class=\"btn btn-secondary\">Update</button>";
+                    removeTrip = "<button class=\"btn btn-danger\">Delete</button>"
+                    table.row.add([id,startDest,endDest,tripLength,update,removeTrip]).draw(false);
+                }
+            }
+        });
+    })
+}
+
+
+function updateTrip(button, tableAPI, id) {
+    window.location.href = '/trips/edit/' + id;
+}
+
+function deleteTrip(button, tableAPI, id) {
+    console.log(id);
+    _delete('api/trip/' + id)
+        .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                tableAPI.row( $(button).parents('tr') ).remove().draw(false);
+            }
+        });
+    });
 }
 
 /**

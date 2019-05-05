@@ -48,6 +48,19 @@ public class TripController extends Controller {
     }
 
     /**
+     * Attempts to get all trips
+     *
+     * @param request the HTTP request
+     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllTrips(Http.Request request) {
+
+        return tripRepository.getAllTrips()
+                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+    }
+
+    /**
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
      * with 2 fields: uid: This field represents the id of the user who owns the trip
      * tripDataCollection: An array storing all stages of the trip as tripData objects

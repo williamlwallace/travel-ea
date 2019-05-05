@@ -55,6 +55,8 @@ PUT           /api/trip                              controllers.backend.TripCon
 
 GET           /api/trip/getAll/                      controllers.backend.TripController.getAllUserTrips(request:Request)
 
+GET           /api/trip/getAllTrips/   controllers.backend.TripController.getAllTrips(request:Request)
+
 GET           /api/trip/:id            controllers.backend.TripController.getTrip(id:Long)
 
 DELETE        /api/trip/:id            controllers.backend.TripController.deleteTrip(id:Long)
