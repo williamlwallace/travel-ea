@@ -15,27 +15,9 @@ function updateProfile(uri, redirect) {
         [pair[0]]: pair[1],
     }), {});
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
-    data.nationalities = [];
-    let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
-    for (i = 0; i < nat_ids.length; i++) {
-        let nat = {};
-        nat.id = nat_ids[i];
-        data.nationalities.push(nat);
-    }
-    data.passports = [];
-    let passport_ids = $.map($(document.getElementById("passports")).picker('get'),Number)
-    for (i = 0; i < passport_ids.length; i++) {
-        let passport = {};
-        passport.id = passport_ids[i];
-        data.passports.push(passport);
-    }
-    data.travellerTypes  = [];
-    let type_ids = $.map($(document.getElementById("travellerTypes")).picker('get'),Number);
-    for (i = 0; i < type_ids.length; i++) {
-        let type = {};
-        type.id = type_ids[i];
-        data.travellerTypes.push(type);
-    }
+    data.nationalities = JSONFromDropDowns("nationalities");
+    data.passports = JSONFromDropDowns("passports");
+    data.travellerTypes  = JSONFromDropDowns("travellerTypes");
     // Post json data to given uri
     put(uri,data)
         .then(response => {

@@ -96,3 +96,18 @@ function insertFieldData(json) {
         }
     }
 }
+
+/**
+ * Gets list of data from dropdowns to put in JSON object
+ * @param {string} dropdown - Name of dropdown Id
+ */
+function JSONFromDropDowns(dropdown) {
+    let data = [];
+    let ids = $.map($(document.getElementById(dropdown)).picker('get'),Number);
+    for (i = 0; i < ids.length; i++) {
+        let dat = {};
+        dat.id = ids[i];
+        data.push(dat);
+    }
+    return data;
+}

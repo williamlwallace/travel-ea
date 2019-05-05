@@ -1,3 +1,5 @@
+let countryDict = {};
+
 /**
  * Gets and fills country data in dropdown, card fields, and destinations fields
  * @param {string} getCountriesUri - API URI to get countries from
@@ -10,7 +12,6 @@ function fillCountryInfo(getCountriesUri) {
         // Convert the response to json
         response.json().then(data => {
             // Json data is an array of destinations, iterate through it
-            let countryDict = {};
             for(let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 countryDict[data[i]['id']] = data[i]['name'];
