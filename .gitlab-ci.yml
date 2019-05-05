@@ -36,9 +36,10 @@ start-server-dev:
   script:
     - sbt dist
     - source /home/sengstudent/runServerScript.sh
-    - stopDev
+    - source /etc/init.d/travelEAdev
+    - stop
     - setupDev
-    - startDev
+    - start
   only:
     - master-dev@seng302-2019/team-400
     - dedicated@seng302-2019/team-400
