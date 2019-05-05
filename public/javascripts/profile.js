@@ -306,14 +306,23 @@ function createGalleryObjects() {
         // create each photo tile
         for (let position = 0; position <= 5 && (6 * page + position) < usersPhotos.length; position++) {
             var tile = document.createElement("div");
-            tile.setAttribute("class", "col-sm6 col-md-4");
+            tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
+            // Create delete button
+            var deleteButton = document.createElement("span");
+            deleteButton.setAttribute("class", "close");
+            deleteButton.innerHTML = "&times;";
+            tile.appendChild(deleteButton);
+
             var photo = document.createElement("a");
             photo.setAttribute("class", "lightbox");
             // 6 * page + position finds the correct photo index in the dictionary
             var filename = usersPhotos[(6 * page + position)]["filename"];
-            var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
+            var guid = usersPhotos[(6 * page + position)]["guid"];
             photo.href = "assets/" + filename;
+            photo.setAttribute("data-id", guid);
+            photo.setAttribute("data-filename", "assets/" + filename);
             // thumbnail
+            var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
             var thumb = document.createElement("img");
             thumb.src = "assets/" + thumbnail;
             // add image to photo a
@@ -351,6 +360,28 @@ function addPhotos() {
     // set first page
     $("#content").html(galleryObjects[(0)]);
     baguetteBox.run('.tz-gallery');
+    $('.img-wrap .close').on('click', function() {
+        var guid = $(this).closest('.img-wrap').find('a').data("id");
+        var filename = $(this).closest('.img-wrap').find('a').data("filename");
+
+        removePhoto(guid, filename);
+    });
+}
+
+function removePhoto(guid, filename) {
+    $('#deletePhotoModal').modal('show');
+    document.getElementById("deleteMe").setAttribute("src", filename);
+    document.getElementById("deleteMe").setAttribute("name", guid);
+}
+
+function deletePhoto() {
+    var guid = document.getElementById("deleteMe").name;
+    var deleteUrl = "api/photo/" + guid;
+    _delete(deleteUrl).then(
+        response => {
+            $('#deletePhotoModal').modal('hide')
+            fillGallery("/api/photo/getAll")
+        });
 }
 
 /**
@@ -442,6 +473,5 @@ function getProfilePicture(url) {
             });
         }
     });
-
-
 }
+
