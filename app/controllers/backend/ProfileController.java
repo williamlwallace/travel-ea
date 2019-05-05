@@ -3,6 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import actions.roles.Admin;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +147,7 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    // TODO: set auth to admin role @With({Everyone.class, Authenticator.class})
+    @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode data = request.body().asJson();
@@ -194,7 +195,7 @@ public class ProfileController extends Controller {
      * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
      *  not found for that userID.
      */
-    //TODO: Authorization for admin only
+    @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
             if (rowsDeleted < 1) {
