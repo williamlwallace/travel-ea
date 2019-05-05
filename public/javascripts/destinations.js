@@ -1,6 +1,12 @@
-var countryDict = {};
+//initilise datatable on load
+$(document).ready(function () {
+    $('#dtDestination').DataTable();
+});
 
-// Runs get countries method, then add country options to drop down
+/**
+ * Gets all countries and fills into dropdown
+ * @param {stirng} getCountriesUrl - get all countries URI
+ */
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
     get(getCountriesUrl)
@@ -9,17 +15,21 @@ function fillCountryInfo(getCountriesUrl) {
             // Convert the response to json
             response.json().then(data => {
                 // Json data is an array of destinations, iterate through it
+                countryDict = {};
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     countryDict[data[i]['id']] = data[i]['name'];
                 }
                 // Now fill the drop down box, and list of destinations
-                fillDropDown();
-                updateDestinationsCountryField();
+                fillDropDown("countryDropDown", countryDict);
+                updateDestinationsCountryField(countryDict);
             });
         });
 }
 
+/**
+ * Updates destination list with countries
+ */
 function updateDestinationsCountryField() {
     // Iterate through all destinations to add
     var tds = document.querySelectorAll('#destinationList td'), i;
@@ -30,17 +40,11 @@ function updateDestinationsCountryField() {
     }
 }
 
-function fillDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("countryDropDown").appendChild(item);
-    }
-}
-
+/**
+ * Add destination to databse
+ * @param {stirng} url - API URI to add destination
+ * @param {string} redirect - URI of redirect page
+ */
 function addDestination(url, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("addDestinationForm"));
@@ -73,7 +77,3 @@ function addDestination(url, redirect) {
         });
     });
 }
-
-$(document).ready(function () {
-    $('#dtDestination').DataTable();
-});

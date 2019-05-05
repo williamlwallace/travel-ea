@@ -1,105 +1,19 @@
-var countryDict = {};
-var travellerTypeDict = {};
-
-// Runs get countries method, then add country options to drop down
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-        .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-        // Json data is an array of destinations, iterate through it
-        for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        countryDict[data[i]['id']] = data[i]['name'];
-    }
-    // Now fill the selects
-    fillNationalityDropDown();
-    fillPassportDropDown();
-});
-});
-}
-
-function fillTravellerTypes(getTravellerTypesUrl) {
-    // Run a get request to fetch all travellers types
-    get(getTravellerTypesUrl)
-    // Get the response of the request
-        .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-        // "data" should now be a list of traveller type definitions
-        // E.g data[0] = { id:1, description:"backpacker"}
-        for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        travellerTypeDict[data[i]['id']] = data[i]['description'];
-    }
-    // Now fill the drop down box, and list of destinations
-    fillTravellerDropDown();
-
-});
-});
-}
-
-function fillNationalityDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("nationalities").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#nationalities').picker();
-}
-
-function fillPassportDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("passports").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#passports').picker();
-}
-
-function fillTravellerDropDown() {
-    for(let key in travellerTypeDict) {
-        // For each Traveller type, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = travellerTypeDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("travellerTypes").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#travellerTypes').picker();
-}
-
-
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
 /**
  * The JavaScript function to process a client updating there profile
- * @param url The route/url to send the request to
+ * @param uri The route/uri to send the request to
  * @param redirect The page to redirect to if no errors are found
  */
-function updateProfile(url, redirect) {
-    console.log("zza");
+function updateProfile(uri, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("updateProfileForm"));
-    console.log("zza");
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
     }), {});
-    console.log("zza");
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = [];
     let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
@@ -122,10 +36,8 @@ function updateProfile(url, redirect) {
         type.id = type_ids[i];
         data.travellerTypes.push(type);
     }
-    console.log("zza");
-    // Post json data to given url
-    console.log(data);
-    put(url,data)
+    // Post json data to given uri
+    put(uri,data)
         .then(response => {
         // Read response from server, which will be a json object
         response.json()
@@ -146,15 +58,20 @@ function updateProfile(url, redirect) {
     });
 }
 
+/**
+ * Returns timout promise
+ * @param {Number} ms - time in millieseconds
+ */
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 /**
  * The javascript method to populate the slect boxes on the edit profile scene
- * @param url the route/url to send the request to to get the profile data
+ * @param {string} uri - the route/URI to send the request to to get the profile data
  */
-function populateProfileData(url) {
-    get(url)
+function populateProfileData(uri) {
+    get(uri)
     .then(response => {
         // Read response from server, which will be a json object
         return response.json()

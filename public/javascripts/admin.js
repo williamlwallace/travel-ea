@@ -1,8 +1,9 @@
+//Initialises the data table and adds the data
 $(document).ready(function () {
-    //Initialises the data table and adds the data
     populateTable($('#dtUser').DataTable());
 });
 
+//Click listener that handles clicks in admin table
 $('#dtUser').on('click', 'button', function() {
     let tableAPI = $('#dtUser').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
@@ -13,6 +14,12 @@ $('#dtUser').on('click', 'button', function() {
     }
 })
 
+/**
+ * Deletes a user from db and rmeoves from data table
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id
+ */
 function deleteUser(button, tableAPI, id) {
     _delete('api/user/'+id)
     .then(response => {
@@ -28,17 +35,23 @@ function deleteUser(button, tableAPI, id) {
     });
 }
 
+/**
+ * Adds or removes users admin powers and changes button text
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function toggleAdmin(button, tableAPI, id) {
-    let url;
+    let uri;
     let innerHTML;
     if (button.innerHTML.trim().startsWith("Revoke")) {
-        url = 'api/admin/revoke/' + id;
+        uri = 'api/admin/revoke/' + id;
         innerHTML = "Grant admin";
     } else {
-        url = 'api/admin/grant/' + id;
+        uri = 'api/admin/grant/' + id;
         innerHTML = "Revoke admin";
     }
-    post(url, "")   
+    post(uri, "")   
     .then(response => {
         //need access to response status, so cant return promise
         response.json()
@@ -52,6 +65,10 @@ function toggleAdmin(button, tableAPI, id) {
     });
 }
 
+/**
+ * Inserts users into admin table
+ * @param {Object} table - data table object
+ */
 function populateTable(table) {
     get('api/user/search')
     .then(response => {
@@ -78,17 +95,16 @@ function populateTable(table) {
 }
 
 /**
- * The JavaScript function to process a client signing up
- *
- * @param url The route/url to send the request to
+ * User creation for admins
+ * @param {stirng} uri - api singup uri
  */
-function createUser(url, redirect) {
+function createUser(uri, redirect) {
     const formData = new FormData(document.getElementById("signupForm"));
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]] : pair[1],
     }), {});
-    post(url, data)
+    post(uri, data)
         .then(response => {
             response.json()
             .then(json => {
