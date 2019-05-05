@@ -27,7 +27,7 @@ GET           /api/profile                           controllers.backend.Profile
 
 PUT           /api/profile                           controllers.backend.ProfileController.updateProfile(request:Request)
 
-GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
@@ -53,11 +53,13 @@ POST          /api/trip                              controllers.backend.TripCon
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
 
-GET           /api/trip/getAll/        controllers.backend.TripController.getAllUserTrips(request:Request)
+GET           /api/trip/getAll/                      controllers.backend.TripController.getAllUserTrips(request:Request)
 
 GET           /api/trip/:id            controllers.backend.TripController.getTrip(id:Long)
 
 DELETE        /api/trip/:id            controllers.backend.TripController.deleteTrip(id:Long)
+
+POST    /api/photo                      controllers.backend.PhotoController.upload(request: Request)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
