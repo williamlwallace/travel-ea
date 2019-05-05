@@ -29,8 +29,9 @@ function fillCountryInfo(getCountriesUrl) {
 
 /**
  * Updates destination list with countries
+ * @param {Object} countryDict - Dictionary of countries
  */
-function updateDestinationsCountryField() {
+function updateDestinationsCountryField(countryDict) {
     // Iterate through all destinations to add
     var tds = document.querySelectorAll('#destinationList td'), i;
     for(i = 0; i < tds.length; ++i) {

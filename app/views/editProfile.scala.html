@@ -89,7 +89,7 @@
 }
 
 <script type="text/javascript">
-    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name")
+    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
     populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
 </script>
