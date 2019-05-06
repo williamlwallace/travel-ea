@@ -208,7 +208,8 @@ public class TripController extends Controller {
         return ok(
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
-                controllers.backend.routes.javascript.TripController.getAllUserTrips()
+                controllers.backend.routes.javascript.TripController.getAllUserTrips(),
+                controllers.frontend.routes.javascript.TripController.editTripIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

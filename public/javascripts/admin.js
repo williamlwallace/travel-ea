@@ -19,9 +19,7 @@ $('#dtUser').on('click', 'button', function() {
 $('#dtTrips').on('click', 'button', function() {
     let tableAPI = $('#dtTrips').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
-    if ($(this).parents('td').index() == 4) {
-        updateTrip(this, tableAPI, id);
-    } else if ($(this).parents('td').index() == 5) {
+    if ($(this).parents('td').index() == 5) {
         deleteTrip(this, tableAPI, id);
     }
 })
@@ -125,19 +123,15 @@ function populateTrips(table) {
                     const startDest = tripDataList[0].destination.name;
                     const endDest = tripDataList[(tripDataList.length - 1)].destination.name;
                     const tripLength = tripDataList.length;
+                    const editURL = tripRouter.controllers.frontend.TripController.editTripIndex(id).url;
 
-                    update = "<button class=\"btn btn-secondary\">Update</button>";
+                    update = "<a href=\"" + editURL + "\" class=\"btn btn-secondary\">Update</a>";
                     removeTrip = "<button class=\"btn btn-danger\">Delete</button>"
                     table.row.add([id,startDest,endDest,tripLength,update,removeTrip]).draw(false);
                 }
             }
         });
     })
-}
-
-//this needs to be deleted wtf ahah
-function updateTrip(button, tableAPI, id) {
-    window.location.href = '/trips/edit/' + id;
 }
 
 /**
