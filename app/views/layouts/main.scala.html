@@ -51,12 +51,12 @@
                 </ul>
                 <ul class="nav pull-right">
                     <li class="dropdown">
-                        <a class="dropdown-toggle dropdown-style @activeLink("/profile")" href="/profile" id="navbarDropdown"
+                        <a class="dropdown-toggle dropdown-style @activeLink("/profile")" href="@controllers.frontend.routes.ProfileController.index(user.id)" id="navbarDropdown"
                             role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         @user.username
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/profile">Profile</a>
+                            <a class="dropdown-item" href="@controllers.frontend.routes.ProfileController.index(user.id)">Profile</a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick=
                             'logout("@controllers.backend.routes.UserController.logout()",
