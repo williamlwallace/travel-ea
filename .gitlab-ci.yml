@@ -36,7 +36,7 @@ start-server-dev:
   script:
     - sbt dist
     - source /home/sengstudent/runServerScript.sh
-#    - stopDev
+    - stopDev
 #    - setupDev
 #    - startDev
   only:
