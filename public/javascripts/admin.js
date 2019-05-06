@@ -26,9 +26,14 @@ $('#dtTrips').on('click', 'button', function() {
     }
 })
 
-
+/**
+ * Makes delete request with given user
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function deleteUser(button, tableAPI, id) {
-    _delete('api/user/'+id)
+    _delete(userRouter.controllers.backend.UserController.deleteOtherUser(id).url)
     .then(response => {
         //need access to response status, so cant return promise
         response.json()
@@ -55,7 +60,7 @@ function toggleAdmin(button, tableAPI, id) {
         uri = adminRouter.controllers.backend.AdminController.revokeAdmin(id).url;
         innerHTML = "Grant admin";
     } else {
-        uri = 'api/admin/grant/' + id;
+        uri = adminRouter.controllers.backend.AdminController.grantAdmin(id).url;
         innerHTML = "Revoke admin";
     }
     post(uri, "")   
@@ -77,7 +82,7 @@ function toggleAdmin(button, tableAPI, id) {
  * @param {Object} table - data table object
  */
 function populateTable(table) {
-    get('api/user/search')
+    get(userRouter.controllers.backend.UserController.userSearch().url)
     .then(response => {
         response.json()
         .then(json => {
@@ -101,8 +106,12 @@ function populateTable(table) {
     })
 }
 
+/**
+ * Inser trip data into table
+ * @param {Object} table - data table object
+ */
 function populateTrips(table) {
-    get('api/trip/getAllTrips/')
+    get(tripRouter.controllers.backend.TripController.getAllUserTrips().url)
         .then(response => {
         response.json()
             .then(json => {
@@ -126,14 +135,19 @@ function populateTrips(table) {
     })
 }
 
-
+//this needs to be deleted wtf ahah
 function updateTrip(button, tableAPI, id) {
     window.location.href = '/trips/edit/' + id;
 }
 
+/**
+ * Sends delete request with trip id
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function deleteTrip(button, tableAPI, id) {
-    console.log(id);
-    _delete('api/trip/' + id)
+    _delete(tripRouter.controllers.backend.TripController.deleteTrip(id).url)
         .then(response => {
         //need access to response status, so cant return promise
         response.json()

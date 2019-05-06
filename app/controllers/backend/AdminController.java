@@ -69,11 +69,13 @@ public class AdminController extends Controller {
      * Lists routes to put in JS router for use from frontend
      * @return JSRouter Play result
      */
-    public Result adminRoutes() {
-    return ok(JavaScriptReverseRouter.create("adminRoutes", "jQuery.ajax", request.host(),
-                                      controllers.backend.routes.AdminController.grantAdmin(),
-                                      controllers.backend.routes.AdminController.revokeAdmin()))
-                                      .as(Http.MimeTypes.JAVASCRIPT);
+    public Result adminRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("adminRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.AdminController.revokeAdmin(),
+                controllers.backend.routes.javascript.AdminController.grantAdmin()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
 

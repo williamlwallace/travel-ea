@@ -99,7 +99,11 @@ GET     /admin                      controllers.frontend.AdminController.index(r
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/routers/admin       controllers.backend.AdminController.adminRoutes()
+GET     /assets/routers/admin       controllers.backend.AdminController.adminRoutes(request: Request)
+
+GET     /assets/routers/user       controllers.backend.UserController.userRoutes(request: Request)
+
+GET     /assets/routers/trip       controllers.backend.TripController.tripRoutes(request: Request)
 
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 

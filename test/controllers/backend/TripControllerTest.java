@@ -178,7 +178,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(authCookie)
-                .uri("/api/trip/getAll/");
+                .uri("/api/user/trips");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -189,7 +189,7 @@ public class TripControllerTest extends WithApplication {
     public void getAllTripsInvalidId() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
-                .uri("/api/trip/getAll/10");
+                .uri("/api/user/trips/10");
 
         // Get result and check it was not successful
         Result result = route(fakeApp, request);
@@ -200,7 +200,7 @@ public class TripControllerTest extends WithApplication {
     public void getAllTripsHasNoTrips() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
-                .uri("/api/trip/getAll/2");
+                .uri("/api/user/trips/2");
 
         // Get result and check it was not successful
         Result result = route(fakeApp, request);
