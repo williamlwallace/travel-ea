@@ -109,7 +109,7 @@ function populateTable(table) {
  * @param {Object} table - data table object
  */
 function populateTrips(table) {
-    get(tripRouter.controllers.backend.TripController.getAllUserTrips().url)
+    get(tripRouter.controllers.backend.TripController.getAllTrips().url)
         .then(response => {
         response.json()
             .then(json => {

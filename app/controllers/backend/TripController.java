@@ -51,11 +51,10 @@ public class TripController extends Controller {
     /**
      * Attempts to get all trips
      *
-     * @param request the HTTP request
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllTrips(Http.Request request) {
+    public CompletableFuture<Result> getAllTrips() {
 
         return tripRepository.getAllTrips()
                 .thenApplyAsync(trips -> ok(Json.toJson(trips)));
@@ -209,6 +208,7 @@ public class TripController extends Controller {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
+                controllers.backend.routes.javascript.TripController.getAllTrips(),
                 controllers.frontend.routes.javascript.TripController.editTripIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
