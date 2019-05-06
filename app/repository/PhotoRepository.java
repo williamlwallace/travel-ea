@@ -5,6 +5,7 @@ import io.ebean.EbeanServer;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
+import util.customObjects.Pair;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -43,23 +44,24 @@ public class PhotoRepository {
     }
 
     /**
-     * Clears any existing profile photo for a user
+     * Clears any existing profile photo for a user, and returns filenames of old files
      * @param userID user ID to clear profile photo of
      * @return OK if successfully cleared existing profile pic, notFound if none found
      */
-    public CompletableFuture<Result> clearProfilePhoto(long userID) {
+    public CompletableFuture<Pair<String, String>> clearProfilePhoto(long userID) {
         return supplyAsync(() -> {
+            Pair returnPair;
             Photo profilePhoto = ebeanServer.find(Photo.class)
                     .where()
                     .eq("user_id", userID)
                     .eq("is_profile", true)
                     .findOneOrEmpty().orElse(null);
             if(profilePhoto == null) {
-                return notFound();
+                return null;
             } else {
-                profilePhoto.isProfile = false;
-                ebeanServer.update(profilePhoto);
-                return ok();
+                returnPair = new Pair<>(profilePhoto.filename, profilePhoto.thumbnailFilename);
+                ebeanServer.delete(profilePhoto);
+                return returnPair;
             }
         });
     }

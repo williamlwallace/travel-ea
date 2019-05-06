@@ -113,7 +113,15 @@ public class PhotoController extends Controller {
         for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
         {
             // if photo to add is marked as new profile pic, clear any existing profile pic first
-            photoRepository.clearProfilePhoto(pair.getKey().userId);
+            if(pair.getKey().isProfile) {
+                photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
+                    if(fileNamesPair != null) {
+                        new File(fileNamesPair.getKey()).deleteOnExit();
+                        new File(fileNamesPair.getValue()).deleteOnExit();
+                    }
+                    return null;
+                });
+            }
             try {
                 pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef()).copyTo(Paths.get("public/" + pair.getKey().thumbnailFilename));
