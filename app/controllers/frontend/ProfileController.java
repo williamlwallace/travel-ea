@@ -61,7 +61,7 @@ public class ProfileController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editindex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return this.getProfile(user.id).thenApplyAsync(
+        return this.getProfile(user.id, request).thenApplyAsync(
             profile -> {
                 return ok(editProfile.render(profile, user));
             },
@@ -74,8 +74,9 @@ public class ProfileController extends Controller {
      *
      * @return List of destinations wrapped in completable future
      */
-    private CompletableFuture<Profile> getProfile(Long userId) {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId)
+    private CompletableFuture<Profile> getProfile(Long userId, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.ProfileController.getProfile(userId);
+        CompletableFuture<WSResponse> res = ws.url(url)
             .get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());

@@ -1,4 +1,4 @@
-/*
+/**
  * Changing the Navbar colour depending on the situation
  */
 $(document).ready(function() {
