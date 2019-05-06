@@ -757,6 +757,38 @@ paths:
                   items:
                     $ref: '#/components/schemas/Photo'
 
+    delete:
+      tags:
+      - Photos
+      summary: 'Delete photo with given id'
+      description: 'If the user is autharized, delete the photo'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of photo to be deleted
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully deleted trip
+        '401':
+          description: Authentication failed
+        '403':
+          description: User not authorised for this action
+        '404':
+          description: No such trip found
+
+
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'

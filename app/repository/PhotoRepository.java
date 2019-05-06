@@ -1,5 +1,6 @@
 package repository;
 
+import com.google.common.collect.Iterables;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import models.Photo;
@@ -32,7 +33,7 @@ public class PhotoRepository {
     /**
      *  Inserts new photo into database
      *
-     * @param newPhoto Photo to be added
+     * @param photo Photo to be added
      * @return Ok on success
      */
     public CompletableFuture<Result> addPhoto(Photo photo) {
@@ -49,11 +50,13 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
-        return supplyAsync(() -> ebeanServer.find(Photo.class)
-                            .where()
-                            .eq("user_id", userID)
-                            .findList(),
-                executionContext);
+        return supplyAsync(() ->
+             ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("user_id", userID)
+                     .eq("is_profile", false)
+                    .findList(),
+            executionContext);
     }
 
     /**
@@ -74,14 +77,45 @@ public class PhotoRepository {
                 photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
             }
             return photo;
-                }, executionContext);
+        }, executionContext);
     }
 
+    /**
+     * Adds photos into the database. Will replace the users profile picture if needed.
+     *
+     * @param photos A list of photos to upload
+     * @return an ok response.
+     */
     public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
         return supplyAsync(() -> {
+            if (photos.size() == 1) {
+                Photo pictureToUpload = Iterables.get(photos, 0);
+                if (pictureToUpload.isProfile) {
+                    ebeanServer.find(Photo.class)
+                            .where()
+                            .eq("user_id", pictureToUpload.userId)
+                            .eq("is_profile", true)
+                            .delete();
+                }
+            }
             ebeanServer.insertAll(photos);
             return ok();
         }, executionContext);
+    }
+
+    /**
+     * Deletes a photo from the database.
+     *
+     * @param id Unique photo ID of destination to be deleted
+     * @return The number of rows deleted
+     */
+    public CompletableFuture<Integer> deletePhoto(Long id) {
+        return supplyAsync(() ->
+                        ebeanServer.find(Photo.class)
+                                .where()
+                                .eq("guid", id)
+                                .delete()
+                , executionContext);
     }
 
     private Collection<Photo> appendAssetsUrl(Collection<Photo> photos) {

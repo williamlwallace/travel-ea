@@ -20,6 +20,8 @@ import java.util.*;
 
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
+import static play.test.Helpers.GET;
+import static play.test.Helpers.OK;
 import static play.test.Helpers.route;
 
 public class PhotoControllerTest extends WithApplication {
@@ -175,7 +177,7 @@ public class PhotoControllerTest extends WithApplication {
     @Test
     public void getAllUserPhotos() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
+                .method("GET")
                 .cookie(this.authCookie)
                 .uri("/api/photo/getAll/");
 

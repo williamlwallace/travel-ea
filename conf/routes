@@ -61,7 +61,9 @@ DELETE        /api/trip/:id                          controllers.backend.TripCon
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-GET           /api/photo/getAll/                     controllers.backend.PhotoController.getAllUserPhotos(request:Request)
+GET           /api/photo/getAll                     controllers.backend.PhotoController.getAllUserPhotos(request:Request)
+
+DELETE        /api/photo/:id                        controllers.backend.PhotoController.deletePhoto(id:Long)
 
 GET           /api/photo/:id/profile                 controllers.backend.PhotoController.getProfilePicture(id:Long)
 
