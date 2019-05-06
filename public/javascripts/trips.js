@@ -170,6 +170,17 @@ function removeDestinationFromTrip(cardId) {
     }
 }
 
+function toggleTripPrivacy() {
+    let currentPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
+
+    if (currentPrivacy === "Make Public") {
+        document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
+    }
+    else if (currentPrivacy === "Make Private") {
+        document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
+    }
+}
+
 /**
  * Creates trip and posts to API
  * @param {string} uri - API URI to add trip
@@ -187,9 +198,10 @@ function createTrip(uri, redirect) {
         "tripDataList": tripDataList
     };
 
-    let privacy = document.getElementById("tripPrivacy").checked;
+    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
-    if (privacy) {
+    // Value of 1 for public, 0 for private
+    if (tripPrivacy === "Make Private") {
         tripData["privacy"] = 1;
     }
     else {
@@ -320,9 +332,10 @@ function updateTrip(uri, redirect, tripId) {
         "tripDataList": tripDataList
     };
 
-    let privacy = document.getElementById("tripPrivacy").checked;
+    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
-    if (privacy) {
+    // Value of 1 for public, 0 for private
+    if (tripPrivacy === "Make Private") {
         tripData["privacy"] = 1;
     }
     else {
