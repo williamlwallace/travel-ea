@@ -52,7 +52,7 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
+        return this.getUserTrips(Authenticator.getTokenFromCookie(request), request).thenApplyAsync(
             tripList -> ok(trips.render(user, asScala(tripList))), httpExecutionContext.current());
     }
 
@@ -66,7 +66,7 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> createTripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations().thenApplyAsync(
+        return destinationController.getDestinations(request).thenApplyAsync(
             destList -> (!destList.isEmpty()) ? ok(
                 createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
             httpExecutionContext.current());
@@ -82,11 +82,11 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations().thenComposeAsync(
+        return destinationController.getDestinations(request).thenComposeAsync(
             destList ->
-                this.getTrip(Authenticator.getTokenFromCookie(request), tripId)
+                this.getTrip(Authenticator.getTokenFromCookie(request), tripId, request)
                     .thenApplyAsync(
-                        trip -> (destList.isEmpty()) ? ok(
+                        trip -> (!destList.isEmpty()) ? ok(
                             createTrip.render(user, asScala(destList), trip))
                             : internalServerError(), httpExecutionContext.current()),
             httpExecutionContext.current());
@@ -97,9 +97,10 @@ public class TripController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(String token) {
+    public CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips();
         CompletableFuture<WSResponse> res = ws
-            .url("http://localhost:9000/api/trip/getAll/")
+            .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
             .get()
             .toCompletableFuture();
@@ -120,9 +121,10 @@ public class TripController extends Controller {
      *
      * @return Trip object wrapped in completable future
      */
-    public CompletableFuture<Trip> getTrip(String token, Long tripId) {
+    public CompletableFuture<Trip> getTrip(String token, Long tripId, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
         CompletableFuture<WSResponse> res = ws
-            .url("http://localhost:9000/api/trip/" + tripId)
+            .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
             .get()
             .toCompletableFuture();

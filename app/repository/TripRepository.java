@@ -99,6 +99,18 @@ public class TripRepository {
     }
 
     /**
+     * Finds all trips in database.
+     *
+     * @return List of all Trip objects
+     */
+    public CompletableFuture<List<Trip>> getAllTrips() {
+        return supplyAsync(() ->
+                        ebeanServer.find(Trip.class)
+                                .findList()
+                , executionContext);
+    }
+
+    /**
      * Returns a single trip as specified by its ID.
      *
      * @param tripId ID of trip to return

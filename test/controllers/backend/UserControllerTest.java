@@ -102,15 +102,15 @@ public class UserControllerTest extends WithApplication {
         List<User> users = Arrays
             .asList(new ObjectMapper().readValue(Helpers.contentAsString(result), User[].class));
 
-        // Check that list has exactly two results
-        assertEquals(2, users.size());
+        // Check that list has exactly one result
+        assertEquals(1, users.size());
 
         // Check that the user is what we expect having run destination test evolution
-        User user = users.get(1);
-        assertEquals(Long.valueOf(1), user.id);
-        assertEquals("dave@gmail.com", user.username);
-        assertEquals("kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=", user.password); //cat
-        assertEquals("L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=", user.salt);
+        User user = users.get(0);
+        assertEquals(Long.valueOf(2), user.id);
+        assertEquals("bob@gmail.com", user.username);
+        assertEquals("password", user.password); //cat
+        assertEquals("salt", user.salt);
     }
 
     @Test
@@ -289,7 +289,7 @@ public class UserControllerTest extends WithApplication {
 
         // Get result and check the user was redirected
         Result result = route(fakeApp, request);
-        assertEquals(303, result.status());
+        assertEquals(403, result.status());
     }
 
     @Test

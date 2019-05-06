@@ -1,8 +1,10 @@
+//Initialises the data table and adds the data
 $(document).ready(function () {
-    //Initialises the data table and adds the data
     populateTable($('#dtUser').DataTable());
+    populateTrips($('#dtTrips').DataTable());
 });
 
+//Click listener that handles clicks in admin table
 $('#dtUser').on('click', 'button', function() {
     let tableAPI = $('#dtUser').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
@@ -12,6 +14,17 @@ $('#dtUser').on('click', 'button', function() {
         deleteUser(this, tableAPI, id);
     }
 })
+
+$('#dtTrips').on('click', 'button', function() {
+    let tableAPI = $('#dtTrips').dataTable().api();
+    let id = tableAPI.cell($(this).parents('tr'), 0).data();
+    if ($(this).parents('td').index() == 4) {
+        updateTrip(this, tableAPI, id);
+    } else if ($(this).parents('td').index() == 5) {
+        deleteTrip(this, tableAPI, id);
+    }
+})
+
 
 function deleteUser(button, tableAPI, id) {
     _delete('api/user/'+id)
@@ -28,17 +41,23 @@ function deleteUser(button, tableAPI, id) {
     });
 }
 
+/**
+ * Adds or removes users admin powers and changes button text
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function toggleAdmin(button, tableAPI, id) {
-    let url;
+    let uri;
     let innerHTML;
     if (button.innerHTML.trim().startsWith("Revoke")) {
-        url = 'api/admin/revoke/' + id;
+        uri = 'api/admin/revoke/' + id;
         innerHTML = "Grant admin";
     } else {
-        url = 'api/admin/grant/' + id;
+        uri = 'api/admin/grant/' + id;
         innerHTML = "Revoke admin";
     }
-    post(url, "")   
+    post(uri, "")   
     .then(response => {
         //need access to response status, so cant return promise
         response.json()
@@ -52,6 +71,10 @@ function toggleAdmin(button, tableAPI, id) {
     });
 }
 
+/**
+ * Inserts users into admin table
+ * @param {Object} table - data table object
+ */
 function populateTable(table) {
     get('api/user/search')
     .then(response => {
@@ -77,18 +100,63 @@ function populateTable(table) {
     })
 }
 
+function populateTrips(table) {
+    get('api/trip/getAllTrips/')
+        .then(response => {
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                console.log(json);
+                for (const trip in json) {
+                    const id = json[trip].id;
+                    const tripDataList = json[trip].tripDataList;
+                    const startDest = tripDataList[0].destination.name;
+                    const endDest = tripDataList[(tripDataList.length - 1)].destination.name;
+                    const tripLength = tripDataList.length;
+
+                    update = "<button class=\"btn btn-secondary\">Update</button>";
+                    removeTrip = "<button class=\"btn btn-danger\">Delete</button>"
+                    table.row.add([id,startDest,endDest,tripLength,update,removeTrip]).draw(false);
+                }
+            }
+        });
+    })
+}
+
+
+function updateTrip(button, tableAPI, id) {
+    window.location.href = '/trips/edit/' + id;
+}
+
+function deleteTrip(button, tableAPI, id) {
+    console.log(id);
+    _delete('api/trip/' + id)
+        .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                tableAPI.row( $(button).parents('tr') ).remove().draw(false);
+            }
+        });
+    });
+}
+
 /**
- * The JavaScript function to process a client signing up
- *
- * @param url The route/url to send the request to
+ * User creation for admins
+ * @param {stirng} uri - api singup uri
  */
-function createUser(url, redirect) {
+function createUser(uri, redirect) {
     const formData = new FormData(document.getElementById("signupForm"));
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]] : pair[1],
     }), {});
-    post(url, data)
+    post(uri, data)
         .then(response => {
             response.json()
             .then(json => {

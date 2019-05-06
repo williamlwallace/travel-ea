@@ -1,30 +1,54 @@
-// METHODS FOR CREATE TRIPS
-
 let countryDict = {};
 
-// Runs get countries method, then add country options to drop down
-function fillCountryInfo(getCountriesUrl) {
+/**
+ * Gets and fills country data in dropdown, card fields, and destinations fields
+ * @param {string} getCountriesUri - API URI to get countries from
+ */
+function fillCountryInfo(getCountriesUri) {
     // Run a get request to fetch all destinations
-    get(getCountriesUrl)
+    get(getCountriesUri)
     // Get the response of the request
-        .then(response => {
-            // Convert the response to json
-            response.json().then(data => {
-                // Json data is an array of destinations, iterate through it
-                for(let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    countryDict[data[i]['id']] = data[i]['name'];
-                }
+    .then(response => {
+        // Convert the response to json
+        response.json().then(data => {
+            // Json data is an array of destinations, iterate through it
+            for(let i = 0; i < data.length; i++) {
+                // Also add the item to the dictionary
+                countryDict[data[i]['id']] = data[i]['name'];
+            }
 
-                // Now fill the drop down box, and list of destinations
-                updateCountryCardField();
-                fillDropDown();
-                updateDestinationsCountryField();
-            });
+            // Now fill the drop down box, and list of destinations
+            updateCountryCardField(countryDict);
+            fillDropDown("countryDropDown", countryDict);
+            updateDestinationsCountryField(countryDict);
         });
+    });
 }
 
-function updateCountryCardField() {
+/**
+ * maps countries into destinations
+ * @param {Object} countryDict - Dictionary of Countries 
+ */
+function updateDestinationsCountryField(countryDict) {
+    let tableBody = document.getElementsByTagName('tbody')[0];
+    let rowList = tableBody.getElementsByTagName('tr');
+
+    for (let i = 0; i < rowList.length; i++) {
+        let dataList = rowList[i].getElementsByTagName('td');
+
+        for (let j = 0; j < dataList.length; j++) {
+            if (dataList[j].getAttribute("id") === "country") {
+                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))]; // No idea why tds[i].value is not working
+            }
+        }
+    }
+}
+
+/**
+ * Maps Countries into the Card fields
+ * @param {Object} countryDict - Dictionary of Countries
+ */
+function updateCountryCardField(countryDict) {
     let cards = Array.of(document.getElementById("list").children)[0];
 
     for (let i = 0; i < cards.length; i++) {
@@ -40,34 +64,11 @@ function updateCountryCardField() {
     }
 }
 
-function updateDestinationsCountryField() {
-    let tableBody = document.getElementsByTagName('tbody')[0];
-    let rowList = tableBody.getElementsByTagName('tr');
-
-    for (let i = 0; i < rowList.length; i++) {
-        let dataList = rowList[i].getElementsByTagName('td');
-
-        for (let j = 0; j < dataList.length; j++) {
-            if (dataList[j].getAttribute("id") === "country") {
-                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))]; // No idea why tds[i].value is not working
-            }
-        }
-    }
-}
-
-function fillDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("countryDropDown").appendChild(item);
-    }
-}
-
-
-function newDestination(url) {
+/**
+ * Send new destination data to API
+ * @param {string} uri - API URI to send destination 
+ */
+function newDestination(uri) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("addDestinationForm"));
     // Convert data to json object
@@ -85,9 +86,9 @@ function newDestination(url) {
     delete data.countryId;
 
     console.log(data);
-    // Post json data to given url
-    post(url,data)
-        .then(response => {
+    // Post json data to given uri
+    post(uri,data)
+    .then(response => {
         // Read response from server, which will be a json object
         response.json()
             .then(json => {
@@ -97,10 +98,14 @@ function newDestination(url) {
                 // TODO: Get toggle working
                 document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
             }
-});
-});
+        });
+    });
 }
 
+/**
+ * Adds destination card and fills data
+ * @param {Object} dest - List of destination data
+ */
 function addDestinationToTrip(dest) {
     let cards = $( "#list" ).sortable('toArray');
     let cardId = 0;
@@ -108,6 +113,7 @@ function addDestinationToTrip(dest) {
     while (cards.includes(cardId.toString())) {
         cardId += 1;
     }
+    //there has to be a better of doing this lol
     document.getElementById('list').insertAdjacentHTML('beforeend',
         '<div class="card flex-row" id=' + cardId + '>\n' +
             '<label id=' + dest[0] + '></label>' +
@@ -149,6 +155,10 @@ function addDestinationToTrip(dest) {
     );
 }
 
+/**
+ * Removes card with given id
+ * @param {Number} cardId - Id of card
+ */
 function removeDestinationFromTrip(cardId) {
     let destinations = Array.of(document.getElementById("list").children)[0];
 
@@ -160,7 +170,12 @@ function removeDestinationFromTrip(cardId) {
     }
 }
 
-function createTrip(url, redirect) {
+/**
+ * Creates trip and posts to API
+ * @param {string} uri - API URI to add trip
+ * @param {string} redirect - URI to redirect page
+ */
+function createTrip(uri, redirect) {
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -172,7 +187,7 @@ function createTrip(url, redirect) {
         "tripDataCollection": tripDataList
     };
 
-    post(url, tripData).then(response => {
+    post(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
             .then(json => {
@@ -185,6 +200,11 @@ function createTrip(url, redirect) {
         });
 }
 
+/**
+ * Gets data from trip and creates json
+ * @param {Object} listItem - Html element
+ * @param {Number} index - Index of trip data
+ */
 function listItemToTripData(listItem, index) {
     // Create json object to store data
     let json = {};
@@ -224,6 +244,10 @@ function listItemToTripData(listItem, index) {
     return json;
 }
 
+/**
+ * Speciality show errors function for trips
+ * @param {Object} json - Error Response Json 
+ */
 function showErrors(json) {
     let listItemArray = Array.of(document.getElementById("list").children);
 
@@ -257,11 +281,21 @@ function showErrors(json) {
 
 // METHODS FOR TRIPS
 
-function viewTrip(url) {
-    window.location.href = url;
+/**
+ * Relocate to individual trip page
+ * @param {stirng} uri - URI of trip
+ */
+function viewTrip(uri) {
+    window.location.href = uri;
 }
 
-function updateTrip(url, redirect, tripId) {
+/**
+ * Gathers trip data and sends to API to update
+ * @param {string} uri - API URI to update trip 
+ * @param {stirng} redirect - URI to redirect if succesful
+ * @param {Number} tripId - ID of trip to update
+ */
+function updateTrip(uri, redirect, tripId) {
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -277,7 +311,7 @@ function updateTrip(url, redirect, tripId) {
         "tripDataCollection": tripDataList
     };
 
-    put(url, tripData).then(response => {
+    put(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
             .then(json => {
