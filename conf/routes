@@ -17,6 +17,8 @@ DELETE        /api/user                              controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
+GET           /api/user/trips                        controllers.backend.TripController.getAllTrips(request:Request)
+
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
 POST          /api/logout                            controllers.backend.UserController.logout(request:Request)
@@ -53,9 +55,7 @@ POST          /api/trip                              controllers.backend.TripCon
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
 
-GET           /api/trip/getAll/                      controllers.backend.TripController.getAllUserTrips(request:Request)
-
-GET           /api/trip/getAllTrips/   controllers.backend.TripController.getAllTrips(request:Request)
+GET           /api/trip                              controllers.backend.TripController.getAllUserTrips(request:Request)
 
 GET           /api/trip/:id            controllers.backend.TripController.getTrip(id:Long)
 
@@ -97,6 +97,9 @@ GET    /editProfile          controllers.frontend.ProfileController.editindex(re
 # Admin page
 GET     /admin                      controllers.frontend.AdminController.index(request: Request)
 
+#~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
+GET     /assets/routers/admin       controllers.backend.AdminController.adminRoutes()
+
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 

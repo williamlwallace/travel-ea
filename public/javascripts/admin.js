@@ -4,7 +4,7 @@ $(document).ready(function () {
     populateTrips($('#dtTrips').DataTable());
 });
 
-//Click listener that handles clicks in admin table
+//Click listener that handles clicks in user table
 $('#dtUser').on('click', 'button', function() {
     let tableAPI = $('#dtUser').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
@@ -15,6 +15,7 @@ $('#dtUser').on('click', 'button', function() {
     }
 })
 
+//Click listenenr for trips table
 $('#dtTrips').on('click', 'button', function() {
     let tableAPI = $('#dtTrips').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
@@ -51,7 +52,7 @@ function toggleAdmin(button, tableAPI, id) {
     let uri;
     let innerHTML;
     if (button.innerHTML.trim().startsWith("Revoke")) {
-        uri = 'api/admin/revoke/' + id;
+        uri = adminRouter.controllers.backend.AdminController.revokeAdmin(id).url;
         innerHTML = "Grant admin";
     } else {
         uri = 'api/admin/grant/' + id;
