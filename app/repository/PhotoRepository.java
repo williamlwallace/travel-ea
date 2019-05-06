@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 /**
@@ -39,6 +40,28 @@ public class PhotoRepository {
             ebeanServer.insert(photo);
             return ok();
         }, executionContext);
+    }
+
+    /**
+     * Clears any existing profile photo for a user
+     * @param userID user ID to clear profile photo of
+     * @return OK if successfully cleared existing profile pic, notFound if none found
+     */
+    public CompletableFuture<Result> clearProfilePhoto(long userID) {
+        return supplyAsync(() -> {
+            Photo profilePhoto = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .eq("is_profile", true)
+                    .findOneOrEmpty().orElse(null);
+            if(profilePhoto == null) {
+                return notFound();
+            } else {
+                profilePhoto.isProfile = false;
+                ebeanServer.update(profilePhoto);
+                return ok();
+            }
+        });
     }
 
     /**
