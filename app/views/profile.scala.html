@@ -64,28 +64,27 @@
                                     <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
                                 </a>
                             </p>
-                        </div>
+                        </div><br>
 
                         @* Photo Gallery *@
                         <div id="main-gallery">You don't have any photos yet, add some to see them here</div>
                         <div id="page-selection"></div>
 
-                    @* Trips table *@
-                    <div>
+                        @* Trips table *@
                         <div class="section-title">
                             <p>
                                 <span class="section-title">Trips</span>
+                                <a class="button-secondary" href="/trips/create" role="button">
+                                    <span class="profile-button" style="float: right; padding-left:10px;">Create New Trip</span>
+                                </a>
                             </p>
                         </div><br>
 
                         <div>
                             <label id="tripError"></label>
                             @if(tripList.isEmpty) {
-                                <br>
-                                <p class="text-center">You do not have any trips!</p>
-                                <div class="text-center">
-                                    <a class="button-secondary" href="/trips/create" role="button"><span class="profile-button">Create New Trip</span></a>
-                                </div><br>
+                                <div id="content" class="text-center">You do not have any trips yet, create some to see them here!</div>
+
                             } else {
                             <table id="dtTrips" class="table-bordered table table-hover" cellspacing="0" width="100%">
                                 <thead>
@@ -120,8 +119,18 @@
                                                 <div class="modal-dialog modal-dialog-centered" role="document">
                                                     <div class="modal-content">
 
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title w-100 font-weight-bold" id="exampleModalLongTitle">Trip Details</h5>
+                                                        <div class="modal-header text-center">
+                                                            <div class="dropdown">
+                                                                <input id="privacyImg" type="image" title="Public"  src="@routes.Assets.at("images/public.png")">
+                                                                <div class="dropdown-content">
+                                                                    <a id="changeImg" onclick="changeImg()">Public</a>
+                                                                    <a id="changeImg" onclick="changeImg()">Private</a>
+                                                                </div>
+                                                            </div>
+
+
+                                                            @*<input type="image" title="Private" src="@routes.Assets.at("images/private.png")">*@
+                                                            <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
