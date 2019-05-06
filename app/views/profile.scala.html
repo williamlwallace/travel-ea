@@ -32,7 +32,8 @@
                 @* Profile Detail *@
                 <div class="profile-summary">
                     <img id="ProfilePicture" src= "@routes.Assets.at("images/default-profile-picture.jpg")"
-                        class="img-thumbnail profile-picture" data-toggle="modal" data-target="#changeProfilePictureModal">
+                            onclick='showProfilePictureGallery()'
+                            class="img-thumbnail profile-picture">
                     <div class="profile-details">
                         <p class="heading">Email <span class="user-info">@user.username</span></p>
                         <p class="heading">Age <span class="user-info">@profile.calculateAge()</span></p>
@@ -66,7 +67,7 @@
                         </div>
 
                         @* Photo Gallery *@
-                        <div id="content">You don't have any photos yet, add some to see them here</div>
+                        <div id="main-gallery">You don't have any photos yet, add some to see them here</div>
                         <div id="page-selection"></div>
 
                     @* Trips table *@
@@ -343,81 +344,17 @@
                         </button>
                     </div>
                     <div class="mx-auto" style="width: 80%; padding: 10px">
-
-                        @* Photo Gallery *@
-                        <div id="cropGallery" class="container gallery-container">
-                            <div class="tz-gallery">
-                                <div class="row">
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <div class="upload-btn-wrapper">
-                                            <a class="lightbox">
-                                                <img src="@routes.Assets.at("images/thumbnails/uploadPlus.jpg")">
-                                            </a>
-                                            <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/cats.jpg")">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/cats.jpg")">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")">
-                                        </a>
-                                    </div>
-
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/dog.jpg")">
-                                        </a>
-                                    </div>
-
-                                    <div class="col-sm-6 col-md-4">
-                                        <a class="lightbox">
-                                            <img src="@routes.Assets.at("images/thumbnails/boats.jpg")">
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                        @* Profile Photo Gallery *@
+                        <div id="profile-gallery">You don't have any photos yet, add some by clicking on the add photo button.</div>
+                        <div id="page-selection-profile-picture"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-
         @* Crop Profile Picture Modal *@
-        <div class="modal fade" id="cropProfilePictureModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal fade" id="cropProfilePictureModal" tabindex="-1" role="dialog" style="overflow-y: scroll"
+        aria-labelledby="modalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
                 <div class="modal-content">
                     <div class="modal-header text-center">
@@ -429,7 +366,7 @@
                     <div class="modal-body">
                         <div class="img-container">
                             @* Need this src to change for different images *@
-                            <img id="image" src="@routes.Assets.at("images/boats.jpg")" alt="Picture">
+                            <img id="image" src="" alt="Picture">
                         </div>
                     </div>
                     <div class="modal-footer">
