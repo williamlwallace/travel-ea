@@ -39,7 +39,7 @@ start-server-dev:
     - stopDev
     - setupDev
     - startDev
-    - sudo chown gitlab-runner logs
+    - sudo chown gitlab-runner /var/lib/gitlab-runner/builds/4c63b6ef/0/seng302-2019/team-400/logs
   only:
     - master-dev@seng302-2019/team-400
     - dedicated@seng302-2019/team-400
