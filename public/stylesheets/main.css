@@ -198,8 +198,8 @@ pre {
     width: 1065px;
     margin:20px;
     cursor:pointer;
-
-    background-color: #ececed !important
+    border-color: #a0a0a0;
+    background-color: #FFFFFF !important
 }
 
 /*
@@ -270,3 +270,22 @@ pre {
     padding-top: 3px;
 }
 
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
