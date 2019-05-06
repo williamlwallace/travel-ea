@@ -5,10 +5,10 @@ tag_checker:
   only:
     - tags
 
-junit:
-  stage: test
-  script:
-    - sbt test
+#junit:
+#  stage: test
+#  script:
+#    - sbt test
 
 recent-artifacts:
   stage: deploy
