@@ -46,7 +46,7 @@ start-server-prod:
   stage: deploy
   script:
   - sbt dist
-  - source /home/sengstudent/runServerScript.sh
+  - source /home/sengstudent/runServerScript
   - stopProd
   - setupProd
   - startProd
