@@ -177,7 +177,7 @@ public class PhotoControllerTest extends WithApplication {
     @Test
     public void getAllUserPhotos() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
+                .method("GET")
                 .cookie(this.authCookie)
                 .uri("/api/photo/getAll/");
 
