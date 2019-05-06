@@ -86,12 +86,13 @@ public class ViewMyTripsTestSteps extends WithApplication {
     @After
     public void cleanupEvolutions() {
         Evolutions.cleanupEvolutions(db);
+        stopApp();
     }
 
     /**
      * Stop the fake app
      */
-    @After
+
     public static void stopApp() {
         // Stop the fake app running
         Helpers.stop(fakeApp); //TODO: sometimes test fails because of two @After tags
