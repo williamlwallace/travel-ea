@@ -219,6 +219,18 @@ public class UserController extends Controller {
             });
     }
 
+    // TODO: Update API spec
+    /**
+     * Returns a user with the given id
+     *
+     * @param userId User id of user to retrieve name of
+     * @return User object
+     */
+    public CompletableFuture<Result> getUsername(Long userId) {
+        return userRepository.findID(userId).thenApplyAsync(user ->
+                ok(Json.toJson(user.username)), httpExecutionContext.current());
+    }
+
     /**
      * Returns user id in body and sets cookie to store it. This will be used incase a user is
      * authenticated but the user-id cookie is somehow removed.
