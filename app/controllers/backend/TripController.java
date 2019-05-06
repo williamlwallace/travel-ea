@@ -68,7 +68,7 @@ public class TripController extends Controller {
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
-    public CompletableFuture<Result> getTrip(Long tripId) {
+    public CompletableFuture<Result> getTrip(Long tripId) {    // TODO: Authenticate
         // Get all the trip data (asynchronously) and then
         // construct and return the json object to send
         return tripRepository.getTripById(tripId).thenApplyAsync(

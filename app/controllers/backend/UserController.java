@@ -224,7 +224,7 @@ public class UserController extends Controller {
     }
 
     /**
-     * Returns user id in body and sets cookie to store it. This will be used incase a user is
+     * Returns user id in body and sets cookie to store it. This will be used when a user is
      * authenticated but the user-id cookie is somehow removed.
      *
      * @param request Request object that stores details of the incoming request
