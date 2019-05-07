@@ -116,11 +116,10 @@ public class ProfileController extends Controller {
         });
     }
 
-    // TODO: Change javadoc
     /**
-     * Gets Destinations from api endpoint via get request.
-     *
-     * @return List of destinations wrapped in completable future
+     * Gets a Profile from api endpoint via get request.
+     * @param userId the ID of the profile to retrieve
+     * @return A profile wrapped in completable future
      */
     private CompletableFuture<Profile> getProfile(Long userId) {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId)

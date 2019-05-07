@@ -95,7 +95,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
     public static void stopApp() {
         // Stop the fake app running
-        Helpers.stop(fakeApp); //TODO: sometimes test fails because of two @After tags
+        Helpers.stop(fakeApp);
     }
 
     @Given("I am logged in")
