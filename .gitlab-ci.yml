@@ -34,7 +34,7 @@ release-artifacts:
 start-server-dev:
   stage: deploy
   script:
-    - git lfs pull
+    - sudo git lfs pull
     - sbt dist
     - source /home/sengstudent/runServerScript
     - stopDev
