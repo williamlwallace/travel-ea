@@ -76,13 +76,15 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
-        return supplyAsync(() ->
-             ebeanServer.find(Photo.class)
-                    .where()
-                    .eq("user_id", userID)
-                     .eq("is_profile", false)
-                    .findList(),
-            executionContext);
+        return supplyAsync(() -> {
+                    List<Photo> photos = ebeanServer.find(Photo.class)
+                            .where()
+                            .eq("user_id", userID)
+                            .eq("is_profile", false)
+                            .findList();
+                    return appendAssetsUrl(photos);
+                },
+                executionContext);
     }
 
     /**
@@ -92,13 +94,15 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
-        return supplyAsync(() ->
-             ebeanServer.find(Photo.class)
+        return supplyAsync(() -> {
+             List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq("user_id", userID)
                      .eq("is_public", true)
                      .eq("is_profile", false)
-                    .findList(),
+                    .findList();
+             return appendAssetsUrl(photos);
+             },
             executionContext);
     }
 
@@ -116,8 +120,8 @@ public class PhotoRepository {
                     .eq("is_profile", true)
                     .findOneOrEmpty().orElse(null);
             if(photo != null) {
-                photo.filename = "assets/" + photo.filename;
-                photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
+                photo.filename = "../assets/" + photo.filename;
+                photo.thumbnailFilename =  "../assets/" + photo.thumbnailFilename;
             }
             return photo;
         }, executionContext);
@@ -161,10 +165,10 @@ public class PhotoRepository {
                 , executionContext);
     }
 
-    private Collection<Photo> appendAssetsUrl(Collection<Photo> photos) {
+    private List<Photo> appendAssetsUrl(List<Photo> photos) {
         for(Photo photo : photos) {
-            photo.filename = "assets/" + photo.filename;
-            photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
+            photo.filename = "../assets/" + photo.filename;
+            photo.thumbnailFilename = "../assets/" + photo.thumbnailFilename;
         }
         return photos;
     }

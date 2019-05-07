@@ -24,6 +24,18 @@ function post(uri, data) {
 }
 
 /**
+ * Sends POST request to API with multipart data and no headers
+ * @param {string} uri - API URI
+ * @param {JSON} data - multipart request body
+ */
+function postMultipart(uri, data) {
+    return fetch(uri, {
+        method: "POST",
+        body: data
+    })
+}
+
+/**
  * Sends PUT request to API
  * @param {string} uri - API URI 
  * @param {JSON} data - JSON request body

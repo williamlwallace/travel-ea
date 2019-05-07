@@ -83,6 +83,7 @@ var profilePictureSize = 350;
 var cropper;
 
 var usersPhotos = [];
+var getAllPhotosUrl;
 var profilePictureControllerUrl;
 
 /**
@@ -152,9 +153,8 @@ $(document).ready(function() {
  */
 cropGallery.on('click','img',function() {
     //Get the path for the pictures thumbnail
-    var thumbnailPath = $(this).attr("src");
-    //Convert the thumbnailPath to the fullPicturePath
-    var fullPicturePath = thumbnailPath.replace('thumbnails/','');
+    var fullPicturePath = $(this).parent().attr("data-filename");
+    console.log(fullPicturePath);
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -166,7 +166,6 @@ cropGallery.on('click','img',function() {
  * Function to populate gallery with current users photos
  */
 function fillGallery(getPhotosUrl) {
-    profilePictureControllerUrl = getPhotosUrl;
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -216,6 +215,10 @@ function createGalleryObjects(hasFullSizeLinks) {
             var photo = document.createElement("a");
             photo.setAttribute("class", "lightbox");
 
+            // 6 * page + position finds the correct photo index in the dictionary
+            var filename = usersPhotos[(6 * page + position)]["filename"];
+            var guid = usersPhotos[(6 * page + position)]["guid"];
+
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
                 // Create delete button
@@ -223,18 +226,15 @@ function createGalleryObjects(hasFullSizeLinks) {
                 deleteButton.setAttribute("class", "close");
                 deleteButton.innerHTML = "&times;";
                 tile.appendChild(deleteButton);
-                photo.href = "assets/" + filename;
+                photo.href = filename;
             }
 
-            // 6 * page + position finds the correct photo index in the dictionary
-            var filename = usersPhotos[(6 * page + position)]["filename"];
-            var guid = usersPhotos[(6 * page + position)]["guid"];
             photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-filename", "@routes.Assets.at(" + filename + ")");
+            photo.setAttribute("data-filename", filename);
             // thumbnail
             var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
             var thumb = document.createElement("img");
-            thumb.src = "assets/" + thumbnail;
+            thumb.src = thumbnail;
             // add image to photo a
             photo.appendChild(thumb);
             // add photo a to the tile div
@@ -298,7 +298,7 @@ function deletePhoto() {
     _delete(deleteUrl).then(
         response => {
             $('#deletePhotoModal').modal('hide');
-            fillGallery(profilePictureControllerUrl)
+            fillGallery(getAllPhotosUrl)
         });
 }
 
@@ -346,7 +346,7 @@ function setupDropZone() {
                     submitButton.innerText = "Done";
                 } else {
                     $('#uploadPhotoModal').modal('hide');
-                    fillGallery(profilePictureControllerUrl);
+                    fillGallery(getAllPhotosUrl);
                 }
             });
 
@@ -389,6 +389,16 @@ function getProfilePicture(url) {
             });
         }
     });
+}
+
+/**
+ * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ *
+ * @param url the backend PhotoController url
+ */
+function getPictures(url) {
+    getAllPhotosUrl = url;
+    fillGallery(getAllPhotosUrl);
 }
 
 /**
