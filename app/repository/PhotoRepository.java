@@ -86,6 +86,23 @@ public class PhotoRepository {
     }
 
     /**
+     * Finds all public photos in database related to the given user ID
+     *
+     * @param userID User to find all public photos for
+     * @return List of Photo objects with the specified user ID
+     */
+    public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
+        return supplyAsync(() ->
+             ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("user_id", userID)
+                     .eq("is_public", true)
+                     .eq("is_profile", false)
+                    .findList(),
+            executionContext);
+    }
+
+    /**
      * Finds the profile picture in the database for the given user ID
      *
      * @param userID User to find profile picture for
