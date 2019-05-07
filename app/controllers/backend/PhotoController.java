@@ -125,11 +125,21 @@ public class PhotoController extends Controller {
         // Add all the photos we found to the database
         for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
         {
+            // if photo to add is marked as new profile pic, clear any existing profile pic first
+            if(pair.getKey().isProfile) {
+                photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
+                    if(fileNamesPair != null) {
+                        new File(fileNamesPair.getKey()).deleteOnExit();
+                        new File(fileNamesPair.getValue()).deleteOnExit();
+                    }
+                    return null;
+                });
+            }
             try {
                 pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef()).copyTo(Paths.get("public/" + pair.getKey().thumbnailFilename));
             } catch (IOException e) {
-
+                // TODO: Handle case where a file failed to save
             }
         }
         // Collect all keys from the list to upload
