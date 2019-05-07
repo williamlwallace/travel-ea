@@ -132,7 +132,6 @@ $(document).ready(function() {
         postMultipart(url, formData).then(response => {
                 // Read response from server, which will be a json object
                 response.json().then(data => {
-                    console.log(data);
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
                         getProfilePicture(profilePictureControllerUrl);
@@ -154,7 +153,6 @@ $(document).ready(function() {
 cropGallery.on('click','img',function() {
     //Get the path for the pictures thumbnail
     var fullPicturePath = $(this).parent().attr("data-filename");
-    console.log(fullPicturePath);
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -260,7 +258,7 @@ function createGalleryObjects(hasFullSizeLinks) {
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     var numPages = Math.ceil(usersPhotos.length / 6);
     var currentPage = 1;
-    if (galleryObjects !== undefined && galleryObjects.length != 0) {
+    if (galleryObjects !== undefined && galleryObjects.length !== 0) {
         // init bootpage
         $(pageSelectionId).bootpag({
             total: numPages,
@@ -268,9 +266,15 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             page: 1,
             leaps: false,
         }).on("page", function(event, num){
-            console.log("page " + num);
             currentPage = num;
             $(galleryId).html(galleryObjects[currentPage - 1]);
+            baguetteBox.run('.tz-gallery');
+            $('.img-wrap .close').on('click', function() {
+                var guid = $(this).closest('.img-wrap').find('a').data("id");
+                var filename = $(this).closest('.img-wrap').find('a').data("filename");
+
+                removePhoto(guid, filename);
+            });
         });
         // set first page
         $(galleryId).html(galleryObjects[currentPage - 1]);
@@ -311,9 +315,6 @@ function deletePhoto(route) {
  * Sets up the dropzone properties, like having a remove button
  */
 function setupDropZone() {
-
-    var maxImageWidth = 350, maxImageHeight = 350;
-
     Dropzone.options.addPhotoDropzone = {
         acceptedFiles: '.jpeg,.png,.jpg',
         dictRemoveFile: "remove",
@@ -335,7 +336,7 @@ function setupDropZone() {
 
             this.on("thumbnail", function(file) {
                 // Do the dimension checks you want to do
-                if (file.width < maxImageWidth || file.height < maxImageHeight) {
+                if (file.width < profilePictureSize || file.height < profilePictureSize) {
                     file.rejectDimensions()
                 }
                 else {
@@ -376,7 +377,6 @@ function setupDropZone() {
         },
         success: function(file, response) {
             file.serverFileName = response[0];
-            console.log(response);
         }
     };
 }
