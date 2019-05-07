@@ -190,6 +190,8 @@ public class ViewMyTripsTestSteps extends WithApplication {
         tripArray.add(tripData1);
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
+        trip.userId = 2L;
+        trip.privacy = 0L;
 
         JsonNode node = Json.toJson(trip);
 

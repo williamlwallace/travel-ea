@@ -22,6 +22,9 @@ public class Trip extends Model {
     @Constraints.Required
     public Long userId;
 
+    @Constraints.Required
+    public Long privacy;
+
     @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
 

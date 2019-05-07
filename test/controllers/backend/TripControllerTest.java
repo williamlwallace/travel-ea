@@ -211,9 +211,7 @@ public class TripControllerTest extends WithApplication {
     // Create request to create a new trip
     Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
-            .bodyJson(node)
-            .cookie(this.authCookie)
-            .uri("/api/trip");
+            .uri("/api/trip/");
 
     // Get result and check it was unsuccessful
     Result result = route(fakeApp, request);

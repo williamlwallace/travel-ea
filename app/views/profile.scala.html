@@ -129,10 +129,14 @@
 
                                                         <div class="modal-header text-center">
                                                             <div class="dropdown">
-                                                                <input id="privacyImg" type="image" title="Public"  src="@routes.Assets.at("images/public.png")">
+                                                                @if(t.privacy == 1) {
+                                                                    <input id="privacyImg" type="image" title="Public" src="@routes.Assets.at("images/public.png")">
+                                                                } else {
+                                                                    <input id="privacyImg" type="image" title="Private" src="@routes.Assets.at("images/private.png")">
+                                                                }
                                                                 <div class="dropdown-content">
-                                                                    <a id="changeImg" onclick="changeImg()">Public</a>
-                                                                    <a id="changeImg" onclick="changeImg()">Private</a>
+                                                                    <a id="changeImg" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', @t.id, 'Public')">Public</a>
+                                                                    <a id="changeImg" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/private.png")', @t.id, 'Private')">Private</a>
                                                                 </div>
                                                             </div>
 
