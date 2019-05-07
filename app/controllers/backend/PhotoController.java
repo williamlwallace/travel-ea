@@ -139,8 +139,15 @@ public class PhotoController extends Controller {
             if(pair.getKey().isProfile) {
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
                     if(fileNamesPair != null) {
-                        new File(fileNamesPair.getKey()).deleteOnExit();
-                        new File(fileNamesPair.getValue()).deleteOnExit();
+                        // Mark the files for deletion
+                        if(!new File("public/" + fileNamesPair.getKey()).delete()) {
+                            // TODO: Handle case where files failed to delete
+                            System.out.println("Thumbnail failed to delete: " + fileNamesPair.getValue());
+                        }
+                        if(!new File("public/" + fileNamesPair.getValue()).delete()) {
+                            // TODO: Handle case where files failed to delete
+                            System.out.println("Main file failed to delete: " + fileNamesPair.getKey());
+                        }
                     }
                     return null;
                 });
@@ -252,13 +259,24 @@ public class PhotoController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deletePhoto(Long id) {
         // TODO: add authentication of user
-        return photoRepository.deletePhoto(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
+        return photoRepository.deletePhoto(id).thenApplyAsync(photoDeleted -> {
+            if (photoDeleted == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.map("Photo not found", "other");
                 return badRequest(errorResponse.toJson());
             } else {
-                return ok(Json.toJson(rowsDeleted));
+                // Mark the files for deletion
+                if(!new File("public/" + photoDeleted.thumbnailFilename).delete()) {
+                    // TODO: Handle case where files failed to delete
+                    System.out.println("Thumbnail failed to delete: " + photoDeleted.thumbnailFilename);
+                }
+                if(!new File("public/" + photoDeleted.filename).delete()) {
+                    // TODO: Handle case where files failed to delete
+                    System.out.println("Main file failed to delete: " + photoDeleted.filename);
+                }
+
+                // Return number of photos deleted
+                return ok(Json.toJson(1));
             }
         });
     }

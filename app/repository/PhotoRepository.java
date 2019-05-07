@@ -9,6 +9,7 @@ import play.mvc.Result;
 import util.customObjects.Pair;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
@@ -156,12 +157,17 @@ public class PhotoRepository {
      * @param id Unique photo ID of destination to be deleted
      * @return The number of rows deleted
      */
-    public CompletableFuture<Integer> deletePhoto(Long id) {
-        return supplyAsync(() ->
-                        ebeanServer.find(Photo.class)
-                                .where()
-                                .eq("guid", id)
-                                .delete()
+    public CompletableFuture<Photo> deletePhoto(Long id) {
+        return supplyAsync(() -> {
+                    Photo photo = ebeanServer.find(Photo.class)
+                        .where()
+                        .eq("guid", id)
+                        .findOneOrEmpty()
+                        .orElse(null);
+
+                    photo.delete();
+                    return photo;
+                }
                 , executionContext);
     }
 
