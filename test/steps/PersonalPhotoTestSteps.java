@@ -107,7 +107,7 @@ public class PersonalPhotoTestSteps extends WithApplication {
     @When("I upload a valid photo")
     public void i_upload_a_valid_photo() throws IOException {
         // Load a file from the public images to upload
-        File file = getFile("./public/images/wakatipu.jpeg");
+        File file = getFile("./public/images/favicon.png");
 
         // List of objects that will be appended to the body of our multipart/form-data
         List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
@@ -115,7 +115,7 @@ public class PersonalPhotoTestSteps extends WithApplication {
         // Add text field parts
         for(Pair<String, String> pair : Arrays.asList(
                 new Pair<>("isTest", "true"),
-                new Pair<>("profilePhotoName", "wakatipu.jpeg"),
+                new Pair<>("profilePhotoName", "test.png"),
                 new Pair<>("publicPhotoFileNames", "")
         )) {
             partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
