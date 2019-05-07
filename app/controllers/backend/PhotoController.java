@@ -144,7 +144,7 @@ public class PhotoController extends Controller {
                     }
                     return null;
                 });
-                // Profile picture small thumbnail dimenstions
+                // Profile picture small thumbnail dimensions
                 thumbWidth = 100;
                 thumbHeight = 100;
             }
