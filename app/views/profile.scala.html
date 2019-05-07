@@ -73,7 +73,7 @@
                         </div><br>
 
                         @* Photo Gallery *@
-                        <div id="main-gallery" class="text-center">There are no photos!@if(canModify) { Click the add photo button to add some.}</div>
+                        <div id="main-gallery" class="text-center">There are no photos!</div>
                         <div id="page-selection"></div>
 
                         @* Trips table *@
@@ -248,7 +248,7 @@
                             Cancel<i class="fas fa-paper-plane-o ml-1"></i>
                         </button>
                         <button class="btn btn-popup" id="submit-all" onclick=
-                        'deletePhoto()'>
+                        'deletePhoto("@controllers.backend.routes.PhotoController.deletePhoto(1)")'>
                                 Delete
                         </button>
                     </div>
@@ -362,7 +362,7 @@
                     </div>
                     <div class="mx-auto" style="width: 80%; padding: 10px">
                         @* Profile Photo Gallery *@
-                        <div id="profile-gallery">You don't have any photos yet, add some by clicking on the add photo button.</div>
+                        <div id="profile-gallery" class="text-center">You don't have any photos yet, add some by clicking on the add photo button.</div>
                         <div id="page-selection-profile-picture"></div>
                     </div>
                 </div>
@@ -402,7 +402,7 @@
 
 <script type="text/javascript">
     setupDropZone();
-    fillGallery("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
+    getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
     populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");

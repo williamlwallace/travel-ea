@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import models.Destination;
 import models.Trip;
 import models.TripData;
+import models.User;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -41,16 +42,18 @@ public class TripController extends Controller {
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserTrips(Http.Request request) {
-        System.out.println("HERE1");
-        Long userId = request.attrs().get(ActionState.USER).id;
-        System.out.println("HERE2");
-        return tripRepository.getAllUserTrips(userId)
-            .thenApplyAsync(trips -> {
-                System.out.println("HERE3");
-                System.out.println(trips);
-                return ok(Json.toJson(trips));
-            });
+    public CompletableFuture<Result> getAllUserTrips(Http.Request request, Long userId) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
+
+        // Returns all trips if requesting user is owner of trips or an admin
+        if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
+            return tripRepository.getAllUserTrips(userId)
+                    .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+        } else {
+            return tripRepository.getAllPublicUserTrips(userId)
+                    .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+        }
+
     }
 
     /**
@@ -68,7 +71,7 @@ public class TripController extends Controller {
     /**
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
      * with 2 fields: uid: This field represents the id of the user who owns the trip
-     * tripDataCollection: An array storing all stages of the trip as tripData objects
+     * tripDataList: An array storing all stages of the trip as tripData objects
      *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
@@ -141,6 +144,7 @@ public class TripController extends Controller {
 
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
+            System.out.println("VALIDATOR FAILED");
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 
@@ -148,6 +152,7 @@ public class TripController extends Controller {
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
+        System.out.println(Json.toJson(trip));
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );
@@ -169,7 +174,7 @@ public class TripController extends Controller {
         ArrayList<TripData> tripDataList = new ArrayList<>();
 
         // For each item in the json node, deserialize to a single trip data
-        for (JsonNode node : data.get("tripDataCollection")) {
+        for (JsonNode node : data.get("tripDataList")) {
             // Assemble trip data
             TripData tripData = new TripData();
 

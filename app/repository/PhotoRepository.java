@@ -9,6 +9,7 @@ import play.mvc.Result;
 import util.customObjects.Pair;
 
 import javax.inject.Inject;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
@@ -76,13 +77,15 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
-        return supplyAsync(() ->
-             ebeanServer.find(Photo.class)
-                    .where()
-                    .eq("user_id", userID)
-                     .eq("is_profile", false)
-                    .findList(),
-            executionContext);
+        return supplyAsync(() -> {
+                    List<Photo> photos = ebeanServer.find(Photo.class)
+                            .where()
+                            .eq("user_id", userID)
+                            .eq("is_profile", false)
+                            .findList();
+                    return appendAssetsUrl(photos);
+                },
+                executionContext);
     }
 
     /**
@@ -92,13 +95,15 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
-        return supplyAsync(() ->
-             ebeanServer.find(Photo.class)
+        return supplyAsync(() -> {
+             List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq("user_id", userID)
                      .eq("is_public", true)
                      .eq("is_profile", false)
-                    .findList(),
+                    .findList();
+             return appendAssetsUrl(photos);
+             },
             executionContext);
     }
 
@@ -116,8 +121,8 @@ public class PhotoRepository {
                     .eq("is_profile", true)
                     .findOneOrEmpty().orElse(null);
             if(photo != null) {
-                photo.filename = "assets/" + photo.filename;
-                photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
+                photo.filename = "../assets/" + photo.filename;
+                photo.thumbnailFilename =  "../assets/" + photo.thumbnailFilename;
             }
             return photo;
         }, executionContext);
@@ -152,20 +157,38 @@ public class PhotoRepository {
      * @param id Unique photo ID of destination to be deleted
      * @return The number of rows deleted
      */
-    public CompletableFuture<Integer> deletePhoto(Long id) {
-        return supplyAsync(() ->
-                        ebeanServer.find(Photo.class)
-                                .where()
-                                .eq("guid", id)
-                                .delete()
+    public CompletableFuture<Photo> deletePhoto(Long id) {
+        return supplyAsync(() -> {
+                    Photo photo = ebeanServer.find(Photo.class)
+                        .where()
+                        .eq("guid", id)
+                        .findOneOrEmpty()
+                        .orElse(null);
+
+                    photo.delete();
+                    return photo;
+                }
                 , executionContext);
     }
 
-    private Collection<Photo> appendAssetsUrl(Collection<Photo> photos) {
+    private List<Photo> appendAssetsUrl(List<Photo> photos) {
         for(Photo photo : photos) {
-            photo.filename = "assets/" + photo.filename;
-            photo.thumbnailFilename = "assets/" + photo.thumbnailFilename;
+            photo.filename = "../assets/" + photo.filename;
+            photo.thumbnailFilename = "../assets/" + photo.thumbnailFilename;
         }
         return photos;
+    }
+
+    public CompletableFuture<Boolean> togglePhotoPrivacy(Long id, Boolean isPublic) {
+        return supplyAsync(() -> {
+                    ebeanServer.find(Photo.class)
+                            .where()
+                            .eq("guid", id)
+                            .asUpdate()
+                            .set("is_public", isPublic)
+                            .update();
+                    return true;
+                },
+                executionContext);
     }
 }

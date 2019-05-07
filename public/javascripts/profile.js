@@ -83,6 +83,7 @@ var profilePictureSize = 350;
 var cropper;
 
 var usersPhotos = [];
+var getAllPhotosUrl;
 var profilePictureControllerUrl;
 
 /**
@@ -131,7 +132,6 @@ $(document).ready(function() {
         postMultipart(url, formData).then(response => {
                 // Read response from server, which will be a json object
                 response.json().then(data => {
-                    console.log(data);
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
                         getProfilePicture(profilePictureControllerUrl);
@@ -152,9 +152,7 @@ $(document).ready(function() {
  */
 cropGallery.on('click','img',function() {
     //Get the path for the pictures thumbnail
-    var thumbnailPath = $(this).attr("src");
-    //Convert the thumbnailPath to the fullPicturePath
-    var fullPicturePath = thumbnailPath.replace('thumbnails/','');
+    var fullPicturePath = $(this).parent().attr("data-filename");
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -174,17 +172,15 @@ function fillGallery(getPhotosUrl) {
             response.json().then(data => {
                 // "data" should now be a list of photo models for the given user
                 // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+                usersPhotos = [];
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     usersPhotos[i] = data[i];
                 }
-                // data.length is the total number of photos
-                if (data.length > 0) {
-                    // Now create gallery objects
-                    var galleryObjects = createGalleryObjects(true);
-                    // And populate the gallery!
-                    addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
-                }
+                // Now create gallery objects
+                var galleryObjects = createGalleryObjects(true);
+                // And populate the gallery!
+                addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
             });
         });
 }
@@ -215,6 +211,10 @@ function createGalleryObjects(hasFullSizeLinks) {
             var photo = document.createElement("a");
             photo.setAttribute("class", "lightbox");
 
+            // 6 * page + position finds the correct photo index in the dictionary
+            var filename = usersPhotos[(6 * page + position)]["filename"];
+            var guid = usersPhotos[(6 * page + position)]["guid"];
+
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
                 // Create delete button
@@ -222,18 +222,29 @@ function createGalleryObjects(hasFullSizeLinks) {
                 deleteButton.setAttribute("class", "close");
                 deleteButton.innerHTML = "&times;";
                 tile.appendChild(deleteButton);
-                photo.href = "assets/" + filename;
+                photo.href = filename;
+
+                // Create toggle button TODO this is in an ugly position, will change
+                var toggleButton = document.createElement("span");
+                toggleButton.setAttribute("class","custom-control custom-switch");
+                var toggleInput = document.createElement("input");
+                toggleInput.setAttribute("type","checkbox");
+                toggleInput.setAttribute("class","custom-control-input");
+                toggleInput.setAttribute("id","customSwitches");
+                toggleButton.appendChild(toggleInput);
+                var toggleLabel = document.createElement("label");
+                toggleLabel.setAttribute("class","custom-control-label");
+                toggleLabel.setAttribute( "for","customSwitches");
+                toggleButton.appendChild(toggleLabel);
+                tile.appendChild(toggleButton);
             }
 
-            // 6 * page + position finds the correct photo index in the dictionary
-            var filename = usersPhotos[(6 * page + position)]["filename"];
-            var guid = usersPhotos[(6 * page + position)]["guid"];
             photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-filename", "assets/" + filename);
+            photo.setAttribute("data-filename", filename);
             // thumbnail
             var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
             var thumb = document.createElement("img");
-            thumb.src = "assets/" + thumbnail;
+            thumb.src = thumbnail;
             // add image to photo a
             photo.appendChild(thumb);
             // add photo a to the tile div
@@ -245,10 +256,10 @@ function createGalleryObjects(hasFullSizeLinks) {
             newGallery.appendChild(row);
 
             // Add the gallery page to the galleryObjects
-            galleryObjects[page] = newGallery;
         }
-        return galleryObjects;
+        galleryObjects[page] = newGallery;
     }
+    return galleryObjects;
 }
 
 /**
@@ -260,21 +271,27 @@ function createGalleryObjects(hasFullSizeLinks) {
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     var numPages = Math.ceil(usersPhotos.length / 6);
-
-    if (galleryObjects !== undefined && galleryObjects.length != 0) {
+    var currentPage = 1;
+    if (galleryObjects !== undefined && galleryObjects.length !== 0) {
         // init bootpage
         $(pageSelectionId).bootpag({
             total: numPages,
             maxVisible: 5,
+            page: 1,
             leaps: false,
-            href: "#gallery-page-{{number}}",
         }).on("page", function(event, num){
-            var gallery = galleryObjects[(num-1)];
-            $(galleryId).html(gallery);
+            currentPage = num;
+            $(galleryId).html(galleryObjects[currentPage - 1]);
             baguetteBox.run('.tz-gallery');
+            $('.img-wrap .close').on('click', function() {
+                var guid = $(this).closest('.img-wrap').find('a').data("id");
+                var filename = $(this).closest('.img-wrap').find('a').data("filename");
+
+                removePhoto(guid, filename);
+            });
         });
         // set first page
-        $(galleryId).html(galleryObjects[(0)]);
+        $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery');
         $('.img-wrap .close').on('click', function() {
             var guid = $(this).closest('.img-wrap').find('a').data("id");
@@ -282,6 +299,8 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
 
             removePhoto(guid, filename);
         });
+    } else {
+        $(galleryId).html("There are no photos!");
     }
 }
 
@@ -291,13 +310,18 @@ function removePhoto(guid, filename) {
     document.getElementById("deleteMe").setAttribute("name", guid);
 }
 
-function deletePhoto() {
+function deletePhoto(route) {
     var guid = document.getElementById("deleteMe").name;
-    var deleteUrl = "api/photo/" + guid;
-    _delete(deleteUrl).then(
-        response => {
-            $('#deletePhotoModal').modal('hide');
-            fillGallery("/api/photo/getAll")
+    var deleteUrl = route.substring(0, route.length -1 ) + guid;
+
+    _delete(deleteUrl)
+        .then(response => {
+            response.json().then(data => {
+                if (response.status === 200) {
+                    $('#deletePhotoModal').modal('hide');
+                    fillGallery(getAllPhotosUrl);
+                }
+            });
         });
 }
 
@@ -305,12 +329,8 @@ function deletePhoto() {
  * Sets up the dropzone properties, like having a remove button
  */
 function setupDropZone() {
-
-    var maxImageWidth = 350, maxImageHeight = 350;
-
     Dropzone.options.addPhotoDropzone = {
         acceptedFiles: '.jpeg,.png,.jpg',
-        addRemoveLinks: true,
         dictRemoveFile: "remove",
         thumbnailWidth: 200,
         thumbnailHeight: 200,
@@ -330,7 +350,7 @@ function setupDropZone() {
 
             this.on("thumbnail", function(file) {
                 // Do the dimension checks you want to do
-                if (file.width < maxImageWidth || file.height < maxImageHeight) {
+                if (file.width < profilePictureSize || file.height < profilePictureSize) {
                     file.rejectDimensions()
                 }
                 else {
@@ -338,19 +358,27 @@ function setupDropZone() {
                 }
             });
 
+            this.on("processing", function() {
+                this.options.autoProcessQueue = true;
+            });
 
             submitButton.addEventListener("click", function() {
                 if (submitButton.innerText === "Add") {
                     addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.
                     submitButton.innerText = "Done";
+                    document.getElementById("remove-all").hidden = true;
                 } else {
+                    document.getElementById("remove-all").hidden = false;
+                    addPhotoDropzone.options.autoProcessQueue = false;
+                    addPhotoDropzone.removeAllFiles();
                     $('#uploadPhotoModal').modal('hide');
-                    fillGallery("/api/photo/getAll");
+                    fillGallery(getAllPhotosUrl);
                 }
             });
 
             cancelButton.addEventListener("click", function() {
-                addPhotoDropzone.removeAllFiles(true);
+                addPhotoDropzone.removeAllFiles();
+                addPhotoDropzone.options.autoProcessQueue = false;
                 submitButton.disabled = true;
                 submitButton.innerText = "Add"
             });
@@ -363,11 +391,6 @@ function setupDropZone() {
         },
         success: function(file, response) {
             file.serverFileName = response[0];
-            console.log(response);
-        },
-        removedfile: function (file, data) {
-            var deleteUrl = "api/photo/:25";
-            _delete(deleteUrl)
         }
     };
 }
@@ -388,6 +411,16 @@ function getProfilePicture(url) {
             });
         }
     });
+}
+
+/**
+ * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ *
+ * @param url the backend PhotoController url
+ */
+function getPictures(url) {
+    getAllPhotosUrl = url;
+    fillGallery(getAllPhotosUrl);
 }
 
 /**

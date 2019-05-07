@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import controllers.backend.routes;
 import models.Profile;
 import models.Trip;
 import models.User;
@@ -72,14 +73,10 @@ public class ProfileController extends Controller {
                 profile -> {
                     return this.getUser(userId, request).thenComposeAsync(
                             user -> {
-                                return this.getUserTrips(Authenticator.getTokenFromCookie(request), request).thenApplyAsync(
+                                return this.getUserTrips(request, userId).thenApplyAsync(
                                         tripList -> {
-                                            if (loggedUser.id.equals(userId) || loggedUser.admin) {
-                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), true));
-                                            }
-                                            else {
-                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), false));
-                                            }
+                                            boolean canModify = loggedUser.id.equals(userId) || loggedUser.admin;
+                                            return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), canModify));
                                         },
                                         httpExecutionContext.current()
                                 );
@@ -94,11 +91,11 @@ public class ProfileController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    private CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
-        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips();
+    private CompletableFuture<List<Trip>> getUserTrips(Http.Request request, Long userId) {
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips(userId);
         CompletableFuture<WSResponse> res = ws
                 .url(url)
-                .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+                .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
                 .get()
                 .toCompletableFuture();
         return res.thenApply(r -> {
@@ -121,7 +118,7 @@ public class ProfileController extends Controller {
      */
     private CompletableFuture<Profile> getProfile(Long userId, Http.Request request) {
         String url = "http://" + request.host() + controllers.backend.routes.ProfileController.getProfile(userId);
-        CompletableFuture<WSResponse> res = ws.url(url + userId).get().toCompletableFuture();
+        CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
@@ -142,7 +139,11 @@ public class ProfileController extends Controller {
      */
     private CompletableFuture<User> getUser(Long userId, Http.Request request) {
         String url = "http://" + request.host() + controllers.backend.routes.UserController.getUser(userId);
-        CompletableFuture<WSResponse> res = ws.url(url + userId).get().toCompletableFuture();
+        CompletableFuture<WSResponse> res = ws
+                .url(url)
+                .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
+                .get()
+                .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
