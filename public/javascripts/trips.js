@@ -254,12 +254,9 @@ function listItemToTripData(listItem, index) {
         json["departureTime"] = null;
     }
 
-    console.log(json["arrivalTime"]);
-
     return json;
 }
 
-// TODO: Test
 /**
  * Formats the date retrieved from the destination cards
  * @param date Date entered by user

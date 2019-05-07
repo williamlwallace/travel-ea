@@ -47,13 +47,26 @@ public class TripData extends Model {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime departureTime;
 
-    // TODO: Javadoc
+    /**
+     * Transforms the arrival time to an ISO string an returns it
+     * @return ISO string format of the arrival time or null
+     */
     public String getArrivalTime() {
         if (arrivalTime != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-            String formattedString = formatter.format(arrivalTime);
-            System.out.println(formattedString);
-            return formattedString;
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(arrivalTime);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Transforms the departure time to an ISO string an returns it
+     * @return ISO string format of the departure time or null
+     */
+    public String getDepartureTime() {
+        if (arrivalTime != null) {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(departureTime);
         }
         else {
             return null;

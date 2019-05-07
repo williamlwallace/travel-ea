@@ -15,8 +15,8 @@
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
-                <button type="submit" class="btn btn-secondary"
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
+                <button type="submit" class="btn btn-primary"
                 data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
@@ -128,7 +128,13 @@
                                                 </div>
                                                 <div id="depart">Departure
                                                     <i class="fas prefix grey-text"></i>
-                                                    <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">
+                                                    @if(trip.tripDataList(i).arrivalTime != null) {
+                                                        <input id="departureDate" type="date" value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" name="arrivalDate" class="form-control validate">
+                                                        <input id="departureTime" type="time" value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" name="arrivalTime" class="form-control validate">
+                                                    } else {
+                                                        <input id="departureDate" type="date" name="departureDate" class="form-control validate">
+                                                        <input id="departureTime" type="time" name="departureTime" class="form-control validate">
+                                                    }
                                                     <label id="departureError"></label>
                                                 </div>
                                             </div>
