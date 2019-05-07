@@ -354,6 +354,7 @@ function setupDropZone() {
                     document.getElementById("remove-all").hidden = true;
                 } else {
                     document.getElementById("remove-all").hidden = false;
+                    addPhotoDropzone.options.autoProcessQueue = false;
                     addPhotoDropzone.removeAllFiles();
                     $('#uploadPhotoModal').modal('hide');
                     fillGallery(getAllPhotosUrl);
@@ -362,6 +363,7 @@ function setupDropZone() {
 
             cancelButton.addEventListener("click", function() {
                 addPhotoDropzone.removeAllFiles();
+                addPhotoDropzone.options.autoProcessQueue = false;
                 submitButton.disabled = true;
                 submitButton.innerText = "Add"
             });
