@@ -166,6 +166,7 @@ cropGallery.on('click','img',function() {
  * Function to populate gallery with current users photos
  */
 function fillGallery(getPhotosUrl) {
+    profilePictureControllerUrl = getPhotosUrl;
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -229,7 +230,7 @@ function createGalleryObjects(hasFullSizeLinks) {
             var filename = usersPhotos[(6 * page + position)]["filename"];
             var guid = usersPhotos[(6 * page + position)]["guid"];
             photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-filename", "assets/" + filename);
+            photo.setAttribute("data-filename", "@routes.Assets.at(" + filename + ")");
             // thumbnail
             var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
             var thumb = document.createElement("img");
@@ -297,7 +298,7 @@ function deletePhoto() {
     _delete(deleteUrl).then(
         response => {
             $('#deletePhotoModal').modal('hide');
-            fillGallery("/api/photo/getAll")
+            fillGallery(profilePictureControllerUrl)
         });
 }
 
@@ -345,7 +346,7 @@ function setupDropZone() {
                     submitButton.innerText = "Done";
                 } else {
                     $('#uploadPhotoModal').modal('hide');
-                    fillGallery("/api/photo/getAll");
+                    fillGallery(profilePictureControllerUrl);
                 }
             });
 
