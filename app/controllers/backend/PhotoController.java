@@ -32,6 +32,9 @@ public class PhotoController extends Controller {
     private static final String PHOTO_DIRECTORY = "storage/photos/";
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
+    // Constant fields defining the directory of publicly available files
+    private static final String PUBLIC_DIRECTORY = "public/";
+
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
@@ -139,8 +142,17 @@ public class PhotoController extends Controller {
             if(pair.getKey().isProfile) {
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
                     if(fileNamesPair != null) {
-                        new File(fileNamesPair.getKey()).deleteOnExit();
-                        new File(fileNamesPair.getValue()).deleteOnExit();
+                        File thumbFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getKey());
+                        File mainFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getValue());
+                        // Mark the files for deletion
+                        if(!thumbFile.delete()) {
+                            // If file fails to delete immediately, mark file for deletion when VM shuts down
+                            thumbFile.deleteOnExit();
+                        }
+                        if(!mainFile.delete()) {
+                            // If file fails to delete immediately, mark file for deletion when VM shuts down
+                            mainFile.deleteOnExit();
+                        }
                     }
                     return null;
                 });
@@ -149,9 +161,9 @@ public class PhotoController extends Controller {
                 thumbHeight = 100;
             }
             try {
-                pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
+                pair.getValue().getRef().copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
-                        .copyTo(Paths.get("public/" + pair.getKey().thumbnailFilename));
+                        .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
             } catch (IOException e) {
                 // TODO: Handle case where a file failed to save
             }
@@ -251,16 +263,34 @@ public class PhotoController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deletePhoto(Long id) {
-        // TODO: add authentication of user
-        return photoRepository.deletePhoto(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
+        return photoRepository.deletePhoto(id).thenApplyAsync(photoDeleted -> {
+            if (photoDeleted == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.map("Photo not found", "other");
                 return badRequest(errorResponse.toJson());
             } else {
-                return ok(Json.toJson(rowsDeleted));
+                // Mark the files for deletion
+                File thumbFile = new File(PUBLIC_DIRECTORY + photoDeleted.thumbnailFilename);
+                File mainFile = new File(PUBLIC_DIRECTORY + photoDeleted.filename);
+                if(!thumbFile.delete()) {
+                    // If file fails to delete immediately, mark file for deletion when VM shuts down
+                    thumbFile.deleteOnExit();
+                }
+                if(!mainFile.delete()) {
+                    // If file fails to delete immediately, mark file for deletion when VM shuts down
+                    mainFile.deleteOnExit();
+                }
+
+                // Return number of photos deleted
+                return ok(Json.toJson(1));
             }
         });
     }
 
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> togglePhotoPrivacy(Long id, Boolean isPublic) {
+        return photoRepository.togglePhotoPrivacy(id, isPublic).thenApplyAsync(uploaded ->
+                ok(Json.toJson(id))
+        );
+    }
 }

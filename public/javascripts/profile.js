@@ -223,6 +223,20 @@ function createGalleryObjects(hasFullSizeLinks) {
                 deleteButton.innerHTML = "&times;";
                 tile.appendChild(deleteButton);
                 photo.href = filename;
+
+                // Create toggle button TODO this is in an ugly position, will change
+                var toggleButton = document.createElement("span");
+                toggleButton.setAttribute("class","custom-control custom-switch");
+                var toggleInput = document.createElement("input");
+                toggleInput.setAttribute("type","checkbox");
+                toggleInput.setAttribute("class","custom-control-input");
+                toggleInput.setAttribute("id","customSwitches");
+                toggleButton.appendChild(toggleInput);
+                var toggleLabel = document.createElement("label");
+                toggleLabel.setAttribute("class","custom-control-label");
+                toggleLabel.setAttribute( "for","customSwitches");
+                toggleButton.appendChild(toggleLabel);
+                tile.appendChild(toggleButton);
             }
 
             photo.setAttribute("data-id", guid);
