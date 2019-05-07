@@ -287,4 +287,10 @@ public class PhotoController extends Controller {
         });
     }
 
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> togglePhotoPrivacy(Long id, Boolean isPublic) {
+        return photoRepository.togglePhotoPrivacy(id, isPublic).thenApplyAsync(uploaded ->
+                ok(Json.toJson(id))
+        );
+    }
 }

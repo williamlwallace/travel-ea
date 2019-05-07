@@ -178,4 +178,17 @@ public class PhotoRepository {
         }
         return photos;
     }
+
+    public CompletableFuture<Boolean> togglePhotoPrivacy(Long id, Boolean isPublic) {
+        return supplyAsync(() -> {
+                    ebeanServer.find(Photo.class)
+                            .where()
+                            .eq("guid", id)
+                            .asUpdate()
+                            .set("is_public", isPublic)
+                            .update();
+                    return true;
+                },
+                executionContext);
+    }
 }
