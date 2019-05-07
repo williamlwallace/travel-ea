@@ -402,7 +402,7 @@
 
 <script type="text/javascript">
     setupDropZone();
-    fillGallery("@controllers.backend.routes.PhotoController.getAllUserPhotos()");
+    fillGallery("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
     populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");

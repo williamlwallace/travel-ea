@@ -66,23 +66,41 @@ public class ProfileController extends Controller {
      * @return displays the profile or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> editindex(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-        return this.getProfile(user.id, request).thenApplyAsync(
-            profile -> {
-                return ok(editProfile.render(profile, user));
-            },
-            httpExecutionContext.current());
+    public CompletableFuture<Result> index(Http.Request request, Long userId) {
+        User loggedUser = request.attrs().get(ActionState.USER);
+        return this.getProfile(userId).thenComposeAsync(
+                profile -> {
+                    return this.getUser(userId).thenComposeAsync(
+                            username -> {
+                                User user = new User();
+                                user.id = userId;
+                                user.username = username;
+                                return this.getUserTrips(Authenticator.getTokenFromCookie(request), request).thenApplyAsync(
+                                        tripList -> {
+                                            if (loggedUser.id.equals(userId) || loggedUser.admin) {
+                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), true));
+                                            }
+                                            else {
+                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), false));
+                                            }
+                                        },
+                                        httpExecutionContext.current()
+                                );
+                            },
+                            httpExecutionContext.current());
+                },
+                httpExecutionContext.current());
     }
 
     /**
-     * Gets trips from api endpoint via get request
+     * Gets trips from api endpoint via get request.
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(String token) {
+    public CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips();
         CompletableFuture<WSResponse> res = ws
-                .url("http://localhost:9000/api/trip/getAll/")
+                .url(url)
                 .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
                 .get()
                 .toCompletableFuture();
@@ -104,9 +122,8 @@ public class ProfileController extends Controller {
      *
      * @return List of destinations wrapped in completable future
      */
-    private CompletableFuture<Profile> getProfile(Long userId, Http.Request request) {
-        String url = "http://" + request.host() + controllers.backend.routes.ProfileController.getProfile(userId);
-        CompletableFuture<WSResponse> res = ws.url(url)
+    private CompletableFuture<Profile> getProfile(Long userId) {
+        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId)
             .get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
@@ -118,6 +135,7 @@ public class ProfileController extends Controller {
                 return new Profile();
             }
         });
+    }
 
     // TODO: Javadoc and set up check admin or matching user
     private CompletableFuture<String> getUser(Long userId) {
