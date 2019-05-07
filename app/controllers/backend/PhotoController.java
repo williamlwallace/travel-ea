@@ -32,6 +32,9 @@ public class PhotoController extends Controller {
     private static final String PHOTO_DIRECTORY = "storage/photos/";
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
+    // Constant fields defining the directory of publicly available files
+    private static final String PUBLIC_DIRECTORY = "public/";
+
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
@@ -45,11 +48,19 @@ public class PhotoController extends Controller {
     }
 
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserPhotos(Http.Request request) {
-        Long userId = request.attrs().get(ActionState.USER).id;
+    public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
+        Long currentUserId = request.attrs().get(ActionState.USER).id;
 
-        return photoRepository.getAllUserPhotos(userId)
-                .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+        // Checks if the photos belong to the user getting them
+        if (currentUserId.equals(id)) {
+            // get public and private photos
+            return photoRepository.getAllUserPhotos(id)
+                    .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+        } else {
+            // only get public photos
+            return photoRepository.getAllPublicUserPhotos(id)
+                    .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+        }
     }
 
     @With({Everyone.class, Authenticator.class})
@@ -123,13 +134,38 @@ public class PhotoController extends Controller {
      */
     private void saveMultiplePhotos(Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos) {
         // Add all the photos we found to the database
+        int thumbWidth = THUMB_WIDTH;
+        int thumbHeight = THUMB_HEIGHT;
         for(Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos)
         {
+            // if photo to add is marked as new profile pic, clear any existing profile pic first
+            if(pair.getKey().isProfile) {
+                photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
+                    if(fileNamesPair != null) {
+                        File thumbFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getKey());
+                        File mainFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getValue());
+                        // Mark the files for deletion
+                        if(!thumbFile.delete()) {
+                            // If file fails to delete immediately, mark file for deletion when VM shuts down
+                            thumbFile.deleteOnExit();
+                        }
+                        if(!mainFile.delete()) {
+                            // If file fails to delete immediately, mark file for deletion when VM shuts down
+                            mainFile.deleteOnExit();
+                        }
+                    }
+                    return null;
+                });
+                // Profile picture small thumbnail dimensions
+                thumbWidth = 100;
+                thumbHeight = 100;
+            }
             try {
-                pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
-                createThumbnailFromFile(pair.getValue().getRef()).copyTo(Paths.get("public/" + pair.getKey().thumbnailFilename));
+                pair.getValue().getRef().copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().filename), true);
+                createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
+                        .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
             } catch (IOException e) {
-
+                // TODO: Handle case where a file failed to save
             }
         }
         // Collect all keys from the list to upload
@@ -174,31 +210,31 @@ public class PhotoController extends Controller {
      * @param fullImageFile The full image to create a filename for
      * @return Temporary file of thumbnail
      */
-    private Files.TemporaryFile createThumbnailFromFile(Files.TemporaryFile fullImageFile) throws IOException {
+    private Files.TemporaryFile createThumbnailFromFile(Files.TemporaryFile fullImageFile, int thumbWidth, int thumbHeight) throws IOException {
         // Convert full image file to java.awt image
         BufferedImage fullImage = ImageIO.read(fullImageFile.path().toFile());
 
-        BufferedImage tThumbImage = new BufferedImage( THUMB_WIDTH, THUMB_HEIGHT, BufferedImage.TYPE_INT_RGB );
+        BufferedImage tThumbImage = new BufferedImage( thumbWidth, thumbHeight, BufferedImage.TYPE_INT_RGB );
         Graphics2D tGraphics2D = tThumbImage.createGraphics(); //create a graphics object to paint to
         tGraphics2D.setBackground( Color.WHITE );
         tGraphics2D.setPaint( Color.WHITE );
-        tGraphics2D.fillRect(0, 0, THUMB_WIDTH, THUMB_HEIGHT);
+        tGraphics2D.fillRect(0, 0, thumbWidth, thumbHeight);
         tGraphics2D.setRenderingHint( RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR );
         //tGraphics2D.drawImage( fullImage, 0, 0, THUMB_WIDTH, THUMB_HEIGHT, null ); //draw the image scaled
         // If image is smaller than thumbnail size then center with bars on each side
-        if(fullImage.getWidth() < THUMB_WIDTH && fullImage.getHeight() < THUMB_HEIGHT){
-            tGraphics2D.drawImage(fullImage,THUMB_WIDTH / 2 - fullImage.getWidth() / 2, THUMB_HEIGHT / 2 - fullImage.getHeight() / 2, fullImage.getWidth(), fullImage.getHeight(), null);
+        if(fullImage.getWidth() < thumbWidth && fullImage.getHeight() < thumbHeight){
+            tGraphics2D.drawImage(fullImage,thumbWidth / 2 - fullImage.getWidth() / 2, thumbHeight / 2 - fullImage.getHeight() / 2, fullImage.getWidth(), fullImage.getHeight(), null);
         } // Otherwise scale image down so biggest side is set to max of thumbnail and rest is scaled proportionally
         else {
             // Determine which side is proportionally bigger
-            boolean fitWidth = fullImage.getWidth() / THUMB_WIDTH > fullImage.getHeight() / THUMB_HEIGHT;
-            double scaleFactor = (fitWidth) ? (double)THUMB_WIDTH / (double)fullImage.getWidth() : (double)THUMB_HEIGHT / (double)fullImage.getHeight();
+            boolean fitWidth = fullImage.getWidth() / thumbWidth > fullImage.getHeight() / thumbHeight;
+            double scaleFactor = (fitWidth) ? (double)thumbWidth / (double)fullImage.getWidth() : (double)thumbHeight / (double)fullImage.getHeight();
             if(fitWidth) {
                 int newHeight = (int)Math.floor(fullImage.getHeight() * scaleFactor);
-                tGraphics2D.drawImage(fullImage, 0, THUMB_HEIGHT / 2 - newHeight / 2, THUMB_WIDTH, newHeight, null);
+                tGraphics2D.drawImage(fullImage, 0, thumbHeight / 2 - newHeight / 2, thumbWidth, newHeight, null);
             } else {
                 int newWidth = (int)Math.floor(fullImage.getWidth() * scaleFactor);
-                tGraphics2D.drawImage(fullImage, THUMB_WIDTH / 2 - newWidth/ 2, 0, newWidth, THUMB_HEIGHT, null);
+                tGraphics2D.drawImage(fullImage, thumbWidth / 2 - newWidth/ 2, 0, newWidth, thumbHeight, null);
             }
         }
 
@@ -227,16 +263,34 @@ public class PhotoController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deletePhoto(Long id) {
-        // TODO: add authentication of user
-        return photoRepository.deletePhoto(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
+        return photoRepository.deletePhoto(id).thenApplyAsync(photoDeleted -> {
+            if (photoDeleted == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.map("Photo not found", "other");
                 return badRequest(errorResponse.toJson());
             } else {
-                return ok(Json.toJson(rowsDeleted));
+                // Mark the files for deletion
+                File thumbFile = new File(PUBLIC_DIRECTORY + photoDeleted.thumbnailFilename);
+                File mainFile = new File(PUBLIC_DIRECTORY + photoDeleted.filename);
+                if(!thumbFile.delete()) {
+                    // If file fails to delete immediately, mark file for deletion when VM shuts down
+                    thumbFile.deleteOnExit();
+                }
+                if(!mainFile.delete()) {
+                    // If file fails to delete immediately, mark file for deletion when VM shuts down
+                    mainFile.deleteOnExit();
+                }
+
+                // Return number of photos deleted
+                return ok(Json.toJson(1));
             }
         });
     }
 
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> togglePhotoPrivacy(Long id, Boolean isPublic) {
+        return photoRepository.togglePhotoPrivacy(id, isPublic).thenApplyAsync(uploaded ->
+                ok(Json.toJson(id))
+        );
+    }
 }

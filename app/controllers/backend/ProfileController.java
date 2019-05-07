@@ -3,6 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import actions.roles.Admin;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -146,7 +147,7 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    // TODO: set auth to admin role @With({Everyone.class, Authenticator.class})
+    @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         // Get json parameters
         JsonNode data = request.body().asJson();
@@ -194,7 +195,7 @@ public class ProfileController extends Controller {
      * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
      *  not found for that userID.
      */
-    //TODO: Authorization for admin only
+    @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteProfile(Long id) {
         return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
             if (rowsDeleted < 1) {
@@ -217,10 +218,11 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return List of profiles within requested parameters
      */
-    public CompletableFuture<List<Profile>> searchProfiles(Long nationalityId, String gender,
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId, String gender,
         int minAge, int maxAge, Long travellerTypeId) {
-        return profileRepository.getAllProfiles().thenApplyAsync(profiles -> {
-
+        User user = request.attrs().get(ActionState.USER);
+        return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
@@ -276,9 +278,10 @@ public class ProfileController extends Controller {
      * @param travellerTypeId traveller type requested
      * @return A ok result containing the JSON of the profiles matching search criteria
      */
-    public CompletableFuture<Result> searchProfilesJson(Long nationalityId, String gender,
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId, String gender,
         int minAge, int maxAge, Long travellerTypeId) {
-        return searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId)
+        return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .thenApplyAsync(profiles ->
                 ok(Json.toJson(profiles)));
     }

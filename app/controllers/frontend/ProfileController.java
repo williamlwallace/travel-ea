@@ -75,13 +75,13 @@ public class ProfileController extends Controller {
                                 User user = new User();
                                 user.id = userId;
                                 user.username = username;
-                                return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
+                                return this.getUserTrips(Authenticator.getTokenFromCookie(request), request).thenApplyAsync(
                                         tripList -> {
                                             if (loggedUser.id.equals(userId) || loggedUser.admin) {
-                                                return ok(views.html.profile.render(profile, user, asScala(tripList), true));
+                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), true));
                                             }
                                             else {
-                                                return ok(views.html.profile.render(profile, user, asScala(tripList), false));
+                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), false));
                                             }
                                         },
                                         httpExecutionContext.current()
@@ -93,13 +93,14 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Gets trips from api endpoint via get request
+     * Gets trips from api endpoint via get request.
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(String token) {
+    public CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips();
         CompletableFuture<WSResponse> res = ws
-                .url("http://localhost:9000/api/trip/getAll/")
+                .url(url)
                 .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
                 .get()
                 .toCompletableFuture();
@@ -115,11 +116,10 @@ public class ProfileController extends Controller {
         });
     }
 
-    // TODO: Change javadoc
     /**
-     * Gets Destinations from api endpoint via get request.
-     *
-     * @return List of destinations wrapped in completable future
+     * Gets a Profile from api endpoint via get request.
+     * @param userId the ID of the profile to retrieve
+     * @return A profile wrapped in completable future
      */
     private CompletableFuture<Profile> getProfile(Long userId) {
         CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId)
@@ -138,13 +138,13 @@ public class ProfileController extends Controller {
 
     // TODO: Javadoc and set up check admin or matching user
     private CompletableFuture<String> getUser(Long userId) {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/user/name/" + userId)
+        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/user/name/" + userId) //TODO: is it ok to have paths like this?
                 .get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             //try {
             //    System.out.println();
-                return json.toString();
+                return json.toString().replace("\"", "");
             //} catch (Exception e) {
             //    return "";
             //}

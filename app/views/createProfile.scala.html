@@ -96,7 +96,7 @@
         </body>
     }
 
-    <script type="text/javascript">
-    fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
-    fillTravellerTypes("@controllers.backend.routes.ProfileController.getAllTravellerTypes()")
+<script type="text/javascript">
+    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
+    getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
 </script>

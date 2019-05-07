@@ -17,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -48,9 +49,21 @@ public class TripController extends Controller {
     }
 
     /**
+     * Attempts to get all trips
+     *
+     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllTrips() {
+
+        return tripRepository.getAllTrips()
+                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+    }
+
+    /**
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
      * with 2 fields: uid: This field represents the id of the user who owns the trip
-     * tripDataCollection: An array storing all stages of the trip as tripData objects
+     * tripDataList: An array storing all stages of the trip as tripData objects
      *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
@@ -123,6 +136,7 @@ public class TripController extends Controller {
 
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
+            System.out.println("VALIDATOR FAILED");
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 
@@ -130,6 +144,7 @@ public class TripController extends Controller {
         Trip trip = new Trip();
         trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
+        System.out.println(Json.toJson(trip));
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );
@@ -151,7 +166,7 @@ public class TripController extends Controller {
         ArrayList<TripData> tripDataList = new ArrayList<>();
 
         // For each item in the json node, deserialize to a single trip data
-        for (JsonNode node : data.get("tripDataCollection")) {
+        for (JsonNode node : data.get("tripDataList")) {
             // Assemble trip data
             TripData tripData = new TripData();
 
@@ -184,5 +199,20 @@ public class TripController extends Controller {
         }
         // Return create trip data list
         return tripDataList;
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result tripRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TripController.deleteTrip(),
+                controllers.backend.routes.javascript.TripController.getAllUserTrips(),
+                controllers.backend.routes.javascript.TripController.getAllTrips(),
+                controllers.frontend.routes.javascript.TripController.editTripIndex()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }

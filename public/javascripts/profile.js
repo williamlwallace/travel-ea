@@ -1,138 +1,30 @@
-var countryDict = {};
-var travellerTypeDict = {};
-var usersPhotos = [];
-var profilePictureControllerUrl;
-
-// Runs get countries method, then add country options to drop down
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-        .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-            // Json data is an array of destinations, iterate through it
-            for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        countryDict[data[i]['id']] = data[i]['name'];
-    }
-    // Now fill the selects
-    fillNationalityDropDown();
-    fillPassportDropDown();
-});
-});
-}
-
-function fillTravellerTypes(getTravellerTypesUrl) {
-    // Run a get request to fetch all travellers types
-    get(getTravellerTypesUrl)
-    // Get the response of the request
-        .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-            // "data" should now be a list of traveller type definitions
-            // E.g data[0] = { id:1, description:"backpacker"}
-            for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        travellerTypeDict[data[i]['id']] = data[i]['description'];
-    }
-    // Now fill the drop down box, and list of destinations
-    fillTravellerDropDown();
-
-});
-});
-}
-
-function fillNationalityDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("nationalities").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#nationalities').picker();
-}
-
-function fillPassportDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("passports").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#passports').picker();
-}
-
-function fillTravellerDropDown() {
-    for(let key in travellerTypeDict) {
-        // For each Traveller type, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = travellerTypeDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("travellerTypes").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#travellerTypes').picker();
-}
-
-
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
 /**
  * The JavaScript function to process a client updating there profile
- * @param url The route/url to send the request to
+ * @param uri The route/uri to send the request to
  * @param redirect The page to redirect to if no errors are found
  */
-function updateProfile(url, redirect) {
-    console.log("zza");
+function updateProfile(uri, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("updateProfileForm"));
-    console.log("zza");
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
-    }), {});
-    console.log("zza");
+}), {});
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
-    data.nationalities = [];
-    let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
-    for (let i = 0; i < nat_ids.length; i++) {
-        let nat = {};
-        nat.id = nat_ids[i];
-        data.nationalities.push(nat);
-    }
-    data.passports = [];
-    let passport_ids = $.map($(document.getElementById("passports")).picker('get'),Number)
-    for (let i = 0; i < passport_ids.length; i++) {
-        let passport = {};
-        passport.id = passport_ids[i];
-        data.passports.push(passport);
-    }
-    data.travellerTypes  = [];
-    let type_ids = $.map($(document.getElementById("travellerTypes")).picker('get'),Number);
-    for (let i = 0; i < type_ids.length; i++) {
-        let type = {};
-        type.id = type_ids[i];
-        data.travellerTypes.push(type);
-    }
-    console.log("zza");
-    // Post json data to given url
-    console.log(data);
-    put(url,data)
+    data.nationalities = JSONFromDropDowns("nationalities");
+    data.passports = JSONFromDropDowns("passports");
+    data.travellerTypes  = JSONFromDropDowns("travellerTypes");
+    // Post json data to given uri
+    put(uri,data)
         .then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-            if (response.status !== 200) {
+        .then(json => {
+        if (response.status != 200) {
         showErrors(json);
     } else {
         hideErrors("updateProfileForm");
@@ -148,6 +40,10 @@ function updateProfile(url, redirect) {
 });
 }
 
+/**
+ * Returns timout promise
+ * @param {Number} ms - time in millieseconds
+ */
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -156,8 +52,8 @@ function sleep(ms) {
  * The javascript method to populate the select boxes on the edit profile scene
  * @param url the route/url to send the request to to get the profile data
  */
-function populateProfileData(url) {
-    get(url)
+function populateProfileData(uri) {
+    get(uri)
         .then(response => {
         // Read response from server, which will be a json object
         return response.json()
@@ -185,6 +81,10 @@ var cropGallery = $('#profile-gallery');
 var profilePictureToCrop = document.getElementById('image');
 var profilePictureSize = 350;
 var cropper;
+
+var usersPhotos = [];
+var getAllPhotosUrl;
+var profilePictureControllerUrl;
 
 /**
  * Loads the cropper into the page when the cropProfilePictureModal opens
@@ -232,7 +132,6 @@ $(document).ready(function() {
         postMultipart(url, formData).then(response => {
                 // Read response from server, which will be a json object
                 response.json().then(data => {
-                    console.log(data);
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
                         getProfilePicture(profilePictureControllerUrl);
@@ -253,9 +152,7 @@ $(document).ready(function() {
  */
 cropGallery.on('click','img',function() {
     //Get the path for the pictures thumbnail
-    var thumbnailPath = $(this).attr("src");
-    //Convert the thumbnailPath to the fullPicturePath
-    var fullPicturePath = thumbnailPath.replace('thumbnails/','');
+    var fullPicturePath = $(this).parent().attr("data-filename");
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -275,17 +172,15 @@ function fillGallery(getPhotosUrl) {
             response.json().then(data => {
                 // "data" should now be a list of photo models for the given user
                 // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+                usersPhotos = [];
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     usersPhotos[i] = data[i];
                 }
-                // data.length is the total number of photos
-                if (data.length > 0) {
-                    // Now create gallery objects
-                    var galleryObjects = createGalleryObjects(true);
-                    // And populate the gallery!
-                    addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
-                }
+                // Now create gallery objects
+                var galleryObjects = createGalleryObjects(true);
+                // And populate the gallery!
+                addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
             });
         });
 }
@@ -316,6 +211,10 @@ function createGalleryObjects(hasFullSizeLinks) {
             var photo = document.createElement("a");
             photo.setAttribute("class", "lightbox");
 
+            // 6 * page + position finds the correct photo index in the dictionary
+            var filename = usersPhotos[(6 * page + position)]["filename"];
+            var guid = usersPhotos[(6 * page + position)]["guid"];
+
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
                 // Create delete button
@@ -323,18 +222,29 @@ function createGalleryObjects(hasFullSizeLinks) {
                 deleteButton.setAttribute("class", "close");
                 deleteButton.innerHTML = "&times;";
                 tile.appendChild(deleteButton);
-                photo.href = "assets/" + filename;
+                photo.href = filename;
+
+                // Create toggle button TODO this is in an ugly position, will change
+                var toggleButton = document.createElement("span");
+                toggleButton.setAttribute("class","custom-control custom-switch");
+                var toggleInput = document.createElement("input");
+                toggleInput.setAttribute("type","checkbox");
+                toggleInput.setAttribute("class","custom-control-input");
+                toggleInput.setAttribute("id","customSwitches");
+                toggleButton.appendChild(toggleInput);
+                var toggleLabel = document.createElement("label");
+                toggleLabel.setAttribute("class","custom-control-label");
+                toggleLabel.setAttribute( "for","customSwitches");
+                toggleButton.appendChild(toggleLabel);
+                tile.appendChild(toggleButton);
             }
 
-            // 6 * page + position finds the correct photo index in the dictionary
-            var filename = usersPhotos[(6 * page + position)]["filename"];
-            var guid = usersPhotos[(6 * page + position)]["guid"];
             photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-filename", "assets/" + filename);
+            photo.setAttribute("data-filename", filename);
             // thumbnail
             var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
             var thumb = document.createElement("img");
-            thumb.src = "assets/" + thumbnail;
+            thumb.src = thumbnail;
             // add image to photo a
             photo.appendChild(thumb);
             // add photo a to the tile div
@@ -346,10 +256,10 @@ function createGalleryObjects(hasFullSizeLinks) {
             newGallery.appendChild(row);
 
             // Add the gallery page to the galleryObjects
-            galleryObjects[page] = newGallery;
         }
-        return galleryObjects;
+        galleryObjects[page] = newGallery;
     }
+    return galleryObjects;
 }
 
 /**
@@ -361,21 +271,27 @@ function createGalleryObjects(hasFullSizeLinks) {
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     var numPages = Math.ceil(usersPhotos.length / 6);
-
-    if (galleryObjects !== undefined && galleryObjects.length != 0) {
+    var currentPage = 1;
+    if (galleryObjects !== undefined && galleryObjects.length !== 0) {
         // init bootpage
         $(pageSelectionId).bootpag({
             total: numPages,
             maxVisible: 5,
+            page: 1,
             leaps: false,
-            href: "#gallery-page-{{number}}",
         }).on("page", function(event, num){
-            var gallery = galleryObjects[(num-1)];
-            $(galleryId).html(gallery);
+            currentPage = num;
+            $(galleryId).html(galleryObjects[currentPage - 1]);
             baguetteBox.run('.tz-gallery');
+            $('.img-wrap .close').on('click', function() {
+                var guid = $(this).closest('.img-wrap').find('a').data("id");
+                var filename = $(this).closest('.img-wrap').find('a').data("filename");
+
+                removePhoto(guid, filename);
+            });
         });
         // set first page
-        $(galleryId).html(galleryObjects[(0)]);
+        $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery');
         $('.img-wrap .close').on('click', function() {
             var guid = $(this).closest('.img-wrap').find('a').data("id");
@@ -383,6 +299,8 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
 
             removePhoto(guid, filename);
         });
+    } else {
+        $(galleryId).html("There are no photos!");
     }
 }
 
@@ -392,13 +310,18 @@ function removePhoto(guid, filename) {
     document.getElementById("deleteMe").setAttribute("name", guid);
 }
 
-function deletePhoto() {
+function deletePhoto(route) {
     var guid = document.getElementById("deleteMe").name;
-    var deleteUrl = "api/photo/" + guid;
-    _delete(deleteUrl).then(
-        response => {
-            $('#deletePhotoModal').modal('hide');
-            fillGallery("/api/photo/getAll")
+    var deleteUrl = route.substring(0, route.length -1 ) + guid;
+
+    _delete(deleteUrl)
+        .then(response => {
+            response.json().then(data => {
+                if (response.status === 200) {
+                    $('#deletePhotoModal').modal('hide');
+                    fillGallery(getAllPhotosUrl);
+                }
+            });
         });
 }
 
@@ -406,12 +329,8 @@ function deletePhoto() {
  * Sets up the dropzone properties, like having a remove button
  */
 function setupDropZone() {
-
-    var maxImageWidth = 350, maxImageHeight = 350;
-
     Dropzone.options.addPhotoDropzone = {
         acceptedFiles: '.jpeg,.png,.jpg',
-        addRemoveLinks: true,
         dictRemoveFile: "remove",
         thumbnailWidth: 200,
         thumbnailHeight: 200,
@@ -431,7 +350,7 @@ function setupDropZone() {
 
             this.on("thumbnail", function(file) {
                 // Do the dimension checks you want to do
-                if (file.width < maxImageWidth || file.height < maxImageHeight) {
+                if (file.width < profilePictureSize || file.height < profilePictureSize) {
                     file.rejectDimensions()
                 }
                 else {
@@ -439,19 +358,27 @@ function setupDropZone() {
                 }
             });
 
+            this.on("processing", function() {
+                this.options.autoProcessQueue = true;
+            });
 
             submitButton.addEventListener("click", function() {
                 if (submitButton.innerText === "Add") {
                     addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.
                     submitButton.innerText = "Done";
+                    document.getElementById("remove-all").hidden = true;
                 } else {
+                    document.getElementById("remove-all").hidden = false;
+                    addPhotoDropzone.options.autoProcessQueue = false;
+                    addPhotoDropzone.removeAllFiles();
                     $('#uploadPhotoModal').modal('hide');
-                    fillGallery("/api/photo/getAll");
+                    fillGallery(getAllPhotosUrl);
                 }
             });
 
             cancelButton.addEventListener("click", function() {
-                addPhotoDropzone.removeAllFiles(true);
+                addPhotoDropzone.removeAllFiles();
+                addPhotoDropzone.options.autoProcessQueue = false;
                 submitButton.disabled = true;
                 submitButton.innerText = "Add"
             });
@@ -464,11 +391,6 @@ function setupDropZone() {
         },
         success: function(file, response) {
             file.serverFileName = response[0];
-            console.log(response);
-        },
-        removedfile: function (file, data) {
-            var deleteUrl = "api/photo/:25";
-            _delete(deleteUrl)
         }
     };
 }
@@ -492,25 +414,21 @@ function getProfilePicture(url) {
 }
 
 /**
+ * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ *
+ * @param url the backend PhotoController url
+ */
+function getPictures(url) {
+    getAllPhotosUrl = url;
+    fillGallery(getAllPhotosUrl);
+}
+
+/**
  * Displays the users images in a change profile picture gallery modal
  */
 function showProfilePictureGallery() {
     var galleryObjects = createGalleryObjects(false);
     addPhotos(galleryObjects, $("#profile-gallery"), $('#page-selection-profile-picture'));
     $('#changeProfilePictureModal').modal('show');
-}
-
-function changeImg() {
-
-    if (document.getElementById("privacyImg").title === @routes.Assets.at("images/public.png"))
-    {
-        document.getElementById("privacyImg").src = @routes.Assets.at("images/private.png");
-        document.getElementById("privacyImg").title = "Private";
-    }
-    else
-    {
-        document.getElementById("privacyImg").src = @routes.Assets.at("images/public.png");
-        document.getElementById("privacyImg").title = "Public";
-    }
 }
 

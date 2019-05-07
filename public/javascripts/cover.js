@@ -1,6 +1,5 @@
 /**
  * Checks if the password field and the confirm password field are matching.
- *
  */
 $('#password, #confirm_password').on('keyup', function () {
     if ($('#password').val() == $('#confirm_password').val()) {
@@ -13,10 +12,10 @@ $('#password, #confirm_password').on('keyup', function () {
 });
 
 /**
- * The JavaScript function to process a client logging in
+ * Processes a client logging in
  *
- * @param url The route/url to send the request to
- * @param redirect The page to redirect to if no errors are found
+ * @param {string} url  - The route/url to send the request to
+ * @param {string} redirect - The page to redirect to if no errors are found
  */
 function login(url, redirect) {
     const formData = new FormData(document.getElementById("loginForm"));
@@ -40,10 +39,10 @@ function login(url, redirect) {
 }
 
 /**
- * The JavaScript function to process a client signing up
+ * Processes a client signing up
  *
- * @param url The route/url to send the request to
- * @param redirect The page to redirect to if no errors are found
+ * @param {string} url - The route/url to send the request to
+ * @param {string} redirect - The page to redirect to if no errors are found
  */
 function signup(url, redirect) {
     const formData = new FormData(document.getElementById("signupForm"));
@@ -66,7 +65,7 @@ function signup(url, redirect) {
 }
 
 /**
- * The JavaScript function to clear error messages and
+ * Clear error messages and
  * fields on the start page when the cancel button is pressed
  */
 function cancel() {
@@ -78,3 +77,21 @@ function cancel() {
     hideErrors("signupForm");
     hideErrors("loginForm");
 }
+
+/**
+ * Clicks the login button when enter is pressed while in the password field of login
+ */
+$("#login-password-field").keyup(function(event) {
+    if (event.keyCode === 13) {
+        $("#login-button").click();
+    }
+});
+
+/**
+ * Clicks the login button when enter is pressed while in the password field of login
+ */
+$("#confirm_password").keyup(function(event) {
+    if (event.keyCode === 13) {
+        if (!$("#registerBtn").prop('disabled')) $("#registerBtn").click();
+    }
+});

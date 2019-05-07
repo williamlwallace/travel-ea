@@ -45,7 +45,7 @@ public class PeopleController extends Controller {
         int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         List<Profile> profiles = profileController
-            .searchProfiles(nationalityId, gender, minAge, maxAge, travellerTypeId)
+            .searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .join(); //This is so bad
         return ok(people.render(user, profiles));
     }

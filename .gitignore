@@ -24,9 +24,7 @@ server.pid
 !/public/storage/photos/placeholder.txt
 !/public/storage/photos/test/placeholder.txt
 !/public/storage/photos/thumbnails/placeholder.txt
-!/public/storage/photos/test/thumbnails/placeholder.txt
-
-/storage/*
+!/public/storage/photos/test/thumbnails/*
 
 # Things that don't belong under source control see https://github.com/github/gitignore
 
