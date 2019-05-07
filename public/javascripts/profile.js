@@ -292,9 +292,9 @@ function removePhoto(guid, filename) {
     document.getElementById("deleteMe").setAttribute("name", guid);
 }
 
-function deletePhoto() {
+function deletePhoto(route) {
     var guid = document.getElementById("deleteMe").name;
-    var deleteUrl = "api/photo/" + guid;
+    var deleteUrl = route.substring(0, route.length -1 ) + guid;
     _delete(deleteUrl).then(
         response => {
             $('#deletePhotoModal').modal('hide');
@@ -311,7 +311,6 @@ function setupDropZone() {
 
     Dropzone.options.addPhotoDropzone = {
         acceptedFiles: '.jpeg,.png,.jpg',
-        addRemoveLinks: true,
         dictRemoveFile: "remove",
         thumbnailWidth: 200,
         thumbnailHeight: 200,
@@ -339,19 +338,21 @@ function setupDropZone() {
                 }
             });
 
-
             submitButton.addEventListener("click", function() {
                 if (submitButton.innerText === "Add") {
                     addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.
                     submitButton.innerText = "Done";
+                    document.getElementById("remove-all").hidden = true;
                 } else {
+                    document.getElementById("remove-all").hidden = false;
+                    addPhotoDropzone.removeAllFiles();
                     $('#uploadPhotoModal').modal('hide');
                     fillGallery(getAllPhotosUrl);
                 }
             });
 
             cancelButton.addEventListener("click", function() {
-                addPhotoDropzone.removeAllFiles(true);
+                addPhotoDropzone.removeAllFiles();
                 submitButton.disabled = true;
                 submitButton.innerText = "Add"
             });
@@ -365,10 +366,6 @@ function setupDropZone() {
         success: function(file, response) {
             file.serverFileName = response[0];
             console.log(response);
-        },
-        removedfile: function (file, data) {
-            var deleteUrl = "api/photo/:25";
-            _delete(deleteUrl)
         }
     };
 }
