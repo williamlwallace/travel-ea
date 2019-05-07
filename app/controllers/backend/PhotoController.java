@@ -45,11 +45,19 @@ public class PhotoController extends Controller {
     }
 
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserPhotos(Http.Request request) {
-        Long userId = request.attrs().get(ActionState.USER).id;
+    public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
+        Long currentUserId = request.attrs().get(ActionState.USER).id;
 
-        return photoRepository.getAllUserPhotos(userId)
-                .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+        // Checks if the photos belong to the user getting them
+        if (currentUserId.equals(id)) {
+            // get public and private photos
+            return photoRepository.getAllUserPhotos(id)
+                    .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+        } else {
+            // only get public photos
+            return photoRepository.getAllPublicUserPhotos(id)
+                    .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+        }
     }
 
     @With({Everyone.class, Authenticator.class})

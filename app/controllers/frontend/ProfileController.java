@@ -78,10 +78,10 @@ public class ProfileController extends Controller {
                                 return this.getUserTrips(Authenticator.getTokenFromCookie(request)).thenApplyAsync(
                                         tripList -> {
                                             if (loggedUser.id.equals(userId) || loggedUser.admin) {
-                                                return ok(views.html.profile.render(profile, user, asScala(tripList), true));
+                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), true));
                                             }
                                             else {
-                                                return ok(views.html.profile.render(profile, user, asScala(tripList), false));
+                                                return ok(views.html.profile.render(profile, user, loggedUser, asScala(tripList), false));
                                             }
                                         },
                                         httpExecutionContext.current()
