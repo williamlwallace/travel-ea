@@ -19,6 +19,8 @@ DELETE        /api/user                              controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
+GET           /api/user/trips                        controllers.backend.TripController.getAllUserTrips(request:Request)
+
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
 POST          /api/logout                            controllers.backend.UserController.logout(request:Request)
@@ -29,7 +31,7 @@ GET           /api/profile                           controllers.backend.Profile
 
 PUT           /api/profile                           controllers.backend.ProfileController.updateProfile(request:Request)
 
-GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
@@ -55,7 +57,7 @@ POST          /api/trip                              controllers.backend.TripCon
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
 
-GET           /api/trip/getAll/                      controllers.backend.TripController.getAllUserTrips(request:Request)
+GET           /api/trip                              controllers.backend.TripController.getAllTrips()
 
 GET           /api/trip/:id                          controllers.backend.TripController.getTrip(id:Long)
 
@@ -103,6 +105,13 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
+#~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file          controllers.Assets.at(path="/public", file)
+GET     /assets/routers/admin       controllers.backend.AdminController.adminRoutes(request: Request)
+
+GET     /assets/routers/user       controllers.backend.UserController.userRoutes(request: Request)
+
+GET     /assets/routers/trip       controllers.backend.TripController.tripRoutes(request: Request)
+
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
 

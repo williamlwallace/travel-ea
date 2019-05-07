@@ -17,10 +17,12 @@ import play.mvc.Http;
 import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.UserRepository;
 import util.CryptoManager;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
+
 
 /**
  * Manage a database of users.
@@ -55,7 +57,7 @@ public class UserController extends Controller {
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> userSearch(Http.Request request, String order, String filter) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.search(order, filter).thenApplyAsync(users ->
+        return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id).thenApplyAsync(users ->
             ok(Json.toJson(users)), httpExecutionContext.current());
     }
 
@@ -162,9 +164,13 @@ public class UserController extends Controller {
                         return badRequest(validatorResult
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
-                        //If the uid is not null, return an ok message with the uid contained within
-                        return ok(Json.toJson(SUCCESS))
-                            .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
+                        if (request.header("Cookie").toString() == "Optional.empty") {
+                            //If the uid is not null, return an ok message with the uid contained within
+                            return ok(Json.toJson(SUCCESS))
+                                    .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
+                        } else {
+                            return ok(Json.toJson(SUCCESS));
+                        }
                     }
                 });
         }
@@ -256,5 +262,19 @@ public class UserController extends Controller {
     private String createToken(User user) {
         return CryptoManager
             .createToken(user.id, config.getString("play.http.secret.key"));
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result userRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.UserController.deleteOtherUser(),
+                controllers.backend.routes.javascript.UserController.userSearch(),
+                controllers.backend.routes.javascript.UserController.userSearch()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }

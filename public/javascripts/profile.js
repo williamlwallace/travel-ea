@@ -1,138 +1,30 @@
-var countryDict = {};
-var travellerTypeDict = {};
-var usersPhotos = [];
-var profilePictureControllerUrl;
-
-// Runs get countries method, then add country options to drop down
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-        .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-            // Json data is an array of destinations, iterate through it
-            for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        countryDict[data[i]['id']] = data[i]['name'];
-    }
-    // Now fill the selects
-    fillNationalityDropDown();
-    fillPassportDropDown();
-});
-});
-}
-
-function fillTravellerTypes(getTravellerTypesUrl) {
-    // Run a get request to fetch all travellers types
-    get(getTravellerTypesUrl)
-    // Get the response of the request
-        .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-            // "data" should now be a list of traveller type definitions
-            // E.g data[0] = { id:1, description:"backpacker"}
-            for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        travellerTypeDict[data[i]['id']] = data[i]['description'];
-    }
-    // Now fill the drop down box, and list of destinations
-    fillTravellerDropDown();
-
-});
-});
-}
-
-function fillNationalityDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("nationalities").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#nationalities').picker();
-}
-
-function fillPassportDropDown() {
-    for(let key in countryDict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = countryDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("passports").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#passports').picker();
-}
-
-function fillTravellerDropDown() {
-    for(let key in travellerTypeDict) {
-        // For each Traveller type, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = travellerTypeDict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById("travellerTypes").appendChild(item);
-    }
-    // implements the plug in multi selector
-    $('#travellerTypes').picker();
-}
-
-
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
 /**
  * The JavaScript function to process a client updating there profile
- * @param url The route/url to send the request to
+ * @param uri The route/uri to send the request to
  * @param redirect The page to redirect to if no errors are found
  */
-function updateProfile(url, redirect) {
-    console.log("zza");
+function updateProfile(uri, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("updateProfileForm"));
-    console.log("zza");
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
-    }), {});
-    console.log("zza");
+}), {});
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
-    data.nationalities = [];
-    let nat_ids = $.map($(document.getElementById("nationalities")).picker('get'),Number);
-    for (let i = 0; i < nat_ids.length; i++) {
-        let nat = {};
-        nat.id = nat_ids[i];
-        data.nationalities.push(nat);
-    }
-    data.passports = [];
-    let passport_ids = $.map($(document.getElementById("passports")).picker('get'),Number)
-    for (let i = 0; i < passport_ids.length; i++) {
-        let passport = {};
-        passport.id = passport_ids[i];
-        data.passports.push(passport);
-    }
-    data.travellerTypes  = [];
-    let type_ids = $.map($(document.getElementById("travellerTypes")).picker('get'),Number);
-    for (let i = 0; i < type_ids.length; i++) {
-        let type = {};
-        type.id = type_ids[i];
-        data.travellerTypes.push(type);
-    }
-    console.log("zza");
-    // Post json data to given url
-    console.log(data);
-    put(url,data)
+    data.nationalities = JSONFromDropDowns("nationalities");
+    data.passports = JSONFromDropDowns("passports");
+    data.travellerTypes  = JSONFromDropDowns("travellerTypes");
+    // Post json data to given uri
+    put(uri,data)
         .then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-            if (response.status !== 200) {
+        .then(json => {
+        if (response.status != 200) {
         showErrors(json);
     } else {
         hideErrors("updateProfileForm");
@@ -148,16 +40,20 @@ function updateProfile(url, redirect) {
 });
 }
 
+/**
+ * Returns timout promise
+ * @param {Number} ms - time in millieseconds
+ */
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
- * The javascript method to populate the select boxes on the edit profile scene
- * @param url the route/url to send the request to to get the profile data
+ * The javascript method to populate the slect boxes on the edit profile scene
+ * @param {string} uri - the route/URI to send the request to to get the profile data
  */
-function populateProfileData(url) {
-    get(url)
+function populateProfileData(uri) {
+    get(uri)
         .then(response => {
         // Read response from server, which will be a json object
         return response.json()
@@ -185,6 +81,9 @@ var cropGallery = $('#profile-gallery');
 var profilePictureToCrop = document.getElementById('image');
 var profilePictureSize = 350;
 var cropper;
+
+var usersPhotos = [];
+var profilePictureControllerUrl;
 
 /**
  * Loads the cropper into the page when the cropProfilePictureModal opens
@@ -221,7 +120,7 @@ $(document).ready(function() {
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
- function uploadProfilePicture(url) {
+function uploadProfilePicture(url) {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         var formData = new FormData();
@@ -230,15 +129,15 @@ $(document).ready(function() {
 
         // Send request and handle response
         postMultipart(url, formData).then(response => {
-                // Read response from server, which will be a json object
-                response.json().then(data => {
-                    console.log(data);
-                    if (response.status === 201) {
-                        //Sets the profile picture to the new image
-                        getProfilePicture(profilePictureControllerUrl);
-                    }
-                });
-        });
+            // Read response from server, which will be a json object
+            response.json().then(data => {
+            console.log(data);
+        if (response.status === 201) {
+            //Sets the profile picture to the new image
+            getProfilePicture(profilePictureControllerUrl);
+        }
+    });
+    });
     });
 
     //TODO: Needs to also refresh the users picture gallery if the photo is new
@@ -271,23 +170,23 @@ function fillGallery(getPhotosUrl) {
     get(getPhotosUrl)
     // Get the response of the request
         .then(response => {
-            // Convert the response to json
-            response.json().then(data => {
-                // "data" should now be a list of photo models for the given user
-                // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
-                for(let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    usersPhotos[i] = data[i];
-                }
-                // data.length is the total number of photos
-                if (data.length > 0) {
-                    // Now create gallery objects
-                    var galleryObjects = createGalleryObjects(true);
-                    // And populate the gallery!
-                    addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
-                }
-            });
-        });
+        // Convert the response to json
+        response.json().then(data => {
+        // "data" should now be a list of photo models for the given user
+        // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+        for(let i = 0; i < data.length; i++) {
+        // Also add the item to the dictionary
+        usersPhotos[i] = data[i];
+    }
+    // data.length is the total number of photos
+    if (data.length > 0) {
+        // Now create gallery objects
+        var galleryObjects = createGalleryObjects(true);
+        // And populate the gallery!
+        addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
+    }
+});
+});
 }
 
 /**
@@ -397,9 +296,9 @@ function deletePhoto() {
     var deleteUrl = "api/photo/" + guid;
     _delete(deleteUrl).then(
         response => {
-            $('#deletePhotoModal').modal('hide');
-            fillGallery("/api/photo/getAll")
-        });
+        $('#deletePhotoModal').modal('hide');
+    fillGallery("/api/photo/getAll")
+});
 }
 
 /**
@@ -484,11 +383,11 @@ function getProfilePicture(url) {
     get(profilePictureControllerUrl).then(response => {
         // Read response from server, which will be a json object
         if (response.status === 200) {
-            response.json().then(data => {
-                $("#ProfilePicture").attr("src", data.filename);
-            });
-        }
+        response.json().then(data => {
+            $("#ProfilePicture").attr("src", data.filename);
     });
+    }
+});
 }
 
 /**
@@ -507,10 +406,9 @@ function changeImg() {
         document.getElementById("privacyImg").src = @routes.Assets.at("images/private.png");
         document.getElementById("privacyImg").title = "Private";
     }
-    else
+else
     {
         document.getElementById("privacyImg").src = @routes.Assets.at("images/public.png");
         document.getElementById("privacyImg").title = "Public";
     }
 }
-

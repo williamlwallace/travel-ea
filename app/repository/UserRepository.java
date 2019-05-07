@@ -33,10 +33,11 @@ public class UserRepository {
      * @param order Sort order (either or asc or desc)
      * @param filter Filter applied on the name column
      */
-    public CompletableFuture<List<User>> search(String order, String filter) {
+    public CompletableFuture<List<User>> search(String order, String filter, Long userId) {
         return supplyAsync(() ->
                 ebeanServer.find(User.class)
                     .where()
+                    .ne("id", String.valueOf(userId))
                     .ilike("username", "%" + filter + "%")
                     .orderBy("username " + order)
                     .findList(),
