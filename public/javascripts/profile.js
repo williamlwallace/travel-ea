@@ -174,17 +174,15 @@ function fillGallery(getPhotosUrl) {
             response.json().then(data => {
                 // "data" should now be a list of photo models for the given user
                 // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+                usersPhotos = [];
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     usersPhotos[i] = data[i];
                 }
-                // data.length is the total number of photos
-                if (data.length > 0) {
-                    // Now create gallery objects
-                    var galleryObjects = createGalleryObjects(true);
-                    // And populate the gallery!
-                    addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
-                }
+                // Now create gallery objects
+                var galleryObjects = createGalleryObjects(true);
+                // And populate the gallery!
+                addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
             });
         });
 }
@@ -246,10 +244,10 @@ function createGalleryObjects(hasFullSizeLinks) {
             newGallery.appendChild(row);
 
             // Add the gallery page to the galleryObjects
-            galleryObjects[page] = newGallery;
         }
-        return galleryObjects;
+        galleryObjects[page] = newGallery;
     }
+    return galleryObjects;
 }
 
 /**
@@ -261,21 +259,21 @@ function createGalleryObjects(hasFullSizeLinks) {
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     var numPages = Math.ceil(usersPhotos.length / 6);
-
+    var currentPage = 1;
     if (galleryObjects !== undefined && galleryObjects.length != 0) {
         // init bootpage
         $(pageSelectionId).bootpag({
             total: numPages,
             maxVisible: 5,
+            page: 1,
             leaps: false,
-            href: "#gallery-page-{{number}}",
         }).on("page", function(event, num){
-            var gallery = galleryObjects[(num-1)];
-            $(galleryId).html(gallery);
-            baguetteBox.run('.tz-gallery');
+            console.log("page " + num);
+            currentPage = num;
+            $(galleryId).html(galleryObjects[currentPage - 1]);
         });
         // set first page
-        $(galleryId).html(galleryObjects[(0)]);
+        $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery');
         $('.img-wrap .close').on('click', function() {
             var guid = $(this).closest('.img-wrap').find('a').data("id");
@@ -283,6 +281,8 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
 
             removePhoto(guid, filename);
         });
+    } else {
+        $(galleryId).html("There are no photos!");
     }
 }
 
@@ -295,10 +295,15 @@ function removePhoto(guid, filename) {
 function deletePhoto(route) {
     var guid = document.getElementById("deleteMe").name;
     var deleteUrl = route.substring(0, route.length -1 ) + guid;
-    _delete(deleteUrl).then(
-        response => {
-            $('#deletePhotoModal').modal('hide');
-            fillGallery(getAllPhotosUrl)
+
+    _delete(deleteUrl)
+        .then(response => {
+            response.json().then(data => {
+                if (response.status === 200) {
+                    $('#deletePhotoModal').modal('hide');
+                    fillGallery(getAllPhotosUrl);
+                }
+            });
         });
 }
 

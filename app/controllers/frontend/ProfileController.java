@@ -139,13 +139,13 @@ public class ProfileController extends Controller {
 
     // TODO: Javadoc and set up check admin or matching user
     private CompletableFuture<String> getUser(Long userId) {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/user/name/" + userId)
+        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/user/name/" + userId) //TODO: is it ok to have paths like this?
                 .get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             //try {
             //    System.out.println();
-                return json.toString();
+                return json.toString().replace("\"", "");
             //} catch (Exception e) {
             //    return "";
             //}

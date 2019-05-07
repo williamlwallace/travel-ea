@@ -348,6 +348,7 @@ pre {
     font-size: 22px;
     line-height: 10px;
     border-radius: 50%;
+    margin-right: 15px;
 }
 .img-wrap:hover .close {
     opacity: 1;

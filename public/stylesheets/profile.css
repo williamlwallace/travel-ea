@@ -105,6 +105,7 @@ img.profile-picture {
     border: none !important;
     background-color: rgba(0, 0, 0, 0) !important;
     padding: 2%;
+    cursor: pointer;
 }
 
 /**
