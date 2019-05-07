@@ -184,7 +184,7 @@ function createTrip(uri, redirect) {
     }
 
     let tripData = {
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
 
     post(uri, tripData).then(response => {
@@ -308,7 +308,7 @@ function updateTrip(uri, redirect, tripId) {
         "trip": {
             "id": tripId
         },
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
 
     put(uri, tripData).then(response => {

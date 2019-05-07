@@ -18,13 +18,13 @@ INSERT INTO Destination (name, type, district, latitude, longitude, country_id) 
 
 -- Create 2 Trips for testing
 INSERT INTO Trip (user_id) VALUES (1);
-INSERT INTO Trip (user_id) VALUES (1);
+INSERT INTO Trip (user_id) VALUES (2);
 
 -- Add destinations to the Trips
 -- Trip 1
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 1, 1,'2019-04-12 13:59:00', '2019-04-13 08:00:00');
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 2, 2,'2019-04-14 13:59:00', '2019-04-16 08:00:00');
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 3, 3,'2019-04-17 13:59:00', '2019-04-18 08:00:00');
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1,'2019-04-12 13:59:00', '2019-04-13 08:00:00');
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 1, 2,'2019-04-14 13:59:00', '2019-04-16 08:00:00');
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 2, 3,'2019-04-17 13:59:00', '2019-04-18 08:00:00');
 -- Trip 2
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 2, 1,'2019-04-22 13:59:00', '2019-04-23 08:00:00');
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 2,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
