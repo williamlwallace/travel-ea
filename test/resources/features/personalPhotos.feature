@@ -6,7 +6,7 @@ Feature: Story 11
     And viewing my profile
     And I have no photos
     When I upload a valid photo
-    Then the number of photos i have will be 1
+    Then the number of photos i can view will be 1
 
   Scenario: A user can view all there photos (AC3)
 
@@ -14,3 +14,10 @@ Feature: Story 11
     And viewing my profile
     When I upload a valid photo
     Then I can view all my photos
+
+  Scenario: A user has no photos
+
+    Given I am logged in
+    And viewing my profile
+    And I have no photos
+    Then the number of photos i can view will be 0

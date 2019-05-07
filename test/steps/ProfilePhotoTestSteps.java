@@ -1,23 +1,29 @@
 package steps;
 
+import akka.http.javadsl.model.FormData;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import controllers.backend.PhotoController;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import io.ebean.config.ServerConfig;
 import org.junit.Assert;
 import play.Application;
 import play.db.Database;
+import play.db.ebean.EbeanConfig;
 import play.db.evolutions.Evolutions;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import repository.DatabaseExecutionContext;
+import repository.PhotoRepository;
 import util.customObjects.Pair;
 
 import java.io.File;
@@ -26,9 +32,11 @@ import java.nio.file.Files;
 import java.util.*;
 
 import static org.apache.commons.io.FileUtils.getFile;
-import static play.test.Helpers.*;
+import static play.test.Helpers.GET;
+import static play.test.Helpers.POST;
+import static play.test.Helpers.route;
 
-public class PersonalPhotoTestSteps extends WithApplication {
+public class ProfilePhotoTestSteps extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
@@ -51,6 +59,7 @@ public class PersonalPhotoTestSteps extends WithApplication {
         db = fakeApp.injector().instanceOf(Database.class);
 
         Helpers.start(fakeApp);
+
     }
 
 
@@ -72,51 +81,21 @@ public class PersonalPhotoTestSteps extends WithApplication {
         Helpers.stop(fakeApp);
     }
 
-    @Given("I have no photos")
-    public void i_have_no_photos() throws IOException {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(this.authCookie)
-                .uri("/api/photo/1");
 
-        Result result = route(fakeApp, request);
-        JsonNode photos = new ObjectMapper()
-                .readValue(Helpers.contentAsString(result), JsonNode.class);
-
-        for (int i = 0; i < photos.size(); i++) {
-            Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
-                    .method(DELETE)
-                    .cookie(this.authCookie)
-                    .uri("/api/photo/" + photos.get(i).get("guid"));
-
-            Result deleteResult = route(fakeApp, deleteRequest);
-        }
-
-        Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(this.authCookie)
-                .uri("/api/photo/1");
-
-        Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
-        JsonNode checkEmptyPhotos = new ObjectMapper()
-                .readValue(Helpers.contentAsString(checkEmptyResult), JsonNode.class);
-
-        Assert.assertEquals(0, checkEmptyPhotos.size());
-    }
-
-    @When("I upload a valid photo")
-    public void i_upload_a_valid_photo() throws IOException {
-        // Load a file from the public images to upload
+    @Then("I can set it as my profile photo")
+    @When("I set it as my profile photo")
+    public void i_set_it_as_my_profile_photo() throws IOException {
+        System.out.println("hi");
         File file = getFile("./public/images/wakatipu.jpeg");
 
-        // List of objects that will be appended to the body of our multipart/form-data
         List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
 
         // Add text field parts
         for(Pair<String, String> pair : Arrays.asList(
                 new Pair<>("isTest", "true"),
-                new Pair<>("profilePhotoName", "wakatipu.jpeg"),
-                new Pair<>("publicPhotoFileNames", "")
+                new Pair<>("profilePhotoName", "profilepic.jpg"),
+                new Pair<>("publicPhotoFileNames", ""),
+                new Pair<>("is_profile", "true")
         )) {
             partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
         }
@@ -136,43 +115,42 @@ public class PersonalPhotoTestSteps extends WithApplication {
                         fakeApp.asScala().materializer()
                 );
 
-        // Post to url and get result, checking that a success was returned
-        // Get result and check it was successful
         Result result = route(fakeApp, request);
+
         Assert.assertEquals(201, result.status());
 
-        // Check a success message was sent
-        String message = Helpers.contentAsString(result);
-        Assert.assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
-    @Then("the number of photos i can view will be {int}")
-    public void the_number_of_photos_i_have_will_be(int int1) throws IOException {
+    @Then("A thumbnail is created")
+    public void a_thumbnail_is_created() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(this.authCookie)
-                .uri("/api/photo/1");
+                .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
-        JsonNode photos = new ObjectMapper()
+        Assert.assertEquals(201, result.status());
+        JsonNode photo = new ObjectMapper()
                 .readValue(Helpers.contentAsString(result), JsonNode.class);
+        String thumbnail = photo.get(0).get("thumbnail_filename").toString();
+        Assert.assertTrue(thumbnail.contains("wakatipu"));
+        Assert.assertTrue(thumbnail.contains("thumbnails"));
 
-        Assert.assertEquals(int1, photos.size());
     }
 
-
-    @Then("I can view all my photos")
-    public void i_can_view_all_my_photos() throws IOException {
+    @Then("It is returned as my profile picture")
+    public void it_is_returned_as_my_profile_picture() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(this.authCookie)
-                .uri("/api/photo/1");
+                .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
-        JsonNode photos = new ObjectMapper()
+        Assert.assertEquals(201, result.status());
+        JsonNode photo = new ObjectMapper()
                 .readValue(Helpers.contentAsString(result), JsonNode.class);
+        String filename = photo.get(0).get("filename").toString();
+        Assert.assertTrue(filename.contains("wakatipu"));
 
-        Assert.assertTrue(photos.size() > 0);
     }
-
 }
