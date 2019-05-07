@@ -11,6 +11,8 @@ GET           /api/user/setid                        controllers.backend.UserCon
 
 GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
 
+GET           /api/user/name/:id                     controllers.backend.UserController.getUsername(id:Long)
+
 DELETE        /api/user/:id                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
 DELETE        /api/user                              controllers.backend.UserController.deleteUser(request:Request)
@@ -96,7 +98,7 @@ GET           /profile/create        controllers.frontend.ProfileController.crea
 GET           /destinations          controllers.frontend.DestinationController.index(request: Request)
 
 # The profile page
-GET           /profile               controllers.frontend.ProfileController.index(request: Request)
+GET           /profile/:id           controllers.frontend.ProfileController.index(request: Request, id: Long)
 
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
