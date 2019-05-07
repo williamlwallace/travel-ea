@@ -241,28 +241,41 @@ function listItemToTripData(listItem, index) {
     let DTInputs = listItem.getElementsByTagName("input");
 
     try {
-        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000";
-
-        if (json["arrivalTime"].length <= 18) {
-            json["arrivalTime"] = null;
-        }
+        json["arrivalTime"] = formatDateTime(DTInputs[0].value, DTInputs[1].value);
     }
     catch {
         json["arrivalTime"] = null;
     }
 
     try {
-        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000";
-
-        if (json["departureTime"].length <= 18) {
-            json["departureTime"] = null;
-        }
+        json["departureTime"] = formatDateTime(DTInputs[2].value, DTInputs[3].value);
     }
     catch {
         json["departureTime"] = null;
     }
 
+    console.log(json["arrivalTime"]);
+
     return json;
+}
+
+// TODO: Test
+/**
+ * Formats the date retrieved from the destination cards
+ * @param date Date entered by user
+ * @param time Time entered by user
+ * @returns {string|null} String representation of valid date or null if fields not filled in
+ */
+function formatDateTime(date, time) {
+    if (date.length === 10 && time.length === 5) {
+        return date + "T" + time + ":00.000";
+    }
+    else if (date.length === 10) {
+        return date + "T" + "00:00:00.000";
+    }
+    else {
+        return null;
+    }
 }
 
 /**
