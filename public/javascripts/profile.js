@@ -49,8 +49,8 @@ function sleep(ms) {
 }
 
 /**
- * The javascript method to populate the slect boxes on the edit profile scene
- * @param {string} uri - the route/URI to send the request to to get the profile data
+ * The javascript method to populate the select boxes on the edit profile scene
+ * @param url the route/url to send the request to to get the profile data
  */
 function populateProfileData(uri) {
     get(uri)
@@ -120,7 +120,7 @@ $(document).ready(function() {
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
-function uploadProfilePicture(url) {
+ function uploadProfilePicture(url) {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         var formData = new FormData();
@@ -129,15 +129,15 @@ function uploadProfilePicture(url) {
 
         // Send request and handle response
         postMultipart(url, formData).then(response => {
-            // Read response from server, which will be a json object
-            response.json().then(data => {
-            console.log(data);
-        if (response.status === 201) {
-            //Sets the profile picture to the new image
-            getProfilePicture(profilePictureControllerUrl);
-        }
-    });
-    });
+                // Read response from server, which will be a json object
+                response.json().then(data => {
+                    console.log(data);
+                    if (response.status === 201) {
+                        //Sets the profile picture to the new image
+                        getProfilePicture(profilePictureControllerUrl);
+                    }
+                });
+        });
     });
 
     //TODO: Needs to also refresh the users picture gallery if the photo is new
@@ -170,23 +170,23 @@ function fillGallery(getPhotosUrl) {
     get(getPhotosUrl)
     // Get the response of the request
         .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-        // "data" should now be a list of photo models for the given user
-        // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
-        for(let i = 0; i < data.length; i++) {
-        // Also add the item to the dictionary
-        usersPhotos[i] = data[i];
-    }
-    // data.length is the total number of photos
-    if (data.length > 0) {
-        // Now create gallery objects
-        var galleryObjects = createGalleryObjects(true);
-        // And populate the gallery!
-        addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
-    }
-});
-});
+            // Convert the response to json
+            response.json().then(data => {
+                // "data" should now be a list of photo models for the given user
+                // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+                for(let i = 0; i < data.length; i++) {
+                    // Also add the item to the dictionary
+                    usersPhotos[i] = data[i];
+                }
+                // data.length is the total number of photos
+                if (data.length > 0) {
+                    // Now create gallery objects
+                    var galleryObjects = createGalleryObjects(true);
+                    // And populate the gallery!
+                    addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
+                }
+            });
+        });
 }
 
 /**
@@ -296,9 +296,9 @@ function deletePhoto() {
     var deleteUrl = "api/photo/" + guid;
     _delete(deleteUrl).then(
         response => {
-        $('#deletePhotoModal').modal('hide');
-    fillGallery("/api/photo/getAll")
-});
+            $('#deletePhotoModal').modal('hide');
+            fillGallery("/api/photo/getAll")
+        });
 }
 
 /**
@@ -383,11 +383,11 @@ function getProfilePicture(url) {
     get(profilePictureControllerUrl).then(response => {
         // Read response from server, which will be a json object
         if (response.status === 200) {
-        response.json().then(data => {
-            $("#ProfilePicture").attr("src", data.filename);
+            response.json().then(data => {
+                $("#ProfilePicture").attr("src", data.filename);
+            });
+        }
     });
-    }
-});
 }
 
 /**
@@ -399,16 +399,3 @@ function showProfilePictureGallery() {
     $('#changeProfilePictureModal').modal('show');
 }
 
-function changeImg() {
-
-    if (document.getElementById("privacyImg").title === @routes.Assets.at("images/public.png"))
-    {
-        document.getElementById("privacyImg").src = @routes.Assets.at("images/private.png");
-        document.getElementById("privacyImg").title = "Private";
-    }
-else
-    {
-        document.getElementById("privacyImg").src = @routes.Assets.at("images/public.png");
-        document.getElementById("privacyImg").title = "Public";
-    }
-}
