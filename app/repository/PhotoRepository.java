@@ -47,12 +47,13 @@ public class PhotoRepository {
 
     /**
      * Clears any existing profile photo for a user, and returns filenames of old files
+     *
      * @param userID user ID to clear profile photo of
      * @return OK if successfully cleared existing profile pic, notFound if none found
      */
     public CompletableFuture<Pair<String, String>> clearProfilePhoto(long userID) {
         return supplyAsync(() -> {
-            Pair returnPair;
+            Pair<String, String> returnPair;
             Photo profilePhoto = ebeanServer.find(Photo.class)
                     .where()
                     .eq("user_id", userID)

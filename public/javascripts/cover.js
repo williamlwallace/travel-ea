@@ -78,3 +78,21 @@ function cancel() {
     hideErrors("signupForm");
     hideErrors("loginForm");
 }
+
+/**
+ * Clicks the login button when enter is pressed while in the password field of login
+ */
+$("#login-password-field").keyup(function(event) {
+    if (event.keyCode === 13) {
+        $("#login-button").click();
+    }
+});
+
+/**
+ * Clicks the login button when enter is pressed while in the password field of login
+ */
+$("#confirm_password").keyup(function(event) {
+    if (event.keyCode === 13) {
+        if (!$("#registerBtn").prop('disabled')) $("#registerBtn").click();
+    }
+});

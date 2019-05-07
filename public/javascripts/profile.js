@@ -500,17 +500,4 @@ function showProfilePictureGallery() {
     $('#changeProfilePictureModal').modal('show');
 }
 
-function changeImg() {
-
-    if (document.getElementById("privacyImg").title === @routes.Assets.at("images/public.png"))
-    {
-        document.getElementById("privacyImg").src = @routes.Assets.at("images/private.png");
-        document.getElementById("privacyImg").title = "Private";
-    }
-    else
-    {
-        document.getElementById("privacyImg").src = @routes.Assets.at("images/public.png");
-        document.getElementById("privacyImg").title = "Public";
-    }
-}
 
