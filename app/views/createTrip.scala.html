@@ -15,8 +15,8 @@
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
-                <button type="submit" class="btn btn-primary" onclick='getAllDestinations("@controllers.backend.routes.DestinationController.getAllDestinations()")'
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
+                <button type="submit" class="btn btn-secondary"
                 data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
@@ -60,7 +60,7 @@
             <body>
                 <label id="tripError" class="error-messages"></label>
                     <!-- Destination card deck -->
-                <div id="parent"  style="border:1px solid #cecece;" class="parent">
+                <div id="parent"  style="border:1px solid #cecece; background-color: #ececed;" class="parent">
                     <div id="list" class="list">
                         @for(i <- trip.tripDataList.indices) {
                             <div class="card flex-row" id=@i >

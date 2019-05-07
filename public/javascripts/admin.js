@@ -1,8 +1,10 @@
+//Initialises the data table and adds the data
 $(document).ready(function () {
-    //Initialises the data table and adds the data
     populateTable($('#dtUser').DataTable());
+    populateTrips($('#dtTrips').DataTable());
 });
 
+//Click listener that handles clicks in user table
 $('#dtUser').on('click', 'button', function() {
     let tableAPI = $('#dtUser').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
@@ -13,8 +15,23 @@ $('#dtUser').on('click', 'button', function() {
     }
 })
 
+//Click listenenr for trips table
+$('#dtTrips').on('click', 'button', function() {
+    let tableAPI = $('#dtTrips').dataTable().api();
+    let id = tableAPI.cell($(this).parents('tr'), 0).data();
+    if ($(this).parents('td').index() == 5) {
+        deleteTrip(this, tableAPI, id);
+    }
+})
+
+/**
+ * Makes delete request with given user
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function deleteUser(button, tableAPI, id) {
-    _delete('api/user/'+id)
+    _delete(userRouter.controllers.backend.UserController.deleteOtherUser(id).url)
     .then(response => {
         //need access to response status, so cant return promise
         response.json()
@@ -28,17 +45,23 @@ function deleteUser(button, tableAPI, id) {
     });
 }
 
+/**
+ * Adds or removes users admin powers and changes button text
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function toggleAdmin(button, tableAPI, id) {
-    let url;
+    let uri;
     let innerHTML;
     if (button.innerHTML.trim().startsWith("Revoke")) {
-        url = 'api/admin/revoke/' + id;
+        uri = adminRouter.controllers.backend.AdminController.revokeAdmin(id).url;
         innerHTML = "Grant admin";
     } else {
-        url = 'api/admin/grant/' + id;
+        uri = adminRouter.controllers.backend.AdminController.grantAdmin(id).url;
         innerHTML = "Revoke admin";
     }
-    post(url, "")   
+    post(uri, "")   
     .then(response => {
         //need access to response status, so cant return promise
         response.json()
@@ -52,8 +75,12 @@ function toggleAdmin(button, tableAPI, id) {
     });
 }
 
+/**
+ * Inserts users into admin table
+ * @param {Object} table - data table object
+ */
 function populateTable(table) {
-    get('api/user/search')
+    get(userRouter.controllers.backend.UserController.userSearch().url)
     .then(response => {
         response.json()
         .then(json => {
@@ -78,17 +105,67 @@ function populateTable(table) {
 }
 
 /**
- * The JavaScript function to process a client signing up
- *
- * @param url The route/url to send the request to
+ * Inser trip data into table
+ * @param {Object} table - data table object
  */
-function createUser(url, redirect) {
+function populateTrips(table) {
+    get(tripRouter.controllers.backend.TripController.getAllTrips().url)
+        .then(response => {
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                console.log(json);
+                for (const trip in json) {
+                    const id = json[trip].id;
+                    const tripDataList = json[trip].tripDataList;
+                    const startDest = tripDataList[0].destination.name;
+                    const endDest = tripDataList[(tripDataList.length - 1)].destination.name;
+                    const tripLength = tripDataList.length;
+                    const editURL = tripRouter.controllers.frontend.TripController.editTripIndex(id).url;
+
+                    update = "<a href=\"" + editURL + "\" class=\"btn btn-secondary\">Update</a>";
+                    removeTrip = "<button class=\"btn btn-danger\">Delete</button>"
+                    table.row.add([id,startDest,endDest,tripLength,update,removeTrip]).draw(false);
+                }
+            }
+        });
+    })
+}
+
+/**
+ * Sends delete request with trip id
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
+function deleteTrip(button, tableAPI, id) {
+    _delete(tripRouter.controllers.backend.TripController.deleteTrip(id).url)
+        .then(response => {
+        //need access to response status, so cant return promise
+        response.json()
+            .then(json => {
+            if (response.status != 200) {
+                document.getElementById("adminError").innerHTML = json;
+            } else {
+                tableAPI.row( $(button).parents('tr') ).remove().draw(false);
+            }
+        });
+    });
+}
+
+/**
+ * User creation for admins
+ * @param {stirng} uri - api singup uri
+ */
+function createUser(uri, redirect) {
     const formData = new FormData(document.getElementById("signupForm"));
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]] : pair[1],
     }), {});
-    post(url, data)
+    post(uri, data)
         .then(response => {
             response.json()
             .then(json => {

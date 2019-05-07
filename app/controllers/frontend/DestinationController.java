@@ -51,8 +51,8 @@ public class DestinationController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return this.getDestinations().thenApplyAsync(
-            destList -> (destList.isEmpty()) ? ok(destinations.render(asScala(destList), user))
+        return this.getDestinations(request).thenApplyAsync(
+            destList -> (!destList.isEmpty()) ? ok(destinations.render(asScala(destList), user))
                 : internalServerError(), httpExecutionContext.current());
     }
 
@@ -61,8 +61,9 @@ public class DestinationController extends Controller {
      *
      * @return List of destinations wrapped in completable future
      */
-    public CompletableFuture<List<Destination>> getDestinations() {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/destination").get()
+    public CompletableFuture<List<Destination>> getDestinations(Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.DestinationController.getAllDestinations();
+        CompletableFuture<WSResponse> res = ws.url(url).get()
             .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());

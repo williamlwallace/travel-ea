@@ -17,6 +17,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -45,6 +46,18 @@ public class TripController extends Controller {
 
         return tripRepository.getAllUserTrips(userId)
             .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+    }
+
+    /**
+     * Attempts to get all trips
+     *
+     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllTrips() {
+
+        return tripRepository.getAllTrips()
+                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }
 
     /**
@@ -186,5 +199,20 @@ public class TripController extends Controller {
         }
         // Return create trip data list
         return tripDataList;
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result tripRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TripController.deleteTrip(),
+                controllers.backend.routes.javascript.TripController.getAllUserTrips(),
+                controllers.backend.routes.javascript.TripController.getAllTrips(),
+                controllers.frontend.routes.javascript.TripController.editTripIndex()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
