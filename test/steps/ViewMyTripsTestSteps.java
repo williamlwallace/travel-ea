@@ -135,7 +135,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(this.authCookie)
-                .uri("/api/trip/getAll/");
+                .uri("/api/trip");
 
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
@@ -153,7 +153,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(this.authCookie)
-                .uri("/api/trip/getAll/");
+                .uri("/api/trip");
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
         JsonNode checkEmptyTrips = new ObjectMapper()
