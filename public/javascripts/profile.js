@@ -41,6 +41,48 @@ function updateProfile(uri, redirect) {
 }
 
 /**
+ * Updates a trips privacy when the toggle is used
+ * @param {string} uri Route for updating trip privacy
+ * @param {string} imageSrc Source of new icon image to use
+ * @param {Number} tripId Id of trip to update
+ * @param {string} newPrivacy Privacy status selected by user
+ */
+function updateTripPrivacy(uri, imageSrc, tripId, newPrivacy) {
+    let currentPrivacy = document.getElementById("privacyImg").title;
+
+    // Don't need to update privacy to the same status
+    if (currentPrivacy === newPrivacy) {
+        return;
+    }
+
+    let tripData = {
+        "id": tripId
+    };
+
+    if (newPrivacy === "Public") {
+        tripData["privacy"] = 1;
+    }
+    else if (newPrivacy === "Private") {
+        tripData["privacy"] = 0;
+    }
+    else {
+        return;
+    }
+
+    put(uri, tripData).then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+            .then(json => {
+                // On successful update
+                if (response.status === 200) {
+                    document.getElementById("privacyImg").title = newPrivacy;
+                    document.getElementById("privacyImg").src = imageSrc;
+                }
+            });
+    });
+}
+
+/**
  * Returns timout promise
  * @param {Number} ms - time in millieseconds
  */

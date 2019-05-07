@@ -89,6 +89,21 @@ public class TripValidator {
     }
 
     /**
+     * Validates trip privacy update data
+     *
+     * @return Error response object containing error messages
+     */
+    public ErrorResponse validateTripPrivacyUpdate() {
+        // Validation for trip as a whole
+        this.required("id");
+
+        // Validation for trip privacy
+        this.required("privacy");
+
+        return this.response;
+    }
+
+    /**
      * Checks field is not empty.
      *
      * @param field json field name

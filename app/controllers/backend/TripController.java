@@ -104,7 +104,7 @@ public class TripController extends Controller {
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
-        // TODO: Does this work, if so rework this and insert trip
+        // TODO: Does this work, if so rework this and insert trip and update privacy
         /*
         Trip trip = Json.fromJson(data.get("trip"), Trip.class);
         trip.userId = request.attrs().get(ActionState.USER).id;
@@ -113,6 +113,38 @@ public class TripController extends Controller {
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
             ok(Json.toJson(trip.id))
+        );
+    }
+
+    /**
+     * Updates the privacy of a trip
+     *
+     * @param request Request containing JSON data of trip to update
+     * @return Returns ok with trip id on success, otherwise bad request
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> updateTripPrivacy(Http.Request request) {
+        System.out.println("into controller");
+        // Get the data input by the user as a JSON object
+        JsonNode data = request.body().asJson();
+
+        // Sends the received data to the validator for checking
+        ErrorResponse validatorResult = new TripValidator(data).validateTripPrivacyUpdate();
+
+        // Checks if the validator found any errors in the data
+        if (validatorResult.error()) {
+            return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
+        }
+
+        // Assemble trip
+        Trip trip = new Trip();
+        trip.id = data.get("id").asLong();
+        trip.privacy = data.get("privacy").asLong();
+
+        System.out.println("tried to update");
+        // Update trip in db
+        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
+                ok(Json.toJson(trip.id))
         );
     }
 
