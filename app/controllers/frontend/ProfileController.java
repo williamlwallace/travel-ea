@@ -68,13 +68,10 @@ public class ProfileController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> index(Http.Request request, Long userId) {
         User loggedUser = request.attrs().get(ActionState.USER);
-        return this.getProfile(userId).thenComposeAsync(
+        return this.getProfile(userId, request).thenComposeAsync(
                 profile -> {
-                    return this.getUser(userId).thenComposeAsync(
-                            username -> {
-                                User user = new User();
-                                user.id = userId;
-                                user.username = username;
+                    return this.getUser(userId, request).thenComposeAsync(
+                            user -> {
                                 return this.getUserTrips(Authenticator.getTokenFromCookie(request), request).thenApplyAsync(
                                         tripList -> {
                                             if (loggedUser.id.equals(userId) || loggedUser.admin) {
@@ -97,7 +94,7 @@ public class ProfileController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
+    private CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
         String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips();
         CompletableFuture<WSResponse> res = ws
                 .url(url)
@@ -116,15 +113,15 @@ public class ProfileController extends Controller {
         });
     }
 
-    // TODO: Change javadoc
     /**
-     * Gets Destinations from api endpoint via get request.
-     *
-     * @return List of destinations wrapped in completable future
+     * Gets profile of user to be viewed via get request
+     * @param userId Id of profile to be retrieved
+     * @param request Request containing url and authentication information
+     * @return CompletableFuture containing profile object
      */
-    private CompletableFuture<Profile> getProfile(Long userId) {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/profile/" + userId)
-            .get().toCompletableFuture();
+    private CompletableFuture<Profile> getProfile(Long userId, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.ProfileController.getProfile(userId);
+        CompletableFuture<WSResponse> res = ws.url(url + userId).get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
@@ -137,18 +134,24 @@ public class ProfileController extends Controller {
         });
     }
 
-    // TODO: Javadoc and set up check admin or matching user
-    private CompletableFuture<String> getUser(Long userId) {
-        CompletableFuture<WSResponse> res = ws.url("http://localhost:9000/api/user/name/" + userId)
-                .get().toCompletableFuture();
+    /**
+     * Gets user object to be viewed in profile screen
+     * @param userId Id of user to be retrieved
+     * @param request Request containing url and authentication information
+     * @return CompletableFuture containing user object
+     */
+    private CompletableFuture<User> getUser(Long userId, Http.Request request) {
+        String url = "http://" + request.host() + controllers.backend.routes.UserController.getUser(userId);
+        CompletableFuture<WSResponse> res = ws.url(url + userId).get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
-            //try {
-            //    System.out.println();
-                return json.toString();
-            //} catch (Exception e) {
-            //    return "";
-            //}
+            try {
+                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
+                        new TypeReference<User>() {
+                        });
+            } catch (Exception e) {
+                return new User();
+            }
         });
     }
 

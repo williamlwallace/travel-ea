@@ -42,10 +42,15 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserTrips(Http.Request request) {
+        System.out.println("HERE1");
         Long userId = request.attrs().get(ActionState.USER).id;
-
+        System.out.println("HERE2");
         return tripRepository.getAllUserTrips(userId)
-            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+            .thenApplyAsync(trips -> {
+                System.out.println("HERE3");
+                System.out.println(trips);
+                return ok(Json.toJson(trips));
+            });
     }
 
     /**

@@ -11,7 +11,7 @@ GET           /api/user/setid                        controllers.backend.UserCon
 
 GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
 
-GET           /api/user/name/:id                     controllers.backend.UserController.getUsername(id:Long)
+GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
 DELETE        /api/user/:id                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
