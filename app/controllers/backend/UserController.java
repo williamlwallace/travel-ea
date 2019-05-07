@@ -17,10 +17,12 @@ import play.mvc.Http;
 import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.UserRepository;
 import util.CryptoManager;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
+
 
 /**
  * Manage a database of users.
@@ -223,6 +225,18 @@ public class UserController extends Controller {
             });
     }
 
+    // TODO: Update API spec
+    /**
+     * Returns a user with the given id
+     *
+     * @param userId User id of user to retrieve name of
+     * @return User object
+     */
+    public CompletableFuture<Result> getUsername(Long userId) {
+        return userRepository.findID(userId).thenApplyAsync(user ->
+                ok(Json.toJson(user.username)), httpExecutionContext.current());
+    }
+
     /**
      * Returns user id in body and sets cookie to store it. This will be used when a user is
      * authenticated but the user-id cookie is somehow removed.
@@ -248,5 +262,19 @@ public class UserController extends Controller {
     private String createToken(User user) {
         return CryptoManager
             .createToken(user.id, config.getString("play.http.secret.key"));
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result userRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.UserController.deleteOtherUser(),
+                controllers.backend.routes.javascript.UserController.userSearch(),
+                controllers.backend.routes.javascript.UserController.userSearch()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }

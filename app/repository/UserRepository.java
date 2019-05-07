@@ -4,6 +4,8 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -91,6 +93,7 @@ public class UserRepository {
      */
     public CompletableFuture<User> insertUser(User newUser) {
         return supplyAsync(() -> {
+            newUser.creationDate = LocalDateTime.now();
             ebeanServer.insert(newUser);
             return newUser;
         }, executionContext);

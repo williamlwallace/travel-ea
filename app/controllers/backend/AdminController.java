@@ -10,6 +10,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.UserRepository;
+import play.routing.JavaScriptReverseRouter;
 
 /**
  * Manage a database of users.
@@ -62,6 +63,19 @@ public class AdminController extends Controller {
             }
             return badRequest(Json.toJson("User not found"));
         });
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result adminRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("adminRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.AdminController.revokeAdmin(),
+                controllers.backend.routes.javascript.AdminController.grantAdmin()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
 

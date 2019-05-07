@@ -1,41 +1,297 @@
 @import play.mvc.Http.Request
-@(user: models.User, id: Long)
+@(profile: Profile, user: models.User, loggedUser: models.User, tripList: Seq[models.Trip], canModify: Boolean)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/dropzone.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
 }
 
-@layouts.imageHeader("Profile", user, "images/profile-bg.jpg", scripts){
-    <body>
-        <div class="modal fade" id="createProfileForm"  tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
-            data-backdrop="static" data-keyboard="false">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header text-center">
-                            <h4 class="modal-title w-100 font-weight-bold">Create New Profile</h4>
+@layouts.main("Profile", loggedUser, scripts){
+
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/profile.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/cropper.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/dropzone.css")">
+
+    @* The custom title section with background image *@
+    <div class="title-frame" id="title-frame">
+        <div class="title-bg" style="background-image: url(@routes.Assets.at("images/profile-bg.jpg"))">
+            <div class="title-text-wrap">
+                <p class="title-text">@profile.firstName @profile.lastName</p>
+            </div>
+        </div>
+    </div>
+
+    <body style="margin:auto">
+        <div class="row profile" id="startchange">
+            <div class="col-12 col-md-3">
+                @* Profile Detail *@
+                <div class="profile-summary">
+                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture"
+                    class="img-thumbnail profile-picture"
+                    @if(canModify) {onclick='showProfilePictureGallery()'}
+                    >
+                    <div class="profile-details">
+                        @if(canModify) {<p class="heading">Email <span class="user-info">@user.username</span></p>}
+                        <p class="heading">Age <span class="user-info">@profile.calculateAge()</span></p>
+                        <p class="heading">Gender <span class="user-info">@profile.gender</span></p>
+                        <p class="heading">Nationalities <span class="user-info">@profile.nationalities.toString.substring(1, profile.nationalities.toString.length - 1)</span></p>
+                        <p class="heading">Traveller Types <span class="user-info">@profile.travellerTypes.toString.substring(1, profile.travellerTypes.toString.length - 1)</span></p>
+                        @if(!profile.passports.isEmpty && canModify) {
+                            <p class="heading">Passports
+                                <span class="user-info">
+                                @profile.passports.toString.substring(1, profile.passports.toString.length - 1)
+                                </span>
+                            </p>
+                        }
+
+                        @if(canModify) {
+                            <a class="button-secondary" data-toggle="modal" data-target="#editProfileModal">
+                                <span class="profile-button" style="float: left; padding-top: 10px">Edit Profile</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-9">
+                @* Body Content *@
+                <div class="profile-main">
+                    <div>
+                        <div class="section-title">
+                            <p>
+                                <span class="section-title">Pictures</span>
+                                @if(canModify) {
+                                    <a class="button-secondary" data-toggle="modal" data-target="#uploadPhotoModal">
+                                        <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
+                                    </a>
+                                }
+                            </p>
+                        </div><br>
+
+                        @* Photo Gallery *@
+                        <div id="main-gallery" class="text-center">There are no photos!@if(canModify) { Click the add photo button to add some.}</div>
+                        <div id="page-selection"></div>
+
+                        @* Trips table *@
+                        <div class="section-title">
+                            <p>
+                                <span class="section-title">Trips</span>
+                                @if(canModify) {
+                                    <a class="button-secondary" href="/trips/create" role="button">
+                                        <span class="profile-button" style="float: right; padding-left:10px;">Create New Trip</span>
+                                    </a>
+                                }
+                            </p>
+                        </div><br>
+
+                        <div>
+                            <label id="tripError"></label>
+                            @if(tripList.isEmpty) {
+                                <div id="content" class="text-center">There are no trips!@if(canModify){ Click the create new trip button to create one.}</div>
+
+                            } else {
+                            <table id="dtTrips" class="table-bordered table table-hover" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th class="th-sm">Start Destination</th>
+                                        <th class="th-sm">End Destination</th>
+                                        <th class="th-sm">Trip Length</th>
+                                        <th class="th-sm">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tripData" class="tripTable">
+                                @for(t <- tripList) {
+                                    @if(canModify) {    @* Add or if trip is public *@
+                                        <tr id="@t.id" class="clickable-row" data-toggle="modal" data-target="#modal-@t.id">
+                                            <td>@t.tripDataList(0).destination.name</td>
+
+                                            @if(t.tripDataList.length >= 2) {
+                                                <td>@t.tripDataList(t.tripDataList.length - 1).destination.name</td>
+                                            } else {
+                                                <td>-</td>
+                                            }
+
+                                            <td>@t.tripDataList.length</td>
+
+                                            @if(t.findFirstTripDate() != null) {
+                                                <td>@t.findFirstTripDate()</td>
+                                            } else {
+                                                <td>No Date</td>
+                                            }
+
+                                            <div class="modal fade" id="modal-@t.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+
+                                                        <div class="modal-header text-center">
+                                                            <div class="dropdown">
+                                                                <input id="privacyImg" type="image" title="Public"  src="@routes.Assets.at("images/public.png")">
+                                                                <div class="dropdown-content">
+                                                                    <a id="changeImg" onclick="changeImg()">Public</a>
+                                                                    <a id="changeImg" onclick="changeImg()">Private</a>
+                                                                </div>
+                                                            </div>
+
+
+                                                            @*<input type="image" title="Private" src="@routes.Assets.at("images/private.png")">*@
+                                                            <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <div class="modal-body text-center">
+                                                            @for(dest <- t.tripDataList) {
+                                                                @if(dest.eq(t.tripDataList.last)) {
+                                                                    <br>
+                                                                    <div>@dest.destination.name
+                                                                        <p>@dest.destination.country</p>
+                                                                        @if(!dest.departureTime.eq(null)) {
+                                                                            DEP: @dest.departureTime
+                                                                        }
+                                                                        @if(!dest.arrivalTime.eq(null)) {
+                                                                            ARR: @dest.arrivalTime
+                                                                        }
+                                                                    </div>
+                                                                } else {
+                                                                    <br>
+                                                                    <div>@dest.destination.name
+                                                                        <p>@dest.destination.country</p>
+                                                                        @if(!dest.departureTime.eq(null)) {
+                                                                            DEP: @dest.departureTime
+                                                                        }
+                                                                        @if(!dest.arrivalTime.eq(null)) {
+                                                                            ARR: @dest.arrivalTime
+                                                                        }
+                                                                    </div>
+                                                                    <img class="tripArrow" src= "@routes.Assets.at("images/arrow.png")"><br>
+                                                                }
+                                                            }
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
+                                                            <button id="editTrip" type="button" class="btn btn-popup" onclick="viewTrip(@t.id)">Edit Trip</button>
+                                                            <script>
+                                                                function viewTrip(url) {
+                                                                    window.location.href = "trips/edit/" + url;
+                                                                }
+                                                            </script>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    }
+                                }
+                                </tbody>
+                            </table>
+                            }
                         </div>
-                        <form id="signUp">
-                            <div class="modal-body mx-3">
-                                <div class="form-row mb-4">
-                                    <div class="col">
-                                            <!-- First name -->
-                                        <input type="text" name="firstName" class="form-control validate" placeholder="First name" required>
-                                        <label id="firstNameError" class="error-messages"></label>
-                                    </div>
-                                    <div class="col">
-                                            <!-- Middle name -->
-                                        <input type="text" name="middleName" class="form-control" placeholder="Middle name">
-                                    </div>
-                                    <div class="col">
-                                            <!-- Last name -->
-                                        <input type="text" name="lastName" class="form-control validate" placeholder="Last name" required>
-                                        <label id="lastNameError" class="error-messages"></label>
-                                    </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        </div>
+
+        @* Upload Photo Modal *@
+        <div class="modal fade" id="uploadPhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Upload a New Photo</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div>
+                        <div class="upload-btn-wrapper">
+                            <button class="addPhotoButton"></button>
+                            <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
+                        </div>
+                        <form action='/api/photo' class="dropzone" id="add-photo-dropzone"></form>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
+                            Cancel<i class="fas fa-paper-plane-o ml-1"></i>
+                        </button>
+                        <button class="btn btn-popup" id="submit-all" disabled> @* on click stuff goes here *@
+                            Add
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Delete Profile Modal *@
+        <div class="modal fade" id="deletePhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Delete</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <br>
+                    <div>
+                        <p align="center">Are you sure you want to delete this photo?</p>
+                        <img id="deleteMe" src="@routes.Assets.at("images/thumbnails/boats.jpg")" align="middle">
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
+                            Cancel<i class="fas fa-paper-plane-o ml-1"></i>
+                        </button>
+                        <button class="btn btn-popup" id="submit-all" onclick=
+                        'deletePhoto()'>
+                                Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        @* Edit Profile Modal *@
+        <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
+        data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Edit Profile</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="mx-auto" style="width: fit-content; padding: 10px">
+                        <form id="updateProfileForm">
+                            <div class="form-row mb-4">
+                                <div class="col">
+                                        <!-- First name -->
+                                    <input type="text" name="firstName" class="form-control" placeholder="First name" value="@profile.firstName" required>
+                                    <label id="firstNameError" class="error-messages"></label>
                                 </div>
-                                <pre for="genderPicker" class="control-label">Gender</pre>
-                                <div class="ss-item-required validate">
+                                <div class="col">
+                                        <!-- Middle name -->
+                                    <input type="text" name="middleName" class="form-control" placeholder="Middle name" value="@profile.middleName" required>
+                                    <label id="middleNameError" class="error-messages"></label>
+                                </div>
+                                <div class="col">
+                                        <!-- Last name -->
+                                    <input type="text" name="lastName" class="form-control" placeholder="Last name" value="@profile.lastName" required>
+                                    <label id="lastNameError" class="error-messages"></label>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <pre for="gender" class="control-label">Gender</pre>
+                                <div>
                                     <select name="gender" id="gender" required>
-                                        <option value="" hidden>Select</option>
+                                        <option value="" disabled hidden>Select</option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
                                         <option value="Other">Other</option>
@@ -43,60 +299,112 @@
                                     <br/>
                                     <label id="genderError" class="error-messages"></label>
                                 </div>
-                                <br>
-                                <div class="control-group">
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="form-group col-5">
                                     <pre for="dateOfBirth" class="control-label">Date of Birth</pre>
-                                    <!-- TODO restrict birth date to before today -->
-                                    <input type="date" name="dateOfBirth" class="form-control validate">
+                                        <!-- TODO restrict birth date to before today -->
+                                    <input type="date" name="dateOfBirth" size="8" class="form-control validate" value="@profile.dateOfBirth">
+                                    <br/>
                                     <label id="dateOfBirthError" class="error-messages"></label>
                                 </div>
-                                <pre for="nationality" id="nationality" class="control-label">Nationalities</pre>
-                                <div>
-                                    <select name="nationalities" id="nationalities" multiple required>
+                            </div>
+                            <pre for="nationality" id="nationality" class="control-label">Nationalities</pre>
+                            <div>
+                                <select name="nationalities" id="nationalities" multiple required>
                                     <option value="" disabled hidden>Select Nationalities</option>
-                                    </select>
-                                    <br/>
-                                    <label id="nationalitiesError" class="error-messages"></label>
-                                </div>
+                                </select>
                                 <br/>
-                                <pre for="country" id="country" class="control-label">Passports</pre>
-                                <div>
-                                    <select name="passports" id="passports"multiple>
+                                <label id="nationalitiesError" class="error-messages"></label>
+                            </div>
+                            <br/>
+                            <pre for="country" id="country" class="control-label">Passports</pre>
+                            <div>
+                                <select name="passports" id="passports" multiple>
                                     <option value="" disabled hidden>Select Passports</option>
                                 </select>
-                                </div>
-                                <br/>
-                                <pre class="control-label">Traveller Types</pre>
-                                <br/>
-                                <small>These will be used to give you recommendations and help match you with like minded travelers.
-                                    They can be edited any time in the profile scene</small>
-                                <div>
-                                    <br/>
-                                    <select name="travellerTypes" id="travellerTypes" multiple required>
-                                        <option value="" disabled hidden>Select Traveller Type</option>
-                                    </select>
-                                    <br/>
-                                    <label id="travellerTypesError" class="error-messages"></label>
-                                </div>
-                                <label id="otherError"></label>
                             </div>
+                            <br/>
+                            <pre class="control-label">Traveller Types</pre>
+                            <div>
+                                <select name="travellerTypes" id="travellerTypes" multiple required>
+                                    <option value="" disabled hidden>Select Traveller Type</option>
+                                </select>
+                                <label id="travellerTypesError" class="error-messages"></label>
+                            </div>
+                            <label id="SuccessMessage" style="color: #34ce57"></label>
                         </form>
                         <div class="modal-footer d-flex justify-content-center">
+                            <button class="btn btn-popup" type="button" data-toggle="modal" data-target="#editProfileModal">Cancel</button>
                             <button class="btn btn-popup" onclick=
-                            'signUp(
-                                    "@id",
-                                    "@controllers.backend.routes.ProfileController.addNewProfile()",
+                            'updateProfile(
+                                    "@controllers.backend.routes.ProfileController.updateProfile()",
                                     "@controllers.frontend.routes.ApplicationController.home()")'>
-                                Create
+                                Update Profile
                             </button>
+                            <label id="otherError"></label>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        @* Change Profile Picture Modal *@
+        <div class="modal fade" id="changeProfilePictureModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Change Profile Picture</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="mx-auto" style="width: 80%; padding: 10px">
+                        @* Profile Photo Gallery *@
+                        <div id="profile-gallery">You don't have any photos yet, add some by clicking on the add photo button.</div>
+                        <div id="page-selection-profile-picture"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* Crop Profile Picture Modal *@
+        <div class="modal fade" id="cropProfilePictureModal" tabindex="-1" role="dialog" style="overflow-y: scroll"
+        aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Crop Profile Picture</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="img-container">
+                            @* Need this src to change for different images *@
+                            <img id="image" src="" alt="Picture">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-popup mr-auto" data-dismiss="modal" data-toggle="modal" href="#changeProfilePictureModal">Back</button>
+                        <button onclick='uploadProfilePicture("@controllers.backend.routes.PhotoController.upload()")'
+                                type="button" class="btn btn-primary">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
     </body>
+
 }
 
 <script type="text/javascript">
+    setupDropZone();
+    fillGallery("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
+    populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
+    getProfilePicture("@controllers.backend.routes.PhotoController.getProfilePicture(user.id)");
 </script>

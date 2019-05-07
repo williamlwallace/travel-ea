@@ -4,7 +4,7 @@ $(document).ready(function () {
     populateTrips($('#dtTrips').DataTable());
 });
 
-//Click listener that handles clicks in admin table
+//Click listener that handles clicks in user table
 $('#dtUser').on('click', 'button', function() {
     let tableAPI = $('#dtUser').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
@@ -15,19 +15,23 @@ $('#dtUser').on('click', 'button', function() {
     }
 })
 
+//Click listenenr for trips table
 $('#dtTrips').on('click', 'button', function() {
     let tableAPI = $('#dtTrips').dataTable().api();
     let id = tableAPI.cell($(this).parents('tr'), 0).data();
-    if ($(this).parents('td').index() == 4) {
-        updateTrip(this, tableAPI, id);
-    } else if ($(this).parents('td').index() == 5) {
+    if ($(this).parents('td').index() == 5) {
         deleteTrip(this, tableAPI, id);
     }
 })
 
-
+/**
+ * Makes delete request with given user
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function deleteUser(button, tableAPI, id) {
-    _delete('api/user/'+id)
+    _delete(userRouter.controllers.backend.UserController.deleteOtherUser(id).url)
     .then(response => {
         //need access to response status, so cant return promise
         response.json()
@@ -51,10 +55,10 @@ function toggleAdmin(button, tableAPI, id) {
     let uri;
     let innerHTML;
     if (button.innerHTML.trim().startsWith("Revoke")) {
-        uri = 'api/admin/revoke/' + id;
+        uri = adminRouter.controllers.backend.AdminController.revokeAdmin(id).url;
         innerHTML = "Grant admin";
     } else {
-        uri = 'api/admin/grant/' + id;
+        uri = adminRouter.controllers.backend.AdminController.grantAdmin(id).url;
         innerHTML = "Revoke admin";
     }
     post(uri, "")   
@@ -76,7 +80,7 @@ function toggleAdmin(button, tableAPI, id) {
  * @param {Object} table - data table object
  */
 function populateTable(table) {
-    get('api/user/search')
+    get(userRouter.controllers.backend.UserController.userSearch().url)
     .then(response => {
         response.json()
         .then(json => {
@@ -100,8 +104,12 @@ function populateTable(table) {
     })
 }
 
+/**
+ * Inser trip data into table
+ * @param {Object} table - data table object
+ */
 function populateTrips(table) {
-    get('api/trip/getAllTrips/')
+    get(tripRouter.controllers.backend.TripController.getAllTrips().url)
         .then(response => {
         response.json()
             .then(json => {
@@ -115,8 +123,9 @@ function populateTrips(table) {
                     const startDest = tripDataList[0].destination.name;
                     const endDest = tripDataList[(tripDataList.length - 1)].destination.name;
                     const tripLength = tripDataList.length;
+                    const editURL = tripRouter.controllers.frontend.TripController.editTripIndex(id).url;
 
-                    update = "<button class=\"btn btn-secondary\">Update</button>";
+                    update = "<a href=\"" + editURL + "\" class=\"btn btn-secondary\">Update</a>";
                     removeTrip = "<button class=\"btn btn-danger\">Delete</button>"
                     table.row.add([id,startDest,endDest,tripLength,update,removeTrip]).draw(false);
                 }
@@ -125,14 +134,14 @@ function populateTrips(table) {
     })
 }
 
-
-function updateTrip(button, tableAPI, id) {
-    window.location.href = '/trips/edit/' + id;
-}
-
+/**
+ * Sends delete request with trip id
+ * @param {Object} button - Html button element
+ * @param {Object} tableAPI - data table api
+ * @param {Number} id - user id 
+ */
 function deleteTrip(button, tableAPI, id) {
-    console.log(id);
-    _delete('api/trip/' + id)
+    _delete(tripRouter.controllers.backend.TripController.deleteTrip(id).url)
         .then(response => {
         //need access to response status, so cant return promise
         response.json()

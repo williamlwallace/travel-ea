@@ -22,7 +22,7 @@
                 @* Populate the table with a list of profile details *@
                 @for(person <- people){
                     <tr>
-                        <td>@person.firstName</td>
+                        <td><a href="/profile/@person.userId" >@person.firstName</a></td>
                         <td>@person.lastName</td>
                         <td>@person.gender</td>
                         <td>@person.calculateAge.toString</td>

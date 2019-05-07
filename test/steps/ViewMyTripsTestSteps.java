@@ -239,7 +239,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/trip/getAll/");
+            .uri("/api/user/trips");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -252,7 +252,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/trip/getAll/");
+            .uri("/api/user/trips");
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
@@ -267,7 +267,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/trip/getAll/");
+            .uri("/api/user/trips");
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
@@ -282,7 +282,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/trip/getAll/");
+            .uri("/api/user/trips");
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
