@@ -117,24 +117,14 @@
                                             <div class="modal-body mx-3">
                                                 <div id="arrival">Arrival
                                                     <i class="fas prefix grey-text"></i>
-                                                    @if(trip.tripDataList(i).arrivalTime != null) {
-                                                        <input id="arrivalDate" type="date" value="@trip.tripDataList(i).getArrivalTime.slice(0, 10)" name="arrivalDate" class="form-control validate">
-                                                        <input id="arrivalTime" type="time" value="@trip.tripDataList(i).getArrivalTime.slice(11, 16)" name="arrivalTime" class="form-control validate">
-                                                    } else {
-                                                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate">
-                                                        <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">
-                                                    }
+                                                    <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(0, 10)" }>
+                                                    <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(11, 16)" }>
                                                     <label id="arrivalError"></label>
                                                 </div>
                                                 <div id="depart">Departure
                                                     <i class="fas prefix grey-text"></i>
-                                                    @if(trip.tripDataList(i).arrivalTime != null) {
-                                                        <input id="departureDate" type="date" value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" name="arrivalDate" class="form-control validate">
-                                                        <input id="departureTime" type="time" value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" name="arrivalTime" class="form-control validate">
-                                                    } else {
-                                                        <input id="departureDate" type="date" name="departureDate" class="form-control validate">
-                                                        <input id="departureTime" type="time" name="departureTime" class="form-control validate">
-                                                    }
+                                                    <input id="departureDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" }>
+                                                    <input id="departureTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" }>
                                                     <label id="departureError"></label>
                                                 </div>
                                             </div>
