@@ -32,6 +32,9 @@ public class PhotoController extends Controller {
     private static final String PHOTO_DIRECTORY = "storage/photos/";
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
+    // Constant fields defining the directory of publicly available files
+    private static final String PUBLIC_DIRECTORY = "public/";
+
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
@@ -139,14 +142,16 @@ public class PhotoController extends Controller {
             if(pair.getKey().isProfile) {
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
                     if(fileNamesPair != null) {
+                        File thumbFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getKey());
+                        File mainFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getValue());
                         // Mark the files for deletion
-                        if(!new File("public/" + fileNamesPair.getKey()).delete()) {
-                            // TODO: Handle case where files failed to delete
-                            System.out.println("Thumbnail failed to delete: " + fileNamesPair.getValue());
+                        if(!thumbFile.delete()) {
+                            // If file fails to delete immediately, mark file for deletion when VM shuts down
+                            thumbFile.deleteOnExit();
                         }
-                        if(!new File("public/" + fileNamesPair.getValue()).delete()) {
-                            // TODO: Handle case where files failed to delete
-                            System.out.println("Main file failed to delete: " + fileNamesPair.getKey());
+                        if(!mainFile.delete()) {
+                            // If file fails to delete immediately, mark file for deletion when VM shuts down
+                            mainFile.deleteOnExit();
                         }
                     }
                     return null;
@@ -156,9 +161,9 @@ public class PhotoController extends Controller {
                 thumbHeight = 100;
             }
             try {
-                pair.getValue().getRef().copyTo(Paths.get("public/" + pair.getKey().filename), true);
+                pair.getValue().getRef().copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
-                        .copyTo(Paths.get("public/" + pair.getKey().thumbnailFilename));
+                        .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
             } catch (IOException e) {
                 // TODO: Handle case where a file failed to save
             }
@@ -258,7 +263,6 @@ public class PhotoController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deletePhoto(Long id) {
-        // TODO: add authentication of user
         return photoRepository.deletePhoto(id).thenApplyAsync(photoDeleted -> {
             if (photoDeleted == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
@@ -266,13 +270,15 @@ public class PhotoController extends Controller {
                 return badRequest(errorResponse.toJson());
             } else {
                 // Mark the files for deletion
-                if(!new File("public/" + photoDeleted.thumbnailFilename).delete()) {
-                    // TODO: Handle case where files failed to delete
-                    System.out.println("Thumbnail failed to delete: " + photoDeleted.thumbnailFilename);
+                File thumbFile = new File(PUBLIC_DIRECTORY + photoDeleted.thumbnailFilename);
+                File mainFile = new File(PUBLIC_DIRECTORY + photoDeleted.filename);
+                if(!thumbFile.delete()) {
+                    // If file fails to delete immediately, mark file for deletion when VM shuts down
+                    thumbFile.deleteOnExit();
                 }
-                if(!new File("public/" + photoDeleted.filename).delete()) {
-                    // TODO: Handle case where files failed to delete
-                    System.out.println("Main file failed to delete: " + photoDeleted.filename);
+                if(!mainFile.delete()) {
+                    // If file fails to delete immediately, mark file for deletion when VM shuts down
+                    mainFile.deleteOnExit();
                 }
 
                 // Return number of photos deleted
