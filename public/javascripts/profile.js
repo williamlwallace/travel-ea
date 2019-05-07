@@ -343,6 +343,10 @@ function setupDropZone() {
                 }
             });
 
+            this.on("processing", function() {
+                this.options.autoProcessQueue = true;
+            });
+
             submitButton.addEventListener("click", function() {
                 if (submitButton.innerText === "Add") {
                     addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.

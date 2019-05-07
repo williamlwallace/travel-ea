@@ -125,7 +125,7 @@ public class PhotoControllerTest extends WithApplication {
 
         // Check a success message was sent
         String message = Helpers.contentAsString(result);
-        assertEquals("File(s) uploaded successfully", message);
+        assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
     @Test
@@ -171,18 +171,7 @@ public class PhotoControllerTest extends WithApplication {
 
         // Check a success message was sent
         String message = Helpers.contentAsString(result);
-        assertEquals("File(s) uploaded successfully", message);
+        assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
-    @Test
-    public void getAllUserPhotos() throws IOException {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-                .method("GET")
-                .cookie(this.authCookie)
-                .uri("/api/photo/getAll/");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-    }
 }
