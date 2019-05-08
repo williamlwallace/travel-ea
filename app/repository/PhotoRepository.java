@@ -121,8 +121,8 @@ public class PhotoRepository {
                     .eq("is_profile", true)
                     .findOneOrEmpty().orElse(null);
             if(photo != null) {
-                photo.filename = "../assets/" + photo.filename;
-                photo.thumbnailFilename =  "../assets/" + photo.thumbnailFilename;
+                photo.filename = "../user_content/" + photo.filename;
+                photo.thumbnailFilename =  "../user_content/" + photo.thumbnailFilename;
             }
             return photo;
         }, executionContext);
@@ -173,22 +173,38 @@ public class PhotoRepository {
 
     private List<Photo> appendAssetsUrl(List<Photo> photos) {
         for(Photo photo : photos) {
-            photo.filename = "../assets/" + photo.filename;
-            photo.thumbnailFilename = "../assets/" + photo.thumbnailFilename;
+            photo.filename = "../user_content/" + photo.filename;
+            photo.thumbnailFilename = "../user_content/" + photo.thumbnailFilename;
         }
         return photos;
     }
 
-    public CompletableFuture<Boolean> togglePhotoPrivacy(Long id, Boolean isPublic) {
-        return supplyAsync(() -> {
-                    ebeanServer.find(Photo.class)
-                            .where()
-                            .eq("guid", id)
-                            .asUpdate()
-                            .set("is_public", isPublic)
-                            .update();
-                    return true;
-                },
-                executionContext);
+    /**
+     * Get photo object form db
+     *
+     * @param id id of photo
+     */
+    public CompletableFuture<Photo> getPhotoById(Long id) {
+        return supplyAsync(() -> ebeanServer.find(Photo.class)
+                .where()
+                .eq("guid", id)
+                .findOneOrEmpty()
+                .orElse(null),
+            executionContext);
+
     }
+
+    /**
+     * Update photo row in database
+     *
+     * @param photo photo object to update
+     */
+    public CompletableFuture<Long> updatePhoto(Photo photo) {
+        return supplyAsync(() -> {
+                ebeanServer.update(photo);
+                return photo.guid;
+            },
+            executionContext);
+    }
+
 }

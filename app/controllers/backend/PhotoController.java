@@ -3,7 +3,9 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import controllers.backend.routes.javascript;
 import models.Photo;
 import org.joda.time.DateTime;
 import play.libs.Files;
@@ -12,6 +14,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.PhotoRepository;
 import util.customObjects.Pair;
 import util.validation.ErrorResponse;
@@ -33,7 +36,7 @@ public class PhotoController extends Controller {
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
     // Constant fields defining the directory of publicly available files
-    private static final String PUBLIC_DIRECTORY = "public/";
+    private static final String PUBLIC_DIRECTORY = "../";
 
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
@@ -46,6 +49,17 @@ public class PhotoController extends Controller {
     public PhotoController(PhotoRepository photoRepository) {
         this.photoRepository = photoRepository;
     }
+
+
+
+    public Result getPhotoFromPath(String path, String filePath) {
+        String finalPath = System.getProperty("user.dir") + path + filePath;
+        System.out.println("READ FILE PATH: " + finalPath);
+        File file = new File(finalPath);
+        return ok(file, true);
+    }
+
+
 
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
@@ -239,7 +253,7 @@ public class PhotoController extends Controller {
         }
 
         // Create file to store output of thumbnail write
-        File thumbFile = new File("public/storage/photos/test/tempThumb.jpg");
+        File thumbFile = new File("/home/sengstudent/storage/photos/test/tempThumb.jpg");
 
         // Write buffered image to thumbnail file
         ImageIO.write(tThumbImage, "jpg", thumbFile);
@@ -288,9 +302,30 @@ public class PhotoController extends Controller {
     }
 
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> togglePhotoPrivacy(Long id, Boolean isPublic) {
-        return photoRepository.togglePhotoPrivacy(id, isPublic).thenApplyAsync(uploaded ->
-                ok(Json.toJson(id))
-        );
+    public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
+        JsonNode data = request.body().asJson();
+        Boolean isPublic = data.get("isPublic").asBoolean();
+        return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
+            if (photo != null) {
+                photo.isPublic = isPublic;
+            } else {
+                return CompletableFuture.supplyAsync(() -> notFound());
+            }
+            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+        });
     }
+
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result photoRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
+    }
+
 }

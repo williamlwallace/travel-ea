@@ -67,7 +67,7 @@ DELETE        /api/trip/:id                          controllers.backend.TripCon
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(id:Long, isPublic:Boolean ?= false)
+PATCH         /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
 
 GET           /api/photo/:id                         controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
@@ -117,5 +117,11 @@ GET     /assets/routers/user       controllers.backend.UserController.userRoutes
 
 GET     /assets/routers/trip       controllers.backend.TripController.tripRoutes(request: Request)
 
+GET     /assets/routers/photo       controllers.backend.PhotoController.photoRoutes(request: Request)
+
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
+
+# Static resources (not managed by the Play framework)
+GET     /user_content/*file   controllers.backend.PhotoController.getPhotoFromPath(path="/../", file)
+
 

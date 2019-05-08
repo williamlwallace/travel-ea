@@ -7,6 +7,7 @@
     <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/dropzone.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.PhotoController.photoRoutes()" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", loggedUser, scripts){
@@ -368,6 +369,16 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
+
+                        @* Uploading a new profile picture image to crop *@
+                        <input id="upload-image-file" type="file" onchange="uploadNewPhoto()"
+                        accept="image/jpeg, image/png" style="display: none"/>
+
+                    <br>
+                    <a class="button-secondary" id="upload-image-button" style="text-align: center">
+                        <span class="profile-button">Add New Photo</span>
+                    </a>
+
                     <div class="mx-auto" style="width: 80%; padding: 10px">
                         @* Profile Photo Gallery *@
                         <div id="profile-gallery" class="text-center">You don't have any photos yet, add some by clicking on the add photo button.</div>
@@ -410,6 +421,7 @@
 
 <script type="text/javascript">
     setupDropZone();
+    setPermissions("@loggedUser.id", "@user.id");
     getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
