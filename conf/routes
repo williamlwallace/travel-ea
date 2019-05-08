@@ -117,6 +117,8 @@ GET     /assets/routers/user       controllers.backend.UserController.userRoutes
 
 GET     /assets/routers/trip       controllers.backend.TripController.tripRoutes(request: Request)
 
+GET     /assets/routers/photo       controllers.backend.PhotoController.photoRoutes(request: Request)
+
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Static resources (not managed by the Play framework)

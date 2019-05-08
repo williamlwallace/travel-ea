@@ -4,6 +4,7 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.google.inject.Inject;
+import controllers.backend.routes.javascript;
 import models.Photo;
 import org.joda.time.DateTime;
 import play.libs.Files;
@@ -12,6 +13,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.PhotoRepository;
 import util.customObjects.Pair;
 import util.validation.ErrorResponse;
@@ -304,4 +306,17 @@ public class PhotoController extends Controller {
                 ok(Json.toJson(id))
         );
     }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     * @return JSRouter Play result
+     */
+    public Result photoRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
+    }
+
 }
