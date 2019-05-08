@@ -33,7 +33,7 @@ public class PhotoController extends Controller {
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
     // Constant fields defining the directory of publicly available files
-    private static final String PUBLIC_DIRECTORY = "public/";
+    private static final String PUBLIC_DIRECTORY = "../";
 
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
@@ -46,6 +46,15 @@ public class PhotoController extends Controller {
     public PhotoController(PhotoRepository photoRepository) {
         this.photoRepository = photoRepository;
     }
+
+
+
+    public Result getPhotoFromPath(String path, String filePath) {
+        System.out.println(path + filePath);
+        File file = new File(path + filePath);
+        return ok(file, true);
+    }
+
 
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
@@ -239,7 +248,7 @@ public class PhotoController extends Controller {
         }
 
         // Create file to store output of thumbnail write
-        File thumbFile = new File("public/storage/photos/test/tempThumb.jpg");
+        File thumbFile = new File("./../storage/photos/test/tempThumb.jpg");
 
         // Write buffered image to thumbnail file
         ImageIO.write(tThumbImage, "jpg", thumbFile);

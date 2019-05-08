@@ -121,8 +121,8 @@ public class PhotoRepository {
                     .eq("is_profile", true)
                     .findOneOrEmpty().orElse(null);
             if(photo != null) {
-                photo.filename = "../assets/" + photo.filename;
-                photo.thumbnailFilename =  "../assets/" + photo.thumbnailFilename;
+                photo.filename = "../user_content/" + photo.filename;
+                photo.thumbnailFilename =  "../user_content/" + photo.thumbnailFilename;
             }
             return photo;
         }, executionContext);
@@ -173,8 +173,8 @@ public class PhotoRepository {
 
     private List<Photo> appendAssetsUrl(List<Photo> photos) {
         for(Photo photo : photos) {
-            photo.filename = "../assets/" + photo.filename;
-            photo.thumbnailFilename = "../assets/" + photo.thumbnailFilename;
+            photo.filename = "../user_content/" + photo.filename;
+            photo.thumbnailFilename = "../user_content/" + photo.thumbnailFilename;
         }
         return photos;
     }
