@@ -240,11 +240,9 @@ public class UserController extends Controller {
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return userRepository.findID(userId).thenApplyAsync(user -> {
                 if (user == null) {
-                    System.out.println("NULL");
                     return badRequest();
                 }
                 else {
-                    System.out.println(user.id);
                     return ok(Json.toJson(user));
                 }
             });
