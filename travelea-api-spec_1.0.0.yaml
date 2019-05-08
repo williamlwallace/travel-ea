@@ -67,9 +67,9 @@ paths:
         '400':
           description: No user with such uid found | Cannot delete Master user
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
 
   '/user/{id}':
     delete:
@@ -100,9 +100,9 @@ paths:
         '400':
           description: No user with such uid found | Cannot delete Master user
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
 
   '/login':
     post:
@@ -121,8 +121,6 @@ paths:
                 type: string
         '400':
           description: Invalid user data
-        '401':
-          description: Unauthorised
       requestBody:
         $ref: '#/components/requestBodies/postUser'
 
@@ -146,9 +144,7 @@ paths:
         '200':
           description: Success
         '401':
-          description: Authentication failed
-        '403':
-          description: User not authorised for this action
+          description: Unauthorized
 
   '/user/search':
     get:
@@ -185,6 +181,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
 
   '/user/setId':
     get:
@@ -213,6 +213,8 @@ paths:
                   id:
                     type: integer
                     description: The authenticated user's id
+        '401':
+          description: Unauthorized
 
   '/trip':
     post:
@@ -238,11 +240,11 @@ paths:
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
-          description: Authentication failed
+          description: Unauthorized
 
     put:
       tags:
-        - Trips
+      - Trips
       summary: Update an existing trip
       description: |
         Updates an existing trip on the database, for the currently logged in user
@@ -263,9 +265,9 @@ paths:
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
 
   '/trip/{id}':
     get:
@@ -287,6 +289,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Trip'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
           description: No such trip found
 
@@ -314,9 +320,9 @@ paths:
         '200':
           description: Successfully deleted trip
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
         '404':
           description: No such trip found
 
@@ -324,7 +330,7 @@ paths:
     get:
       tags:
       - Trips
-      summary: Get all trips belonging to currently logged in user
+      summary: Get all trips belonging to logged in user
       security:
       - UserToken: []
       parameters:
@@ -344,7 +350,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Trip'
         '401':
-          description: Authentication failed
+          description: Unauthorized
 
   '/destination/getCountries':
     get:
@@ -375,6 +381,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Destination'
+
     post:
       tags:
       - Destinations
@@ -401,7 +408,7 @@ paths:
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
-          description: Authentication failed
+          description: Unauthorized
 
   '/destination/{id}':
     get:
@@ -450,9 +457,9 @@ paths:
         '200':
           description: Successfully deleted destination
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
         '404':
           description: No such destination found
 
@@ -462,28 +469,28 @@ paths:
       - Destinations
       summary: Searches through all destinations based on some criteria
       parameters:
-      - in: query
-        name: p
-        description: Number of page to get
-        schema:
-          type: integer
-          minimum: 0
-      - in: query
-        name: pSize
-        description: Number of results to show per page
-        schema:
-          type: integer
-      - in: query
-        name: filter
-        description: Filter criteria by which to search desinations
-        schema:
-          type: string
-      - in: query
-        name: order
-        description: Whether to sort ascending or descending
-        schema:
-          type: string
-          description: "Either 'asc' or 'desc'"
+        - in: query
+          name: p
+          description: Number of page to get
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: pSize
+          description: Number of results to show per page
+          schema:
+            type: integer
+        - in: query
+          name: filter
+          description: Filter criteria by which to search desinations
+          schema:
+            type: string
+        - in: query
+          name: order
+          description: Whether to sort ascending or descending
+          schema:
+            type: string
+            description: "Either 'asc' or 'desc'"
       responses:
         '200':
           description: Successfully retrieved (possibly zero) destinations
@@ -530,9 +537,9 @@ paths:
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
         '409':
           description: Profile already exists for this user
 
@@ -557,7 +564,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Profile'
         '401':
-          description: Authentication failed
+          description: Unauthorized
 
     put:
       tags:
@@ -585,9 +592,7 @@ paths:
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
-          description: Authentication failed
-        '403':
-          description: User not authorised for this action
+          description: Unauthorized
 
   '/profile/search':
     get:
@@ -651,7 +656,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Profile'
         '404':
-          description: No such destination found
+          description: No profile found
 
     delete:
       tags:
@@ -677,9 +682,9 @@ paths:
         '200':
           description: Successfully deleted profile
         '401':
-          description: Authentication failed
+          description: Unauthorized
         '403':
-          description: User not authorised for this action
+          description: Forbidden
         '404':
           description: No profile found for that user
 
@@ -687,7 +692,7 @@ paths:
     post:
       tags:
         - Admin
-      summary: Grants user admin privileges
+      summary: Gives admin privileges to user
       security:
         - UserToken: []
       parameters:
@@ -703,12 +708,16 @@ paths:
           description: Successfully promoted user to admin
         '400':
           description: User not found
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
 
   '/admin/revoke/{id}':
     post:
       tags:
         - Admin
-      summary: Revokes admin privilages from user
+      summary: Removes admin privilages from user
       security:
         - UserToken: []
       parameters:
@@ -724,6 +733,10 @@ paths:
           description: Successfully demoted user from admin
         '400':
           description: User not found
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
 
   '/photo':
     post:
@@ -748,12 +761,15 @@ paths:
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
+                  example: 'true'
                 profilePhotoFileName:
                   type: string
                   description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
+                  example:  'my_new_profile_pic.jpg'
                 publicPhotoFileNames:
                   type: array
                   description: 'Include here the filenames of all uploads that are to be publicly visible, any files that are not referenced here will be set to private by default'
+                  example: 'holiday_pic_1.jpg,holiday_pic_2.png'
                   items:
                     type: string
                 files:
@@ -762,20 +778,90 @@ paths:
                   items:
                     type: string
                     format: binary
-
       responses:
         '201':
           description: Successfully uploaded one or more files
+        '400':
+          description: Invalid file type given | Missing file | No files given
+        '401':
+          description: Unauthorized
+
+  '/photo/{id}':
+    get:
+      tags:
+        - Photos
+      summary: 'Get all photos belonging to the profile of some user specified by their id'
+      description: 'In order to receive any photo information in response the client requesting must be authenticated. If the authentication ID matches the ID to request photos for (i.e a user is requesting their OWN photos) then all photos are returned, public and private. However if the authentication ID does not match the ID to request photos for (i.e a user is requesting the photos of SOMEONE ELSE then only publicly accesible photo information is returned.'
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: The user ID to retrieve photos of
+          schema:
+            type: integer
+            minimum: 1
+        - in: path
+          name: page
+          required: true
+          description: 'The page number to return, starts at 0'
+          schema:
+            type: integer
+            minimum: 0
+        - in: path
+          name: count
+          required: true
+          description: 'The number of photos to be returned per page'
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved (any number of) photos for a user'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+
+    delete:
+      tags:
+        - Photos
+      summary: 'Delete photo with given id'
+      description: 'If the user is autharized, delete the photo'
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: The ID of photo to be deleted
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully deleted trip
         '401':
           description: Authentication failed
         '403':
           description: User not authorised for this action
-        '500':
-          description: One or more files failed to upload, check response body for specific errors
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: No such trip found
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
@@ -1048,3 +1134,37 @@ components:
           type: string
           format: ISO date-time
           example: '2019-04-20T10:30:00.000'
+
+    Photo:
+      type: object
+      description: 'Object containing references of where to find files for a particular photo'
+      properties:
+        guid:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Generated automatically when the photo is first uploaded
+        userId:
+          type: integer
+          format: int64
+          minimum: 1
+          description: ID of the user to whom the photo belongs
+        filename:
+          type: string
+          format: url
+          example: '/assets/storage/photos/1556841259327_my_image.jpg'
+          description: 'The relative URL where the full size file can be found'
+        thumbnailFilename:
+          type: string
+          format: url
+          example: '/assets/storage/photos/1556841259327_thumbnail_my_image.jpg'
+        isPublic:
+          type: boolean
+          description: 'Boolean stating whether or not this photo is publicly accesible'
+        isProfile:
+          type: boolean
+          description: 'Boolean stating whether or not this photo is the profile picture of the user'
+        uploaded:
+          type: string
+          format: ISO date-time
+          example: '2019-04-01T23:26:00.000'

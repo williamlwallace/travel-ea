@@ -32,7 +32,6 @@ public class PeopleController extends Controller {
 
     }
 
-
     /**
      * Displays the people page. Called with the /people URL and uses a GET request. Checks that a
      * user is logged in. Takes them to the people page if they are, otherwise they are taken to the

@@ -30,6 +30,9 @@ public class TripValidator {
             this.required("id");
         }
 
+        // Validation for trip privacy
+        this.required("privacy");
+
         //Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
@@ -88,6 +91,21 @@ public class TripValidator {
             }
 
         }
+        return this.response;
+    }
+
+    /**
+     * Validates trip privacy update data
+     *
+     * @return Error response object containing error messages
+     */
+    public ErrorResponse validateTripPrivacyUpdate() {
+        // Validation for trip as a whole
+        this.required("id");
+
+        // Validation for trip privacy
+        this.required("privacy");
+
         return this.response;
     }
 
