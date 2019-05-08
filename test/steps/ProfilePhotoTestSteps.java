@@ -86,14 +86,14 @@ public class ProfilePhotoTestSteps extends WithApplication {
     @When("I set it as my profile photo")
     public void i_set_it_as_my_profile_photo() throws IOException {
         System.out.println("hi");
-        File file = getFile("./public/images/wakatipu.jpeg");
+        File file = getFile("./public/images/favicon.png");
 
         List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
 
         // Add text field parts
         for(Pair<String, String> pair : Arrays.asList(
                 new Pair<>("isTest", "true"),
-                new Pair<>("profilePhotoName", "profilepic.jpg"),
+                new Pair<>("profilePhotoName", "favicon.png"),
                 new Pair<>("publicPhotoFileNames", ""),
                 new Pair<>("is_profile", "true")
         )) {
@@ -101,7 +101,7 @@ public class ProfilePhotoTestSteps extends WithApplication {
         }
 
         // Convert this file to a multipart form data part
-        partsList.add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto.png", "image/png",
+        partsList.add(new Http.MultipartFormData.FilePart<>("picture", "favicon.png", "image/png",
                 FileIO.fromPath(file.toPath()),
                 Files.size(file.toPath())));
 
@@ -129,11 +129,11 @@ public class ProfilePhotoTestSteps extends WithApplication {
                 .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
-        Assert.assertEquals(201, result.status());
+        Assert.assertEquals(200, result.status());
         JsonNode photo = new ObjectMapper()
                 .readValue(Helpers.contentAsString(result), JsonNode.class);
-        String thumbnail = photo.get(0).get("thumbnail_filename").toString();
-        Assert.assertTrue(thumbnail.contains("wakatipu"));
+        String thumbnail = photo.get("thumbnailFilename").toString();
+        Assert.assertTrue(thumbnail.contains("favicon.png"));
         Assert.assertTrue(thumbnail.contains("thumbnails"));
 
     }
@@ -146,11 +146,11 @@ public class ProfilePhotoTestSteps extends WithApplication {
                 .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
-        Assert.assertEquals(201, result.status());
+        Assert.assertEquals(200, result.status());
         JsonNode photo = new ObjectMapper()
                 .readValue(Helpers.contentAsString(result), JsonNode.class);
-        String filename = photo.get(0).get("filename").toString();
-        Assert.assertTrue(filename.contains("wakatipu"));
+        String filename = photo.get("filename").toString();
+        Assert.assertTrue(filename.contains("favicon.png"));
 
     }
 }
