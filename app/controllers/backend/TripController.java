@@ -20,6 +20,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.TripRepository;
+import repository.UserRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
@@ -29,17 +30,21 @@ import util.validation.TripValidator;
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
+    private final UserRepository userRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository) {
+    public TripController(TripRepository tripRepository,
+                          UserRepository userRepository) {
+
         this.tripRepository = tripRepository;
+        this.userRepository = userRepository;
     }
 
     /**
      * Attempts to get all user trips for a given userID.
      *
      * @param request the HTTP request
-     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     * @return JSON object with list of trips that a user has, bad request if user does not exist
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserTrips(Http.Request request, Long userId) {
@@ -53,7 +58,6 @@ public class TripController extends Controller {
             return tripRepository.getAllPublicUserTrips(userId)
                     .thenApplyAsync(trips -> ok(Json.toJson(trips)));
         }
-
     }
 
     /**
@@ -63,7 +67,6 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
-
         return tripRepository.getAllTrips()
                 .thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }

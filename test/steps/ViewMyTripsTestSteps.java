@@ -8,6 +8,7 @@ import static play.test.Helpers.POST;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.route;
 
+import actions.ActionState;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -47,6 +48,8 @@ public class ViewMyTripsTestSteps extends WithApplication {
     private static Application fakeApp;
     private static Database db;
     private static Http.Cookie authCookie;
+
+    private Long userId = 1L;
 
     int tripsCreated = 0;
 
@@ -124,7 +127,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to view profile
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/profile/1");
+            .uri("/api/profile/" + this.userId);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -136,7 +139,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(this.authCookie)
-                .uri("/api/trip");
+                .uri("/api/user/trips/" + this.userId);
 
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
@@ -154,7 +157,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(this.authCookie)
-                .uri("/api/trip");
+                .uri("/api/user/trips/" + this.userId);
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
         JsonNode checkEmptyTrips = new ObjectMapper()
@@ -190,7 +193,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         tripArray.add(tripData1);
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
-        trip.userId = 2L;
+        trip.userId = this.userId;
         trip.privacy = 0L;
 
         JsonNode node = Json.toJson(trip);
@@ -213,7 +216,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -226,7 +229,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
@@ -241,7 +244,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
@@ -256,7 +259,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
