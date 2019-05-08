@@ -27,3 +27,11 @@ Feature: Story 10: Trips displayed on profiles
     Then a list of trips is shown
     And it shows all of my trips
     And only my trips
+
+  Scenario: View other travellers trips (AC4)
+    Given I am logged in
+    And viewing another user profile
+    And they have at least one public trip
+    When I click on a trip
+    Then the details of the trip are displayed
+    And I cannot edit the trip
