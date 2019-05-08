@@ -1,4 +1,4 @@
-@import helper._
+
 
 <html>
 
@@ -35,8 +35,8 @@
                                 <label id="passwordError" class="error-messages"></label>
                             </div>
                             <div class = field-container>
-                                <input type="password" id="confirm_password" placeholder="Repeat Password"
-                                    name="password-repeat" required>
+                                <input type="password" id="confirm_password"
+                                placeholder="Repeat Password" name="password-repeat" required>
                                 <label id='message' class="error-messages"></label>
                             </div>
                         </form>
@@ -47,7 +47,7 @@
                             aria-expanded="false" aria-controls="collapseSignUp" id="cancelBtn1">Cancel</button>
                         <button class="btn btn-lg btn-secondary"
                             id="registerBtn"
-                            onclick='signup("@controllers.backend.routes.UserController.addNewUser()","@controllers.frontend.routes.ProfileController.index()")'>
+                        onclick='signup("@controllers.backend.routes.UserController.addNewUser()", "@controllers.frontend.routes.ProfileController.createProfileIndex()")'>
                             Register
                         </button>
                     </div>
@@ -66,17 +66,18 @@
                                 <label id="usernameError" class="error-messages"></label>
                             </div>
                             <div class = field-container>
-                                <input type="password" placeholder="Enter Password" name="password">
+                                <input id="login-password-field" type="password" placeholder="Enter Password" name="password">
                                 <label id="passwordError" class="error-messages"></label>
                             </div>
                         </form>
                     </div>
                     <div class="clearfix" style="padding-top: 10px">
-                        <button type="button" onclick="cancel(); document.getElementById('LogInSignUpBtns').style.display='block'"
+                        <button type="button" onclick="cancel();
+                            document.getElementById('LogInSignUpBtns').style.display='block'"
                             class="btn btn-lg btn-secondary" data-toggle="collapse" href="#collapseLogIn" role="button"
                             aria-expanded="false" aria-controls="collapseLogIn" id="cancelBtn2">Cancel</button>
                         <button
-                            class="btn btn-lg btn-secondary"
+                            class="btn btn-lg btn-secondary" id="login-button"
                             onclick='login("@controllers.backend.routes.UserController.login()","@controllers.frontend.routes.ApplicationController.home()")'>
                             Log In
                         </button>

@@ -148,11 +148,11 @@ public class Authenticator extends Action.Simple {
      */
     private CompletionStage<Result> haveProfile(Http.Request request, User user, Boolean matched) {
         return profileRepository.findID(user.id).thenComposeAsync(profile -> {
-            if (!request.uri().equals(controllers.frontend.routes.ProfileController.index().toString()) && profile == null) {
+            if (!request.uri().equals(controllers.frontend.routes.ProfileController.createProfileIndex().toString()) && profile == null) {
                 if (request.uri().contains("/api/")) {
                     return supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
                 } else {
-                    return supplyAsync(() -> redirect(controllers.frontend.routes.ProfileController.index()));
+                    return supplyAsync(() -> redirect(controllers.frontend.routes.ProfileController.createProfileIndex()));
                 }
             }
             return matched ? delegate.call(request.addAttr(ActionState.USER, user)) : supplyAsync(() -> redirect(controllers.frontend.routes.ApplicationController.cover())

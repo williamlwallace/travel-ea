@@ -53,6 +53,9 @@ code {
     /* The image used */
     background-image: url("../images/wakatipu.jpeg");
 
+    /* Default background colour */
+    background-color: #818182;
+
     /* Full height */
     height: 100%;
 
@@ -116,6 +119,7 @@ pre {
  */
 .title-frame {
     background-color: #818182;
+    pointer-events: none;
     text-align: center;
     height: 30vh;
     max-height: 70rem;
@@ -262,6 +266,26 @@ pre {
     background: transparent url(../images/closeCross.png) no-repeat center top;
 }
 
+
+.upload-btn-wrapper {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
+#add-photo-dropzone {
+    border: 0;
+    background: transparent url(../images/addPhoto.png) no-repeat center top;
+}
+
 .error-messages {
     color: #FF1133 !important;
     font-size: 12px;
@@ -288,4 +312,48 @@ pre {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+.pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
+.pagination>.active>a {
+    color: #FFFFFF;
+    background-color: #b4b4b5 !important;
+    cursor: default;
+
+}
+
+.img-wrap {
+    position: relative;
+    display: inline-block;
+    font-size: 0;
+}
+
+.img-wrap .close {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 100;
+    background-color: #FFF;
+    padding: 5px 2px 2px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: .2;
+    text-align: center;
+    font-size: 22px;
+    line-height: 10px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.img-wrap:hover .close {
+    opacity: 1;
 }
