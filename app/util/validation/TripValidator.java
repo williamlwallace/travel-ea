@@ -30,11 +30,14 @@ public class TripValidator {
             this.required("id");
         }
 
+        // Validation for trip privacy
+        this.required("privacy");
+
         //Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
         ArrayList tripDataCollection = mapper
-            .readValue(mapper.treeAsTokens(this.form.get("tripDataCollection")),
+            .readValue(mapper.treeAsTokens(this.form.get("tripDataList")),
                 new TypeReference<ArrayList<TripData>>() {
                 });
 
@@ -53,13 +56,17 @@ public class TripValidator {
                 errorString += "position is null, ";
                 trip.position = -1L;
             }
+            if (trip.destination != null) {
+                if (trip.destination.id == null) {
+                    errorString += "destinationId is null, ";
+                }
+                if (trip.destination.id == lastDestinationID) {
+                    errorString += "cannot attend same destination twice in a row, ";
+                }
+            } else {
+                errorString += "destination is null, ";
+            }
 
-            if (trip.destination.id == null) {
-                errorString += "destinationId is null, ";
-            }
-            if (trip.destination.id == lastDestinationID) {
-                errorString += "cannot attend same destination twice in a row, ";
-            }
             if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime
                 .isAfter(trip.departureTime)) {
                 errorString += "departure must be after arrival, ";
@@ -74,7 +81,9 @@ public class TripValidator {
                     : trip.arrivalTime);
             }
 
-            lastDestinationID = trip.destination.id;
+            if (trip.destination != null) {
+                lastDestinationID = trip.destination.id;
+            }
 
             // If any errors were added to string, add this to error response map
             if (!errorString.equals("")) {
@@ -86,13 +95,28 @@ public class TripValidator {
     }
 
     /**
+     * Validates trip privacy update data
+     *
+     * @return Error response object containing error messages
+     */
+    public ErrorResponse validateTripPrivacyUpdate() {
+        // Validation for trip as a whole
+        this.required("id");
+
+        // Validation for trip privacy
+        this.required("privacy");
+
+        return this.response;
+    }
+
+    /**
      * Checks field is not empty.
      *
      * @param field json field name
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field) {
-        if (this.form.get(field).asText("") == "") {
+        if (this.form.get(field).asText("").equals("")) {
             this.response.map(String.format("%s required", field), field);
             return false;
         }

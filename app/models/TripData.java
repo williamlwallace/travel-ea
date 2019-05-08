@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -45,4 +46,30 @@ public class TripData extends Model {
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime departureTime;
+
+    /**
+     * Transforms the arrival time to an ISO string an returns it
+     * @return ISO string format of the arrival time or null
+     */
+    public String getArrivalTime() {
+        if (arrivalTime != null) {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(arrivalTime);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
+     * Transforms the departure time to an ISO string an returns it
+     * @return ISO string format of the departure time or null
+     */
+    public String getDepartureTime() {
+        if (departureTime != null) {
+            return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(departureTime);
+        }
+        else {
+            return null;
+        }
+    }
 }

@@ -27,7 +27,7 @@ function fillCountryInfo(getCountriesUri) {
 
 /**
  * maps countries into destinations
- * @param {Object} countryDict - Dictionary of Countries 
+ * @param {Object} countryDict - Dictionary of Countries
  */
 function updateDestinationsCountryField(countryDict) {
     let tableBody = document.getElementsByTagName('tbody')[0];
@@ -66,7 +66,7 @@ function updateCountryCardField(countryDict) {
 
 /**
  * Send new destination data to API
- * @param {string} uri - API URI to send destination 
+ * @param {string} uri - API URI to send destination
  */
 function newDestination(uri) {
     // Read data from destination form
@@ -170,6 +170,17 @@ function removeDestinationFromTrip(cardId) {
     }
 }
 
+function toggleTripPrivacy() {
+    let currentPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
+
+    if (currentPrivacy === "Make Public") {
+        document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
+    }
+    else if (currentPrivacy === "Make Private") {
+        document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
+    }
+}
+
 /**
  * Creates trip and posts to API
  * @param {string} uri - API URI to add trip
@@ -184,8 +195,18 @@ function createTrip(uri, redirect) {
     }
 
     let tripData = {
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
+
+    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
+
+    // Value of 1 for public, 0 for private
+    if (tripPrivacy === "Make Private") {
+        tripData["privacy"] = 1;
+    }
+    else {
+        tripData["privacy"] = 0;
+    }
 
     post(uri, tripData).then(response => {
         // Read response from server, which will be a json object
@@ -220,22 +241,14 @@ function listItemToTripData(listItem, index) {
     let DTInputs = listItem.getElementsByTagName("input");
 
     try {
-        json["arrivalTime"] = DTInputs[0].value + "T" + DTInputs[1].value + ":00.000";
-
-        if (json["arrivalTime"].length <= 18) {
-            json["arrivalTime"] = null;
-        }
+        json["arrivalTime"] = formatDateTime(DTInputs[0].value, DTInputs[1].value);
     }
     catch {
         json["arrivalTime"] = null;
     }
 
     try {
-        json["departureTime"] = DTInputs[2].value + "T" + DTInputs[3].value + ":00.000";
-
-        if (json["departureTime"].length <= 18) {
-            json["departureTime"] = null;
-        }
+        json["departureTime"] = formatDateTime(DTInputs[2].value, DTInputs[3].value);
     }
     catch {
         json["departureTime"] = null;
@@ -245,8 +258,26 @@ function listItemToTripData(listItem, index) {
 }
 
 /**
+ * Formats the date retrieved from the destination cards
+ * @param date Date entered by user
+ * @param time Time entered by user
+ * @returns {string|null} String representation of valid date or null if fields not filled in
+ */
+function formatDateTime(date, time) {
+    if (date.length === 10 && time.length === 5) {
+        return date + "T" + time + ":00.000";
+    }
+    else if (date.length === 10) {
+        return date + "T" + "00:00:00.000";
+    }
+    else {
+        return null;
+    }
+}
+
+/**
  * Speciality show errors function for trips
- * @param {Object} json - Error Response Json 
+ * @param {Object} json - Error Response Json
  */
 function showErrors(json) {
     let listItemArray = Array.of(document.getElementById("list").children);
@@ -291,7 +322,7 @@ function viewTrip(uri) {
 
 /**
  * Gathers trip data and sends to API to update
- * @param {string} uri - API URI to update trip 
+ * @param {string} uri - API URI to update trip
  * @param {stirng} redirect - URI to redirect if succesful
  * @param {Number} tripId - ID of trip to update
  */
@@ -305,11 +336,21 @@ function updateTrip(uri, redirect, tripId) {
 
     let tripData = {
         "id": tripId,
-        "trip": {
+        "trip": {    // TODO: Is this necessary?
             "id": tripId
         },
-        "tripDataCollection": tripDataList
+        "tripDataList": tripDataList
     };
+
+    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
+
+    // Value of 1 for public, 0 for private
+    if (tripPrivacy === "Make Private") {
+        tripData["privacy"] = 1;
+    }
+    else {
+        tripData["privacy"] = 0;
+    }
 
     put(uri, tripData).then(response => {
         // Read response from server, which will be a json object

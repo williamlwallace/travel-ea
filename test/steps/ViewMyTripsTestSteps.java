@@ -5,8 +5,10 @@ import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
+import static play.test.Helpers.DELETE;
 import static play.test.Helpers.route;
 
+import actions.ActionState;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -19,8 +21,18 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import models.CountryDefinition;
+import models.Destination;
+import models.Trip;
+import models.TripData;
+
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -37,6 +49,9 @@ public class ViewMyTripsTestSteps extends WithApplication {
     private static Database db;
     private static Http.Cookie authCookie;
 
+    private Long userId = 1L;
+
+    int tripsCreated = 0;
 
     /**
      * Configures system to use trip database, and starts a fake app
@@ -74,12 +89,13 @@ public class ViewMyTripsTestSteps extends WithApplication {
     @After
     public void cleanupEvolutions() {
         Evolutions.cleanupEvolutions(db);
+        stopApp();
     }
 
     /**
      * Stop the fake app
      */
-    @After
+
     public static void stopApp() {
         // Stop the fake app running
         Helpers.stop(fakeApp);
@@ -90,7 +106,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Evolutions.applyEvolutions(db,
                 Evolutions.fromClassLoader(getClass().getClassLoader(), "test/trip/"));
 
-        // Create new new user, so password is hashed
+        // Create new user, so password is hashed
         ObjectNode node = Json.newObject();
         node.put("username", "dave@gmail.com");
         node.put("password", "cats");
@@ -111,58 +127,87 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to view profile
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/profile/1");
+            .uri("/api/profile/" + this.userId);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
     }
 
-    @Given("have created some trips")
-    public void have_created_some_trips() throws IOException {
-        // Create new json object node
-        ObjectNode trip = Json.newObject();
-        ObjectNode tripData = Json.newObject();
-        ObjectNode destData = Json.newObject();
-        ObjectNode country = Json.newObject();
-        trip.put("userId", 2);
-//        trip.put("userId", 1);
-        ArrayNode tripArray = trip.putArray("tripDataCollection");
-//        tripData.put("guid", 1);
-        tripData.set("arrivalTime", NullNode.instance);
-        tripData.set("departureTime", NullNode.instance);
-//        tripData.put("destination", "");
-        tripData.put("position", 0);
-        destData.put("id", "1");
-        destData.put("name", "Eiffel Tower");
-        destData.put("_type", "Monument");
-        destData.put("district", "Paris");
-        destData.put("latitude", 10.0);
-        destData.put("longitude", 20.0);
-        destData.put("country", "");
-        country.put("id", 1);
-        country.put("name", "Afghanistan");
-        destData.set("country", country);
-        tripData.set("destination", destData);
-        tripArray.add(tripData);
+    @Given("I have no trips")
+    public void i_have_no_trips() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(this.authCookie)
+                .uri("/api/user/trips/" + this.userId);
+
+        Result result = route(fakeApp, request);
+        JsonNode trips = new ObjectMapper()
+                .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        for (int i = 0; i < trips.size(); i++) {
+            Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
+                    .method(DELETE)
+                    .cookie(this.authCookie)
+                    .uri("/api/trip/" + trips.get(i).get("id"));
+
+            Result deleteResult = route(fakeApp, deleteRequest);
+        }
+
+        Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(this.authCookie)
+                .uri("/api/user/trips/" + this.userId);
+
+        Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
+        JsonNode checkEmptyTrips = new ObjectMapper()
+                .readValue(Helpers.contentAsString(checkEmptyResult), JsonNode.class);
+
+        assertEquals(0, checkEmptyTrips.size());
+    }
 
 
+    @Given("I have created some trips")
+    public void have_created_some_trips() {
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
 
-        System.out.println(trip);
+        Destination dest1 = new Destination();
+        dest1.id = 1L;
+        dest1.country = countryDefinition;
 
+        Destination dest2 = new Destination();
+        dest2.id = 2L;
+        dest2.country = countryDefinition;
 
-        // Create request to create a new destination
+        TripData tripData1 = new TripData();
+        tripData1.position = 1L;
+        tripData1.destination = dest1;
+
+        TripData tripData2 = new TripData();
+        tripData2.position = 2L;
+        tripData2.destination = dest2;
+
+        Trip trip = new Trip();
+        List<TripData> tripArray = new ArrayList<>();
+        tripArray.add(tripData1);
+        tripArray.add(tripData2);
+        trip.tripDataList = tripArray;
+        trip.userId = this.userId;
+        trip.privacy = 0L;
+
+        JsonNode node = Json.toJson(trip);
+
+        // Create request to create a new trip
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
-                .bodyJson(trip)
+                .bodyJson(node)
                 .cookie(this.authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-//        assertEquals(OK, result.status()); //TODO can't figure out how to assemble trip properly
-
-        assertEquals(1, 1);
+        assertEquals(OK, result.status());
     }
 
     @When("I click view my trips")
@@ -171,7 +216,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -184,13 +229,13 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertTrue(!(trips.get(0).get("tripDataList") == null));
+        assertTrue(trips.get(0).get("tripDataList") != null);
     }
 
     @And("it shows all of my trips")
@@ -199,13 +244,13 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(2, trips.size());
+        assertEquals(1, trips.size());
     }
 
     @And("only my trips")
@@ -214,13 +259,12 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(this.authCookie)
-            .uri("/api/user/trips");
+            .uri("/api/user/trips/" + this.userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertEquals(1, trips.get(0).get("userId").asInt());
-        assertEquals(1, trips.get(1).get("userId").asInt());
     }
 }

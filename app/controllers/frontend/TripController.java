@@ -98,7 +98,8 @@ public class TripController extends Controller {
      * @return List of trips wrapped in completable future
      */
     public CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
-        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips();
+        User user = request.attrs().get(ActionState.USER);
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips(user.id);
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", token))

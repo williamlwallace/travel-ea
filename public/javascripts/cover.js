@@ -13,7 +13,8 @@ $('#password, #confirm_password').on('keyup', function () {
 
 /**
  * Processes a client logging in
- * @param {stirng} url  - The route/url to send the request to
+ *
+ * @param {string} url  - The route/url to send the request to
  * @param {string} redirect - The page to redirect to if no errors are found
  */
 function login(url, redirect) {
@@ -39,8 +40,9 @@ function login(url, redirect) {
 
 /**
  * Processes a client signing up
+ *
  * @param {string} url - The route/url to send the request to
- * @param {stirng} redirect - The page to redirect to if no errors are found
+ * @param {string} redirect - The page to redirect to if no errors are found
  */
 function signup(url, redirect) {
     const formData = new FormData(document.getElementById("signupForm"));
@@ -75,3 +77,21 @@ function cancel() {
     hideErrors("signupForm");
     hideErrors("loginForm");
 }
+
+/**
+ * Clicks the login button when enter is pressed while in the password field of login
+ */
+$("#login-password-field").keyup(function(event) {
+    if (event.keyCode === 13) {
+        $("#login-button").click();
+    }
+});
+
+/**
+ * Clicks the login button when enter is pressed while in the password field of login
+ */
+$("#confirm_password").keyup(function(event) {
+    if (event.keyCode === 13) {
+        if (!$("#registerBtn").prop('disabled')) $("#registerBtn").click();
+    }
+});
