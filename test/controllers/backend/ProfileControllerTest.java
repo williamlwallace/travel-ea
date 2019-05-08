@@ -2,6 +2,7 @@ package controllers.backend;
 
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -406,6 +407,8 @@ public class ProfileControllerTest extends WithApplication {
     public void searchProfilesMultipleParams() throws IOException {
         List<Profile> profiles = searchProfiles("minAge=20&travellerTypeId=1");
 
+        long travellerTypeId = 1;
+
         //Expect 1 profiles to be found
         assertEquals(2, profiles.size());
 
@@ -414,11 +417,11 @@ public class ProfileControllerTest extends WithApplication {
 
             boolean found = false;
             for (TravellerTypeDefinition travellerType : profile.travellerTypes) {
-                if (travellerType.id == Long.valueOf(2)) {
+                if (travellerType.id.equals(travellerTypeId)) {
                     found = true;
                 }
             }
-            assert (found);
+            assertTrue(found);
         }
     }
 

@@ -232,13 +232,22 @@ public class UserController extends Controller {
      * @param userId User id of user to retrieve name of
      * @return User object
      */
-    public CompletableFuture<Result> getUsername(Long userId) {
-        return userRepository.findID(userId).thenApplyAsync(user ->
-                ok(Json.toJson(user.username)), httpExecutionContext.current());
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getUser(Http.Request request, Long userId) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
+
+        // Returns user if logged in user is admin or same user accessing user data
+        if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
+            return userRepository.findID(userId).thenApplyAsync(user ->
+                    ok(Json.toJson(user)), httpExecutionContext.current());
+        }
+        else {
+            return CompletableFuture.supplyAsync(() -> forbidden());
+        }
     }
 
     /**
-     * Returns user id in body and sets cookie to store it. This will be used incase a user is
+     * Returns user id in body and sets cookie to store it. This will be used when a user is
      * authenticated but the user-id cookie is somehow removed.
      *
      * @param request Request object that stores details of the incoming request

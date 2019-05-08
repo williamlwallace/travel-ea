@@ -15,18 +15,39 @@
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
-                <button type="submit" class="btn btn-secondary"
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
+                <button type="submit" class="btn btn-primary"
                 data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
+            <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
             <div style="float: right;">
+                @if(trip.tripDataList.length == 0 || trip.privacy == 0) {
+                    <button class="btn btn-primary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Public</button>
+                } else {
+                    <button class="btn btn-primary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Private</button>
+                }
+
                 @if(trip.tripDataList.length == 0) {
                     <button class="btn btn-primary" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()", @*controllers.backend.routes.TripController.insertTrip()",*@
                             "@controllers.frontend.routes.TripController.tripIndex()")'>Submit Trip</button>
+
+@*                    <label class="switch">*@
+@*                        <input id="tripPrivacy" type="checkbox" >*@
+@*                        <span class="slider round"></span>*@
+@*                    </label>*@
                 } else{
                     <button class="btn btn-primary" onclick='updateTrip(
                         "@controllers.backend.routes.TripController.updateTrip()", "@controllers.frontend.routes.TripController.tripIndex()", @trip.id)'>Update Trip</button>
+
+@*                    <label class="switch">*@
+@*                        @if(trip.privacy == 1) {*@
+@*                            <input id="tripPrivacy" type="checkbox" checked>*@
+@*                        } else {*@
+@*                            <input id="tripPrivacy" type="checkbox">*@
+@*                        }*@
+@*                        <span class="slider round"></span>*@
+@*                    </label>*@
                 }
             </div>
         </div>
@@ -96,12 +117,14 @@
                                             <div class="modal-body mx-3">
                                                 <div id="arrival">Arrival
                                                     <i class="fas prefix grey-text"></i>
-                                                    <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">
+                                                    <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(0, 10)" }>
+                                                    <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(11, 16)" }>
                                                     <label id="arrivalError"></label>
                                                 </div>
                                                 <div id="depart">Departure
                                                     <i class="fas prefix grey-text"></i>
-                                                    <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">
+                                                    <input id="departureDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" }>
+                                                    <input id="departureTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" }>
                                                     <label id="departureError"></label>
                                                 </div>
                                             </div>

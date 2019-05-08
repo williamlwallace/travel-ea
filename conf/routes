@@ -11,7 +11,7 @@ GET           /api/user/setid                        controllers.backend.UserCon
 
 GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
 
-GET           /api/user/name/:id                     controllers.backend.UserController.getUsername(id:Long)
+GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
 DELETE        /api/user/:id                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
@@ -19,7 +19,7 @@ DELETE        /api/user                              controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
-GET           /api/user/trips                        controllers.backend.TripController.getAllUserTrips(request:Request)
+GET           /api/user/trips/:id                    controllers.backend.TripController.getAllUserTrips(request:Request, id:Long)
 
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
@@ -56,6 +56,8 @@ GET           /api/destination/:id                   controllers.backend.Destina
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
+
+PUT           /api/trip/privacy                      controllers.backend.TripController.updateTripPrivacy(request:Request)
 
 GET           /api/trip                              controllers.backend.TripController.getAllTrips()
 
