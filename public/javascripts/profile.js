@@ -165,6 +165,7 @@ $(document).ready(function() {
  */
  function uploadProfilePicture(url) {
     //Get the cropped image and set the size to 290px x 290px
+    var dataURL = cropper.getCroppedCanvas().toDataURL('image/jpeg');
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         var formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
@@ -176,13 +177,12 @@ $(document).ready(function() {
                 response.json().then(data => {
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
+                        $("#ProfilePicture").attr("src", dataURL);
                         getProfilePicture(profilePictureControllerUrl);
                     }
                 });
         });
     });
-
-    //TODO: Needs to also refresh the users picture gallery if the photo is new
 
     $('#cropProfilePictureModal').modal('hide');
     cropper.destroy();
@@ -200,6 +200,25 @@ cropGallery.on('click','img',function() {
     //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
+});
+
+/**
+ * Takes the users selected photo file and creates a url object out of it. This is then passed to cropper.
+ * The appropriate modals are shown and hidden.
+ */
+function uploadNewPhoto(){
+    const selectedFile = document.getElementById('upload-image-file').files[0];
+    profilePictureToCrop.setAttribute('src', window.URL.createObjectURL(selectedFile));
+    //Show the cropPPModal and hide the changePPModal
+    $('#changeProfilePictureModal').modal('hide');
+    $('#cropProfilePictureModal').modal('show');
+}
+
+/**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ */
+$("#upload-image-button").click(function() {
+    $("#upload-image-file").click();
 });
 
 /**

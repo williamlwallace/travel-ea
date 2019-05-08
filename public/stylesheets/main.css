@@ -330,6 +330,11 @@ pre {
 
 }
 
+.pagination {
+    justify-content: center;
+    display: flex;
+}
+
 .img-wrap {
     position: relative;
     display: inline-block;
