@@ -214,11 +214,35 @@ function uploadNewPhoto(){
     $('#cropProfilePictureModal').modal('show');
 }
 
+function uploadNewGalleryPhoto(url) {
+    const selectedPhotos = document.getElementById('upload-gallery-image-file').files[0];
+    var formData = new FormData();
+    formData.append("file", selectedPhotos, selectedPhotos.name);
+
+    // Send request and handle response
+    postMultipart(url, formData).then(response => {
+        // Read response from server, which will be a json object
+        response.json().then(data => {
+        if (response.status === 201) {
+            fillGallery(getAllPhotosUrl);
+            }
+        })
+    })
+}
+
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field
  */
 $("#upload-image-button").click(function() {
     $("#upload-image-file").click();
+});
+
+/**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ * For a normal photo
+ */
+$("#upload-gallery-image-button").click(function() {
+    $("#upload-gallery-image-file").click();
 });
 
 /**
