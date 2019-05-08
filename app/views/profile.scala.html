@@ -420,6 +420,7 @@
 
 <script type="text/javascript">
     setupDropZone();
+    setPermissions("@loggedUser.id", "@user.id");
     getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");

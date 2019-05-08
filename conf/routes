@@ -120,6 +120,6 @@ GET     /assets/routers/trip       controllers.backend.TripController.tripRoutes
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 
 # Static resources (not managed by the Play framework)
-GET     /user_content/*file   controllers.backend.PhotoController.getPhotoFromPath(path="./../", file)
+GET     /user_content/*file   controllers.backend.PhotoController.getPhotoFromPath(path="/../", file)
 
 

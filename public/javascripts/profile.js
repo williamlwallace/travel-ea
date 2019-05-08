@@ -127,6 +127,11 @@ var cropper;
 var usersPhotos = [];
 var getAllPhotosUrl;
 var profilePictureControllerUrl;
+var canEdit;
+
+function setPermissions(loggedUser, user) {
+    canEdit = (loggedUser === user);
+}
 
 /**
  * Loads the cropper into the page when the cropProfilePictureModal opens
@@ -165,7 +170,6 @@ $(document).ready(function() {
  */
  function uploadProfilePicture(url) {
     //Get the cropped image and set the size to 290px x 290px
-    var dataURL = cropper.getCroppedCanvas().toDataURL('image/jpeg');
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         var formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
@@ -177,12 +181,13 @@ $(document).ready(function() {
                 response.json().then(data => {
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
-                        $("#ProfilePicture").attr("src", dataURL);
                         getProfilePicture(profilePictureControllerUrl);
                     }
                 });
         });
     });
+
+    //TODO: Needs to also refresh the users picture gallery if the photo is new
 
     $('#cropProfilePictureModal').modal('hide');
     cropper.destroy();
@@ -202,24 +207,24 @@ cropGallery.on('click','img',function() {
     $('#cropProfilePictureModal').modal('show');
 });
 
-/**
- * Takes the users selected photo file and creates a url object out of it. This is then passed to cropper.
- * The appropriate modals are shown and hidden.
- */
-function uploadNewPhoto(){
-    const selectedFile = document.getElementById('upload-image-file').files[0];
-    profilePictureToCrop.setAttribute('src', window.URL.createObjectURL(selectedFile));
-    //Show the cropPPModal and hide the changePPModal
-    $('#changeProfilePictureModal').modal('hide');
-    $('#cropProfilePictureModal').modal('show');
+function togglePrivacy(guid, newPrivacy) {
+    const label = document.getElementById(guid + "privacy");
+    const data = {
+        "isPublic" : newPrivacy
+    }
+    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(guid).url, data)
+    .then(res => {
+        if (res.status === 200) {
+            label.innerHTML = newPrivacy ? "Public" : "Private";
+            if (newPrivacy) {
+                label.setAttribute("src", "/assets/images/public.png");
+            } else {
+                label.setAttribute("src", "/assets/images/private.png");
+            }
+            label.setAttribute("onClick","togglePrivacy(" + guid + "," + !newPrivacy + ")");
+        }
+    })
 }
-
-/**
- * allows the upload image button to act as an input field by clicking on the upload image file field
- */
-$("#upload-image-button").click(function() {
-    $("#upload-image-file").click();
-});
 
 /**
  * Function to populate gallery with current users photos
@@ -273,31 +278,38 @@ function createGalleryObjects(hasFullSizeLinks) {
             photo.setAttribute("class", "lightbox");
 
             // 6 * page + position finds the correct photo index in the dictionary
-            var filename = usersPhotos[(6 * page + position)]["filename"];
-            var guid = usersPhotos[(6 * page + position)]["guid"];
+            const filename = usersPhotos[(6 * page + position)]["filename"];
+            const guid = usersPhotos[(6 * page + position)]["guid"];
+            const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
-                // Create delete button
-                var deleteButton = document.createElement("span");
-                deleteButton.setAttribute("class", "close");
-                deleteButton.innerHTML = "&times;";
-                tile.appendChild(deleteButton);
-                photo.href = filename;
+                if (canEdit === true) {
+                    // Create delete button
+                    var deleteButton = document.createElement("span");
+                    deleteButton.setAttribute("class", "close");
+                    deleteButton.innerHTML = "&times;";
+                    tile.appendChild(deleteButton);
 
-                // Create toggle button TODO this is in an ugly position, will change
-                var toggleButton = document.createElement("span");
-                toggleButton.setAttribute("class","custom-control custom-switch");
-                var toggleInput = document.createElement("input");
-                toggleInput.setAttribute("type","checkbox");
-                toggleInput.setAttribute("class","custom-control-input");
-                toggleInput.setAttribute("id","customSwitches");
-                toggleButton.appendChild(toggleInput);
-                var toggleLabel = document.createElement("label");
-                toggleLabel.setAttribute("class","custom-control-label");
-                toggleLabel.setAttribute( "for","customSwitches");
-                toggleButton.appendChild(toggleLabel);
-                tile.appendChild(toggleButton);
+                    // Create toggle button TODO this is in an ugly position, will change
+                    var toggleButton = document.createElement("span");
+                    var toggleLabel = document.createElement("input");
+                    toggleLabel.setAttribute("class", "privacy");
+                    toggleLabel.setAttribute("id", guid + "privacy");
+                    toggleLabel.setAttribute("type", "image");
+
+                    if (isPublic) {
+                        toggleLabel.setAttribute("src", "/assets/images/public.png");
+                    } else {
+                        toggleLabel.setAttribute("src", "/assets/images/private.png");
+                    }
+
+                    toggleLabel.innerHTML = isPublic ? "Public" : "Private";
+                    toggleLabel.setAttribute("onClick","togglePrivacy(" + guid + "," + !isPublic + ")");
+                    toggleButton.appendChild(toggleLabel);
+                    tile.appendChild(toggleButton);
+                }
+                photo.href = filename;
             }
 
             photo.setAttribute("data-id", guid);
@@ -322,6 +334,8 @@ function createGalleryObjects(hasFullSizeLinks) {
     }
     return galleryObjects;
 }
+
+
 
 /**
  * Adds galleryObjects to a gallery with a gallryID and a pageSelectionID

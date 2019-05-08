@@ -73,6 +73,7 @@ public class ProfileController extends Controller {
                 profile -> {
                     return this.getUser(userId, request).thenComposeAsync(
                             user -> {
+                                user.id = userId;
                                 return this.getUserTrips(request, userId).thenApplyAsync(
                                         tripList -> {
                                             boolean canModify = loggedUser.id.equals(userId) || loggedUser.admin;
