@@ -238,8 +238,14 @@ public class UserController extends Controller {
 
         // Returns user if logged in user is admin or same user accessing user data
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
-            return userRepository.findID(userId).thenApplyAsync(user ->
-                    ok(Json.toJson(user)), httpExecutionContext.current());
+            return userRepository.findID(userId).thenApplyAsync(user -> {
+                if (user == null) {
+                    return badRequest();
+                }
+                else {
+                    return ok(Json.toJson(user));
+                }
+            });
         }
         else {
             return CompletableFuture.supplyAsync(() -> forbidden());
