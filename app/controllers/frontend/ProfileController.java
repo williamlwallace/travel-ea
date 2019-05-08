@@ -145,8 +145,8 @@ public class ProfileController extends Controller {
                 .get()
                 .toCompletableFuture();
         return res.thenApply(r -> {
-            JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
+                JsonNode json = r.getBody(WSBodyReadables.instance.json());
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                         new TypeReference<User>() {
                         });
