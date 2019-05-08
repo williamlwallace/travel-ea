@@ -179,16 +179,32 @@ public class PhotoRepository {
         return photos;
     }
 
-    public CompletableFuture<Boolean> togglePhotoPrivacy(Long id, Boolean isPublic) {
-        return supplyAsync(() -> {
-                    ebeanServer.find(Photo.class)
-                            .where()
-                            .eq("guid", id)
-                            .asUpdate()
-                            .set("is_public", isPublic)
-                            .update();
-                    return true;
-                },
-                executionContext);
+    /**
+     * Get photo object form db
+     *
+     * @param id id of photo
+     */
+    public CompletableFuture<Photo> getPhotoById(Long id) {
+        return supplyAsync(() -> ebeanServer.find(Photo.class)
+                .where()
+                .eq("guid", id)
+                .findOneOrEmpty()
+                .orElse(null),
+            executionContext);
+
     }
+
+    /**
+     * Update photo row in database
+     *
+     * @param photo photo object to update
+     */
+    public CompletableFuture<Long> updatePhoto(Photo photo) {
+        return supplyAsync(() -> {
+                ebeanServer.update(photo);
+                return photo.guid;
+            },
+            executionContext);
+    }
+
 }

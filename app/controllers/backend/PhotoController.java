@@ -3,6 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import controllers.backend.routes.javascript;
 import models.Photo;
@@ -301,11 +302,19 @@ public class PhotoController extends Controller {
     }
 
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> togglePhotoPrivacy(Long id, Boolean isPublic) {
-        return photoRepository.togglePhotoPrivacy(id, isPublic).thenApplyAsync(uploaded ->
-                ok(Json.toJson(id))
-        );
+    public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
+        JsonNode data = request.body().asJson();
+        Boolean isPublic = data.get("isPublic").asBoolean();
+        return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
+            if (photo != null) {
+                photo.isPublic = isPublic;
+            } else {
+                return CompletableFuture.supplyAsync(() -> notFound());
+            }
+            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+        });
     }
+
 
     /**
      * Lists routes to put in JS router for use from frontend
