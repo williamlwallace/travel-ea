@@ -2,8 +2,8 @@ package controllers.backend;
 
 import actions.ActionState;
 import actions.Authenticator;
-import actions.roles.Everyone;
 import actions.roles.Admin;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ public class ProfileController extends Controller {
      *
      * @param request Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
-     *  badRequest if profile already exists
+     * badRequest if profile already exists
      */
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
@@ -95,7 +95,7 @@ public class ProfileController extends Controller {
      * Gets a profile based on the userID specified in auth.
      *
      * @return Ok with profile json object if profile found, badRequest if request malformed or
-     *  profile not found
+     * profile not found
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getMyProfile(Http.Request request) {
@@ -193,7 +193,7 @@ public class ProfileController extends Controller {
      *
      * @param id Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
-     *  not found for that userID.
+     * not found for that userID.
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteProfile(Long id) {
@@ -219,7 +219,8 @@ public class ProfileController extends Controller {
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId, String gender,
+    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
+        String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
@@ -279,7 +280,8 @@ public class ProfileController extends Controller {
      * @return A ok result containing the JSON of the profiles matching search criteria
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId, String gender,
+    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId,
+        String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .thenApplyAsync(profiles ->

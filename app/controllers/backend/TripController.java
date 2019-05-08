@@ -20,7 +20,6 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.TripRepository;
-import repository.UserRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
@@ -49,10 +48,10 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                    .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
-                    .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
         }
     }
 
@@ -64,13 +63,13 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
-                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }
 
     /**
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
-     * with 2 fields: uid: This field represents the id of the user who owns the trip
-     * tripDataList: An array storing all stages of the trip as tripData objects
+     * with 2 fields: uid: This field represents the id of the user who owns the trip tripDataList:
+     * An array storing all stages of the trip as tripData objects
      *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
@@ -150,7 +149,7 @@ public class TripController extends Controller {
         System.out.println("tried to update");
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-                ok(Json.toJson(trip.id))
+            ok(Json.toJson(trip.id))
         );
     }
 
@@ -251,6 +250,7 @@ public class TripController extends Controller {
 
     /**
      * Lists routes to put in JS router for use from frontend
+     *
      * @return JSRouter Play result
      */
     public Result tripRoutes(Http.Request request) {

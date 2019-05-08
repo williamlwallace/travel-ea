@@ -1,23 +1,19 @@
 package repository;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static play.mvc.Results.ok;
+
 import com.google.common.collect.Iterables;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import javax.inject.Inject;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
 import util.customObjects.Pair;
-
-import javax.inject.Inject;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
-
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static play.mvc.Results.notFound;
-import static play.mvc.Results.ok;
 
 /**
  * A repository that executees database operations on the Photo database table
@@ -34,7 +30,7 @@ public class PhotoRepository {
     }
 
     /**
-     *  Inserts new photo into database
+     * Inserts new photo into database
      *
      * @param photo Photo to be added
      * @return Ok on success
@@ -56,11 +52,11 @@ public class PhotoRepository {
         return supplyAsync(() -> {
             Pair<String, String> returnPair;
             Photo profilePhoto = ebeanServer.find(Photo.class)
-                    .where()
-                    .eq("user_id", userID)
-                    .eq("is_profile", true)
-                    .findOneOrEmpty().orElse(null);
-            if(profilePhoto == null) {
+                .where()
+                .eq("user_id", userID)
+                .eq("is_profile", true)
+                .findOneOrEmpty().orElse(null);
+            if (profilePhoto == null) {
                 return null;
             } else {
                 returnPair = new Pair<>(profilePhoto.filename, profilePhoto.thumbnailFilename);
@@ -78,14 +74,14 @@ public class PhotoRepository {
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
         return supplyAsync(() -> {
-                    List<Photo> photos = ebeanServer.find(Photo.class)
-                            .where()
-                            .eq("user_id", userID)
-                            .eq("is_profile", false)
-                            .findList();
-                    return appendAssetsUrl(photos);
-                },
-                executionContext);
+                List<Photo> photos = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .eq("is_profile", false)
+                    .findList();
+                return appendAssetsUrl(photos);
+            },
+            executionContext);
     }
 
     /**
@@ -96,14 +92,14 @@ public class PhotoRepository {
      */
     public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
         return supplyAsync(() -> {
-             List<Photo> photos = ebeanServer.find(Photo.class)
+                List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq("user_id", userID)
-                     .eq("is_public", true)
-                     .eq("is_profile", false)
+                    .eq("is_public", true)
+                    .eq("is_profile", false)
                     .findList();
-             return appendAssetsUrl(photos);
-             },
+                return appendAssetsUrl(photos);
+            },
             executionContext);
     }
 
@@ -116,13 +112,13 @@ public class PhotoRepository {
     public CompletableFuture<Photo> getUserProfilePicture(Long userID) {
         return supplyAsync(() -> {
             Photo photo = ebeanServer.find(Photo.class)
-                    .where()
-                    .eq("user_id", userID)
-                    .eq("is_profile", true)
-                    .findOneOrEmpty().orElse(null);
-            if(photo != null) {
+                .where()
+                .eq("user_id", userID)
+                .eq("is_profile", true)
+                .findOneOrEmpty().orElse(null);
+            if (photo != null) {
                 photo.filename = "../user_content/" + photo.filename;
-                photo.thumbnailFilename =  "../user_content/" + photo.thumbnailFilename;
+                photo.thumbnailFilename = "../user_content/" + photo.thumbnailFilename;
             }
             return photo;
         }, executionContext);
@@ -140,10 +136,10 @@ public class PhotoRepository {
                 Photo pictureToUpload = Iterables.get(photos, 0);
                 if (pictureToUpload.isProfile) {
                     ebeanServer.find(Photo.class)
-                            .where()
-                            .eq("user_id", pictureToUpload.userId)
-                            .eq("is_profile", true)
-                            .delete();
+                        .where()
+                        .eq("user_id", pictureToUpload.userId)
+                        .eq("is_profile", true)
+                        .delete();
                 }
             }
             ebeanServer.insertAll(photos);
@@ -159,20 +155,20 @@ public class PhotoRepository {
      */
     public CompletableFuture<Photo> deletePhoto(Long id) {
         return supplyAsync(() -> {
-                    Photo photo = ebeanServer.find(Photo.class)
-                        .where()
-                        .eq("guid", id)
-                        .findOneOrEmpty()
-                        .orElse(null);
+                Photo photo = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("guid", id)
+                    .findOneOrEmpty()
+                    .orElse(null);
 
-                    photo.delete();
-                    return photo;
-                }
-                , executionContext);
+                photo.delete();
+                return photo;
+            }
+            , executionContext);
     }
 
     private List<Photo> appendAssetsUrl(List<Photo> photos) {
-        for(Photo photo : photos) {
+        for (Photo photo : photos) {
             photo.filename = "../user_content/" + photo.filename;
             photo.thumbnailFilename = "../user_content/" + photo.thumbnailFilename;
         }

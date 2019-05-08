@@ -4,7 +4,6 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

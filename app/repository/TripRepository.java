@@ -37,7 +37,7 @@ public class TripRepository {
             return newTrip.id;
         }, executionContext);
     }
-    
+
     /**
      * Updates a trip
      *
@@ -106,12 +106,12 @@ public class TripRepository {
      */
     public CompletableFuture<List<Trip>> getAllPublicUserTrips(long userID) {
         return supplyAsync(() ->
-                        ebeanServer.find(Trip.class)
-                                .where()
-                                .eq("user_id", userID)
-                                .eq("privacy", 1)
-                                .findList()
-                , executionContext);
+                ebeanServer.find(Trip.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .eq("privacy", 1)
+                    .findList()
+            , executionContext);
     }
 
     /**
@@ -121,9 +121,9 @@ public class TripRepository {
      */
     public CompletableFuture<List<Trip>> getAllTrips() {
         return supplyAsync(() ->
-                        ebeanServer.find(Trip.class)
-                                .findList()
-                , executionContext);
+                ebeanServer.find(Trip.class)
+                    .findList()
+            , executionContext);
     }
 
     /**

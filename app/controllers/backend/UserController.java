@@ -57,8 +57,9 @@ public class UserController extends Controller {
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> userSearch(Http.Request request, String order, String filter) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id).thenApplyAsync(users ->
-            ok(Json.toJson(users)), httpExecutionContext.current());
+        return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id)
+            .thenApplyAsync(users ->
+                ok(Json.toJson(users)), httpExecutionContext.current());
     }
 
     /**
@@ -167,7 +168,7 @@ public class UserController extends Controller {
                         if (request.header("Cookie").toString() == "Optional.empty") {
                             //If the uid is not null, return an ok message with the uid contained within
                             return ok(Json.toJson(SUCCESS))
-                                    .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
+                                .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
                         } else {
                             return ok(Json.toJson(SUCCESS));
                         }
@@ -183,7 +184,7 @@ public class UserController extends Controller {
      *
      * @param request HTTP request with username and password in body
      * @return OK with User JSON data on successful login, otherwise badRequest with specific error
-     *  message
+     * message
      */
     public CompletableFuture<Result> login(Http.Request request) {
         // Get json parameters
@@ -226,6 +227,7 @@ public class UserController extends Controller {
     }
 
     // TODO: Update API spec
+
     /**
      * Returns a user with the given id
      *
@@ -241,13 +243,11 @@ public class UserController extends Controller {
             return userRepository.findID(userId).thenApplyAsync(user -> {
                 if (user == null) {
                     return badRequest();
-                }
-                else {
+                } else {
                     return ok(Json.toJson(user));
                 }
             });
-        }
-        else {
+        } else {
             return CompletableFuture.supplyAsync(() -> forbidden());
         }
     }
@@ -281,6 +281,7 @@ public class UserController extends Controller {
 
     /**
      * Lists routes to put in JS router for use from frontend
+     *
      * @return JSRouter Play result
      */
     public Result userRoutes(Http.Request request) {
