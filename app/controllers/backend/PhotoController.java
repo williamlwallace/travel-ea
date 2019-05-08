@@ -50,7 +50,7 @@ public class PhotoController extends Controller {
 
 
     public Result getPhotoFromPath(String path, String filePath) {
-        System.out.println(path + filePath);
+        System.out.println("CURRENT DIR: " + System.getProperty("user.dir"));
         File file = new File(path + filePath);
         return ok(file, true);
     }
