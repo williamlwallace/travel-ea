@@ -471,6 +471,27 @@ function setupDropZone() {
 }
 
 /**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ */
+$("#upload-image-button").click(function() {
+  $("#upload-image-file").click();
+});
+
+
+/**
+ * Takes the users selected photo file and creates a url object out of it. This is then passed to cropper.
+ * The appropriate modals are shown and hidden.
+ */
+function uploadNewPhoto(){
+  const selectedFile = document.getElementById('upload-image-file').files[0];
+  profilePictureToCrop.setAttribute('src', window.URL.createObjectURL(selectedFile));
+  //Show the cropPPModal and hide the changePPModal
+  $('#changeProfilePictureModal').modal('hide');
+  $('#cropProfilePictureModal').modal('show');
+}
+
+
+/**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
  * the profile picture path to it.
  *
