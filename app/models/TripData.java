@@ -65,7 +65,7 @@ public class TripData extends Model {
      * @return ISO string format of the departure time or null
      */
     public String getDepartureTime() {
-        if (arrivalTime != null) {
+        if (departureTime != null) {
             return DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(departureTime);
         }
         else {

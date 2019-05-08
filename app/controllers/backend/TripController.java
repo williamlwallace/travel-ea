@@ -30,14 +30,10 @@ import util.validation.TripValidator;
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
-    private final UserRepository userRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository,
-                          UserRepository userRepository) {
-
+    public TripController(TripRepository tripRepository) {
         this.tripRepository = tripRepository;
-        this.userRepository = userRepository;
     }
 
     /**
@@ -111,7 +107,6 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
