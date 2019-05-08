@@ -50,10 +50,12 @@ public class PhotoController extends Controller {
 
 
     public Result getPhotoFromPath(String path, String filePath) {
-        File file = new File(System.getProperty("user.dir") + path + filePath);
-//        System.out.println(file.getAbsolutePath());
+        String finalPath = System.getProperty("user.dir") + path + filePath;
+        System.out.println("READ FILE PATH: " + finalPath);
+        File file = new File(finalPath);
         return ok(file, true);
     }
+
 
 
     @With({Everyone.class, Authenticator.class})
@@ -248,7 +250,7 @@ public class PhotoController extends Controller {
         }
 
         // Create file to store output of thumbnail write
-        File thumbFile = new File(System.getProperty("user.dir") + "/../storage/photos/test/tempThumb.jpg");
+        File thumbFile = new File("/home/sengstudent/storage/photos/test/tempThumb.jpg");
 
         // Write buffered image to thumbnail file
         ImageIO.write(tThumbImage, "jpg", thumbFile);

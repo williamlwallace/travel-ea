@@ -5,31 +5,31 @@ tag_checker:
   only:
     - tags
 
-junit:
-  stage: test
-  script:
-    - sbt test
-
-recent-artifacts:
-  stage: deploy
-  script:
-    - sbt dist
-  artifacts:
-    paths:
-      - target/universal/*.zip
-    expire_in: 1 week
-  except:
-    - tags
-
-release-artifacts:
- stage: deploy
- script:
-    - sbt dist
- artifacts:
-    paths:
-    - target/universal/*.zip
- only:
-    - tags
+#junit:
+#  stage: test
+#  script:
+#    - sbt test
+#
+#recent-artifacts:
+#  stage: deploy
+#  script:
+#    - sbt dist
+#  artifacts:
+#    paths:
+#      - target/universal/*.zip
+#    expire_in: 1 week
+#  except:
+#    - tags
+#
+#release-artifacts:
+# stage: deploy
+# script:
+#    - sbt dist
+# artifacts:
+#    paths:
+#    - target/universal/*.zip
+# only:
+#    - tags
 
 start-server-dev:
   stage: deploy
