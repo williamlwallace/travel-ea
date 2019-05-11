@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Destination;
@@ -48,10 +51,10 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
         }
     }
 
@@ -63,7 +66,7 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+            .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
     }
 
     /**
@@ -129,7 +132,6 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTripPrivacy(Http.Request request) {
-        System.out.println("into controller");
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -146,7 +148,6 @@ public class TripController extends Controller {
         trip.id = data.get("id").asLong();
         trip.privacy = data.get("privacy").asLong();
 
-        System.out.println("tried to update");
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
             ok(Json.toJson(trip.id))
@@ -246,6 +247,31 @@ public class TripController extends Controller {
         }
         // Return create trip data list
         return tripDataList;
+    }
+
+    // TODO: Write tests
+    /**
+     * Sorts list of trips with most recent date first and no dates at the end
+     *
+     * @param trips List of trips to be sorted
+     * @return Sorted list of trips
+     */
+    public List<Trip> sortTripsByDate(List<Trip> trips) {
+        trips.sort(new Comparator<Trip>() {
+            public int compare(Trip trip1, Trip trip2) {
+                if (trip2.findFirstTripDate() == null) {
+                    return -1;
+                }
+                else if (trip1.findFirstTripDate() == null) {
+                    return 1;
+                }
+                else {
+                    return trip2.findFirstTripDate().compareTo(trip1.findFirstTripDate());
+                }
+            }
+        });
+
+        return trips;
     }
 
     /**

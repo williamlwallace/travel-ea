@@ -35,11 +35,15 @@ public class ProfileController extends Controller {
 
     private WSClient ws;
     private HttpExecutionContext httpExecutionContext;
+    private TripController tripController;
 
     @Inject
-    public ProfileController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+    public ProfileController(WSClient ws,
+                             HttpExecutionContext httpExecutionContext,
+                             TripController tripController) {
         this.ws = ws;
         this.httpExecutionContext = httpExecutionContext;
+        this.tripController = tripController;
     }
 
     /**
