@@ -121,7 +121,8 @@ public class DestinationController extends Controller {
      * @param filter The sort order (either asc or desc)
      * @return OK with paged list of destinations
      */
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
+    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order,
+        String filter) {
         // TODO: Destinations should be returned here which are not currently, update API spec when modified
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());

@@ -9,8 +9,8 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import repository.UserRepository;
 import play.routing.JavaScriptReverseRouter;
+import repository.UserRepository;
 
 /**
  * Manage a database of users.
@@ -67,6 +67,7 @@ public class AdminController extends Controller {
 
     /**
      * Lists routes to put in JS router for use from frontend
+     *
      * @return JSRouter Play result
      */
     public Result adminRoutes(Http.Request request) {
