@@ -132,7 +132,7 @@ public class ProfileController extends Controller {
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletionStage<Result> updateProfile(Http.Request request) {
+    public CompletionStage<Result> updateMyProfile(Http.Request request) {
         //Get user
         User user = request.attrs().get(ActionState.USER);
         // Get json parameters
