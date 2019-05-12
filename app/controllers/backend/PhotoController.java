@@ -109,9 +109,11 @@ public class PhotoController extends Controller {
             // Store in a boolean whether or not this is a test file
             boolean isTest = Boolean
                 .parseBoolean(formKeys.getOrDefault("isTest", new String[]{"false"})[0]);
+
             // Keep track of which file should be uploaded as a profile
             String profilePhotoFilename = formKeys
                 .getOrDefault("profilePhotoName", new String[]{null})[0];
+
             // Keep track of which photos are marked as public
             HashSet<String> publicPhotoFileNames = new HashSet<>(Arrays.asList(
                 formKeys.getOrDefault("publicPhotoFileNames", new String[]{""})[0].split(",")));
