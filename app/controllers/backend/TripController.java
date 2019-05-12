@@ -112,16 +112,15 @@ public class TripController extends Controller {
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
-        // TODO: Does this work, if so rework this and insert trip and update privacy
-        /*
-        Trip trip = Json.fromJson(data.get("trip"), Trip.class);
-        trip.userId = request.attrs().get(ActionState.USER).id;
-         */
-
         // Update trip in db
-        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-            ok(Json.toJson(trip.id))
-        );
+        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+            if (uploaded) {
+                return ok(Json.toJson(trip.id));
+            }
+            else {
+                return badRequest();
+            }
+        });
     }
 
     /**
@@ -249,14 +248,13 @@ public class TripController extends Controller {
         return tripDataList;
     }
 
-    // TODO: Write tests
     /**
      * Sorts list of trips with most recent date first and no dates at the end
      *
      * @param trips List of trips to be sorted
      * @return Sorted list of trips
      */
-    public List<Trip> sortTripsByDate(List<Trip> trips) {
+    private List<Trip> sortTripsByDate(List<Trip> trips) {
         trips.sort(new Comparator<Trip>() {
             public int compare(Trip trip1, Trip trip2) {
                 if (trip2.findFirstTripDate() == null) {
