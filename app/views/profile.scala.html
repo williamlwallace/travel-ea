@@ -5,7 +5,6 @@
     <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/common/dropzone.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.PhotoController.photoRoutes()" type="text/javascript"></script>
 }
@@ -16,7 +15,6 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/cropper.css")">
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/dropzone.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -66,9 +64,11 @@
                             <p>
                                 <span class="section-title">Pictures</span>
                                 @if(user.id == loggedUser.id) {
-                                    <a class="button-secondary" data-toggle="modal" data-target="#uploadPhotoModal">
+                                    <a class="button-secondary" id="upload-gallery-image-button" >
                                         <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
                                     </a>
+                                    <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
+                                    accept="image/jpeg, image/png" style="display: none;" multiple/>
                                 }
                             </p>
                         </div><br>
@@ -206,35 +206,6 @@
                 </div>
             </div>
         </div>
-        </div>
-
-        @* Upload Photo Modal *@
-        <div class="modal fade" id="uploadPhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header text-center">
-                        <h4 class="modal-title w-100 font-weight-bold">Upload a New Photo</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div>
-                        <div class="upload-btn-wrapper">
-                            <button class="addPhotoButton"></button>
-                            <input type="file" name="uploadedImage" accept="image/jpeg, image/png">
-                        </div>
-                        <form action='/api/photo' class="dropzone" id="add-photo-dropzone"></form>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-center">
-                        <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
-                            Cancel<i class="fas fa-paper-plane-o ml-1"></i>
-                        </button>
-                        <button class="btn btn-popup" id="submit-all" disabled> @* on click stuff goes here *@
-                            Add
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
 
         @* Delete Profile Modal *@
@@ -420,7 +391,6 @@
 }
 
 <script type="text/javascript">
-    setupDropZone();
     setPermissions("@loggedUser.id", "@user.id");
     getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
