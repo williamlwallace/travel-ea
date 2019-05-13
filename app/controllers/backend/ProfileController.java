@@ -124,21 +124,21 @@ public class ProfileController extends Controller {
             });
     }
 
-    /**
-     * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types.
-     *
-     * @param request Contains the HTTP request info
-     * @return Ok if updated successfully, badRequest if profile json malformed
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletionStage<Result> updateMyProfile(Http.Request request) {
-        //Get user
-        User user = request.attrs().get(ActionState.USER);
-        // Get json parameters
-        JsonNode json = request.body().asJson();
-        return updateProfileHelper(json, user.id);
-    }
+    // /**
+    //  * Updates the profile received in the body of the request as well as the related nationalities,
+    //  * passports and traveller types.
+    //  *
+    //  * @param request Contains the HTTP request info
+    //  * @return Ok if updated successfully, badRequest if profile json malformed
+    //  */
+    // @With({Everyone.class, Authenticator.class})
+    // public CompletionStage<Result> updateMyProfile(Http.Request request) {
+    //     //Get user
+    //     User user = request.attrs().get(ActionState.USER);
+    //     // Get json parameters
+    //     JsonNode json = request.body().asJson();
+    //     return updateProfileHelper(json, user.id);
+    // }
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
@@ -147,11 +147,16 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    @With({Admin.class, Authenticator.class})
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
-        // Get json parameters
-        JsonNode data = request.body().asJson();
-        return updateProfileHelper(data, userId);
+        User user = request.attrs().get(ActionState.USER);
+        if (userId == user.id || user.admin) {
+            // Get json parameters
+            JsonNode data = request.body().asJson();
+            return updateProfileHelper(data, userId);
+        } else {
+            return CompletableFuture.supplyAsync(() -> status(403,Json.toJson("Forbidden")));
+        }
     }
 
     /**

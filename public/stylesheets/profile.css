@@ -11,7 +11,7 @@ div.profile {
 /**
  * The left hand summary of the users details/profile-picture
  */
-div.profile-summary {
+ #profile-summary {
     background-color: #FFFFFF;
     width: 68%;
     height: auto;

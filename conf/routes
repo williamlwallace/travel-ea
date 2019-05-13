@@ -31,8 +31,6 @@ GET           /api/profile                           controllers.backend.Profile
 
 PUT           /api/profile/:id                       controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-PUT           /api/profile/                          controllers.backend.ProfileController.updateMyProfile(request:Request)
-
 GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)

@@ -38,12 +38,29 @@ function hideErrors(parentElement) {
  * @param {Boolean} capatisie - Wheather is capatilise first letter 
  */
 function getAndFillDD(URI, dropdowns, colName, capatisie=false) {
+    getHardData(URI, colName, capatilise)
+    .then(dict => {
+        // Now fill the selects
+        dropdowns.forEach(element => {
+            fillDropDown(element, dict);
+        });
+    })
+}
+
+/**
+ * Gets data from api and maps ids to given colName in a dictionary
+ * @param {string} URI - API URI to get data from
+ * @param {string} colName - name of data column
+ * @param {Boolean} capatisie - Wheather is capatilise first letter 
+ */
+function getHardData(URI, colName, capatisie=false) {
     // Run a get request to fetch all destinations
     get(URI)
     // Get the response of the request
     .then(response => {
         // Convert the response to json
-        response.json().then(data => {
+        response.json()
+        .then(data => {
             // Json data is an array of destinations, iterate through it
             dict = {};
             for(let i = 0; i < data.length; i++) {
@@ -54,10 +71,7 @@ function getAndFillDD(URI, dropdowns, colName, capatisie=false) {
                     dict[data[i]['id']] = data[i][colName];
                 }
             }
-            // Now fill the selects
-            dropdowns.forEach(element => {
-                fillDropDown(element, dict);
-            });
+            return dict;
         });
     });
 }
@@ -110,4 +124,16 @@ function JSONFromDropDowns(dropdown) {
         data.push(dat);
     }
     return data;
+}
+
+/**
+ * Turns array into string whilst mapping the inner object ids to real values
+ * @param {Object} array array to translate
+ * @param {string} dataName column name
+ */
+function arrayToString(array, dataName) {
+    let out = "";
+    for (const item of array) {
+
+    }
 }

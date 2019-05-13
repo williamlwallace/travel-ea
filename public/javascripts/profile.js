@@ -20,25 +20,34 @@ function updateProfile(uri, redirect) {
     data.travellerTypes  = JSONFromDropDowns("travellerTypes");
     // Post json data to given uri
     put(uri,data)
-        .then(response => {
+    .then(response => {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-        if (response.status != 200) {
-        showErrors(json);
-    } else {
-        hideErrors("updateProfileForm");
-        let element = document.getElementById("SuccessMessage");
-        element.innerHTML = "Successfully Updated!";
-        return sleep(3000);
-    }
-})
-.then(() => {
-        let element = document.getElementById("SuccessMessage");
-    element.innerHTML = "";
-})
-});
+            if (response.status != 200) {
+                showErrors(json);
+            } else {
+                hideErrors("updateProfileForm");
+                let element = document.getElementById("SuccessMessage");
+                element.innerHTML = "Successfully Updated!";
+                console.log(data);
+                updateProfileData(data);
+                return sleep(3000);
+            }
+        })
+        .then(() => {
+            let element = document.getElementById("SuccessMessage");
+            element.innerHTML = "";
+        })
+    });
 }
+
+function updateProfileData(data) {
+    document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
+    document.getElementById("summary_gender").innerHTML = data.gender;
+    document.getElementById("summary_nationalities").innerHTML = data.nationalities.toString();
+}
+
 
 /**
  * Updates a trips privacy when the toggle is used
