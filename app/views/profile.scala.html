@@ -150,34 +150,31 @@
                                                             </button>
                                                         </div>
 
-                                                        <div class="modal-body text-center">
-                                                            @for(dest <- t.tripDataList) {
-                                                                @if(dest.eq(t.tripDataList.last)) {
-                                                                    <br>
-                                                                    <div>@dest.destination.name
-                                                                        <p>@dest.destination.country</p>
-                                                                        @if(!dest.departureTime.eq(null)) {
-                                                                            DEP: @dest.departureTime
-                                                                        }
-                                                                        @if(!dest.arrivalTime.eq(null)) {
-                                                                            ARR: @dest.arrivalTime
-                                                                        }
-                                                                    </div>
-                                                                } else {
-                                                                    <br>
-                                                                    <div>@dest.destination.name
-                                                                        <p>@dest.destination.country</p>
-                                                                        @if(!dest.departureTime.eq(null)) {
-                                                                            DEP: @dest.departureTime
-                                                                        }
-                                                                        @if(!dest.arrivalTime.eq(null)) {
-                                                                            ARR: @dest.arrivalTime
-                                                                        }
-                                                                    </div>
-                                                                    <img class="tripArrow" src= "@routes.Assets.at("images/arrow.png")"><br>
-                                                                }
-                                                            }
-                                                        </div>
+                                                        <section id="timeline">
+                                                        @for(dest <- t.tripDataList) {
+                                                            <article>
+                                                                <div class="inner">
+                                                                    @if(dest.arrivalTime != null) {
+                                                                        <span class="date">
+                                                                            <span class="day">@dest.arrivalTime.getDayOfMonth() <sup>
+                                                                                th</sup></span>
+                                                                            <span class="month">@dest.arrivalTime.getMonth()</span>
+                                                                            <span class="year">@dest.arrivalTime.getYear()</span>
+                                                                        </span>
+                                                                    }
+                                                                <h2>@dest.destination.name</h2>
+                                                                <p>Country: @dest.destination.country<br>
+                                                                    @if(dest.arrivalTime != null) {
+                                                                        Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
+                                                                    }
+                                                                    @if(dest.departureTime != null) {
+                                                                        Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}
+                                                                    }
+                                                            </p>
+                                                                </div>
+                                                            </article>
+                                                        }
+                                                        </section>
 
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
