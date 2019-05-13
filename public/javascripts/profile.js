@@ -64,6 +64,10 @@ function updateProfileData(data) {
     });
 }
 
+/**
+ * Calculates the age of a user based on there birthdate
+ * @param {Number} dt1 birthdate of user in epoch time
+ */
 function diff_years(dt1) {
     let diff =(Date.now() - dt1) / 1000;
     diff /= (60 * 60 * 24);
