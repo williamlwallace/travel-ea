@@ -29,31 +29,13 @@ function hideErrors(parentElement) {
     }
 }
 
-
-/**
- * Gets data from API and fills given dropdowns
- * @param {string} URI - API URI to get data from
- * @param {Object} dropdowns - Array of dropdown ids
- * @param {string} colName - name of data column
- * @param {Boolean} capatisie - Wheather is capatilise first letter 
- */
-function getAndFillDD(URI, dropdowns, colName, capatisie=false) {
-    getHardData(URI, colName, capatilise)
-    .then(dict => {
-        // Now fill the selects
-        dropdowns.forEach(element => {
-            fillDropDown(element, dict);
-        });
-    })
-}
-
 /**
  * Gets data from api and maps ids to given colName in a dictionary
  * @param {string} URI - API URI to get data from
  * @param {string} colName - name of data column
  * @param {Boolean} capatisie - Wheather is capatilise first letter 
  */
-function getHardData(URI, colName, capatisie=false) {
+function getHardData(URI, colName, capatilise=false) {
     // Run a get request to fetch all destinations
     get(URI)
     // Get the response of the request
@@ -65,7 +47,7 @@ function getHardData(URI, colName, capatisie=false) {
             dict = {};
             for(let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
-                if (capatisie) {
+                if (capatilise) {
                     dict[data[i]['id']] = capitalizeFirstLetter(data[i][colName]);
                 } else {
                     dict[data[i]['id']] = data[i][colName];
@@ -74,6 +56,23 @@ function getHardData(URI, colName, capatisie=false) {
             return dict;
         });
     });
+}
+
+/**
+ * Gets data from API and fills given dropdowns
+ * @param {string} URI - API URI to get data from
+ * @param {Object} dropdowns - Array of dropdown ids
+ * @param {string} colName - name of data column
+ * @param {Boolean} capatisie - Wheather is capatilise first letter 
+ */
+function getAndFillDD(URI, dropdowns, colName, capatilise=false) {
+    getHardData(URI, colName, capatilise)
+    .then(dict => {
+        // Now fill the selects
+        dropdowns.forEach(element => {
+            fillDropDown(element, dict);
+        });
+    })
 }
 
 /**
@@ -136,7 +135,7 @@ function arrayToString(array, dataName, URL) {
     let dict = getHardData(URL, dataName)
     let out = "";
     for (const item of array) {
-        out += dict[(string) item.id] + ", ";
+        out += dict[item.id] + ", ";
     }
     //remove extra separator
     out = out.slice(0,out.length-2);
