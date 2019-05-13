@@ -1,6 +1,8 @@
 package models;
 
 import io.ebean.Model;
+
+import java.util.Comparator;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -44,4 +46,34 @@ public class Trip extends Model {
 
         return null;
     }
+
+    /**
+     * Comparator which allows for trips to be compared and sorted by date
+     * Will sort by recent first, with nulls last
+     */
+    public Comparator<Trip> compareByDate1 = new Comparator<Trip>() {
+        public int compare(Trip trip1, Trip trip2) {
+            if (trip2.findFirstTripDate() == null) {
+                return -1;
+            } else if (trip1.findFirstTripDate() == null) {
+                return 1;
+            } else {
+                return trip2.findFirstTripDate().compareTo(trip1.findFirstTripDate());
+            }
+        }
+    };
+
+    /**
+     * Comparator which allows for trips to be compared and sorted by date
+     * Will sort by recent first, with nulls last
+     */
+    public Comparator<Trip> compareByDate = (Trip trip1, Trip trip2) -> {
+        if (trip2.findFirstTripDate() == null) {
+            return -1;
+        } else if (trip1.findFirstTripDate() == null) {
+            return 1;
+        } else {
+            return trip2.findFirstTripDate().compareTo(trip1.findFirstTripDate());
+        }
+    };
 }

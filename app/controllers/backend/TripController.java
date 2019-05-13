@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -255,19 +253,8 @@ public class TripController extends Controller {
      * @return Sorted list of trips
      */
     private List<Trip> sortTripsByDate(List<Trip> trips) {
-        trips.sort(new Comparator<Trip>() {
-            public int compare(Trip trip1, Trip trip2) {
-                if (trip2.findFirstTripDate() == null) {
-                    return -1;
-                }
-                else if (trip1.findFirstTripDate() == null) {
-                    return 1;
-                }
-                else {
-                    return trip2.findFirstTripDate().compareTo(trip1.findFirstTripDate());
-                }
-            }
-        });
+        trips.sort(trips, // Call comparator from trip object here)
+        );
 
         return trips;
     }
