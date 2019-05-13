@@ -144,15 +144,19 @@ span.profile-button:hover {
     text-decoration-line: underline;
 }
 
-.tripTable tr{
-    cursor: pointer;
+
+.privacy-image {
+    max-height: 80%;
+    max-width: 80%;
+    opacity: 0.45;
 }
 
-.tripArrow {
-    transform: rotate(90deg);
-    height: 10px;
-    max-height: 10%;
-    max-width: 10%;
+.privacy-image:hover {
+    opacity: 0.9;
+}
+
+tr.clickable-row {
+    cursor: pointer
 }
 
 /* Limit image width to avoid overflow the container */

@@ -97,13 +97,7 @@
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
-                                                <button id="editTrip" type="button" class="btn btn-popup" onclick="viewTrip(@t.id)">
-                                                    Edit Trip</button>
-                                                <script>
-                                                        function viewTrip(url) {
-                                                            window.location.href = "/trips/edit/" + url;
-                                                        }
-                                                </script>
+                                                <button id="editTrip" type="button" class="btn btn-popup" onclick="location.href='/trips/edit/@t.id';">Edit Trip</button>
                                             </div>
                                         </div>
                                     </div>
