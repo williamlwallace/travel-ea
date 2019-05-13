@@ -37,11 +37,11 @@ function hideErrors(parentElement) {
  */
 function getHardData(URI, colName, capatilise=false) {
     // Run a get request to fetch all destinations
-    get(URI)
+    return get(URI)
     // Get the response of the request
     .then(response => {
         // Convert the response to json
-        response.json()
+        return response.json()
         .then(data => {
             // Json data is an array of destinations, iterate through it
             dict = {};
@@ -72,7 +72,7 @@ function getAndFillDD(URI, dropdowns, colName, capatilise=false) {
         dropdowns.forEach(element => {
             fillDropDown(element, dict);
         });
-    })
+    });
 }
 
 /**
@@ -132,12 +132,14 @@ function JSONFromDropDowns(dropdown) {
  * @param {string} URL Address to retrive
  */
 function arrayToString(array, dataName, URL) {
-    let dict = getHardData(URL, dataName)
-    let out = "";
-    for (const item of array) {
-        out += dict[item.id] + ", ";
-    }
-    //remove extra separator
-    out = out.slice(0,out.length-2);
-    return out
+    return getHardData(URL, dataName)
+    .then(dict => {
+        let out = "";
+        for (const item of array) {
+            out += dict[item.id] + ", ";
+        }
+        //remove extra separator
+        out = out.slice(0,out.length-2);
+        return out
+    });
 }

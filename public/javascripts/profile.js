@@ -30,7 +30,6 @@ function updateProfile(uri, redirect) {
                 hideErrors("updateProfileForm");
                 let element = document.getElementById("SuccessMessage");
                 element.innerHTML = "Successfully Updated!";
-                console.log(data);
                 updateProfileData(data);
                 return sleep(3000);
             }
@@ -42,10 +41,33 @@ function updateProfile(uri, redirect) {
     });
 }
 
+/**
+ * Maps a json object to the rofile summary data and updates it
+ * @param {Object} data Json data object 
+ */
 function updateProfileData(data) {
     document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
     document.getElementById("summary_gender").innerHTML = data.gender;
-    //document.getElementById("summary_nationalities").innerHTML = arrayToStirng(data.nationalities, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url);
+    document.getElementById("summary_age").innerHTML = diff_years(Date.parse(data.dateOfBirth));
+    //When the promises resolve, fill array data into appropriate fields
+    arrayToString(data.nationalities, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+    .then(out => {
+        document.getElementById("summary_nationalities").innerHTML = out;
+    });
+    arrayToString(data.passports, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+    .then(out => {
+        document.getElementById("summary_passports").innerHTML = out;
+    });
+    arrayToString(data.travellerTypes, 'description', profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+    .then(out => {
+        document.getElementById("summary_travellerTypes").innerHTML = out;
+    });
+}
+
+function diff_years(dt1) {
+    let diff =(Date.now() - dt1) / 1000;
+    diff /= (60 * 60 * 24);
+    return Math.abs(Math.round(diff/365.25));
 }
 
 

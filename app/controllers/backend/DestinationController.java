@@ -136,7 +136,7 @@ public class DestinationController extends Controller {
      */
     public Result destinationRoutes(Http.Request request) {
         return ok(
-            JavaScriptReverseRouter.create("destinatioinRouter", "jQuery.ajax", request.host(),
+            JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
