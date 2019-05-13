@@ -42,7 +42,7 @@ function updateProfile(uri, redirect) {
 }
 
 /**
- * Maps a json object to the rofile summary data and updates it
+ * Maps a json object to the profile summary data and updates it
  * @param {Object} data Json data object 
  */
 function updateProfileData(data) {
