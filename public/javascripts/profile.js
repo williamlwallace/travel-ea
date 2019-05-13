@@ -45,7 +45,7 @@ function updateProfile(uri, redirect) {
 function updateProfileData(data) {
     document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
     document.getElementById("summary_gender").innerHTML = data.gender;
-    document.getElementById("summary_nationalities").innerHTML = data.nationalities.toString();
+    //document.getElementById("summary_nationalities").innerHTML = arrayToStirng(data.nationalities, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url);
 }
 
 

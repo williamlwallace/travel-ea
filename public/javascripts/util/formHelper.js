@@ -130,10 +130,15 @@ function JSONFromDropDowns(dropdown) {
  * Turns array into string whilst mapping the inner object ids to real values
  * @param {Object} array array to translate
  * @param {string} dataName column name
+ * @param {string} URL Address to retrive
  */
-function arrayToString(array, dataName) {
+function arrayToString(array, dataName, URL) {
+    let dict = getHardData(URL, dataName)
     let out = "";
     for (const item of array) {
-
+        out += dict[(string) item.id] + ", ";
     }
+    //remove extra separator
+    out = out.slice(0,out.length-2);
+    return out
 }

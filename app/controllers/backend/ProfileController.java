@@ -19,6 +19,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.ProfileRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.validation.ErrorResponse;
@@ -291,5 +292,18 @@ public class ProfileController extends Controller {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .thenApplyAsync(profiles ->
                 ok(Json.toJson(profiles)));
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     *
+     * @return JSRouter Play result
+     */
+    public Result profileRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
