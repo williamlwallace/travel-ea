@@ -70,7 +70,6 @@ public class ViewMyTripsTestSteps extends WithApplication {
         db = fakeApp.injector().instanceOf(Database.class);
 
         Helpers.start(fakeApp);
-        System.out.println("yeeeeet");
     }
 
     /**
