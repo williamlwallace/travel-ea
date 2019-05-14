@@ -1,11 +1,13 @@
 package controllers.backend;
 
+import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Destination;
+import models.User;
 import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -48,6 +50,9 @@ public class DestinationController extends Controller {
         } else {
             //Else, no errors found, continue with adding to the database
             Destination newDestination = Json.fromJson(data, Destination.class);
+            // Add destination owner to be whichever user uploaded it
+            newDestination.user = new User();
+            newDestination.user.id = request.attrs().get(ActionState.USER).id;
             return destinationRepository.addDestination(newDestination)
                 .thenApplyAsync(id -> ok(Json.toJson(id)));
         }

@@ -20,6 +20,10 @@ public class Destination extends Model {
     @Constraints.Required
     public Long id;
 
+    @ManyToOne
+    @Constraints.Required
+    public User user;
+
     @Constraints.Required
     public String name;
 
@@ -35,6 +39,9 @@ public class Destination extends Model {
 
     @Constraints.Required
     public Double longitude;
+
+    @Constraints.Required
+    public boolean isPublic;
 
     @ManyToOne
     @Constraints.Required
