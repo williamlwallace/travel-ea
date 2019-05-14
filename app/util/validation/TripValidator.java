@@ -42,7 +42,7 @@ public class TripValidator {
                 });
 
         if (tripDataCollection.size() < 2) {
-            this.response.map("a trip must contain at least 2 destinations", "trip");
+            this.response.map("A trip must contain at least 2 destinations.", "trip");
         }
 
         Long lastDestinationID = 0L;
@@ -52,36 +52,38 @@ public class TripValidator {
             TripData trip = (TripData) obj;
             String errorString = "";
 
-            if (trip.position == null) {
-                errorString += "position is null, ";
+            // Validates card information and creates error string
+            if (trip.destination != null && trip.destination.id == null) {
+                errorString = "Invalid destination ID.";
+            }
+            else if (trip.destination != null && trip.destination.id.equals(lastDestinationID)) {
+                errorString = "You cannot have the same destination twice in a row.";
+            }
+            else if (trip.destination == null) {
+                errorString = "Destination not found.";
+            }
+            else if (trip.position == null) {
+                errorString = "Position of destination not found.";
                 trip.position = -1L;
             }
-            if (trip.destination != null) {
-                if (trip.destination.id == null) {
-                    errorString += "destinationId is null, ";
-                }
-                if (trip.destination.id == lastDestinationID) {
-                    errorString += "cannot attend same destination twice in a row, ";
-                }
-            } else {
-                errorString += "destination is null, ";
+            else if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.isAfter(trip.departureTime)) {
+                errorString = "The arrival time must be before the departure time.";
+            }
+            else if (trip.arrivalTime != null && mostRecentDateTime != null && trip.arrivalTime.isBefore(mostRecentDateTime)) {
+                errorString = "The arrival time for this destination cannot be before a previous destination.";
+                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime);
+            }
+            else if (trip.departureTime != null && mostRecentDateTime != null && trip.departureTime.isBefore(mostRecentDateTime)) {
+                errorString = "The departure time for this destination cannot be before a previous destination.";
+                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime);
             }
 
-            if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime
-                .isAfter(trip.departureTime)) {
-                errorString += "departure must be after arrival, ";
-            }
+            // Sets most recent time and last destination values
             if (trip.arrivalTime != null || trip.departureTime != null) {
-                //todo: fix this one
-                //if(!(mostRecentDate == null) && (trip.arrivalTime.before(mostRecentDate) || trip.departureTime.before(mostRecentDate))) {
-                //    errorString += "this stage cannot occur before a previous stage, ";
-                //}
-                // Set most recent time stamp to be latest value that is not null
-                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime
-                    : trip.arrivalTime);
+                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime : trip.arrivalTime);
             }
 
-            if (trip.destination != null) {
+            if (trip.destination != null && trip.destination.id != null) {
                 lastDestinationID = trip.destination.id;
             }
 
@@ -89,8 +91,8 @@ public class TripValidator {
             if (!errorString.equals("")) {
                 this.response.map(errorString, trip.position.toString());
             }
-
         }
+
         return this.response;
     }
 
