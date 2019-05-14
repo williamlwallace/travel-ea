@@ -19,6 +19,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.ProfileRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.validation.ErrorResponse;
@@ -124,21 +125,21 @@ public class ProfileController extends Controller {
             });
     }
 
-    /**
-     * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types.
-     *
-     * @param request Contains the HTTP request info
-     * @return Ok if updated successfully, badRequest if profile json malformed
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletionStage<Result> updateProfile(Http.Request request) {
-        //Get user
-        User user = request.attrs().get(ActionState.USER);
-        // Get json parameters
-        JsonNode json = request.body().asJson();
-        return updateProfileHelper(json, user.id);
-    }
+    // /**
+    //  * Updates the profile received in the body of the request as well as the related nationalities,
+    //  * passports and traveller types.
+    //  *
+    //  * @param request Contains the HTTP request info
+    //  * @return Ok if updated successfully, badRequest if profile json malformed
+    //  */
+    // @With({Everyone.class, Authenticator.class})
+    // public CompletionStage<Result> updateMyProfile(Http.Request request) {
+    //     //Get user
+    //     User user = request.attrs().get(ActionState.USER);
+    //     // Get json parameters
+    //     JsonNode json = request.body().asJson();
+    //     return updateProfileHelper(json, user.id);
+    // }
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
@@ -147,11 +148,16 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    @With({Admin.class, Authenticator.class})
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
-        // Get json parameters
-        JsonNode data = request.body().asJson();
-        return updateProfileHelper(data, userId);
+        User user = request.attrs().get(ActionState.USER);
+        if (userId == user.id || user.admin) {
+            // Get json parameters
+            JsonNode data = request.body().asJson();
+            return updateProfileHelper(data, userId);
+        } else {
+            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
+        }
     }
 
     /**
@@ -286,5 +292,18 @@ public class ProfileController extends Controller {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .thenApplyAsync(profiles ->
                 ok(Json.toJson(profiles)));
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     *
+     * @return JSRouter Play result
+     */
+    public Result profileRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
