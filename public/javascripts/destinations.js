@@ -16,7 +16,7 @@ function fillCountryInfo(getCountriesUrl) {
             response.json()
             .then(data => {
                 // Json data is an array of destinations, iterate through it
-                countryDict = {};
+                let countryDict = {};
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     countryDict[data[i]['id']] = data[i]['name'];
@@ -100,7 +100,11 @@ function populateDestinations(table) {
                     const latitude = json[dest].latitude;
                     const longitude = json[dest].longitude;
                     const country = json[dest].country.name;
-                    table.row.add([name, type, district, latitude, longitude, country]).draw(false);
+                    let deleteDestination = "Unauthorized";
+                    if (!json[dest].user.admin) {
+                        deleteDestination = "<button class=\"btn btn-danger\">Delete</button>";
+                    }
+                    table.row.add([name, type, district, latitude, longitude, country, deleteDestination]).draw(false);
                 }
             }
         });
