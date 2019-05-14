@@ -48,7 +48,7 @@ function updateProfile(uri, redirect) {
 function updateProfileData(data) {
     document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
     document.getElementById("summary_gender").innerHTML = data.gender;
-    document.getElementById("summary_age").innerHTML = diff_years(Date.parse(data.dateOfBirth));
+    document.getElementById("summary_age").innerHTML = calc_age(Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
     arrayToString(data.nationalities, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
     .then(out => {
@@ -68,10 +68,11 @@ function updateProfileData(data) {
  * Calculates the age of a user based on there birthdate
  * @param {Number} dt1 birthdate of user in epoch time
  */
-function diff_years(dt1) {
+function calc_age(dt1) {
     let diff =(Date.now() - dt1) / 1000;
     diff /= (60 * 60 * 24);
-    return Math.abs(Math.round(diff/365.25));
+    // Best convertion method without moment etc
+    return Math.abs(Math.floor(diff/365.25));
 }
 
 

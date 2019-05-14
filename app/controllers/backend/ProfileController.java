@@ -156,7 +156,7 @@ public class ProfileController extends Controller {
             JsonNode data = request.body().asJson();
             return updateProfileHelper(data, userId);
         } else {
-            return CompletableFuture.supplyAsync(() -> status(403,Json.toJson("Forbidden")));
+            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
         }
     }
 
