@@ -5,6 +5,7 @@
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
 }
 
 @layouts.imageHeader("Trips", user, "images/trips-bg.jpg", scripts){
@@ -61,6 +62,13 @@
                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header text-center">
+                                                <div class="dropdown">
+                                                @if(t.privacy == 1) {
+                                                    <input id="privacyImg" class="privacy-image" type="image" title="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
+                                                } else {
+                                                    <input id="privacyImg" class="privacy-image" type="image" title="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
+                                                    }
+                                                </div>
                                                 <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
                                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
@@ -74,21 +82,24 @@
                                                     <div class="inner">
                                                         @if(dest.arrivalTime != null) {
                                                             <span class="date">
-                                                                <span class="day">@dest.arrivalTime.getDayOfMonth() <sup>
-                                                                    th</sup></span>
+                                                                <span class="day">@dest.arrivalTime.getDayOfMonth()<sup>th</sup></span>
                                                                 <span class="month">@dest.arrivalTime.getMonth()</span>
                                                                 <span class="year">@dest.arrivalTime.getYear()</span>
                                                             </span>
                                                         }
-                                                    <h2>@dest.destination.name</h2>
-                                                    <p>Country: @dest.destination.country<br>
-                                                        @if(dest.arrivalTime != null) {
-                                                            Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
-                                                        }
-                                                        @if(dest.departureTime != null) {
-                                                            Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}
-                                                        }
-                                                            </p>
+                                                        <h2>
+                                                            @dest.destination.name<br>
+                                                            @dest.destination.country
+                                                        </h2>
+                                                        <p>
+                                                            @if(dest.arrivalTime != null) {
+                                                                Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
+                                                            }
+                                                            @if(dest.departureTime != null) {
+                                                                Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}
+                                                                @dest.departureTime.getDayOfMonth()<sup>th</sup> @dest.departureTime.getMonth() @dest.departureTime.getYear()
+                                                            }
+                                                        </p>
                                                     </div>
 
                                                 </article>

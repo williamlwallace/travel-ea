@@ -152,21 +152,24 @@
                                                                 <div class="inner">
                                                                     @if(dest.arrivalTime != null) {
                                                                         <span class="date">
-                                                                            <span class="day">@dest.arrivalTime.getDayOfMonth() <sup>
-                                                                                th</sup></span>
+                                                                            <span class="day">@dest.arrivalTime.getDayOfMonth()<sup>th</sup></span>
                                                                             <span class="month">@dest.arrivalTime.getMonth()</span>
                                                                             <span class="year">@dest.arrivalTime.getYear()</span>
                                                                         </span>
                                                                     }
-                                                                <h2>@dest.destination.name</h2>
-                                                                <p>Country: @dest.destination.country<br>
-                                                                    @if(dest.arrivalTime != null) {
-                                                                        Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
-                                                                    }
-                                                                    @if(dest.departureTime != null) {
-                                                                        Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}
-                                                                    }
-                                                            </p>
+                                                                    <h2>
+                                                                        @dest.destination.name<br>
+                                                                        @dest.destination.country
+                                                                    </h2>
+                                                                    <p>
+                                                                        @if(dest.arrivalTime != null) {
+                                                                            Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
+                                                                        }
+                                                                        @if(dest.departureTime != null) {
+                                                                            Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}<br>
+                                                                            @dest.departureTime.getDayOfMonth()<sup>th</sup> @dest.departureTime.getMonth() @dest.departureTime.getYear()
+                                                                        }
+                                                                    </p>
                                                                 </div>
                                                             </article>
                                                         }
