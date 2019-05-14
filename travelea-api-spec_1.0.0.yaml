@@ -392,6 +392,8 @@ paths:
       responses:
         '200':
           description: Successfully made destination public
+        '400':
+          description: Destination was already public
         '401':
           description: Unauthorized
         '403':

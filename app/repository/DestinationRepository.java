@@ -1,6 +1,9 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static play.mvc.Results.badRequest;
+import static play.mvc.Results.notFound;
+import static play.mvc.Results.ok;
 
 import cucumber.api.java.hu.De;
 import io.ebean.Ebean;
@@ -14,6 +17,7 @@ import javax.inject.Inject;
 import models.Destination;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
+import play.mvc.Result;
 
 /**
  * A repository that executes database operations for the Destination table.
@@ -23,7 +27,9 @@ public class DestinationRepository {
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
+    // The number of decimal places to check for determining similarity of destinations (2 = 1km, 3 = 100m, 4 = 10m, 5 = 1m, ...)
     private static final int COORD_DECIMAL_PLACES = 3;
+    // The maximum Levenshtein distance that two destination names may have and still be considered similar (0 = require exact strings, 1000000000 = every string is a match to every other string)
     private static final int NAME_SIMILARITY_THRESHOLD = 10;
 
     @Inject
@@ -72,6 +78,31 @@ public class DestinationRepository {
             ebeanServer.update(destination);
             return destination;
         }, executionContext);
+    }
+
+    /**
+     * Makes a destination public, if it is found and not already public
+     * @param destinationId ID of destination to mark as public
+     * @return notFound if no such ID found, badRequest if it is found but already public, ok if found and successfully updated to public from private
+     */
+    public CompletableFuture<Result> makeDestinationPublic(Long destinationId) {
+        return supplyAsync(() -> {
+            Destination destination = ebeanServer.find(Destination.class)
+                    .where()
+                    .eq("id", destinationId).findOneOrEmpty().orElse(null);
+            // If no destination was found, return not found
+            if(destination == null) {
+                return notFound();
+            }
+            // If destination was found but is already marked public, return bad request
+            if(destination.isPublic) {
+                return badRequest();
+            }
+            // Otherwise set to public, update it, and return ok
+            destination.isPublic = true;
+            ebeanServer.update(destination);
+            return ok();
+        });
     }
 
     /**

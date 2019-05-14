@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
@@ -257,7 +257,7 @@ public class DestinationControllerTest extends WithApplication {
     }
 
     @Test
-    public void makeUnauthorizedDestinationPublic() throws SQLException {
+    public void makeDestinationPublicForbidden() throws SQLException {
         // Statement to get destination with id 2
         PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 2;");
 
@@ -274,7 +274,7 @@ public class DestinationControllerTest extends WithApplication {
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
-        assertEquals(UNAUTHORIZED, result.status());
+        assertEquals(FORBIDDEN, result.status());
 
         // Check that destination with id 2 is still private
         destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 2).findFirst().orElse(null);

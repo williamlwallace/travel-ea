@@ -11,10 +11,7 @@ import javax.inject.Inject;
 import models.Destination;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
-import play.mvc.Http;
-import play.mvc.Result;
-import play.mvc.With;
+import play.mvc.*;
 import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
 import util.validation.DestinationValidator;
@@ -58,6 +55,31 @@ public class DestinationController extends Controller {
             return destinationRepository.addDestination(newDestination)
                 .thenApplyAsync(id -> ok(Json.toJson(id)));
         }
+    }
+
+    /**
+     * Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users,
+     * as well as merging with any sufficiently similar destinations that are currently marked as private in the database
+     *
+     * @param request Request containing authentication header
+     * @param id ID of destination to mark as public
+     * @return 200 if successful, 400 if already public, 401 unauthorized, 403 forbidden, 404 no such destination
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
+        // Try to get the destination, if it is not found throw 404
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
+            // Check for 404
+            if(destination == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
+            }
+            // Check if user owns the destination (or is an admin)
+            if(!destination.user.id.equals(request.attrs().get(ActionState.USER).id) && !request.attrs().get(ActionState.USER).admin) {
+                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You are not allowed to perform this action")));
+            }
+            // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
+            return destinationRepository.makeDestinationPublic(id);
+        }).thenApplyAsync(result -> result);
     }
 
     /**
