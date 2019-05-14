@@ -289,7 +289,7 @@ public class UserControllerTest extends WithApplication {
 
         // Get result and check the user was redirected
         Result result = route(fakeApp, request);
-        assertEquals(403, result.status());
+        assertEquals(401, result.status());
     }
 
     @Test
