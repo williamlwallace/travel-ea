@@ -104,16 +104,16 @@ public class DestinationControllerTest extends WithApplication {
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        // Check that list has exactly one result
-        assertEquals(1, destinations.size());
+        // Check that list has exactly 3 results
+        assertEquals(3, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
         assertEquals("Eiffel Tower", dest.name);
         assertEquals("Monument", dest._type);
         assertEquals("Paris", dest.district);
-        assertEquals(Double.valueOf(10.0), dest.latitude);
-        assertEquals(Double.valueOf(20.0), dest.longitude);
+        assertEquals(Double.valueOf(48.8583), dest.latitude);
+        assertEquals(Double.valueOf(2.2945), dest.longitude);
         assertEquals(Long.valueOf(1), dest.country.id);
         assertEquals(Long.valueOf(1), dest.id);
     }
@@ -182,7 +182,7 @@ public class DestinationControllerTest extends WithApplication {
         // Get id of destination, check it is 2
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(Long.valueOf(2), idOfDestination);
+        assertEquals(Long.valueOf(4), idOfDestination);
     }
 
     @Test
