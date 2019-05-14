@@ -100,11 +100,28 @@ function populateDestinations(table) {
                     const latitude = json[dest].latitude;
                     const longitude = json[dest].longitude;
                     const country = json[dest].country.name;
+                    const editURL = ""; //TODO to be implemented
+                    let privacyImage = "";
                     let deleteDestination = "Unauthorized";
-                    if (!json[dest].user.admin) {
-                        deleteDestination = "<button class=\"btn btn-danger\">Delete</button>";
+                    let updateDestination = "Unauthorized";
+
+                    // Set image to public or private
+                    if (json[dest].isPublic) {
+                        privacyImage = "/assets/images/public.png";
+                    } else {
+                        privacyImage = "/assets/images/private.png";
                     }
-                    table.row.add([name, type, district, latitude, longitude, country, deleteDestination]).draw(false);
+
+                    // Create toggle button
+                    const toggleLabel = "<input class=\"destinationPrivacy\" type=\"image\" src=\"" + privacyImage + "\">";
+                    // toggleLabel.setAttribute("id", json[dest].id + "privacy");
+
+                    // Create button if destination does not belong to an admin
+                    if (!json[dest].user.admin) {
+                        deleteDestination = "<button class=\"btn btn-danger\">Delete</button>"
+                        updateDestination = "<a href=\"" + editURL + "\" class=\"btn btn-secondary\">Update</a>";
+                    }
+                    table.row.add([toggleLabel, name, type, district, latitude, longitude, country, updateDestination, deleteDestination]).draw(false);
                 }
             }
         });

@@ -389,3 +389,15 @@ pre {
 *:focus {
     outline: none;
 }
+
+.destinationPrivacy {
+    opacity: .2;
+}
+
+.destinationPrivacy:hover {
+    opacity: 1;
+}
+
+.table {
+    text-align: center;
+}

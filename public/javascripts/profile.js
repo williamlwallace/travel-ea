@@ -327,7 +327,7 @@ function createGalleryObjects(hasFullSizeLinks) {
                     deleteButton.innerHTML = "&times;";
                     tile.appendChild(deleteButton);
 
-                    // Create toggle button TODO this is in an ugly position, will change
+                    // Create toggle button
                     var toggleButton = document.createElement("span");
                     var toggleLabel = document.createElement("input");
                     toggleLabel.setAttribute("class", "privacy");
