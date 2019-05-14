@@ -116,7 +116,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
                 .cookie(this.authCookie)
-                .uri("/api/destination/makePublic/1");
+                .uri("/api/destination/makePublic/" + destinationId);
 
         // Get result and check it was successfully
         Result result = route(fakeApp, request);
@@ -138,7 +138,6 @@ public class DestinationTestSteps {
         Destination destinations = new ObjectMapper().readValue(Helpers.contentAsString(result), Destination.class);
 
         Assert.assertTrue(destinations.isPublic);
-
     }
 
 

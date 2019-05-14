@@ -43,6 +43,7 @@ public class DestinationControllerTest extends WithApplication {
     private static Application fakeApp;
     private static Database db;
     private static Cookie authCookie;
+    private static Cookie nonAdminAuthCookie;
     private static DestinationRepository destinationRepository;
 
     /**
@@ -60,6 +61,9 @@ public class DestinationControllerTest extends WithApplication {
         db = fakeApp.injector().instanceOf(Database.class);
         authCookie = Cookie.builder("JWT-Auth",
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
+            .withPath("/").build();
+        nonAdminAuthCookie = Cookie.builder("JWT-Auth",
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6Mn0.sGyO22MrNoNrH928NpSK8PJXmE88_DhivVWgCl3faJ4")
             .withPath("/").build();
 
         destinationRepository = fakeApp.injector().instanceOf(DestinationRepository.class);
@@ -258,26 +262,26 @@ public class DestinationControllerTest extends WithApplication {
 
     @Test
     public void makeDestinationPublicForbidden() throws SQLException {
-        // Statement to get destination with id 2
-        PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 2;");
+        // Statement to get destination with id 3
+        PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 3;");
 
         // Store destination and make sure it is not null and is private
-        Destination destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 2).findFirst().orElse(null);
+        Destination destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
 
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
-                .cookie(authCookie)
-                .uri("/api/destination/makePublic/2");
+                .cookie(nonAdminAuthCookie)
+                .uri("/api/destination/makePublic/3");
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
 
-        // Check that destination with id 2 is still private
-        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 2).findFirst().orElse(null);
+        // Check that destination with id 3 is still private
+        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
 
