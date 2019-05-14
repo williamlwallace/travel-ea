@@ -23,14 +23,12 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import io.ebean.config.ServerConfig;
 import models.CountryDefinition;
 import models.Destination;
 import models.User;
 import org.junit.*;
 import play.Application;
 import play.db.Database;
-import play.db.ebean.EbeanConfig;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
@@ -38,9 +36,7 @@ import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import repository.DatabaseExecutionContext;
 import repository.DestinationRepository;
-import sun.security.krb5.internal.crypto.Des;
 
 public class DestinationControllerTest extends WithApplication {
 
