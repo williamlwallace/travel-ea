@@ -1,3 +1,6 @@
+-- AUTHOR: Matthew Minish, William Wallace
+-- MODIFIED: 14/3/2019 2.00PM
+
 -- !Ups
 
 -- Create User table
@@ -7,12 +10,10 @@ CREATE TABLE IF NOT EXISTS User
     username          VARCHAR(64) NOT NULL,
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
-    -- auth_token        VARCHAR(128),
     admin             BOOLEAN NOT NULL DEFAULT false,
     creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)
-    -- UNIQUE (auth_token)
   );
 
 -- Create Profile table
@@ -88,12 +89,15 @@ CREATE TABLE IF NOT EXISTS TravellerType
 CREATE TABLE IF NOT EXISTS Destination
   (
     id                INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL, -- The owner of the destination, moved to master admin when public
     name              VARCHAR(128) NOT NULL,
     type              VARCHAR(128) NOT NULL, -- We may want to make a separate table which stores these
     district          VARCHAR(128) NOT NULL,
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
+    is_public         BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
@@ -103,6 +107,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
+    privacy           BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -124,42 +129,23 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
+-- Create Photo table, which stores the filenames and details for all photos
 CREATE TABLE IF NOT EXISTS Photo
   (
-    photo_id          INT NOT NULL AUTO_INCREMENT,
-    user_id           INT NOT NULL,
-    file_name         VARCHAR(30) NOT NULL,
-    public_photo      BOOLEAN,
-    profile_photo     BOOLEAN,
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
+    filename              VARCHAR(256) NOT NULL,
+    thumbnail_filename    VARCHAR(256) NOT NULL,
+    is_public             BOOLEAN NOT NULL,
+    uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_profile            BOOLEAN NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
-    PRIMARY KEY (photo_id)
+    PRIMARY KEY (guid)
   );
-
--- CREATE TABLE IF NOT EXISTS UserRoleDefinition
---   (
---     id                INT NOT NULL AUTO_INCREMENT,
---     name              VARCHAR(2048) NOT NULL,
---     PRIMARY KEY (id)
---   );
-
--- -- Create UserRole table, which specifies the Roles of users
--- CREATE TABLE IF NOT EXISTS UserRole
---   (
---     guid              INT NOT NULL AUTO_INCREMENT,
---     user_id           INT NOT NULL,
---     role_id           INT NOT NULL,
---     FOREIGN KEY (user_id) REFERENCES User(id),
---     FOREIGN KEY (role_id) REFERENCES UserRoleDefinition(id),
---     PRIMARY KEY (guid),
---     INDEX userole_index (user_id, role_id),
---     UNIQUE(user_id, role_id)
---   );
-
 
 
 -- !Downs
--- DROP TABLE UserRole;
--- DROP TABLE UserRoleDefinition;
+DROP TABLE Photo;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
@@ -170,4 +156,3 @@ DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
 DROP TABLE User;
-DROP TABLE Photo;
