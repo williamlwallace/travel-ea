@@ -13,32 +13,68 @@ function updateProfile(uri, redirect) {
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
-}), {});
+    }), {});
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
     data.travellerTypes  = JSONFromDropDowns("travellerTypes");
     // Post json data to given uri
     put(uri,data)
-        .then(response => {
+    .then(response => {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-        if (response.status != 200) {
-        showErrors(json);
-    } else {
-        hideErrors("updateProfileForm");
-        let element = document.getElementById("SuccessMessage");
-        element.innerHTML = "Successfully Updated!";
-        return sleep(3000);
-    }
-})
-.then(() => {
-        let element = document.getElementById("SuccessMessage");
-    element.innerHTML = "";
-})
-});
+            if (response.status != 200) {
+                showErrors(json);
+            } else {
+                hideErrors("updateProfileForm");
+                let element = document.getElementById("SuccessMessage");
+                element.innerHTML = "Successfully Updated!";
+                updateProfileData(data);
+                return sleep(3000);
+            }
+        })
+        .then(() => {
+            let element = document.getElementById("SuccessMessage");
+            element.innerHTML = "";
+        })
+    });
 }
+
+/**
+ * Maps a json object to the profile summary data and updates it
+ * @param {Object} data Json data object 
+ */
+function updateProfileData(data) {
+    document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
+    document.getElementById("summary_gender").innerHTML = data.gender;
+    document.getElementById("summary_age").innerHTML = calc_age(Date.parse(data.dateOfBirth));
+    //When the promises resolve, fill array data into appropriate fields
+    arrayToString(data.nationalities, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+    .then(out => {
+        document.getElementById("summary_nationalities").innerHTML = out;
+    });
+    arrayToString(data.passports, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+    .then(out => {
+        document.getElementById("summary_passports").innerHTML = out;
+    });
+    arrayToString(data.travellerTypes, 'description', profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+    .then(out => {
+        document.getElementById("summary_travellerTypes").innerHTML = out;
+    });
+}
+
+/**
+ * Calculates the age of a user based on there birthdate
+ * @param {Number} dt1 birthdate of user in epoch time
+ */
+function calc_age(dt1) {
+    let diff =(Date.now() - dt1) / 1000;
+    diff /= (60 * 60 * 24);
+    // Best convertion method without moment etc
+    return Math.abs(Math.floor(diff/365.25));
+}
+
 
 /**
  * Updates a trips privacy when the toggle is used
