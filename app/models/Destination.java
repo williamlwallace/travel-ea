@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "Destination")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Destination extends Model {
 
     @Id
@@ -41,6 +43,7 @@ public class Destination extends Model {
     public Double longitude;
 
     @Constraints.Required
+    @Column(name = "is_public")
     public boolean isPublic;
 
     @ManyToOne
