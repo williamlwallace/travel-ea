@@ -148,7 +148,10 @@ function addDestinationToTrip(dest) {
     '                    </div>\n' +
     '                </div>\n' +
     '            </form>\n' +
-    '            <label id="destinationError" class="error-messages"></label><br/>\n' +
+                '<div style="text-align: center;">\n' +
+                    '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n' +
+                    '<br/>\n' +
+                '</div>\n' +
             '</div>\n' +
         '</div>'
     );
@@ -284,11 +287,14 @@ function showErrors(json) {
     let keys = Object.keys(json);
 
     // Resets and sets tripError label
+    let tripError = document.getElementById("tripError");
     if (keys.includes("trip")) {
-        document.getElementById("tripError").innerText = json["trip"];
+        tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
+            '<a class="close" data-dismiss="alert">×</a>' +
+            '<span>'+ json["trip"] +'</span></div>';
     }
     else {
-        document.getElementById("tripError").innerText = "";
+        tripError.innerText = "";
     }
 
     // Resets and sets the card error labels
