@@ -116,7 +116,6 @@ function populateTrips(table) {
             if (response.status != 200) {
                 document.getElementById("adminError").innerHTML = json;
             } else {
-                console.log(json);
                 for (const trip in json) {
                     const id = json[trip].id;
                     const tripDataList = json[trip].tripDataList;

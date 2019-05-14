@@ -11,7 +11,11 @@ import javax.inject.Inject;
 import models.Destination;
 import models.User;
 import play.libs.Json;
-import play.mvc.*;
+import play.mvc.Controller;
+import play.mvc.Http;
+import play.mvc.Result;
+import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
 import util.validation.DestinationValidator;
@@ -155,5 +159,19 @@ public class DestinationController extends Controller {
         // TODO: Destinations should be returned here which are not currently, update API spec when modified
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     *
+     * @return JSRouter Play result
+     */
+    public Result destinationRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.DestinationController.getAllCountries(),
+                controllers.backend.routes.javascript.DestinationController.getAllDestinations()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }

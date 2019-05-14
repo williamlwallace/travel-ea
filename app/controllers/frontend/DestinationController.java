@@ -49,11 +49,10 @@ public class DestinationController extends Controller {
      * @return displays the destinations or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> index(Http.Request request) {
+    public Result index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return this.getDestinations(request).thenApplyAsync(
-            destList -> (!destList.isEmpty()) ? ok(destinations.render(asScala(destList), user))
-                : internalServerError(), httpExecutionContext.current());
+        //return this.getDestinations(request).thenApplyAsync(
+        return ok(destinations.render(user));
     }
 
     /**
@@ -76,6 +75,5 @@ public class DestinationController extends Controller {
                 return new ArrayList<>();
             }
         });
-
     }
 }
