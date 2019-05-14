@@ -1,6 +1,8 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -14,19 +16,21 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
+import io.ebean.config.ServerConfig;
 import models.CountryDefinition;
 import models.Destination;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import models.User;
+import org.junit.*;
 import play.Application;
 import play.db.Database;
+import play.db.ebean.EbeanConfig;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
@@ -34,13 +38,16 @@ import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import repository.DatabaseExecutionContext;
 import repository.DestinationRepository;
+import sun.security.krb5.internal.crypto.Des;
 
 public class DestinationControllerTest extends WithApplication {
 
     private static Application fakeApp;
     private static Database db;
     private static Cookie authCookie;
+    private static DestinationRepository destinationRepository;
 
     /**
      * Configures system to use dest database, and starts a fake app
@@ -58,6 +65,8 @@ public class DestinationControllerTest extends WithApplication {
         authCookie = Cookie.builder("JWT-Auth",
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
             .withPath("/").build();
+
+        destinationRepository = fakeApp.injector().instanceOf(DestinationRepository.class);
 
         Helpers.start(fakeApp);
     }
@@ -226,7 +235,15 @@ public class DestinationControllerTest extends WithApplication {
     }
 
     @Test
-    public void makeDestinationPublic() {
+    public void makeDestinationPublic() throws SQLException {
+        // Statement to get destination with id 1
+        PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 1;");
+
+        // Store destination and make sure it is not null and is private
+        Destination destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 1).findFirst().orElse(null);
+        Assert.assertNotNull(destination);
+        Assert.assertFalse(destination.isPublic);
+
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
@@ -237,10 +254,22 @@ public class DestinationControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
+        // Check that destination with id 1 is now public
+        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 1).findFirst().orElse(null);
+        Assert.assertNotNull(destination);
+        Assert.assertTrue(destination.isPublic);
     }
 
     @Test
-    public void makeUnauthorizedDestinationPublic() {
+    public void makeUnauthorizedDestinationPublic() throws SQLException {
+        // Statement to get destination with id 2
+        PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 2;");
+
+        // Store destination and make sure it is not null and is private
+        Destination destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 2).findFirst().orElse(null);
+        Assert.assertNotNull(destination);
+        Assert.assertFalse(destination.isPublic);
+
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
@@ -251,6 +280,58 @@ public class DestinationControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(UNAUTHORIZED, result.status());
 
+        // Check that destination with id 2 is still private
+        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 2).findFirst().orElse(null);
+        Assert.assertNotNull(destination);
+        Assert.assertFalse(destination.isPublic);
+
+    }
+
+    @Test
+    public void findSimilarDestinations() throws InterruptedException, ExecutionException {
+        // Get all destinations on the database
+        // NOTE: Using .get() here as running async lead to race conditions on db connection, sorry Harry :(
+        List<Destination> allDestinations = destinationRepository.getAllDestinations().get();
+        List<Destination> similarDestinations = destinationRepository.getSimilarDestinations(allDestinations.get(0)).get();
+
+        // Assert that 3 destinations were found, and 2 similar ones
+        Assert.assertEquals(4, allDestinations.size());
+        Assert.assertEquals(2, similarDestinations.size());
+
+        // Now check destinations 2 and 3 were found in similarities, and 1 and 4 were not
+        for(Destination destination : allDestinations) {
+            if(destination.id == 1 || destination.id == 4) {
+                assertFalse(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList()).contains(destination.id));
+            } else {
+                assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList()).contains(destination.id));
+            }
+        }
+    }
+
+    /**
+     * Converts a result set from a query for rows from destination table into java list of destinations
+     * @param rs Result set
+     * @return List of destinations read from result set
+     */
+    private List<Destination> resultSetToDestList(ResultSet rs) throws SQLException {
+        List<Destination> destinations = new ArrayList<>();
+        while(rs.next()){
+            Destination destination = new Destination();
+            destination.id = rs.getLong("id");
+            destination._type = rs.getString("type");
+            destination.country = new CountryDefinition();
+            destination.country.id = rs.getLong("country_id");
+            destination.district = rs.getString("district");
+            destination.isPublic = rs.getBoolean("is_public");
+            destination.latitude = rs.getDouble("latitude");
+            destination.longitude = rs.getDouble("longitude");
+            destination.user = new User();
+            destination.user.id = rs.getLong("user_id");
+
+            destinations.add(destination);
+        }
+
+        return destinations;
     }
 
 }

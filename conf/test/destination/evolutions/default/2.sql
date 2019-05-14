@@ -8,9 +8,10 @@ INSERT INTO User(username, password, salt, admin) VALUES ('admin@travelea.co.nz'
 INSERT INTO User (username, password, salt, admin) VALUES ('bob@gmail.com', 'password', 'salt', 1);
 
 -- Insert a destination to test getting
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 0);
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (2, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 0);
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (2, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (2, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (2, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (2, 'Tower Bridge', 'Monument', 'London', 51.50333132, -0.071999712, 1);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )

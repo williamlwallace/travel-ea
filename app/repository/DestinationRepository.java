@@ -75,7 +75,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Get all destinations that are found to be similar to some other destination.
+     * Get all destinations that are found to be similar to some other destination (does not include initial destination)
      *
      * This is checked by comparing their locations, and if these are similar to within some range, then their names are also checked for similarity
      *
@@ -86,16 +86,21 @@ public class DestinationRepository {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
            // Add where clause to make sure longitudes are the same (to specified number of decimal places)
            .where(Expr.raw("TRUNCATE(longitude, ?) = ?", new Object[] {
-               COORD_DECIMAL_PLACES,
-               Math.floor(destination.longitude * Math.pow(10, COORD_DECIMAL_PLACES)) / Math.pow(10, COORD_DECIMAL_PLACES) // A slightly hacky way to truncate to X dp
+                    COORD_DECIMAL_PLACES,
+                    Math.floor(destination.longitude * Math.pow(10, COORD_DECIMAL_PLACES)) / Math.pow(10, COORD_DECIMAL_PLACES) // A slightly hacky way to truncate to COORD_DECIMAL_PLACES dp
            }))
            // Add where clause to make sure latitudes are the same (to specified number of decimal places)
            .where(Expr.raw("TRUNCATE(latitude, ?) = ?", new Object[] {
-                   COORD_DECIMAL_PLACES,
-                   Math.floor(destination.latitude * Math.pow(10, COORD_DECIMAL_PLACES)) / Math.pow(10, COORD_DECIMAL_PLACES) // A slightly hacky way to truncate to X dp
+                    COORD_DECIMAL_PLACES,
+                    Math.floor(destination.latitude * Math.pow(10, COORD_DECIMAL_PLACES)) / Math.pow(10, COORD_DECIMAL_PLACES) // A slightly hacky way to truncate to COORD_DECIMAL_PLACES dp
            }))
-           // Finally only return results for which the name is suitably similar (i.e levenshtein distance is less than specified value)
-           .findList().stream().filter(x -> new LevenshteinDistance().apply(x.name, destination.name) <= NAME_SIMILARITY_THRESHOLD).collect(Collectors.toList())
+           .findList().stream()
+                // only return results for which the name is suitably similar (i.e Levenshtein distance is less than specified value)
+                .filter(x -> new LevenshteinDistance().apply(x.name, destination.name) <= NAME_SIMILARITY_THRESHOLD)
+                // do not include the destination we are finding similarities for
+                .filter(x -> !x.id.equals(destination.id))
+                // collect all found destinations into list
+                .collect(Collectors.toList())
         );
     }
 
