@@ -109,8 +109,8 @@ public class DestinationControllerTest extends WithApplication {
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        // Check that list has exactly 3 results
-        assertEquals(3, destinations.size());
+        // Check that list has exactly 4 results
+        assertEquals(4, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
@@ -187,7 +187,7 @@ public class DestinationControllerTest extends WithApplication {
         // Get id of destination, check it is 2
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(Long.valueOf(4), idOfDestination);
+        assertEquals(Long.valueOf(5), idOfDestination);
     }
 
     @Test
