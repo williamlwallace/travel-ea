@@ -1,7 +1,9 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
@@ -131,7 +133,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created destination
         Http.RequestBuilder request2 = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(this.authCookie)
+            .cookie(authCookie)
             .uri("/api/destination/1");
 
         // Get result and check it was successful
@@ -144,7 +146,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request2 = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(this.authCookie)
+            .cookie(authCookie)
             .uri("/api/destination/100");
 
         // Get result and check it was successful
@@ -169,7 +171,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(this.authCookie)
+            .cookie(authCookie)
             .uri("/api/destination");
 
         // Get result and check it was successful
@@ -194,7 +196,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(this.authCookie)
+            .cookie(authCookie)
             .uri("/api/destination");
 
         // Get result and check it was bad request
@@ -221,4 +223,33 @@ public class DestinationControllerTest extends WithApplication {
             assertEquals(expectedMessages.get(key), response.get(key));
         }
     }
+
+    @Test
+    public void makeDestinationPublic() {
+        // Create request to make destination public
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(PUT)
+                .cookie(authCookie)
+                .uri("/api/destination/makePublic/1");
+
+        // Get result and check it was successfully
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+    }
+
+    @Test
+    public void makeUnauthorizedDestinationPublic() {
+        // Create request to make destination public
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(PUT)
+                .cookie(authCookie)
+                .uri("/api/destination/makePublic/2");
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(UNAUTHORIZED, result.status());
+
+    }
+
 }
