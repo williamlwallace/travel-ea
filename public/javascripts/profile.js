@@ -472,7 +472,7 @@ $("#upload-gallery-image-button").click(function() {
  * Takes the users selected photos and  creates a form from them
  * Sends this form to  the appropriate url
  *
- * @param url the appropriate  photo backend controller
+ * @param {string} url the appropriate  photo backend controller
  */
 function uploadNewGalleryPhoto(url) {
     const selectedPhotos = document.getElementById('upload-gallery-image-file').files;
