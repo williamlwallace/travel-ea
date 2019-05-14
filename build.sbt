@@ -17,6 +17,7 @@ libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8"
 libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.8"
 libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.8"
+libraryDependencies += "org.apache.commons" % "commons-text" % "1.6"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
 libraryDependencies += ws
 

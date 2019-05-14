@@ -34,6 +34,7 @@ import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import repository.DestinationRepository;
 
 public class DestinationControllerTest extends WithApplication {
 

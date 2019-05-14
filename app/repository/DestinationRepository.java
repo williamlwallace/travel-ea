@@ -2,13 +2,17 @@ package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import cucumber.api.java.hu.De;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Expr;
 import io.ebean.PagedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
 
 /**
@@ -18,6 +22,9 @@ public class DestinationRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+
+    private static final int COORD_DECIMAL_PLACES = 3;
+    private static final int NAME_SIMILARITY_THRESHOLD = 10;
 
     @Inject
     public DestinationRepository(EbeanConfig ebeanConfig,
@@ -65,6 +72,31 @@ public class DestinationRepository {
             ebeanServer.update(destination);
             return destination;
         }, executionContext);
+    }
+
+    /**
+     * Get all destinations that are found to be similar to some other destination.
+     *
+     * This is checked by comparing their locations, and if these are similar to within some range, then their names are also checked for similarity
+     *
+     * @param destination New destination to check against existing destinations
+     * @return Destinations found to be sufficiently similar
+     */
+    public CompletableFuture<List<Destination>> getSimilarDestinations(Destination destination) {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+           // Add where clause to make sure longitudes are the same (to specified number of decimal places)
+           .where(Expr.raw("TRUNCATE(longitude, ?) = ?", new Object[] {
+               COORD_DECIMAL_PLACES,
+               Math.floor(destination.longitude * Math.pow(10, COORD_DECIMAL_PLACES)) / Math.pow(10, COORD_DECIMAL_PLACES) // A slightly hacky way to truncate to X dp
+           }))
+           // Add where clause to make sure latitudes are the same (to specified number of decimal places)
+           .where(Expr.raw("TRUNCATE(latitude, ?) = ?", new Object[] {
+                   COORD_DECIMAL_PLACES,
+                   Math.floor(destination.latitude * Math.pow(10, COORD_DECIMAL_PLACES)) / Math.pow(10, COORD_DECIMAL_PLACES) // A slightly hacky way to truncate to X dp
+           }))
+           // Finally only return results for which the name is suitably similar (i.e levenshtein distance is less than specified value)
+           .findList().stream().filter(x -> new LevenshteinDistance().apply(x.name, destination.name) <= NAME_SIMILARITY_THRESHOLD).collect(Collectors.toList())
+        );
     }
 
     /**
