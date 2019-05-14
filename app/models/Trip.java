@@ -16,7 +16,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "Trip")
-public class Trip extends Model {
+public class Trip extends Model implements Comparable<Trip> {
 
     @Id
     public Long id;
@@ -50,30 +50,18 @@ public class Trip extends Model {
     /**
      * Comparator which allows for trips to be compared and sorted by date
      * Will sort by recent first, with nulls last
+     *
+     * @param other Trip to compare against
+     * @return Negative or zero integer if this trip should be first, otherwise positive
      */
-    public Comparator<Trip> compareByDate1 = new Comparator<Trip>() {
-        public int compare(Trip trip1, Trip trip2) {
-            if (trip2.findFirstTripDate() == null) {
-                return -1;
-            } else if (trip1.findFirstTripDate() == null) {
-                return 1;
-            } else {
-                return trip2.findFirstTripDate().compareTo(trip1.findFirstTripDate());
-            }
-        }
-    };
-
-    /**
-     * Comparator which allows for trips to be compared and sorted by date
-     * Will sort by recent first, with nulls last
-     */
-    public Comparator<Trip> compareByDate = (Trip trip1, Trip trip2) -> {
-        if (trip2.findFirstTripDate() == null) {
+    @Override
+    public int compareTo(Trip other) {
+        if (other.findFirstTripDate() == null) {
             return -1;
-        } else if (trip1.findFirstTripDate() == null) {
+        } else if (this.findFirstTripDate() == null) {
             return 1;
         } else {
-            return trip2.findFirstTripDate().compareTo(trip1.findFirstTripDate());
+            return other.findFirstTripDate().compareTo(this.findFirstTripDate());
         }
-    };
+    }
 }

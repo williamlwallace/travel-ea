@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -49,7 +50,10 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
+                .thenApplyAsync(trips -> {
+                    System.out.println("Backend: " + trips.size());
+                    return ok(Json.toJson(sortTripsByDate(trips)));
+                });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
                 .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
@@ -253,8 +257,7 @@ public class TripController extends Controller {
      * @return Sorted list of trips
      */
     private List<Trip> sortTripsByDate(List<Trip> trips) {
-        trips.sort(trips, // Call comparator from trip object here)
-        );
+        Collections.sort(trips);
 
         return trips;
     }
