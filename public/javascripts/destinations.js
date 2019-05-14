@@ -1,6 +1,6 @@
 //initilise datatable on load
 $(document).ready(function () {
-    $('#dtDestination').DataTable();
+    populateDestinations(($('#dtDestination').DataTable()));
 });
 
 /**
@@ -13,7 +13,8 @@ function fillCountryInfo(getCountriesUrl) {
     // Get the response of the request
         .then(response => {
             // Convert the response to json
-            response.json().then(data => {
+            response.json()
+            .then(data => {
                 // Json data is an array of destinations, iterate through it
                 countryDict = {};
                 for(let i = 0; i < data.length; i++) {
@@ -62,7 +63,6 @@ function addDestination(url, redirect) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
     delete data.countryId;
-
     // Post json data to given url
     post(url,data)
     .then(response => {
@@ -77,4 +77,32 @@ function addDestination(url, redirect) {
             }
         });
     });
+}
+
+/**
+ * Insert destination data into table
+ * @param {Object} table - data table object
+ */
+function populateDestinations(table) {
+    //Query api to get all destinations
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status != 200) {
+                document.getElementById("otherError").innerHTML = json;
+            } else {
+                //Loop through json and insert into table
+                for (const dest in json) {
+                    const name = json[dest].name;
+                    const type = json[dest]._type;
+                    const district = json[dest].district;
+                    const latitude = json[dest].latitude;
+                    const longitude = json[dest].longitude;
+                    const country = json[dest].country.name;
+                    table.row.add([name, type, district, latitude, longitude, country]).draw(false);
+                }
+            }
+        });
+    })
 }
