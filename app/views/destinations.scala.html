@@ -1,7 +1,8 @@
-@(destList: Seq[models.Destination], user: models.User)
+@(user: models.User)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/destinations.js")" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
 }
 
 @layouts.imageHeader("Destinations", user, "images/destination-bg.jpg", scripts){
@@ -92,15 +93,6 @@
                         </tr>
                     </thead>
                     <tbody id="destinationList">
-                    @for(d <- destList) {
-                        <tr id="@d.id">
-                            <td>@d.name</td>
-                            <td>@d._type</td>
-                            <td>@d.district</td>
-                            <td>@d.latitude</td>
-                            <td>@d.longitude</td>
-                            <td id="country" value="@d.country.id">@d.country.id</td>
-                        </tr>}
                     </tbody>
                 </table>
            </div>

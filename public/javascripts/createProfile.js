@@ -29,7 +29,6 @@ function signUp(id, uri, redirect) {
             // Read response from server, which will be a json object
             response.json()
             .then(json => {
-                console.log(json)
                 if (response.status != 201) {
                     showErrors(json);
                 } else {

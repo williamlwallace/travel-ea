@@ -566,34 +566,6 @@ paths:
         '401':
           description: Unauthorized
 
-    put:
-      tags:
-      - Profiles
-      summary: Update profile of currently logged in user
-      description: |
-        Updates the profile of an existing user who is currently logged in
-      security:
-      - UserToken: []
-      parameters:
-      - in: header
-        name: JWT-Auth
-        required: true
-        description: Authentication cookie.
-        schema:
-          type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Profile'
-      responses:
-        '200':
-          description: Successfully updated profile
-        '400':
-          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
-        '401':
-          description: Unauthorized
-
   '/profile/search':
     get:
       tags:
@@ -657,6 +629,44 @@ paths:
                 $ref: '#/components/schemas/Profile'
         '404':
           description: No profile found
+    put:
+      tags:
+      - Profiles
+      summary: Update profile of currently logged in user
+      description: |
+        Updates the profile of an existing user who is currently logged in
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: userId
+        required: true
+        description: The ID of the user for whom to retrieve their profile
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Profile'
+      responses:
+        '200':
+          description: Successfully updated profile
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: No profile found for that user
 
     delete:
       tags:

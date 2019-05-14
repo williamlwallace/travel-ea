@@ -27,37 +27,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @* Populate the table with a list of profile details
-                    @for(otherUser <- users){
-                        @if(otherUser.id != user.id) {
-                            <tr>
-                                <td>@otherUser.id</td>
-                                <td>@otherUser.username</td>
-                                <td>
-                                    @if(otherUser.id == 1) {
-                                        Master
-                                    } else {
-                                        <button class="btn btn-secondary" onclick="toggleAdmin('@controllers.backend.routes.AdminController.revokeAdmin(otherUser.id)', '@controllers.backend.routes.AdminController.grantAdmin(otherUser.id)', this)">
-                                            @if(otherUser.admin) {
-                                                Revoke admin
-                                            } else {
-                                                Grant admin
-                                            }
-                                        </button>
-                                    }
-                                </td>
-                                <td>
-                                    @if(otherUser.id == 1) {
-                                        Master
-                                    } else {
-                                        <button class="btn btn-danger">
-                                            Delete
-                                        </button>
-                                    }
-                                </td>
-                            </tr>
-                        }
-                    }  *@
                 </tbody>
             </table>
         </div>

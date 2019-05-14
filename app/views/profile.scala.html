@@ -7,6 +7,8 @@
     <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.PhotoController.photoRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", loggedUser, scripts){
@@ -20,7 +22,7 @@
     <div class="title-frame" id="title-frame">
         <div class="title-bg" style="background-image: url(@routes.Assets.at("images/profile-bg.jpg"))">
             <div class="title-text-wrap">
-                <p class="title-text">@profile.firstName @profile.lastName</p>
+                <p id="summary_name" class="title-text">@profile.firstName @profile.lastName</p>
             </div>
         </div>
     </div>
@@ -29,28 +31,28 @@
         <div class="row profile" id="startchange">
             <div class="col-12 col-md-3">
                 @* Profile Detail *@
-                <div class="profile-summary">
+                <div id="profile-summary">
                     <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture"
                     class="img-thumbnail profile-picture"
                     @if(canModify) {onclick='showProfilePictureGallery()'}
                     >
                     <div class="profile-details">
                         @if(canModify) {<p class="heading">Email <span class="user-info">@user.username</span></p>}
-                        <p class="heading">Age <span class="user-info">@profile.calculateAge()</span></p>
-                        <p class="heading">Gender <span class="user-info">@profile.gender</span></p>
-                        <p class="heading">Nationalities <span class="user-info">@profile.nationalities.toString.substring(1, profile.nationalities.toString.length - 1)</span></p>
-                        <p class="heading">Traveller Types <span class="user-info">@profile.travellerTypes.toString.substring(1, profile.travellerTypes.toString.length - 1)</span></p>
+                        <p class="heading">Age <span id="summary_age" class="user-info">@profile.calculateAge()</span></p>
+                        <p class="heading">Gender <span id="summary_gender" class="user-info">@profile.gender</span></p>
+                        <p class="heading">Nationalities <span id="summary_nationalities" class="user-info">@profile.nationalities.toString.substring(1, profile.nationalities.toString.length - 1)</span></p>
+                        <p class="heading">Traveller Types <span id="summary_travellerTypes" class="user-info">@profile.travellerTypes.toString.substring(1, profile.travellerTypes.toString.length - 1)</span></p>
                         @if(!profile.passports.isEmpty && canModify) {
                             <p class="heading">Passports
-                                <span class="user-info">
+                                <span id="summary_passports" class="user-info">
                                 @profile.passports.toString.substring(1, profile.passports.toString.length - 1)
                                 </span>
                             </p>
                         }
 
                         @if(canModify) {
-                            <a class="button-secondary" data-toggle="modal" data-target="#editProfileModal">
-                                <span class="profile-button" style="float: left; padding-top: 10px">Edit Profile</span>
+                            <a data-toggle="modal" data-target="#editProfileModal">
+                                <span class="profile-button" style="float: left; padding-top: 10px; padding-bottom: 10px;">Edit Profile</span>
                             </a>
                         }
                     </div>
@@ -319,7 +321,7 @@
                             <button class="btn btn-popup" type="button" data-toggle="modal" data-target="#editProfileModal">Cancel</button>
                             <button class="btn btn-popup" onclick=
                             'updateProfile(
-                                    "@controllers.backend.routes.ProfileController.updateProfile()",
+                                    "@controllers.backend.routes.ProfileController.updateProfile(user.id)",
                                     "@controllers.frontend.routes.ApplicationController.home()")'>
                                 Update Profile
                             </button>
