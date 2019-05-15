@@ -89,12 +89,15 @@ CREATE TABLE IF NOT EXISTS TravellerType
 CREATE TABLE IF NOT EXISTS Destination
   (
     id                INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL, -- The owner of the destination, moved to master admin when public
     name              VARCHAR(128) NOT NULL,
     type              VARCHAR(128) NOT NULL, -- We may want to make a separate table which stores these
     district          VARCHAR(128) NOT NULL,
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
+    is_public         BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
@@ -160,13 +163,13 @@ INSERT INTO Passport (user_id, country_id) VALUES (1,1);
 INSERT INTO Nationality (user_id, country_id) VALUES (1,1), (1,3);
 
 -- Add sample data for destination
-INSERT INTO Destination (name, type, district, latitude, longitude, country_id) VALUES
-    ('Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1),
-    ('Stonehenge', 'Monument', 'Salisbury', 20.0, 30.0, 2),
-    ('Sky Tower', 'Monument', 'Auckland', 40.0, 50.0, 3),
-    ('Sydney Opera House', 'Monument', 'Sydney', 50.0, 60.0, 4),
-    ('Brandenburg Gate', 'Monument', 'Berlin', 60.0, 70.0, 5),
-    ('Statue of Liberty', 'Monument', 'New York', 70.0, 80.0, 6);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES
+    (1, 'Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1, 1),
+    (1, 'Stonehenge', 'Monument', 'Salisbury', 20.0, 30.0, 2, 1),
+    (1, 'Sky Tower', 'Monument', 'Auckland', 40.0, 50.0, 3, 1),
+    (1, 'Sydney Opera House', 'Monument', 'Sydney', 50.0, 60.0, 4, 1),
+    (1, 'Brandenburg Gate', 'Monument', 'Berlin', 60.0, 70.0, 5, 1),
+    (1, 'Statue of Liberty', 'Monument', 'New York', 70.0, 80.0, 6, 1);
 
 -- Add sample data for trip
 INSERT INTO Trip (user_id) VALUES (1);
