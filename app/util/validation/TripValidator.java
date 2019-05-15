@@ -42,7 +42,7 @@ public class TripValidator {
                 });
 
         if (tripDataCollection.size() < 2) {
-            this.response.map("a trip must contain at least 2 destinations", "trip");
+            this.response.map("A trip must contain at least 2 destinations.", "trip");
         }
 
         Long lastDestinationID = 0L;
@@ -50,38 +50,32 @@ public class TripValidator {
 
         for (Object obj : tripDataCollection) {
             TripData trip = (TripData) obj;
-            String errorString = "";
 
-            if (trip.position == null) {
-                errorString += "position is null, ";
+            // Checks for destination errors
+            String errorString = checkDestinationData(trip, lastDestinationID);
+
+            // Checks for date/time errors
+            if (errorString.equals("")) {
+                errorString = checkArrivalDepartureData(trip, mostRecentDateTime);
+            }
+
+            // Checks for position errors
+            if (errorString.equals("") && trip.position == null) {
+                errorString = "Position of destination not found.";
                 trip.position = -1L;
             }
-            if (trip.destination != null) {
-                if (trip.destination.id == null) {
-                    errorString += "destinationId is null, ";
-                }
-                if (trip.destination.id == lastDestinationID) {
-                    errorString += "cannot attend same destination twice in a row, ";
-                }
-            } else {
-                errorString += "destination is null, ";
+
+            // Sets most recent date time value
+            if (trip.arrivalTime != null && (mostRecentDateTime == null || trip.arrivalTime.isAfter(mostRecentDateTime))) {
+                mostRecentDateTime = trip.arrivalTime;
             }
 
-            if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime
-                .isAfter(trip.departureTime)) {
-                errorString += "departure must be after arrival, ";
-            }
-            if (trip.arrivalTime != null || trip.departureTime != null) {
-                //todo: fix this one
-                //if(!(mostRecentDate == null) && (trip.arrivalTime.before(mostRecentDate) || trip.departureTime.before(mostRecentDate))) {
-                //    errorString += "this stage cannot occur before a previous stage, ";
-                //}
-                // Set most recent time stamp to be latest value that is not null
-                mostRecentDateTime = ((trip.departureTime != null) ? trip.departureTime
-                    : trip.arrivalTime);
+            if (trip.departureTime != null && (mostRecentDateTime == null || trip.departureTime.isAfter(mostRecentDateTime))) {
+                mostRecentDateTime = trip.departureTime;
             }
 
-            if (trip.destination != null) {
+            // Sets last destination ID value
+            if (trip.destination != null && trip.destination.id != null) {
                 lastDestinationID = trip.destination.id;
             }
 
@@ -89,8 +83,8 @@ public class TripValidator {
             if (!errorString.equals("")) {
                 this.response.map(errorString, trip.position.toString());
             }
-
         }
+
         return this.response;
     }
 
@@ -110,6 +104,48 @@ public class TripValidator {
     }
 
     /**
+     * Checks the destination data for the current destination and returns appropriate error message
+     *
+     * @param trip TripData object to be analysed
+     * @param lastDestinationID Destination ID of card previous to current card
+     * @return Error message if error found or empty string
+     */
+    private String checkDestinationData(TripData trip, Long lastDestinationID) {
+        if (trip.destination != null && trip.destination.id == null) {
+            return "Invalid destination ID.";
+        }
+        else if (trip.destination != null && trip.destination.id.equals(lastDestinationID)) {
+            return "You cannot have the same destination twice in a row.";
+        }
+        else if (trip.destination == null) {
+            return "Destination not found.";
+        }
+
+        return "";
+    }
+
+    /**
+     * Checks the arrival and departure times for the destination and returns appropriate error message
+     *
+     * @param trip TripData object to be analysed
+     * @param mostRecentDateTime Most recent recorded point of trip up to this destination card
+     * @return Error message if error found or empty string
+     */
+    private String checkArrivalDepartureData(TripData trip, LocalDateTime mostRecentDateTime) {
+        if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.isAfter(trip.departureTime)) {
+            return "The arrival time must be before the departure time.";
+        }
+        else if (trip.arrivalTime != null && mostRecentDateTime != null && trip.arrivalTime.isBefore(mostRecentDateTime)) {
+            return "The arrival time for this destination cannot be before a previous destination.";
+        }
+        else if (trip.departureTime != null && mostRecentDateTime != null && trip.departureTime.isBefore(mostRecentDateTime)) {
+            return "The departure time for this destination cannot be before a previous destination.";
+        }
+
+        return "";
+    }
+
+    /**
      * Checks field is not empty.
      *
      * @param field json field name
@@ -121,11 +157,5 @@ public class TripValidator {
             return false;
         }
         return true;
-    }
-
-    public ErrorResponse getAllTripsByUser() {
-        this.required("userId");
-
-        return this.response;
     }
 }

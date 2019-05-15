@@ -133,15 +133,8 @@ public class TripControllerTest extends WithApplication {
 
     @Test
     public void createTripNoDest() {
-        CountryDefinition countryDefinition = new CountryDefinition();
-        countryDefinition.id = 1L;
-
-        TripData tripData1 = new TripData();
-
         Trip trip = new Trip();
-        List<TripData> tripArray = new ArrayList<>();
-            tripArray.add(tripData1);
-        trip.tripDataList = tripArray;
+        trip.tripDataList = new ArrayList<>();
 
         JsonNode node = Json.toJson(trip);
 
