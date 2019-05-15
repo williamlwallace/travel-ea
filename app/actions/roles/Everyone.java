@@ -11,10 +11,9 @@ import play.mvc.Result;
 public class Everyone extends Action.Simple {
 
     /**
-     * TODO: Campbell add javadoc.
-     *
+     * Action to pass in the desired roles into the authenticator
      * @param request HTTP request
-     * @return TODO
+     * @return passes request to next action with the role as an attribute
      */
     public CompletionStage<Result> call(Http.Request request) {
         List<String> roles = new ArrayList<>();
