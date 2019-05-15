@@ -39,7 +39,7 @@ public class TravellerTypeDefinitionRepository {
      *
      * @param id The id of the TravellerTypeDefinition
      * @return The TravellerTypeDefinition with matching id, null if no TravellerTypeDefinition
-     *  found
+     * found
      */
     public CompletableFuture<TravellerTypeDefinition> getTravellerTypeDefinitionById(Long id) {
         return supplyAsync(() ->
@@ -56,7 +56,7 @@ public class TravellerTypeDefinitionRepository {
      *
      * @param description The full or partial description to search for
      * @return The first TravellerTypeDefinition which has a matching description, or null if no
-     *  matching description found
+     * matching description found
      */
     public CompletableFuture<TravellerTypeDefinition> getTravellerTypeDefinitionByDescription(
         String description) {

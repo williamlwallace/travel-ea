@@ -12,9 +12,9 @@ INSERT INTO CountryDefinition (name) VALUES ('France');
 INSERT INTO CountryDefinition (name) VALUES ('New Zealand');
 
 -- Create 2 test destinations for trips
-INSERT INTO Destination (name, type, district, latitude, longitude, country_id) VALUES ('Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1);
-INSERT INTO Destination (name, type, district, latitude, longitude, country_id) VALUES ('Sky Tower', 'Monument', 'Auckland', -36.8484, 174.76000, 2);
-INSERT INTO Destination (name, type, district, latitude, longitude, country_id) VALUES ('Britomart Monument', 'Monument', 'Akaroa', -43.81546, 172.94883, 2);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Sky Tower', 'Monument', 'Auckland', -36.8484, 174.76000, 2);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Britomart Monument', 'Monument', 'Akaroa', -43.81546, 172.94883, 2);
 
 -- Create 2 Trips for testing
 INSERT INTO Trip (user_id) VALUES (1);

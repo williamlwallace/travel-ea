@@ -89,12 +89,15 @@ CREATE TABLE IF NOT EXISTS TravellerType
 CREATE TABLE IF NOT EXISTS Destination
   (
     id                INT NOT NULL AUTO_INCREMENT,
+    user_id           INT NOT NULL, -- The owner of the destination, moved to master admin when public
     name              VARCHAR(128) NOT NULL,
     type              VARCHAR(128) NOT NULL, -- We may want to make a separate table which stores these
     district          VARCHAR(128) NOT NULL,
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
+    is_public         BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );

@@ -11,7 +11,7 @@ div.profile {
 /**
  * The left hand summary of the users details/profile-picture
  */
-div.profile-summary {
+ #profile-summary {
     background-color: #FFFFFF;
     width: 68%;
     height: auto;
@@ -29,6 +29,7 @@ div.profile-summary {
 div.profile-details {
     padding-top: 10px;
     padding-left: 5px;
+    overflow:auto;
 }
 
 /**
@@ -144,15 +145,19 @@ span.profile-button:hover {
     text-decoration-line: underline;
 }
 
-.tripTable tr{
-    cursor: pointer;
+
+.privacy-image {
+    max-height: 80%;
+    max-width: 80%;
+    opacity: 0.45;
 }
 
-.tripArrow {
-    transform: rotate(90deg);
-    height: 10px;
-    max-height: 10%;
-    max-width: 10%;
+.privacy-image:hover {
+    opacity: 0.9;
+}
+
+tr.clickable-row {
+    cursor: pointer
 }
 
 /* Limit image width to avoid overflow the container */
@@ -202,3 +207,105 @@ img {
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+
+section#timeline {
+    width: 80%;
+    margin: 20px auto;
+    position: relative;
+}
+section#timeline:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    margin: 0 0 0 -1px;
+    width: 2px;
+    height: 100%;
+    background: #c5c5c5;
+}
+section#timeline article {
+    width: 100%;
+    margin: 0 0 20px 0;
+    position: relative;
+}
+section#timeline article:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+section#timeline article div.inner {
+    width: 40%;
+    float: left;
+    margin: 5px 0 0 0;
+    border-radius: 6px;
+}
+section#timeline article div.inner span.date {
+    display: block;
+    width: 60px;
+    height: 70px;
+    padding: 5px 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin: 0 0 0 -32px;
+    border-radius: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #ffffff;
+    color: #434343;
+    /*border: 2px solid #c5c5c5;*/
+}
+section#timeline article div.inner span.date span {
+    display: block;
+    text-align: center;
+}
+section#timeline article div.inner span.date span.day {
+    font-size: 10px;
+}
+section#timeline article div.inner span.date span.month {
+    font-size: 18px;
+}
+section#timeline article div.inner span.date span.year {
+    font-size: 10px;
+}
+section#timeline article div.inner h2 {
+    padding: 15px;
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: -1px;
+    border-radius: 6px 6px 0 0;
+    position: relative;
+}
+section#timeline article div.inner h2:after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    -webkit-transform: rotate(-45deg);
+}
+section#timeline article div.inner p {
+    padding: 15px;
+    margin: 0;
+    font-size: 14px;
+    background: #e0e0e0;
+    color: #434343;
+    border-radius: 0 0 6px 6px;
+}
+section#timeline article:nth-child(2n+2) div.inner {
+    float: right;
+}
+section#timeline article:nth-child(2n+2) div.inner h2:after {
+    left: -5px;
+}
+section#timeline article:nth-child(n) div.inner h2 {
+    background: #5283B7;
+}
+section#timeline article:nth-child(n) div.inner h2:after {
+    background: #5283B7;
+}

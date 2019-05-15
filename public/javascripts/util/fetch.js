@@ -51,6 +51,21 @@ function put(uri, data) {
 }
 
 /**
+ * Sends PUT request to API
+ * @param {string} uri - API URI 
+ * @param {JSON} data - JSON request body
+ */
+function patch(uri, data) {
+    return fetch(uri, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    })
+}
+
+/**
  * Sends DELETE request to API
  * @param {string} uri - API URI 
  */

@@ -8,7 +8,11 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -52,8 +56,9 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return this.getUserTrips(Authenticator.getTokenFromCookie(request), request).thenApplyAsync(
-            tripList -> ok(trips.render(user, asScala(tripList))), httpExecutionContext.current());
+        return this.getUserTrips(request).thenApplyAsync(
+                tripList -> ok(trips.render(user, asScala(tripList)))
+                , httpExecutionContext.current());
     }
 
     /**
@@ -97,20 +102,19 @@ public class TripController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(String token, Http.Request request) {
+    public CompletableFuture<List<Trip>> getUserTrips(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips(user.id);
         CompletableFuture<WSResponse> res = ws
             .url(url)
-            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+            .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
             .get()
             .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<List<Trip>>() {
-                    });
+                        new TypeReference<List<Trip>>() {});
             } catch (Exception e) {
                 return new ArrayList<>();
             }
@@ -123,7 +127,8 @@ public class TripController extends Controller {
      * @return Trip object wrapped in completable future
      */
     public CompletableFuture<Trip> getTrip(String token, Long tripId, Http.Request request) {
-        String url = "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
+        String url =
+            "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", token))

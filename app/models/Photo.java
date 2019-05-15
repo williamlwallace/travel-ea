@@ -1,14 +1,14 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import org.joda.time.DateTime;
-import play.data.validation.Constraints;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
 
 /**
  * A class that models the Photo database table

@@ -7,6 +7,8 @@ import io.ebean.EbeanServer;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
+
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
@@ -37,19 +39,23 @@ public class TripRepository {
             return newTrip.id;
         }, executionContext);
     }
-    
+
     /**
      * Updates a trip
      *
      * @param trip the updated trip
-     * @return true or an error is thrown
+     * @return true on successful update or false on fail
      */
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
         return supplyAsync(() -> {
+            try {
                 ebeanServer.update(trip);
                 return true;
-            },
-            executionContext);
+            }
+            catch (EntityNotFoundException ex) {
+                return false;
+            }
+        }, executionContext);
     }
 
     /**
@@ -106,12 +112,12 @@ public class TripRepository {
      */
     public CompletableFuture<List<Trip>> getAllPublicUserTrips(long userID) {
         return supplyAsync(() ->
-                        ebeanServer.find(Trip.class)
-                                .where()
-                                .eq("user_id", userID)
-                                .eq("privacy", 1)
-                                .findList()
-                , executionContext);
+                ebeanServer.find(Trip.class)
+                    .where()
+                    .eq("user_id", userID)
+                    .eq("privacy", 1)
+                    .findList()
+            , executionContext);
     }
 
     /**
@@ -121,9 +127,9 @@ public class TripRepository {
      */
     public CompletableFuture<List<Trip>> getAllTrips() {
         return supplyAsync(() ->
-                        ebeanServer.find(Trip.class)
-                                .findList()
-                , executionContext);
+                ebeanServer.find(Trip.class)
+                    .findList()
+            , executionContext);
     }
 
     /**

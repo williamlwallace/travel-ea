@@ -2,8 +2,8 @@ package controllers.backend;
 
 import actions.ActionState;
 import actions.Authenticator;
-import actions.roles.Everyone;
 import actions.roles.Admin;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.ProfileRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.validation.ErrorResponse;
@@ -55,7 +56,7 @@ public class ProfileController extends Controller {
      *
      * @param request Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
-     *  badRequest if profile already exists
+     * badRequest if profile already exists
      */
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get json parameters
@@ -95,7 +96,7 @@ public class ProfileController extends Controller {
      * Gets a profile based on the userID specified in auth.
      *
      * @return Ok with profile json object if profile found, badRequest if request malformed or
-     *  profile not found
+     * profile not found
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getMyProfile(Http.Request request) {
@@ -124,21 +125,21 @@ public class ProfileController extends Controller {
             });
     }
 
-    /**
-     * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types.
-     *
-     * @param request Contains the HTTP request info
-     * @return Ok if updated successfully, badRequest if profile json malformed
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletionStage<Result> updateProfile(Http.Request request) {
-        //Get user
-        User user = request.attrs().get(ActionState.USER);
-        // Get json parameters
-        JsonNode json = request.body().asJson();
-        return updateProfileHelper(json, user.id);
-    }
+    // /**
+    //  * Updates the profile received in the body of the request as well as the related nationalities,
+    //  * passports and traveller types.
+    //  *
+    //  * @param request Contains the HTTP request info
+    //  * @return Ok if updated successfully, badRequest if profile json malformed
+    //  */
+    // @With({Everyone.class, Authenticator.class})
+    // public CompletionStage<Result> updateMyProfile(Http.Request request) {
+    //     //Get user
+    //     User user = request.attrs().get(ActionState.USER);
+    //     // Get json parameters
+    //     JsonNode json = request.body().asJson();
+    //     return updateProfileHelper(json, user.id);
+    // }
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
@@ -147,11 +148,16 @@ public class ProfileController extends Controller {
      * @param request Contains the HTTP request info
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
-    @With({Admin.class, Authenticator.class})
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
-        // Get json parameters
-        JsonNode data = request.body().asJson();
-        return updateProfileHelper(data, userId);
+        User user = request.attrs().get(ActionState.USER);
+        if (userId == user.id || user.admin) {
+            // Get json parameters
+            JsonNode data = request.body().asJson();
+            return updateProfileHelper(data, userId);
+        } else {
+            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
+        }
     }
 
     /**
@@ -193,7 +199,7 @@ public class ProfileController extends Controller {
      *
      * @param id Contains the HTTP request info
      * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
-     *  not found for that userID.
+     * not found for that userID.
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteProfile(Long id) {
@@ -219,7 +225,8 @@ public class ProfileController extends Controller {
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId, String gender,
+    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
+        String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
@@ -279,10 +286,24 @@ public class ProfileController extends Controller {
      * @return A ok result containing the JSON of the profiles matching search criteria
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId, String gender,
+    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId,
+        String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
             .thenApplyAsync(profiles ->
                 ok(Json.toJson(profiles)));
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend
+     *
+     * @return JSRouter Play result
+     */
+    public Result profileRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
