@@ -1,6 +1,8 @@
+let table;
+
 //initilise datatable on load
 $(document).ready(function () {
-    populateDestinations(($('#dtDestination').DataTable()));
+    table = $('#dtDestination').DataTable();
 });
 
 /**
@@ -83,7 +85,7 @@ function addDestination(url, redirect) {
  * Insert destination data into table
  * @param {Object} table - data table object
  */
-function populateDestinations(table) {
+function populateDestinations(isAdmin) {
     //Query api to get all destinations
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
     .then(response => {
