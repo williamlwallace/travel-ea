@@ -282,7 +282,6 @@ function formatDateTime(date, time) {
  * @param {Object} json - Error Response Json
  */
 function showErrors(json) {
-    console.log(json);
     // Gets all the error key identifiers
     let keys = Object.keys(json);
 
@@ -294,7 +293,7 @@ function showErrors(json) {
             '<span>'+ json["trip"] +'</span></div>';
     }
     else {
-        tripError.innerText = "";
+        tripError.innerHTML = "";
     }
 
     // Resets and sets the card error labels
