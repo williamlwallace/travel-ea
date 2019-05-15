@@ -50,10 +50,16 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
+                .thenApplyAsync(trips -> {
+                    Collections.sort(trips);
+                    return ok(Json.toJson(trips));
+                });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
+                .thenApplyAsync(trips -> {
+                    Collections.sort(trips);
+                    return ok(Json.toJson(trips));
+                });
         }
     }
 
@@ -65,7 +71,7 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
+            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }
 
     /**
@@ -245,18 +251,6 @@ public class TripController extends Controller {
         }
         // Return create trip data list
         return tripDataList;
-    }
-
-    /**
-     * Sorts list of trips with most recent date first and no dates at the end
-     *
-     * @param trips List of trips to be sorted
-     * @return Sorted list of trips
-     */
-    private List<Trip> sortTripsByDate(List<Trip> trips) {
-        Collections.sort(trips);
-
-        return trips;
     }
 
     /**
