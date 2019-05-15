@@ -168,7 +168,7 @@
                                                                         }
                                                                         @if(dest.departureTime != null) {
                                                                             Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}<br>
-                                                                            @dest.departureTime.getDayOfMonth()<sup>th</sup> @dest.departureTime.getMonth() @dest.departureTime.getYear()
+                                                                            @dest.departureTime.getDayOfMonth() @dest.departureTime.getMonth() @dest.departureTime.getYear()
                                                                         }
                                                                     </p>
                                                                 </div>
