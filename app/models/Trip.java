@@ -1,6 +1,8 @@
 package models;
 
 import io.ebean.Model;
+
+import java.util.Comparator;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -14,7 +16,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "Trip")
-public class Trip extends Model {
+public class Trip extends Model implements Comparable<Trip> {
 
     @Id
     public Long id;
@@ -43,5 +45,23 @@ public class Trip extends Model {
         }
 
         return null;
+    }
+
+    /**
+     * Comparator which allows for trips to be compared and sorted by date
+     * Will sort by recent first, with nulls last
+     *
+     * @param other Trip to compare against
+     * @return Negative or zero integer if this trip should be first, otherwise positive
+     */
+    @Override
+    public int compareTo(Trip other) {
+        if (other.findFirstTripDate() == null) {
+            return -1;
+        } else if (this.findFirstTripDate() == null) {
+            return 1;
+        } else {
+            return other.findFirstTripDate().compareTo(this.findFirstTripDate());
+        }
     }
 }
