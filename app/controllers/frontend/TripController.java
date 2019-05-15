@@ -116,7 +116,6 @@ public class TripController extends Controller {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                         new TypeReference<List<Trip>>() {});
             } catch (Exception e) {
-                e.printStackTrace();    // TODO: Remove
                 return new ArrayList<>();
             }
         });

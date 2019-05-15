@@ -50,10 +50,7 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(trips -> {
-                    System.out.println("Backend: " + trips.size());
-                    return ok(Json.toJson(sortTripsByDate(trips)));
-                });
+                .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
                 .thenApplyAsync(trips -> ok(Json.toJson(sortTripsByDate(trips))));
