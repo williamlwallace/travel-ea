@@ -165,8 +165,8 @@ public class UserController extends Controller {
                         return badRequest(validatorResult
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
-                        if (request.header("Cookie").toString() == "Optional.empty") {
-                            //If the uid is not null, return an ok message with the uid contained within
+                        if (request.cookies().getCookie(JWT_AUTH).orElse(null) == null) {
+                            //If the auth cookie is not null, return an ok message with the uid contained within
                             return ok(Json.toJson(SUCCESS))
                                 .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
                         } else {
