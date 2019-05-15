@@ -82,8 +82,8 @@
                                                     <div class="inner">
                                                         @if(dest.arrivalTime != null) {
                                                             <span class="date">
-                                                                <span class="day">@dest.arrivalTime.getDayOfMonth()<sup>th</sup></span>
-                                                                <span class="month">@dest.arrivalTime.getMonth()</span>
+                                                                <span class="day">@dest.arrivalTime.getDayOfMonth()</span>
+                                                                <span class="month">@dest.arrivalTime.getMonth().toString().substring(0,3)</span>
                                                                 <span class="year">@dest.arrivalTime.getYear()</span>
                                                             </span>
                                                         }
@@ -108,7 +108,7 @@
 
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
-                                                <button id="editTrip" type="button" class="btn btn-popup" onclick="location.href='/trips/edit/@t.id';">Edit Trip</button>
+                                                <a href="/trips/edit/@t.id"><button id="editTrip" type="button" class="btn btn-popup" >Edit Trip</button></a>
                                             </div>
                                         </div>
                                     </div>
