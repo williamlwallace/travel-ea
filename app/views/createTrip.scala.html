@@ -95,7 +95,7 @@
                                             @trip.tripDataList(i).destination.longitude
                                             <br/>
                                             <b>Country: </b>
-                                            <label id="countryField">loading...</label>
+                                            <label id="countryField">@trip.tripDataList(i).destination.country.name</label>
                                         </p>
                                     </div>
                                     <div id="right">
@@ -133,70 +133,8 @@
 
         <!-- Create destination form -->
         <div class="container">
-            <div class="modal fade" id="modalContactForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
-            aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header text-center">
-                            <h4 class="modal-title w-100 font-weight-bold">Create New Destination</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <form id="addDestinationForm">
-                            <div class="modal-body mx-3">
-                                <div>Name
-                                    <i class="fas prefix grey-text"></i>
-                                    <input type="text" name="name" class="form-control validate" required>
-                                    <label id="nameError"></label>
-                                </div>
-
-                                <div>Type
-                                    <i class="fas prefix grey-text"></i>
-                                    <input type="text" name="_type" class="form-control validate" required>
-                                    <label id=_typeError"></label>
-                                </div>
-
-                                <div>District
-                                    <i class="fas prefix grey-text"></i>
-                                    <input type="text" name="district" class="form-control validate" required>
-                                    <label id="districtError"></label>
-                                </div>
-
-                                <div>Latitude
-                                    <i class="fas prefix grey-text"></i>
-                                    <input type="text" name="latitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
-                                    <label id="latitudeError"></label>
-                                </div>
-
-                                <div>Longitude
-                                    <i class="fas prefix grey-text"></i>
-                                    <input type="text" name="longitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
-                                    <label id="longitudeError"></label>
-                                </div>
-
-                                <div>Country
-                                    <i class="fas prefix grey-text"></i>
-                                    <select id="countryDropDown" name="countryId" class="form-control validate">
-                                        // Countries inserted from script here
-                                    </select>
-                                    <label id="countryError"></label>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#modalContactForm">
-                                Cancel<i class="fas fa-paper-plane-o ml-1"></i>
-                            </button>
-                            <button class="btn btn-popup" onclick=
-                            'newDestination("@controllers.backend.routes.DestinationController.addNewDestination()")'>
-                                Create
-                            </button>
-                            <label id="otherError"></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            @modules.createDestinationForm()
+        </div>
 
 
         <!-- Edit arrival depart times form -->
@@ -259,7 +197,6 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        @*TODO: Fix this section now that destinations controller has been removed*@
                                         @for(d <- destList) {
                                             <tr id="@d.id">
                                                 <td>@d.name</td>
@@ -267,7 +204,7 @@
                                                 <td>@d.district</td>
                                                 <td>@d.latitude</td>
                                                 <td>@d.longitude</td>
-                                                <td id="country">@d.country.id</td>
+                                                <td id="country">@d.country.name</td>
                                                 <td><button class="btn btn-popup" type="button" onclick='addDestinationToTrip(["@d.id", "@d.name", "@d._type", "@d.district", "@d.latitude", "@d.longitude", "@d.country.id"])'>Add</button></td>
                                             </tr>
                                         }

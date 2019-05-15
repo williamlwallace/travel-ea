@@ -1,28 +1,27 @@
 let countryDict = {};
 
 /**
- * Gets and fills country data in dropdown, card fields, and destinations fields
- * @param {string} getCountriesUri - API URI to get countries from
+ * Gets all countries and fills into dropdown
+ * @param {stirng} getCountriesUrl - get all countries URI
  */
-function fillCountryInfo(getCountriesUri) {
+function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
-    get(getCountriesUri)
+    get(getCountriesUrl)
     // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-            // Json data is an array of destinations, iterate through it
-            for(let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-
-            // Now fill the drop down box, and list of destinations
-            updateCountryCardField(countryDict);
-            fillDropDown("countryDropDown", countryDict);
-            updateDestinationsCountryField(countryDict);
+        .then(response => {
+            // Convert the response to json
+            response.json()
+                .then(data => {
+                    // Json data is an array of destinations, iterate through it
+                    let countryDict = {};
+                    for(let i = 0; i < data.length; i++) {
+                        // Also add the item to the dictionary
+                        countryDict[data[i]['id']] = data[i]['name'];
+                    }
+                    // Now fill the drop down box, and list of destinations
+                    fillDropDown("countryDropDown", countryDict);
+                });
         });
-    });
 }
 
 /**
