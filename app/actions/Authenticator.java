@@ -68,20 +68,21 @@ public class Authenticator extends Action.Simple {
      * degree otherwise redirect or return forbiden
      *
      * @param request HTTP request
-     * @return Play
+     * @return 403 or 401 if auth fails else continue and put the user in the request
      */
     public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromCookie(request);
         // Check if api or not and set failure response
         Result fail;
         if (request.uri().contains("/api/")) {
-            fail = forbidden(Json.toJson("Forbidden"));
+            fail = (token == null) ? unauthorized(Json.toJson("Unauthorized")) : forbidden(Json.toJson("Forbidden"));
         } else {
             fail = redirect(controllers.frontend.routes.ApplicationController.cover())
                 .discardingCookie(JWT_AUTH);
         }
 
         if (token != null) {
+            //get the userId if authentication is authentic
             Long userId = CryptoManager
                 .veryifyToken(token, config.getString("play.http.secret.key"));
             if (userId != null) {
