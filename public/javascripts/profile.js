@@ -43,7 +43,7 @@ function updateProfile(uri, redirect) {
 
 /**
  * Maps a json object to the profile summary data and updates it
- * @param {Object} data Json data object 
+ * @param {Object} data Json data object
  */
 function updateProfileData(data) {
     document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
@@ -73,49 +73,6 @@ function calc_age(dt1) {
     diff /= (60 * 60 * 24);
     // Best convertion method without moment etc
     return Math.abs(Math.floor(diff/365.25));
-}
-
-
-/**
- * Updates a trips privacy when the toggle is used
- * @param {string} uri Route for updating trip privacy
- * @param {string} imageSrc Source of new icon image to use
- * @param {Number} tripId Id of trip to update
- * @param {string} newPrivacy Privacy status selected by user
- */
-function updateTripPrivacy(uri, imageSrc, tripId, newPrivacy) {
-    let currentPrivacy = document.getElementById("privacyImg").title;
-
-    // Don't need to update privacy to the same status
-    if (currentPrivacy === newPrivacy) {
-        return;
-    }
-
-    let tripData = {
-        "id": tripId
-    };
-
-    if (newPrivacy === "Public") {
-        tripData["privacy"] = 1;
-    }
-    else if (newPrivacy === "Private") {
-        tripData["privacy"] = 0;
-    }
-    else {
-        return;
-    }
-
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-            .then(json => {
-                // On successful update
-                if (response.status === 200) {
-                    document.getElementById("privacyImg").title = newPrivacy;
-                    document.getElementById("privacyImg").src = imageSrc;
-                }
-            });
-    });
 }
 
 /**

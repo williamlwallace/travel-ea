@@ -134,63 +134,52 @@
                                                             @if(canModify) {
                                                             <div class="dropdown">
                                                                 @if(t.privacy == 1) {
-                                                                    <input id="privacyImg" type="image" title="Public" src="@routes.Assets.at("images/public.png")">
+                                                                    <input id="privacyImg" class="privacy-image" type="image" title="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
                                                                 } else {
-                                                                    <input id="privacyImg" type="image" title="Private" src="@routes.Assets.at("images/private.png")">
+                                                                    <input id="privacyImg" class="privacy-image" type="image" title="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
                                                                 }
-                                                                <div class="dropdown-content">
-                                                                    <a id="changeImg" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', @t.id, 'Public')">Public</a>
-                                                                    <a id="changeImg" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/private.png")', @t.id, 'Private')">Private</a>
-                                                                </div>
                                                             </div>
                                                             }
 
-                                                            @*<input type="image" title="Private" src="@routes.Assets.at("images/private.png")">*@
                                                             <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
                                                         </div>
 
-                                                        <div class="modal-body text-center">
-                                                            @for(dest <- t.tripDataList) {
-                                                                @if(dest.eq(t.tripDataList.last)) {
-                                                                    <br>
-                                                                    <div>@dest.destination.name
-                                                                        <p>@dest.destination.country</p>
-                                                                        @if(!dest.departureTime.eq(null)) {
-                                                                            DEP: @dest.departureTime
+                                                        <section id="timeline">
+                                                        @for(dest <- t.tripDataList) {
+                                                            <article>
+                                                                <div class="inner">
+                                                                    @if(dest.arrivalTime != null) {
+                                                                        <span class="date">
+                                                                            <span class="day">@dest.arrivalTime.getDayOfMonth()</span>
+                                                                            <span class="month">@dest.arrivalTime.getMonth().toString().substring(0,3)</span>
+                                                                            <span class="year">@dest.arrivalTime.getYear()</span>
+                                                                        </span>
+                                                                    }
+                                                                    <h2>
+                                                                        @dest.destination.name<br>
+                                                                        @dest.destination.country
+                                                                    </h2>
+                                                                    <p>
+                                                                        @if(dest.arrivalTime != null) {
+                                                                            Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
                                                                         }
-                                                                        @if(!dest.arrivalTime.eq(null)) {
-                                                                            ARR: @dest.arrivalTime
+                                                                        @if(dest.departureTime != null) {
+                                                                            Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}<br>
+                                                                            @dest.departureTime.getDayOfMonth() @dest.departureTime.getMonth() @dest.departureTime.getYear()
                                                                         }
-                                                                    </div>
-                                                                } else {
-                                                                    <br>
-                                                                    <div>@dest.destination.name
-                                                                        <p>@dest.destination.country</p>
-                                                                        @if(!dest.departureTime.eq(null)) {
-                                                                            DEP: @dest.departureTime
-                                                                        }
-                                                                        @if(!dest.arrivalTime.eq(null)) {
-                                                                            ARR: @dest.arrivalTime
-                                                                        }
-                                                                    </div>
-                                                                    <img class="tripArrow" src= "@routes.Assets.at("images/arrow.png")"><br>
-                                                                }
-                                                            }
-                                                        </div>
+                                                                    </p>
+                                                                </div>
+                                                            </article>
+                                                        }
+                                                        </section>
 
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
                                                             @if(canModify) {
-                                                                <button id="editTrip" type="button" class="btn btn-popup" onclick="viewTrip(@t.id)">
-                                                                    Edit Trip</button>
-                                                                <script>
-                                                                        function viewTrip(url) {
-                                                                            window.location.href = "/trips/edit/" + url;
-                                                                        }
-                                                                </script>
+                                                                <a href="/trips/edit/@t.id"><button id="editTrip" type="button" class="btn btn-popup" >Edit Trip</button></a>
                                                             }
                                                         </div>
                                                     </div>
