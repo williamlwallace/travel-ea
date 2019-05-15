@@ -66,8 +66,7 @@ public class PersonalPhotoTestSteps extends WithApplication {
     /**
      * Stop the fake app
      */
-
-    public static void stopApp() {
+    private static void stopApp() {
         // Stop the fake app running
         Helpers.stop(fakeApp);
     }
@@ -90,6 +89,7 @@ public class PersonalPhotoTestSteps extends WithApplication {
                     .uri("/api/photo/" + photos.get(i).get("guid"));
 
             Result deleteResult = route(fakeApp, deleteRequest);
+            Assert.assertEquals(OK, deleteResult.status());
         }
 
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
@@ -128,7 +128,7 @@ public class PersonalPhotoTestSteps extends WithApplication {
 
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
-                .method("POST")
+                .method(POST)
                 .cookie(authCookie)
                 .bodyRaw(
                         partsList,
@@ -154,8 +154,10 @@ public class PersonalPhotoTestSteps extends WithApplication {
                 .uri("/api/photo/1");
 
         Result result = route(fakeApp, request);
+        Assert.assertEquals(OK, result.status());
         JsonNode photos = new ObjectMapper()
                 .readValue(Helpers.contentAsString(result), JsonNode.class);
+        System.out.println(photos);
 
         Assert.assertEquals(int1, photos.size());
     }
