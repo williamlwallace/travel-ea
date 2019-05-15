@@ -16,30 +16,15 @@ function fillCountryInfo(getCountriesUrl) {
             response.json()
             .then(data => {
                 // Json data is an array of destinations, iterate through it
-                countryDict = {};
+                let countryDict = {};
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     countryDict[data[i]['id']] = data[i]['name'];
                 }
                 // Now fill the drop down box, and list of destinations
                 fillDropDown("countryDropDown", countryDict);
-                updateDestinationsCountryField(countryDict);
             });
         });
-}
-
-/**
- * Updates destination list with countries
- * @param {Object} countryDict - Dictionary of countries
- */
-function updateDestinationsCountryField(countryDict) {
-    // Iterate through all destinations to add
-    var tds = document.querySelectorAll('#destinationList td'), i;
-    for(i = 0; i < tds.length; ++i) {
-        if(tds[i].id === "country"){
-            tds[i].innerHTML = countryDict[parseInt(tds[i].childNodes[0].data)]; // No idea why tds[i].value is not working
-        }
-    }
 }
 
 /**
