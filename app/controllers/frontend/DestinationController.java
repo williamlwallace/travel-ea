@@ -46,21 +46,25 @@ public class DestinationController extends Controller {
      * Checks that a user is logged in. Takes them to the destinations page if they are, otherwise
      * they are taken to the start page.
      *
+     * @param request Http request containing authentication information
      * @return displays the destinations or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public Result index(Http.Request request) {
+    public CompletableFuture<Result> index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        //return this.getDestinations(request).thenApplyAsync(
-        return ok(destinations.render(user));
+
+        return this.getDestinations(request, user.id).thenApplyAsync(
+                destList -> ok(destinations.render(user, asScala(destList))), httpExecutionContext.current());
     }
 
     /**
      * Gets Destinations from api endpoint via get request.
      *
-     * @return List of destinations wrapped in completable future
+     * @param request Http request containing authentication information
+     * @param userId ID of user to retrieve destinations for
+     * @return List of destinations
      */
-    public CompletableFuture<List<Destination>> getDestinations(Http.Request request, Long userId) {
+    CompletableFuture<List<Destination>> getDestinations(Http.Request request, Long userId) {
         String url = "http://" + request.host() + controllers.backend.routes.DestinationController.getAllDestinations(userId);
         CompletableFuture<WSResponse> res = ws
                 .url(url)
@@ -68,8 +72,8 @@ public class DestinationController extends Controller {
                 .get()
                 .toCompletableFuture();
         return res.thenApply(r -> {
-            JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
+                JsonNode json = r.getBody(WSBodyReadables.instance.json());
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
                     new TypeReference<List<Destination>>() {
                     });

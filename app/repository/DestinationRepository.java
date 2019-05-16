@@ -211,20 +211,26 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets a list of all the destinations in the database.
+     * Gets all the destinations valid for the specified user
      *
-     * @return list of destinations
+     * @param userId ID of user to retrieve destinations for
+     * @return List of destinations
      */
     public CompletableFuture<List<Destination>> getAllDestinations(Long userId) {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
                 .where()
-                .eq("userId", userId)
+                .eq("user_id", userId)
                 .or()
                 .eq("is_public", 1)
                 .findList()
                 , executionContext);
     }
 
+    /**
+     * Gets all the public destinations
+     *
+     * @return List of destinations
+     */
     public CompletableFuture<List<Destination>> getAllPublicDestinations() {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
                         .where()

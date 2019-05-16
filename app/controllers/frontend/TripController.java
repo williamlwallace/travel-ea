@@ -8,11 +8,7 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -36,10 +32,9 @@ public class TripController extends Controller {
     private DestinationController destinationController;
 
     @Inject
-    public TripController(
-        HttpExecutionContext httpExecutionContext,
-        WSClient ws,
-        DestinationController destinationController) {
+    public TripController(HttpExecutionContext httpExecutionContext,
+                          WSClient ws,
+                          DestinationController destinationController) {
 
         this.httpExecutionContext = httpExecutionContext;
         this.ws = ws;
@@ -57,8 +52,8 @@ public class TripController extends Controller {
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getUserTrips(request).thenApplyAsync(
-                tripList -> ok(trips.render(user, asScala(tripList)))
-                , httpExecutionContext.current());
+                tripList -> ok(trips.render(user, asScala(tripList))),
+                httpExecutionContext.current());
     }
 
     /**
@@ -71,10 +66,17 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> createTripIndex(Http.Request request, Long userId) {
         User loggedInUser = request.attrs().get(ActionState.USER);
+
         return destinationController.getDestinations(request, userId).thenApplyAsync(
-            destList -> (!destList.isEmpty()) ?
-                    ok(createTrip.render(loggedInUser, userId, asScala(destList), new Trip())) : internalServerError(),
-            httpExecutionContext.current());
+                destList -> {
+                    Long createTripUser = loggedInUser.id;
+                    // If user is allowed, render the create trip page for the user specified in the parameter
+                    if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
+                        createTripUser = userId;
+                    }
+                    return ok(createTrip.render(loggedInUser, createTripUser, asScala(destList), new Trip()));
+                },
+                httpExecutionContext.current());
     }
 
     /**
@@ -87,12 +89,22 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
+
         return getTrip(request, tripId).thenComposeAsync(
-                trip -> destinationController.getDestinations(request, trip.userId).thenApplyAsync(
-                        destList -> (!destList.isEmpty()) ? ok(
-                            createTrip.render(user, trip.userId, asScala(destList), trip))
-                            : internalServerError(), httpExecutionContext.current()),
-            httpExecutionContext.current());
+                trip -> {
+                    // If user is allowed to edit trip, renders edit trip page
+                    if (user.admin || user.id.equals(trip.userId)) {
+                        return destinationController.getDestinations(request, trip.userId).thenApplyAsync(
+                                destList -> ok(createTrip.render(user, trip.userId, asScala(destList), trip)), httpExecutionContext.current());
+                    }
+                    // Else renders trips page
+                    else {
+                        return this.getUserTrips(request).thenApplyAsync(
+                                tripList -> ok(trips.render(user, asScala(tripList))),
+                                httpExecutionContext.current());
+                    }
+                },
+                httpExecutionContext.current());
     }
 
     /**
@@ -100,7 +112,7 @@ public class TripController extends Controller {
      *
      * @return List of trips wrapped in completable future
      */
-    public CompletableFuture<List<Trip>> getUserTrips(Http.Request request) {
+    private CompletableFuture<List<Trip>> getUserTrips(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips(user.id);
         CompletableFuture<WSResponse> res = ws
@@ -120,13 +132,14 @@ public class TripController extends Controller {
     }
 
     /**
-     * Gets trip by tripId from api endpoint via get request.
+     * Gets a trip from the database
      *
-     * @return Trip object wrapped in completable future
+     * @param request Http request containing authentication information
+     * @param tripId ID of trip to retrieve
+     * @return Requested trip object
      */
-    public CompletableFuture<Trip> getTrip(Http.Request request, Long tripId) {
-        String url =
-            "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
+    private CompletableFuture<Trip> getTrip(Http.Request request, Long tripId) {
+        String url = "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))

@@ -110,7 +110,7 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Gets all the destinations valid for the requesting user
+     * Gets all destinations valid for the requesting user
      *
      * @param request Http request containing authentication information
      * @param userId ID of user to retrieve destinations for
@@ -118,8 +118,6 @@ public class DestinationController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
-        // TODO: Fix destinations page to accept userId in route
-        // TODO: Fix createTrip page bug
         User user = request.attrs().get(ActionState.USER);
 
         if (user.admin || user.id.equals(userId)) {
@@ -130,7 +128,6 @@ public class DestinationController extends Controller {
             return destinationRepository.getAllPublicDestinations()
                     .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
         }
-
     }
 
     /**

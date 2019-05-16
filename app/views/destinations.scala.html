@@ -1,4 +1,4 @@
-@(user: models.User)
+@(user: models.User, destinations: Seq[models.Destination])
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/destinations.js")" type="text/javascript"></script>
@@ -28,6 +28,16 @@
                         </tr>
                     </thead>
                     <tbody id="destinationList">
+                        @for(destination <- destinations) {
+                            <tr>
+                                <td>@destination.name</td>
+                                <td>@destination._type</td>
+                                <td>@destination.district</td>
+                                <td>@destination.latitude</td>
+                                <td>@destination.longitude</td>
+                                <td>@destination.country.name</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

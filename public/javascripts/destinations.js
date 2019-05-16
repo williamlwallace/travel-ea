@@ -1,8 +1,3 @@
-//initilise datatable on load
-$(document).ready(function () {
-    populateDestinations(($('#dtDestination').DataTable()));
-});
-
 /**
  * Gets all countries and fills into dropdown
  * @param {stirng} getCountriesUrl - get all countries URI
@@ -10,17 +5,17 @@ $(document).ready(function () {
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
     get(getCountriesUrl)
-    // Get the response of the request
         .then(response => {
-            // Convert the response to json
             response.json()
             .then(data => {
                 // Json data is an array of destinations, iterate through it
                 let countryDict = {};
+
                 for(let i = 0; i < data.length; i++) {
                     // Also add the item to the dictionary
                     countryDict[data[i]['id']] = data[i]['name'];
                 }
+
                 // Now fill the drop down box, and list of destinations
                 fillDropDown("countryDropDown", countryDict);
             });
@@ -62,33 +57,4 @@ function addDestination(url, redirect) {
             }
         });
     });
-}
-
-/**
- * Insert destination data into table
- * @param {Object} table - data table object
- */
-function populateDestinations(table, userId) {
-    //Query api to get all destinations
-    console.log(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url);
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status != 200) {
-                document.getElementById("otherError").innerHTML = json;
-            } else {
-                //Loop through json and insert into table
-                for (const dest in json) {
-                    const name = json[dest].name;
-                    const type = json[dest]._type;
-                    const district = json[dest].district;
-                    const latitude = json[dest].latitude;
-                    const longitude = json[dest].longitude;
-                    const country = json[dest].country.name;
-                    table.row.add([name, type, district, latitude, longitude, country]).draw(false);
-                }
-            }
-        });
-    })
 }
