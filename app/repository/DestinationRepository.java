@@ -215,8 +215,22 @@ public class DestinationRepository {
      *
      * @return list of destinations
      */
-    public CompletableFuture<List<Destination>> getAllDestinations() {
-        return supplyAsync(() -> ebeanServer.find(Destination.class).findList(), executionContext);
+    public CompletableFuture<List<Destination>> getAllDestinations(Long userId) {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                .where()
+                .eq("userId", userId)
+                .or()
+                .eq("is_public", 1)
+                .findList()
+                , executionContext);
+    }
+
+    public CompletableFuture<List<Destination>> getAllPublicDestinations() {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                        .where()
+                        .eq("is_public", 1)
+                        .findList()
+                , executionContext);
     }
 
     /**
@@ -240,11 +254,4 @@ public class DestinationRepository {
                 .findPagedList()
             , executionContext);
     }
-
-    public CompletableFuture<Result> makePermanentlyPublic(List<Destination> destinations) {
-        for (Destination destination : destinations) {
-            
-        }
-    }
-
 }

@@ -110,13 +110,25 @@ public class DestinationController extends Controller {
     }
 
     /**
-     * Gets all destinations. Returns a json list of all destinations.
+     * Gets all the destinations valid for the requesting user
      *
-     * @return OK with list of destinations
+     * @param request Http request containing authentication information
+     * @param userId ID of user to retrieve destinations for
+     * @return OK status code with a list of destinations in the body
      */
-    public CompletableFuture<Result> getAllDestinations() {
-        return destinationRepository.getAllDestinations()
-            .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
+        User user = request.attrs().get(ActionState.USER);
+
+        if (user.admin || user.id.equals(userId)) {
+            return destinationRepository.getAllDestinations(userId)
+                    .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+        }
+        else {
+            return destinationRepository.getAllPublicDestinations()
+                    .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+        }
+
     }
 
     /**

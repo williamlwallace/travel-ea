@@ -60,9 +60,9 @@ public class DestinationController extends Controller {
      *
      * @return List of destinations wrapped in completable future
      */
-    public CompletableFuture<List<Destination>> getDestinations(Http.Request request) {
+    public CompletableFuture<List<Destination>> getDestinations(Http.Request request, Long userId) {
         String url = "http://" + request.host() + controllers.backend.routes.DestinationController
-            .getAllDestinations();
+            .getAllDestinations(userId);
         CompletableFuture<WSResponse> res = ws.url(url).get()
             .toCompletableFuture();
         return res.thenApply(r -> {

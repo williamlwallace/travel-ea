@@ -45,7 +45,7 @@ GET           /api/destination/getCountries          controllers.backend.Destina
 
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
-GET           /api/destination                       controllers.backend.DestinationController.getAllDestinations()
+GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
 DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(id:Long)
 
