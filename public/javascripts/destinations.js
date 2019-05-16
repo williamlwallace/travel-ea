@@ -104,8 +104,8 @@ function populateDestinations(isAdmin) {
                     const country = json[dest].country.name;
                     const editURL = ""; //TODO to be implemented
                     let privacyImage = "";
-                    let deleteDestination = "Unauthorized";
-                    let updateDestination = "Unauthorized";
+                    let deleteDestination = "<button class=\"btn btn-danger\" disabled>Unauthorized</button>"
+                    let updateDestination = "<button class=\"btn btn-secondary\" disabled>Unauthorized</button>"
 
                     // Set image to public or private
                     if (json[dest].isPublic) {
@@ -118,8 +118,8 @@ function populateDestinations(isAdmin) {
                     const toggleLabel = "<input class=\"destinationPrivacy\" type=\"image\" src=\"" + privacyImage + "\">";
                     // toggleLabel.setAttribute("id", json[dest].id + "privacy");
 
-                    // Create button if destination does not belong to an admin
-                    if (!json[dest].user.admin) {
+                    // Create button if destination does not belong to an admin or if logged in user is an admin
+                    if ((!json[dest].user.admin) || !isAdmin === "false") {
                         deleteDestination = "<button class=\"btn btn-danger\">Delete</button>"
                         updateDestination = "<a href=\"" + editURL + "\" class=\"btn btn-secondary\">Update</a>";
                     }
