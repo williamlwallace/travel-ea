@@ -42,6 +42,7 @@ start-server-dev:
     - startDev
   only:
     - master-dev@seng302-2019/team-400
+    - photos-fix@seng302-2019/team-400
 
 start-server-prod:
   stage: deploy

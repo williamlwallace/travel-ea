@@ -23,6 +23,8 @@ public class PhotoRepository {
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
+    private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
+
     @Inject
     public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
@@ -117,8 +119,8 @@ public class PhotoRepository {
                 .eq("is_profile", true)
                 .findOneOrEmpty().orElse(null);
             if (photo != null) {
-                photo.filename = "../user_content/" + photo.filename;
-                photo.thumbnailFilename = "../user_content/" + photo.thumbnailFilename;
+                photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
+                photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
             }
             return photo;
         }, executionContext);
@@ -169,8 +171,8 @@ public class PhotoRepository {
 
     private List<Photo> appendAssetsUrl(List<Photo> photos) {
         for (Photo photo : photos) {
-            photo.filename = "../user_content/" + photo.filename;
-            photo.thumbnailFilename = "../user_content/" + photo.thumbnailFilename;
+            photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
+            photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
         }
         return photos;
     }

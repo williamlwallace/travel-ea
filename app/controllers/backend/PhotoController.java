@@ -40,7 +40,7 @@ public class PhotoController extends Controller {
     private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
 
     // Constant fields defining the directory of publicly available files
-    private static final String PUBLIC_DIRECTORY = "../";
+    private static final String PUBLIC_DIRECTORY = "/public/";
 
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
@@ -50,14 +50,17 @@ public class PhotoController extends Controller {
     private PhotoRepository photoRepository;
 
     @Inject
+    private play.Environment environment;
+
+    @Inject
     public PhotoController(PhotoRepository photoRepository) {
         this.photoRepository = photoRepository;
     }
 
 
-    public Result getPhotoFromPath(String path, String filePath) {
-        String finalPath = System.getProperty("user.dir") + path + filePath;
-        System.out.println("READ FILE PATH: " + finalPath);
+    public Result getPhotoFromPath(String filePath) {
+        String finalPath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir")) + PUBLIC_DIRECTORY + filePath;
+        System.out.println(finalPath);
         File file = new File(finalPath);
         return ok(file, true);
     }
@@ -166,8 +169,8 @@ public class PhotoController extends Controller {
             if (pair.getKey().isProfile) {
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
                     if (fileNamesPair != null) {
-                        File thumbFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getKey());
-                        File mainFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getValue());
+                        File thumbFile = new File(System.getProperty("user.dir") + PUBLIC_DIRECTORY + fileNamesPair.getKey());
+                        File mainFile = new File(System.getProperty("user.dir") + PUBLIC_DIRECTORY + fileNamesPair.getValue());
                         // Mark the files for deletion
                         if (!thumbFile.delete()) {
                             // If file fails to delete immediately, mark file for deletion when VM shuts down
@@ -186,9 +189,9 @@ public class PhotoController extends Controller {
             }
             try {
                 pair.getValue().getRef()
-                    .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().filename), true);
+                    .copyTo(Paths.get(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
-                    .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
+                    .copyTo(Paths.get(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
             } catch (IOException e) {
                 // TODO: Handle case where a file failed to save
             }
@@ -284,7 +287,7 @@ public class PhotoController extends Controller {
         }
 
         // Create file to store output of thumbnail write
-        File thumbFile = new File("/home/sengstudent/storage/photos/test/tempThumb.jpg");
+        File thumbFile = new File(System.getProperty("user.dir") + PUBLIC_DIRECTORY + TEST_PHOTO_DIRECTORY + "tempThumb.jpg");
 
         // Write buffered image to thumbnail file
         ImageIO.write(tThumbImage, "jpg", thumbFile);
@@ -315,8 +318,8 @@ public class PhotoController extends Controller {
                 return badRequest(errorResponse.toJson());
             } else {
                 // Mark the files for deletion
-                File thumbFile = new File(PUBLIC_DIRECTORY + photoDeleted.thumbnailFilename);
-                File mainFile = new File(PUBLIC_DIRECTORY + photoDeleted.filename);
+                File thumbFile = new File(System.getProperty("user.dir") + PUBLIC_DIRECTORY + photoDeleted.thumbnailFilename);
+                File mainFile = new File(System.getProperty("user.dir") + PUBLIC_DIRECTORY + photoDeleted.filename);
                 if (!thumbFile.delete()) {
                     // If file fails to delete immediately, mark file for deletion when VM shuts down
                     thumbFile.deleteOnExit();
