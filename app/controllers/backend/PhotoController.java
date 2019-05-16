@@ -193,8 +193,9 @@ public class PhotoController extends Controller {
                 System.out.println("Saving to: " + System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().filename);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
                     .copyTo(Paths.get(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
-                System.out.println(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename);
+                System.out.println("Saving to: " + System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename);
             } catch (IOException e) {
+                System.out.println("Failed to save");
                 // TODO: Handle case where a file failed to save
             }
         }
