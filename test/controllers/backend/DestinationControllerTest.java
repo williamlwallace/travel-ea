@@ -292,7 +292,7 @@ public class DestinationControllerTest extends WithApplication {
         // Get all destinations on the database
         // NOTE: Using .get() here as running async lead to race conditions on db connection, sorry Harry :(
         List<Destination> allDestinations = destinationRepository.getAllDestinations().get();
-        List<Destination> similarDestinations = destinationRepository.getSimilarDestinations(allDestinations.get(0)).get();
+        List<Destination> similarDestinations = destinationRepository.getSimilarDestinations(allDestinations.get(0));
 
         // Assert that 3 destinations were found, and 2 similar ones
         Assert.assertEquals(4, allDestinations.size());
