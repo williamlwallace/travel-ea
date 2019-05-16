@@ -603,7 +603,7 @@ paths:
     put:
       tags:
       - Destinations
-      summary: Marks destination as public
+      summary: Change a destinations privacy to public (and merge duplicates)
       description: Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users, as well as merging with any sufficiently similar destinations that are currently marked as private in the database
       security:
       - UserToken: []
@@ -617,19 +617,21 @@ paths:
       - in: path
         name: id
         required: true
-        description: The ID of the destination to mark public
+        description: The ID of the destination to make public
         schema:
           type: integer
           minimum: 1
       responses:
         '200':
-          description: Successfully marked destination as public
+          description: Successfully made destination public
+        '400':
+          description: Destination was already public
+        '401':
+          description: Unauthorized
         '403':
-          description: Forbidden, you are not allowed to perform this action
+          description: Forbidden (you are not the owner of this destination, or an admin)
         '404':
-          description: No such destination exists
-
-
+          description: No such destination found
 
   '/profile/getTravellerTypes/':
     get:
