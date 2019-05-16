@@ -193,7 +193,7 @@ public class TripController extends Controller {
 
         // Assemble trip
         Trip trip = new Trip();
-        trip.userId = request.attrs().get(ActionState.USER).id;
+        trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 

@@ -240,11 +240,4 @@ public class DestinationRepository {
                 .findPagedList()
             , executionContext);
     }
-
-    public CompletableFuture<Result> makePermanentlyPublic(List<Destination> destinations) {
-        for (Destination destination : destinations) {
-            
-        }
-    }
-
 }

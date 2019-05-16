@@ -69,11 +69,11 @@ public class TripController extends Controller {
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> createTripIndex(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenApplyAsync(
+    public CompletableFuture<Result> createTripIndex(Http.Request request, Long userId) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
+        return destinationController.getDestinations(request).thenApplyAsync(    // TODO: This will be getting destinations of logged in user, not owner of trip
             destList -> (!destList.isEmpty()) ? ok(
-                createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
+                createTrip.render(loggedInUser, userId, asScala(destList), new Trip())) : internalServerError(),
             httpExecutionContext.current());
     }
 
@@ -89,10 +89,11 @@ public class TripController extends Controller {
         User user = request.attrs().get(ActionState.USER);
         return destinationController.getDestinations(request).thenComposeAsync(
             destList ->
-                this.getTrip(Authenticator.getTokenFromCookie(request), tripId, request)
+                this.getTrip(request, tripId)
                     .thenApplyAsync(
                         trip -> (!destList.isEmpty()) ? ok(
-                            createTrip.render(user, asScala(destList), trip))
+                                // Owner Id not used
+                            createTrip.render(user, -1L, asScala(destList), trip))
                             : internalServerError(), httpExecutionContext.current()),
             httpExecutionContext.current());
     }
@@ -126,12 +127,12 @@ public class TripController extends Controller {
      *
      * @return Trip object wrapped in completable future
      */
-    public CompletableFuture<Trip> getTrip(String token, Long tripId, Http.Request request) {
+    public CompletableFuture<Trip> getTrip(Http.Request request, Long tripId) {
         String url =
             "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
         CompletableFuture<WSResponse> res = ws
             .url(url)
-            .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
+            .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
             .get()
             .toCompletableFuture();
         return res.thenApply(r -> {
