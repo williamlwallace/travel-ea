@@ -60,7 +60,7 @@ public class PhotoController extends Controller {
 
     public Result getPhotoFromPath(String filePath) {
         String finalPath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir")) + PUBLIC_DIRECTORY + filePath;
-        System.out.println(finalPath);
+        System.out.println("Retrieving from: " + finalPath);
         File file = new File(finalPath);
         return ok(file, true);
     }
@@ -190,8 +190,10 @@ public class PhotoController extends Controller {
             try {
                 pair.getValue().getRef()
                     .copyTo(Paths.get(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().filename), true);
+                System.out.println("Saving to: " + System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().filename);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
                     .copyTo(Paths.get(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
+                System.out.println(System.getProperty("user.dir") + PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename);
             } catch (IOException e) {
                 // TODO: Handle case where a file failed to save
             }
