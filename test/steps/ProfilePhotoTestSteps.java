@@ -1,29 +1,16 @@
 package steps;
 
-import akka.http.javadsl.model.FormData;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import controllers.backend.PhotoController;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import io.ebean.config.ServerConfig;
 import org.junit.Assert;
-import play.Application;
-import play.db.Database;
-import play.db.ebean.EbeanConfig;
-import play.db.evolutions.Evolutions;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
-import repository.DatabaseExecutionContext;
-import repository.PhotoRepository;
 import util.customObjects.Pair;
 
 import java.io.File;
@@ -33,54 +20,11 @@ import java.util.*;
 
 import static org.apache.commons.io.FileUtils.getFile;
 import static play.test.Helpers.GET;
-import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
+import static steps.GenericTestSteps.authCookie;
+import static steps.GenericTestSteps.fakeApp;
 
-public class ProfilePhotoTestSteps extends WithApplication {
-
-    private static Application fakeApp;
-    private static Database db;
-    private static Http.Cookie authCookie;
-
-    /**
-     * Configures system to use trip database, and starts a fake app
-     */
-    @Before
-    public static void setUp() {
-        // Create custom settings that change the database to use test database instead of production
-        Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.driver", "org.h2.Driver");
-        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-
-        authCookie = Http.Cookie.builder("JWT-Auth", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw").withPath("/").build();
-
-        // Create a fake app that we can query just like we would if it was running
-        fakeApp = Helpers.fakeApplication(settings);
-        db = fakeApp.injector().instanceOf(Database.class);
-
-        Helpers.start(fakeApp);
-
-    }
-
-
-    /**
-     * Cleans up trips after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
-        stopApp();
-    }
-
-    /**
-     * Stop the fake app
-     */
-
-    public static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
-    }
-
+public class ProfilePhotoTestSteps {
 
     @Then("I can set it as my profile photo")
     @When("I set it as my profile photo")
@@ -125,7 +69,7 @@ public class ProfilePhotoTestSteps extends WithApplication {
     public void a_thumbnail_is_created() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
@@ -142,7 +86,7 @@ public class ProfilePhotoTestSteps extends WithApplication {
     public void it_is_returned_as_my_profile_picture() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
