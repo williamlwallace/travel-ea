@@ -169,6 +169,11 @@ public class PhotoRepository {
             , executionContext);
     }
 
+    /**
+     * For a list of photos, append the default assets path to them
+     *
+     * @param photos Photos to append path to
+     */
     private List<Photo> appendAssetsUrl(List<Photo> photos) {
         for (Photo photo : photos) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
