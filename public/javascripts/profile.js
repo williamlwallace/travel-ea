@@ -85,7 +85,7 @@ function populateProfileData(uri) {
     })
 .then(json => {
         // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
-        for (i = 0; i < json.nationalities.length; i++) {
+        for (let i = 0; i < json.nationalities.length; i++) {
         // iterates through the list of nationalities and adds them to the dropdown via their id
         $('#nationalities').picker('set', json.nationalities[i].id);
     }
