@@ -1,7 +1,9 @@
-@(user: models.User, people: List[models.Profile])
+@(user: models.User)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/people.js")" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
 }
 
 @layouts.imageHeader("People", user, "images/people-bg1.jpg", scripts){
@@ -19,17 +21,7 @@
                 </tr>
             </thead>
             <tbody>
-                @* Populate the table with a list of profile details *@
-                @for(person <- people){
-                    <tr>
-                        <td><a href="/profile/@person.userId" >@person.firstName</a></td>
-                        <td>@person.lastName</td>
-                        <td>@person.gender</td>
-                        <td>@person.calculateAge.toString</td>
-                        <td>@person.nationalities.toString.substring(1, person.nationalities.toString.length - 1)</td>
-                        <td>@person.travellerTypes.toString.substring(1, person.travellerTypes.toString.length - 1)</td>
-                    </tr>
-                }
+
             </tbody>
         </table>
     </div>
