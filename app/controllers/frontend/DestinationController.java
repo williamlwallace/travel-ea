@@ -61,10 +61,12 @@ public class DestinationController extends Controller {
      * @return List of destinations wrapped in completable future
      */
     public CompletableFuture<List<Destination>> getDestinations(Http.Request request, Long userId) {
-        String url = "http://" + request.host() + controllers.backend.routes.DestinationController
-            .getAllDestinations(userId);
-        CompletableFuture<WSResponse> res = ws.url(url).get()
-            .toCompletableFuture();
+        String url = "http://" + request.host() + controllers.backend.routes.DestinationController.getAllDestinations(userId);
+        CompletableFuture<WSResponse> res = ws
+                .url(url)
+                .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
+                .get()
+                .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {

@@ -332,7 +332,7 @@ function viewTrip(uri) {
  * @param {stirng} redirect - URI to redirect if succesful
  * @param {Number} tripId - ID of trip to update
  */
-function updateTrip(uri, redirect, tripId) {
+function updateTrip(uri, redirect, tripId, userId) {
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -342,7 +342,8 @@ function updateTrip(uri, redirect, tripId) {
 
     let tripData = {
         "id": tripId,
-        "trip": {    // TODO: Is this necessary?
+        "userId": userId,
+        "trip": {
             "id": tripId
         },
         "tripDataList": tripDataList

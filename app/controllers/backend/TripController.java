@@ -82,12 +82,25 @@ public class TripController extends Controller {
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
-    public CompletableFuture<Result> getTrip(Long tripId) {    // TODO: Authenticate
-        // Get all the trip data (asynchronously) and then
-        // construct and return the json object to send
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrip(Http.Request request, Long tripId) {
+        User user = request.attrs().get(ActionState.USER);
+
         return tripRepository.getTripById(tripId).thenApplyAsync(
-            trip -> (trip != null) ? ok(Json.toJson(trip)) : notFound()
-        );
+                trip -> {
+                    // If trip was not found in database
+                    if (trip == null) {
+                        return notFound();
+                    }
+                    // If trip was found and logged in user has privileges to retrieve trip
+                    else if (user.admin || user.id.equals(trip.userId) || trip.privacy == 1) {
+                        return ok(Json.toJson(trip));
+                    }
+                    // If logged in user does not have privileges to retrieve trip
+                    else {
+                        return forbidden();
+                    }
+                });
     }
 
     /**
@@ -114,6 +127,7 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
+        trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
@@ -263,7 +277,6 @@ public class TripController extends Controller {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.backend.routes.javascript.TripController.getAllTrips(),
                 controllers.frontend.routes.javascript.TripController.editTripIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);

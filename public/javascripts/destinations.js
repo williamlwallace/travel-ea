@@ -68,8 +68,9 @@ function addDestination(url, redirect) {
  * Insert destination data into table
  * @param {Object} table - data table object
  */
-function populateDestinations(table) {
+function populateDestinations(table, userId) {
     //Query api to get all destinations
+    console.log(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url);
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
     .then(response => {
         response.json()

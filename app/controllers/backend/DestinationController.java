@@ -118,6 +118,8 @@ public class DestinationController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
+        // TODO: Fix destinations page to accept userId in route
+        // TODO: Fix createTrip page bug
         User user = request.attrs().get(ActionState.USER);
 
         if (user.admin || user.id.equals(userId)) {

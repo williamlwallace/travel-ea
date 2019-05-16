@@ -20,7 +20,7 @@
     <body>
         <div class="container">
             <div class="text-center">
-                <a class="btn btn-primary" href="/trips/create/@user.id" role="button">Create New Trip</a>
+                <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTripIndex(user.id)" role="button">Create New Trip</a>
             </div><br>
 
             @if(tripList.isEmpty) {

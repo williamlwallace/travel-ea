@@ -33,7 +33,7 @@
                             "@controllers.frontend.routes.TripController.tripIndex()", @ownerId)'>Create Trip</button>
                 } else{
                     <button class="btn btn-primary" onclick='updateTrip("@controllers.backend.routes.TripController.updateTrip()",
-                            "@controllers.frontend.routes.TripController.tripIndex()", @trip.id)'>Update Trip</button>
+                            "@controllers.frontend.routes.TripController.tripIndex()", @trip.id, @ownerId)'>Update Trip</button>
                 }
             </div>
         </div>
