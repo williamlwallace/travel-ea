@@ -36,13 +36,13 @@ import util.validation.ErrorResponse;
 public class PhotoController extends Controller {
 
     // Constant fields defining the directories of regular photos and test photos
-    private static final String PHOTO_DIRECTORY = "storage/photos/";
-    private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
+    private static final String PHOTO_DIRECTORY = "/storage/photos/";
+    private static final String TEST_PHOTO_DIRECTORY = "/storage/photos/test/";
 
     // Constant fields defining the directory of publicly available files
-    private static final String PUBLIC_DIRECTORY = "/public/";
+    private static final String PUBLIC_DIRECTORY = "/public";
 
-    private String savePath;
+    private String savePath = "";
 
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
@@ -51,20 +51,21 @@ public class PhotoController extends Controller {
     // Photo repository to handle DB transactions
     private PhotoRepository photoRepository;
 
-    @Inject
     private play.Environment environment;
 
     @Inject
-    public PhotoController(PhotoRepository photoRepository) {
+    public PhotoController(PhotoRepository photoRepository, play.Environment environment) {
         this.photoRepository = photoRepository;
+        this.environment = environment;
 
         savePath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir")) + PUBLIC_DIRECTORY;
+        System.out.println(savePath);
     }
 
 
     public Result getPhotoFromPath(String filePath) {
-        System.out.println("Retrieving from: " + savePath + filePath);
-        File file = new File(savePath + filePath);
+        System.out.println("Retrieving from: " + filePath);
+        File file = new File(filePath);
         return ok(file, true);
     }
 
@@ -172,8 +173,8 @@ public class PhotoController extends Controller {
             if (pair.getKey().isProfile) {
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
                     if (fileNamesPair != null) {
-                        File thumbFile = new File(savePath + fileNamesPair.getKey());
-                        File mainFile = new File(savePath + fileNamesPair.getValue());
+                        File thumbFile = new File(fileNamesPair.getKey());
+                        File mainFile = new File(fileNamesPair.getValue());
                         // Mark the files for deletion
                         if (!thumbFile.delete()) {
                             // If file fails to delete immediately, mark file for deletion when VM shuts down
@@ -192,11 +193,11 @@ public class PhotoController extends Controller {
             }
             try {
                 pair.getValue().getRef()
-                    .copyTo(Paths.get(savePath + pair.getKey().filename), true);
-                System.out.println("Saving to: " + savePath + pair.getKey().filename);
+                    .copyTo(Paths.get(pair.getKey().filename), true);
+                System.out.println("Saving to: " + pair.getKey().filename);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
-                    .copyTo(Paths.get(savePath + pair.getKey().thumbnailFilename));
-                System.out.println("Saving to: " + savePath + pair.getKey().thumbnailFilename);
+                    .copyTo(Paths.get(pair.getKey().thumbnailFilename));
+                System.out.println("Saving to: " + pair.getKey().thumbnailFilename);
             } catch (IOException e) {
                 System.out.println("Failed to save");
                 System.out.println(e);
