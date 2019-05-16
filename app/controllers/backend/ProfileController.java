@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import controllers.backend.routes;
 import models.CountryDefinition;
 import models.Profile;
 import models.TravellerTypeDefinition;
@@ -302,7 +304,8 @@ public class ProfileController extends Controller {
     public Result profileRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes()
+                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes(),
+                controllers.backend.routes.javascript.ProfileController.searchProfilesJson()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

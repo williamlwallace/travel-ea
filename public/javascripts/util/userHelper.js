@@ -23,8 +23,8 @@ function getUserId() {
 
 /**
  * Logs out user and redirects to given page
- * @param {*} uri - API logout URI
- * @param {*} redirect - Succeful logout redirect URI
+ * @param {string} uri - API logout URI
+ * @param {stirng} redirect - Succeful logout redirect URI
  */
 function logout(uri, redirect) {
     // deleteCookie("JWT-Auth");
@@ -32,4 +32,15 @@ function logout(uri, redirect) {
     .then(response => {
         window.location.href = redirect;
     });
+}
+
+/**
+ * Calculates the age of a user based on there birthdate
+ * @param {Number} dt1 birthdate of user in epoch time
+ */
+function calc_age(dt1) {
+    let diff =(Date.now() - dt1) / 1000;
+    diff /= (60 * 60 * 24);
+    // Best convertion method without moment etc
+    return Math.abs(Math.floor(diff/365.25));
 }

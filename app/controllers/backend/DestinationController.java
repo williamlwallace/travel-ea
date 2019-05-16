@@ -71,6 +71,7 @@ public class DestinationController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
         // Try to get the destination, if it is not found throw 404
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             // Check for 404
@@ -78,11 +79,11 @@ public class DestinationController extends Controller {
                 return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
             }
             // Check if user owns the destination (or is an admin)
-            if(!destination.user.id.equals(request.attrs().get(ActionState.USER).id) && !request.attrs().get(ActionState.USER).admin) {
+            if(!destination.user.id.equals(user.id) && !user.admin) {
                 return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
-            return destinationRepository.makeDestinationPublic(id);
+            return destinationRepository.makeDestinationPublic(user, destination);
         }).thenApplyAsync(result -> result);
     }
 
