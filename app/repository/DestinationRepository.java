@@ -10,11 +10,14 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.PagedList;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.User;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
@@ -180,10 +183,22 @@ public class DestinationRepository {
             , executionContext);
     }
 
-    public CompletableFuture<Result> makePermanentlyPublic(List<Destination> destinations) {
+    public Integer makePermanentlyPublic(Long userId, List<Destination> destinations) {
+        User master = new User();
+        master.id = 1L;
+        int numUpdates = 0;
         for (Destination destination : destinations) {
-            
+            if (!destination.user.id.equals(userId) && !destination.user.id.equals(master.id)) {
+                destination.user = master;
+                CompletableFuture.supplyAsync(() -> {
+                    ebeanServer.update(destination);
+                    return ok();
+                }, executionContext);
+                numUpdates++;
+            }
         }
+
+        return numUpdates;
     }
 
 }
