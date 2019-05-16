@@ -183,22 +183,18 @@ public class DestinationRepository {
             , executionContext);
     }
 
-    public Integer makePermanentlyPublic(Long userId, List<Destination> destinations) {
-        User master = new User();
-        master.id = 1L;
-        int numUpdates = 0;
-        for (Destination destination : destinations) {
-            if (!destination.user.id.equals(userId) && !destination.user.id.equals(master.id)) {
-                destination.user = master;
-                CompletableFuture.supplyAsync(() -> {
-                    ebeanServer.update(destination);
-                    return ok();
-                }, executionContext);
-                numUpdates++;
-            }
-        }
-
-        return numUpdates;
+    /**
+     * Updates the destinations ownership to the master admin
+     *
+     * @param destination Destination to be updated
+     * @return Modified destination object
+     */
+    public CompletableFuture<Destination> makePermanentlyPublic(Destination destination) {
+        // Change ownership to master admin
+        destination.user.id = 1L;
+        return supplyAsync(() -> {
+            ebeanServer.update(destination);
+            return destination;
+        }, executionContext);
     }
-
 }
