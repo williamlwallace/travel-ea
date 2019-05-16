@@ -61,13 +61,22 @@ public class PhotoController extends Controller {
         savePath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir")) + PUBLIC_DIRECTORY;
     }
 
-
+    /**
+     * Takes a path to a file and returns the file object
+     * 
+     * @param filePath path to file to read
+     */
     public Result getPhotoFromPath(String filePath) {
         File file = new File(filePath);
         return ok(file, true);
     }
 
-
+    /**
+     * Returns all photos belonging to a user, only returns public photos if it is not the owner of the photos getting them
+     * 
+     * @param request Request to read cookie data from
+     * @param id ID of user to get photos of
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
         Long currentUserId = request.attrs().get(ActionState.USER).id;
@@ -84,6 +93,11 @@ public class PhotoController extends Controller {
         }
     }
 
+    /**
+     * Gets the profile picture of user with given id
+     * 
+     * @param id ID of user to get profile photo of
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getProfilePicture(Long id) {
         return photoRepository.getUserProfilePicture(id)
@@ -337,6 +351,12 @@ public class PhotoController extends Controller {
         });
     }
 
+    /**
+     * Toggles the privacy of a photo
+     *
+     * @param request Request to read cookie data from
+     * @param id id of photo to toggle
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
