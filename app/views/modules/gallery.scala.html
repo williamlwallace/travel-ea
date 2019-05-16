@@ -1,0 +1,18 @@
+@(canModify: Boolean)
+
+<html>
+    <div class="section-title">
+        <p>
+            <span class="section-title">Pictures</span>
+            @if(canModify) {
+                <a class="button-secondary" data-toggle="modal" data-target="#uploadPhotoModal">
+                    <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
+                </a>
+            }
+        </p>
+    </div><br>
+    @* Photo Gallery *@
+    <div id="main-gallery" class="text-center">There are no photos!</div>
+    <div id="page-selection"></div>
+</html>
+
