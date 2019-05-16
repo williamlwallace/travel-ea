@@ -13,73 +13,66 @@ function updateProfile(uri, redirect) {
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
-}), {});
+    }), {});
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
     data.travellerTypes  = JSONFromDropDowns("travellerTypes");
     // Post json data to given uri
     put(uri,data)
-        .then(response => {
+    .then(response => {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-        if (response.status != 200) {
-        showErrors(json);
-    } else {
-        hideErrors("updateProfileForm");
-        let element = document.getElementById("SuccessMessage");
-        element.innerHTML = "Successfully Updated!";
-        return sleep(3000);
-    }
-})
-.then(() => {
-        let element = document.getElementById("SuccessMessage");
-    element.innerHTML = "";
-})
-});
+            if (response.status != 200) {
+                showErrors(json);
+            } else {
+                hideErrors("updateProfileForm");
+                let element = document.getElementById("SuccessMessage");
+                element.innerHTML = "Successfully Updated!";
+                updateProfileData(data);
+                return sleep(3000);
+            }
+        })
+        .then(() => {
+            let element = document.getElementById("SuccessMessage");
+            element.innerHTML = "";
+        })
+    });
 }
 
 /**
- * Updates a trips privacy when the toggle is used
- * @param {string} uri Route for updating trip privacy
- * @param {string} imageSrc Source of new icon image to use
- * @param {Number} tripId Id of trip to update
- * @param {string} newPrivacy Privacy status selected by user
+ * Maps a json object to the profile summary data and updates it
+ * @param {Object} data Json data object
  */
-function updateTripPrivacy(uri, imageSrc, tripId, newPrivacy) {
-    let currentPrivacy = document.getElementById("privacyImg").title;
-
-    // Don't need to update privacy to the same status
-    if (currentPrivacy === newPrivacy) {
-        return;
-    }
-
-    let tripData = {
-        "id": tripId
-    };
-
-    if (newPrivacy === "Public") {
-        tripData["privacy"] = 1;
-    }
-    else if (newPrivacy === "Private") {
-        tripData["privacy"] = 0;
-    }
-    else {
-        return;
-    }
-
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-            .then(json => {
-                // On successful update
-                if (response.status === 200) {
-                    document.getElementById("privacyImg").title = newPrivacy;
-                    document.getElementById("privacyImg").src = imageSrc;
-                }
-            });
+function updateProfileData(data) {
+    document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
+    document.getElementById("summary_gender").innerHTML = data.gender;
+    document.getElementById("summary_age").innerHTML = calc_age(Date.parse(data.dateOfBirth));
+    //When the promises resolve, fill array data into appropriate fields
+    arrayToString(data.nationalities, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+    .then(out => {
+        document.getElementById("summary_nationalities").innerHTML = out;
     });
+    arrayToString(data.passports, 'name', destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+    .then(out => {
+        document.getElementById("summary_passports").innerHTML = out;
+    });
+    arrayToString(data.travellerTypes, 'description', profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+    .then(out => {
+        document.getElementById("summary_travellerTypes").innerHTML = out;
+    });
+}
+
+/**
+ * Calculates the age of a user based on there birthdate
+ * @param {Number} dt1 birthdate of user in epoch time
+ */
+function calc_age(dt1) {
+    let diff =(Date.now() - dt1) / 1000;
+    diff /= (60 * 60 * 24);
+    // Best convertion method without moment etc
+    return Math.abs(Math.floor(diff/365.25));
 }
 
 /**
@@ -127,6 +120,11 @@ var cropper;
 var usersPhotos = [];
 var getAllPhotosUrl;
 var profilePictureControllerUrl;
+var canEdit;
+
+function setPermissions(loggedUser, user) {
+    canEdit = (loggedUser === user);
+}
 
 /**
  * Loads the cropper into the page when the cropProfilePictureModal opens
@@ -202,6 +200,25 @@ cropGallery.on('click','img',function() {
     $('#cropProfilePictureModal').modal('show');
 });
 
+function togglePrivacy(guid, newPrivacy) {
+    const label = document.getElementById(guid + "privacy");
+    const data = {
+        "isPublic" : newPrivacy
+    }
+    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(guid).url, data)
+    .then(res => {
+        if (res.status === 200) {
+            label.innerHTML = newPrivacy ? "Public" : "Private";
+            if (newPrivacy) {
+                label.setAttribute("src", "/assets/images/public.png");
+            } else {
+                label.setAttribute("src", "/assets/images/private.png");
+            }
+            label.setAttribute("onClick","togglePrivacy(" + guid + "," + !newPrivacy + ")");
+        }
+    })
+}
+
 /**
  * Function to populate gallery with current users photos
  */
@@ -254,31 +271,38 @@ function createGalleryObjects(hasFullSizeLinks) {
             photo.setAttribute("class", "lightbox");
 
             // 6 * page + position finds the correct photo index in the dictionary
-            var filename = usersPhotos[(6 * page + position)]["filename"];
-            var guid = usersPhotos[(6 * page + position)]["guid"];
+            const filename = usersPhotos[(6 * page + position)]["filename"];
+            const guid = usersPhotos[(6 * page + position)]["guid"];
+            const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
-                // Create delete button
-                var deleteButton = document.createElement("span");
-                deleteButton.setAttribute("class", "close");
-                deleteButton.innerHTML = "&times;";
-                tile.appendChild(deleteButton);
-                photo.href = filename;
+                if (canEdit === true) {
+                    // Create delete button
+                    var deleteButton = document.createElement("span");
+                    deleteButton.setAttribute("class", "close");
+                    deleteButton.innerHTML = "&times;";
+                    tile.appendChild(deleteButton);
 
-                // Create toggle button TODO this is in an ugly position, will change
-                var toggleButton = document.createElement("span");
-                toggleButton.setAttribute("class","custom-control custom-switch");
-                var toggleInput = document.createElement("input");
-                toggleInput.setAttribute("type","checkbox");
-                toggleInput.setAttribute("class","custom-control-input");
-                toggleInput.setAttribute("id","customSwitches");
-                toggleButton.appendChild(toggleInput);
-                var toggleLabel = document.createElement("label");
-                toggleLabel.setAttribute("class","custom-control-label");
-                toggleLabel.setAttribute( "for","customSwitches");
-                toggleButton.appendChild(toggleLabel);
-                tile.appendChild(toggleButton);
+                    // Create toggle button TODO this is in an ugly position, will change
+                    var toggleButton = document.createElement("span");
+                    var toggleLabel = document.createElement("input");
+                    toggleLabel.setAttribute("class", "privacy");
+                    toggleLabel.setAttribute("id", guid + "privacy");
+                    toggleLabel.setAttribute("type", "image");
+
+                    if (isPublic) {
+                        toggleLabel.setAttribute("src", "/assets/images/public.png");
+                    } else {
+                        toggleLabel.setAttribute("src", "/assets/images/private.png");
+                    }
+
+                    toggleLabel.innerHTML = isPublic ? "Public" : "Private";
+                    toggleLabel.setAttribute("onClick","togglePrivacy(" + guid + "," + !isPublic + ")");
+                    toggleButton.appendChild(toggleLabel);
+                    tile.appendChild(toggleButton);
+                }
+                photo.href = filename;
             }
 
             photo.setAttribute("data-id", guid);
@@ -303,6 +327,8 @@ function createGalleryObjects(hasFullSizeLinks) {
     }
     return galleryObjects;
 }
+
+
 
 /**
  * Adds galleryObjects to a gallery with a gallryID and a pageSelectionID
@@ -367,74 +393,59 @@ function deletePhoto(route) {
         });
 }
 
+
 /**
- * Sets up the dropzone properties, like having a remove button
+ * allows the upload image button to act as an input field by clicking on the upload image file field
  */
-function setupDropZone() {
-    Dropzone.options.addPhotoDropzone = {
-        acceptedFiles: '.jpeg,.png,.jpg',
-        dictRemoveFile: "remove",
-        thumbnailWidth: 200,
-        thumbnailHeight: 200,
-        dictDefaultMessage: '',
-        autoProcessQueue: false,
+$("#upload-image-button").click(function() {
+    console.log("upload clicked");
+  $("#upload-image-file").click();
+});
 
-        init: function() {
-            var submitButton = document.querySelector("#submit-all");
-            var cancelButton = document.querySelector("#remove-all");
-            var addPhotoDropzone = this;
 
-            this.on("addedfile", function () {
-                // Enable add button
-                submitButton.disabled = false;
-                submitButton.innerText = "Add"
-            });
+/**
+ * Takes the users selected photo file and creates a url object out of it. This is then passed to cropper.
+ * The appropriate modals are shown and hidden.
+ */
+function uploadNewPhoto(){
+    console.log("upload new photo");
+  const selectedFile = document.getElementById('upload-image-file').files[0];
+  profilePictureToCrop.setAttribute('src', window.URL.createObjectURL(selectedFile));
+  //Show the cropPPModal and hide the changePPModal
+  $('#changeProfilePictureModal').modal('hide');
+  $('#cropProfilePictureModal').modal('show');
+}
 
-            this.on("thumbnail", function(file) {
-                // Do the dimension checks you want to do
-                if (file.width < profilePictureSize || file.height < profilePictureSize) {
-                    file.rejectDimensions()
-                }
-                else {
-                    file.acceptDimensions();
-                }
-            });
 
-            this.on("processing", function() {
-                this.options.autoProcessQueue = true;
-            });
+/**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ * For a normal photo
+ */
+$("#upload-gallery-image-button").click(function() {
+    $("#upload-gallery-image-file").click();
+});
 
-            submitButton.addEventListener("click", function() {
-                if (submitButton.innerText === "Add") {
-                    addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.
-                    submitButton.innerText = "Done";
-                    document.getElementById("remove-all").hidden = true;
-                } else {
-                    document.getElementById("remove-all").hidden = false;
-                    addPhotoDropzone.options.autoProcessQueue = false;
-                    addPhotoDropzone.removeAllFiles();
-                    $('#uploadPhotoModal').modal('hide');
-                    fillGallery(getAllPhotosUrl);
-                }
-            });
-
-            cancelButton.addEventListener("click", function() {
-                addPhotoDropzone.removeAllFiles();
-                addPhotoDropzone.options.autoProcessQueue = false;
-                submitButton.disabled = true;
-                submitButton.innerText = "Add"
-            });
-        },
-        accept: function(file, done) {
-            file.acceptDimensions = done;
-            file.rejectDimensions = function() {
-                done("Image too small.");
-            };
-        },
-        success: function(file, response) {
-            file.serverFileName = response[0];
-        }
-    };
+/**
+ * Takes the users selected photos and  creates a form from them
+ * Sends this form to  the appropriate url
+ *
+ * @param {string} url the appropriate  photo backend controller
+ */
+function uploadNewGalleryPhoto(url) {
+    const selectedPhotos = document.getElementById('upload-gallery-image-file').files;
+    let formData = new FormData();
+    for (let i = 0; i < selectedPhotos.length; i++) {
+        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
+    }
+    // Send request and handle response
+    postMultipart(url, formData).then(response => {
+        // Read response from server, which will be a json object
+        response.json().then(data => {
+            if (response.status === 201) {
+                fillGallery(getAllPhotosUrl);
+            }
+        })
+    })
 }
 
 /**

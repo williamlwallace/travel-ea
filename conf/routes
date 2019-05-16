@@ -29,7 +29,7 @@ POST          /api/profile                           controllers.backend.Profile
 
 GET           /api/profile                           controllers.backend.ProfileController.getMyProfile(request:Request)
 
-PUT           /api/profile                           controllers.backend.ProfileController.updateProfile(request:Request)
+PUT           /api/profile/:id                       controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
 GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
 
@@ -53,6 +53,8 @@ GET           /api/destination/search                controllers.backend.Destina
 
 GET           /api/destination/:id                   controllers.backend.DestinationController.getDestination(id:Long)
 
+PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
+
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
@@ -67,7 +69,7 @@ DELETE        /api/trip/:id                          controllers.backend.TripCon
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(id:Long, isPublic:Boolean ?= false)
+PATCH         /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
 
 GET           /api/photo/:id                         controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
@@ -111,11 +113,21 @@ GET           /admin                 controllers.frontend.AdminController.index(
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/routers/admin       controllers.backend.AdminController.adminRoutes(request: Request)
+GET     /assets/routers/admin         controllers.backend.AdminController.adminRoutes(request: Request)
 
-GET     /assets/routers/user       controllers.backend.UserController.userRoutes(request: Request)
+GET     /assets/routers/user          controllers.backend.UserController.userRoutes(request: Request)
 
-GET     /assets/routers/trip       controllers.backend.TripController.tripRoutes(request: Request)
+GET     /assets/routers/trip          controllers.backend.TripController.tripRoutes(request: Request)
 
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/routers/photo         controllers.backend.PhotoController.photoRoutes(request: Request)
+
+GET     /assets/routers/profile       controllers.backend.ProfileController.profileRoutes(request: Request)
+
+GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
+
+GET     /assets/*file                 controllers.Assets.at(path="/public", file)
+
+# Static resources (not managed by the Play framework)
+GET     /user_content/*file           controllers.backend.PhotoController.getPhotoFromPath(path="/../", file)
+
 

@@ -1,32 +1,31 @@
 let countryDict = {};
 
 /**
- * Gets and fills country data in dropdown, card fields, and destinations fields
- * @param {string} getCountriesUri - API URI to get countries from
+ * Gets all countries and fills into dropdown
+ * @param {stirng} getCountriesUrl - get all countries URI
  */
-function fillCountryInfo(getCountriesUri) {
+function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
-    get(getCountriesUri)
+    get(getCountriesUrl)
     // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json().then(data => {
-            // Json data is an array of destinations, iterate through it
-            for(let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-
-            // Now fill the drop down box, and list of destinations
-            updateCountryCardField(countryDict);
-            fillDropDown("countryDropDown", countryDict);
-            updateDestinationsCountryField(countryDict);
+        .then(response => {
+            // Convert the response to json
+            response.json()
+                .then(data => {
+                    // Json data is an array of destinations, iterate through it
+                    let countryDict = {};
+                    for(let i = 0; i < data.length; i++) {
+                        // Also add the item to the dictionary
+                        countryDict[data[i]['id']] = data[i]['name'];
+                    }
+                    // Now fill the drop down box, and list of destinations
+                    fillDropDown("countryDropDown", countryDict);
+                });
         });
-    });
 }
 
 /**
- * maps countries into destinations
+ * Maps countries into destinations
  * @param {Object} countryDict - Dictionary of Countries
  */
 function updateDestinationsCountryField(countryDict) {
@@ -110,15 +109,16 @@ function addDestinationToTrip(dest) {
     let cards = $( "#list" ).sortable('toArray');
     let cardId = 0;
 
+    // Finds id not used
     while (cards.includes(cardId.toString())) {
-        cardId += 1;
+        cardId++;
     }
-    //there has to be a better of doing this lol
+
     document.getElementById('list').insertAdjacentHTML('beforeend',
         '<div class="card flex-row" id=' + cardId + '>\n' +
             '<label id=' + dest[0] + '></label>' +
         '<div class="card-header border-0" style="height: 100%">\n' +
-            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +
+            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +    // TODO: Store default card image rather than reference
         '</div>\n' +
         '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
@@ -140,16 +140,17 @@ function addDestinationToTrip(dest) {
     '                    <div id="arrival">Arrival\n' +
     '                        <i class="fas prefix grey-text"></i>\n' +
     '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
-    '                        <label id="arrivalError"></label>\n' +
     '                    </div>\n' +
     '                    <div id="depart">Departure\n' +
     '                        <i class="fas prefix grey-text"></i>\n' +
     '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
-    '                        <label id="departureError"></label>\n' +
     '                    </div>\n' +
     '                </div>\n' +
     '            </form>\n' +
-    '            <label id="destinationError" class="error-messages"></label><br/>\n' +
+                '<div style="text-align: center;">\n' +
+                    '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n' +
+                    '<br/>\n' +
+                '</div>\n' +
             '</div>\n' +
         '</div>'
     );
@@ -280,33 +281,37 @@ function formatDateTime(date, time) {
  * @param {Object} json - Error Response Json
  */
 function showErrors(json) {
-    let listItemArray = Array.of(document.getElementById("list").children);
+    // Gets all the error key identifiers
+    let keys = Object.keys(json);
 
-    for (const key of Object.keys(json)) {
-        let errors = json[key];
+    // Resets and sets tripError label
+    let tripError = document.getElementById("tripError");
+    if (keys.includes("trip")) {
+        tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
+            '<a class="close" data-dismiss="alert">×</a>' +
+            '<span>'+ json["trip"] +'</span></div>';
+    }
+    else {
+        tripError.innerHTML = "";
+    }
 
-        if (errors.endsWith(", ")) {
-            errors = errors.substr(0, Math.max(0, json[key].length - 2));
+    // Resets and sets the card error labels
+    let listItemArray = Array.of(document.getElementById("list").children)[0];
+
+    for (let j = 0; j < listItemArray.length; j++) {
+        let labels = listItemArray[j].getElementsByTagName("label");
+
+        for (let i = 0; i < labels.length; i++) {
+            if (labels[i].getAttribute("id") === "destinationError") {
+                if (keys.includes(j.toString())) {
+                    labels[i].innerText = json[j.toString()];
+                }
+                else {
+                    labels[i].innerText = "";
+                }
+                break;
+            }
         }
-
-        let errorList = errors.split(", ");
-
-        document.getElementById("tripError").innerHTML = errorList[0];
-        break;
-
-        // if (errorList[0] != null && !isNaN(parseInt(key))) {
-        //     let labels = listItemArray[0][parseInt(key)].getElementsByTagName("label");
-        //
-        //     for (let i in labels) {
-        //         if (labels[i].getAttribute("id") === "destinationError") {
-        //             listItemArray[0][parseInt(key)].getElementsByTagName("label")[2].innerHTML = errorList[0];
-        //             break;
-        //         }
-        //     }
-        // }
-        // else if (errorList[0] != null) {
-        //     document.getElementById("tripError").innerHTML = errorList[0];
-        // }
     }
 }
 

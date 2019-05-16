@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Destination;
@@ -20,7 +22,6 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.TripRepository;
-import repository.UserRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
@@ -30,14 +31,10 @@ import util.validation.TripValidator;
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
-    private final UserRepository userRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository,
-                          UserRepository userRepository) {
-
+    public TripController(TripRepository tripRepository) {
         this.tripRepository = tripRepository;
-        this.userRepository = userRepository;
     }
 
     /**
@@ -53,10 +50,16 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                    .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> {
+                    Collections.sort(trips);
+                    return ok(Json.toJson(trips));
+                });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
-                    .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> {
+                    Collections.sort(trips);
+                    return ok(Json.toJson(trips));
+                });
         }
     }
 
@@ -68,13 +71,13 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
-                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
     }
 
     /**
      * Attempts to fetch all data for a trip with given trip ID. This is returned as a JSON object
-     * with 2 fields: uid: This field represents the id of the user who owns the trip
-     * tripDataList: An array storing all stages of the trip as tripData objects
+     * with 2 fields: uid: This field represents the id of the user who owns the trip tripDataList:
+     * An array storing all stages of the trip as tripData objects
      *
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
@@ -111,20 +114,18 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        trip.userId = request.attrs().get(ActionState.USER).id;
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
-        // TODO: Does this work, if so rework this and insert trip and update privacy
-        /*
-        Trip trip = Json.fromJson(data.get("trip"), Trip.class);
-        trip.userId = request.attrs().get(ActionState.USER).id;
-         */
-
         // Update trip in db
-        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-            ok(Json.toJson(trip.id))
-        );
+        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+            if (uploaded) {
+                return ok(Json.toJson(trip.id));
+            }
+            else {
+                return badRequest();
+            }
+        });
     }
 
     /**
@@ -135,7 +136,6 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTripPrivacy(Http.Request request) {
-        System.out.println("into controller");
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -152,10 +152,9 @@ public class TripController extends Controller {
         trip.id = data.get("id").asLong();
         trip.privacy = data.get("privacy").asLong();
 
-        System.out.println("tried to update");
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-                ok(Json.toJson(trip.id))
+            ok(Json.toJson(trip.id))
         );
     }
 
@@ -256,6 +255,7 @@ public class TripController extends Controller {
 
     /**
      * Lists routes to put in JS router for use from frontend
+     *
      * @return JSRouter Play result
      */
     public Result tripRoutes(Http.Request request) {

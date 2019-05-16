@@ -85,7 +85,7 @@ public class ProfileRepository {
     }
 
     /**
-     * Gets all the profiles in the database. 
+     * Gets all the profiles in the database.
      *
      * @return A list of all profiles
      */
@@ -112,8 +112,8 @@ public class ProfileRepository {
         return supplyAsync(() -> {
             ArrayList<Profile> profiles = new ArrayList<>(
                 ebeanServer.find(Profile.class).where()
-                                                .ne("user_id", String.valueOf(userId))
-                                                .findList());
+                    .ne("user_id", String.valueOf(userId))
+                    .findList());
             // Manually change bean lists to array lists, as this was causing an issue on front end
             for (Profile profile : profiles) {
                 profile.travellerTypes = new ArrayList<>(profile.travellerTypes);
