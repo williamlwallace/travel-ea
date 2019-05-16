@@ -21,6 +21,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
+import repository.DestinationRepository;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -31,10 +32,14 @@ import util.validation.TripValidator;
 public class TripController extends Controller {
 
     private final TripRepository tripRepository;
+    private final DestinationRepository destinationRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository) {
+    public TripController(TripRepository tripRepository,
+                          DestinationRepository destinationRepository) {
+
         this.tripRepository = tripRepository;
+        this.destinationRepository = destinationRepository;
     }
 
     /**
@@ -117,6 +122,9 @@ public class TripController extends Controller {
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
+        // Transfers ownership of destinations to master admin where necessary
+        // TODO: transferDestinationsOwnership(, trip.tripDataList);
+
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
             if (uploaded) {
@@ -197,6 +205,9 @@ public class TripController extends Controller {
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
+        // Transfers ownership of destinations to master admin where necessary
+        transferDestinationsOwnership(trip.userId, trip.tripDataList);
+
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
         );
@@ -251,6 +262,22 @@ public class TripController extends Controller {
         }
         // Return create trip data list
         return tripDataList;
+    }
+
+    /**
+     * Checks the list of destinations used and if necessary transfers ownership to master admin
+     *
+     * @param userId Owner of trip being created or updated
+     * @param destinations List of tripData objects used in trip
+     */
+    private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
+        Long masterAdminId = 1L;
+        for (TripData tripData : destinations) {
+            Destination destination = tripData.destination;
+            if (!destination.user.id.equals(userId) && !destination.user.id.equals(masterAdminId)) {
+                CompletableFuture.supplyAsync(() -> destinationRepository.makePermanentlyPublic(destination));
+            }
+        }
     }
 
     /**
