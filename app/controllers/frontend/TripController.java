@@ -71,9 +71,9 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> createTripIndex(Http.Request request, Long userId) {
         User loggedInUser = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenApplyAsync(    // TODO: This will be getting destinations of logged in user, not owner of trip
-            destList -> (!destList.isEmpty()) ? ok(
-                createTrip.render(loggedInUser, userId, asScala(destList), new Trip())) : internalServerError(),
+        return destinationController.getDestinations(request, userId).thenApplyAsync(
+            destList -> (!destList.isEmpty()) ?
+                    ok(createTrip.render(loggedInUser, userId, asScala(destList), new Trip())) : internalServerError(),
             httpExecutionContext.current());
     }
 
@@ -87,13 +87,10 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenComposeAsync(
-            destList ->
-                this.getTrip(request, tripId)
-                    .thenApplyAsync(
-                        trip -> (!destList.isEmpty()) ? ok(
-                                // Owner Id not used
-                            createTrip.render(user, -1L, asScala(destList), trip))
+        return getTrip(request, tripId).thenComposeAsync(
+                trip -> destinationController.getDestinations(request, trip.userId).thenApplyAsync(
+                        destList -> (!destList.isEmpty()) ? ok(
+                            createTrip.render(user, trip.userId, asScala(destList), trip))
                             : internalServerError(), httpExecutionContext.current()),
             httpExecutionContext.current());
     }
