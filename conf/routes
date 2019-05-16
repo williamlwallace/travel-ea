@@ -94,7 +94,7 @@ GET           /people                controllers.frontend.PeopleController.searc
 GET           /trips                 controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET           /trips/create          controllers.frontend.TripController.createTripIndex(request: Request)
+GET           /trips/create/:id      controllers.frontend.TripController.createTripIndex(request: Request, id: Long)
 
 # The Travelea edit trip page
 GET           /trips/edit/:id        controllers.frontend.TripController.editTripIndex(request: Request, id: Long)

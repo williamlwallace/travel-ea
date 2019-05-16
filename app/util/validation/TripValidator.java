@@ -30,6 +30,8 @@ public class TripValidator {
             this.required("id");
         }
 
+        this.required("userId");
+
         // Validation for trip privacy
         this.required("privacy");
 

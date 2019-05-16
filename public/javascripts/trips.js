@@ -187,7 +187,7 @@ function toggleTripPrivacy() {
  * @param {string} uri - API URI to add trip
  * @param {string} redirect - URI to redirect page
  */
-function createTrip(uri, redirect) {
+function createTrip(uri, redirect, userId) {
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -196,6 +196,7 @@ function createTrip(uri, redirect) {
     }
 
     let tripData = {
+        "userId": userId,
         "tripDataList": tripDataList
     };
 
