@@ -19,13 +19,11 @@ import views.html.admin;
  * This controller contains an action to handle HTTP requests to the application's admin page.
  */
 @Singleton
-public class AdminController extends Controller {
-
-    private WSClient ws;
+public class AdminController extends TEAFrontController {
 
     @Inject
-    public AdminController(WSClient ws, HttpExecutionContext httpExecutionContext) {
-        this.ws = ws;
+    public AdminController(HttpExecutionContext httpExecutionContext) {
+        super(httpExecutionContext);
     }
 
     /**

@@ -15,7 +15,7 @@ import repository.UserRepository;
 /**
  * Manage a database of users.
  */
-public class AdminController extends Controller {
+public class AdminController extends TEABackController {
 
     private final UserRepository userRepository;
 

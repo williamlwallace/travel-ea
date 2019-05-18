@@ -33,7 +33,7 @@ import repository.PhotoRepository;
 import util.customObjects.Pair;
 import util.validation.ErrorResponse;
 
-public class PhotoController extends Controller {
+public class PhotoController extends TEABackController {
 
     // Constant fields defining the directories of regular photos and test photos
     private static final String PHOTO_DIRECTORY = "/storage/photos/";
