@@ -63,7 +63,7 @@ public class UserController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(users)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             }, httpExecutionContext.current());
     }
@@ -253,7 +253,7 @@ public class UserController extends TEABackController {
                     try {
                         return ok(sanitizeJson(Json.toJson(user)));
                     } catch (IOException e) {
-                        return internalServerError();
+                        return internalServerError(Json.toJson("Sanitization Failed"));
                     }
                 }
             });

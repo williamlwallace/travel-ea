@@ -62,7 +62,7 @@ public class DestinationController extends TEABackController {
                     try{
                         return ok(sanitizeJson(Json.toJson(id)));
                     } catch (IOException e) {
-                        return internalServerError();
+                        return internalServerError(Json.toJson("Sanitization Failed"));
                     }
                 });
         }
@@ -114,7 +114,7 @@ public class DestinationController extends TEABackController {
                 try {
                     return ok(sanitizeJson(Json.toJson(rowsDeleted)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             }
         });
@@ -131,7 +131,7 @@ public class DestinationController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(allDestinations)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             });
     }
@@ -147,7 +147,7 @@ public class DestinationController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(allCountries)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             });
     }
@@ -166,7 +166,7 @@ public class DestinationController extends TEABackController {
                 try {
                     return ok(sanitizeJson(Json.toJson(destination)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             }
         });

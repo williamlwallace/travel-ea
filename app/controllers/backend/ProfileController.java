@@ -55,7 +55,7 @@ public class ProfileController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(allTravellerTypes)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             });
     }
@@ -132,7 +132,7 @@ public class ProfileController extends TEABackController {
                     try {
                         return ok(sanitizeJson(Json.toJson(profile)));
                     } catch (IOException e) {
-                        return internalServerError();
+                        return internalServerError(Json.toJson("Sanitization Failed"));
                     }
                 }
             });
@@ -307,7 +307,7 @@ public class ProfileController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(profiles)));
                 } catch (IOException e) {
-                    return internalServerError();
+                    return internalServerError(Json.toJson("Sanitization Failed"));
                 }
             });
     }
