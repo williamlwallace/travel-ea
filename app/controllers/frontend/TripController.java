@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Trip;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
@@ -29,9 +30,8 @@ import play.mvc.With;
 import views.html.createTrip;
 import views.html.trips;
 
-public class TripController extends Controller {
+public class TripController extends TEAFrontController {
 
-    private HttpExecutionContext httpExecutionContext;
     private WSClient ws;
     private DestinationController destinationController;
 
@@ -40,13 +40,12 @@ public class TripController extends Controller {
         HttpExecutionContext httpExecutionContext,
         WSClient ws,
         DestinationController destinationController) {
-
-        this.httpExecutionContext = httpExecutionContext;
+        super(httpExecutionContext);
         this.ws = ws;
         this.destinationController = destinationController;
     }
 
-    /**
+    /**    private HttpExecutionContext httpExecutionContext;
      * Displays the trips page. Called with the /trips URL and uses a GET request. Checks that a
      * user is logged in. Takes them to the trips page if they are, otherwise they are taken to the
      * start page.

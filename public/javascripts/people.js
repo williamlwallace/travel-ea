@@ -1,5 +1,5 @@
-var countryDict = {};
-var travellerTypeDict = {};
+let countryDict = {};
+let travellerTypeDict = {};
 
 /**
  * Capatilize first letter of stirng
@@ -74,12 +74,12 @@ function getNationalityAndTravellerStrings(people) {
  * Creates URL with search paramaters for filters
  */
 function searchParams(){
-    var nationality = document.getElementById('nationality').value;
-    var gender = document.getElementById('gender').value;
-    var minAge = document.getElementById('minAge').value;
-    var maxAge = document.getElementById('maxAge').value;
-    var travellerType = document.getElementById('travellerType').value;
-    var url = '/people?';
+    let nationality = document.getElementById('nationality').value;
+    let gender = document.getElementById('gender').value;
+    let minAge = document.getElementById('minAge').value;
+    let maxAge = document.getElementById('maxAge').value;
+    let travellerType = document.getElementById('travellerType').value;
+    let url = '/people?';
     if (nationality) {
         url += "nationalityId=" + nationality + "&";
     }
@@ -104,7 +104,7 @@ function searchParams(){
  * Apply search filters
  */
 function apply(){
-    var url;
+    let url;
     url = searchParams();
     window.location = url;
 

@@ -6,8 +6,10 @@ import actions.roles.Everyone;
 import controllers.backend.ProfileController;
 import java.util.List;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Profile;
 import models.User;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -18,7 +20,8 @@ import views.html.people;
 /**
  * The people controller for the finding a travel partner page.
  */
-public class PeopleController extends Controller {
+@Singleton
+public class PeopleController extends TEAFrontController {
 
     private final ProfileController profileController;
 
@@ -26,8 +29,8 @@ public class PeopleController extends Controller {
      * Used to create example data while building GUI.
      */
     @Inject
-    public PeopleController(ProfileController profileController) {
-
+    public PeopleController(ProfileController profileController, HttpExecutionContext httpExecutionContext) {
+        super(httpExecutionContext);
         this.profileController = profileController;
 
     }

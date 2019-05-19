@@ -2,9 +2,9 @@
  * Changing the Navbar colour depending on the situation
  */
 $(document).ready(function() {
-    var scroll_start = 0;
-    var startchange = $('#startchange');
-    var offset = startchange.offset();
+    let scroll_start = 0;
+    let startchange = $('#startchange');
+    let offset = startchange.offset();
     $(document).scroll(function() {
         scroll_start = $(this).scrollTop();
         if(scroll_start > offset.top  - $('#navbar').outerHeight()) {
