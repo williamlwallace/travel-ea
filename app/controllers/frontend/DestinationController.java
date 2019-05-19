@@ -61,18 +61,12 @@ public class DestinationController extends TEAFrontController {
      * @return displays the profile or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> singleDestinationIndex(Http.Request request, Long destinationId) {
+    public Result singleDestinationIndex(Http.Request request, Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
-            return this.getDestination(destinationId, request).thenApplyAsync(
-                    destination -> {
-                        User user = destination.user;
-                        boolean canModify =
-                                loggedUser.id.equals(user.id) || loggedUser.admin;
-                        return ok(views.html.detailedDestination
-                                .render(destination, user, loggedUser, canModify));
-            },
-            httpExecutionContext.current());
-}
+
+        Boolean canModify = loggedUser.admin;
+        return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+    }
 
     /**
      * Gets Destinations from api endpoint via get request.
@@ -96,31 +90,4 @@ public class DestinationController extends TEAFrontController {
         });
     }
 
-    /**
-     * Gets destination object to be viewed in destination screen
-     *
-     * @param destinationId Id of destination to be retrieved
-     * @param request Request containing url and authentication information
-     * @return CompletableFuture containing user object
-     */
-    private CompletableFuture<Destination> getDestination(Long destinationId, Http.Request request) {
-        String url =
-                "http://" + request.host() + controllers.backend.routes.DestinationController.getDestination(destinationId);
-        CompletableFuture<WSResponse> res = ws
-                .url(url)
-                .addHeader("Cookie",
-                        String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
-                .get()
-                .toCompletableFuture();
-        return res.thenApply(r -> {
-            try {
-                JsonNode json = r.getBody(WSBodyReadables.instance.json());
-                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                        new TypeReference<Destination>() {
-                        });
-            } catch (Exception e) {
-                return new Destination();
-            }
-        });
-    }
 }

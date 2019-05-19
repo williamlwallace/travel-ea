@@ -1,5 +1,5 @@
 @import play.mvc.Http.Request
-@(destination: Destination, user: models.User, loggedUser: models.User, canModify: Boolean)
+@(destinationId: Long, loggedUser: models.User, canModify: Boolean)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/detailedDestination.js")" type="text/javascript"></script>
@@ -19,7 +19,7 @@
     <div class="title-frame" id="title-frame">
         <div class="title-bg" style="background-image: url(@routes.Assets.at("images/detailedDestination-bg.jpg"))">
             <div class="title-text-wrap">
-                <p id="summary_name" class="title-text">@destination.name</p>
+                <p id="summary_name" class="title-text">Destination Name</p>
             </div>
         </div>
     </div>
@@ -30,13 +30,13 @@
                 @* Destination Details *@
                 <div id="destination-summary">
                     <div class="destination-details">
-                        <p class="heading">@destination.name</p>
-                        <p class="heading">Type <span id="summary_type" class="destination-info">@destination._type</span></p>
-                        <p class="heading">District <span id="summary_district" class="destination-info">@destination.district</span></p>
-                        <p class="heading">Country <span id="summary_country" class="destination-info">@destination.country</span></p>
-                        <p class="heading">Latitude <span id="summary_latitude" class="destination-info">@destination.latitude</span></p>
-                        <p class="heading">Longitude <span id="summary_longitude" class="destination-info">@destination.longitude</span></p>
-                        <p class="heading">Owner <span id="summary_longitude" class="destination-info">@destination.user.username</span></p>
+                        <p class="heading" id="destination_name">Destination Name</p>
+                        <p class="heading">Type <span id="summary_type" class="destination-info">type</span></p>
+                        <p class="heading">District <span id="summary_district" class="destination-info">district</span></p>
+                        <p class="heading">Country <span id="summary_country" class="destination-info">country</span></p>
+                        <p class="heading">Latitude <span id="summary_latitude" class="destination-info">latitude</span></p>
+                        <p class="heading">Longitude <span id="summary_longitude" class="destination-info">longitude</span></p>
+                        <p class="heading">Owner <span id="summary_user" class="destination-info">user.username</span></p>
                         @if(canModify) {
                             <a data-toggle="modal" data-target="#editDestinationModal">
                                 @* TODO link this to the edit destination modal ?!  *@
@@ -50,10 +50,15 @@
                 @* Body Content *@
                 <div class="destination-main">
                     <div>
-                    @modules.gallery(user, loggedUser, canModify)
+                    @modules.gallery(loggedUser, canModify)
                     </div>
                 </div>
             </div>
         </div>
     </body>
 }
+
+@*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
+<script type="text/javascript">
+        populateDestinationDetails(@destinationId);
+</script>
