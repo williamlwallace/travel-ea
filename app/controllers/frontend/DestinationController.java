@@ -19,7 +19,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -55,6 +54,27 @@ public class DestinationController extends TEAFrontController {
     }
 
     /**
+     * Displays the  edit profile page. Called with the /Profile URL and uses a GET request. Checks
+     * that a user is logged in. Takes them to the profile page if they are, otherwise they are
+     * taken to the start page.
+     *
+     * @return displays the profile or start page.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> singleDestinationIndex(Http.Request request, Long destinationId) {
+        User loggedUser = request.attrs().get(ActionState.USER);
+            return this.getDestination(destinationId, request).thenApplyAsync(
+                    destination -> {
+                        User user = destination.user;
+                        boolean canModify =
+                                loggedUser.id.equals(user.id) || loggedUser.admin;
+                        return ok(views.html.detailedDestination
+                                .render(destination, user, loggedUser, canModify));
+            },
+            httpExecutionContext.current());
+}
+
+    /**
      * Gets Destinations from api endpoint via get request.
      *
      * @return List of destinations wrapped in completable future
@@ -72,6 +92,34 @@ public class DestinationController extends TEAFrontController {
                     });
             } catch (Exception e) {
                 return new ArrayList<>();
+            }
+        });
+    }
+
+    /**
+     * Gets destination object to be viewed in destination screen
+     *
+     * @param destinationId Id of destination to be retrieved
+     * @param request Request containing url and authentication information
+     * @return CompletableFuture containing user object
+     */
+    private CompletableFuture<Destination> getDestination(Long destinationId, Http.Request request) {
+        String url =
+                "http://" + request.host() + controllers.backend.routes.DestinationController.getDestination(destinationId);
+        CompletableFuture<WSResponse> res = ws
+                .url(url)
+                .addHeader("Cookie",
+                        String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
+                .get()
+                .toCompletableFuture();
+        return res.thenApply(r -> {
+            try {
+                JsonNode json = r.getBody(WSBodyReadables.instance.json());
+                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
+                        new TypeReference<Destination>() {
+                        });
+            } catch (Exception e) {
+                return new Destination();
             }
         });
     }

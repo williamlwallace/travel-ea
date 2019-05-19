@@ -11,11 +11,6 @@ function fillGallery(getPhotosUrl) {
             response.json().then(data => {
                 // "data" should now be a list of photo models for the given user
                 // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
-                let usersPhotos = [];
-                for(let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    usersPhotos[i] = data[i];
-                }
                 // Now create gallery objects
                 var galleryObjects = createGalleryObjects(true);
                 // And populate the gallery!
@@ -23,6 +18,14 @@ function fillGallery(getPhotosUrl) {
             });
         });
 }
+
+/**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ * For a normal photo
+ */
+$("#upload-gallery-image-button").click(function() {
+    $("#upload-gallery-image-file").click();
+});
 
 /**
  * Creates gallery objects from the users photos to display on picture galleries.

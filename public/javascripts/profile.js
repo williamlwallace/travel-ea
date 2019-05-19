@@ -85,14 +85,14 @@ function populateProfileData(uri) {
     })
 .then(json => {
         // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
-        for (i = 0; i < json.nationalities.length; i++) {
+        for (let i = 0; i < json.nationalities.length; i++) {
         // iterates through the list of nationalities and adds them to the dropdown via their id
         $('#nationalities').picker('set', json.nationalities[i].id);
     }
-    for (i = 0; i < json.passports.length; i++) {
+    for (let i = 0; i < json.passports.length; i++) {
         $('#passports').picker('set', json.passports[i].id);
     }
-    for (i = 0; i < json.travellerTypes.length; i++) {
+    for (let i = 0; i < json.travellerTypes.length; i++) {
         $('#travellerTypes').picker('set', json.travellerTypes[i].id);
     }
     $('#gender').picker('set', json.gender);
@@ -406,13 +406,7 @@ function uploadNewPhoto(){
 }
 
 
-/**
- * allows the upload image button to act as an input field by clicking on the upload image file field
- * For a normal photo
- */
-$("#upload-gallery-image-button").click(function() {
-    $("#upload-gallery-image-file").click();
-});
+
 
 /**
  * Takes the users selected photos and  creates a form from them
