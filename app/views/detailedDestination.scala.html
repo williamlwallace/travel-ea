@@ -11,6 +11,7 @@
 }
 
 @layouts.main("Destination", loggedUser, scripts){
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/detailedDestination.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
 
@@ -24,23 +25,31 @@
     </div>
 
     <body style="margin:auto">
-        <div class="row profile" id="startchange">
+        <div class="row destination" id="startchange">
             <div class="col-12 col-md-3">
                 @* Destination Details *@
-                <div id="profile-summary">
+                <div id="destination-summary">
                     <div class="destination-details">
-                        @if(canModify) {<p class="heading">Email <span class="user-info">@user.username</span></p>}
                         <p class="heading">@destination.name</p>
                         <p class="heading">Type <span id="summary_type" class="destination-info">@destination._type</span></p>
                         <p class="heading">District <span id="summary_district" class="destination-info">@destination.district</span></p>
                         <p class="heading">Country <span id="summary_country" class="destination-info">@destination.country</span></p>
                         <p class="heading">Latitude <span id="summary_latitude" class="destination-info">@destination.latitude</span></p>
                         <p class="heading">Longitude <span id="summary_longitude" class="destination-info">@destination.longitude</span></p>
+                        <p class="heading">Owner <span id="summary_longitude" class="destination-info">@destination.user.username</span></p>
                         @if(canModify) {
-                            <a data-toggle="modal" data-target="#editProfileModal">
-                                <span class="profile-button" style="float: left; padding-top: 10px; padding-bottom: 10px;">Edit Destination</span>
+                            <a data-toggle="modal" data-target="#editDestinationModal">
+                                <span class="destination-button" style="float: left; padding-top: 10px; padding-bottom: 10px;">Edit Destination</span>
                             </a>
                         }
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-9">
+                @* Body Content *@
+                <div class="destination-main">
+                    <div>
+                    @modules.gallery(user, loggedUser, canModify)
                     </div>
                 </div>
             </div>
