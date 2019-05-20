@@ -329,8 +329,9 @@ function viewTrip(uri) {
 /**
  * Gathers trip data and sends to API to update
  * @param {string} uri - API URI to update trip
- * @param {stirng} redirect - URI to redirect if succesful
+ * @param {stirng} redirect - URI to redirect if successful
  * @param {Number} tripId - ID of trip to update
+ * @param {Number} userId - User ID of trip owner
  */
 function updateTrip(uri, redirect, tripId, userId) {
     let listItemArray = Array.of(document.getElementById("list").children);
