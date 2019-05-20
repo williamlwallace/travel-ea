@@ -98,7 +98,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(authCookie)
-                .uri("/api/destination");
+                .uri("/api/user/destination/1");
 
         Result result = route(fakeApp, request);
 

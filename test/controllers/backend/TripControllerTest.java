@@ -29,11 +29,6 @@ import play.test.WithApplication;
 
 public class TripControllerTest extends WithApplication {
 
-    @Test
-    public void sanityTest() {
-        assertEquals(1, 1);
-    }
-
     private static Application fakeApp;
     private static Database db;
     private static Cookie authCookie;
@@ -96,6 +91,9 @@ public class TripControllerTest extends WithApplication {
         // Sets up datetime formatter and country definition object and empty trip data list
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+        User destOwner = new User();
+        destOwner.id = 2L;
+
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
 
@@ -105,6 +103,7 @@ public class TripControllerTest extends WithApplication {
         for (int i = 0; i < destinations.length; i++) {
             Destination dest = new Destination();
             dest.id = Long.valueOf(destinations[i]);
+            dest.user = destOwner;
             dest.country = countryDefinition;
 
             TripData tripData = new TripData();
@@ -158,7 +157,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
@@ -180,7 +179,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was unsuccessful
@@ -202,7 +201,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was unsuccessful
@@ -224,7 +223,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was unsuccessful
@@ -248,7 +247,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         Result result = route(fakeApp, request);
@@ -272,7 +271,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
@@ -284,6 +283,7 @@ public class TripControllerTest extends WithApplication {
     public void getTrip(){
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
+                .cookie(authCookie)
                 .uri("/api/trip/1");
 
         // Get result and check it was successful
@@ -295,6 +295,7 @@ public class TripControllerTest extends WithApplication {
     public void getTripInvalidID() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
+                .cookie(authCookie)
                 .uri("/api/trip/100");
 
         // Get result and check it was not successful

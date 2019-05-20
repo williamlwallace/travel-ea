@@ -21,10 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import models.CountryDefinition;
-import models.Destination;
-import models.Trip;
-import models.TripData;
+import models.*;
 
 import play.libs.Json;
 import play.mvc.Http;
@@ -85,13 +82,18 @@ public class ViewMyTripsTestSteps extends WithApplication {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
 
+        User destOwner = new User();
+        destOwner.id = 1L;
+
         Destination dest1 = new Destination();
         dest1.id = 1L;
         dest1.country = countryDefinition;
+        dest1.user = destOwner;
 
         Destination dest2 = new Destination();
         dest2.id = 2L;
         dest2.country = countryDefinition;
+        dest2.user = destOwner;
 
         TripData tripData1 = new TripData();
         tripData1.position = 1L;
@@ -106,7 +108,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         tripArray.add(tripData1);
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
-        trip.userId = userId;
+        trip.userId = 1L;
         trip.privacy = 0L;
 
         JsonNode node = Json.toJson(trip);

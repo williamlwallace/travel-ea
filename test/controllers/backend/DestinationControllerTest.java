@@ -13,6 +13,7 @@ import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
@@ -102,19 +103,23 @@ public class DestinationControllerTest extends WithApplication {
     @Test
     public void getDestinations() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .uri("/api/destination");
+                .method(GET)
+                .cookie(authCookie)
+                .uri("/api/user/destination/1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
+        JsonNode dests = new ObjectMapper().readValue(Helpers.contentAsString(result), JsonNode.class);
+
         // Deserialize result to list of destinations
-        List<Destination> destinations = Arrays.asList(
-            new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
+        List<Destination> destinations = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(dests),
+                new TypeReference<List<Destination>>() {
+                });
 
         // Check that list has exactly 4 results
-        assertEquals(4, destinations.size());
+        assertEquals(2, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
@@ -284,18 +289,93 @@ public class DestinationControllerTest extends WithApplication {
         destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
-
     }
+
+    // TODO: Add test back once destination can be inserted by admin user
+    /*
+    @Test
+    public void makePermanentlyPublicModifiesOwner() throws IOException {
+        // Creates User Object
+        User user = new User();
+        user.username = "newUser123@test.com";
+        user.password = "newUserPassword123";
+
+        // Insert User into database
+        Http.RequestBuilder userRequest = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(Json.toJson(user))
+                .uri("/api/user");
+
+        // Get result and check it was successful
+        Result userResult = route(fakeApp, userRequest);
+        assertEquals(OK, userResult.status());
+
+        // Create new Destination
+        Destination createDest = new Destination();
+        createDest.name = "Test destination";
+        createDest._type = "Monument";
+        createDest.district = "Canterbury";
+        createDest.latitude = 10.0;
+        createDest.longitude = 20.0;
+        createDest.isPublic = true;
+        createDest.country = new CountryDefinition();
+        createDest.country.id = 1L;
+
+        // Create request to create a new destination
+        Http.RequestBuilder createDestRequest = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(Json.toJson(createDest))
+                .cookie(authCookie)
+                .uri("/api/destination");
+
+        // Get result and check it was successful
+        Result createDestResult = route(fakeApp, createDestRequest);
+        assertEquals(OK, createDestResult.status());
+
+        // Get id of destination
+        Long destinationId = new ObjectMapper()
+                .readValue(Helpers.contentAsString(createDestResult), Long.class);
+
+        Destination destinationToModify = new Destination();
+        destinationToModify.id = destinationId;
+        destinationToModify.user = user;
+
+        // Makes destination permanently public
+        destinationRepository.makePermanentlyPublic(destinationToModify);
+
+        // Get destination
+        Http.RequestBuilder getDestRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(Json.toJson(createDest))
+                .cookie(authCookie)
+                .uri("/api/destination/" + destinationId);
+
+        Result getDestResult = route(fakeApp, getDestRequest);
+        assertEquals(OK, getDestResult.status());
+
+        // Get id of destination
+        Destination destRetrieved = new ObjectMapper()
+                .readValue(Helpers.contentAsString(getDestResult), Destination.class);
+
+        assertEquals(Long.valueOf(1), destRetrieved.user.id);
+        assertEquals(destRetrieved.id, createDest.id);
+        assertEquals(destRetrieved.name, createDest.name);
+        assertEquals(destRetrieved.latitude, createDest.latitude);
+        assertEquals(destRetrieved.longitude, createDest.longitude);
+        assertEquals(destRetrieved._type, createDest._type);
+        assertEquals(destRetrieved.district, createDest.district);
+    }
+    */
 
     @Test
     public void findSimilarDestinations() throws InterruptedException, ExecutionException {
         // Get all destinations on the database
         // NOTE: Using .get() here as running async lead to race conditions on db connection, sorry Harry :(
-        List<Destination> allDestinations = destinationRepository.getAllDestinations().get();
+        List<Destination> allDestinations = destinationRepository.getAllDestinations(1L).get();
         List<Destination> similarDestinations = destinationRepository.getSimilarDestinations(allDestinations.get(0));
 
         // Assert that 3 destinations were found, and 2 similar ones
-        Assert.assertEquals(4, allDestinations.size());
+        Assert.assertEquals(2, allDestinations.size());
         Assert.assertEquals(2, similarDestinations.size());
 
         // Now check destinations 2 and 3 were found in similarities, and 1 and 4 were not

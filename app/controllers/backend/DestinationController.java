@@ -56,7 +56,7 @@ public class DestinationController extends TEABackController {
             Destination newDestination = Json.fromJson(data, Destination.class);
             // Add destination owner to be whichever user uploaded it
             newDestination.user = new User();
-            newDestination.user.id = request.attrs().get(ActionState.USER).id;
+            newDestination.user.id = request.attrs().get(ActionState.USER).id;    // TODO: Modify to be whichever user its for (admin creating)
             return destinationRepository.addDestination(newDestination)
                 .thenApplyAsync(id -> {
                     try{
