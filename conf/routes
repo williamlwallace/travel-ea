@@ -111,6 +111,9 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
+# Specific destination page
+GET           /destinations/:id      controllers.frontend.DestinationController.singleDestinationIndex(request: Request, id: Long)
+
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/routers/admin         controllers.backend.AdminController.adminRoutes(request: Request)

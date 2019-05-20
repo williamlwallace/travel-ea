@@ -321,7 +321,8 @@ public class ProfileController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes(),
-                controllers.backend.routes.javascript.ProfileController.searchProfilesJson()
+                controllers.backend.routes.javascript.ProfileController.searchProfilesJson(),
+                controllers.frontend.routes.javascript.ProfileController.index()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
