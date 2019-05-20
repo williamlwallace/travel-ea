@@ -6,8 +6,11 @@ import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import cucumber.api.java.hu.De;
-import io.ebean.*;
-
+import io.ebean.Ebean;
+import io.ebean.EbeanServer;
+import io.ebean.Expr;
+import io.ebean.PagedList;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -259,5 +262,20 @@ public class DestinationRepository {
                 .setMaxRows(pageSize)
                 .findPagedList()
             , executionContext);
+    }
+
+    /**
+     * Updates the destinations ownership to the master admin
+     *
+     * @param destination Destination to be updated
+     * @return Modified destination object
+     */
+    public CompletableFuture<Destination> makePermanentlyPublic(Destination destination) {
+        // Change ownership to master admin
+        destination.user.id = 1L;
+        return supplyAsync(() -> {
+            ebeanServer.update(destination);
+            return destination;
+        }, executionContext);
     }
 }
