@@ -103,20 +103,29 @@ public class DestinationController extends TEABackController {
      * @return OK with number of rows deleted, badrequest if none deleted
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> deleteDestination(Long id) {
+    public CompletableFuture<Result> deleteDestination(Http.Request request, Long id) {
         // TODO: add authentication of user to destination
-        return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
-                ErrorResponse errorResponse = new ErrorResponse();
-                errorResponse.map("Destination not found", "other");
-                return badRequest(errorResponse.toJson());
-            } else {
-                try {
-                    return ok(sanitizeJson(Json.toJson(rowsDeleted)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
-                }
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(() -> notFound());
             }
+            if (destination.user.id == user.id || user.admin) {
+                return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
+                    if (rowsDeleted < 1) {
+                        ErrorResponse errorResponse = new ErrorResponse();
+                        errorResponse.map("Destination not found", "other");
+                        return badRequest(errorResponse.toJson());
+                    } else {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(rowsDeleted)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson("Sanitization Failed"));
+                        }
+                    }
+                });
+            }
+            return CompletableFuture.supplyAsync(() -> forbidden());
         });
     }
 

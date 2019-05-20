@@ -47,7 +47,7 @@ POST          /api/destination                       controllers.backend.Destina
 
 GET           /api/destination                       controllers.backend.DestinationController.getAllDestinations()
 
-DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(id:Long)
+DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 
