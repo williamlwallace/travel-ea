@@ -137,7 +137,7 @@ public class TripController extends Controller {
         trip.privacy = data.get("privacy").asLong();
 
         // Transfers ownership of destinations to master admin where necessary
-        // TODO: transferDestinationsOwnership(, trip.tripDataList);
+        transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {

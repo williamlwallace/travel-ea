@@ -271,8 +271,9 @@ public class DestinationRepository {
      * @return Modified destination object
      */
     public CompletableFuture<Destination> makePermanentlyPublic(Destination destination) {
-        // Change ownership to master admin
+        // Change ownership to master admin and ensures destination is public
         destination.user.id = 1L;
+        destination.isPublic = true;
         return supplyAsync(() -> {
             ebeanServer.update(destination);
             return destination;
