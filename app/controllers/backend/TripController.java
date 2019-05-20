@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Destination;
@@ -48,10 +50,16 @@ public class TripController extends Controller {
         // Returns all trips if requesting user is owner of trips or an admin
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
             return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> {
+                    Collections.sort(trips);
+                    return ok(Json.toJson(trips));
+                });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
-                .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+                .thenApplyAsync(trips -> {
+                    Collections.sort(trips);
+                    return ok(Json.toJson(trips));
+                });
         }
     }
 
@@ -109,16 +117,15 @@ public class TripController extends Controller {
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.privacy = data.get("privacy").asLong();
 
-        // TODO: Does this work, if so rework this and insert trip and update privacy
-        /*
-        Trip trip = Json.fromJson(data.get("trip"), Trip.class);
-        trip.userId = request.attrs().get(ActionState.USER).id;
-         */
-
         // Update trip in db
-        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-            ok(Json.toJson(trip.id))
-        );
+        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+            if (uploaded) {
+                return ok(Json.toJson(trip.id));
+            }
+            else {
+                return badRequest();
+            }
+        });
     }
 
     /**
@@ -129,7 +136,6 @@ public class TripController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTripPrivacy(Http.Request request) {
-        System.out.println("into controller");
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -146,7 +152,6 @@ public class TripController extends Controller {
         trip.id = data.get("id").asLong();
         trip.privacy = data.get("privacy").asLong();
 
-        System.out.println("tried to update");
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
             ok(Json.toJson(trip.id))

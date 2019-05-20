@@ -7,6 +7,8 @@ import io.ebean.EbeanServer;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
+
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
@@ -42,14 +44,18 @@ public class TripRepository {
      * Updates a trip
      *
      * @param trip the updated trip
-     * @return true or an error is thrown
+     * @return true on successful update or false on fail
      */
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
         return supplyAsync(() -> {
+            try {
                 ebeanServer.update(trip);
                 return true;
-            },
-            executionContext);
+            }
+            catch (EntityNotFoundException ex) {
+                return false;
+            }
+        }, executionContext);
     }
 
     /**

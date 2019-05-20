@@ -62,6 +62,32 @@ public class DestinationController extends Controller {
     }
 
     /**
+     * Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users,
+     * as well as merging with any sufficiently similar destinations that are currently marked as private in the database
+     *
+     * @param request Request containing authentication header
+     * @param id ID of destination to mark as public
+     * @return 200 if successful, 400 if already public, 401 unauthorized, 403 forbidden, 404 no such destination
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        // Try to get the destination, if it is not found throw 404
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
+            // Check for 404
+            if(destination == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
+            }
+            // Check if user owns the destination (or is an admin)
+            if(!destination.user.id.equals(user.id) && !user.admin) {
+                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You are not allowed to perform this action")));
+            }
+            // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
+            return destinationRepository.makeDestinationPublic(user, destination);
+        }).thenApplyAsync(result -> result);
+    }
+
+    /**
      * Deletes a destination with given id. Return a result with a json int which represents the
      * number of rows that were deleted. So if the return value is 0, no destination was found to
      * delete

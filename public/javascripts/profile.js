@@ -43,7 +43,7 @@ function updateProfile(uri, redirect) {
 
 /**
  * Maps a json object to the profile summary data and updates it
- * @param {Object} data Json data object 
+ * @param {Object} data Json data object
  */
 function updateProfileData(data) {
     document.getElementById("summary_name").innerHTML = data.firstName + " " + data.lastName;
@@ -64,59 +64,6 @@ function updateProfileData(data) {
     });
 }
 
-/**
- * Calculates the age of a user based on there birthdate
- * @param {Number} dt1 birthdate of user in epoch time
- */
-function calc_age(dt1) {
-    let diff =(Date.now() - dt1) / 1000;
-    diff /= (60 * 60 * 24);
-    // Best convertion method without moment etc
-    return Math.abs(Math.floor(diff/365.25));
-}
-
-
-/**
- * Updates a trips privacy when the toggle is used
- * @param {string} uri Route for updating trip privacy
- * @param {string} imageSrc Source of new icon image to use
- * @param {Number} tripId Id of trip to update
- * @param {string} newPrivacy Privacy status selected by user
- */
-function updateTripPrivacy(uri, imageSrc, tripId, newPrivacy) {
-    let currentPrivacy = document.getElementById("privacyImg").title;
-
-    // Don't need to update privacy to the same status
-    if (currentPrivacy === newPrivacy) {
-        return;
-    }
-
-    let tripData = {
-        "id": tripId
-    };
-
-    if (newPrivacy === "Public") {
-        tripData["privacy"] = 1;
-    }
-    else if (newPrivacy === "Private") {
-        tripData["privacy"] = 0;
-    }
-    else {
-        return;
-    }
-
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-            .then(json => {
-                // On successful update
-                if (response.status === 200) {
-                    document.getElementById("privacyImg").title = newPrivacy;
-                    document.getElementById("privacyImg").src = imageSrc;
-                }
-            });
-    });
-}
 
 /**
  * Returns timout promise
@@ -436,75 +383,6 @@ function deletePhoto(route) {
         });
 }
 
-/**
- * Sets up the dropzone properties, like having a remove button
- */
-function setupDropZone() {
-    Dropzone.options.addPhotoDropzone = {
-        acceptedFiles: '.jpeg,.png,.jpg',
-        dictRemoveFile: "remove",
-        thumbnailWidth: 200,
-        thumbnailHeight: 200,
-        dictDefaultMessage: '',
-        autoProcessQueue: false,
-
-        init: function() {
-            var submitButton = document.querySelector("#submit-all");
-            var cancelButton = document.querySelector("#remove-all");
-            var addPhotoDropzone = this;
-
-            this.on("addedfile", function () {
-                // Enable add button
-                submitButton.disabled = false;
-                submitButton.innerText = "Add"
-            });
-
-            this.on("thumbnail", function(file) {
-                // Do the dimension checks you want to do
-                if (file.width < profilePictureSize || file.height < profilePictureSize) {
-                    file.rejectDimensions()
-                }
-                else {
-                    file.acceptDimensions();
-                }
-            });
-
-            this.on("processing", function() {
-                this.options.autoProcessQueue = true;
-            });
-
-            submitButton.addEventListener("click", function() {
-                if (submitButton.innerText === "Add") {
-                    addPhotoDropzone.processQueue(); // Tell Dropzone to process all queued files.
-                    submitButton.innerText = "Done";
-                    document.getElementById("remove-all").hidden = true;
-                } else {
-                    document.getElementById("remove-all").hidden = false;
-                    addPhotoDropzone.options.autoProcessQueue = false;
-                    addPhotoDropzone.removeAllFiles();
-                    $('#uploadPhotoModal').modal('hide');
-                    fillGallery(getAllPhotosUrl);
-                }
-            });
-
-            cancelButton.addEventListener("click", function() {
-                addPhotoDropzone.removeAllFiles();
-                addPhotoDropzone.options.autoProcessQueue = false;
-                submitButton.disabled = true;
-                submitButton.innerText = "Add"
-            });
-        },
-        accept: function(file, done) {
-            file.acceptDimensions = done;
-            file.rejectDimensions = function() {
-                done("Image too small.");
-            };
-        },
-        success: function(file, response) {
-            file.serverFileName = response[0];
-        }
-    };
-}
 
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field
@@ -528,6 +406,37 @@ function uploadNewPhoto(){
   $('#cropProfilePictureModal').modal('show');
 }
 
+
+/**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ * For a normal photo
+ */
+$("#upload-gallery-image-button").click(function() {
+    $("#upload-gallery-image-file").click();
+});
+
+/**
+ * Takes the users selected photos and  creates a form from them
+ * Sends this form to  the appropriate url
+ *
+ * @param {string} url the appropriate  photo backend controller
+ */
+function uploadNewGalleryPhoto(url) {
+    const selectedPhotos = document.getElementById('upload-gallery-image-file').files;
+    let formData = new FormData();
+    for (let i = 0; i < selectedPhotos.length; i++) {
+        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
+    }
+    // Send request and handle response
+    postMultipart(url, formData).then(response => {
+        // Read response from server, which will be a json object
+        response.json().then(data => {
+            if (response.status === 201) {
+                fillGallery(getAllPhotosUrl);
+            }
+        })
+    })
+}
 
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
