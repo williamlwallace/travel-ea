@@ -227,13 +227,11 @@ public class ProfileController extends Controller {
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender,
-        int minAge, int maxAge, Long travellerTypeId) {
+    private CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
+        String gender, int minAge, int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
             List<Profile> toReturn = new ArrayList<>(profiles);
-
             for (Profile profile : profiles) {
                 if (gender != null && !profile.gender.equalsIgnoreCase(gender)) {
                     toReturn.remove(profile);
@@ -272,7 +270,6 @@ public class ProfileController extends Controller {
                 }
 
             }
-
             return toReturn;
         });
     }
@@ -305,7 +302,9 @@ public class ProfileController extends Controller {
         return ok(
             JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes(),
-                controllers.backend.routes.javascript.ProfileController.searchProfilesJson()
+                controllers.backend.routes.javascript.ProfileController.searchProfilesJson(),
+                controllers.backend.routes.javascript.ProfileController.getProfile(),
+                controllers.frontend.routes.javascript.ProfileController.index()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
