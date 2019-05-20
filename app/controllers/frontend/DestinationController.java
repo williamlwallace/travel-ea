@@ -30,15 +30,14 @@ import views.html.destinations;
  * page.
  */
 @Singleton
-public class DestinationController extends Controller {
+public class DestinationController extends TEAFrontController {
 
     private WSClient ws;
-    private HttpExecutionContext httpExecutionContext;
 
     @Inject
     public DestinationController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+        super(httpExecutionContext);
         this.ws = ws;
-        this.httpExecutionContext = httpExecutionContext;
     }
 
     /**

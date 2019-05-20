@@ -29,7 +29,7 @@ import util.validation.TripValidator;
 /**
  * Manages trips in the database.
  */
-public class TripController extends Controller {
+public class TripController extends TEABackController {
 
     private final TripRepository tripRepository;
     private final DestinationRepository destinationRepository;
@@ -57,13 +57,21 @@ public class TripController extends Controller {
             return tripRepository.getAllUserTrips(userId)
                 .thenApplyAsync(trips -> {
                     Collections.sort(trips);
-                    return ok(Json.toJson(trips));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson("Sanitization Failed"));
+                    }
                 });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
                 .thenApplyAsync(trips -> {
                     Collections.sort(trips);
-                    return ok(Json.toJson(trips));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson("Sanitization Failed"));
+                    }
                 });
         }
     }
@@ -76,7 +84,13 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+            .thenApplyAsync(trips -> {
+                try{
+                    return ok(sanitizeJson(Json.toJson(trips)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
+            });
     }
 
     /**
@@ -99,7 +113,11 @@ public class TripController extends Controller {
                     }
                     // If trip was found and logged in user has privileges to retrieve trip
                     else if (user.admin || user.id.equals(trip.userId) || trip.privacy == 1) {
-                        return ok(Json.toJson(trip));
+                        try{
+                            return ok(sanitizeJson(Json.toJson(trip)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson("Sanitization Failed"));
+                        }
                     }
                     // If logged in user does not have privileges to retrieve trip
                     else {

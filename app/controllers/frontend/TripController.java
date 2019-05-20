@@ -18,16 +18,14 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import views.html.createTrip;
 import views.html.trips;
 
-public class TripController extends Controller {
+public class TripController extends TEAFrontController {
 
-    private HttpExecutionContext httpExecutionContext;
     private WSClient ws;
     private DestinationController destinationController;
 
@@ -36,7 +34,7 @@ public class TripController extends Controller {
                           WSClient ws,
                           DestinationController destinationController) {
 
-        this.httpExecutionContext = httpExecutionContext;
+        super(httpExecutionContext);
         this.ws = ws;
         this.destinationController = destinationController;
     }

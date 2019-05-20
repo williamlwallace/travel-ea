@@ -33,14 +33,16 @@ import repository.PhotoRepository;
 import util.customObjects.Pair;
 import util.validation.ErrorResponse;
 
-public class PhotoController extends Controller {
+public class PhotoController extends TEABackController {
 
     // Constant fields defining the directories of regular photos and test photos
-    private static final String PHOTO_DIRECTORY = "storage/photos/";
-    private static final String TEST_PHOTO_DIRECTORY = "storage/photos/test/";
+    private static final String PHOTO_DIRECTORY = "/storage/photos/";
+    private static final String TEST_PHOTO_DIRECTORY = "/storage/photos/test/";
 
     // Constant fields defining the directory of publicly available files
-    private static final String PUBLIC_DIRECTORY = "../";
+    private static final String PUBLIC_DIRECTORY = "/public";
+
+    private String savePath = "";
 
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
@@ -49,20 +51,32 @@ public class PhotoController extends Controller {
     // Photo repository to handle DB transactions
     private PhotoRepository photoRepository;
 
+    private play.Environment environment;
+
     @Inject
-    public PhotoController(PhotoRepository photoRepository) {
+    public PhotoController(PhotoRepository photoRepository, play.Environment environment) {
         this.photoRepository = photoRepository;
+        this.environment = environment;
+
+        savePath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir")) + PUBLIC_DIRECTORY;
     }
 
-
-    public Result getPhotoFromPath(String path, String filePath) {
-        String finalPath = System.getProperty("user.dir") + path + filePath;
-        System.out.println("READ FILE PATH: " + finalPath);
-        File file = new File(finalPath);
+    /**
+     * Takes a path to a file and returns the file object
+     * 
+     * @param filePath path to file to read
+     */
+    public Result getPhotoFromPath(String filePath) {
+        File file = new File(filePath);
         return ok(file, true);
     }
 
-
+    /**
+     * Returns all photos belonging to a user, only returns public photos if it is not the owner of the photos getting them
+     * 
+     * @param request Request to read cookie data from
+     * @param id ID of user to get photos of
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
         Long currentUserId = request.attrs().get(ActionState.USER).id;
@@ -79,6 +93,11 @@ public class PhotoController extends Controller {
         }
     }
 
+    /**
+     * Gets the profile picture of user with given id
+     * 
+     * @param id ID of user to get profile photo of
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getProfilePicture(Long id) {
         return photoRepository.getUserProfilePicture(id)
@@ -166,8 +185,8 @@ public class PhotoController extends Controller {
             if (pair.getKey().isProfile) {
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
                     if (fileNamesPair != null) {
-                        File thumbFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getKey());
-                        File mainFile = new File(PUBLIC_DIRECTORY + fileNamesPair.getValue());
+                        File thumbFile = new File(fileNamesPair.getKey());
+                        File mainFile = new File(fileNamesPair.getValue());
                         // Mark the files for deletion
                         if (!thumbFile.delete()) {
                             // If file fails to delete immediately, mark file for deletion when VM shuts down
@@ -186,9 +205,9 @@ public class PhotoController extends Controller {
             }
             try {
                 pair.getValue().getRef()
-                    .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().filename), true);
+                    .copyTo(Paths.get(pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
-                    .copyTo(Paths.get(PUBLIC_DIRECTORY + pair.getKey().thumbnailFilename));
+                    .copyTo(Paths.get(pair.getKey().thumbnailFilename));
             } catch (IOException e) {
                 // TODO: Handle case where a file failed to save
             }
@@ -224,11 +243,11 @@ public class PhotoController extends Controller {
 
         // Create a photo object
         Photo photo = new Photo();
-        photo.filename = (((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY) + fileName);
+        photo.filename = (savePath + ((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY) + fileName);
         photo.isProfile =
             profilePhotoFilename != null && profilePhotoFilename.equals(file.getFilename());
         photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
-        photo.thumbnailFilename = (((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY)
+        photo.thumbnailFilename = (savePath + ((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY)
             + "thumbnails/" + fileName);
         photo.uploaded = DateTime.now();
         photo.userId = userId;
@@ -284,7 +303,7 @@ public class PhotoController extends Controller {
         }
 
         // Create file to store output of thumbnail write
-        File thumbFile = new File("/home/sengstudent/storage/photos/test/tempThumb.jpg");
+        File thumbFile = new File(savePath + TEST_PHOTO_DIRECTORY + "tempThumb.jpg");
 
         // Write buffered image to thumbnail file
         ImageIO.write(tThumbImage, "jpg", thumbFile);
@@ -315,8 +334,8 @@ public class PhotoController extends Controller {
                 return badRequest(errorResponse.toJson());
             } else {
                 // Mark the files for deletion
-                File thumbFile = new File(PUBLIC_DIRECTORY + photoDeleted.thumbnailFilename);
-                File mainFile = new File(PUBLIC_DIRECTORY + photoDeleted.filename);
+                File thumbFile = new File(savePath + photoDeleted.thumbnailFilename);
+                File mainFile = new File(savePath + photoDeleted.filename);
                 if (!thumbFile.delete()) {
                     // If file fails to delete immediately, mark file for deletion when VM shuts down
                     thumbFile.deleteOnExit();
@@ -332,6 +351,12 @@ public class PhotoController extends Controller {
         });
     }
 
+    /**
+     * Toggles the privacy of a photo
+     *
+     * @param request Request to read cookie data from
+     * @param id id of photo to toggle
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();

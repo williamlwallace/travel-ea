@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.io.IOException;
 import javax.inject.Inject;
 
 import controllers.backend.routes;
@@ -30,7 +31,7 @@ import util.validation.UserValidator;
 /**
  * Manage a database of users.
  */
-public class ProfileController extends Controller {
+public class ProfileController extends TEABackController {
 
     private static final String ERR_OTHER = "other";
     private final ProfileRepository profileRepository;
@@ -50,7 +51,13 @@ public class ProfileController extends Controller {
      */
     public CompletableFuture<Result> getAllTravellerTypes() {
         return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
-            .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
+            .thenApplyAsync(allTravellerTypes -> {
+                try{
+                    return ok(sanitizeJson(Json.toJson(allTravellerTypes)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
+            });
     }
 
     /**
@@ -122,7 +129,11 @@ public class ProfileController extends Controller {
                     errorResponse.map("Profile for that user not found", ERR_OTHER);
                     return notFound(errorResponse.toJson());
                 } else {
-                    return ok(Json.toJson(profile));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(profile)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson("Sanitization Failed"));
+                    }
                 }
             });
     }
@@ -292,8 +303,13 @@ public class ProfileController extends Controller {
         String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
-            .thenApplyAsync(profiles ->
-                ok(Json.toJson(profiles)));
+            .thenApplyAsync(profiles ->{
+                try{
+                    return ok(sanitizeJson(Json.toJson(profiles)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
+            });
     }
 
     /**
