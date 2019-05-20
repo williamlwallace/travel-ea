@@ -18,7 +18,6 @@ function populateDestinationDetails(destinationId) {
                         document.getElementById("summary_country").innerText = destination.country.name;
                         document.getElementById("summary_latitude").innerText = destination.latitude;
                         document.getElementById("summary_longitude").innerText = destination.longitude;
-                        document.getElementById("summary_user").innerText = destination.user.username;
                     }
                 })
         })
