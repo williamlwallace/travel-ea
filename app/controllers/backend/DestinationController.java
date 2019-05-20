@@ -12,7 +12,6 @@ import javax.inject.Inject;
 import models.Destination;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -207,7 +206,8 @@ public class DestinationController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
-                controllers.backend.routes.javascript.DestinationController.getAllDestinations()
+                controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getDestination()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

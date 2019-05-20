@@ -58,7 +58,6 @@ function populateTable(table){
             }
         })
     })
-
 }
 
 /**

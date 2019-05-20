@@ -1,0 +1,307 @@
+/**
+ * The full detailed destination page
+ */
+div.destination {
+    padding-right: 4%;
+    padding-left: 4%;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+/**
+ * The left hand summary of the destination details,
+ * Same as the profile details, but no photo and in line so
+ * no -12o margin top
+ */
+#destination-summary {
+    background-color: #FFFFFF;
+    width: 68%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 4rem;
+}
+
+/**
+ * The destination details on the left
+ */
+div.destination-details {
+    padding-top: 10px;
+    padding-left: 5px;
+    overflow:auto;
+}
+
+/**
+ * The destination details
+ */
+div.destination-main {
+    max-width: 100%;
+    height: auto;
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 30px;
+}
+
+/**
+ * Text paragraph styling
+ */
+p {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+}
+
+/**
+ * Section titles
+ */
+p.heading {
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+/**
+ * The users info text titles
+ */
+span.section-title {
+    float: left;
+    font-weight: 600;
+}
+
+/**
+ * The users info text
+ */
+span.user-info {
+    font-weight: 400;
+}
+
+/**
+ * The photo Gallery
+ */
+div.photo-gallery {
+    display: inline-block;
+    width: 100%;
+}
+
+/**
+ * Deals with image sizing and styling
+ */
+img.thumb {
+    width: 25%;
+    height: auto;
+    float: left;
+    border: none !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+}
+
+
+/**
+ * The titles for each section of the destination
+ */
+div.section-title {
+    padding: 10px 5px 10px 5px;
+    font-weight: 500;
+}
+
+/**
+ * The destination info text
+ */
+span.destination-info {
+    font-weight: 400;
+}
+
+/**
+ * Styling for the section buttons
+ */
+a.button-secondary {
+    color: #1b1e21;
+}
+
+a.button-secondary:hover {
+    color: #6d6d6e;
+    text-decoration-line: underline;
+}
+
+a.button-secondary:active {
+    color: #1b1e21;
+}
+
+span.destination-button {
+    text-decoration: inherit;
+    color: inherit;
+    font-size: 20px;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+span.destination-button:hover {
+    text-decoration-line: underline;
+}
+
+
+.privacy-image {
+    max-height: 80%;
+    max-width: 80%;
+    opacity: 0.45;
+}
+
+.privacy-image:hover {
+    opacity: 0.9;
+}
+
+tr.clickable-row {
+    cursor: pointer
+}
+
+/* Limit image width to avoid overflow the container */
+img {
+    max-width: 100%; /* This rule is very important, please do not ignore this! */
+}
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px;
+    font-size: 10px;
+    border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 100px;
+    font-size: 14px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
+
+
+section#timeline {
+    width: 80%;
+    margin: 20px auto;
+    position: relative;
+}
+section#timeline:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 0;
+    margin: 0 0 0 -1px;
+    width: 2px;
+    height: 100%;
+    background: #c5c5c5;
+}
+section#timeline article {
+    width: 100%;
+    margin: 0 0 20px 0;
+    position: relative;
+}
+section#timeline article:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+section#timeline article div.inner {
+    width: 40%;
+    float: left;
+    margin: 5px 0 0 0;
+    border-radius: 6px;
+}
+section#timeline article div.inner span.date {
+    display: block;
+    width: 60px;
+    height: 70px;
+    padding: 5px 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin: 0 0 0 -32px;
+    border-radius: 100%;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #ffffff;
+    color: #434343;
+    /*border: 2px solid #c5c5c5;*/
+}
+section#timeline article div.inner span.date span {
+    display: block;
+    text-align: center;
+}
+section#timeline article div.inner span.date span.day {
+    font-size: 10px;
+}
+section#timeline article div.inner span.date span.month {
+    font-size: 18px;
+}
+section#timeline article div.inner span.date span.year {
+    font-size: 10px;
+}
+section#timeline article div.inner h2 {
+    padding: 15px;
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: -1px;
+    border-radius: 6px 6px 0 0;
+    position: relative;
+}
+section#timeline article div.inner h2:after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    -webkit-transform: rotate(-45deg);
+}
+section#timeline article div.inner p {
+    padding: 15px;
+    margin: 0;
+    font-size: 14px;
+    background: #e0e0e0;
+    color: #434343;
+    border-radius: 0 0 6px 6px;
+}
+section#timeline article:nth-child(2n+2) div.inner {
+    float: right;
+}
+section#timeline article:nth-child(2n+2) div.inner h2:after {
+    left: -5px;
+}
+section#timeline article:nth-child(n) div.inner h2 {
+    background: #5283B7;
+}
+section#timeline article:nth-child(n) div.inner h2:after {
+    background: #5283B7;
+}

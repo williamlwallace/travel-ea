@@ -19,7 +19,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -55,6 +54,21 @@ public class DestinationController extends TEAFrontController {
     }
 
     /**
+     * Displays the  edit profile page. Called with the /Profile URL and uses a GET request. Checks
+     * that a user is logged in. Takes them to the profile page if they are, otherwise they are
+     * taken to the start page.
+     *
+     * @return displays the profile or start page.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public Result singleDestinationIndex(Http.Request request, Long destinationId) {
+        User loggedUser = request.attrs().get(ActionState.USER);
+
+        Boolean canModify = loggedUser.admin;
+        return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+    }
+
+    /**
      * Gets Destinations from api endpoint via get request.
      *
      * @return List of destinations wrapped in completable future
@@ -75,4 +89,5 @@ public class DestinationController extends TEAFrontController {
             }
         });
     }
+
 }
