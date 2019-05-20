@@ -165,6 +165,19 @@ public class DestinationControllerTest extends WithApplication {
     }
 
     @Test
+    public void deleteDestinationNotOwner() {
+        // Create request to delete newly created user
+        Http.RequestBuilder request2 = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/2");
+
+        // Get result and check it was successful
+        Result result2 = route(fakeApp, request2);
+        assertEquals(FORBIDDEN, result2.status());
+    }
+
+    @Test
     public void createDestination() throws IOException {
         // Create new json object node
         ObjectNode node = Json.newObject();

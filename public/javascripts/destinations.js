@@ -1,8 +1,12 @@
-let table;
-
 //initilise datatable on load
 $(document).ready(function () {
-    table = $('#dtDestination').DataTable();
+    let table = $('#dtDestination').DataTable({
+        createdRow: function (row, data, dataIndex) {
+            $(row).attr('data-href', data[data.length-1]);
+            $(row).addClass("clickable-row");
+        }
+    });
+    populateDestinations(table);
 });
 
 /**
@@ -70,47 +74,35 @@ function addDestination(url, redirect) {
  * Insert destination data into table
  * @param {Object} table - data table object
  */
-function populateDestinations(isAdmin) {
+function populateDestinations(table) {
     //Query api to get all destinations
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
     .then(response => {
         response.json()
         .then(json => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
                 //Loop through json and insert into table
                 for (const dest in json) {
+                    const destination = "/profile/" + json[dest].id; //TODO: destinationRouter.controllers.frontend.DestinationController.index(dest.id).url;
                     const name = json[dest].name;
                     const type = json[dest]._type;
                     const district = json[dest].district;
                     const latitude = json[dest].latitude;
                     const longitude = json[dest].longitude;
                     const country = json[dest].country.name;
-                    const editURL = ""; //TODO to be implemented
-                    let privacyImage = "";
-                    let deleteDestination = "<button class=\"btn btn-danger\" disabled>Unauthorized</button>"
-                    let updateDestination = "<button class=\"btn btn-secondary\" disabled>Unauthorized</button>"
 
-                    // Set image to public or private
-                    if (json[dest].isPublic) {
-                        privacyImage = "/assets/images/public.png";
-                    } else {
-                        privacyImage = "/assets/images/private.png";
-                    }
-
-                    // Create toggle button
-                    const toggleLabel = "<input class=\"destinationPrivacy\" type=\"image\" src=\"" + privacyImage + "\">";
-                    // toggleLabel.setAttribute("id", json[dest].id + "privacy");
-
-                    // Create button if destination does not belong to an admin or if logged in user is an admin
-                    if ((!json[dest].user.admin) || !isAdmin === "false") {
-                        deleteDestination = "<button class=\"btn btn-danger\">Delete</button>"
-                        updateDestination = "<a href=\"" + editURL + "\" class=\"btn btn-secondary\">Update</a>";
-                    }
-                    table.row.add([toggleLabel, name, type, district, latitude, longitude, country, updateDestination, deleteDestination]).draw(false);
+                    table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
                 }
             }
         });
     })
 }
+
+/**
+ * Redirect to the destinations details page when row is clicked.
+ */
+$('#dtDestination').on('click', 'tbody tr', function() {
+    window.location = this.dataset.href;
+});
