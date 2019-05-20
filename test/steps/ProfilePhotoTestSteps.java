@@ -29,7 +29,6 @@ public class ProfilePhotoTestSteps {
     @Then("I can set it as my profile photo")
     @When("I set it as my profile photo")
     public void i_set_it_as_my_profile_photo() throws IOException {
-        System.out.println("hi");
         File file = getFile("./public/images/favicon.png");
 
         List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();

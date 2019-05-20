@@ -35,8 +35,6 @@ GET           /api/profile/search                    controllers.backend.Profile
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
-DELETE        /api/profile/:userId                   controllers.backend.ProfileController.deleteProfile(userId:Long)
-
 GET           /api/profile/getTravellerTypes/        controllers.backend.ProfileController.getAllTravellerTypes()
 
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
