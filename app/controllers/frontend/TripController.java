@@ -57,26 +57,28 @@ public class TripController extends Controller {
     }
 
     /**
-     * Displays the create trip page. Called with the /trips/create URL and uses a GET request.
+     * Displays the create trip page. Called with the /trips/create/:id URL and uses a GET request.
      * Checks that a user is logged in. Takes them to the create trip page if they are, otherwise
      * they are taken to the start page.
      *
-     * @return displays the create trip or start page.
+     * @param request Http request containing authentication information
+     * @param userId ID of user to create trip for
+     * @return OK status while rendering and displaying the create trip page
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> createTripIndex(Http.Request request, Long userId) {
         User loggedInUser = request.attrs().get(ActionState.USER);
 
-        return destinationController.getDestinations(request, userId).thenApplyAsync(
-                destList -> {
-                    Long createTripUser = loggedInUser.id;
-                    // If user is allowed, render the create trip page for the user specified in the parameter
-                    if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
-                        createTripUser = userId;
-                    }
-                    return ok(createTrip.render(loggedInUser, createTripUser, asScala(destList), new Trip()));
-                },
-                httpExecutionContext.current());
+        if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
+            return destinationController.getDestinations(request, userId).thenApplyAsync(
+                    destList -> ok(createTrip.render(loggedInUser, userId, asScala(destList), new Trip())),
+                    httpExecutionContext.current());
+        }
+        else {
+            return destinationController.getDestinations(request, loggedInUser.id).thenApplyAsync(
+                    destList -> ok(createTrip.render(loggedInUser, loggedInUser.id, asScala(destList), new Trip())),
+                    httpExecutionContext.current());
+        }
     }
 
     /**

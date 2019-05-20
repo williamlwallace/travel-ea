@@ -78,6 +78,7 @@ public class DestinationController extends Controller {
                     new TypeReference<List<Destination>>() {
                     });
             } catch (Exception e) {
+                System.out.println("ERROR");
                 return new ArrayList<>();
             }
         });

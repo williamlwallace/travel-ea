@@ -122,9 +122,16 @@ public class DestinationController extends Controller {
 
         if (user.admin || user.id.equals(userId)) {
             return destinationRepository.getAllDestinations(userId)
-                    .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+                    .thenApplyAsync(allDestinations -> {
+                        System.out.println(allDestinations.size());
+                        for (Destination dest : allDestinations) {
+                            System.out.println(dest.name);
+                        }
+                        return ok(Json.toJson(allDestinations));
+                    });
         }
         else {
+            System.out.println("FAILURE1");
             return destinationRepository.getAllPublicDestinations()
                     .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
         }
