@@ -33,16 +33,13 @@ import views.html.trips;
 public class TripController extends TEAFrontController {
 
     private WSClient ws;
-    private DestinationController destinationController;
 
     @Inject
     public TripController(
         HttpExecutionContext httpExecutionContext,
-        WSClient ws,
-        DestinationController destinationController) {
+        WSClient ws) {
         super(httpExecutionContext);
         this.ws = ws;
-        this.destinationController = destinationController;
     }
 
     /**    private HttpExecutionContext httpExecutionContext;
@@ -68,12 +65,9 @@ public class TripController extends TEAFrontController {
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> createTripIndex(Http.Request request) {
+    public Result createTripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenApplyAsync(
-            destList -> (!destList.isEmpty()) ? ok(
-                createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
-            httpExecutionContext.current());
+        return ok(createTrip.render(user, new Trip()));
     }
 
     /**
@@ -86,14 +80,9 @@ public class TripController extends TEAFrontController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenComposeAsync(
-            destList ->
-                this.getTrip(Authenticator.getTokenFromCookie(request), tripId, request)
-                    .thenApplyAsync(
-                        trip -> (!destList.isEmpty()) ? ok(
-                            createTrip.render(user, asScala(destList), trip))
-                            : internalServerError(), httpExecutionContext.current()),
-            httpExecutionContext.current());
+        return this.getTrip(Authenticator.getTokenFromCookie(request), tripId, request)
+        .thenApplyAsync(trip -> ok(createTrip.render(user, trip))
+                                , httpExecutionContext.current());
     }
 
     /**
