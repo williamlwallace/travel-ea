@@ -187,44 +187,24 @@ public class ProfileController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
         } else {
             return profileRepository.findID(userId)
-                .thenComposeAsync(profile -> {
-                    if (profile == null) {
-                        return null;
-                    } else {
-                        Profile updatedProfile = Json.fromJson(data, Profile.class);
-                        updatedProfile.userId = userId;
+                    .thenComposeAsync(profile -> {
+                        if (profile == null) {
+                            return null;
+                        } else {
+                            Profile updatedProfile = Json.fromJson(data, Profile.class);
+                            updatedProfile.userId = userId;
 
-                        return profileRepository.updateProfile(updatedProfile);
-                    }
-                }).thenApplyAsync(updatedUserId -> {
-                    if (updatedUserId == null) {
-                        errorResponse.map("Profile for that user not found", ERR_OTHER);
-                        return badRequest(errorResponse.toJson());
-                    } else {
-                        return ok(Json.toJson(updatedUserId));
-                    }
-                });
+                            return profileRepository.updateProfile(updatedProfile);
+                        }
+                    }).thenApplyAsync(updatedUserId -> {
+                        if (updatedUserId == null) {
+                            errorResponse.map("Profile for that user not found", ERR_OTHER);
+                            return badRequest(errorResponse.toJson());
+                        } else {
+                            return ok(Json.toJson(updatedUserId));
+                        }
+                    });
         }
-    }
-
-    /**
-     * Deletes a profile based on the userID specified in the request.
-     *
-     * @param id Contains the HTTP request info
-     * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
-     * not found for that userID.
-     */
-    @With({Admin.class, Authenticator.class})
-    public CompletableFuture<Result> deleteProfile(Long id) {
-        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
-                ErrorResponse errorResponse = new ErrorResponse();
-                errorResponse.map("Profile not found for that user", ERR_OTHER);
-                return notFound(errorResponse.toJson());
-            } else {
-                return ok(Json.toJson(rowsDeleted));
-            }
-        });
     }
 
     /**

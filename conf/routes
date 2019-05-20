@@ -35,8 +35,6 @@ GET           /api/profile/search                    controllers.backend.Profile
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
-DELETE        /api/profile/:userId                   controllers.backend.ProfileController.deleteProfile(userId:Long)
-
 GET           /api/profile/getTravellerTypes/        controllers.backend.ProfileController.getAllTravellerTypes()
 
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
@@ -47,7 +45,7 @@ POST          /api/destination                       controllers.backend.Destina
 
 GET           /api/destination                       controllers.backend.DestinationController.getAllDestinations()
 
-DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(id:Long)
+DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 
@@ -105,14 +103,15 @@ GET           /profile/create        controllers.frontend.ProfileController.crea
 # The TravelEA destinations page
 GET           /destinations          controllers.frontend.DestinationController.index(request: Request)
 
+# Specific destination page
+GET           /destinations/:id      controllers.frontend.DestinationController.detailedDestinationIndex(request: Request, id: Long)
+
 # The profile page
 GET           /profile/:id           controllers.frontend.ProfileController.index(request: Request, id: Long)
 
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
-# Specific destination page
-GET           /destinations/:id      controllers.frontend.DestinationController.singleDestinationIndex(request: Request, id: Long)
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path

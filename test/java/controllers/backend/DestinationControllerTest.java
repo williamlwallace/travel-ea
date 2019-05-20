@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.FORBIDDEN;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
@@ -143,8 +144,8 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created destination
         Http.RequestBuilder request2 = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(authCookie)
-            .uri("/api/destination/1");
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/4");
 
         // Get result and check it was successful
         Result result2 = route(fakeApp, request2);
@@ -161,7 +162,33 @@ public class DestinationControllerTest extends WithApplication {
 
         // Get result and check it was successful
         Result result2 = route(fakeApp, request2);
-        assertEquals(BAD_REQUEST, result2.status());
+        assertEquals(NOT_FOUND, result2.status());
+    }
+
+    @Test
+    public void deleteDestinationNotOwner() {
+        // Create request to delete newly created user
+        Http.RequestBuilder request2 = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/2");
+
+        // Get result and check it was successful
+        Result result2 = route(fakeApp, request2);
+        assertEquals(FORBIDDEN, result2.status());
+    }
+
+    @Test
+    public void deleteDestinationNotOwnerButAdmin() {
+        // Create request to delete newly created user
+        Http.RequestBuilder request2 = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(authCookie)
+            .uri("/api/destination/4");
+
+        // Get result and check it was successful
+        Result result2 = route(fakeApp, request2);
+        assertEquals(OK, result2.status());
     }
 
     @Test

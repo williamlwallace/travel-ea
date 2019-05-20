@@ -276,6 +276,7 @@ function createGalleryObjects(hasFullSizeLinks) {
                     // Create toggle button TODO this is in an ugly position, will change
                     let toggleButton = document.createElement("span");
                     let toggleLabel = document.createElement("input");
+
                     toggleLabel.setAttribute("class", "privacy");
                     toggleLabel.setAttribute("id", guid + "privacy");
                     toggleLabel.setAttribute("type", "image");
@@ -381,7 +382,6 @@ function deletePhoto(route) {
             });
         });
 }
-
 
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field

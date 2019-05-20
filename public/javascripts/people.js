@@ -119,4 +119,4 @@ function apply(){
  */
 $('#dtPeople').on('click', 'tbody tr', function() {
     window.location = this.dataset.href;
-})
+});

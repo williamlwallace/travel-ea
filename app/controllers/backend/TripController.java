@@ -291,4 +291,5 @@ public class TripController extends TEABackController {
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
+
 }

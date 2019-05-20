@@ -102,20 +102,28 @@ public class DestinationController extends TEABackController {
      * @return OK with number of rows deleted, badrequest if none deleted
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> deleteDestination(Long id) {
-        // TODO: add authentication of user to destination
-        return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
-                ErrorResponse errorResponse = new ErrorResponse();
-                errorResponse.map("Destination not found", "other");
-                return badRequest(errorResponse.toJson());
-            } else {
-                try {
-                    return ok(sanitizeJson(Json.toJson(rowsDeleted)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
-                }
+    public CompletableFuture<Result> deleteDestination(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(() -> notFound());
             }
+            if (destination.user.id == user.id || user.admin) {
+                return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
+                    if (rowsDeleted < 1) {
+                        ErrorResponse errorResponse = new ErrorResponse();
+                        errorResponse.map("Destination not found", "other");
+                        return badRequest(errorResponse.toJson());
+                    } else {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(rowsDeleted)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson("Sanitization Failed"));
+                        }
+                    }
+                });
+            }
+            return CompletableFuture.supplyAsync(() -> forbidden());
         });
     }
 
@@ -198,7 +206,9 @@ public class DestinationController extends TEABackController {
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
-                controllers.backend.routes.javascript.DestinationController.getDestination()
+                controllers.backend.routes.javascript.DestinationController.getDestination(),
+                controllers.backend.routes.javascript.DestinationController.deleteDestination(),
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
