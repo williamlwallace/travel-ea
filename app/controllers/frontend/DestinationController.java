@@ -49,45 +49,47 @@ public class DestinationController extends TEAFrontController {
     @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        //return this.getDestinations(request).thenApplyAsync(
         return ok(destinations.render(user));
     }
 
     /**
-     * Displays the  edit profile page. Called with the /Profile URL and uses a GET request. Checks
-     * that a user is logged in. Takes them to the profile page if they are, otherwise they are
-     * taken to the start page.
+     * Gets a Destination of selected id from api endpoint via get request.
      *
-     * @return displays the profile or start page.
-     */
-    @With({Everyone.class, Authenticator.class})
-    public Result singleDestinationIndex(Http.Request request, Long destinationId) {
-        User loggedUser = request.attrs().get(ActionState.USER);
-
-        Boolean canModify = loggedUser.admin;
-        return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
-    }
-
-    /**
-     * Gets Destinations from api endpoint via get request.
-     *
+     * @param request the http request.
+     * @param destinationId the id of the destination to retrieve
      * @return List of destinations wrapped in completable future
-     */
-    public CompletableFuture<List<Destination>> getDestinations(Http.Request request) {
+    */
+    private CompletableFuture<Destination> getDestination(Http.Request request, Long destinationId) {
         String url = "http://" + request.host() + controllers.backend.routes.DestinationController
-            .getAllDestinations();
-        CompletableFuture<WSResponse> res = ws.url(url).get()
-            .toCompletableFuture();
+            .getDestination(destinationId);
+        CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<List<Destination>>() {
+                    new TypeReference<Destination>() {
                     });
             } catch (Exception e) {
-                return new ArrayList<>();
+                return new Destination();
             }
         });
+    }
+
+    /**
+     * Displays a selected destinations details. Checks if the logged user is the destination owner or an admin and
+     * sets permissions accordingly.
+     *
+     * @param request the http request
+     * @param destinationId the id of the destination to view the details of
+     * @return displays the detailed destination page for the selected destination.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> detailedDestinationIndex(Http.Request request, Long destinationId) {
+        User loggedUser = request.attrs().get(ActionState.USER);
+        return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
+                    boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
+                    return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+                }, httpExecutionContext.current());
     }
 
 }

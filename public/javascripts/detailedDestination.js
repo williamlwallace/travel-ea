@@ -8,7 +8,7 @@ function populateDestinationDetails(destinationId) {
             // Read response from server, which will be a json object
             response.json()
                 .then(destination => {
-                    if(response.status != 200) {
+                    if(response.status !== 200) {
                         showErrors(destination);
                     } else {
                         document.getElementById("summary_name").innerText = destination.name;
@@ -21,4 +21,21 @@ function populateDestinationDetails(destinationId) {
                     }
                 })
         })
+}
+
+/**
+ * Deletes the current destination
+ * @param destinationId the id of the destination to delete
+ * @param redirect the url to redirect to if the destination is deleted successfully
+ */
+function deleteDestination(destinationId, redirect) {
+    _delete(destinationRouter.controllers.backend.DestinationController.deleteDestination(destinationId).url)
+        .then(response => {
+            response.json().then(data => {
+                if (response.status === 200) {
+                    $('#deleteDestinationModalModal').modal('hide');
+                    window.location.href = redirect;
+                }
+            });
+        });
 }

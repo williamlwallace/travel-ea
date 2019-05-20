@@ -103,14 +103,15 @@ GET           /profile/create        controllers.frontend.ProfileController.crea
 # The TravelEA destinations page
 GET           /destinations          controllers.frontend.DestinationController.index(request: Request)
 
+# Specific destination page
+GET           /destinations/:id      controllers.frontend.DestinationController.detailedDestinationIndex(request: Request, id: Long)
+
 # The profile page
 GET           /profile/:id           controllers.frontend.ProfileController.index(request: Request, id: Long)
 
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
-# Specific destination page
-GET           /destinations/:id      controllers.frontend.DestinationController.singleDestinationIndex(request: Request, id: Long)
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path

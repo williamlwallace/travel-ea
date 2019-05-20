@@ -60,7 +60,7 @@ function addDestination(url, redirect) {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
                 window.location.href = redirect;
@@ -85,7 +85,7 @@ function populateDestinations(table) {
             } else {
                 //Loop through json and insert into table
                 for (const dest in json) {
-                    const destination = "/profile/" + json[dest].id; //TODO: destinationRouter.controllers.frontend.DestinationController.index(dest.id).url;
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
                     const name = json[dest].name;
                     const type = json[dest]._type;
                     const district = json[dest].district;

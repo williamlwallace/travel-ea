@@ -383,7 +383,6 @@ function deletePhoto(route) {
         });
 }
 
-
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field
  */

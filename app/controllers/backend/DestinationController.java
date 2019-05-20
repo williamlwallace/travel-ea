@@ -103,7 +103,6 @@ public class DestinationController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteDestination(Http.Request request, Long id) {
-        // TODO: add authentication of user to destination
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -207,7 +206,9 @@ public class DestinationController extends TEABackController {
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
-                controllers.backend.routes.javascript.DestinationController.getDestination()
+                controllers.backend.routes.javascript.DestinationController.getDestination(),
+                controllers.backend.routes.javascript.DestinationController.deleteDestination(),
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
