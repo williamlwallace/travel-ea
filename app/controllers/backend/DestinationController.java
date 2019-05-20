@@ -120,18 +120,13 @@ public class DestinationController extends Controller {
     public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
         User user = request.attrs().get(ActionState.USER);
 
+        // If user is admin or requesting for their own destinations
         if (user.admin || user.id.equals(userId)) {
             return destinationRepository.getAllDestinations(userId)
-                    .thenApplyAsync(allDestinations -> {
-                        System.out.println(allDestinations.size());
-                        for (Destination dest : allDestinations) {
-                            System.out.println(dest.name);
-                        }
-                        return ok(Json.toJson(allDestinations));
-                    });
+                    .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
         }
+        // Else return only public destinations
         else {
-            System.out.println("FAILURE1");
             return destinationRepository.getAllPublicDestinations()
                     .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
         }
