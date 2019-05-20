@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 
@@ -24,7 +25,7 @@ import util.validation.ErrorResponse;
 /**
  * Manages destinations in the database.
  */
-public class DestinationController extends Controller {
+public class DestinationController extends TEABackController {
 
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
@@ -57,7 +58,13 @@ public class DestinationController extends Controller {
             newDestination.user = new User();
             newDestination.user.id = request.attrs().get(ActionState.USER).id;
             return destinationRepository.addDestination(newDestination)
-                .thenApplyAsync(id -> ok(Json.toJson(id)));
+                .thenApplyAsync(id -> {
+                    try{
+                        return ok(sanitizeJson(Json.toJson(id)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson("Sanitization Failed"));
+                    }
+                });
         }
     }
 
@@ -84,7 +91,7 @@ public class DestinationController extends Controller {
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
             return destinationRepository.makeDestinationPublic(user, destination);
-        }).thenApplyAsync(result -> result);
+        }).thenApplyAsync(result -> result); //?
     }
 
     /**
@@ -104,7 +111,11 @@ public class DestinationController extends Controller {
                 errorResponse.map("Destination not found", "other");
                 return badRequest(errorResponse.toJson());
             } else {
-                return ok(Json.toJson(rowsDeleted));
+                try {
+                    return ok(sanitizeJson(Json.toJson(rowsDeleted)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
             }
         });
     }
@@ -116,7 +127,13 @@ public class DestinationController extends Controller {
      */
     public CompletableFuture<Result> getAllDestinations() {
         return destinationRepository.getAllDestinations()
-            .thenApplyAsync(allDestinations -> ok(Json.toJson(allDestinations)));
+            .thenApplyAsync(allDestinations -> {
+                try{
+                    return ok(sanitizeJson(Json.toJson(allDestinations)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
+            });
     }
 
     /**
@@ -126,7 +143,13 @@ public class DestinationController extends Controller {
      */
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
-            .thenApplyAsync(allCountries -> ok(Json.toJson(allCountries)));
+            .thenApplyAsync(allCountries -> {
+                try{
+                    return ok(sanitizeJson(Json.toJson(allCountries)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
+            });
     }
 
     /**
@@ -140,7 +163,11 @@ public class DestinationController extends Controller {
             if (destination == null) {
                 return notFound(Json.toJson(getId));
             } else {
-                return ok(Json.toJson(destination));
+                try {
+                    return ok(sanitizeJson(Json.toJson(destination)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson("Sanitization Failed"));
+                }
             }
         });
     }

@@ -156,10 +156,6 @@ span.profile-button:hover {
     opacity: 0.9;
 }
 
-tr.clickable-row {
-    cursor: pointer
-}
-
 /* Limit image width to avoid overflow the container */
 img {
     max-width: 100%; /* This rule is very important, please do not ignore this! */
