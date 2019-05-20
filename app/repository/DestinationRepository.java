@@ -219,8 +219,8 @@ public class DestinationRepository {
     public CompletableFuture<List<Destination>> getAllDestinations(Long userId) {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
                 .where()
-                .eq("user_id", userId)
                 .or()
+                .eq("user_id", userId)
                 .eq("is_public", 1)
                 .findList()
                 , executionContext);
