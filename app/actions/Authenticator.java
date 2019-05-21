@@ -85,9 +85,11 @@ public class Authenticator extends Action.Simple {
             //get the userId if authentication is authentic
             Long userId = CryptoManager
                 .veryifyToken(token, config.getString("play.http.secret.key"));
+
             if (userId != null) {
                 return userRepository.findID(userId).thenComposeAsync(user -> {
                     if (user != null) {
+
                         return roleMatch(request, user);
                     } else {
                         // if user is no longer in database
@@ -152,6 +154,7 @@ public class Authenticator extends Action.Simple {
      */
     private CompletionStage<Result> haveProfile(Http.Request request, User user, Boolean matched) {
         return profileRepository.findID(user.id).thenComposeAsync(profile -> {
+            System.out.println("profile:" + profile);
             if (!request.uri().equals(
                 controllers.frontend.routes.ProfileController.createProfileIndex().toString())
                 && profile == null) {

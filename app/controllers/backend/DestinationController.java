@@ -4,11 +4,9 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-
 import models.Destination;
 import models.User;
 import play.libs.Json;
@@ -58,7 +56,7 @@ public class DestinationController extends TEABackController {
             newDestination.user.id = request.attrs().get(ActionState.USER).id;
             return destinationRepository.addDestination(newDestination)
                 .thenApplyAsync(id -> {
-                    try{
+                    try {
                         return ok(sanitizeJson(Json.toJson(id)));
                     } catch (IOException e) {
                         return internalServerError(Json.toJson("Sanitization Failed"));
@@ -68,12 +66,14 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users,
-     * as well as merging with any sufficiently similar destinations that are currently marked as private in the database
+     * Allows a user to mark one of their destinations as public, this will cause it to become
+     * immediately visible to all other users, as well as merging with any sufficiently similar
+     * destinations that are currently marked as private in the database
      *
      * @param request Request containing authentication header
      * @param id ID of destination to mark as public
-     * @return 200 if successful, 400 if already public, 401 unauthorized, 403 forbidden, 404 no such destination
+     * @return 200 if successful, 400 if already public, 401 unauthorized, 403 forbidden, 404 no
+     * such destination
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
@@ -81,12 +81,14 @@ public class DestinationController extends TEABackController {
         // Try to get the destination, if it is not found throw 404
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             // Check for 404
-            if(destination == null) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
             }
             // Check if user owns the destination (or is an admin)
-            if(!destination.user.id.equals(user.id) && !user.admin) {
-                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You are not allowed to perform this action")));
+            if (!destination.user.id.equals(user.id) && !user.admin) {
+                return CompletableFuture.supplyAsync(
+                    () -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
             return destinationRepository.makeDestinationPublic(user, destination);
@@ -108,7 +110,7 @@ public class DestinationController extends TEABackController {
             if (destination == null) {
                 return CompletableFuture.supplyAsync(() -> notFound());
             }
-            if (destination.user.id == user.id || user.admin) {
+            if (destination.user.id.equals(user.id) || user.admin) {
                 return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
                     if (rowsDeleted < 1) {
                         ErrorResponse errorResponse = new ErrorResponse();
@@ -135,7 +137,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> getAllDestinations() {
         return destinationRepository.getAllDestinations()
             .thenApplyAsync(allDestinations -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(allDestinations)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson("Sanitization Failed"));
@@ -151,7 +153,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
             .thenApplyAsync(allCountries -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(allCountries)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson("Sanitization Failed"));
@@ -208,7 +210,8 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex()
+                controllers.frontend.routes.javascript.DestinationController
+                    .detailedDestinationIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

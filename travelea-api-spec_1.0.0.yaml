@@ -1034,7 +1034,7 @@ paths:
         description: The ID of photo to be deleted
         schema:
           type: integer
-          minimum: 1
+          minimum: 1sanitizeJson
       responses:
         '200':
           description: Successfully deleted photo
