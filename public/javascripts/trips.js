@@ -1,5 +1,63 @@
 let countryDict = {};
 
+$(document).ready(function () {
+    const table = $('#destTable').DataTable( {
+        createdRow: function (row, data, dataIndex) {
+            $(row).attr('id', data[data.length-2]);
+            $(row).attr('data-countryId', data[data.length-1]);
+        }
+    });
+    populateTable(table);
+});
+
+/**
+ * Populates destination table
+ * @param {Object} table to populate
+ */
+function populateTable(table){
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
+    .then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+        .then(json => {
+            if(response.status != 200) {
+                showErrors(json);
+            } else {
+                for(const destination of json) {
+                    const id = destination.id;
+                    const name = destination.name;
+                    const type = destination._type;
+                    const district = destination.district;
+                    const latitude = destination.latitude;
+                    const longitude = destination.longitude;
+                    const country = destination.country.name;
+                    // there should be done with a listener and setting these extra values as data attributes - it is now hehe
+                    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+                    const row = [name, type, district, latitude, longitude, country, button, id, destination.country.id];
+                    table.row.add(row).draw(false);
+                }
+            }
+        })
+    })
+}
+
+/**
+ *Click listener that handles clicks in destination table
+ */
+$('#destTable').on('click', 'button', function() {
+    let tableAPI = $('#destTable').dataTable().api();
+    let name = tableAPI.cell($(this).parents('tr'), 0).data();
+    let district = tableAPI.cell($(this).parents('tr'), 1).data();
+    let type = tableAPI.cell($(this).parents('tr'), 2).data();
+    let latitude = tableAPI.cell($(this).parents('tr'), 3).data();
+    let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
+    let countryId = $(this).parents('tr').attr("data-countryId");
+    let id = $(this).parents('tr').attr('id');
+    console.log(id,name,district,type,latitude,longitude,countryId);
+    
+    addDestinationToTrip(id,name,district,type,latitude,longitude,countryId);
+})
+
 /**
  * Gets all countries and fills into dropdown
  * @param {stirng} getCountriesUrl - get all countries URI
@@ -8,20 +66,20 @@ function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
     get(getCountriesUrl)
     // Get the response of the request
-        .then(response => {
-            // Convert the response to json
-            response.json()
-                .then(data => {
-                    // Json data is an array of destinations, iterate through it
-                    let countryDict = {};
-                    for(let i = 0; i < data.length; i++) {
-                        // Also add the item to the dictionary
-                        countryDict[data[i]['id']] = data[i]['name'];
-                    }
-                    // Now fill the drop down box, and list of destinations
-                    fillDropDown("countryDropDown", countryDict);
-                });
+    .then(response => {
+        // Convert the response to json
+        response.json()
+        .then(data => {
+            // Json data is an array of destinations, iterate through it
+            let countryDict = {};
+            for(let i = 0; i < data.length; i++) {
+                // Also add the item to the dictionary
+                countryDict[data[i]['id']] = data[i]['name'];
+            }
+            // Now fill the drop down box, and list of destinations
+            fillDropDown("countryDropDown", countryDict);
         });
+    });
 }
 
 /**
@@ -105,7 +163,7 @@ function newDestination(uri) {
  * Adds destination card and fills data
  * @param {Object} dest - List of destination data
  */
-function addDestinationToTrip(dest) {
+function addDestinationToTrip(id, name, type, district, latitude, longitude, countryId) {
     let cards = $( "#list" ).sortable('toArray');
     let cardId = 0;
 
@@ -116,22 +174,22 @@ function addDestinationToTrip(dest) {
 
     document.getElementById('list').insertAdjacentHTML('beforeend',
         '<div class="card flex-row" id=' + cardId + '>\n' +
-            '<label id=' + dest[0] + '></label>' +
+            '<label id=' + id + '></label>' +
         '<div class="card-header border-0" style="height: 100%">\n' +
             '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +    // TODO: Store default card image rather than reference
         '</div>\n' +
         '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
-                '<h4 class="card-title">' + dest[1] + '</h4>\n' +
+                '<h4 class="card-title">' + name + '</h4>\n' +
         '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(' + cardId + ')"></button>\n' +
             '</div>\n' +
             '<div id="left">\n' +
                 '<p class="card-text" id="card-text">' +
-                    '<b>Type: </b> '+ dest[2] + '<br/>' +
-                    '<b>District: </b> '+ dest[3] + '<br/>' +
-                    '<b>Latitude: </b>' + dest[4] + '<br/>' +
-                    '<b>Longitude: </b>' + dest[5] + '<br/>' +
-                    '<b>Country: </b>' + countryDict[dest[6]] +
+                    '<b>Type: </b> '+ type + '<br/>' +
+                    '<b>District: </b> '+ district + '<br/>' +
+                    '<b>Latitude: </b>' + latitude + '<br/>' +
+                    '<b>Longitude: </b>' + longitude + '<br/>' +
+                    '<b>Country: </b>' + countryDict[countryId] +
                 '</p>\n' +
             '</div>' +
             '<div id="right">\n' +

@@ -16,7 +16,6 @@ import models.Trip;
 import models.TripData;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -60,7 +59,7 @@ public class TripController extends TEABackController {
                     try {
                         return ok(sanitizeJson(Json.toJson(trips)));
                     } catch (IOException e) {
-                        return internalServerError(Json.toJson("Sanitization Failed"));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         } else {
@@ -70,7 +69,7 @@ public class TripController extends TEABackController {
                     try {
                         return ok(sanitizeJson(Json.toJson(trips)));
                     } catch (IOException e) {
-                        return internalServerError(Json.toJson("Sanitization Failed"));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         }
@@ -88,7 +87,7 @@ public class TripController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(trips)));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             });
     }
@@ -116,7 +115,7 @@ public class TripController extends TEABackController {
                         try{
                             return ok(sanitizeJson(Json.toJson(trip)));
                         } catch (IOException e) {
-                            return internalServerError(Json.toJson("Sanitization Failed"));
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
                         }
                     }
                     // If logged in user does not have privileges to retrieve trip

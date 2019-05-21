@@ -1,15 +1,11 @@
 package controllers.frontend;
 
-import static play.libs.Scala.asScala;
-
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,7 +15,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -49,36 +44,49 @@ public class DestinationController extends TEAFrontController {
      * @return displays the destinations or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> index(Http.Request request) {
+    public Result index(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-
-        return this.getDestinations(request, user.id).thenApplyAsync(
-                destList -> ok(destinations.render(user, asScala(destList))), httpExecutionContext.current());
+        return ok(destinations.render(user));
     }
 
     /**
-     * Gets Destinations from api endpoint via get request.
+     * Gets a Destination of selected id from api endpoint via get request.
      *
      * @param request Http request containing authentication information
-     * @param userId ID of user to retrieve destinations for
+     * @param destinationId ID of user to retrieve destinations for
      * @return List of destinations
      */
-    CompletableFuture<List<Destination>> getDestinations(Http.Request request, Long userId) {
-        String url = "http://" + request.host() + controllers.backend.routes.DestinationController.getAllDestinations(userId);
-        CompletableFuture<WSResponse> res = ws
-                .url(url)
-                .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
-                .get()
-                .toCompletableFuture();
+    private CompletableFuture<Destination> getDestination(Http.Request request, Long destinationId) {
+        String url = "http://" + request.host() + controllers.backend.routes.DestinationController
+            .getDestination(destinationId);
+        CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
         return res.thenApply(r -> {
+            JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
-                JsonNode json = r.getBody(WSBodyReadables.instance.json());
                 return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<List<Destination>>() {
+                    new TypeReference<Destination>() {
                     });
             } catch (Exception e) {
-                return new ArrayList<>();
+                return new Destination();
             }
         });
     }
+
+    /**
+     * Displays a selected destinations details. Checks if the logged user is the destination owner or an admin and
+     * sets permissions accordingly.
+     *
+     * @param request the http request
+     * @param destinationId the id of the destination to view the details of
+     * @return displays the detailed destination page for the selected destination.
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> detailedDestinationIndex(Http.Request request, Long destinationId) {
+        User loggedUser = request.attrs().get(ActionState.USER);
+        return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
+                    boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
+                    return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+                }, httpExecutionContext.current());
+    }
+
 }

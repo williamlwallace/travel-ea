@@ -1,3 +1,15 @@
+//initilise datatable on load
+$(document).ready(function () {
+    const destinationTable = $('#dtDestination').DataTable({
+        createdRow: function (row, data, dataIndex) {
+            $(row).attr('data-href', data[data.length-1]);
+            $(row).addClass("clickable-row");
+        }
+    });
+    populateDestinations(destinationTable);
+});
+
+
 /**
  * Gets all countries and fills into dropdown
  * @param {stirng} getCountriesUrl - get all countries URI
@@ -49,12 +61,50 @@ function addDestination(url, redirect) {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
-                window.location.href = redirect;
-                location.reload(); // When we load destination data using js, we can change this to just reload the data and repopulate tables
+                toast("Destination Created!", "The new destination will be added to the table.", "success");
+                $('#createDestinationModal').modal('hide');
+                populateDestinations($('#dtDestination').DataTable());
             }
         });
     });
 }
+
+/**
+ * Insert destination data into table
+ * @param {Object} table - data table object
+ */
+function populateDestinations(table) {
+    //Query api to get all destinations
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                document.getElementById("otherError").innerHTML = json;
+            } else {
+                //Loop through json and insert into table
+                for (const dest in json) {
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
+                    const name = json[dest].name;
+                    const type = json[dest]._type;
+                    const district = json[dest].district;
+                    const latitude = json[dest].latitude;
+                    const longitude = json[dest].longitude;
+                    const country = json[dest].country.name;
+
+                    table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
+                }
+            }
+        });
+    })
+}
+
+/**
+ * Redirect to the destinations details page when row is clicked.
+ */
+$('#dtDestination').on('click', 'tbody tr', function() {
+    window.location = this.dataset.href;
+});

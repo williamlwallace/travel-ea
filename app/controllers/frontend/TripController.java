@@ -27,16 +27,13 @@ import views.html.trips;
 public class TripController extends TEAFrontController {
 
     private WSClient ws;
-    private DestinationController destinationController;
 
     @Inject
     public TripController(HttpExecutionContext httpExecutionContext,
-                          WSClient ws,
-                          DestinationController destinationController) {
+                          WSClient ws) {
 
         super(httpExecutionContext);
         this.ws = ws;
-        this.destinationController = destinationController;
     }
 
     /**
@@ -68,14 +65,10 @@ public class TripController extends TEAFrontController {
         User loggedInUser = request.attrs().get(ActionState.USER);
 
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
-            return destinationController.getDestinations(request, userId).thenApplyAsync(
-                    destList -> ok(createTrip.render(loggedInUser, userId, asScala(destList), new Trip())),
-                    httpExecutionContext.current());
+            return ok(createTrip.render(loggedInUser, userId, new Trip())), httpExecutionContext.current();
         }
         else {
-            return destinationController.getDestinations(request, loggedInUser.id).thenApplyAsync(
-                    destList -> ok(createTrip.render(loggedInUser, loggedInUser.id, asScala(destList), new Trip())),
-                    httpExecutionContext.current());
+            return ok(createTrip.render(loggedInUser, loggedInUser.id, new Trip())), httpExecutionContext.current();
         }
     }
 
@@ -94,8 +87,7 @@ public class TripController extends TEAFrontController {
                 trip -> {
                     // If user is allowed to edit trip, renders edit trip page
                     if (user.admin || user.id.equals(trip.userId)) {
-                        return destinationController.getDestinations(request, trip.userId).thenApplyAsync(
-                                destList -> ok(createTrip.render(user, trip.userId, asScala(destList), trip)), httpExecutionContext.current());
+                        return ok(createTrip.render(user, trip.userId, trip)), httpExecutionContext.current();
                     }
                     // Else renders trips page
                     else {
