@@ -4,11 +4,9 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-
 import models.Destination;
 import models.User;
 import play.libs.Json;
@@ -58,22 +56,24 @@ public class DestinationController extends TEABackController {
             newDestination.user.id = request.attrs().get(ActionState.USER).id;
             return destinationRepository.addDestination(newDestination)
                 .thenApplyAsync(id -> {
-                    try{
+                    try {
                         return ok(sanitizeJson(Json.toJson(id)));
                     } catch (IOException e) {
-                        return internalServerError(Json.toJson("Sanitization Failed"));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         }
     }
 
     /**
-     * Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users,
-     * as well as merging with any sufficiently similar destinations that are currently marked as private in the database
+     * Allows a user to mark one of their destinations as public, this will cause it to become
+     * immediately visible to all other users, as well as merging with any sufficiently similar
+     * destinations that are currently marked as private in the database
      *
      * @param request Request containing authentication header
      * @param id ID of destination to mark as public
-     * @return 200 if successful, 400 if already public, 401 unauthorized, 403 forbidden, 404 no such destination
+     * @return 200 if successful, 400 if already public, 401 unauthorized, 403 forbidden, 404 no
+     * such destination
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
@@ -81,12 +81,14 @@ public class DestinationController extends TEABackController {
         // Try to get the destination, if it is not found throw 404
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             // Check for 404
-            if(destination == null) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
             }
             // Check if user owns the destination (or is an admin)
-            if(!destination.user.id.equals(user.id) && !user.admin) {
-                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You are not allowed to perform this action")));
+            if (!destination.user.id.equals(user.id) && !user.admin) {
+                return CompletableFuture.supplyAsync(
+                    () -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
             return destinationRepository.makeDestinationPublic(user, destination);
@@ -106,9 +108,8 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
-                return CompletableFuture.supplyAsync(() -> notFound());
-            }
-            if (destination.user.id == user.id || user.admin) {
+                return CompletableFuture.supplyAsync(() -> notFound("No such destination found"));
+            } else if (destination.user.id.equals(user.id) || user.admin) {
                 return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
                     if (rowsDeleted < 1) {
                         ErrorResponse errorResponse = new ErrorResponse();
@@ -118,12 +119,51 @@ public class DestinationController extends TEABackController {
                         try {
                             return ok(sanitizeJson(Json.toJson(rowsDeleted)));
                         } catch (IOException e) {
-                            return internalServerError(Json.toJson("Sanitization Failed"));
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
                         }
                     }
                 });
+            } else {
+                return CompletableFuture.supplyAsync(() -> forbidden("Forbidden"));
             }
-            return CompletableFuture.supplyAsync(() -> forbidden());
+        });
+    }
+
+    /**
+     * Edits a destination's details with given id.
+     *
+     * @param request The request
+     * @param id The id of the destination to edit
+     * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
+     * fails, 403 if the user cannot edit the destination and 200 if successful
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> editDestination(Http.Request request, Long id) {
+        JsonNode data = request.body().asJson();
+        User user = request.attrs().get(ActionState.USER);
+        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("Destination with provided ID not found"));
+            } else if (destination.user.id.equals(user.id) || user.admin) {
+                if (validatorResult.error()) {
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(validatorResult.toJson()));
+                }
+                Destination editedDestination = Json.fromJson(data, Destination.class);
+                return destinationRepository.updateDestination(editedDestination)
+                    .thenApplyAsync(updatedDestination -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson("Successfully added destination")));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    });
+            } else {
+                return CompletableFuture.supplyAsync(() -> forbidden(
+                    "Forbidden, user does not have permission to edit this destination"));
+            }
         });
     }
 
@@ -135,10 +175,10 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> getAllDestinations() {
         return destinationRepository.getAllDestinations()
             .thenApplyAsync(allDestinations -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(allDestinations)));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             });
     }
@@ -151,10 +191,10 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
             .thenApplyAsync(allCountries -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(allCountries)));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             });
     }
@@ -173,7 +213,7 @@ public class DestinationController extends TEABackController {
                 try {
                     return ok(sanitizeJson(Json.toJson(destination)));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             }
         });
@@ -189,7 +229,8 @@ public class DestinationController extends TEABackController {
      * @param filter The sort order (either asc or desc)
      * @return OK with paged list of destinations
      */
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order,
+    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String
+        order,
         String filter) {
         // TODO: Destinations should be returned here which are not currently, update API spec when modified
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
@@ -205,10 +246,12 @@ public class DestinationController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
-                controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex()
+                controllers.frontend.routes.javascript.DestinationController
+                    .detailedDestinationIndex()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

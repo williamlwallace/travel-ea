@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import models.Profile;
 import play.db.ebean.EbeanConfig;
 
@@ -54,8 +53,8 @@ public class ProfileRepository {
                     .where()
                     .eq("user_id", id)
                     .findOneOrEmpty()
-                    .orElse(null),
-            executionContext);
+                    .orElse(null)
+            , executionContext);
     }
 
     /**

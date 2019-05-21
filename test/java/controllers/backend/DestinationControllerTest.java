@@ -2,11 +2,13 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
@@ -20,14 +22,22 @@ import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
 import models.CountryDefinition;
 import models.Destination;
 import models.User;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import play.Application;
 import play.db.Database;
 import play.db.evolutions.Evolutions;
@@ -100,6 +110,22 @@ public class DestinationControllerTest extends WithApplication {
         Evolutions.cleanupEvolutions(db);
     }
 
+    private Destination getDestination(int id) throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(authCookie)
+            .uri("/api/destination/" + id);
+
+        Result getResult = route(fakeApp, getRequest);
+
+        if (getResult.status() != OK) {
+            return null;
+        } else {
+            return new ObjectMapper()
+                .readValue(Helpers.contentAsString(getResult), Destination.class);
+        }
+    }
+
     @Test
     public void getDestinations() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -142,53 +168,201 @@ public class DestinationControllerTest extends WithApplication {
     @Test
     public void deleteDestination() {
         // Create request to delete newly created destination
-        Http.RequestBuilder request2 = Helpers.fakeRequest()
+        Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
-        Result result2 = route(fakeApp, request2);
-        assertEquals(OK, result2.status());
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
     }
 
     @Test
     public void deleteNonExistingDestination() {
         // Create request to delete newly created user
-        Http.RequestBuilder request2 = Helpers.fakeRequest()
+        Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(authCookie)
             .uri("/api/destination/100");
 
         // Get result and check it was successful
-        Result result2 = route(fakeApp, request2);
-        assertEquals(NOT_FOUND, result2.status());
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
     }
 
     @Test
     public void deleteDestinationNotOwner() {
         // Create request to delete newly created user
-        Http.RequestBuilder request2 = Helpers.fakeRequest()
+        Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
             .uri("/api/destination/2");
 
         // Get result and check it was successful
-        Result result2 = route(fakeApp, request2);
-        assertEquals(FORBIDDEN, result2.status());
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
     }
 
     @Test
     public void deleteDestinationNotOwnerButAdmin() {
         // Create request to delete newly created user
-        Http.RequestBuilder request2 = Helpers.fakeRequest()
+        Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(authCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
-        Result result2 = route(fakeApp, request2);
-        assertEquals(OK, result2.status());
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void editDestination() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
+
+        destination.name = "Definitely Not Blitzcrank";
+        destination.district = "Summoners Rift";
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/4");
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(4);
+        assertNotNull(updatedDestination);
+
+        assertEquals("Definitely Not Blitzcrank", updatedDestination.name);
+        assertEquals("Summoners Rift", updatedDestination.district);
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationInvalidData() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
+
+        destination.latitude = 200.3;
+        destination.longitude = -344.0;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(authCookie)
+            .uri("/api/destination/4");
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(BAD_REQUEST, putResult.status());
+    }
+
+    @Test
+    public void editNonExistingDestination() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
+
+        String originalName = destination.name;
+        destination.name = "Shouldn't work";
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(authCookie)
+            .uri("/api/destination/100");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+
+        Destination updatedDestination = getDestination(4);
+        assertNotNull(updatedDestination);
+
+        assertEquals(originalName, updatedDestination.name);
+        destination.name = originalName;
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationNotOwner() throws IOException {
+        Destination destination = getDestination(2);
+        assertNotNull(destination);
+
+        String originalName = destination.name;
+        destination.name = "Shouldn't work";
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/2");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+
+        Destination updatedDestination = getDestination(2);
+        assertNotNull(updatedDestination);
+
+        assertEquals(originalName, updatedDestination.name);
+        destination.name = originalName;
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationNotOwnerButAdmin() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
+
+        destination.name = "YeetEA";
+        destination.district = "localhost";
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(authCookie)
+            .uri("/api/destination/4");
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(4);
+        assertNotNull(updatedDestination);
+
+        assertEquals("YeetEA", updatedDestination.name);
+        assertEquals("localhost", updatedDestination.district);
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationNoAuth() throws IOException {
+        Destination destination = getDestination(2);
+        assertNotNull(destination);
+
+        String originalName = destination.name;
+        destination.name = "Shouldn't work";
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .uri("/api/destination/2");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(UNAUTHORIZED, result.status());
+
+        Destination updatedDestination = getDestination(2);
+        assertNotNull(updatedDestination);
+
+        assertEquals(originalName, updatedDestination.name);
+        destination.name = originalName;
+        assertEquals(destination, updatedDestination);
     }
 
     @Test
@@ -264,25 +438,28 @@ public class DestinationControllerTest extends WithApplication {
     @Test
     public void makeDestinationPublic() throws SQLException {
         // Statement to get destination with id 1
-        PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 1;");
+        PreparedStatement statement = db.getConnection()
+            .prepareStatement("SELECT * FROM Destination WHERE id = 1;");
 
         // Store destination and make sure it is not null and is private
-        Destination destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 1).findFirst().orElse(null);
+        Destination destination = resultSetToDestList(statement.executeQuery()).stream()
+            .filter(x -> x.id == 1).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
 
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(PUT)
-                .cookie(authCookie)
-                .uri("/api/destination/makePublic/1");
+            .method(PUT)
+            .cookie(authCookie)
+            .uri("/api/destination/makePublic/1");
 
         // Get result and check it was successfully
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
         // Check that destination with id 1 is now public
-        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 1).findFirst().orElse(null);
+        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 1)
+            .findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertTrue(destination.isPublic);
     }
@@ -290,25 +467,28 @@ public class DestinationControllerTest extends WithApplication {
     @Test
     public void makeDestinationPublicForbidden() throws SQLException {
         // Statement to get destination with id 3
-        PreparedStatement statement = db.getConnection().prepareStatement("SELECT * FROM Destination WHERE id = 3;");
+        PreparedStatement statement = db.getConnection()
+            .prepareStatement("SELECT * FROM Destination WHERE id = 3;");
 
         // Store destination and make sure it is not null and is private
-        Destination destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3).findFirst().orElse(null);
+        Destination destination = resultSetToDestList(statement.executeQuery()).stream()
+            .filter(x -> x.id == 3).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
 
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(PUT)
-                .cookie(nonAdminAuthCookie)
-                .uri("/api/destination/makePublic/3");
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/makePublic/3");
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
 
         // Check that destination with id 3 is still private
-        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3).findFirst().orElse(null);
+        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3)
+            .findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
 
@@ -319,30 +499,35 @@ public class DestinationControllerTest extends WithApplication {
         // Get all destinations on the database
         // NOTE: Using .get() here as running async lead to race conditions on db connection, sorry Harry :(
         List<Destination> allDestinations = destinationRepository.getAllDestinations().get();
-        List<Destination> similarDestinations = destinationRepository.getSimilarDestinations(allDestinations.get(0));
+        List<Destination> similarDestinations = destinationRepository
+            .getSimilarDestinations(allDestinations.get(0));
 
         // Assert that 3 destinations were found, and 2 similar ones
         Assert.assertEquals(4, allDestinations.size());
         Assert.assertEquals(2, similarDestinations.size());
 
         // Now check destinations 2 and 3 were found in similarities, and 1 and 4 were not
-        for(Destination destination : allDestinations) {
-            if(destination.id == 1 || destination.id == 4) {
-                assertFalse(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList()).contains(destination.id));
+        for (Destination destination : allDestinations) {
+            if (destination.id == 1 || destination.id == 4) {
+                assertFalse(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
+                    .contains(destination.id));
             } else {
-                assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList()).contains(destination.id));
+                assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
+                    .contains(destination.id));
             }
         }
     }
 
     /**
-     * Converts a result set from a query for rows from destination table into java list of destinations
+     * Converts a result set from a query for rows from destination table into java list of
+     * destinations
+     *
      * @param rs Result set
      * @return List of destinations read from result set
      */
     private List<Destination> resultSetToDestList(ResultSet rs) throws SQLException {
         List<Destination> destinations = new ArrayList<>();
-        while(rs.next()){
+        while (rs.next()) {
             Destination destination = new Destination();
             destination.id = rs.getLong("id");
             destination._type = rs.getString("type");

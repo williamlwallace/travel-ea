@@ -51,6 +51,8 @@ GET           /api/destination/search                controllers.backend.Destina
 
 GET           /api/destination/:id                   controllers.backend.DestinationController.getDestination(id:Long)
 
+PUT           /api/destination/:id                   controllers.backend.DestinationController.editDestination(request:Request, id:Long)
+
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
