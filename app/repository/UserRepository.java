@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import models.User;
 import play.db.ebean.EbeanConfig;
 
@@ -15,6 +17,7 @@ import play.db.ebean.EbeanConfig;
  * A repository that executes database operations on the User table in a different execution
  * context.
  */
+@Singleton
 public class UserRepository {
 
     private final EbeanServer ebeanServer;

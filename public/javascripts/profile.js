@@ -24,19 +24,13 @@ function updateProfile(uri, redirect) {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
-                hideErrors("updateProfileForm");
-                let element = document.getElementById("SuccessMessage");
-                element.innerHTML = "Successfully Updated!";
                 updateProfileData(data);
-                return sleep(3000);
+                $("#editProfileModal").modal('hide');
+                toast("Profile Updated!", "The updated information will be displayed on your profile.", "success");
             }
-        })
-        .then(() => {
-            let element = document.getElementById("SuccessMessage");
-            element.innerHTML = "";
         })
     });
 }
@@ -64,15 +58,6 @@ function updateProfileData(data) {
     });
 }
 
-
-/**
- * Returns timout promise
- * @param {Number} ms - time in millieseconds
- */
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 /**
  * The javascript method to populate the select boxes on the edit profile scene
  * @param url the route/url to send the request to to get the profile data
@@ -85,14 +70,14 @@ function populateProfileData(uri) {
     })
 .then(json => {
         // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
-        for (i = 0; i < json.nationalities.length; i++) {
+        for (let i = 0; i < json.nationalities.length; i++) {
         // iterates through the list of nationalities and adds them to the dropdown via their id
         $('#nationalities').picker('set', json.nationalities[i].id);
     }
-    for (i = 0; i < json.passports.length; i++) {
+    for (let i = 0; i < json.passports.length; i++) {
         $('#passports').picker('set', json.passports[i].id);
     }
-    for (i = 0; i < json.travellerTypes.length; i++) {
+    for (let i = 0; i < json.travellerTypes.length; i++) {
         $('#travellerTypes').picker('set', json.travellerTypes[i].id);
     }
     $('#gender').picker('set', json.gender);
@@ -166,6 +151,7 @@ $(document).ready(function() {
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
                         getProfilePicture(profilePictureControllerUrl);
+                        toast("Profile Picture Updated!", "This will be displayed on your profile.", "success");
                     }
                 });
         });
@@ -204,6 +190,7 @@ function togglePrivacy(guid, newPrivacy) {
                 label.setAttribute("src", "/assets/images/private.png");
             }
             label.setAttribute("onClick","togglePrivacy(" + guid + "," + !newPrivacy + ")");
+            toast("Picture privacy changed!", "The photo is now " + (newPrivacy ? "Public" : "Private"), "success");
         }
     })
 }
@@ -276,6 +263,7 @@ function createGalleryObjects(hasFullSizeLinks) {
                     // Create toggle button TODO this is in an ugly position, will change
                     let toggleButton = document.createElement("span");
                     let toggleLabel = document.createElement("input");
+
                     toggleLabel.setAttribute("class", "privacy");
                     toggleLabel.setAttribute("id", guid + "privacy");
                     toggleLabel.setAttribute("type", "image");
@@ -377,11 +365,11 @@ function deletePhoto(route) {
                 if (response.status === 200) {
                     $('#deletePhotoModal').modal('hide');
                     fillGallery(getAllPhotosUrl);
+                    toast("Picture deleted!", "The photo will no longer be displayed in the gallery.", "success");
                 }
             });
         });
 }
-
 
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field
@@ -406,13 +394,7 @@ function uploadNewPhoto(){
 }
 
 
-/**
- * allows the upload image button to act as an input field by clicking on the upload image file field
- * For a normal photo
- */
-$("#upload-gallery-image-button").click(function() {
-    $("#upload-gallery-image-file").click();
-});
+
 
 /**
  * Takes the users selected photos and  creates a form from them
@@ -432,6 +414,7 @@ function uploadNewGalleryPhoto(url) {
         response.json().then(data => {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl);
+                toast("Photo Added!", "The new photo will be shown in the picture gallery.", "success");
             }
         })
     })

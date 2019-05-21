@@ -566,6 +566,45 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
+          
+    put:
+      tags:
+      - Destinations
+      summary: Edit an existing destination with given ID.
+      description: |
+         Updates an existing destination in the database, that is owned by thr current user
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
 
   '/destination/search':
     get:
@@ -799,36 +838,6 @@ paths:
           description: Successfully updated profile
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: No profile found for that user
-
-    delete:
-      tags:
-      - Profiles
-      summary: Delete the profile of user with specified ID
-      security:
-      - UserToken: []
-      parameters:
-      - in: path
-        name: userId
-        required: true
-        description: The user ID to delete the profile of
-        schema:
-          type: integer
-          minimum: 1
-      - in: header
-        name: JWT-Auth
-        required: true
-        description: Authentication cookie.
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Successfully deleted profile
         '401':
           description: Unauthorized
         '403':
