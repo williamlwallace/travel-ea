@@ -55,7 +55,7 @@ public class TripController extends TEABackController {
                     try {
                         return ok(sanitizeJson(Json.toJson(trips)));
                     } catch (IOException e) {
-                        return internalServerError(Json.toJson("Sanitization Failed"));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         } else {
@@ -65,7 +65,7 @@ public class TripController extends TEABackController {
                     try {
                         return ok(sanitizeJson(Json.toJson(trips)));
                     } catch (IOException e) {
-                        return internalServerError(Json.toJson("Sanitization Failed"));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         }
@@ -83,7 +83,7 @@ public class TripController extends TEABackController {
                 try{
                     return ok(sanitizeJson(Json.toJson(trips)));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson("Sanitization Failed"));
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             });
     }
@@ -105,7 +105,7 @@ public class TripController extends TEABackController {
                     try{
                         return ok(sanitizeJson(Json.toJson(trip)));
                     } catch (IOException e) {
-                        return internalServerError(Json.toJson("Sanitization Failed"));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 } else {
                     return notFound();

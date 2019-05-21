@@ -91,7 +91,6 @@ public class Authenticator extends Action.Simple {
             if (userId != null) {
                 return userRepository.findID(userId).thenComposeAsync(user -> {
                     if (user != null) {
-
                         return roleMatch(request, user);
                     } else {
                         // if user is no longer in database

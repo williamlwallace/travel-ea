@@ -14,6 +14,8 @@ import play.mvc.Controller;
 @Singleton
 class TEABackController extends Controller {
 
+    static final String SANITIZATION_ERROR = "Sanitization Failed";
+
     /**
      * Sanitizes json input of all html and js
      *
@@ -21,7 +23,7 @@ class TEABackController extends Controller {
      * @return JsonNode that has been sanitized
      */
     JsonNode sanitizeJson(JsonNode body) throws IOException {
-         String bodyString = body.toString();
+        String bodyString = body.toString();
         //Create a sanitizer
         PolicyFactory policy = new HtmlPolicyBuilder().toFactory();
         bodyString = policy.sanitize(bodyString).replace("&#34;", "\"").replace("&#64;", "@");

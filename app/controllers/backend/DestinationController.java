@@ -24,7 +24,6 @@ import util.validation.ErrorResponse;
  */
 public class DestinationController extends TEABackController {
 
-    private static final String SANITIZATION_ERROR = "Sanitization Failed";
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
 
@@ -147,9 +146,11 @@ public class DestinationController extends TEABackController {
             if (destination == null) {
                 return CompletableFuture
                     .supplyAsync(() -> notFound("Destination with provided ID not found"));
-            } else if (validatorResult.error()) {
-                return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
             } else if (destination.user.id.equals(user.id) || user.admin) {
+                if (validatorResult.error()) {
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(validatorResult.toJson()));
+                }
                 Destination editedDestination = Json.fromJson(data, Destination.class);
                 return destinationRepository.updateDestination(editedDestination)
                     .thenApplyAsync(updatedDestination -> {
