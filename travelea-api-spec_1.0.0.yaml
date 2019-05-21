@@ -572,7 +572,7 @@ paths:
       - Destinations
       summary: Edit an existing destination with given ID.
       description: |
-         Updates an existing destination in the database, that is owned by thr current user
+         Updates an existing destination in the database, that is owned by the current user
       security:
       - UserToken: []
       parameters:
