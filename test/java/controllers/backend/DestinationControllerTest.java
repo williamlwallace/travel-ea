@@ -2,11 +2,13 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
@@ -108,6 +110,22 @@ public class DestinationControllerTest extends WithApplication {
         Evolutions.cleanupEvolutions(db);
     }
 
+    private Destination getDestination(int id) throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(authCookie)
+            .uri("/api/destination/" + id);
+
+        Result getResult = route(fakeApp, getRequest);
+
+        if (getResult.status() != OK) {
+            return null;
+        } else {
+            return new ObjectMapper()
+                .readValue(Helpers.contentAsString(getResult), Destination.class);
+        }
+    }
+
     @Test
     public void getDestinations() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -117,8 +135,6 @@ public class DestinationControllerTest extends WithApplication {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
-
-//        System.out.println(Helpers.contentAsString(result));
 
         // Deserialize result to list of destinations
         List<Destination> destinations = Arrays.asList(
@@ -202,8 +218,12 @@ public class DestinationControllerTest extends WithApplication {
     }
 
     @Test
-    public void editDestination() {
-        Destination destination = new Destination();
+    public void editDestination() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
+
+        destination.name = "Definitely Not Blitzcrank";
+        destination.district = "Summoners Rift";
 
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
@@ -215,36 +235,40 @@ public class DestinationControllerTest extends WithApplication {
         Result putResult = route(fakeApp, putRequest);
         assertEquals(OK, putResult.status());
 
-        //Gets the edited destination and checks that it has the expected values
-        Http.RequestBuilder getRequest = Helpers.fakeRequest()
-            .method(GET)
-            .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/4");
+        Destination updatedDestination = getDestination(4);
+        assertNotNull(updatedDestination);
 
-        Result getResult = route(fakeApp, getRequest);
-        assertEquals(OK, getResult.status());
-
-        System.out.println(Helpers.contentAsString(getResult));
+        assertEquals("Definitely Not Blitzcrank", updatedDestination.name);
+        assertEquals("Summoners Rift", updatedDestination.district);
+        assertEquals(destination, updatedDestination);
     }
 
     @Test
-    public void editDestinationInvalidData() {
-        Destination destination = new Destination();
+    public void editDestinationInvalidData() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
 
-        Http.RequestBuilder request = Helpers.fakeRequest()
+        destination.latitude = 200.3;
+        destination.longitude = -344.0;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(authCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(BAD_REQUEST, putResult.status());
     }
 
     @Test
-    public void editNonExistingDestination() {
-        Destination destination = new Destination();
+    public void editNonExistingDestination() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
+
+        String originalName = destination.name;
+        destination.name = "Shouldn't work";
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
@@ -255,11 +279,22 @@ public class DestinationControllerTest extends WithApplication {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
+
+        Destination updatedDestination = getDestination(4);
+        assertNotNull(updatedDestination);
+
+        assertEquals(originalName, updatedDestination.name);
+        destination.name = originalName;
+        assertEquals(destination, updatedDestination);
     }
 
     @Test
-    public void editDestinationNotOwner() {
-        Destination destination = new Destination();
+    public void editDestinationNotOwner() throws IOException {
+        Destination destination = getDestination(2);
+        assertNotNull(destination);
+
+        String originalName = destination.name;
+        destination.name = "Shouldn't work";
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
@@ -270,36 +305,64 @@ public class DestinationControllerTest extends WithApplication {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
+
+        Destination updatedDestination = getDestination(2);
+        assertNotNull(updatedDestination);
+
+        assertEquals(originalName, updatedDestination.name);
+        destination.name = originalName;
+        assertEquals(destination, updatedDestination);
     }
 
     @Test
-    public void editDestinationNotOwnerButAdmin() {
-        Destination destination = new Destination();
+    public void editDestinationNotOwnerButAdmin() throws IOException {
+        Destination destination = getDestination(4);
+        assertNotNull(destination);
 
-        Http.RequestBuilder request = Helpers.fakeRequest()
+        destination.name = "YeetEA";
+        destination.district = "localhost";
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(authCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(4);
+        assertNotNull(updatedDestination);
+
+        assertEquals("YeetEA", updatedDestination.name);
+        assertEquals("localhost", updatedDestination.district);
+        assertEquals(destination, updatedDestination);
     }
 
     @Test
-    public void editDestinationNoAuth() {
-        Destination destination = new Destination();
+    public void editDestinationNoAuth() throws IOException {
+        Destination destination = getDestination(2);
+        assertNotNull(destination);
+
+        String originalName = destination.name;
+        destination.name = "Shouldn't work";
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
-            .uri("/api/destination/4");
+            .uri("/api/destination/2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        assertEquals(UNAUTHORIZED, result.status());
+
+        Destination updatedDestination = getDestination(2);
+        assertNotNull(updatedDestination);
+
+        assertEquals(originalName, updatedDestination.name);
+        destination.name = originalName;
+        assertEquals(destination, updatedDestination);
     }
 
     @Test

@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import models.Profile;
-import models.User;
 import play.db.ebean.EbeanConfig;
 
 @Singleton
@@ -50,19 +48,13 @@ public class ProfileRepository {
      * @return Profile object with given ID, or null if none found
      */
     public CompletableFuture<Profile> findID(Long id) {
-        return supplyAsync(() -> {
-            List<Profile> profiles = ebeanServer.find(Profile.class).findList();
-                for (Profile profile : profiles) {
-                    System.out.println(profile.userId);
-                    System.out.println(profile.firstName);
-                }
-
-                return ebeanServer.find(Profile.class)
+        return supplyAsync(() ->
+                ebeanServer.find(Profile.class)
                     .where()
                     .eq("user_id", id)
                     .findOneOrEmpty()
-                    .orElse(null); },
-            executionContext);
+                    .orElse(null)
+            , executionContext);
     }
 
     /**

@@ -70,12 +70,14 @@ public class Authenticator extends Action.Simple {
      * @param request HTTP request
      * @return 403 or 401 if auth fails else continue and put the user in the request
      */
+    @Override
     public CompletableFuture<Result> call(Http.Request request) {
         String token = getTokenFromCookie(request);
         // Check if api or not and set failure response
         Result fail;
         if (request.uri().contains("/api/")) {
-            fail = (token == null) ? unauthorized(Json.toJson("Unauthorized")) : forbidden(Json.toJson("Forbidden"));
+            fail = (token == null) ? unauthorized(Json.toJson("Unauthorized"))
+                : forbidden(Json.toJson("Forbidden"));
         } else {
             fail = redirect(controllers.frontend.routes.ApplicationController.cover())
                 .discardingCookie(JWT_AUTH);
@@ -154,7 +156,6 @@ public class Authenticator extends Action.Simple {
      */
     private CompletionStage<Result> haveProfile(Http.Request request, User user, Boolean matched) {
         return profileRepository.findID(user.id).thenComposeAsync(profile -> {
-            System.out.println("profile:" + profile);
             if (!request.uri().equals(
                 controllers.frontend.routes.ProfileController.createProfileIndex().toString())
                 && profile == null) {
