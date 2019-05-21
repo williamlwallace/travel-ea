@@ -1,13 +1,14 @@
 //initilise datatable on load
 $(document).ready(function () {
-    let table = $('#dtDestination').DataTable({
+    const destinationTable = $('#dtDestination').DataTable({
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length-1]);
             $(row).addClass("clickable-row");
         }
     });
-    populateDestinations(table);
+    populateDestinations(destinationTable);
 });
+
 
 /**
  * Gets all countries and fills into dropdown
@@ -63,8 +64,9 @@ function addDestination(url, redirect) {
             if (response.status !== 200) {
                 showErrors(json);
             } else {
-                window.location.href = redirect;
-                location.reload(); // When we load destination data using js, we can change this to just reload the data and repopulate tables
+                toast("Destination Created!", "The new destination will be added to the table.", "success");
+                $('#createDestinationModal').modal('hide');
+                populateDestinations($('#dtDestination').DataTable());
             }
         });
     });

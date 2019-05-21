@@ -24,19 +24,13 @@ function updateProfile(uri, redirect) {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
-                hideErrors("updateProfileForm");
-                let element = document.getElementById("SuccessMessage");
-                element.innerHTML = "Successfully Updated!";
                 updateProfileData(data);
-                return sleep(3000);
+                $("#editProfileModal").modal('hide');
+                toast("Profile Updated!", "The updated information will be displayed on your profile.", "success");
             }
-        })
-        .then(() => {
-            let element = document.getElementById("SuccessMessage");
-            element.innerHTML = "";
         })
     });
 }
@@ -62,15 +56,6 @@ function updateProfileData(data) {
     .then(out => {
         document.getElementById("summary_travellerTypes").innerHTML = out;
     });
-}
-
-
-/**
- * Returns timout promise
- * @param {Number} ms - time in millieseconds
- */
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**
@@ -166,6 +151,7 @@ $(document).ready(function() {
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
                         getProfilePicture(profilePictureControllerUrl);
+                        toast("Profile Picture Updated!", "This will be displayed on your profile.", "success");
                     }
                 });
         });
@@ -204,6 +190,7 @@ function togglePrivacy(guid, newPrivacy) {
                 label.setAttribute("src", "/assets/images/private.png");
             }
             label.setAttribute("onClick","togglePrivacy(" + guid + "," + !newPrivacy + ")");
+            toast("Picture privacy changed!", "The photo is now " + (newPrivacy ? "Public" : "Private"), "success");
         }
     })
 }
@@ -378,6 +365,7 @@ function deletePhoto(route) {
                 if (response.status === 200) {
                     $('#deletePhotoModal').modal('hide');
                     fillGallery(getAllPhotosUrl);
+                    toast("Picture deleted!", "The photo will no longer be displayed in the gallery.", "success");
                 }
             });
         });
@@ -426,6 +414,7 @@ function uploadNewGalleryPhoto(url) {
         response.json().then(data => {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl);
+                toast("Photo Added!", "The new photo will be shown in the picture gallery.", "success");
             }
         })
     })

@@ -143,3 +143,41 @@ function arrayToString(array, dataName, URL) {
         return out
     });
 }
+
+/**
+ * Adds a toast to the bottom right of the screen. This toast will display for 2 seconds by default.
+ * @param title A string of the toast title
+ * @param message a string of the inner message of the toast
+ * @param type a string of the type of toast to display
+ * @param delay an int of a custom delay in milliseconds before the toast disappears
+ */
+function toast(title, message, type="primary", delay=2000) {
+    const toasterHTML = '<div id="toaster" aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 5px; right: 5px;">' +
+        '<div id="toasterWrapper" style="position: sticky; bottom: 0; right: 0;"></div></div>';
+
+    const toastHTML = '<div class="toast toast-'+ type +'" role="alert" aria-live="assertive" aria-atomic="true" data-delay='+ delay +'>\n' +
+        '      <div class="toast-header">\n' +
+        '        <strong class="mr-auto">'+ title +'</strong>\n' +
+        '        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">\n' +
+        '          <span aria-hidden="true">&times;</span>\n' +
+        '        </button>\n' +
+        '      </div>\n' +
+        '      <div class="toast-body">\n' + message +
+        '      </div>\n' +
+        '    </div>';
+
+    // Create the toaster if it does not exist
+    if (!document.getElementById("toaster")) {
+        $("body").append(toasterHTML);
+    }
+
+    // Append the toast to the toaster wrapper and show the toast
+    const toasterWrapper = $("#toasterWrapper");
+    toasterWrapper.append(toastHTML);
+    $("body .toast:last").toast('show');
+
+    // Delete after hidden
+    toasterWrapper.on('hidden.bs.toast', '.toast', function () {
+        $(this).remove();
+    });
+}
