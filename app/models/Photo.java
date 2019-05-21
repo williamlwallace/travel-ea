@@ -29,6 +29,8 @@ public class Photo extends Model {
 
     public Boolean isPublic;
 
+    public Long destId;
+
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public DateTime uploaded;
 

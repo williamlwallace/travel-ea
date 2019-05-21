@@ -371,6 +371,27 @@ public class PhotoController extends TEABackController {
         });
     }
 
+    /**
+     * Links photo to a destination
+     *
+     * @param request Request with destination id in body
+     * @param id id of photo to link
+     * @return OK with number of rows changed
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> linkPhotoToDest(Http.Request request, Long id) {
+        JsonNode data = request.body().asJson();
+        Long destId = data.get("id").asLong();
+        return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
+            if (photo != null) {
+                photo.destId = destId;
+            } else {
+                return CompletableFuture.supplyAsync(() -> notFound());
+            }
+            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+        });
+    }
+
 
     /**
      * Lists routes to put in JS router for use from frontend
