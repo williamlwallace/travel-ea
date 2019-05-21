@@ -566,6 +566,45 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
+          
+    put:
+      tags:
+      - Destinations
+      summary: Edit an existing destination with given ID.
+      description: |
+         Updates an existing destination in the database, that is owned by thr current user
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
 
   '/destination/search':
     get:
@@ -1034,7 +1073,7 @@ paths:
         description: The ID of photo to be deleted
         schema:
           type: integer
-          minimum: 1sanitizeJson
+          minimum: 1
       responses:
         '200':
           description: Successfully deleted photo
