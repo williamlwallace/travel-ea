@@ -572,7 +572,7 @@ paths:
       - Destinations
       summary: Edit an existing destination with given ID.
       description: |
-         Updates an existing destination in the database, that is owned by the current user
+         Updates an existing destination in the database, that is owned by thr current user
       security:
       - UserToken: []
       parameters:
@@ -838,36 +838,6 @@ paths:
           description: Successfully updated profile
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: No profile found for that user
-
-    delete:
-      tags:
-      - Profiles
-      summary: Delete the profile of user with specified ID
-      security:
-      - UserToken: []
-      parameters:
-      - in: path
-        name: userId
-        required: true
-        description: The user ID to delete the profile of
-        schema:
-          type: integer
-          minimum: 1
-      - in: header
-        name: JWT-Auth
-        required: true
-        description: Authentication cookie.
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Successfully deleted profile
         '401':
           description: Unauthorized
         '403':
