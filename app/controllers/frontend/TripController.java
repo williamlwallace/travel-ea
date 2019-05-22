@@ -87,7 +87,7 @@ public class TripController extends TEAFrontController {
                 trip -> {
                     // If user is allowed to edit trip, renders edit trip page
                     if (user.admin || user.id.equals(trip.userId)) {
-                        return ok(createTrip.render(user, trip.userId, trip)), httpExecutionContext.current();
+                        return CompletableFuture.supplyAsync(() -> ok(createTrip.render(user, trip.userId, trip)), httpExecutionContext.current());
                     }
                     // Else renders trips page
                     else {
