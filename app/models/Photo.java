@@ -34,19 +34,17 @@ public class Photo extends Model {
 
     public Boolean isPublic;
 
-    public Long destId;
-
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public DateTime uploaded;
 
     public Boolean isProfile;
 
-    @ManyToMany(mappedBy = "DestinationPhotos")
+    @ManyToMany(mappedBy = "destinationPhotos")
     @JsonBackReference
     @JoinTable(
         name = "DestinationPhoto",
         joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
         inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
 
-    public List<Destination> DestinationPhotos;
+    public List<Destination> destinationPhotos;
 }

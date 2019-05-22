@@ -55,12 +55,12 @@ public class Destination extends Model {
     @Constraints.Required
     public CountryDefinition country;
 
-    @ManyToMany(mappedBy = "DestinationPhotos")
+    @ManyToMany(mappedBy = "destinationPhotos")
     @JsonBackReference
     @JoinTable(
         name = "DestinationPhoto",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
 
-    public List<Photo> DestinationPhotos;
+    public List<Photo> destinationPhotos;
 }
