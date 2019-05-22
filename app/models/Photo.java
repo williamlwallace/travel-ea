@@ -1,12 +1,17 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import org.joda.time.DateTime;
 
@@ -35,4 +40,13 @@ public class Photo extends Model {
     public DateTime uploaded;
 
     public Boolean isProfile;
+
+    @ManyToMany(mappedBy = "DestinationPhotos")
+    @JsonBackReference
+    @JoinTable(
+        name = "DestinationPhoto",
+        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
+        inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
+
+    public List<Destination> DestinationPhotos;
 }

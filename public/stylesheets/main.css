@@ -4,6 +4,14 @@ body > .container {
     padding: 60px 15px 0;
 }
 
+body {
+    min-height: 100%;
+}
+
+html {
+    min-height: 100%;
+}
+
 .footer > .container {
     padding-right: 15px;
     padding-left: 15px;
@@ -403,4 +411,27 @@ pre {
 
 .table {
     text-align: center;
+}
+
+/**
+ * Toast styling
+ */
+.toast-primary {
+    background-color: #5283b7;
+    color: #f1f3ff;
+}
+
+.toast-danger {
+    background-color: #b93535;
+    color: #fff1f1;
+}
+
+.toast-success {
+    background-color: #32a24b;
+    color: #f2fff1;
+}
+
+.toast-warning {
+    background-color: #ce7638;
+    color: #fffaf1;
 }
