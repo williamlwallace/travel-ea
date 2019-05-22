@@ -16,7 +16,8 @@
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalContactForm">Create Destination</button>
+                <button class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create Destination</button>
+                @*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal">Create Destination</button>*@
                 <button type="submit" class="btn btn-primary"
                 data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
@@ -134,7 +135,7 @@
 
         <!-- Create destination form -->
         <div class="container">
-            @modules.createDestinationForm()
+            @modules.createDestinationForm(ownerId)
         </div>
 
 
@@ -215,5 +216,6 @@
 }
 
 <script type="text/javascript">
+        onPageLoad(@ownerId);
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
 </script>

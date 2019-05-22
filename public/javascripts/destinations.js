@@ -1,18 +1,20 @@
-//initilise datatable on load
-$(document).ready(function () {
+/**
+ * Initializes destination table and calls method to populate
+ * @param {Number} userId - ID of user to get destinations for
+ */
+function onPageLoad(userId) {
     const destinationTable = $('#dtDestination').DataTable({
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length-1]);
             $(row).addClass("clickable-row");
         }
     });
-    populateDestinations(destinationTable);
-});
-
+    populateDestinations(destinationTable, userId);
+}
 
 /**
  * Gets all countries and fills into dropdown
- * @param {stirng} getCountriesUrl - get all countries URI
+ * @param {string} getCountriesUrl - get all countries URI
  */
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
@@ -36,12 +38,13 @@ function fillCountryInfo(getCountriesUrl) {
 
 /**
  * Add destination to databse
- * @param {stirng} url - API URI to add destination
+ * @param {string} url - API URI to add destination
  * @param {string} redirect - URI of redirect page
  */
-function addDestination(url, redirect) {
+function addDestination(url, redirect, userId) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("addDestinationForm"));
+
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -51,13 +54,18 @@ function addDestination(url, redirect) {
     data.latitude = parseFloat(data.latitude);
     data.longitude = parseFloat(data.longitude);
     data.countryId = parseInt(data.countryId);
+    data.user = {
+        id: userId
+    };
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
     delete data.countryId;
+
     // Post json data to given url
     post(url,data)
     .then(response => {
+
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
@@ -75,10 +83,11 @@ function addDestination(url, redirect) {
 /**
  * Insert destination data into table
  * @param {Object} table - data table object
+ * @param {Number} userId - ID of user to retrieve destinations for
  */
-function populateDestinations(table) {
-    //Query api to get all destinations
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
+function populateDestinations(table, userId) {
+    // Query API endpoint to get all destinations
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
     .then(response => {
         response.json()
         .then(json => {

@@ -1,26 +1,31 @@
 let countryDict = {};
 
-$(document).ready(function () {
+/**
+ * Initializes destination table and calls method to populate
+ * @param {Number} userId - ID of user to get destinations for
+ */
+function onPageLoad(userId) {
     const table = $('#destTable').DataTable( {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length-2]);
             $(row).attr('data-countryId', data[data.length-1]);
         }
     });
-    populateTable(table);
-});
+    populateTable(table, userId);
+}
 
 /**
  * Populates destination table
  * @param {Object} table to populate
+ * @param {Number} userId - ID of user to retrieve destinations for
  */
-function populateTable(table){
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
+function populateTable(table, userId){
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if(response.status != 200) {
+            if(response.status !== 200) {
                 showErrors(json);
             } else {
                 for(const destination of json) {
@@ -31,7 +36,6 @@ function populateTable(table){
                     const latitude = destination.latitude;
                     const longitude = destination.longitude;
                     const country = destination.country.name;
-                    // there should be done with a listener and setting these extra values as data attributes - it is now hehe
                     const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
                     const row = [name, type, district, latitude, longitude, country, button, id, destination.country.id];
                     table.row.add(row).draw(false);
@@ -42,7 +46,7 @@ function populateTable(table){
 }
 
 /**
- *Click listener that handles clicks in destination table
+ * Click listener that handles clicks in destination table
  */
 $('#destTable').on('click', 'button', function() {
     let tableAPI = $('#destTable').dataTable().api();
@@ -53,10 +57,9 @@ $('#destTable').on('click', 'button', function() {
     let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
     let countryId = $(this).parents('tr').attr("data-countryId");
     let id = $(this).parents('tr').attr('id');
-    console.log(id,name,district,type,latitude,longitude,countryId);
     
-    addDestinationToTrip(id,name,district,type,latitude,longitude,countryId);
-})
+    addDestinationToTrip(id, name, district, type, latitude, longitude, countryId);
+});
 
 /**
  * Gets all countries and fills into dropdown
