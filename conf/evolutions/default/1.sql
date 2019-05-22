@@ -143,6 +143,19 @@ CREATE TABLE IF NOT EXISTS Photo
     PRIMARY KEY (guid)
   );
 
+    -- Create DestinationPhotos table, which specifies the photos of a Destinations
+CREATE TABLE IF NOT EXISTS DestinationPhoto
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    photo_id              INT NOT NULL,
+    destination_id        INT NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX Destination_photo_index (photo_id, destination_id),
+    UNIQUE(photo_id, destination_id)
+  );
+
 
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES

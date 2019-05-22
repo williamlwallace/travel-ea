@@ -1,11 +1,16 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -50,4 +55,12 @@ public class Destination extends Model {
     @Constraints.Required
     public CountryDefinition country;
 
+    @ManyToMany(mappedBy = "DestinationPhotos")
+    @JsonBackReference
+    @JoinTable(
+        name = "DestinationPhoto",
+        joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
+
+    public List<Photo> DestinationPhotos;
 }
