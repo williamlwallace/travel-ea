@@ -188,6 +188,28 @@ public class PhotoControllerTest extends WithApplication {
                 .cookie(authCookie);
         //put and check response
         Result result = route(fakeApp, request);
-        assertEquals(201, result.status());
+        assertEquals(200, result.status());
+    }
+
+    @Test
+    public void testPhotoToDestLinkingNoPhoto() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/2")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
+
+    @Test
+    public void testPhotoToDestLinkingNoDestination() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
     }
 }

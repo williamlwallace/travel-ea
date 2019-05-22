@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that stores information regarding users and which country passports they hold.
+ * A class to link destinations and photos
  */
 @Entity
 @Table(name = "DestinationPhoto")
