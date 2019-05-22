@@ -61,14 +61,14 @@ public class TripController extends TEAFrontController {
      * @return OK status while rendering and displaying the create trip page
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> createTripIndex(Http.Request request, Long userId) {
+    public Result createTripIndex(Http.Request request, Long userId) {
         User loggedInUser = request.attrs().get(ActionState.USER);
 
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
-            return ok(createTrip.render(loggedInUser, userId, new Trip())), httpExecutionContext.current();
+            return ok(createTrip.render(loggedInUser, userId, new Trip()));
         }
         else {
-            return ok(createTrip.render(loggedInUser, loggedInUser.id, new Trip())), httpExecutionContext.current();
+            return ok(createTrip.render(loggedInUser, loggedInUser.id, new Trip()));
         }
     }
 
