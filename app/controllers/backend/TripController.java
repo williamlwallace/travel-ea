@@ -302,12 +302,14 @@ public class TripController extends TEABackController {
      * @param destinations List of tripData objects used in trip
      */
     private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
-        Long masterAdminId = 1L;
         for (TripData tripData : destinations) {
             Destination destination = tripData.destination;
-            if (!destination.user.id.equals(userId) && !destination.user.id.equals(masterAdminId)) {
-                CompletableFuture.supplyAsync(() -> destinationRepository.makePermanentlyPublic(destination));
-            }
+            destinationRepository.checkDestinationInTrip(destination, userId).thenApplyAsync(dest -> {
+                if (dest != null) {
+                    destinationRepository.makePermanentlyPublic(dest);
+                }
+                return true;
+            });
         }
     }
 

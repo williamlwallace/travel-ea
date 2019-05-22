@@ -95,24 +95,24 @@ public class DestinationRepository {
         return supplyAsync(() -> {
             // Update the publicity of the destination in the database, and check what status gets returned
             Result result = setDestinationToPublicInDatabase(destination.id);
+
             // if the result was anything other than okay, return this as it is an error condition
-            if(result.status() != ok().status()) {
+            if (result.status() != ok().status()) {
                 return result;
             }
 
             // Find all similar destinations that need to be merged
             List<Destination> destinations = getSimilarDestinations(destination);
-
             List<Long> similarIds = destinations.stream().map(x -> x.id).collect(Collectors.toList());
+
             // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
             int rowsChanged = mergeDestinationsTripData(user.id, similarIds, destination.id);
             // Photos
-            //TODO: call the method that updates the photos. Also not written
+            // TODO: call the method that updates the photos. Also not written
             // If any rows were changed when re-referencing, the destination has been used by another user and must be transferred to admin ownership
             if (rowsChanged > 0) {
-                destination.user.id = 1L;
-                ebeanServer.update(destination);
+                makePermanentlyPublic(destination);
             }
             return ok();
         });
@@ -124,7 +124,7 @@ public class DestinationRepository {
      * @param destinationId ID of destination to make public
      * @return Result of call, ok if good, badRequest if already public, not found if no such destination ID found
      */
-    public Result setDestinationToPublicInDatabase(Long destinationId) {
+    private Result setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
                 .where()
                 .eq("id", destinationId).findOneOrEmpty().orElse(null);
@@ -265,7 +265,27 @@ public class DestinationRepository {
     }
 
     /**
-     * Updates the destinations ownership to the master admin
+     * Checks if a destination belongs to the user provided
+     *
+     * @param destination Destination object to check ownership of
+     * @param userId ID of user using the destination
+     * @return A destination object if one is found and doesn't belong to the
+     * specified user or the master admin, otherwise null
+     */
+    public CompletableFuture<Destination> checkDestinationInTrip(Destination destination, Long userId) {
+        Long masterAdminId = 1L;
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                        .where()
+                        .idEq(destination.id)
+                        .ne("user_id", userId)
+                        .ne("user_id", masterAdminId)
+                        .findOneOrEmpty()
+                        .orElse(null)
+                , executionContext);
+    }
+
+    /**
+     * Updates the ownership of the destination to the master admin
      *
      * @param destination Destination to be updated
      * @return Modified destination object
