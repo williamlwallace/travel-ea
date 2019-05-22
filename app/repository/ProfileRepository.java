@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Profile;
 import play.db.ebean.EbeanConfig;
 
+@Singleton
 public class ProfileRepository {
 
     private final EbeanServer ebeanServer;
@@ -51,23 +53,7 @@ public class ProfileRepository {
                     .where()
                     .eq("user_id", id)
                     .findOneOrEmpty()
-                    .orElse(null),
-            executionContext);
-    }
-
-    /**
-     * Deletes the profile having some ID if it exists, returns false if no profile with that id was
-     * found.
-     *
-     * @param id ID of profile to delete
-     * @return True if a profile was found with the ID and then deleted
-     */
-    public CompletableFuture<Integer> deleteProfile(Long id) {
-        return supplyAsync(() ->
-                ebeanServer.find(Profile.class)
-                    .where()
-                    .eq("user_id", id)
-                    .delete()
+                    .orElse(null)
             , executionContext);
     }
 

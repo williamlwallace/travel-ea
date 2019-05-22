@@ -104,6 +104,43 @@ paths:
         '403':
           description: Forbidden
 
+    get:
+      tags:
+      - Users
+      summary: Gets the user with specified ID
+      security:
+      - UserToken: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The user ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successfully retrieved user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: No user with such uid found
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+
   '/login':
     post:
       tags:
@@ -216,7 +253,83 @@ paths:
         '401':
           description: Unauthorized
 
+  '/trip/{id}':
+    get:
+      tags:
+      - Trips
+      summary: Get trip with given ID
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The ID of the trip to retrieve
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved trip
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Trip'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: No such trip found
+
+  '/user/trips/{id}':
+    get:
+      tags:
+      - Trips
+      summary: Get all trips for user with given user Id
+      security:
+      - UserToken: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The user ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authetication cookie.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: All trips of user (may be empty list)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trip'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+
   '/trip':
+    get:
+      tags:
+      - Trips
+      summary: Get all trips
+      responses:
+        '200':
+          description: Successfully retrieved all trips
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Trip'
+
     post:
       tags:
       - Trips
@@ -269,33 +382,6 @@ paths:
         '403':
           description: Forbidden
 
-  '/trip/{id}':
-    get:
-      tags:
-      - Trips
-      summary: Get trip with given ID
-      parameters:
-      - in: path
-        name: id
-        required: true
-        description: The ID of the trip to retrieve
-        schema:
-          type: integer
-          minimum: 1
-      responses:
-        '200':
-          description: Successfully retrieved trip
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Trip'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: No such trip found
-
     delete:
       tags:
       - Trips
@@ -326,11 +412,11 @@ paths:
         '404':
           description: No such trip found
 
-  '/trip/getAll/':
-    get:
+  '/trip/privacy':
+    put:
       tags:
       - Trips
-      summary: Get all trips belonging to logged in user
+      summary: Updates an existing trip's privacy
       security:
       - UserToken: []
       parameters:
@@ -340,17 +426,17 @@ paths:
         description: Authentication cookie.
         schema:
           type: string
+      requestBody:
+        $ref: '#/components/requestBodies/putTrip'
       responses:
         '200':
-          description: All trips of user (may be empty list)
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Trip'
+          description: Successfully updated trip
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden
 
   '/destination/getCountries':
     get:
@@ -367,12 +453,12 @@ paths:
                 items:
                   $ref: '#/components/schemas/CountryDefinition'
 
-  '/destination/makePublic/{id}':
-    put:
+  '/user/destination/{id}':
+    get:
       tags:
       - Destinations
-      summary: Change a destinations privacy to public (and merge duplicates)
-      description: Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users, as well as merging with any sufficiently similar destinations that are currently marked as private in the database
+      summary: Get all destinations for given user ID
+      description: Gets all public destinations as well as private destinations for request user ID
       security:
       - UserToken: []
       parameters:
@@ -385,27 +471,10 @@ paths:
       - in: path
         name: id
         required: true
-        description: The ID of the destination to make public
+        description: The user ID
         schema:
           type: integer
           minimum: 1
-      responses:
-        '200':
-          description: Successfully made destination public
-        '400':
-          description: Destination was already public
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden (you are not the owner of this destination, or an admin)
-        '404':
-          description: No such destination found
-
-  '/destination':
-    get:
-      tags:
-      - Destinations
-      summary: Get all destinations
       responses:
         '200':
           description: Successfully retrieved all destinations
@@ -416,6 +485,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Destination'
 
+  '/destination':
     post:
       tags:
       - Destinations
@@ -496,6 +566,45 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
+          
+    put:
+      tags:
+      - Destinations
+      summary: Edit an existing destination with given ID.
+      description: |
+         Updates an existing destination in the database, that is owned by thr current user
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Destination'
+      responses:
+        '200':
+          description: Successfully added destination
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
 
   '/destination/search':
     get:
@@ -528,6 +637,40 @@ paths:
       responses:
         '200':
           description: Successfully retrieved (possibly zero) destinations
+
+  '/destination/makePublic/{id}':
+    put:
+      tags:
+      - Destinations
+      summary: Change a destinations privacy to public (and merge duplicates)
+      description: Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users, as well as merging with any sufficiently similar destinations that are currently marked as private in the database
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to make public
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully made destination public
+        '400':
+          description: Destination was already public
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (you are not the owner of this destination, or an admin)
+        '404':
+          description: No such destination found
 
   '/profile/getTravellerTypes/':
     get:
@@ -702,36 +845,6 @@ paths:
         '404':
           description: No profile found for that user
 
-    delete:
-      tags:
-      - Profiles
-      summary: Delete the profile of user with specified ID
-      security:
-      - UserToken: []
-      parameters:
-      - in: path
-        name: userId
-        required: true
-        description: The user ID to delete the profile of
-        schema:
-          type: integer
-          minimum: 1
-      - in: header
-        name: JWT-Auth
-        required: true
-        description: Authentication cookie.
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Successfully deleted profile
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: No profile found for that user
-
   '/admin/grant/{id}':
     post:
       tags:
@@ -781,6 +894,40 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+
+  '/photo/{id}/profile':
+    get:
+      tags:
+      - Photos
+      summary: Gets the profile picture for a given user ID
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to retrieve profile photo of
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved photo for user'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '404':
+          description: No profile picture found for user
+
 
   '/photo':
     post:
@@ -880,7 +1027,7 @@ paths:
       tags:
       - Photos
       summary: 'Delete photo with given id'
-      description: 'If the user is autharized, delete the photo'
+      description: 'If the user is authorized, delete the photo'
       security:
       - UserToken: []
       parameters:
@@ -899,13 +1046,52 @@ paths:
           minimum: 1
       responses:
         '200':
-          description: Successfully deleted trip
+          description: Successfully deleted photo
         '401':
           description: Authentication failed
         '403':
           description: User not authorised for this action
         '404':
-          description: No such trip found
+          description: No such photo found
+
+  '/photo/privacy/{id}':
+    patch:
+      tags:
+      - Photos
+      summary: 'Update privacy for a given photo ID'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of photo to be updated
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully updated privacy
+        '404':
+          description: No such photo found
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - userName
+              properties:
+                isPublic:
+                  type: boolean
+
+
 
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
@@ -1148,6 +1334,10 @@ components:
           minimum: 1
           format: int64
           description: References a the id of an existing user
+        privacy:
+          type: boolean
+          example: false
+          description: Whether or not this trip is considered a private trip of the user that added it or whether it is publicly accessible
         tripDataList:
           type: array
           items:

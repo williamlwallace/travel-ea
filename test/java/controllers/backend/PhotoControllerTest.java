@@ -75,7 +75,7 @@ public class PhotoControllerTest extends WithApplication {
     public void applyEvolutions() {
         // Only certain trips, namely initialisation, and destinations folders
         Evolutions.applyEvolutions(db,
-                Evolutions.fromClassLoader(getClass().getClassLoader(), "test/photo/"));
+                Evolutions.fromClassLoader(getClass().getClassLoader(), "test/profile/"));
     }
 
     /**

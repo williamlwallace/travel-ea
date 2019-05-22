@@ -2,10 +2,11 @@
 @import helper._
 @import models.User
 
-@(user: User, destList: Seq[models.Destination], trip: models.Trip)
+@(user: User, trip: models.Trip)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes" type="text/javascript"></script>
 }
 
 @layouts.imageHeader(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, "images/home-bg.jpg", scripts){
@@ -184,7 +185,7 @@
                         <div class="container">
                             <form>
                                 <div class="destTable"><br>
-                                    <table class="table table-hover">
+                                    <table id="destTable" class="table table-hover">
                                         <thead>
                                             <tr>
                                                 <th scope="col">Name</th>
@@ -197,17 +198,6 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        @for(d <- destList) {
-                                            <tr id="@d.id">
-                                                <td>@d.name</td>
-                                                <td>@d._type</td>
-                                                <td>@d.district</td>
-                                                <td>@d.latitude</td>
-                                                <td>@d.longitude</td>
-                                                <td id="country">@d.country.name</td>
-                                                <td><button class="btn btn-popup" type="button" onclick='addDestinationToTrip(["@d.id", "@d.name", "@d._type", "@d.district", "@d.latitude", "@d.longitude", "@d.country.id"])'>Add</button></td>
-                                            </tr>
-                                        }
                                         </tbody>
                                     </table>
                                 </div>

@@ -28,7 +28,7 @@ import util.validation.TripValidator;
 /**
  * Manages trips in the database.
  */
-public class TripController extends Controller {
+public class TripController extends TEABackController {
 
     private final TripRepository tripRepository;
 
@@ -52,13 +52,21 @@ public class TripController extends Controller {
             return tripRepository.getAllUserTrips(userId)
                 .thenApplyAsync(trips -> {
                     Collections.sort(trips);
-                    return ok(Json.toJson(trips));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
                 });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
                 .thenApplyAsync(trips -> {
                     Collections.sort(trips);
-                    return ok(Json.toJson(trips));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
                 });
         }
     }
@@ -71,7 +79,13 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+            .thenApplyAsync(trips -> {
+                try{
+                    return ok(sanitizeJson(Json.toJson(trips)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
@@ -86,8 +100,17 @@ public class TripController extends Controller {
         // Get all the trip data (asynchronously) and then
         // construct and return the json object to send
         return tripRepository.getTripById(tripId).thenApplyAsync(
-            trip -> (trip != null) ? ok(Json.toJson(trip)) : notFound()
-        );
+            trip -> {
+                if (trip != null) { 
+                    try{
+                        return ok(sanitizeJson(Json.toJson(trip)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                } else {
+                    return notFound();
+                }
+            });
     }
 
     /**
@@ -268,4 +291,5 @@ public class TripController extends Controller {
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
+
 }

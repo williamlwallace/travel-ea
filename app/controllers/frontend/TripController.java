@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Trip;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
@@ -29,24 +30,19 @@ import play.mvc.With;
 import views.html.createTrip;
 import views.html.trips;
 
-public class TripController extends Controller {
+public class TripController extends TEAFrontController {
 
-    private HttpExecutionContext httpExecutionContext;
     private WSClient ws;
-    private DestinationController destinationController;
 
     @Inject
     public TripController(
         HttpExecutionContext httpExecutionContext,
-        WSClient ws,
-        DestinationController destinationController) {
-
-        this.httpExecutionContext = httpExecutionContext;
+        WSClient ws) {
+        super(httpExecutionContext);
         this.ws = ws;
-        this.destinationController = destinationController;
     }
 
-    /**
+    /**    private HttpExecutionContext httpExecutionContext;
      * Displays the trips page. Called with the /trips URL and uses a GET request. Checks that a
      * user is logged in. Takes them to the trips page if they are, otherwise they are taken to the
      * start page.
@@ -69,12 +65,9 @@ public class TripController extends Controller {
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> createTripIndex(Http.Request request) {
+    public Result createTripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenApplyAsync(
-            destList -> (!destList.isEmpty()) ? ok(
-                createTrip.render(user, asScala(destList), new Trip())) : internalServerError(),
-            httpExecutionContext.current());
+        return ok(createTrip.render(user, new Trip()));
     }
 
     /**
@@ -87,14 +80,9 @@ public class TripController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationController.getDestinations(request).thenComposeAsync(
-            destList ->
-                this.getTrip(Authenticator.getTokenFromCookie(request), tripId, request)
-                    .thenApplyAsync(
-                        trip -> (!destList.isEmpty()) ? ok(
-                            createTrip.render(user, asScala(destList), trip))
-                            : internalServerError(), httpExecutionContext.current()),
-            httpExecutionContext.current());
+        return this.getTrip(Authenticator.getTokenFromCookie(request), tripId, request)
+        .thenApplyAsync(trip -> ok(createTrip.render(user, trip))
+                                , httpExecutionContext.current());
     }
 
     /**

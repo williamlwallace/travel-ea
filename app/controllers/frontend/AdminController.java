@@ -7,8 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
-import play.libs.ws.WSClient;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -19,13 +17,11 @@ import views.html.admin;
  * This controller contains an action to handle HTTP requests to the application's admin page.
  */
 @Singleton
-public class AdminController extends Controller {
-
-    private WSClient ws;
+public class AdminController extends TEAFrontController {
 
     @Inject
-    public AdminController(WSClient ws, HttpExecutionContext httpExecutionContext) {
-        this.ws = ws;
+    public AdminController(HttpExecutionContext httpExecutionContext) {
+        super(httpExecutionContext);
     }
 
     /**
@@ -40,31 +36,5 @@ public class AdminController extends Controller {
         User user = request.attrs().get(ActionState.USER);
         return ok(admin.render(user));
     }
-
-    // /**
-    //  * Gets Users from api endpoint via get request
-    //  *
-    //  * @return List of users wrapped in completable future
-    //  */
-    // public CompletableFuture<List<User>> getUsers(String token) {
-    //     CompletableFuture<WSResponse> res = ws
-    //         .url("http://localhost:9000/api/user/search")
-    //         .addHeader("Cookie", String.format("JWT-Auth=%s;", token))
-    //         .get()
-    //         .toCompletableFuture();
-    //     return res.thenApply(r -> {
-    //         //System.out.println(r.getBody());
-    //         JsonNode json = r.getBody(WSBodyReadables.instance.json());
-    //         try {
-    //             return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-    //                 new TypeReference<List<User>>() {
-    //                 });
-    //         } catch (Exception e) {
-    //             e.printStackTrace();
-    //             return new ArrayList<User>();
-    //         }
-    //     });
-
-    // }
 
 }

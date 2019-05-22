@@ -24,19 +24,13 @@ function updateProfile(uri, redirect) {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if (response.status != 200) {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
-                hideErrors("updateProfileForm");
-                let element = document.getElementById("SuccessMessage");
-                element.innerHTML = "Successfully Updated!";
                 updateProfileData(data);
-                return sleep(3000);
+                $("#editProfileModal").modal('hide');
+                toast("Profile Updated!", "The updated information will be displayed on your profile.", "success");
             }
-        })
-        .then(() => {
-            let element = document.getElementById("SuccessMessage");
-            element.innerHTML = "";
         })
     });
 }
@@ -64,15 +58,6 @@ function updateProfileData(data) {
     });
 }
 
-
-/**
- * Returns timout promise
- * @param {Number} ms - time in millieseconds
- */
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 /**
  * The javascript method to populate the select boxes on the edit profile scene
  * @param url the route/url to send the request to to get the profile data
@@ -85,14 +70,14 @@ function populateProfileData(uri) {
     })
 .then(json => {
         // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
-        for (i = 0; i < json.nationalities.length; i++) {
+        for (let i = 0; i < json.nationalities.length; i++) {
         // iterates through the list of nationalities and adds them to the dropdown via their id
         $('#nationalities').picker('set', json.nationalities[i].id);
     }
-    for (i = 0; i < json.passports.length; i++) {
+    for (let i = 0; i < json.passports.length; i++) {
         $('#passports').picker('set', json.passports[i].id);
     }
-    for (i = 0; i < json.travellerTypes.length; i++) {
+    for (let i = 0; i < json.travellerTypes.length; i++) {
         $('#travellerTypes').picker('set', json.travellerTypes[i].id);
     }
     $('#gender').picker('set', json.gender);
@@ -102,15 +87,15 @@ function populateProfileData(uri) {
 /**
  * Variables for selecting and cropping the profile picture.
  */
-var cropGallery = $('#profile-gallery');
-var profilePictureToCrop = document.getElementById('image');
-var profilePictureSize = 350;
-var cropper;
+let cropGallery = $('#profile-gallery');
+let profilePictureToCrop = document.getElementById('image');
+let profilePictureSize = 350;
+let cropper;
 
-var usersPhotos = [];
-var getAllPhotosUrl;
-var profilePictureControllerUrl;
-var canEdit;
+let usersPhotos = [];
+let getAllPhotosUrl;
+let profilePictureControllerUrl;
+let canEdit;
 
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);
@@ -133,7 +118,7 @@ $(document).ready(function() {
             minContainerHeight: profilePictureSize,
 
             cropmove: function(event) {
-                var data = cropper.getData();
+                let data = cropper.getData();
                 if (data.width < profilePictureSize) {
                     event.preventDefault();
                     data.width = profilePictureSize;
@@ -150,11 +135,12 @@ $(document).ready(function() {
 /**
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
+ * @param {string} url the url to post image to
  */
  function uploadProfilePicture(url) {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
-        var formData = new FormData();
+        let formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
 
@@ -165,12 +151,11 @@ $(document).ready(function() {
                     if (response.status === 201) {
                         //Sets the profile picture to the new image
                         getProfilePicture(profilePictureControllerUrl);
+                        toast("Profile Picture Updated!", "This will be displayed on your profile.", "success");
                     }
                 });
         });
     });
-
-    //TODO: Needs to also refresh the users picture gallery if the photo is new
 
     $('#cropProfilePictureModal').modal('hide');
     cropper.destroy();
@@ -182,7 +167,7 @@ $(document).ready(function() {
  */
 cropGallery.on('click','img',function() {
     //Get the path for the pictures thumbnail
-    var fullPicturePath = $(this).parent().attr("data-filename");
+    let fullPicturePath = $(this).parent().attr("data-filename");
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -205,6 +190,7 @@ function togglePrivacy(guid, newPrivacy) {
                 label.setAttribute("src", "/assets/images/private.png");
             }
             label.setAttribute("onClick","togglePrivacy(" + guid + "," + !newPrivacy + ")");
+            toast("Picture privacy changed!", "The photo is now " + (newPrivacy ? "Public" : "Private"), "success");
         }
     })
 }
@@ -227,7 +213,7 @@ function fillGallery(getPhotosUrl) {
                     usersPhotos[i] = data[i];
                 }
                 // Now create gallery objects
-                var galleryObjects = createGalleryObjects(true);
+                let galleryObjects = createGalleryObjects(true);
                 // And populate the gallery!
                 addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
             });
@@ -241,23 +227,23 @@ function fillGallery(getPhotosUrl) {
  * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks) {
-    var galleryObjects = [];
-    var numPages = Math.ceil(usersPhotos.length / 6);
+    let galleryObjects = [];
+    let numPages = Math.ceil(usersPhotos.length / 6);
     for(let page = 0; page < numPages; page++) {
         // page is the page number starting from 0
         // Create a gallery which will have 6 photos
-        var newGallery = document.createElement("div");
+        let newGallery = document.createElement("div");
         newGallery.id = "page" + page;
         newGallery.setAttribute("class", "tz-gallery");
         // create the row div
-        var row = document.createElement("div");
+        let row = document.createElement("div");
         row.setAttribute("class", "row");
         // create each photo tile
         for (let position = 0; position <= 5 && (6 * page + position) < usersPhotos.length; position++) {
-            var tile = document.createElement("div");
+            let tile = document.createElement("div");
             tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
 
-            var photo = document.createElement("a");
+            let photo = document.createElement("a");
             photo.setAttribute("class", "lightbox");
 
             // 6 * page + position finds the correct photo index in the dictionary
@@ -269,14 +255,15 @@ function createGalleryObjects(hasFullSizeLinks) {
             if (hasFullSizeLinks === true) {
                 if (canEdit === true) {
                     // Create delete button
-                    var deleteButton = document.createElement("span");
+                    let deleteButton = document.createElement("span");
                     deleteButton.setAttribute("class", "close");
                     deleteButton.innerHTML = "&times;";
                     tile.appendChild(deleteButton);
 
                     // Create toggle button TODO this is in an ugly position, will change
-                    var toggleButton = document.createElement("span");
-                    var toggleLabel = document.createElement("input");
+                    let toggleButton = document.createElement("span");
+                    let toggleLabel = document.createElement("input");
+
                     toggleLabel.setAttribute("class", "privacy");
                     toggleLabel.setAttribute("id", guid + "privacy");
                     toggleLabel.setAttribute("type", "image");
@@ -298,8 +285,8 @@ function createGalleryObjects(hasFullSizeLinks) {
             photo.setAttribute("data-id", guid);
             photo.setAttribute("data-filename", filename);
             // thumbnail
-            var thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
-            var thumb = document.createElement("img");
+            let thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
+            let thumb = document.createElement("img");
             thumb.src = thumbnail;
             // add image to photo a
             photo.appendChild(thumb);
@@ -328,8 +315,8 @@ function createGalleryObjects(hasFullSizeLinks) {
  * @param pageSelectionId the id of the page selector for the provided gallery
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
-    var numPages = Math.ceil(usersPhotos.length / 6);
-    var currentPage = 1;
+    let numPages = Math.ceil(usersPhotos.length / 6);
+    let currentPage = 1;
     if (galleryObjects !== undefined && galleryObjects.length !== 0) {
         // init bootpage
         $(pageSelectionId).bootpag({
@@ -342,8 +329,8 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             $(galleryId).html(galleryObjects[currentPage - 1]);
             baguetteBox.run('.tz-gallery');
             $('.img-wrap .close').on('click', function() {
-                var guid = $(this).closest('.img-wrap').find('a').data("id");
-                var filename = $(this).closest('.img-wrap').find('a').data("filename");
+                let guid = $(this).closest('.img-wrap').find('a').data("id");
+                let filename = $(this).closest('.img-wrap').find('a').data("filename");
 
                 removePhoto(guid, filename);
             });
@@ -352,8 +339,8 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery');
         $('.img-wrap .close').on('click', function() {
-            var guid = $(this).closest('.img-wrap').find('a').data("id");
-            var filename = $(this).closest('.img-wrap').find('a').data("filename");
+            let guid = $(this).closest('.img-wrap').find('a').data("id");
+            let filename = $(this).closest('.img-wrap').find('a').data("filename");
 
             removePhoto(guid, filename);
         });
@@ -369,8 +356,8 @@ function removePhoto(guid, filename) {
 }
 
 function deletePhoto(route) {
-    var guid = document.getElementById("deleteMe").name;
-    var deleteUrl = route.substring(0, route.length -1 ) + guid;
+    let guid = document.getElementById("deleteMe").name;
+    let deleteUrl = route.substring(0, route.length -1 ) + guid;
 
     _delete(deleteUrl)
         .then(response => {
@@ -378,11 +365,11 @@ function deletePhoto(route) {
                 if (response.status === 200) {
                     $('#deletePhotoModal').modal('hide');
                     fillGallery(getAllPhotosUrl);
+                    toast("Picture deleted!", "The photo will no longer be displayed in the gallery.", "success");
                 }
             });
         });
 }
-
 
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field
@@ -407,13 +394,7 @@ function uploadNewPhoto(){
 }
 
 
-/**
- * allows the upload image button to act as an input field by clicking on the upload image file field
- * For a normal photo
- */
-$("#upload-gallery-image-button").click(function() {
-    $("#upload-gallery-image-file").click();
-});
+
 
 /**
  * Takes the users selected photos and  creates a form from them
@@ -433,6 +414,7 @@ function uploadNewGalleryPhoto(url) {
         response.json().then(data => {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl);
+                toast("Photo Added!", "The new photo will be shown in the picture gallery.", "success");
             }
         })
     })
@@ -470,7 +452,7 @@ function getPictures(url) {
  * Displays the users images in a change profile picture gallery modal
  */
 function showProfilePictureGallery() {
-    var galleryObjects = createGalleryObjects(false);
+    let galleryObjects = createGalleryObjects(false);
     addPhotos(galleryObjects, $("#profile-gallery"), $('#page-selection-profile-picture'));
     $('#changeProfilePictureModal').modal('show');
 }
