@@ -39,30 +39,36 @@ public class DestinationController extends TEABackController {
      * in the request of the body
      *
      * @param request Request containing destination json object as body
+     * @param userId ID of user destination is being created for
      * @return Ok with id of destination on success, badRequest otherwise
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
         JsonNode data = request.body().asJson();
-        //Sends the received data to the validator for checking
+        User user = request.attrs().get(ActionState.USER);
+
+        // Sends the received data to the validator for checking, if error returns bad request
         ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        } else {
-            //Else, no errors found, continue with adding to the database
-            Destination newDestination = Json.fromJson(data, Destination.class);
-            // Add destination owner to be whichever user uploaded it
-            newDestination.user = new User();
-            newDestination.user.id = request.attrs().get(ActionState.USER).id;    // TODO: Modify to be whichever user its for (admin creating)
-            return destinationRepository.addDestination(newDestination)
-                .thenApplyAsync(id -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(id)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
         }
+
+        // Add destination owner to be whichever user uploaded it
+        Destination newDestination = Json.fromJson(data, Destination.class);
+
+        // Checks if user logged in is not allowed to create dest for userId
+        if (!user.admin && !user.id.equals(newDestination.user.id)) {
+            return CompletableFuture.supplyAsync(() -> forbidden());
+        }
+
+        return destinationRepository.addDestination(newDestination)
+            .thenApplyAsync(id -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(id)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
