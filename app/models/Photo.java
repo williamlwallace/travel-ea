@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
+import java.util.Iterator;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -47,4 +48,33 @@ public class Photo extends Model {
         inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
 
     public List<Destination> destinationPhotos;
+
+    /**
+     * Removes given destination from photo
+     */
+    public Boolean removeDestination(Long destId) {
+        Iterator<Destination> iter = destinationPhotos.iterator();
+       while (iter.hasNext()) {
+           Destination dest = iter.next();
+           if (dest.id.equals(destId)) {
+               iter.remove();
+               return true;
+           }
+       }
+       return false;
+    }
+
+    /**
+     * Removes given destination from photo
+     */
+    public Boolean isLinked(Long destId) {
+        Iterator<Destination> iter = destinationPhotos.iterator();
+       while (iter.hasNext()) {
+           Destination dest = iter.next();
+           if (dest.id.equals(destId)) {
+               return true;
+           }
+       }
+       return false;
+    }
 }

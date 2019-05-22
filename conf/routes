@@ -55,6 +55,8 @@ PUT           /api/destination/:id                   controllers.backend.Destina
 
 PUT           /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.linkPhotoToDest(request:Request, destId:Long, photoId:Long)
 
+DELETE        /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
+
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
