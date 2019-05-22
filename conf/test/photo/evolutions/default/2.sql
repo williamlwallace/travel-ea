@@ -14,6 +14,10 @@ INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile)
 
 -- Insert a destination
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Leaning tower of pizza', 'Monument', 'italy', 47.69, 2.2947, 1);
+
+-- Add photo-destination link
+INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )

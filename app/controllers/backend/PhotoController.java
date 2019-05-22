@@ -377,27 +377,50 @@ public class PhotoController extends TEABackController {
     /**
      * Links photo to a destination
      *
-     * @param request Request with destination id in body
+     * @param request Request
      * @param photoId id of photo to link
      * @param destId id of destination to link to
-     * @return OK with number of rows changed
+     * @return OK with number of rows changed or notfound
      */
     //Should this not be in the destination controller? you add a photo to a destination not the other way around?(fiquretivly anyway)
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> linkPhotoToDest(Http.Request request, Long destId, Long photoId) {
         return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
-            if (photo != null) {
-                return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
-                    if (destination != null) {
-                        photo.destinationPhotos.add(destination);
-                        return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
-                    } else {
-                        return CompletableFuture.supplyAsync(() -> notFound());
-                    }
-                });
-            } else {
+            if (photo == null) {
                 return CompletableFuture.supplyAsync(() -> notFound());
             }
+            return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+                if (destination != null) {
+                    if (photo.isLinked(destId)) {
+                        return CompletableFuture.supplyAsync(() -> badRequest());
+                    }
+                    photo.destinationPhotos.add(destination);
+                    return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+                }
+                return CompletableFuture.supplyAsync(() -> notFound());
+            });
+        });
+    }
+
+    /**
+     * Deletes links from photo to a destination
+     *
+     * @param request Request 
+     * @param photoId id of photo
+     * @param destId id of destination
+     * @return OK if succesful or notfound
+     */
+    //Should this not be in the destination controller? you add a photo to a destination not the other way around?(fiquretivly anyway)
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> deleteLinkPhotoToDest(Http.Request request, Long destId, Long photoId) {
+        return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+            if (photo == null) {
+                return CompletableFuture.supplyAsync(() -> notFound());
+            }
+            if (!photo.removeDestination(destId)) {
+                return CompletableFuture.supplyAsync(() -> notFound());
+            }
+            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
         });
     }
 

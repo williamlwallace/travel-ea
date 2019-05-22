@@ -181,7 +181,7 @@ public class PhotoControllerTest extends WithApplication {
     }
 
     @Test
-    public void testPhotoToDestLinking() {
+    public void PhotoToDestLinking() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/1")
                 .method("PUT")
@@ -192,7 +192,18 @@ public class PhotoControllerTest extends WithApplication {
     }
 
     @Test
-    public void testPhotoToDestLinkingNoPhoto() {
+    public void PhotoToDestLinkingDuplicate() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(400, result.status());
+    }
+
+    @Test
+    public void PhotoToDestLinkingNoPhoto() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/2")
                 .method("PUT")
@@ -203,10 +214,43 @@ public class PhotoControllerTest extends WithApplication {
     }
 
     @Test
-    public void testPhotoToDestLinkingNoDestination() {
+    public void PhotoToDestLinkingNoDestination() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/3/photo/1")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
+
+    @Test
+    public void deletePhotoToDestLink() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
-                .method("PUT")
+                .method("DELETE")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(200, result.status());
+    }
+
+    @Test
+    public void deletePhotoToDestNoPhoto() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/2")
+                .method("DELETE")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
+
+    @Test
+    public void deletePhotoToDestNoDestination() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/3/photo/1")
+                .method("DELETE")
                 .cookie(authCookie);
         //put and check response
         Result result = route(fakeApp, request);
