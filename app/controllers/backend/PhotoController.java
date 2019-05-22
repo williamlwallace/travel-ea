@@ -30,6 +30,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.PhotoRepository;
+import repository.DestinationRepository;
 import util.customObjects.Pair;
 import util.validation.ErrorResponse;
 
@@ -48,13 +49,15 @@ public class PhotoController extends TEABackController {
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
 
-    // Photo repository to handle DB transactions
+    // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
+    private DestinationRepository destinationRepository;
 
     private play.Environment environment;
 
     @Inject
-    public PhotoController(PhotoRepository photoRepository, play.Environment environment) {
+    public PhotoController(DestinationRepository destinationRepository, PhotoRepository photoRepository, play.Environment environment) {
+        this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
         this.environment = environment;
 
@@ -368,6 +371,33 @@ public class PhotoController extends TEABackController {
                 return CompletableFuture.supplyAsync(() -> notFound());
             }
             return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+        });
+    }
+
+    /**
+     * Links photo to a destination
+     *
+     * @param request Request with destination id in body
+     * @param photoId id of photo to link
+     * @param destId id of destination to link to
+     * @return OK with number of rows changed
+     */
+    //Should this not be in the destination controller? you add a photo to a destination not the other way around?(fiquretivly anyway)
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> linkPhotoToDest(Http.Request request, Long destId, Long photoId) {
+        return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+            if (photo != null) {
+                return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+                    if (destination != null) {
+                        photo.destinationPhotos.add(destination);
+                        return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+                    } else {
+                        return CompletableFuture.supplyAsync(() -> notFound());
+                    }
+                });
+            } else {
+                return CompletableFuture.supplyAsync(() -> notFound());
+            }
         });
     }
 
