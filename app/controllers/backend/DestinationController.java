@@ -39,7 +39,6 @@ public class DestinationController extends TEABackController {
      * in the request of the body
      *
      * @param request Request containing destination json object as body
-     * @param userId ID of user destination is being created for
      * @return Ok with id of destination on success, badRequest otherwise
      */
     @With({Everyone.class, Authenticator.class})
@@ -55,6 +54,8 @@ public class DestinationController extends TEABackController {
 
         // Add destination owner to be whichever user uploaded it
         Destination newDestination = Json.fromJson(data, Destination.class);
+
+        System.out.println(newDestination);
 
         // Checks if user logged in is not allowed to create dest for userId
         if (!user.admin && !user.id.equals(newDestination.user.id)) {

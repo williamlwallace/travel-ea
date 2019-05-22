@@ -62,6 +62,74 @@ $('#destTable').on('click', 'button', function() {
 });
 
 /**
+ * Add destination to database
+ * @param {string} url - API URI to add destination
+ * @param {string} redirect - URI of redirect page
+ */
+function addDestination(url, redirect, userId) {
+    // Read data from destination form
+    const formData = new FormData(document.getElementById("addDestinationForm"));
+
+    // Convert data to json object
+    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
+        ...memo,
+        [pair[0]]: pair[1],
+    }), {});
+
+    // Convert lat and long to double values, and id to int
+    data.latitude = parseFloat(data.latitude);
+    data.longitude = parseFloat(data.longitude);
+    data.countryId = parseInt(data.countryId);
+    data.user = {
+        id: userId
+    };
+
+    // Convert country id to country object
+    data.country = {"id": data.countryId};
+    delete data.countryId;
+
+    // Post json data to given url
+    post(url, data)
+        .then(response => {
+
+            // Read response from server, which will be a json object
+            response.json()
+                .then(json => {
+                    if (response.status !== 200) {
+                        showErrors(json);
+                    } else {
+                        toast("Destination Created!", "The new destination will be added to the table.", "success");
+                        $('#createDestinationModal').modal('hide');
+
+                        // Add row to table
+                        let table = $('#destTable').DataTable();
+
+                        const id = response.data;
+                        const name = data.name;
+                        const type = data._type;
+                        const district = data.district;
+                        const latitude = data.latitude;
+                        const longitude = data.longitude;
+                        let country = data.country.id;
+
+                        // Set country name
+                        let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+                        for (let i = 0; i < countries.length; i++) {
+                            if (parseInt(countries[i].value) === data.country.id) {
+                                country = countries[i].innerText;
+                                break;
+                            }
+                        }
+
+                        const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+                        const row = [name, type, district, latitude, longitude, country, button, id, data.country.id];
+                        table.row.add(row).draw(false);
+                    }
+                });
+        });
+}
+
+/**
  * Gets all countries and fills into dropdown
  * @param {stirng} getCountriesUrl - get all countries URI
  */
@@ -74,7 +142,7 @@ function fillCountryInfo(getCountriesUrl) {
         response.json()
         .then(data => {
             // Json data is an array of destinations, iterate through it
-            let countryDict = {};
+            countryDict = {};
             for(let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 countryDict[data[i]['id']] = data[i]['name'];

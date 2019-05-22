@@ -5,7 +5,7 @@
 function onPageLoad(userId) {
     const destinationTable = $('#dtDestination').DataTable({
         createdRow: function (row, data, dataIndex) {
-            $(row).attr('data-href', data[data.length-1]);
+            $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
     });
@@ -37,7 +37,7 @@ function fillCountryInfo(getCountriesUrl) {
 }
 
 /**
- * Add destination to databse
+ * Add destination to database
  * @param {string} url - API URI to add destination
  * @param {string} redirect - URI of redirect page
  */
@@ -50,6 +50,7 @@ function addDestination(url, redirect, userId) {
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+
     // Convert lat and long to double values, and id to int
     data.latitude = parseFloat(data.latitude);
     data.longitude = parseFloat(data.longitude);
@@ -63,7 +64,7 @@ function addDestination(url, redirect, userId) {
     delete data.countryId;
 
     // Post json data to given url
-    post(url,data)
+    post(url, data)
     .then(response => {
 
         // Read response from server, which will be a json object
@@ -74,7 +75,28 @@ function addDestination(url, redirect, userId) {
             } else {
                 toast("Destination Created!", "The new destination will be added to the table.", "success");
                 $('#createDestinationModal').modal('hide');
-                populateDestinations($('#dtDestination').DataTable());
+
+                // Add row to table
+                let table = $('#dtDestination').DataTable();
+
+                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(response.data).url;
+                const name = data.name;
+                const type = data._type;
+                const district = data.district;
+                const latitude = data.latitude;
+                const longitude = data.longitude;
+                let country = data.country.id;
+
+                // Set country name
+                let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+                for (let i = 0; i < countries.length; i++) {
+                    if (parseInt(countries[i].value) === data.country.id) {
+                        country = countries[i].innerText;
+                        break;
+                    }
+                }
+
+                table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
             }
         });
     });
@@ -94,7 +116,7 @@ function populateDestinations(table, userId) {
             if (response.status !== 200) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
-                //Loop through json and insert into table
+                // Populates table
                 for (const dest in json) {
                     const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
                     const name = json[dest].name;
