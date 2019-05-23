@@ -57,7 +57,6 @@ public class Destination extends Model {
     public CountryDefinition country;
 
     @ManyToMany(mappedBy = "destinationPhotos")
-    @JsonBackReference
     @JoinTable(
         name = "DestinationPhoto",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
