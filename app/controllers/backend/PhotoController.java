@@ -32,7 +32,6 @@ import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
 import util.objects.Pair;
-import repository.UserRepository;
 import util.validation.ErrorResponse;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -51,14 +50,12 @@ public class PhotoController extends TEABackController {
     // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
     private DestinationRepository destinationRepository;
-    private UserRepository userRepository;
 
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
         PhotoRepository photoRepository, play.Environment environment) {
         this.destinationRepository = destinationRepository;
-        this.userRepository = userRepository;
         this.photoRepository = photoRepository;
 
         savePath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir"))
@@ -395,7 +392,8 @@ public class PhotoController extends TEABackController {
      * @return OK with number of rows changed or not found
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> linkPhotoToDest(Http.Request request, Long destId, Long photoId) {
+    public CompletableFuture<Result> linkPhotoToDest(Http.Request request, Long destId,
+        Long photoId) {
         Long userId = request.attrs().get(ActionState.USER).id;
         return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
             if (photo == null) {
@@ -403,20 +401,22 @@ public class PhotoController extends TEABackController {
             }
             return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
                 if (destination != null) {
-                    if (!destination.isPublic && destination.user.id != userId) {
+                    if (!destination.isPublic && !destination.user.id.equals(userId)) {
                         //forbidden if destination is private and user does not own destination
-                        return CompletableFuture.supplyAsync(() -> forbidden());
+                        return CompletableFuture.supplyAsync(Results::forbidden);
                     }
-                    if (destination.isPublic && destination.user.id != userId) {
+                    if (destination.isPublic && !destination.user.id.equals(userId)) {
                         //Set destination owner to admin if photo is added from diffrent user
-                        destinationRepository.changeDestinationOwner(destId, MASTER_ADMIN_ID).thenApplyAsync(rows -> rows); //set to master admin
+                        destinationRepository.changeDestinationOwner(destId, MASTER_ADMIN_ID)
+                            .thenApplyAsync(rows -> rows); //set to master admin
                     }
                     if (destination.isLinked(photoId)) {
                         //if photo is already linked return badrequest
-                        return CompletableFuture.supplyAsync(() -> badRequest());
+                        return CompletableFuture.supplyAsync(Results::badRequest);
                     }
                     destination.destinationPhotos.add(photo);
-                    return destinationRepository.updateDestination(destination).thenApplyAsync(dest -> ok(Json.toJson("Succesfully Updated")));
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(dest -> ok(Json.toJson("Succesfully Updated")));
                 }
                 return CompletableFuture.supplyAsync(Results::notFound);
             });

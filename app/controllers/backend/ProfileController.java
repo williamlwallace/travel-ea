@@ -204,7 +204,8 @@ public class ProfileController extends TEABackController {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
-                if (gender != null && !gender.equals("") && !profile.gender.equalsIgnoreCase(gender)) {
+                if (gender != null && !gender.equals("") && !profile.gender
+                    .equalsIgnoreCase(gender)) {
                     toReturn.remove(profile);
                     continue;
                 }
