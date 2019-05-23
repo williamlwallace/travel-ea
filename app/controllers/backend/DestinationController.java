@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+
 import models.Destination;
 import models.User;
 import play.libs.Json;
@@ -252,7 +253,8 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
                 controllers.frontend.routes.javascript.DestinationController
-                    .detailedDestinationIndex()
+                    .detailedDestinationIndex(),
+                controllers.backend.routes.javascript.DestinationController.editDestination()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

@@ -63,18 +63,4 @@ public class Photo extends Model {
         }
         return false;
     }
-
-    /**
-     * Removes given destination from photo.
-     */
-    public Boolean isLinked(Long destId) {
-        Iterator<Destination> iter = destinationPhotos.iterator();
-        while (iter.hasNext()) {
-            Destination dest = iter.next();
-            if (dest.id.equals(destId)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

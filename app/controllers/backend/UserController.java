@@ -90,7 +90,7 @@ public class UserController extends TEABackController {
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteOtherUser(Http.Request request, Long userId) {
-        if (userId != 1) { //make sure master user not deleted
+        if (userId != MASTER_ADMIN_ID) { //make sure master user not deleted
             return deleteUserHelper(userId);
         } else {
             return CompletableFuture
