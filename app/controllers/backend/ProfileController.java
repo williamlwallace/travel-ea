@@ -219,14 +219,13 @@ public class ProfileController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender,
-        int minAge, int maxAge, Long travellerTypeId) {
+        String gender, int minAge, int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
-                if (gender != null && !profile.gender.equalsIgnoreCase(gender)) {
+                if (gender != null && !gender.equals("") && !profile.gender.equalsIgnoreCase(gender)) {
                     toReturn.remove(profile);
                     continue;
                 }
@@ -240,6 +239,7 @@ public class ProfileController extends TEABackController {
                 if (nationalityId != 0) {
                     boolean found = false;
                     for (CountryDefinition country : profile.nationalities) {
+
                         if (country.id.equals(nationalityId)) {
                             found = true;
                         }
@@ -249,7 +249,6 @@ public class ProfileController extends TEABackController {
                         continue;
                     }
                 }
-
                 if (travellerTypeId != 0) {
                     boolean found = false;
                     for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
