@@ -111,7 +111,7 @@ public class TripController extends TEABackController {
                         return notFound();
                     }
                     // If trip was found and logged in user has privileges to retrieve trip
-                    else if (user.admin || user.id.equals(trip.userId) || trip.privacy == 1) {
+                    else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
                         try{
                             return ok(sanitizeJson(Json.toJson(trip)));
                         } catch (IOException e) {
@@ -151,7 +151,7 @@ public class TripController extends TEABackController {
         trip.id = data.get("id").asLong();
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get("isPublic").asBoolean();
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -189,7 +189,7 @@ public class TripController extends TEABackController {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get("privacy").asBoolean();
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
@@ -235,7 +235,7 @@ public class TripController extends TEABackController {
         Trip trip = new Trip();
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get("isPublic").asBoolean();
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);

@@ -340,10 +340,10 @@ function createTrip(uri, redirect, userId) {
 
     // Value of 1 for public, 0 for private
     if (tripPrivacy === "Make Private") {
-        tripData["privacy"] = 1;
+        tripData["isPublic"] = true;
     }
     else {
-        tripData["privacy"] = 0;
+        tripData["isPublic"] = false;
     }
 
     post(uri, tripData).then(response => {
@@ -490,10 +490,10 @@ function updateTrip(uri, redirect, tripId, userId) {
 
     // Value of 1 for public, 0 for private
     if (tripPrivacy === "Make Private") {
-        tripData["privacy"] = 1;
+        tripData["isPublic"] = true;
     }
     else {
-        tripData["privacy"] = 0;
+        tripData["isPublic"] = false;
     }
 
     put(uri, tripData).then(response => {

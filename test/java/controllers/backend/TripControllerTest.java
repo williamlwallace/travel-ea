@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,13 +87,13 @@ public class TripControllerTest extends WithApplication {
 
     /**
      * Trip creator to generate trips to be used in tests
-     * @param privacy Trip privacy status
+     * @param isPublic Trip privacy status
      * @param destinations List of ID's of destinations to use when creating trip
      * @param arrivalTimes List of arrivalTimes to use when creating trip
      * @param departureTimes List of departureTimes to use when creating trip
      * @return Trip object created using given data
      */
-    private Trip createTestTripObject(int privacy, int[] destinations, String[] arrivalTimes, String[] departureTimes) {
+    private Trip createTestTripObject(boolean isPublic, int[] destinations, String[] arrivalTimes, String[] departureTimes) {
         // Sets up datetime formatter and country definition object and empty trip data list
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -134,24 +135,19 @@ public class TripControllerTest extends WithApplication {
         trip.userId = 1L;
         trip.tripDataList = tripDataObjects;
 
-        if (privacy == 1) {
-            trip.privacy = 1L;
-        }
-        else {
-            trip.privacy = 0L;
-        }
+        trip.isPublic = isPublic;
 
         return trip;
     }
 
     @Test
     public void createTrip() {
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -168,12 +164,12 @@ public class TripControllerTest extends WithApplication {
 
     @Test
     public void createTripNoDest() {
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -190,12 +186,12 @@ public class TripControllerTest extends WithApplication {
 
     @Test
     public void createTripSameDestTwiceAdjacent() {
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1, 1};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -212,12 +208,12 @@ public class TripControllerTest extends WithApplication {
 
     @Test
     public void createTripOneDest() {
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -235,12 +231,12 @@ public class TripControllerTest extends WithApplication {
     @Test
     public void updateTrip() {
         // Creates trip object
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -260,12 +256,12 @@ public class TripControllerTest extends WithApplication {
     @Test
     public void updateTripInvalidId() {
         // Create trip object
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trip.id = 100L;    // Set ID to value which doesn't exist
         JsonNode node = Json.toJson(trip);
 
@@ -363,33 +359,34 @@ public class TripControllerTest extends WithApplication {
     public void sortTripsByDateIsNewestToOldest() throws IOException {
         List<Trip> trips = new ArrayList<>();
 
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {"2019-03-25 00:00:00"};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
+        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-04-01 00:00:00"};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
+        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-03-29 00:00:00", "2019-10-10 00:00:00"};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         // Insert trips into database
         for (Trip tripToInsert : trips) {
             JsonNode node = Json.toJson(tripToInsert);
+            System.out.println(node);
 
             Http.RequestBuilder insertRequest = Helpers.fakeRequest()
                     .method(POST)
@@ -411,6 +408,7 @@ public class TripControllerTest extends WithApplication {
         assertEquals(OK, getResult.status());
 
         JsonNode tripsJson = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        System.out.println(tripsJson);
         trips = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {});
         assertFalse(trips.isEmpty());
 
@@ -430,28 +428,28 @@ public class TripControllerTest extends WithApplication {
     public void sortTripsByDateIsNullLast() throws IOException {
         List<Trip> trips = new ArrayList<>();
 
-        int privacy = 0;
+        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
+        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-04-01 00:00:00"};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
+        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         // Insert trips into database

@@ -24,7 +24,7 @@
 
             <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
             <div style="float: right;">
-                @if(trip.tripDataList.length == 0 || trip.privacy == 0) {
+                @if(trip.tripDataList.length == 0 || !trip.isPublic) {
                     <button class="btn btn-primary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Public</button>
                 } else {
                     <button class="btn btn-primary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Private</button>

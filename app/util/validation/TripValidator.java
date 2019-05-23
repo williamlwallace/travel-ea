@@ -33,9 +33,7 @@ public class TripValidator {
         this.required("userId");
 
         // Validation for trip privacy
-        this.required("privacy");
-
-        System.out.println(this.form.get("tripDataList"));
+        this.required("isPublic");
 
         // Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
