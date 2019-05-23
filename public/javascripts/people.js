@@ -1,6 +1,5 @@
 let countryDict = {};
 let travellerTypeDict = {};
-let isFiltered = false;
 let table;
 
 /**
@@ -11,9 +10,11 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-//Initialises the data table and adds the filter button to the right of the search field
+/**
+ * Initialises the data table and adds the filter button to the right of the search field
+ */
 $(document).ready(function () {
-    const table = $('#dtPeople').DataTable( {
+    table = $('#dtPeople').DataTable( {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length-1]);
             $(row).addClass("clickable-row");
@@ -25,18 +26,15 @@ $(document).ready(function () {
             {
                 text: 'Filter',
                 action: function ( e, dt, node, config ) {
-                    $('#modalContactForm').modal('toggle');
+                    $('#peopleFilterModal').modal('toggle');
                 }
             },
             {
                 text: 'Clear Filter',
                 action: function (e, dt, node, config) {
-                    isFiltered = false;
-                    $('#nationalities').val('');
                     $('#gender').val('');
-                    $('#minAge').val('');
-                    $('#maxAge').val('');
-                    $('#travellerTypes').val('');
+                    $('#minAge').val(null);
+                    $('#maxAge').val(null);
                     table.clear().draw();
                     populateTable(table, profileRouter.controllers.backend.ProfileController.searchProfilesJson().url);
                 }
@@ -94,18 +92,17 @@ function getNationalityAndTravellerStrings(people) {
 /**
  * Filters the table with filtered results
  */
-function searchParams(){
-    isFiltered = true;
-    const nationalityId = document.getElementById('nationalities').options[document.getElementById('nationalities').selectedIndex].value;
-    const gender = document.getElementById('gender').value;
-    const minAge = document.getElementById('minAge').value;
-    const maxAge = document.getElementById('maxAge').value;
-    const travellerTypeId = document.getElementById('travellerTypes').options[document.getElementById('travellerTypes').selectedIndex].value;
-    const url = profileRouter.controllers.backend.ProfileController.searchProfilesJson(nationalityId, gender, minAge, maxAge, travellerTypeId).url;
+function searchParams() {
+    let nationalityId = document.getElementById('nationalities').options[document.getElementById('nationalities').selectedIndex].value;
+    let gender = document.getElementById('gender').value;
+    let minAge = document.getElementById('minAge').value;
+    let maxAge = document.getElementById('maxAge').value;
+    let travellerTypeId = document.getElementById('travellerTypes').options[document.getElementById('travellerTypes').selectedIndex].value;
+    let url = profileRouter.controllers.backend.ProfileController.searchProfilesJson(nationalityId, gender, minAge, maxAge, travellerTypeId).url;
 
     table.clear().draw();
     populateTable(table, url);
-    $('#modalContactForm').modal('toggle');
+    $('#peopleFilterModal').modal('toggle');
 }
 
 /**
