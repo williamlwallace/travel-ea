@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 
 import java.util.Comparator;
@@ -13,6 +14,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "Trip")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Trip extends Model implements Comparable<Trip> {
 
     @Id

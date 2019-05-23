@@ -149,6 +149,7 @@ public class TripControllerTest extends WithApplication {
 
         Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
+        System.out.println(node);
 
         // Create request to insert trip
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -408,7 +409,6 @@ public class TripControllerTest extends WithApplication {
         assertEquals(OK, getResult.status());
 
         JsonNode tripsJson = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
-        System.out.println(tripsJson);
         trips = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {});
         assertFalse(trips.isEmpty());
 
