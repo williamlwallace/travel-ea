@@ -6,17 +6,17 @@ import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
-import java.io.IOException;
 import javax.inject.Inject;
 import models.User;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Cookie;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.UserRepository;
@@ -60,7 +60,7 @@ public class UserController extends TEABackController {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id)
             .thenApplyAsync(users -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(users)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
@@ -72,7 +72,7 @@ public class UserController extends TEABackController {
      * Delete a users account.
      *
      * @param request HTTP request
-     * @return Ok if user successfully deleted, badrequest if no such user found
+     * @return Ok if user successfully deleted, bad request if no such user found
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteUser(Http.Request request) {
@@ -84,7 +84,7 @@ public class UserController extends TEABackController {
      * Delete a user with given uid admin only.
      *
      * @param userId ID of user to delete
-     * @return Ok if user successfully deleted, badrequest if no such user found
+     * @return Ok if user successfully deleted, bad request if no such user found
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteOtherUser(Http.Request request, Long userId) {
@@ -100,7 +100,7 @@ public class UserController extends TEABackController {
      * Delete a user with given uid helper function.
      *
      * @param userId ID of user to delete
-     * @return Ok if user successfully deleted, badrequest if no such user found
+     * @return Ok if user successfully deleted, bad request if no such user found
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
         return userRepository.deleteUser(userId)
@@ -159,12 +159,14 @@ public class UserController extends TEABackController {
                         //If a user is found pass null into the next function
                         return CompletableFuture.supplyAsync(() -> null);
                     } else {
-                        //If a user is not found pass the result of insertUser (a Long) ito the next function
+                        //If a user is not found pass the result of insertUser
+                        // (a Long) ito the next function
                         return userRepository.insertUser(newUser);
                     }
                 })
                 .thenApplyAsync(user -> {
-                    //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                    //Num should be a uid of a new user or null,
+                    // the return of this lambda is the overall return of the whole method
                     if (user == null) {
                         //Create the error to be sent to client
                         validatorResult.map("Email already in use", ERR_OTHER);
@@ -172,7 +174,8 @@ public class UserController extends TEABackController {
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
                         if (request.cookies().getCookie(JWT_AUTH).orElse(null) == null) {
-                            //If the auth cookie is not null, return an ok message with the uid contained within
+                            //If the auth cookie is not null,
+                            // return an ok message with the uid contained within
                             return ok(Json.toJson(SUCCESS))
                                 .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
                         } else {
@@ -232,10 +235,8 @@ public class UserController extends TEABackController {
             });
     }
 
-    // TODO: Update API spec
-
     /**
-     * Returns a user with the given id
+     * Returns a user with the given id.
      *
      * @param userId User id of user to retrieve name of
      * @return User object
@@ -258,7 +259,7 @@ public class UserController extends TEABackController {
                 }
             });
         } else {
-            return CompletableFuture.supplyAsync(() -> forbidden());
+            return CompletableFuture.supplyAsync(Results::forbidden);
         }
     }
 
