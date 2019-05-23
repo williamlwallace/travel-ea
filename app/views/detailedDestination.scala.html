@@ -30,7 +30,7 @@
                 @* Destination Details *@
                 <div id="destination-summary">
                     <div class="destination-details">
-                        <p class="heading" id="destination_name">Destination Name</p>
+                        <p class="h1"><span id="destination_name" class="destination_name">Name</span></p>
                         <p class="heading">Type <span id="summary_type" class="destination-info">type</span></p>
                         <p class="heading">District <span id="summary_district" class="destination-info">district</span></p>
                         <p class="heading">Country <span id="summary_country" class="destination-info">country</span></p>
@@ -38,7 +38,8 @@
                         <p class="heading">Longitude <span id="summary_longitude" class="destination-info">longitude</span></p>
                         <p class="heading">Owner <span id="summary_user" class="destination-info">user.username</span></p>
                         @if(canModify) {
-                            <a data-toggle="modal" data-target="#editDestinationModal">
+                            <p class="heading">Privacy<div id="privacy_wrapper"></div></p>
+                                <a data-toggle="modal" data-target="#editDestinationModal">
                                 @* TODO link this to the edit destination modal ?!  *@
                                 <span class="destination-button" style="float: left; padding-top: 15px; padding-bottom: 0px;">Edit Destination</span>
                             </a>
@@ -123,6 +124,7 @@
             </div>
         </div>
     </div>
+
     @* Delete Destination Modal *@
     <div class="modal fade" id="deleteDestinationModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
@@ -149,11 +151,36 @@
         </div>
     </div>
 
+    @* Make Destination Public Modal *@
+    <div class="modal fade" id="makeDestinationPublicModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Make Destination Public</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <br>
+                <div>
+                    <p align="center">Are you sure you want to make this destination Public?</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
+                        No<i class="fas fa-paper-plane-o ml-1"></i>
+                    </button>
+                    <button class="btn btn-danger" onclick="makeDestinationPublic(@destinationId)">
+                        Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 }
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
-        fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
         populateDestinationDetails(@destinationId);
         src="@controllers.backend.routes.DestinationController.destinationRoutes()"
 </script>

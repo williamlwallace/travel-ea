@@ -246,12 +246,11 @@ public class DestinationController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
-                controllers.backend.routes.javascript.DestinationController
-                    .getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController
-                    .detailedDestinationIndex()
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
+                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
