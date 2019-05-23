@@ -98,3 +98,14 @@ function populateEditDestination(destinationId) {
                 })
         })
 }
+
+/**
+ * allows the upload image button call the link photo modal which then
+ * calls the upload image file field
+ * For a normal photo
+ */
+$("#upload-gallery-image-button").click(function() {
+    console.log("HELLLLO");
+    $("#linkPhotoToDestinationModal").modal('show');
+    // $("#upload-gallery-image-file").click();
+});

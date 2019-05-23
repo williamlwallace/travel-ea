@@ -1,9 +1,15 @@
-@(loggedUser: models.User ,canModify: Boolean)
+@*You will need to add a function to the local js to set the
+"upload-gallery-image-button" to call upload-gallery-image-file (as in profile) or you
+can add an intermediate modal as is the case in detailed destinations *@
+
+@(loggedUser: models.User, canModify: Boolean, withTitle: Boolean)
 
 <html>
     <div class="section-title">
         <p>
-            <span class="section-title">Pictures</span>
+            @if(withTitle) {
+                <span class="section-title">Pictures</span>
+            }
             @if(canModify) {
                 <a class="button-secondary" id="upload-gallery-image-button" >
                     <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>

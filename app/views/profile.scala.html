@@ -62,7 +62,8 @@
                 @* Body Content *@
                 <div class="profile-main">
                     <div>
-                        @modules.gallery(loggedUser, canModify)
+                        @*Call gallery modal, true indicating we want tiltles*@
+                        @modules.gallery(loggedUser, canModify, true)
                         @* Trips table *@
                         <div class="section-title">
                             <p>
