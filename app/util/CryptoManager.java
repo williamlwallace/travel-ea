@@ -106,11 +106,7 @@ public class CryptoManager {
      */
     public static String createToken(Long userId, String secret) {
         Algorithm algorithm;
-        try {
-            algorithm = Algorithm.HMAC256(secret);
-        } catch (java.io.UnsupportedEncodingException e) {
-            return null;
-        }
+        algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
             .withIssuer("TravelEA")
             .withClaim("userId", userId)
@@ -132,7 +128,7 @@ public class CryptoManager {
                 .build();
             DecodedJWT jwt = verifier.verify(token);
             return jwt.getClaim("userId").asLong();
-        } catch (JWTVerificationException | java.io.UnsupportedEncodingException e) {
+        } catch (JWTVerificationException e) {
             return null;
         }
     }
