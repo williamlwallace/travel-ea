@@ -21,6 +21,8 @@ class TEABackController extends Controller {
 
     static final String SANITIZATION_ERROR = "Sanitization Failed";
 
+    static final long MASTER_ADMIN_ID = 1L;
+
     /**
      * Sanitizes json input of all html and js
      *

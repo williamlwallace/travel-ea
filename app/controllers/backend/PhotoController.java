@@ -31,6 +31,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.PhotoRepository;
 import repository.DestinationRepository;
+import repository.UserRepository;
 import util.customObjects.Pair;
 import util.validation.ErrorResponse;
 
@@ -52,12 +53,14 @@ public class PhotoController extends TEABackController {
     // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
     private DestinationRepository destinationRepository;
+    private UserRepository userRepository;
 
     private play.Environment environment;
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository, PhotoRepository photoRepository, play.Environment environment) {
         this.destinationRepository = destinationRepository;
+        this.userRepository = userRepository;
         this.photoRepository = photoRepository;
         this.environment = environment;
 
@@ -385,17 +388,27 @@ public class PhotoController extends TEABackController {
     //Should this not be in the destination controller? you add a photo to a destination not the other way around?(fiquretivly anyway)
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> linkPhotoToDest(Http.Request request, Long destId, Long photoId) {
+        Long userId = request.attrs().get(ActionState.USER).id;
         return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
             if (photo == null) {
                 return CompletableFuture.supplyAsync(() -> notFound());
             }
             return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
                 if (destination != null) {
-                    if (photo.isLinked(destId)) {
+                    if (!destination.isPublic && destination.user.id != userId) {
+                        //forbidden if destination is private and user does not own destination
+                        return CompletableFuture.supplyAsync(() -> forbidden());
+                    }
+                    if (destination.isPublic && destination.user.id != userId) {
+                        //Set destination owner to admin if photo is added from diffrent user
+                        destinationRepository.changeDestinationOwner(destId, MASTER_ADMIN_ID).thenApplyAsync(rows -> rows); //set to master admin
+                    }
+                    if (destination.isLinked(photoId)) {
+                        //if photo is already linked return badrequest
                         return CompletableFuture.supplyAsync(() -> badRequest());
                     }
-                    photo.destinationPhotos.add(destination);
-                    return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+                    destination.destinationPhotos.add(photo);
+                    return destinationRepository.updateDestination(destination).thenApplyAsync(dest -> ok(Json.toJson("Succesfully Updated")));
                 }
                 return CompletableFuture.supplyAsync(() -> notFound());
             });

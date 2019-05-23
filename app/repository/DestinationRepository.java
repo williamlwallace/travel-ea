@@ -82,6 +82,20 @@ public class DestinationRepository {
     }
 
     /**
+     * Sets the owner of a destination
+     * @param destinaitonId id of destination to update
+     * @param newUserId id to set user to 
+     */
+    public CompletableFuture<Integer> changeDestinationOwner(Long destinationId, Long newUserId) {
+        return supplyAsync(() -> 
+            ebeanServer.createUpdate(Destination.class, "UPDATE Destination SET user_id=:newUserId WHERE id=:id")
+            .setParameter("newUserId", newUserId)
+            .setParameter("id", destinationId)
+            .execute()
+        );
+    }
+
+    /**
      * Makes a destination public, if it is found and not already public,
      * Also find similar destinations and merge them into the destination being made public
      * If the destination is being used in a trip by another user, then update the ownership of the destination to be master admin
