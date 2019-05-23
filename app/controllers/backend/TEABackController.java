@@ -26,6 +26,7 @@ class TEABackController extends Controller {
      */
     JsonNode sanitizeJson(JsonNode body) throws IOException {
         String bodyString = body.toString();
+        bodyString = bodyString.replace(">", "&gt;").replace("<", "&lt;");
         //Create a sanitizer
         PolicyFactory policy = new HtmlPolicyBuilder().toFactory();
         bodyString = policy.sanitize(bodyString).replace("&#34;", "\"").replace("&#64;", "@");

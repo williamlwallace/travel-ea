@@ -178,6 +178,7 @@ public class DestinationController extends TEABackController {
                 try {
                     return ok(sanitizeJson(Json.toJson(allDestinations)));
                 } catch (IOException e) {
+                    System.out.println(e);
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             });
