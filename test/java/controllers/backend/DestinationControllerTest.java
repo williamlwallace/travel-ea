@@ -41,7 +41,8 @@ import play.test.Helpers;
 
 public class DestinationControllerTest extends controllers.backend.ControllersTest {
 
-    private static final String DEST_URL = "/api/destination/";
+    private static final String DEST_URL_SLASH = "/api/destination/";
+    private static final String DEST_URL = "/api/destination";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -57,7 +58,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL + id);
+            .uri(DEST_URL_SLASH + id);
 
         Result getResult = route(fakeApp, getRequest);
 
@@ -101,7 +102,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void getDestinationById() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri(DEST_URL + "1");
+            .uri(DEST_URL_SLASH + "1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -114,7 +115,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL + "4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -127,7 +128,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL + "100");
+            .uri(DEST_URL_SLASH + "100");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -140,7 +141,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL + "2");
+            .uri(DEST_URL_SLASH + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -153,7 +154,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL + "4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -172,7 +173,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL + "4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -198,7 +199,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(adminAuthCookie)
-            .uri(DEST_URL + "4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -217,7 +218,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(adminAuthCookie)
-            .uri(DEST_URL + "100");
+            .uri(DEST_URL_SLASH + "100");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -243,7 +244,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL + "2");
+            .uri(DEST_URL_SLASH + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -269,7 +270,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(adminAuthCookie)
-            .uri(DEST_URL + "4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -294,7 +295,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .uri(DEST_URL + "2");
+            .uri(DEST_URL_SLASH + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
