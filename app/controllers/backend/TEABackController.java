@@ -4,14 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import javax.inject.Singleton;
-import java.util.concurrent.CompletableFuture;
+
+import org.owasp.html.HtmlPolicyBuilder;
+import org.owasp.html.PolicyFactory;
 import play.mvc.Controller;
-import play.mvc.Result;
-import play.libs.concurrent.HttpExecutionContext;
 
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This controller is the super class to all backend controllers
@@ -27,15 +24,13 @@ class TEABackController extends Controller {
      * @param body JsonNode input
      * @return JsonNode that has been sanitized
      */
-    protected JsonNode sanitizeJson(JsonNode body) throws IOException {
-//        String bodyString = body.toString();
-//        //Create a sanitizer
-//        PolicyFactory policy = new HtmlPolicyBuilder().toFactory();
-//        bodyString = policy.sanitize(bodyString).replace("&#34;", "\"").replace("&#64;", "@");
-//        //map new body back to a json object
-//        ObjectMapper mapper = new ObjectMapper();
-//        JsonNode newBody = mapper.readTree(bodyString);
-//        return newBody;
-        return body;
+    JsonNode sanitizeJson(JsonNode body) throws IOException {
+        String bodyString = body.toString();
+        //Create a sanitizer
+        PolicyFactory policy = new HtmlPolicyBuilder().toFactory();
+        bodyString = policy.sanitize(bodyString).replace("&#34;", "\"").replace("&#64;", "@");
+        //map new body back to a json object
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readTree(bodyString);
     }
 }

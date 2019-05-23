@@ -10,16 +10,18 @@ lazy val myProject = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies += guice
 libraryDependencies += javaJdbc % Test
-libraryDependencies += "com.h2database" % "h2" % "1.4.192"
-libraryDependencies += "com.auth0" % "java-jwt" % "3.3.0"
+libraryDependencies += "com.h2database" % "h2" % "1.4.199" % Test
+libraryDependencies += "com.auth0" % "java-jwt" % "3.8.0"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
-libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.2"
-libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.8"
-libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.8"
-libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.8"
+libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.0.1"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.9.9"
+libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.9.9"
+libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.9"
 libraryDependencies += "org.apache.commons" % "commons-text" % "1.6"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
-//libraryDependencies += "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1"
+libraryDependencies += ws
+libraryDependencies += "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1"
+
 
 libraryDependencies += ws
 
@@ -35,4 +37,5 @@ libraryDependencies += "io.cucumber" % "cucumber-core" % "4.2.0" % " test "
 libraryDependencies += "io.cucumber" % "cucumber-jvm" % "4.2.0" % " test "
 libraryDependencies += "io.cucumber" % "cucumber-junit" % "4.2.0" % " test "
 libraryDependencies += "io.cucumber" % "cucumber-java" % "4.2.0"
+
 
