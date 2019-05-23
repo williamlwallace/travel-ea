@@ -128,9 +128,11 @@ public class DestinationControllerTest extends WithApplication {
 
     @Test
     public void getDestinations() throws IOException {
+        // Gets all destinations of user with ID 1
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .uri("/api/destination");
+                .method(GET)
+                .cookie(authCookie)
+                .uri("/api/user/destination/1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -140,8 +142,8 @@ public class DestinationControllerTest extends WithApplication {
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        // Check that list has exactly 4 results
-        assertEquals(4, destinations.size());
+        // Check that list has exactly 3 results
+        assertEquals(3, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
@@ -377,6 +379,9 @@ public class DestinationControllerTest extends WithApplication {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
         node.set("country", Json.toJson(countryDefinition));
+        User user = new User();
+        user.id = 1L;
+        node.set("user", Json.toJson(user));
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -389,7 +394,7 @@ public class DestinationControllerTest extends WithApplication {
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        // Get id of destination, check it is 2
+        // Get id of destination, check it is 5
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
         assertEquals(Long.valueOf(5), idOfDestination);
@@ -428,6 +433,7 @@ public class DestinationControllerTest extends WithApplication {
         expectedMessages.put("_type", "_type field must be present");
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
         expectedMessages.put("country", "country field must be present");
+        expectedMessages.put("user", "user field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {
@@ -498,17 +504,17 @@ public class DestinationControllerTest extends WithApplication {
     public void findSimilarDestinations() throws InterruptedException, ExecutionException {
         // Get all destinations on the database
         // NOTE: Using .get() here as running async lead to race conditions on db connection, sorry Harry :(
-        List<Destination> allDestinations = destinationRepository.getAllDestinations().get();
+        List<Destination> allDestinations = destinationRepository.getAllDestinations(1L).get();
         List<Destination> similarDestinations = destinationRepository
             .getSimilarDestinations(allDestinations.get(0));
 
         // Assert that 3 destinations were found, and 2 similar ones
-        Assert.assertEquals(4, allDestinations.size());
+        Assert.assertEquals(3, allDestinations.size());
         Assert.assertEquals(2, similarDestinations.size());
 
         // Now check destinations 2 and 3 were found in similarities, and 1 and 4 were not
         for (Destination destination : allDestinations) {
-            if (destination.id == 1 || destination.id == 4) {
+            if (destination.id == 1) {
                 assertFalse(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
                     .contains(destination.id));
             } else {
@@ -545,5 +551,4 @@ public class DestinationControllerTest extends WithApplication {
 
         return destinations;
     }
-
 }

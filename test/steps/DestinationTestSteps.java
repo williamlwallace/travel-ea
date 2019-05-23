@@ -7,6 +7,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import models.CountryDefinition;
 import models.Destination;
+import models.User;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
@@ -43,6 +44,9 @@ public class DestinationTestSteps {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
         node.set("country", Json.toJson(countryDefinition));
+        User user = new User();
+        user.id = 1L;
+        node.set("user", Json.toJson(user));
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()

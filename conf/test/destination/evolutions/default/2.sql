@@ -12,10 +12,10 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
 
 -- Insert a destination to test getting
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1);
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1);
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1);
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (2, 'Tower Bridge', 'Monument', 'London', 51.50333132, -0.071999712, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (2, 'Tower Bridge', 'Monument', 'London', 51.50333132, -0.071999712, 1, 0);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
