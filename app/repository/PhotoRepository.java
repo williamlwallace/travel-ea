@@ -33,7 +33,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Inserts new photo into database
+     * Inserts new photo into database.
      *
      * @param photo Photo to be added
      * @return Ok on success

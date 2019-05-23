@@ -114,7 +114,7 @@ public class CryptoManager {
     }
 
     /**
-     * Verifies the token has been generated legitimately and gets the user id
+     * Verifies the token has been generated legitimately and gets the user id.
      *
      * @param token The token to verify
      * @param secret The password from config

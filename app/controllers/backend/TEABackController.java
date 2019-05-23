@@ -10,7 +10,7 @@ import play.mvc.Controller;
 
 
 /**
- * This controller is the super class to all backend controllers
+ * This controller is the super class to all backend controllers.
  */
 @Singleton
 class TEABackController extends Controller {
@@ -20,7 +20,7 @@ class TEABackController extends Controller {
     static final long MASTER_ADMIN_ID = 1L;
 
     /**
-     * Sanitizes json input of all html and js
+     * Sanitizes json input of all html and js.
      *
      * @param body JsonNode input
      * @return JsonNode that has been sanitized

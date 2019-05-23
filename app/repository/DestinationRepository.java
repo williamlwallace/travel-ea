@@ -85,7 +85,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Sets the owner of a destination
+     * Sets the owner of a destination.
      *
      * @param destinationId id of destination to update
      * @param newUserId id to set user to
@@ -101,7 +101,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Makes a destination public, if it is found and not already public, Also find similar
+     * Makes a destination public, if it is found and not already public. Also find similar
      * destinations and merge them into the destination being made public If the destination is
      * being used in a trip by another user, then update the ownership of the destination to be
      * master admin
@@ -142,7 +142,7 @@ public class DestinationRepository {
     }
 
     /**
-     * changes the database entry for a destination to have a public state of true, returns not
+     * Changes the database entry for a destination to have a public state of true. Returns not
      * found if no such destination exists, and returns badRequest if the destination was already
      * public
      *
@@ -169,7 +169,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Changes any references in TripData of any similar destinations that are going to be merged,
+     * Changes any references in TripData of any similar destinations that are going to be merged.
      * to the id of the destination that they have been merged to. I.e if there are 3 Eiffel towers,
      * and one of them is made public, the other two will now point to the new public Eiffel tower.
      *
@@ -192,10 +192,10 @@ public class DestinationRepository {
             return 0;
         }
 
-        String sql = "UPDATE TripData " +
-            "SET destination_id=:newDestId " +
-            "WHERE (SELECT user_id FROM TRIP WHERE id = trip_id) != :userId " +
-            "AND destination_id IN (:oldDestIds);";
+        String sql = "UPDATE TripData "
+            + "SET destination_id=:newDestId "
+            + "WHERE (SELECT user_id FROM TRIP WHERE id = trip_id) != :userId "
+            + "AND destination_id IN (:oldDestIds);";
 
         return ebeanServer.createUpdate(TripData.class, sql)
             .setParameter("newDestId", newDestinationId)
@@ -208,8 +208,8 @@ public class DestinationRepository {
     // to also operate on the table joining photos and destinations
 
     /**
-     * Get all destinations that are found to be similar to some other destination (does not include
-     * initial destination)
+     * Get all destinations that are found to be similar to some other destination.
+     * (does not include initial destination)
      *
      * This is checked by comparing their locations, and if these are similar to within some range,
      * then their names are also checked for similarity

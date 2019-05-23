@@ -27,7 +27,6 @@ function getUserId() {
  * @param {string} redirect - Successful logout redirect URI
  */
 function logout(uri, redirect) {
-    // deleteCookie("JWT-Auth");
     post(uri, "")
     .then(response => {
         window.location.href = redirect;

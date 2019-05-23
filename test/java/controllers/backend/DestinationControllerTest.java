@@ -39,7 +39,9 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class DestinationControllerTest extends ControllersTest {
+public class DestinationControllerTest extends controllers.backend.ControllersTest {
+
+    private static final String DEST_URL = "/api/destination/";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -55,7 +57,7 @@ public class DestinationControllerTest extends ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/destination/" + id);
+            .uri(DEST_URL + id);
 
         Result getResult = route(fakeApp, getRequest);
 
@@ -71,7 +73,7 @@ public class DestinationControllerTest extends ControllersTest {
     public void getDestinations() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/destination");
+            .uri(DEST_URL);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -99,7 +101,7 @@ public class DestinationControllerTest extends ControllersTest {
     public void getDestinationById() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/destination/1");
+            .uri(DEST_URL + "1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -112,7 +114,7 @@ public class DestinationControllerTest extends ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL + "4");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -125,7 +127,7 @@ public class DestinationControllerTest extends ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(adminAuthCookie)
-            .uri("/api/destination/100");
+            .uri(DEST_URL + "100");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -138,7 +140,7 @@ public class DestinationControllerTest extends ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/2");
+            .uri(DEST_URL + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -151,7 +153,7 @@ public class DestinationControllerTest extends ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(adminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL + "4");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -170,7 +172,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -196,7 +198,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(adminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -215,7 +217,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(adminAuthCookie)
-            .uri("/api/destination/100");
+            .uri(DEST_URL + "100");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -241,7 +243,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/2");
+            .uri(DEST_URL + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -267,7 +269,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(adminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -292,7 +294,7 @@ public class DestinationControllerTest extends ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .uri("/api/destination/2");
+            .uri(DEST_URL + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -324,7 +326,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/destination");
+            .uri(DEST_URL);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -349,7 +351,7 @@ public class DestinationControllerTest extends ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/destination");
+            .uri(DEST_URL);
 
         // Get result and check it was bad request
         Result result = route(fakeApp, request);

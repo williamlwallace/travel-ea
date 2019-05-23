@@ -109,7 +109,7 @@ function fillDropDown(dropdownName, dict) {
  */
 function insertFieldData(json) {
     for (const key of Object.keys(json)) {
-        if (key == "gender") {
+        if (key === "gender") {
             document.getElementById(json[key]).checked = true;
         } else {
             const elements = document.getElementsByName(key);

@@ -13,7 +13,7 @@ import play.test.Helpers;
 import play.test.WithApplication;
 import repository.DestinationRepository;
 
-abstract public class ControllersTest extends WithApplication {
+public abstract class ControllersTest extends WithApplication {
 
     static Application fakeApp;
     static Database db;

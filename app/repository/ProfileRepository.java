@@ -97,7 +97,8 @@ public class ProfileRepository {
     public CompletableFuture<List<Profile>> getAllProfiles(Long userId) {
         return supplyAsync(() -> {
             ArrayList<Profile> profiles = new ArrayList<>(
-                ebeanServer.find(Profile.class).where()
+                ebeanServer.find(Profile.class)
+                    .where()
 //                    .eq("nationalities", String.valueOf(nationalityId))
 //                    .eq("gender", gender)
 //                    .ge("dateOfBirth", String.valueOf(minAge))
