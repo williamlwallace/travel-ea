@@ -208,7 +208,7 @@ public class UserController extends TEABackController {
             .thenApplyAsync(foundUser -> {
                 // If no such user was found with that username, return bad request
                 if (foundUser == null) {
-                    errorResponse.map("Unauthorised", ERR_OTHER);
+                    errorResponse.map("Incorrect email", ERR_OTHER);
                     return status(401, errorResponse.toJson());
                 }
                 // Otherwise if a user was found, check if correct password
@@ -225,7 +225,7 @@ public class UserController extends TEABackController {
                     }
                     // If password was incorrect, return bad request
                     else {
-                        errorResponse.map("Unauthorised", ERR_OTHER);
+                        errorResponse.map("Incorrect password", ERR_OTHER);
                         return status(401, errorResponse.toJson());
                     }
                 }
