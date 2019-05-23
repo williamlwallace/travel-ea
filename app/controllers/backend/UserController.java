@@ -291,7 +291,7 @@ public class UserController extends TEABackController {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */

@@ -197,9 +197,8 @@ public class ProfileController extends TEABackController {
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    private CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender,
-        int minAge, int maxAge, Long travellerTypeId) {
+    private CompletableFuture<List<Profile>> searchProfiles(Http.Request request,
+        Long nationalityId, String gender, int minAge, int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
             List<Profile> toReturn = new ArrayList<>(profiles);

@@ -48,7 +48,7 @@ public class Trip extends Model implements Comparable<Trip> {
     }
 
     /**
-     * Comparator which allows for trips to be compared and sorted by date
+     * Comparator which allows for trips to be compared and sorted by date.
      * Will sort by recent first, with nulls last
      *
      * @param other Trip to compare against
