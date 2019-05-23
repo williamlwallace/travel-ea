@@ -5,7 +5,6 @@ import actions.roles.Admin;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -66,7 +65,7 @@ public class AdminController extends TEABackController {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */

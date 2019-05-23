@@ -158,7 +158,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
@@ -180,7 +180,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was unsuccessful
@@ -202,7 +202,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was unsuccessful
@@ -224,7 +224,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(POST)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was unsuccessful
@@ -248,7 +248,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         Result result = route(fakeApp, request);
@@ -272,7 +272,7 @@ public class TripControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(PUT)
                 .bodyJson(node)
-                .cookie(this.authCookie)
+                .cookie(authCookie)
                 .uri("/api/trip");
 
         // Get result and check it was successful
@@ -392,7 +392,7 @@ public class TripControllerTest extends WithApplication {
             Http.RequestBuilder insertRequest = Helpers.fakeRequest()
                     .method(POST)
                     .bodyJson(node)
-                    .cookie(this.authCookie)
+                    .cookie(authCookie)
                     .uri("/api/trip");
 
             Result insertResult = route(fakeApp, insertRequest);
@@ -459,7 +459,7 @@ public class TripControllerTest extends WithApplication {
             Http.RequestBuilder insertRequest = Helpers.fakeRequest()
                     .method(POST)
                     .bodyJson(node)
-                    .cookie(this.authCookie)
+                    .cookie(authCookie)
                     .uri("/api/trip");
 
             Result insertResult = route(fakeApp, insertRequest);
