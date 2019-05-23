@@ -66,9 +66,14 @@ function editDestination(destinationId) {
     put(destinationRouter.controllers.backend.DestinationController.editDestination(destinationId).url, data)
         .then(response => {
             response.json().then(data => {
-                if (response.status === 200) {
-                    $('#editDestinationModal').modal('hide');
+                if (response.status !== 200) {
+                    showErrors(data);
+                } else if (response.status === 200) {
                     populateDestinationDetails(destinationId);
+                    $('#editDestinationModal').modal('hide');
+                    toast("Destination Updated", "Updated Details are now showing", 'success');
+                } else {
+                    toast("Not Updated", "There was an error updating the destination details", "danger");
                 }
             });
         });
