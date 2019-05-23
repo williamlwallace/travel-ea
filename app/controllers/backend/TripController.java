@@ -219,6 +219,7 @@ public class TripController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
+
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -323,7 +324,7 @@ public class TripController extends TEABackController {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.frontend.routes.javascript.TripController.editTripIndex()
+                controllers.frontend.routes.javascript.TripController.editTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

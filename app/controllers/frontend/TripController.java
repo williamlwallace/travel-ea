@@ -61,7 +61,7 @@ public class TripController extends TEAFrontController {
      * @return OK status while rendering and displaying the create trip page
      */
     @With({Everyone.class, Authenticator.class})
-    public Result createTripIndex(Http.Request request, Long userId) {
+    public Result createTrip(Http.Request request, Long userId) {
         User loggedInUser = request.attrs().get(ActionState.USER);
 
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
@@ -80,7 +80,7 @@ public class TripController extends TEAFrontController {
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
+    public CompletableFuture<Result> editTrip(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
 
         return getTrip(request, tripId).thenComposeAsync(

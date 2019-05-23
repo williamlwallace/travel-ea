@@ -1,17 +1,18 @@
 let countryDict = {};
+let destinationTable;
 
 /**
  * Initializes destination table and calls method to populate
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const table = $('#destTable').DataTable( {
+    destinationTable = $('#destTable').DataTable( {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length-2]);
             $(row).attr('data-countryId', data[data.length-1]);
         }
     });
-    populateTable(table, userId);
+    populateTable(destinationTable, userId);
 }
 
 /**
@@ -94,7 +95,7 @@ function addDestination(url, redirect, userId) {
 
             // Read response from server, which will be a json object
             response.json()
-                .then(json => {
+                .then(destId => {
                     if (response.status !== 200) {
                         showErrors(json);
                     } else {
@@ -102,36 +103,43 @@ function addDestination(url, redirect, userId) {
                         $('#createDestinationModal').modal('hide');
 
                         // Add row to table
-                        let table = $('#destTable').DataTable();
-
-                        const id = response.data;
-                        const name = data.name;
-                        const type = data._type;
-                        const district = data.district;
-                        const latitude = data.latitude;
-                        const longitude = data.longitude;
-                        let country = data.country.id;
-
-                        // Set country name
-                        let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
-                        for (let i = 0; i < countries.length; i++) {
-                            if (parseInt(countries[i].value) === data.country.id) {
-                                country = countries[i].innerText;
-                                break;
-                            }
-                        }
-
-                        const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                        const row = [name, type, district, latitude, longitude, country, button, id, data.country.id];
-                        table.row.add(row).draw(false);
+                        data.id = destId;
+                        addRow(data);
                     }
                 });
         });
 }
 
 /**
+ * Adds a row to the destinations table with the given data
+ * @param {Object} data - Data object to be added to table
+ */
+function addRow(data) {
+    const id = data.id;
+    const name = data.name;
+    const type = data._type;
+    const district = data.district;
+    const latitude = data.latitude;
+    const longitude = data.longitude;
+    let country = data.country.id;
+
+    // Set country name
+    let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+    for (let i = 0; i < countries.length; i++) {
+        if (parseInt(countries[i].value) === data.country.id) {
+            country = countries[i].innerText;
+            break;
+        }
+    }
+
+    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+    const row = [name, type, district, latitude, longitude, country, button, id, data.country.id];
+    destinationTable.row.add(row).draw(false);
+}
+
+/**
  * Gets all countries and fills into dropdown
- * @param {stirng} getCountriesUrl - get all countries URI
+ * @param {string} getCountriesUrl - get all countries URI
  */
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
@@ -223,7 +231,6 @@ function newDestination(uri) {
             if (response.status != 200) {
                 showErrors(json);
             } else {
-                // TODO: Get toggle working
                 document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
             }
         });

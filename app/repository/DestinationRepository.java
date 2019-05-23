@@ -271,7 +271,7 @@ public class DestinationRepository {
      * specified user or the master admin, otherwise null
      */
     public CompletableFuture<Destination> checkDestinationInTrip(Destination destination, Long userId) {
-        Long masterAdminId = 1L;
+        Long masterAdminId = 1L;    // TODO: Change to master admin constant
         return supplyAsync(() -> ebeanServer.find(Destination.class)
                         .where()
                         .idEq(destination.id)
@@ -290,7 +290,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> makePermanentlyPublic(Destination destination) {
         // Change ownership to master admin and ensures destination is public
-        destination.user.id = 1L;
+        destination.user.id = 1L;    // TODO: Change to master admin constant
         destination.isPublic = true;
         return supplyAsync(() -> {
             ebeanServer.update(destination);
