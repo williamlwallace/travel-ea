@@ -26,94 +26,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
 import models.User;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
-import repository.DestinationRepository;
 
-public class DestinationControllerTest extends WithApplication {
-
-    private static Application fakeApp;
-    private static Database db;
-    private static Cookie authCookie;
-    private static Cookie nonAdminAuthCookie;
-    private static DestinationRepository destinationRepository;
-
-    /**
-     * Configures system to use dest database, and starts a fake app
-     */
-    @BeforeClass
-    public static void setUp() {
-        // Create custom settings that change the database to use test database instead of production
-        Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.driver", "org.h2.Driver");
-        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-
-        // Create a fake app that we can query just like we would if it was running
-        fakeApp = Helpers.fakeApplication(settings);
-        db = fakeApp.injector().instanceOf(Database.class);
-        authCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
-            .withPath("/").build();
-        nonAdminAuthCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6Mn0.sGyO22MrNoNrH928NpSK8PJXmE88_DhivVWgCl3faJ4")
-            .withPath("/").build();
-
-        destinationRepository = fakeApp.injector().instanceOf(DestinationRepository.class);
-
-        Helpers.start(fakeApp);
-    }
-
-    /**
-     * Stop the fake app
-     */
-    @AfterClass
-    public static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
-    }
+public class DestinationControllerTest extends ControllersTest {
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
      * minimal sql data needed for tests
      */
     @Before
-    public void applyEvolutions() {
-        // Only certain trips, namely initialisation, and destinations folders
-        Evolutions.applyEvolutions(db,
-            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/destination/"));
+    public void runEvolutions() {
+        applyEvolutions("test/destination/");
     }
 
-    /**
-     * Cleans up trips after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
-    }
 
     private Destination getDestination(int id) throws IOException {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/" + id);
 
         Result getResult = route(fakeApp, getRequest);
@@ -183,7 +124,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/100");
 
         // Get result and check it was successful
@@ -209,7 +150,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
@@ -254,7 +195,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
@@ -273,7 +214,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/100");
 
         // Get result and check it was successful
@@ -325,7 +266,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
@@ -382,7 +323,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination");
 
         // Get result and check it was successful
@@ -407,7 +348,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination");
 
         // Get result and check it was bad request
@@ -450,7 +391,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/makePublic/1");
 
         // Get result and check it was successfully
