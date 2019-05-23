@@ -167,6 +167,11 @@ public class DestinationRepository {
      * @return Number of rows changed by this operation (the number of instances where a destination that is being merged was used by a different user)
      */
     private int mergeDestinationsTripData(Long userId, Collection<Long> similarDestinationIds, Long newDestinationId) {
+        // Return 0 rows changed if no similar destinations found
+        if(similarDestinationIds.isEmpty()) {
+            return 0;
+        }
+
         String sql = "UPDATE TripData " +
                         "SET destination_id=:newDestId " +
                         "WHERE (SELECT user_id FROM TRIP WHERE id = trip_id) != :userId " +
