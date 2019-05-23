@@ -58,7 +58,13 @@ public class PhotoControllerTest extends WithApplication {
         // Clear the files created
         File directory = new File("./public/storage/photos/test/");
         for(File file : Objects.requireNonNull(directory.listFiles())) {
-            if(!file.getName().equals("placeholder.txt")) {
+            if(!file.getName().equals("placeholder.txt") && !file.getName().equals("test.jpeg")) {
+                file.deleteOnExit();
+            }
+        }
+        directory = new File("./public/storage/photos/test/thumbnails");
+        for(File file : Objects.requireNonNull(directory.listFiles())) {
+            if(!file.getName().equals("placeholder.txt") && !file.getName().equals("test.jpeg")) {
                 file.deleteOnExit();
             }
         }
@@ -75,7 +81,7 @@ public class PhotoControllerTest extends WithApplication {
     public void applyEvolutions() {
         // Only certain trips, namely initialisation, and destinations folders
         Evolutions.applyEvolutions(db,
-                Evolutions.fromClassLoader(getClass().getClassLoader(), "test/profile/"));
+                Evolutions.fromClassLoader(getClass().getClassLoader(), "test/photo/"));
     }
 
     /**
@@ -174,4 +180,80 @@ public class PhotoControllerTest extends WithApplication {
         assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
+    @Test
+    public void PhotoToDestLinking() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/1")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(200, result.status());
+    }
+
+    @Test
+    public void PhotoToDestLinkingDuplicate() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(400, result.status());
+    }
+
+    @Test
+    public void PhotoToDestLinkingNoPhoto() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/2")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
+
+    @Test
+    public void PhotoToDestLinkingNoDestination() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/3/photo/1")
+                .method("PUT")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
+
+    @Test
+    public void deletePhotoToDestLink() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
+                .method("DELETE")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(200, result.status());
+    }
+
+    @Test
+    public void deletePhotoToDestNoPhoto() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/2")
+                .method("DELETE")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
+
+    @Test
+    public void deletePhotoToDestNoDestination() {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/3/photo/1")
+                .method("DELETE")
+                .cookie(authCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(404, result.status());
+    }
 }
