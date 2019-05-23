@@ -11,7 +11,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import util.customObjects.Pair;
+import util.objects.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +20,6 @@ import java.util.*;
 
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
-import static play.test.Helpers.GET;
-import static play.test.Helpers.OK;
 import static play.test.Helpers.route;
 
 public class PhotoControllerTest extends WithApplication {

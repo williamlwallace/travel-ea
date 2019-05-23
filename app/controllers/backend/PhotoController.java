@@ -31,7 +31,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
-import util.customObjects.Pair;
+import util.objects.Pair;
 import util.validation.ErrorResponse;
 
 @SuppressWarnings("SpellCheckingInspection")

@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
-import util.customObjects.Pair;
+import util.objects.Pair;
 
 /**
  * A repository that executes database operations on the Photo database table.

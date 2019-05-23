@@ -12,7 +12,7 @@ import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.customObjects.Pair;
+import util.objects.Pair;
 
 import java.io.File;
 import java.io.IOException;

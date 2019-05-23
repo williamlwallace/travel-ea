@@ -13,7 +13,7 @@ public class Validator {
     private final JsonNode form; //json form data
     private ErrorResponse errorResponse;
 
-    public Validator(JsonNode form, ErrorResponse errorResponse) {
+    Validator(JsonNode form, ErrorResponse errorResponse) {
         this.form = form;
         this.errorResponse = errorResponse;
     }
@@ -26,8 +26,8 @@ public class Validator {
      */
     protected Boolean required(String field) {
         if (this.form.has(field)) {
-            if ((this.form.get(field) != null && !this.form.get(field).asText("").equals("")) ||
-                this.form.get(field).isObject()) {
+            if ((this.form.get(field) != null && !this.form.get(field).asText("").equals(""))
+                || this.form.get(field).isObject()) {
                 return true;
             } else if (this.form.get(field).isArray() && this.form.get(field).size() > 0) {
                 return true;
@@ -44,7 +44,7 @@ public class Validator {
      * @param min Min field length
      * @return Boolean whether validation succeeds
      */
-    protected Boolean minTextLength(String field, int min) {
+    Boolean minTextLength(String field, int min) {
         if (this.form.get(field).asText("").length() < min) {
             this.errorResponse
                 .map(String.format("%s has a minTextLength length of %d", field, min), field);
@@ -75,7 +75,7 @@ public class Validator {
      * @param field json field name
      * @return Boolean whether condition is met
      */
-    protected Boolean isText(String field) {
+    Boolean isText(String field) {
         if (!this.form.get(field).isTextual()) {
             this.errorResponse.map(String.format("%s must be text", field), field);
             return false;
@@ -117,7 +117,7 @@ public class Validator {
      * @param field json field name
      * @return Boolean whether condition is met
      */
-    protected Boolean isDoubleOrInt(String field) {
+    Boolean isDoubleOrInt(String field) {
         if (!this.form.get(field).isDouble() && !this.form.get(field).isInt()) {
             this.errorResponse.map(String.format("%s must be of type double", field), field);
             return false;
@@ -132,7 +132,7 @@ public class Validator {
      * @param max maxTextLength value of integer in field
      * @return Boolean whether condition is met
      */
-    protected Boolean maxDoubleValue(String field, double max) {
+    Boolean maxDoubleValue(String field, double max) {
         if (this.form.get(field).asDouble() > max) {
             this.errorResponse
                 .map(String.format("%s must be not be more than %f", field, max), field);
@@ -148,7 +148,7 @@ public class Validator {
      * @param min minTextLength value of integer in field
      * @return Boolean whether condition is met
      */
-    protected Boolean minDoubleValue(String field, double min) {
+    Boolean minDoubleValue(String field, double min) {
         if (this.form.get(field).asDouble() < min) {
             this.errorResponse.map(String.format("%s must be at least %f", field, min), field);
             return false;
@@ -249,7 +249,7 @@ public class Validator {
      *
      * @return ErrorResponse
      */
-    protected ErrorResponse getErrorResponse() {
+    ErrorResponse getErrorResponse() {
         return this.errorResponse;
     }
 }

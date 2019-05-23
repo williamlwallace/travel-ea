@@ -86,7 +86,7 @@ public class Authenticator extends Action.Simple {
         if (token != null) {
             //get the userId if authentication is authentic
             Long userId = CryptoManager
-                .veryifyToken(token, config.getString("play.http.secret.key"));
+                .verifyToken(token, config.getString("play.http.secret.key"));
 
             if (userId != null) {
                 return userRepository.findID(userId).thenComposeAsync(user -> {

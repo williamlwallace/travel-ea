@@ -7,6 +7,8 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -145,9 +147,15 @@ public class UserController extends TEABackController {
             //Generate a new salt for the new user
             newUser.salt = CryptoManager.generateNewSalt();
 
-            //Generate the salted password
-            newUser.password = CryptoManager
-                .hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
+            try {
+                //Generate the salted password
+                newUser.password = CryptoManager
+                    .hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                return CompletableFuture.supplyAsync(() ->
+                    internalServerError(Json.toJson("Error hashing password"))
+                );
+            }
 
             //This block ensures that the username (email) is
             // not taken already, and returns a CompletableFuture<Result>
@@ -216,20 +224,22 @@ public class UserController extends TEABackController {
                 }
                 // Otherwise if a user was found, check if correct password
                 else {
-                    // Check if password given matches hashed and salted password on db
-                    if (CryptoManager
-                        .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
-                            foundUser.password)) {
-                        return ok(Json.toJson(SUCCESS)).withCookies(
-                            Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
-                            Cookie.builder(U_ID, foundUser.id.toString())
-                                .withHttpOnly(false)
-                                .build());
-                    }
-                    // If password was incorrect, return bad request
-                    else {
-                        errorResponse.map("Unauthorised", ERR_OTHER);
-                        return status(401, errorResponse.toJson());
+                    try {
+                        // Check if password given matches hashed and salted password on db
+                        if (CryptoManager
+                            .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
+                                foundUser.password)) {
+                            return ok(Json.toJson(SUCCESS)).withCookies(
+                                Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
+                                Cookie.builder(U_ID, foundUser.id.toString())
+                                    .withHttpOnly(false)
+                                    .build());
+                        } else { // If password was incorrect, return bad request
+                            errorResponse.map("Unauthorised", ERR_OTHER);
+                            return status(401, errorResponse.toJson());
+                        }
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        return internalServerError(Json.toJson("Error checking password"));
                     }
                 }
             });
