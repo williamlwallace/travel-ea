@@ -52,7 +52,8 @@
                 @* Body Content *@
                 <div class="destination-main">
                     <div>
-                    @modules.gallery(loggedUser, canModify)
+                        @*Gallery modal, true as we want titles *@
+                    @modules.gallery(loggedUser, canModify, true)
                     </div>
                 </div>
             </div>
@@ -159,8 +160,8 @@
                 </div>
                 <br>
                 <div>
-                    @*call gallery modal, false two falses as*@
-                    @modules.gallery(loggedUser, canModify, false)
+                    @*call gallery modal, two false as we want no add button or titles*@
+                    @modules.gallery(loggedUser, false, false)
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
