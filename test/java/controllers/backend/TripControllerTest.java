@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.typesafe.config.ConfigException;
 import models.*;
 import org.junit.*;
 import play.Application;
@@ -233,12 +234,12 @@ public class TripControllerTest extends WithApplication {
     }
 
     @Test
-    public void updateTrip() {
+    public void updateTrip() throws IOException {
         // Creates trip object
         int privacy = 0;
         int[] destinations = new int[] {1, 2};
-        String[] arrivalTimes = new String[] {};
-        String[] departureTimes = new String[] {};
+        String[] arrivalTimes = new String[] {null, null};
+        String[] departureTimes = new String[] {null, null};
 
         Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
@@ -253,9 +254,142 @@ public class TripControllerTest extends WithApplication {
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/trip/1");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = trip.tripDataList.get(i);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertNull(tripData.arrivalTime);
+            assertNull(tripData.departureTime);
+        }
     }
 
-    // TODO: Write tests for updateTrip (change dest order and change arrival departure times
+    // TODO: Invalid order and invalid date/time
+
+    @Test
+    public void updateTripDatesAndTimes() throws IOException {
+        int privacy = 0;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
+        String[] departureTimes = new String[] {"2018-05-13 09:00:00", "2018-05-27 23:15:00"};
+
+        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip.id = 1L;    // Needs to be set to trip created in evolutions
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(PUT)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/trip/1");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = trip.tripDataList.get(i);
+            LocalDateTime actualArrTime = LocalDateTime.parse(arrivalTimes[i], formatter);
+            LocalDateTime actualDepTime = LocalDateTime.parse(departureTimes[i], formatter);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertEquals(actualArrTime, tripData.arrivalTime);
+            assertEquals(actualDepTime, tripData.departureTime);
+        }
+    }
+
+    @Test
+    public void updateTripOrder() throws IOException {
+        // Create a new trip with details
+        int privacy = 0;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {null, null};
+        String[] departureTimes = new String[] {null, null};
+
+        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        JsonNode node = Json.toJson(trip);
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/trip");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result insertResult = route(fakeApp, insertRequest);
+        assertEquals(OK, insertResult.status());
+
+        Long tripId = new ObjectMapper().readValue(Helpers.contentAsString(insertResult), Long.class);
+
+        // Create new trip with modified destination order, set tripId to created trip ID
+        destinations = new int[] {2, 1};
+
+        Trip tripToUpdate = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
+        node = Json.toJson(tripToUpdate);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(PUT)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(node)
+                .cookie(this.authCookie)
+                .uri("/api/trip/" + tripId);
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = tripToUpdate.tripDataList.get(i);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertNull(tripData.arrivalTime);
+            assertNull(tripData.departureTime);
+        }
+    }
 
     @Test
     public void updateTripInvalidId() {
