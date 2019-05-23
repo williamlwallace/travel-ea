@@ -1,9 +1,7 @@
 /**
  * Function to populate gallery with current users photos
- * @param {string} the url to get all photos
  */
 function fillGallery(getPhotosUrl) {
-    console.log("suo");
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -12,6 +10,11 @@ function fillGallery(getPhotosUrl) {
             response.json().then(data => {
                 // "data" should now be a list of photo models for the given user
                 // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+                usersPhotos = [];
+                for(let i = 0; i < data.length; i++) {
+                    // Also add the item to the dictionary
+                    usersPhotos[i] = data[i];
+                }
                 // Now create gallery objects
                 let galleryObjects = createGalleryObjects(true);
                 // And populate the gallery!
@@ -32,10 +35,9 @@ $("#upload-gallery-image-button").click(function() {
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
- * @returns {Object} the array of photo gallery objects
+ * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks) {
-    //TODO split this up into helper functions
     let galleryObjects = [];
     let numPages = Math.ceil(usersPhotos.length / 6);
     for(let page = 0; page < numPages; page++) {
@@ -109,6 +111,7 @@ function createGalleryObjects(hasFullSizeLinks) {
     }
     return galleryObjects;
 }
+
 
 
 /**
