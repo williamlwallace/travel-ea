@@ -425,30 +425,4 @@ public class ProfileControllerTest extends WithApplication {
             assertTrue(found);
         }
     }
-
-    @Test
-    public void deleteProfileId() {
-        // Create request to delete newly created profile
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
-            .cookie(this.authCookie)
-            .uri("/api/profile/1");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-    }
-
-    @Test
-    public void deleteProfileIdDoesntExist() {
-        // Create request to delete a profile that doesn't exist
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
-            .cookie(this.authCookie)
-            .uri("/api/profile/10");
-
-        // Get result and check it was not successful
-        Result result = route(fakeApp, request);
-        assertEquals(NOT_FOUND, result.status());
-    }
 }

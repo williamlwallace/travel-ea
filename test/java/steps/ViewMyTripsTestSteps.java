@@ -180,4 +180,6 @@ public class ViewMyTripsTestSteps extends WithApplication {
             .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertEquals(1, trips.get(0).get("userId").asInt());
     }
+
+
 }

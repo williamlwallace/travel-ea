@@ -1,4 +1,4 @@
--- AUTHOR: Matthew Minish, William Wallace, what about me?
+-- AUTHOR: Matthew Minish, William Wallace
 -- MODIFIED: 14/3/2019 2.00PM
 
 -- !Ups
@@ -156,39 +156,6 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     UNIQUE(photo_id, destination_id)
   );
 
-
--- Add countries
-INSERT INTO CountryDefinition (name) VALUES
-('France'),('England'),('New Zealand'),('Australia'),('Germany'),('United States');
-
--- Add sample user
-INSERT INTO User(username, password, salt, admin) VALUES ('admin@travelea.co.nz', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', true);
-INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass', 'salt');
-INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', 'pass', 'salt');
-
--- Add sample data for TravellerTypeDefinitions
-INSERT INTO TravellerTypeDefinition (description) VALUES ('backpacker'), ('functional/business traveller'), ('groupies'), ('thrillseeker'), ('frequent weekender'), ('gap year');
-
--- Add sample Profile
-INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
-INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3);
-INSERT INTO Passport (user_id, country_id) VALUES (1,1);
-INSERT INTO Nationality (user_id, country_id) VALUES (1,1), (1,3);
-
--- Add sample data for destination
-INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES
-    (1, 'Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1, 1),
-    (1, 'Stonehenge', 'Monument', 'Salisbury', 20.0, 30.0, 2, 1),
-    (1, 'Sky Tower', 'Monument', 'Auckland', 40.0, 50.0, 3, 1),
-    (1, 'Sydney Opera House', 'Monument', 'Sydney', 50.0, 60.0, 4, 1),
-    (1, 'Brandenburg Gate', 'Monument', 'Berlin', 60.0, 70.0, 5, 1),
-    (1, 'Statue of Liberty', 'Monument', 'New York', 70.0, 80.0, 6, 1);
-
--- Add sample data for trip
-INSERT INTO Trip (user_id) VALUES (1);
-
--- Add sample tripData for the sample trip
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
 DROP TABLE DestinationPhoto;

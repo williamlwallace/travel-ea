@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
+import java.io.IOException;
 import javax.inject.Inject;
 import models.User;
 import play.libs.Json;
@@ -27,7 +28,7 @@ import util.validation.UserValidator;
 /**
  * Manage a database of users.
  */
-public class UserController extends Controller {
+public class UserController extends TEABackController {
 
     private static final String SUCCESS = "Success";
     private static final String JWT_AUTH = "JWT-Auth";
@@ -58,8 +59,13 @@ public class UserController extends Controller {
     public CompletableFuture<Result> userSearch(Http.Request request, String order, String filter) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id)
-            .thenApplyAsync(users ->
-                ok(Json.toJson(users)), httpExecutionContext.current());
+            .thenApplyAsync(users -> {
+                try{
+                    return ok(sanitizeJson(Json.toJson(users)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            }, httpExecutionContext.current());
     }
 
     /**
@@ -244,7 +250,11 @@ public class UserController extends Controller {
                 if (user == null) {
                     return badRequest();
                 } else {
-                    return ok(Json.toJson(user));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(user)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
                 }
             });
         } else {

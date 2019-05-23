@@ -35,6 +35,8 @@ start-server-dev:
   stage: deploy
   script:
     - sudo git lfs pull
+    - sbt clean
+    - sbt update
     - sbt dist
     - source /home/sengstudent/runServerScript
     - stopDev
@@ -47,6 +49,8 @@ start-server-prod:
   stage: deploy
   script:
   - sudo git lfs pull
+  - sbt clean
+  - sbt update
   - sbt dist
   - source /home/sengstudent/runServerScript
   - stopProd

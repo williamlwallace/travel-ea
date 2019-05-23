@@ -31,18 +31,17 @@ import views.html.createProfile;
  * This controller contains an action to handle HTTP requests to the application's profile page.
  */
 @Singleton
-public class ProfileController extends Controller {
+public class ProfileController extends TEAFrontController {
 
     private WSClient ws;
-    private HttpExecutionContext httpExecutionContext;
     private TripController tripController;
 
     @Inject
     public ProfileController(WSClient ws,
                              HttpExecutionContext httpExecutionContext,
                              TripController tripController) {
+        super(httpExecutionContext);
         this.ws = ws;
-        this.httpExecutionContext = httpExecutionContext;
         this.tripController = tripController;
     }
 
