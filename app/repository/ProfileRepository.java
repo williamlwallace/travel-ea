@@ -90,7 +90,7 @@ public class ProfileRepository {
     }
 
     /**
-     * Gets all the profiles in the database except the given user id
+     * Gets all the profiles in the database except the given user id.
      *
      * @return A list of all profiles
      */

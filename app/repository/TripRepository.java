@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
-
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
@@ -41,7 +40,7 @@ public class TripRepository {
     }
 
     /**
-     * Updates a trip
+     * Updates a trip.
      *
      * @param trip the updated trip
      * @return true on successful update or false on fail
@@ -51,8 +50,7 @@ public class TripRepository {
             try {
                 ebeanServer.update(trip);
                 return true;
-            }
-            catch (EntityNotFoundException ex) {
+            } catch (EntityNotFoundException ex) {
                 return false;
             }
         }, executionContext);

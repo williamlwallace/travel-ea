@@ -286,7 +286,7 @@ public class PhotoController extends TEABackController {
         // Convert full image file to java.awt image
         BufferedImage fullImage = ImageIO.read(fullImageFile.path().toFile());
 
-\        // If image is smaller than thumbnail size then center with bars on each side
+        // If image is smaller than thumbnail size then center with bars on each side
         if (fullImage.getWidth() < thumbWidth && fullImage.getHeight() < thumbHeight) {
             graphics2D.drawImage(fullImage, thumbWidth / 2 - fullImage.getWidth() / 2,
                 thumbHeight / 2 - fullImage.getHeight() / 2, fullImage.getWidth(),
