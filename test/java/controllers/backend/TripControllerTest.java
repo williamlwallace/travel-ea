@@ -108,7 +108,7 @@ public class TripControllerTest extends WithApplication {
             dest.country = countryDefinition;
 
             TripData tripData = new TripData();
-            tripData.position = Long.valueOf(i + 1);    // Ensures the positions iterate from 1 upwards
+            tripData.position = Long.valueOf(i + 1L);    // Ensures the positions iterate from 1 upwards
             tripData.destination = dest;
 
             // Try set tripData arrival and departure times
