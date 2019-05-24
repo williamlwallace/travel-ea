@@ -1,6 +1,6 @@
 /**
  * Function to get the relevant destination and fill the HTML
- * @param {Long} destinationId  of the destination to display
+ * @param {number} destinationId  of the destination to display
  */
 function populateDestinationDetails(destinationId) {
     get(destinationRouter.controllers.backend.DestinationController.getDestination(destinationId).url)
@@ -26,7 +26,7 @@ function populateDestinationDetails(destinationId) {
 
 /**
  * Deletes the current destination
- * @param {Long} destinationId the id of the destination to delete
+ * @param {number} destinationId the id of the destination to delete
  * @param {string} redirect the url to redirect to if the destination is deleted successfully
  */
 function deleteDestination(destinationId, redirect) {
@@ -60,7 +60,6 @@ function makeDestinationPublic(destinationId) {
                }
            });
        });
-
 }
 
 /**
@@ -75,6 +74,7 @@ function createPrivacyButton(isPublic) {
         const isPublicImage = document.createElement("img");
         isPublicImage.title = "Destination is Public";
         isPublicImage.src = "/assets/images/public.png";
+        isPublicImage.setAttribute("style", "vertical-align: sub;");
         privacyWrapper.append(isPublicImage)
     } else {
         const makePublicButton = document.createElement("input");
@@ -84,13 +84,14 @@ function createPrivacyButton(isPublic) {
         makePublicButton.src = "/assets/images/private.png";
         makePublicButton.setAttribute("data-toggle", "modal");
         makePublicButton.setAttribute("data-target", "#makeDestinationPublicModal");
+        makePublicButton.setAttribute("style", "vertical-align: sub;");
         privacyWrapper.append(makePublicButton)
     }
 }
 
 /**
  * Edits the current destination
- * @param {Long} destinationId the id of the destination to edit
+ * @param {number} destinationId the id of the destination to edit
  */
 function editDestination(destinationId) {
     // Read data from destination form
@@ -129,7 +130,7 @@ function editDestination(destinationId) {
 
 /**
  * Fills the edit destination modal with the information of that destination
- * @param {Long} destinationId
+ * @param {number} destinationId
  */
 function populateEditDestination(destinationId) {
     get(destinationRouter.controllers.backend.DestinationController.getDestination(destinationId).url)

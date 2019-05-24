@@ -2,6 +2,7 @@
 @(destinationId: Long, loggedUser: models.User, canModify: Boolean)
 
 @scripts = {
+    <script src="@routes.Assets.at("javascripts/destinations.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/detailedDestination.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
@@ -30,16 +31,19 @@
                 @* Destination Details *@
                 <div id="destination-summary">
                     <div class="destination-details">
-                        <p class="h1"><span id="destination_name" class="destination_name">Name</span></p>
-                        <p class="heading">Type <span id="summary_type" class="destination-info">type</span></p>
-                        <p class="heading">District <span id="summary_district" class="destination-info">district</span></p>
-                        <p class="heading">Country <span id="summary_country" class="destination-info">country</span></p>
-                        <p class="heading">Latitude <span id="summary_latitude" class="destination-info">latitude</span></p>
-                        <p class="heading">Longitude <span id="summary_longitude" class="destination-info">longitude</span></p>
+                        <div style="padding-bottom: 10px">
+                            <span id="destination_name" class="destination_name h1" style="display: inline"></span>
+                            @if(canModify) {
+                                <div style="display: inline; padding-left: 5px" id="privacy_wrapper"></div>
+                            }
+                        </div>
+                        <p class="heading">Type <span id="summary_type" class="destination-info"></span></p>
+                        <p class="heading">District <span id="summary_district" class="destination-info"></span></p>
+                        <p class="heading">Country <span id="summary_country" class="destination-info"></span></p>
+                        <p class="heading">Latitude <span id="summary_latitude" class="destination-info"></span></p>
+                        <p class="heading">Longitude <span id="summary_longitude" class="destination-info"></span></p>
                         @if(canModify) {
-                            <p class="heading">Privacy<div id="privacy_wrapper"></div></p>
-                                <a data-toggle="modal" data-target="#editDestinationModal">
-                                @* TODO link this to the edit destination modal ?!  *@
+                            <p class="heading"></p>
                             <a data-toggle="modal" data-target="#editDestinationModal" onclick="populateEditDestination(@destinationId)">
                                 <span class="destination-button" style="float: left; padding-top: 15px; padding-bottom: 0px;">Edit Destination</span>
                             </a>
@@ -163,13 +167,13 @@
                 </div>
                 <br>
                 <div>
-                    <p align="center">Are you sure you want to make this destination Public?</p>
+                    <p align="center">Are you sure you want to make this destination Public? This cannot be undone.</p>
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
                         No<i class="fas fa-paper-plane-o ml-1"></i>
                     </button>
-                    <button class="btn btn-danger" onclick="makeDestinationPublic(@destinationId)">
+                    <button class="btn btn-primary" onclick="makeDestinationPublic(@destinationId)">
                         Yes
                     </button>
                 </div>
