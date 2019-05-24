@@ -66,11 +66,13 @@ public class TripValidator {
             }
 
             // Sets most recent date time value
-            if (trip.arrivalTime != null && (mostRecentDateTime == null || trip.arrivalTime.isAfter(mostRecentDateTime))) {
+            if (trip.arrivalTime != null && (mostRecentDateTime == null || trip.arrivalTime
+                .isAfter(mostRecentDateTime))) {
                 mostRecentDateTime = trip.arrivalTime;
             }
 
-            if (trip.departureTime != null && (mostRecentDateTime == null || trip.departureTime.isAfter(mostRecentDateTime))) {
+            if (trip.departureTime != null && (mostRecentDateTime == null || trip.departureTime
+                .isAfter(mostRecentDateTime))) {
                 mostRecentDateTime = trip.departureTime;
             }
 
@@ -89,7 +91,7 @@ public class TripValidator {
     }
 
     /**
-     * Validates trip privacy update data
+     * Validates trip privacy update data.
      *
      * @return Error response object containing error messages
      */
@@ -104,7 +106,7 @@ public class TripValidator {
     }
 
     /**
-     * Checks the destination data for the current destination and returns appropriate error message
+     * Checks the destination data for the current destination and returns error an message.
      *
      * @param trip TripData object to be analysed
      * @param lastDestinationID Destination ID of card previous to current card
@@ -113,11 +115,9 @@ public class TripValidator {
     private String checkDestinationData(TripData trip, Long lastDestinationID) {
         if (trip.destination != null && trip.destination.id == null) {
             return "Invalid destination ID.";
-        }
-        else if (trip.destination != null && trip.destination.id.equals(lastDestinationID)) {
+        } else if (trip.destination != null && trip.destination.id.equals(lastDestinationID)) {
             return "You cannot have the same destination twice in a row.";
-        }
-        else if (trip.destination == null) {
+        } else if (trip.destination == null) {
             return "Destination not found.";
         }
 
@@ -125,21 +125,23 @@ public class TripValidator {
     }
 
     /**
-     * Checks the arrival and departure times for the destination and returns appropriate error message
+     * Checks the arrival and departure times for the destination and returns error an message.
      *
      * @param trip TripData object to be analysed
      * @param mostRecentDateTime Most recent recorded point of trip up to this destination card
      * @return Error message if error found or empty string
      */
     private String checkArrivalDepartureData(TripData trip, LocalDateTime mostRecentDateTime) {
-        if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime.isAfter(trip.departureTime)) {
+        if (trip.arrivalTime != null && trip.departureTime != null && trip.arrivalTime
+            .isAfter(trip.departureTime)) {
             return "The arrival time must be before the departure time.";
-        }
-        else if (trip.arrivalTime != null && mostRecentDateTime != null && trip.arrivalTime.isBefore(mostRecentDateTime)) {
+        } else if (trip.arrivalTime != null && mostRecentDateTime != null && trip.arrivalTime
+            .isBefore(mostRecentDateTime)) {
             return "The arrival time for this destination cannot be before a previous destination.";
-        }
-        else if (trip.departureTime != null && mostRecentDateTime != null && trip.departureTime.isBefore(mostRecentDateTime)) {
-            return "The departure time for this destination cannot be before a previous destination.";
+        } else if (trip.departureTime != null && mostRecentDateTime != null && trip.departureTime
+            .isBefore(mostRecentDateTime)) {
+            return "The departure time for this destination"
+                + " cannot be before a previous destination.";
         }
 
         return "";

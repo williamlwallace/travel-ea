@@ -90,14 +90,15 @@ public class ProfileRepository {
     }
 
     /**
-     * Gets all the profiles in the database except the given user id
+     * Gets all the profiles in the database except the given user id.
      *
      * @return A list of all profiles
      */
     public CompletableFuture<List<Profile>> getAllProfiles(Long userId) {
         return supplyAsync(() -> {
             ArrayList<Profile> profiles = new ArrayList<>(
-                ebeanServer.find(Profile.class).where()
+                ebeanServer.find(Profile.class)
+                    .where()
 //                    .eq("nationalities", String.valueOf(nationalityId))
 //                    .eq("gender", gender)
 //                    .ge("dateOfBirth", String.valueOf(minAge))

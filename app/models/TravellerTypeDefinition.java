@@ -23,7 +23,7 @@ public class TravellerTypeDefinition extends Model {
 
     @Constraints.Required
     public String description;
-    
+
     @ManyToMany(mappedBy = "travellerTypes")
     @JsonBackReference
     @JoinTable(

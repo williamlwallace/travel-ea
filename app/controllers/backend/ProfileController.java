@@ -2,23 +2,18 @@ package controllers.backend;
 
 import actions.ActionState;
 import actions.Authenticator;
-import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.io.IOException;
 import javax.inject.Inject;
-
-import controllers.backend.routes;
 import models.CountryDefinition;
 import models.Profile;
 import models.TravellerTypeDefinition;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -52,7 +47,7 @@ public class ProfileController extends TEABackController {
     public CompletableFuture<Result> getAllTravellerTypes() {
         return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
             .thenApplyAsync(allTravellerTypes -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(allTravellerTypes)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
@@ -138,22 +133,6 @@ public class ProfileController extends TEABackController {
             });
     }
 
-    // /**
-    //  * Updates the profile received in the body of the request as well as the related nationalities,
-    //  * passports and traveller types.
-    //  *
-    //  * @param request Contains the HTTP request info
-    //  * @return Ok if updated successfully, badRequest if profile json malformed
-    //  */
-    // @With({Everyone.class, Authenticator.class})
-    // public CompletionStage<Result> updateMyProfile(Http.Request request) {
-    //     //Get user
-    //     User user = request.attrs().get(ActionState.USER);
-    //     // Get json parameters
-    //     JsonNode json = request.body().asJson();
-    //     return updateProfileHelper(json, user.id);
-    // }
-
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
      * passports and traveller types.
@@ -164,7 +143,7 @@ public class ProfileController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         User user = request.attrs().get(ActionState.USER);
-        if (userId == user.id || user.admin) {
+        if (userId.equals(user.id) || user.admin) {
             // Get json parameters
             JsonNode data = request.body().asJson();
             return updateProfileHelper(data, userId);
@@ -187,23 +166,23 @@ public class ProfileController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
         } else {
             return profileRepository.findID(userId)
-                    .thenComposeAsync(profile -> {
-                        if (profile == null) {
-                            return null;
-                        } else {
-                            Profile updatedProfile = Json.fromJson(data, Profile.class);
-                            updatedProfile.userId = userId;
+                .thenComposeAsync(profile -> {
+                    if (profile == null) {
+                        return null;
+                    } else {
+                        Profile updatedProfile = Json.fromJson(data, Profile.class);
+                        updatedProfile.userId = userId;
 
-                            return profileRepository.updateProfile(updatedProfile);
-                        }
-                    }).thenApplyAsync(updatedUserId -> {
-                        if (updatedUserId == null) {
-                            errorResponse.map("Profile for that user not found", ERR_OTHER);
-                            return badRequest(errorResponse.toJson());
-                        } else {
-                            return ok(Json.toJson(updatedUserId));
-                        }
-                    });
+                        return profileRepository.updateProfile(updatedProfile);
+                    }
+                }).thenApplyAsync(updatedUserId -> {
+                    if (updatedUserId == null) {
+                        errorResponse.map("Profile for that user not found", ERR_OTHER);
+                        return badRequest(errorResponse.toJson());
+                    } else {
+                        return ok(Json.toJson(updatedUserId));
+                    }
+                });
         }
     }
 
@@ -225,7 +204,8 @@ public class ProfileController extends TEABackController {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
-                if (gender != null && !gender.equals("") && !profile.gender.equalsIgnoreCase(gender)) {
+                if (gender != null && !gender.equals("") && !profile.gender
+                    .equalsIgnoreCase(gender)) {
                     toReturn.remove(profile);
                     continue;
                 }
@@ -282,8 +262,8 @@ public class ProfileController extends TEABackController {
         String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
-            .thenApplyAsync(profiles ->{
-                try{
+            .thenApplyAsync(profiles -> {
+                try {
                     return ok(sanitizeJson(Json.toJson(profiles)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
@@ -292,7 +272,7 @@ public class ProfileController extends TEABackController {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */

@@ -74,7 +74,7 @@
                             <div class="card flex-row" id=@i >
                                 <label id=@trip.tripDataList(i).destination.id></label>
                                 <div class="card-header border-0" style="height: 100%">
-                                    <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>
+                                    <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">
                                 </div>
                                 <div class="card-block px-2">
                                     <div id="topCardBlock">
@@ -83,19 +83,19 @@
                                     </div>
                                     <div id="left">
                                         <p class="card-text" id="card-text">
-                                            <b>Type: </b>
+                                            <strong>Type: </strong>
                                             @trip.tripDataList(i).destination._type
                                             <br/>
-                                            <b>District: </b>
+                                            <strong>District: </strong>
                                             @trip.tripDataList(i).destination.district
                                             <br/>
-                                            <b>Latitude: </b>
+                                            <strong>Latitude: </strong>
                                             @trip.tripDataList(i).destination.latitude
                                             <br/>
-                                            <b>Longitude: </b>
+                                            <strong>Longitude: </strong>
                                             @trip.tripDataList(i).destination.longitude
                                             <br/>
-                                            <b>Country: </b>
+                                            <strong>Country: </strong>
                                             <label id="countryField">@trip.tripDataList(i).destination.country.name</label>
                                         </p>
                                     </div>
@@ -103,13 +103,13 @@
                                         <form id="arrivalDepartureForm">
                                             <div class="modal-body mx-3">
                                                 <div id="arrival">Arrival
-                                                    <i class="fas prefix grey-text"></i>
+                                                    <em class="fas prefix grey-text"></em>
                                                     <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(0, 10)" }>
                                                     <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(11, 16)" }>
                                                     <label id="arrivalError"></label>
                                                 </div>
                                                 <div id="depart">Departure
-                                                    <i class="fas prefix grey-text"></i>
+                                                    <em class="fas prefix grey-text"></em>
                                                     <input id="departureDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" }>
                                                     <input id="departureTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" }>
                                                     <label id="departureError"></label>
@@ -165,7 +165,7 @@
                                 </form>
                             </div>
                         <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-popup">Done<i class="fas fa-paper-plane-o ml-1"></i></button>
+                            <button class="btn btn-popup">Done<em class="fas fa-paper-plane-o ml-1"></em></button>
                         </div>
                     </div>
                 </div>
