@@ -43,7 +43,7 @@
 .picker .pc-select {
   position: relative;
   display: inline-block;
-  min-width: 10px;
+  min-width: 150px;
   max-width: 200px;
 }
 .picker .pc-select .pc-trigger {
