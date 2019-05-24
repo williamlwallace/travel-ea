@@ -123,30 +123,8 @@ public class PhotoRepository {
                 .findOneOrEmpty().orElse(null);
 
             if (photo != null) {
-                System.out.println("RAW FROM DATABASE:");
-                System.out.println("Photo: " + photo);
-                System.out.println("Filename: " + photo.filename);
-                System.out.println("Thumbnail Filename: " + photo.thumbnailFilename);
-                System.out.println("Destination Photos: " + photo.destinationPhotos);
-                System.out.println("GUID: " + photo.guid);
-                System.out.println("isProfile: " + photo.isProfile);
-                System.out.println("isPublic: " + photo.isPublic);
-                System.out.println("uploaded: " + photo.uploaded);
-                System.out.println("userId: " + photo.userId);
                 photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
                 photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
-                System.out.println("AFTER SETTING: filename, thumnailFilename (photo not null)");
-                System.out.println("Photo: " + photo);
-                System.out.println("Filename: " + photo.filename);
-                System.out.println("Thumbnail Filename: " + photo.thumbnailFilename);
-                System.out.println("Destination Photos: " + photo.destinationPhotos);
-                System.out.println("GUID: " + photo.guid);
-                System.out.println("isProfile: " + photo.isProfile);
-                System.out.println("isPublic: " + photo.isPublic);
-                System.out.println("uploaded: " + photo.uploaded);
-                System.out.println("userId: " + photo.userId);
-            } else {
-                System.out.println("Photo Null");
             }
 
             return photo;
