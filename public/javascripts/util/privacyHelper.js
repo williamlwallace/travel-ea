@@ -25,18 +25,18 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
     put(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-                // On successful update
-                if (response.status === 200) {
-                    if (currentPrivacy === "Public") {
-                        document.getElementById("privacyImg").title = "Private";
-                        document.getElementById("privacyImg").src = privateImageSrc;
-                    }
-                    else {
-                        document.getElementById("privacyImg").title = "Public";
-                        document.getElementById("privacyImg").src = publicImageSrc;
-                    }
+        .then(json => {
+            // On successful update
+            if (response.status === 200) {
+                if (currentPrivacy === "Public") {
+                    document.getElementById("privacyImg").title = "Private";
+                    document.getElementById("privacyImg").src = privateImageSrc;
                 }
-            });
+                else {
+                    document.getElementById("privacyImg").title = "Public";
+                    document.getElementById("privacyImg").src = publicImageSrc;
+                }
+            }
+        });
     });
 }

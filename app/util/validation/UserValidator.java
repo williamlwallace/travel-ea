@@ -12,7 +12,7 @@ public class UserValidator extends Validator {
     }
 
     /**
-     * Validates login data
+     * Validates login data.
      *
      * @return ErrorResponse object
      */

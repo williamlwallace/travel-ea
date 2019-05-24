@@ -1,8 +1,6 @@
 package models;
 
 import io.ebean.Model;
-
-import java.util.Comparator;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -54,8 +52,8 @@ public class Trip extends Model implements Comparable<Trip> {
     }
 
     /**
-     * Comparator which allows for trips to be compared and sorted by date
-     * Will sort by recent first, with nulls last
+     * Comparator which allows for trips to be compared and sorted by date. Will sort by recent
+     * first, with nulls last
      *
      * @param other Trip to compare against
      * @return Negative or zero integer if this trip should be first, otherwise positive

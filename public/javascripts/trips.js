@@ -1,10 +1,10 @@
 let countryDict = {};
 
 $(document).ready(function () {
-    const table = $('#destTable').DataTable( {
+    const table = $('#destTable').DataTable({
         createdRow: function (row, data, dataIndex) {
-            $(row).attr('id', data[data.length-2]);
-            $(row).attr('data-countryId', data[data.length-1]);
+            $(row).attr('id', data[data.length - 2]);
+            $(row).attr('data-countryId', data[data.length - 1]);
         }
     });
     populateTable(table);
@@ -14,16 +14,16 @@ $(document).ready(function () {
  * Populates destination table
  * @param {Object} table to populate
  */
-function populateTable(table){
+function populateTable(table) {
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if(response.status != 200) {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
-                for(const destination of json) {
+                for (const destination of json) {
                     const id = destination.id;
                     const name = destination.name;
                     const type = destination._type;
@@ -33,7 +33,8 @@ function populateTable(table){
                     const country = destination.country.name;
                     // there should be done with a listener and setting these extra values as data attributes - it is now hehe
                     const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                    const row = [name, type, district, latitude, longitude, country, button, id, destination.country.id];
+                    const row = [name, type, district, latitude, longitude,
+                        country, button, id, destination.country.id];
                     table.row.add(row).draw(false);
                 }
             }
@@ -44,7 +45,7 @@ function populateTable(table){
 /**
  *Click listener that handles clicks in destination table
  */
-$('#destTable').on('click', 'button', function() {
+$('#destTable').on('click', 'button', function () {
     let tableAPI = $('#destTable').dataTable().api();
     let name = tableAPI.cell($(this).parents('tr'), 0).data();
     let district = tableAPI.cell($(this).parents('tr'), 1).data();
@@ -53,14 +54,15 @@ $('#destTable').on('click', 'button', function() {
     let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
     let countryId = $(this).parents('tr').attr("data-countryId");
     let id = $(this).parents('tr').attr('id');
-    console.log(id,name,district,type,latitude,longitude,countryId);
-    
-    addDestinationToTrip(id,name,district,type,latitude,longitude,countryId);
+    console.log(id, name, district, type, latitude, longitude, countryId);
+
+    addDestinationToTrip(id, name, district, type, latitude, longitude,
+        countryId);
 })
 
 /**
  * Gets all countries and fills into dropdown
- * @param {stirng} getCountriesUrl - get all countries URI
+ * @param {string} getCountriesUrl - get all countries URI
  */
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
@@ -72,7 +74,7 @@ function fillCountryInfo(getCountriesUrl) {
         .then(data => {
             // Json data is an array of destinations, iterate through it
             let countryDict = {};
-            for(let i = 0; i < data.length; i++) {
+            for (let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 countryDict[data[i]['id']] = data[i]['name'];
             }
@@ -95,7 +97,8 @@ function updateDestinationsCountryField(countryDict) {
 
         for (let j = 0; j < dataList.length; j++) {
             if (dataList[j].getAttribute("id") === "country") {
-                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))]; // No idea why tds[i].value is not working
+                dataList[j].innerHTML = countryDict[parseInt(
+                    rowList[i].getAttribute("id"))]; // No idea why tds[i].value is not working
             }
         }
     }
@@ -127,7 +130,8 @@ function updateCountryCardField(countryDict) {
  */
 function newDestination(uri) {
     // Read data from destination form
-    const formData = new FormData(document.getElementById("addDestinationForm"));
+    const formData = new FormData(
+        document.getElementById("addDestinationForm"));
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -144,16 +148,17 @@ function newDestination(uri) {
 
     console.log(data);
     // Post json data to given uri
-    post(uri,data)
+    post(uri, data)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-            if (response.status != 200) {
+        .then(json => {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
                 // TODO: Get toggle working
-                document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
+                document.getElementById("modalContactForm").setAttribute(
+                    "aria-hidden", "true");
             }
         });
     });
@@ -161,10 +166,18 @@ function newDestination(uri) {
 
 /**
  * Adds destination card and fills data
- * @param {Object} dest - List of destination data
+ *
+ * @param id Id of the destination
+ * @param name Name of the destination
+ * @param type Type of the destination
+ * @param district District of the destination
+ * @param latitude Latitude of the destination
+ * @param longitude Longitude of the destination
+ * @param countryId CountryID of the destination
  */
-function addDestinationToTrip(id, name, type, district, latitude, longitude, countryId) {
-    let cards = $( "#list" ).sortable('toArray');
+function addDestinationToTrip(id, name, type, district, latitude, longitude,
+    countryId) {
+    let cards = $("#list").sortable('toArray');
     let cardId = 0;
 
     // Finds id not used
@@ -174,42 +187,47 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude, cou
 
     document.getElementById('list').insertAdjacentHTML('beforeend',
         '<div class="card flex-row" id=' + cardId + '>\n' +
-            '<label id=' + id + '></label>' +
+        '<label id=' + id + '></label>' +
         '<div class="card-header border-0" style="height: 100%">\n' +
-            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +    // TODO: Store default card image rather than reference
+        '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
+        +    // TODO: Store default card image rather than reference
         '</div>\n' +
         '<div class="card-block px-2">\n' +
-            '<div id="topCardBlock">\n' +
-                '<h4 class="card-title">' + name + '</h4>\n' +
-        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(' + cardId + ')"></button>\n' +
-            '</div>\n' +
-            '<div id="left">\n' +
-                '<p class="card-text" id="card-text">' +
-                    '<b>Type: </b> '+ type + '<br/>' +
-                    '<b>District: </b> '+ district + '<br/>' +
-                    '<b>Latitude: </b>' + latitude + '<br/>' +
-                    '<b>Longitude: </b>' + longitude + '<br/>' +
-                    '<b>Country: </b>' + countryDict[countryId] +
-                '</p>\n' +
-            '</div>' +
-            '<div id="right">\n' +
-                '<form id="arrivalDepartureForm">\n' +
-    '                <div class="modal-body mx-3">\n' +
-    '                    <div id="arrival">Arrival\n' +
-    '                        <i class="fas prefix grey-text"></i>\n' +
-    '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
-    '                    </div>\n' +
-    '                    <div id="depart">Departure\n' +
-    '                        <i class="fas prefix grey-text"></i>\n' +
-    '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
-    '                    </div>\n' +
-    '                </div>\n' +
-    '            </form>\n' +
-                '<div style="text-align: center;">\n' +
-                    '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n' +
-                    '<br/>\n' +
-                '</div>\n' +
-            '</div>\n' +
+        '<div id="topCardBlock">\n' +
+        '<h4 class="card-title">' + name + '</h4>\n' +
+        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
+        + cardId + ')"></button>\n' +
+        '</div>\n' +
+        '<div id="left">\n' +
+        '<p class="card-text" id="card-text">' +
+        '<b>Type: </b> ' + type + '<br/>' +
+        '<b>District: </b> ' + district + '<br/>' +
+        '<b>Latitude: </b>' + latitude + '<br/>' +
+        '<b>Longitude: </b>' + longitude + '<br/>' +
+        '<b>Country: </b>' + countryDict[countryId] +
+        '</p>\n' +
+        '</div>' +
+        '<div id="right">\n' +
+        '<form id="arrivalDepartureForm">\n' +
+        '                <div class="modal-body mx-3">\n' +
+        '                    <div id="arrival">Arrival\n' +
+        '                        <i class="fas prefix grey-text"></i>\n' +
+        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
+        +
+        '                    </div>\n' +
+        '                    <div id="depart">Departure\n' +
+        '                        <i class="fas prefix grey-text"></i>\n' +
+        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
+        +
+        '                    </div>\n' +
+        '                </div>\n' +
+        '            </form>\n' +
+        '<div style="text-align: center;">\n' +
+        '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
+        +
+        '<br/>\n' +
+        '</div>\n' +
+        '</div>\n' +
         '</div>'
     );
 }
@@ -270,14 +288,14 @@ function createTrip(uri, redirect) {
     post(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-                if (response.status === 400) {
-                    showErrors(json);
-                } else if (response.status === 200) {
-                    window.location.href = redirect;
-                }
-            });
+        .then(json => {
+            if (response.status === 400) {
+                showErrors(json);
+            } else if (response.status === 200) {
+                window.location.href = redirect;
+            }
         });
+    });
 }
 
 /**
@@ -300,14 +318,16 @@ function listItemToTripData(listItem, index) {
     let DTInputs = listItem.getElementsByTagName("input");
 
     try {
-        json["arrivalTime"] = formatDateTime(DTInputs[0].value, DTInputs[1].value);
+        json["arrivalTime"] = formatDateTime(DTInputs[0].value,
+            DTInputs[1].value);
     }
     catch {
         json["arrivalTime"] = null;
     }
 
     try {
-        json["departureTime"] = formatDateTime(DTInputs[2].value, DTInputs[3].value);
+        json["departureTime"] = formatDateTime(DTInputs[2].value,
+            DTInputs[3].value);
     }
     catch {
         json["departureTime"] = null;
@@ -347,7 +367,7 @@ function showErrors(json) {
     if (keys.includes("trip")) {
         tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
             '<a class="close" data-dismiss="alert">×</a>' +
-            '<span>'+ json["trip"] +'</span></div>';
+            '<span>' + json["trip"] + '</span></div>';
     }
     else {
         tripError.innerHTML = "";
@@ -377,7 +397,7 @@ function showErrors(json) {
 
 /**
  * Relocate to individual trip page
- * @param {stirng} uri - URI of trip
+ * @param {string} uri - URI of trip
  */
 function viewTrip(uri) {
     window.location.href = uri;
@@ -386,7 +406,7 @@ function viewTrip(uri) {
 /**
  * Gathers trip data and sends to API to update
  * @param {string} uri - API URI to update trip
- * @param {stirng} redirect - URI to redirect if succesful
+ * @param {string} redirect - URI to redirect if succesful
  * @param {Number} tripId - ID of trip to update
  */
 function updateTrip(uri, redirect, tripId) {
@@ -418,14 +438,16 @@ function updateTrip(uri, redirect, tripId) {
     put(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-                if (response.status === 400) {
-                    showErrors(json);
-                } else if (response.status === 200) {
-                    window.location.href = redirect;
-                } else {
-                    document.getElementById("destinationError").innerHTML = "Error(s): " + Object.values(json).join(", ");
-                }
-            });
+        .then(json => {
+            if (response.status === 400) {
+                showErrors(json);
+            } else if (response.status === 200) {
+                window.location.href = redirect;
+            } else {
+                document.getElementById(
+                    "destinationError").innerHTML = "Error(s): "
+                    + Object.values(json).join(", ");
+            }
+        });
     });
 }
