@@ -118,10 +118,31 @@ public class PhotoRepository {
                 .eq("user_id", userID)
                 .eq("is_profile", true)
                 .findOneOrEmpty().orElse(null);
+            System.out.println("RAW FROM DATABASE:");
+            System.out.println("Photo: " + photo);
+            System.out.println("Filename: " + photo.filename);
+            System.out.println("Thumbnail Filename: " + photo.thumbnailFilename);
+            System.out.println("Destination Photos: " + photo.destinationPhotos);
+            System.out.println("GUID: " + photo.guid);
+            System.out.println("isProfile: " + photo.isProfile);
+            System.out.println("isPublic: " + photo.isPublic);
+            System.out.println("uploaded: " + photo.uploaded);
+            System.out.println("userId: " + photo.userId);
+
             if (photo != null) {
                 photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
                 photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
             }
+            System.out.println("AFTER SETTING: filename, thumnailFilename (photo not null)");
+            System.out.println("Photo: " + photo);
+            System.out.println("Filename: " + photo.filename);
+            System.out.println("Thumbnail Filename: " + photo.thumbnailFilename);
+            System.out.println("Destination Photos: " + photo.destinationPhotos);
+            System.out.println("GUID: " + photo.guid);
+            System.out.println("isProfile: " + photo.isProfile);
+            System.out.println("isPublic: " + photo.isPublic);
+            System.out.println("uploaded: " + photo.uploaded);
+            System.out.println("userId: " + photo.userId);
             return photo;
         }, executionContext);
     }
