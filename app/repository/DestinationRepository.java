@@ -135,7 +135,7 @@ public class DestinationRepository {
             // If any rows were changed when re-referencing, the destination
             // has been used by another user and must be transferred to admin ownership
             if (rowsChanged > 0) {
-                makePermanentlyPublic(destination, masterId);
+                changeDestinationOwner(destination.id, masterId);
             }
             return ok();
         });
@@ -327,21 +327,5 @@ public class DestinationRepository {
                         .findOneOrEmpty()
                         .orElse(null)
                 , executionContext);
-    }
-
-    /**
-     * Updates the ownership of the destination to the master admin
-     *
-     * @param destination Destination to be updated
-     * @return Modified destination object
-     */
-    public CompletableFuture<Destination> makePermanentlyPublic(Destination destination, Long masterId) {
-        // Change ownership to master admin and ensures destination is public
-        destination.user.id = masterId;
-        destination.isPublic = true;
-        return supplyAsync(() -> {
-            ebeanServer.update(destination);
-            return destination;
-        }, executionContext);
     }
 }

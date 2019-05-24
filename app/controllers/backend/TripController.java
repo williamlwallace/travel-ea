@@ -306,14 +306,7 @@ public class TripController extends TEABackController {
             Destination destination = tripData.destination;
             destinationRepository.checkDestinationInTrip(destination, userId, MASTER_ADMIN_ID).thenApplyAsync(dest -> {
                 if (dest != null) {
-//                    return destinationRepository.makePermanentlyPublic(dest, MASTER_ADMIN_ID).thenApplyAsync(dest2 -> {
-//                        System.out.println(userId);
-//                        System.out.println(dest2.id);
-//                        System.out.println(dest2.user.id);
-//                        System.out.println(dest2.name);
-//                        return ok();
-//                    });
-                    return destinationRepository.changeDestinationOwner(dest.id, 1L);
+                    return destinationRepository.changeDestinationOwner(dest.id, MASTER_ADMIN_ID);
                 }
                 return true;
             });
