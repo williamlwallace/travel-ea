@@ -429,7 +429,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     }
 
     @Test
-    public void transferDestinationOwnershipByTrip() throws IOException, InterruptedException {
+    public void transferDestinationOwnershipByTrip() throws IOException {
         // Check destination 4 is public and owned by user 2
         Http.RequestBuilder initGetRequest = Helpers.fakeRequest()
             .method(GET)
