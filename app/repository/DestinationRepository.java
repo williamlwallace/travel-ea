@@ -84,7 +84,7 @@ public class DestinationRepository {
 
     /**
      * Sets the owner of a destination
-     * @param destinaitonId id of destination to update
+     * @param destinationId id of destination to update
      * @param newUserId id to set user to 
      */
     public CompletableFuture<Integer> changeDestinationOwner(Long destinationId, Long newUserId) {
@@ -103,7 +103,7 @@ public class DestinationRepository {
      * @param destination The destination to mark as public
      * @return notFound if no such ID found, badRequest if it is found but already public, ok if found and successfully updated to public from private
      */
-    public CompletableFuture<Result> makeDestinationPublic(User user, Destination destination) {
+    public CompletableFuture<Result> makeDestinationPublic(User user, Destination destination, Long masterId) {
         return supplyAsync(() -> {
             // Update the publicity of the destination in the database, and check what status gets returned
             Result result = setDestinationToPublicInDatabase(destination.id);
@@ -124,7 +124,7 @@ public class DestinationRepository {
             // TODO: call the method that updates the photos. Also not written
             // If any rows were changed when re-referencing, the destination has been used by another user and must be transferred to admin ownership
             if (rowsChanged > 0) {
-                makePermanentlyPublic(destination);
+                makePermanentlyPublic(destination, masterId);
             }
             return ok();
         });
@@ -284,13 +284,12 @@ public class DestinationRepository {
      * @return A destination object if one is found and doesn't belong to the
      * specified user or the master admin, otherwise null
      */
-    public CompletableFuture<Destination> checkDestinationInTrip(Destination destination, Long userId) {
-        Long masterAdminId = 1L;    // TODO: Change to master admin constant
+    public CompletableFuture<Destination> checkDestinationInTrip(Destination destination, Long userId, Long masterId) {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
                         .where()
                         .idEq(destination.id)
                         .ne("user_id", userId)
-                        .ne("user_id", masterAdminId)
+                        .ne("user_id", masterId)
                         .findOneOrEmpty()
                         .orElse(null)
                 , executionContext);
@@ -302,9 +301,9 @@ public class DestinationRepository {
      * @param destination Destination to be updated
      * @return Modified destination object
      */
-    public CompletableFuture<Destination> makePermanentlyPublic(Destination destination) {
+    public CompletableFuture<Destination> makePermanentlyPublic(Destination destination, Long masterId) {
         // Change ownership to master admin and ensures destination is public
-        destination.user.id = 1L;    // TODO: Change to master admin constant
+        destination.user.id = masterId;
         destination.isPublic = true;
         return supplyAsync(() -> {
             ebeanServer.update(destination);
