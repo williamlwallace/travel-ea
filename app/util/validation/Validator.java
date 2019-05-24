@@ -3,6 +3,8 @@ package util.validation;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -22,9 +24,10 @@ public class Validator {
      * Checks field is not empty.
      *
      * @param field json field name
+     * @param name
      * @return Boolean whether validation succeeds
      */
-    protected Boolean required(String field) {
+    protected Boolean required(String field, String name) {
         if (this.form.has(field)) {
             if ((this.form.get(field) != null && !this.form.get(field).asText("").equals("")) ||
                 this.form.get(field).isObject()) {
@@ -33,7 +36,7 @@ public class Validator {
                 return true;
             }
         }
-        this.errorResponse.map(String.format("%s field must be present", field), field);
+        this.errorResponse.map(String.format("%s field must be present", name), field);
         return false;
     }
 
@@ -212,7 +215,12 @@ public class Validator {
     protected Boolean date(String field) {
         String date = this.form.get(field).asText("");
         try {
-            new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            Date formDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            Date currentDate = Calendar.getInstance().getTime();
+            if (formDate.after(currentDate)) {
+                this.errorResponse.map("Date of Birth cannot be after current date", field);
+                return false;
+            }
         } catch (ParseException e) {
             this.errorResponse.map("Invalid date", field);
             return false;

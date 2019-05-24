@@ -422,12 +422,12 @@ public class DestinationControllerTest extends WithApplication {
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("district", "district field must be present");
+        expectedMessages.put("district", "District field must be present");
         expectedMessages.put("latitude", "latitude must be at least -90.000000");
-        expectedMessages.put("name", "name field must be present");
-        expectedMessages.put("_type", "_type field must be present");
+        expectedMessages.put("name", "Destination Name field must be present");
+        expectedMessages.put("_type", "Destination Type field must be present");
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
-        expectedMessages.put("country", "country field must be present");
+        expectedMessages.put("country", "Country field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {
