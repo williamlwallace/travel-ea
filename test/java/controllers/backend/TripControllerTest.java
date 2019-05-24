@@ -477,7 +477,6 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         // Check destination privacy and owner
         JsonNode json2 = new ObjectMapper().readValue(Helpers.contentAsString(finalGetResult), JsonNode.class);
-        System.out.println(json2);
         Destination getDest2 = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json2), new TypeReference<Destination>() {});
         assertEquals(Long.valueOf(1), getDest2.user.id);
         assertTrue(getDest2.isPublic);
