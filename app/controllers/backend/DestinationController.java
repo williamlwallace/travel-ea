@@ -93,7 +93,7 @@ public class DestinationController extends TEABackController {
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
             return destinationRepository.makeDestinationPublic(user, destination);
-        }).thenApplyAsync(result -> result); //?
+        }).thenApplyAsync(result -> result);
     }
 
     /**

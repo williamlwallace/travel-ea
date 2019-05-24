@@ -47,8 +47,7 @@ function deleteDestination(destinationId, redirect) {
  * @param {number} destinationId the id of the destination to make public
  */
 function makeDestinationPublic(destinationId) {
-   console.log("change privacy to public");
-   put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(destinationId).url)
+   put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(destinationId).url, {})
        .then(response => {
            response.json().then(data => {
                if (response.status === 200) {
