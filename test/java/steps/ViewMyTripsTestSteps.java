@@ -1,11 +1,11 @@
 package steps;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
-import static play.test.Helpers.DELETE;
 import static play.test.Helpers.route;
 import static steps.GenericTestSteps.authCookie;
 import static steps.GenericTestSteps.fakeApp;
@@ -20,12 +20,10 @@ import cucumber.api.java.en.When;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import models.CountryDefinition;
 import models.Destination;
 import models.Trip;
 import models.TripData;
-
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -50,31 +48,31 @@ public class ViewMyTripsTestSteps extends WithApplication {
     @Given("I have no trips")
     public void i_have_no_trips() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(authCookie)
-                .uri("/api/user/trips/" + userId);
+            .method(GET)
+            .cookie(authCookie)
+            .uri("/api/user/trips/" + userId);
 
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
-                .readValue(Helpers.contentAsString(result), JsonNode.class);
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
 
         for (int i = 0; i < trips.size(); i++) {
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
-                    .method(DELETE)
-                    .cookie(authCookie)
-                    .uri("/api/trip/" + trips.get(i).get("id"));
+                .method(DELETE)
+                .cookie(authCookie)
+                .uri("/api/trip/" + trips.get(i).get("id"));
 
             Result deleteResult = route(fakeApp, deleteRequest);
         }
 
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
-                .method(GET)
-                .cookie(authCookie)
-                .uri("/api/user/trips/" + userId);
+            .method(GET)
+            .cookie(authCookie)
+            .uri("/api/user/trips/" + userId);
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
         JsonNode checkEmptyTrips = new ObjectMapper()
-                .readValue(Helpers.contentAsString(checkEmptyResult), JsonNode.class);
+            .readValue(Helpers.contentAsString(checkEmptyResult), JsonNode.class);
 
         assertEquals(0, checkEmptyTrips.size());
     }
@@ -107,16 +105,16 @@ public class ViewMyTripsTestSteps extends WithApplication {
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
         trip.userId = userId;
-        trip.privacy = 0L;
+        trip.isPublic = false;
 
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
         Http.RequestBuilder request = Helpers.fakeRequest()
-                .method(POST)
-                .bodyJson(node)
-                .cookie(authCookie)
-                .uri("/api/trip");
+            .method(POST)
+            .bodyJson(node)
+            .cookie(authCookie)
+            .uri("/api/trip");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -148,7 +146,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Result result = route(fakeApp, request);
         JsonNode trips = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertTrue(trips.get(0).get("tripDataList") != null);
+        assertNotNull(trips.get(0).get("tripDataList"));
     }
 
     @And("it shows all of my trips")
@@ -180,6 +178,4 @@ public class ViewMyTripsTestSteps extends WithApplication {
             .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertEquals(1, trips.get(0).get("userId").asInt());
     }
-
-
 }

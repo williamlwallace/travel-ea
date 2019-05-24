@@ -26,95 +26,40 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
 import models.User;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
-import repository.DestinationRepository;
 
-public class DestinationControllerTest extends WithApplication {
+public class DestinationControllerTest extends controllers.backend.ControllersTest {
 
-    private static Application fakeApp;
-    private static Database db;
-    private static Cookie authCookie;
-    private static Cookie nonAdminAuthCookie;
-    private static DestinationRepository destinationRepository;
-
-    /**
-     * Configures system to use dest database, and starts a fake app
-     */
-    @BeforeClass
-    public static void setUp() {
-        // Create custom settings that change the database to use test database instead of production
-        Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.driver", "org.h2.Driver");
-        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-
-        // Create a fake app that we can query just like we would if it was running
-        fakeApp = Helpers.fakeApplication(settings);
-        db = fakeApp.injector().instanceOf(Database.class);
-        authCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
-            .withPath("/").build();
-        nonAdminAuthCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6Mn0.sGyO22MrNoNrH928NpSK8PJXmE88_DhivVWgCl3faJ4")
-            .withPath("/").build();
-
-        destinationRepository = fakeApp.injector().instanceOf(DestinationRepository.class);
-
-        Helpers.start(fakeApp);
-    }
-
-    /**
-     * Stop the fake app
-     */
-    @AfterClass
-    public static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
-    }
+    private static final String DEST_URL_SLASH = "/api/destination/";
+    private static final String USER_DEST_URL = "/api/user/destination/";
+    private static final String CREATE_DEST_URL = "/api/destination";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
      * minimal sql data needed for tests
      */
     @Before
-    public void applyEvolutions() {
-        // Only certain trips, namely initialisation, and destinations folders
-        Evolutions.applyEvolutions(db,
-            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/destination/"));
+    public void runEvolutions() {
+        applyEvolutions("test/destination/");
     }
 
-    /**
-     * Cleans up trips after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
-    }
 
     private Destination getDestination(int id) throws IOException {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
-            .uri("/api/destination/" + id);
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + id);
 
         Result getResult = route(fakeApp, getRequest);
 
@@ -128,9 +73,11 @@ public class DestinationControllerTest extends WithApplication {
 
     @Test
     public void getDestinations() throws IOException {
+        // Gets all destinations of user with ID 1
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/destination");
+            .cookie(adminAuthCookie)
+            .uri(USER_DEST_URL + "1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -140,8 +87,8 @@ public class DestinationControllerTest extends WithApplication {
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        // Check that list has exactly 4 results
-        assertEquals(4, destinations.size());
+        // Check that list has exactly 3 results
+        assertEquals(3, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
@@ -158,7 +105,7 @@ public class DestinationControllerTest extends WithApplication {
     public void getDestinationById() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/destination/1");
+            .uri(DEST_URL_SLASH + "1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -171,7 +118,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -183,8 +130,8 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(authCookie)
-            .uri("/api/destination/100");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "100");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -197,7 +144,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/2");
+            .uri(DEST_URL_SLASH + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -209,8 +156,8 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
-            .cookie(authCookie)
-            .uri("/api/destination/4");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -229,7 +176,7 @@ public class DestinationControllerTest extends WithApplication {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/4");
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -254,8 +201,8 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
-            .uri("/api/destination/4");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -273,8 +220,8 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
-            .uri("/api/destination/100");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "100");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -300,7 +247,7 @@ public class DestinationControllerTest extends WithApplication {
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/2");
+            .uri(DEST_URL_SLASH + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -325,8 +272,8 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(authCookie)
-            .uri("/api/destination/4");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "4");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -351,7 +298,7 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .uri("/api/destination/2");
+            .uri(DEST_URL_SLASH + "2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -377,19 +324,22 @@ public class DestinationControllerTest extends WithApplication {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
         node.set("country", Json.toJson(countryDefinition));
+        User user = new User();
+        user.id = 1L;
+        node.set("user", Json.toJson(user));
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(authCookie)
-            .uri("/api/destination");
+            .cookie(adminAuthCookie)
+            .uri(CREATE_DEST_URL);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        // Get id of destination, check it is 2
+        // Get id of destination, check it is 5
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
         assertEquals(Long.valueOf(5), idOfDestination);
@@ -407,8 +357,8 @@ public class DestinationControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(authCookie)
-            .uri("/api/destination");
+            .cookie(adminAuthCookie)
+            .uri(CREATE_DEST_URL);
 
         // Get result and check it was bad request
         Result result = route(fakeApp, request);
@@ -422,12 +372,13 @@ public class DestinationControllerTest extends WithApplication {
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("district", "district field must be present");
+        expectedMessages.put("district", "District field must be present");
         expectedMessages.put("latitude", "latitude must be at least -90.000000");
-        expectedMessages.put("name", "name field must be present");
-        expectedMessages.put("_type", "_type field must be present");
+        expectedMessages.put("name", "Destination Name field must be present");
+        expectedMessages.put("_type", "Destination Type field must be present");
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
-        expectedMessages.put("country", "country field must be present");
+        expectedMessages.put("country", "Country field must be present");
+        expectedMessages.put("user", "User field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {
@@ -450,7 +401,7 @@ public class DestinationControllerTest extends WithApplication {
         // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/makePublic/1");
 
         // Get result and check it was successfully
@@ -498,17 +449,17 @@ public class DestinationControllerTest extends WithApplication {
     public void findSimilarDestinations() throws InterruptedException, ExecutionException {
         // Get all destinations on the database
         // NOTE: Using .get() here as running async lead to race conditions on db connection, sorry Harry :(
-        List<Destination> allDestinations = destinationRepository.getAllDestinations().get();
+        List<Destination> allDestinations = destinationRepository.getAllDestinations(1L).get();
         List<Destination> similarDestinations = destinationRepository
             .getSimilarDestinations(allDestinations.get(0));
 
         // Assert that 3 destinations were found, and 2 similar ones
-        Assert.assertEquals(4, allDestinations.size());
+        Assert.assertEquals(3, allDestinations.size());
         Assert.assertEquals(2, similarDestinations.size());
 
         // Now check destinations 2 and 3 were found in similarities, and 1 and 4 were not
         for (Destination destination : allDestinations) {
-            if (destination.id == 1 || destination.id == 4) {
+            if (destination.id == 1) {
                 assertFalse(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
                     .contains(destination.id));
             } else {
@@ -545,5 +496,4 @@ public class DestinationControllerTest extends WithApplication {
 
         return destinations;
     }
-
 }
