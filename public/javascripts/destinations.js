@@ -78,6 +78,7 @@ function addDestination(url, redirect) {
  */
 function populateDestinations(table) {
     //Query api to get all destinations
+    table.clear();
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations().url)
     .then(response => {
         response.json()
