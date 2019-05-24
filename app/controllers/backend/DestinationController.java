@@ -96,7 +96,7 @@ public class DestinationController extends TEABackController {
                     () -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
-            return destinationRepository.makeDestinationPublic(user, destination);
+            return destinationRepository.makeDestinationPublic(user, destination, Long.valueOf(1));
         }).thenApplyAsync(result -> result);
     }
 
