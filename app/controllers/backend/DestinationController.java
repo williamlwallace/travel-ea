@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-
 import models.Destination;
 import models.User;
 import play.libs.Json;
@@ -45,29 +44,34 @@ public class DestinationController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
         JsonNode data = request.body().asJson();
-        //Sends the received data to the validator for checking
+        User user = request.attrs().get(ActionState.USER);
+
+        // Sends the received data to the validator for checking, if error returns bad request
         ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        } else {
-            //Else, no errors found, continue with adding to the database
-            Destination newDestination = Json.fromJson(data, Destination.class);
-            // Add destination owner to be whichever user uploaded it
-            newDestination.user = new User();
-            newDestination.user.id = request.attrs().get(ActionState.USER).id;
-            return destinationRepository.addDestination(newDestination)
-                .thenApplyAsync(id -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(id)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
         }
+
+        // Add destination owner to be whichever user uploaded it
+        Destination newDestination = Json.fromJson(data, Destination.class);
+
+        // Checks if user logged in is not allowed to create dest for userId
+        if (!user.admin && !user.id.equals(newDestination.user.id)) {
+            return CompletableFuture.supplyAsync(() -> forbidden());
+        }
+
+        return destinationRepository.addDestination(newDestination)
+            .thenApplyAsync(id -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(id)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
-     * Allows a user to mark one of their destinations as public, this will cause it to become
+     * Allows a user to mark one of their destinations as public. This will cause it to become
      * immediately visible to all other users, as well as merging with any sufficiently similar
      * destinations that are currently marked as private in the database
      *
@@ -102,7 +106,7 @@ public class DestinationController extends TEABackController {
      * delete
      *
      * @param id ID of destination to delete
-     * @return OK with number of rows deleted, badrequest if none deleted
+     * @return OK with number of rows deleted, bad request if none deleted
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteDestination(Http.Request request, Long id) {
@@ -169,20 +173,38 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets all destinations. Returns a json list of all destinations.
+     * Gets all destinations valid for the requesting user
      *
-     * @return OK with list of destinations
+     * @param request Http request containing authentication information
+     * @param userId ID of user to retrieve destinations for
+     * @return OK status code with a list of destinations in the body
      */
-    public CompletableFuture<Result> getAllDestinations() {
-        return destinationRepository.getAllDestinations()
-            .thenApplyAsync(allDestinations -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(allDestinations)));
-                } catch (IOException e) {
-                    System.out.println(e);
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
+        User user = request.attrs().get(ActionState.USER);
+
+        // If user is admin or requesting for their own destinations
+        if (user.admin || user.id.equals(userId)) {
+            return destinationRepository.getAllDestinations(userId)
+                    .thenApplyAsync(allDestinations -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(allDestinations)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    });
+        }
+        // Else return only public destinations
+        else {
+            return destinationRepository.getAllPublicDestinations()
+                    .thenApplyAsync(allDestinations -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(allDestinations)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    });
+        }
     }
 
     /**
@@ -234,13 +256,13 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String
         order,
         String filter) {
-        // TODO: Destinations should be returned here which are not currently, update API spec when modified
+        // TODO: Destinations should be returned here which are not currently, update API spec
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */

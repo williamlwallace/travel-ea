@@ -7,9 +7,9 @@
 
 @layouts.imageHeader("Destinations", user, "images/destination-bg.jpg", scripts){
     <body>
-        @* The create destination modal popup *@
         <div class="container">
-            @modules.createDestinationForm()
+            @* The create destination modal popup *@
+            @modules.createDestinationForm(user.id)
             <div class="text-center">
                 <button class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create New Destination</button>
             </div><br>
@@ -37,5 +37,6 @@
 }
 
 <script type="text/javascript">
+    onPageLoad(@user.id);
     fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
 </script>

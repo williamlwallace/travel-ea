@@ -16,75 +16,25 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import models.User;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
 
-public class UserControllerTest extends WithApplication {
-
-    private static Application fakeApp;
-    private static Database db;
-    private static Cookie adminAuthCookie;
-
-    /**
-     * Configures system to use dest database, and starts a fake app
-     */
-    @BeforeClass
-    public static void setUp() {
-        // Create custom settings that change the database to use test database instead of production
-        Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.driver", "org.h2.Driver");
-        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-        adminAuthCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
-            .withPath("/").build();
-
-        // Create a fake app that we can query just like we would if it was running
-        fakeApp = Helpers.fakeApplication(settings);
-        db = fakeApp.injector().instanceOf(Database.class);
-
-        Helpers.start(fakeApp);
-    }
-
-    /**
-     * Stop the fake app
-     */
-    @AfterClass
-    public static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
-    }
+public class UserControllerTest extends ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
      * should contain minimal sql data needed for tests
      */
     @Before
-    public void applyEvolutions() {
-        Evolutions.applyEvolutions(db,
-            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/user/"));
+    public void runEvolutions() {
+        applyEvolutions("test/user/");
     }
 
-    /**
-     * Cleans up evolutions after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
-    }
 
     @Test
     public void searchUsers() throws IOException {
