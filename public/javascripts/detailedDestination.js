@@ -49,15 +49,13 @@ function deleteDestination(destinationId, redirect) {
 function makeDestinationPublic(destinationId) {
    put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(destinationId).url, {})
        .then(response => {
-           response.json().then(data => {
-               if (response.status === 200) {
-                   $("#makeDestinationPublicModal").modal('hide');
-                   createPrivacyButton(true);
-                   toast('Destination Privacy Changed', 'The destination is now public.', 'success');
-               } else {
-                   toast('Error changing privacy', response.toString(), 'danger', 5000);
-               }
-           });
+           if (response.status === 200) {
+               $("#makeDestinationPublicModal").modal('hide');
+               createPrivacyButton(true);
+               toast('Destination Privacy Changed', 'The destination is now public.', 'success');
+           } else {
+               toast('Error changing privacy', response.toString(), 'danger', 5000);
+           }
        });
 }
 
