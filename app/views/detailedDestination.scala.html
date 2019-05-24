@@ -36,11 +36,11 @@
                         <p class="heading">Country <span id="summary_country" class="destination-info">country</span></p>
                         <p class="heading">Latitude <span id="summary_latitude" class="destination-info">latitude</span></p>
                         <p class="heading">Longitude <span id="summary_longitude" class="destination-info">longitude</span></p>
-                        <p class="heading">Owner <span id="summary_user" class="destination-info">user.username</span></p>
                         @if(canModify) {
                             <p class="heading">Privacy<div id="privacy_wrapper"></div></p>
                                 <a data-toggle="modal" data-target="#editDestinationModal">
                                 @* TODO link this to the edit destination modal ?!  *@
+                            <a data-toggle="modal" data-target="#editDestinationModal" onclick="populateEditDestination(@destinationId)">
                                 <span class="destination-button" style="float: left; padding-top: 15px; padding-bottom: 0px;">Edit Destination</span>
                             </a>
                             <a data-toggle="modal" data-target="#deleteDestinationModal">
@@ -61,7 +61,7 @@
         </div>
     </body>
 
-    @* Delete Destination Modal *@
+    @* Edit Destination Modal *@
     <div class="modal fade" id="editDestinationModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -76,31 +76,31 @@
                         <div class="modal-body mx-3">
                             <div>Name
                                 <i class="fas prefix grey-text"></i>
-                                <input type="text" name="name" class="form-control validate" required>
+                                <input type="text" name="name" id="name" class="form-control validate" required>
                                 <label id="nameError" class="error-messages"></label>
                             </div>
 
                             <div>Type
                                 <i class="fas prefix grey-text"></i>
-                                <input type="text" name="_type" class="form-control validate" required>
+                                <input type="text" name="_type" id="_type" class="form-control validate" required>
                                 <label id="_typeError" class="error-messages"></label>
                             </div>
 
                             <div>District
                                 <i class="fas prefix grey-text"></i>
-                                <input type="text" name="district" class="form-control validate" required>
+                                <input type="text" name="district" id="district" class="form-control validate" required>
                                 <label id="districtError" class="error-messages"></label>
                             </div>
 
                             <div>Latitude
                                 <i class="fas prefix grey-text"></i>
-                                <input type="number" name="latitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
+                                <input type="number" name="latitude" id="latitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
                                 <label id="latitudeError" class="error-messages"></label>
                             </div>
 
                             <div>Longitude
                                 <i class="fas prefix grey-text"></i>
-                                <input type="number" name="longitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
+                                <input type="number" name="longitude" id="longitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
                                 <label id="longitudeError" class="error-messages"></label>
                             </div>
 
@@ -117,7 +117,7 @@
                     <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
                         Cancel<i class="fas fa-paper-plane-o ml-1"></i>
                     </button>
-                    <button class="btn btn-pop" onclick="editDestination(@destinationId, '@controllers.frontend.routes.DestinationController.index()')">
+                    <button class="btn btn-popup" onclick="editDestination(@destinationId)">
                         Confirm changes
                     </button>
                 </div>
@@ -181,6 +181,7 @@
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
+        fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
         populateDestinationDetails(@destinationId);
         src="@controllers.backend.routes.DestinationController.destinationRoutes()"
 </script>

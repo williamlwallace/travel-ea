@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
+import java.util.Iterator;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -56,11 +57,27 @@ public class Destination extends Model {
     public CountryDefinition country;
 
     @ManyToMany(mappedBy = "destinationPhotos")
-    @JsonBackReference
     @JoinTable(
         name = "DestinationPhoto",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
 
     public List<Photo> destinationPhotos;
+
+    /**
+     * Checks if photo is linked to destination
+     *
+     * @param destId id of destination of id
+     * @return True if dest is linked to photo
+     */
+    public Boolean isLinked(Long photoId) {
+        Iterator<Photo> iter = destinationPhotos.iterator();
+       while (iter.hasNext()) {
+           Photo photo = iter.next();
+           if (photo.guid.equals(photoId)) {
+               return true;
+           }
+       }
+       return false;
+    }
 }
