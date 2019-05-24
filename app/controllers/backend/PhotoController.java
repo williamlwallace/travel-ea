@@ -218,6 +218,8 @@ public class PhotoController extends TEABackController {
                     .copyTo(Paths.get(pair.getKey().thumbnailFilename));
             } catch (IOException e) {
                 System.out.println("PHOTO FAILED TO SAVE");
+                System.out.println("ERROR: " + e + "\nStack Trace: ");
+                e.printStackTrace();
                 // TODO: Handle case where a file failed to save
             }
         }
