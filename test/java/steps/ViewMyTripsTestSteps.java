@@ -105,7 +105,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         tripArray.add(tripData2);
         trip.tripDataList = tripArray;
         trip.userId = userId;
-        trip.privacy = 0L;
+        trip.isPublic = false;
 
         JsonNode node = Json.toJson(trip);
 
@@ -178,6 +178,4 @@ public class ViewMyTripsTestSteps extends WithApplication {
             .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertEquals(1, trips.get(0).get("userId").asInt());
     }
-
-
 }

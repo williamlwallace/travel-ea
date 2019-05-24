@@ -1,4 +1,4 @@
-@()
+@(userId: Long)
 <div class="modal fade" id="createDestinationModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
 aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -44,6 +44,7 @@ aria-hidden="true">
                     <div>Country
                         <em class="fas prefix grey-text"></em>
                         <select id="countryDropDown" name="countryId" class="form-control validate">
+
                         </select>
                         <label id="countryError" class="error-messages"></label>
                     </div>
@@ -56,7 +57,7 @@ aria-hidden="true">
                 <button class="btn btn-popup" onclick=
                 'addDestination(
                         "@controllers.backend.routes.DestinationController.addNewDestination()",
-                        "@controllers.frontend.routes.ApplicationController.home()")'>
+                        "@controllers.frontend.routes.ApplicationController.home()", @userId)'>
                     Create
                 </button>
                 <label id="otherError"></label>

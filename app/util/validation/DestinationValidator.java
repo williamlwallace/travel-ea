@@ -1,6 +1,7 @@
 package util.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import models.User;
 
 /**
  * A class which validates Destination information.
@@ -10,9 +11,11 @@ public class DestinationValidator extends Validator {
     private static final String TYPE = "_type";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
+    private final JsonNode form;
 
     public DestinationValidator(JsonNode form) {
         super(form, new ErrorResponse());
+        this.form = form;
     }
 
     /**
@@ -27,6 +30,11 @@ public class DestinationValidator extends Validator {
             this.minTextLength("name", 1);
         }
 
+        // Checks destination has an owner with an ID
+        if (this.required("user", "User") && this.form.get("user").get("id").asText("").equals("")) {
+            this.required("userId", "UserId");    // Yes I'm a bad person
+        }
+
         // Check that the destination type is present, is text, and not empty
         if (this.required(TYPE, "Destination Type") && this.isText(TYPE)) {
             this.minTextLength(TYPE, 1);
@@ -37,18 +45,18 @@ public class DestinationValidator extends Validator {
             this.minTextLength(TYPE, 1);
         }
 
-        //Check that the destination's country id is present, is text, and not empty
+        // Check that the destination's country id is present, is text, and not empty
         if (this.required("country", "Country")) {
             // TODO: Check if country is a valid countryDefinition object
         }
 
-        //Check that the latitude is present and within bounds
+        // Check that the latitude is present and within bounds
         if (this.required(LATITUDE, "Latitude") && this.isDoubleOrInt(LATITUDE)) {
             this.maxDoubleValue(LATITUDE, 90);
             this.minDoubleValue(LATITUDE, -90);
         }
 
-        //Check that the longitude is present and within bounds
+        // Check that the longitude is present and within bounds
         if (this.required(LONGITUDE, "Longitude") && this.isDoubleOrInt(LONGITUDE)) {
             this.maxDoubleValue(LONGITUDE, 180);
             this.minDoubleValue(LONGITUDE, -180);

@@ -110,11 +110,11 @@ public class DestinationRepository {
      * @return notFound if no such ID found, badRequest if it is found but already public, ok if
      * found and successfully updated to public from private
      */
-    public CompletableFuture<Result> makeDestinationPublic(User user, Destination destination) {
+    public CompletableFuture<Result> makeDestinationPublic(User user, Destination destination, Long masterId) {
         return supplyAsync(() -> {
-            // Update the publicity of the destination in the database,
-            // and check what status gets returned
+            // Update the publicity of the destination in the database, and check what status gets returned
             Result result = setDestinationToPublicInDatabase(destination.id);
+
             // if the result was anything other than okay, return this as it is an error condition
             if (result.status() != ok().status()) {
                 return result;
@@ -122,11 +122,10 @@ public class DestinationRepository {
 
             // Find all similar destinations that need to be merged
             List<Destination> destinations = getSimilarDestinations(destination);
-
             List<Long> similarIds = destinations.stream().map(x -> x.id)
                 .collect(Collectors.toList());
-            // Re-reference each instance of the old destinations to the new one,
-            // keeping track of how many rows were changed
+
+            // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
             int rowsChanged = mergeDestinationsTripData(user.id, similarIds, destination.id);
             // Photos
@@ -134,8 +133,7 @@ public class DestinationRepository {
             // If any rows were changed when re-referencing, the destination
             // has been used by another user and must be transferred to admin ownership
             if (rowsChanged > 0) {
-                destination.user.id = 1L;
-                ebeanServer.update(destination);
+                makePermanentlyPublic(destination, masterId);
             }
             return ok();
         });
@@ -150,7 +148,7 @@ public class DestinationRepository {
      * @return Result of call, ok if good, badRequest if already public, not found if no such
      * destination ID found
      */
-    public Result setDestinationToPublicInDatabase(Long destinationId) {
+    private Result setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
             .where()
             .eq("id", destinationId).findOneOrEmpty().orElse(null);
@@ -204,8 +202,7 @@ public class DestinationRepository {
             .execute();
     }
 
-    //TODO: Copy the above method (mergeDestinationsTripData)
-    // to also operate on the table joining photos and destinations
+    //TODO: Copy the above method (mergeDestinationsTripData) to also operate on the table joining photos and destinations
 
     /**
      * Get all destinations that are found to be similar to some other destination.
@@ -261,12 +258,32 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets a list of all the destinations in the database.
+     * Gets all the destinations valid for the specified user
      *
-     * @return list of destinations
+     * @param userId ID of user to retrieve destinations for
+     * @return List of destinations
      */
-    public CompletableFuture<List<Destination>> getAllDestinations() {
-        return supplyAsync(() -> ebeanServer.find(Destination.class).findList(), executionContext);
+    public CompletableFuture<List<Destination>> getAllDestinations(Long userId) {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                .where()
+                .or()
+                .eq("user_id", userId)
+                .eq("is_public", 1)
+                .findList()
+                , executionContext);
+    }
+
+    /**
+     * Gets all the public destinations
+     *
+     * @return List of destinations
+     */
+    public CompletableFuture<List<Destination>> getAllPublicDestinations() {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                        .where()
+                        .eq("is_public", 1)
+                        .findList()
+                , executionContext);
     }
 
     /**
@@ -289,5 +306,40 @@ public class DestinationRepository {
                 .setMaxRows(pageSize)
                 .findPagedList()
             , executionContext);
+    }
+
+    /**
+     * Checks if a destination belongs to the user provided
+     *
+     * @param destination Destination object to check ownership of
+     * @param userId ID of user using the destination
+     * @return A destination object if one is found and doesn't belong to the
+     * specified user or the master admin, otherwise null
+     */
+    public CompletableFuture<Destination> checkDestinationInTrip(Destination destination, Long userId, Long masterId) {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                        .where()
+                        .idEq(destination.id)
+                        .ne("user_id", userId)
+                        .ne("user_id", masterId)
+                        .findOneOrEmpty()
+                        .orElse(null)
+                , executionContext);
+    }
+
+    /**
+     * Updates the ownership of the destination to the master admin
+     *
+     * @param destination Destination to be updated
+     * @return Modified destination object
+     */
+    public CompletableFuture<Destination> makePermanentlyPublic(Destination destination, Long masterId) {
+        // Change ownership to master admin and ensures destination is public
+        destination.user.id = masterId;
+        destination.isPublic = true;
+        return supplyAsync(() -> {
+            ebeanServer.update(destination);
+            return destination;
+        }, executionContext);
     }
 }

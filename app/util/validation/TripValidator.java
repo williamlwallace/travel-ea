@@ -25,15 +25,17 @@ public class TripValidator {
      */
     public ErrorResponse validateTrip(boolean isUpdating) throws IOException {
 
-        //Validation for trip as a whole
+        // Validation for trip as a whole
         if (isUpdating) {
             this.required("id");
         }
 
-        // Validation for trip privacy
-        this.required("privacy");
+        this.required("userId");
 
-        //Validation for TripData objects
+        // Validation for trip privacy
+        this.required("isPublic");
+
+        // Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
         ArrayList tripDataCollection = mapper

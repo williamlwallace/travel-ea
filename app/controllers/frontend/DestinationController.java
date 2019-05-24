@@ -40,6 +40,7 @@ public class DestinationController extends TEAFrontController {
      * Checks that a user is logged in. Takes them to the destinations page if they are, otherwise
      * they are taken to the start page.
      *
+     * @param request Http request containing authentication information
      * @return displays the destinations or start page.
      */
     @With({Everyone.class, Authenticator.class})
@@ -81,8 +82,7 @@ public class DestinationController extends TEAFrontController {
      * @return displays the detailed destination page for the selected destination.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> detailedDestinationIndex(Http.Request request,
-        Long destinationId) {
+    public CompletableFuture<Result> detailedDestinationIndex(Http.Request request, Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
             boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;

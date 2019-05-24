@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import models.CountryDefinition;
@@ -32,7 +33,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class TripControllerTest extends ControllersTest {
+public class TripControllerTest extends controllers.backend.ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
@@ -46,14 +47,13 @@ public class TripControllerTest extends ControllersTest {
     /**
      * Trip creator to generate trips to be used in tests
      *
-     * @param privacy Trip privacy status
+     * @param isPublic Trip privacy status
      * @param destinations List of ID's of destinations to use when creating trip
      * @param arrivalTimes List of arrivalTimes to use when creating trip
      * @param departureTimes List of departureTimes to use when creating trip
      * @return Trip object created using given data
      */
-    private Trip createTestTripObject(int privacy, int[] destinations, String[] arrivalTimes,
-        String[] departureTimes) {
+    private Trip createTestTripObject(boolean isPublic, int[] destinations, String[] arrivalTimes, String[] departureTimes) {
         // Sets up datetime formatter and country definition object and empty trip data list
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -69,8 +69,7 @@ public class TripControllerTest extends ControllersTest {
             dest.country = countryDefinition;
 
             TripData tripData = new TripData();
-            tripData.position = Long
-                .valueOf(i + 1L);    // Ensures the positions iterate from 1 upwards
+            tripData.position = Long.valueOf(i + 1);    // Ensures the positions iterate from 1 upwards
             tripData.destination = dest;
 
             // Try set tripData arrival and departure times
@@ -94,23 +93,19 @@ public class TripControllerTest extends ControllersTest {
         trip.userId = 1L;
         trip.tripDataList = tripDataObjects;
 
-        if (privacy == 1) {
-            trip.privacy = 1L;
-        } else {
-            trip.privacy = 0L;
-        }
+        trip.isPublic = isPublic;
 
         return trip;
     }
 
     @Test
     public void createTrip() {
-        int privacy = 0;
-        int[] destinations = new int[]{1, 2};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -127,12 +122,12 @@ public class TripControllerTest extends ControllersTest {
 
     @Test
     public void createTripNoDest() {
-        int privacy = 0;
-        int[] destinations = new int[]{};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -149,12 +144,12 @@ public class TripControllerTest extends ControllersTest {
 
     @Test
     public void createTripSameDestTwiceAdjacent() {
-        int privacy = 0;
-        int[] destinations = new int[]{1, 1};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 1};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -171,12 +166,12 @@ public class TripControllerTest extends ControllersTest {
 
     @Test
     public void createTripOneDest() {
-        int privacy = 0;
-        int[] destinations = new int[]{1};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -194,12 +189,12 @@ public class TripControllerTest extends ControllersTest {
     @Test
     public void updateTrip() {
         // Creates trip object
-        int privacy = 0;
-        int[] destinations = new int[]{1, 2};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -219,12 +214,12 @@ public class TripControllerTest extends ControllersTest {
     @Test
     public void updateTripInvalidId() {
         // Create trip object
-        int privacy = 0;
-        int[] destinations = new int[]{1, 2};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trip.id = 100L;    // Set ID to value which doesn't exist
         JsonNode node = Json.toJson(trip);
 
@@ -243,6 +238,7 @@ public class TripControllerTest extends ControllersTest {
     public void getTrip() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/trip/1");
 
         // Get result and check it was successful
@@ -254,6 +250,7 @@ public class TripControllerTest extends ControllersTest {
     public void getTripInvalidID() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/trip/100");
 
         // Get result and check it was not successful
@@ -323,28 +320,28 @@ public class TripControllerTest extends ControllersTest {
     public void sortTripsByDateIsNewestToOldest() throws IOException {
         List<Trip> trips = new ArrayList<>();
 
-        int privacy = 0;
-        int[] destinations = new int[]{1, 2};
-        String[] arrivalTimes = new String[]{"2019-03-25 00:00:00"};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {"2019-03-25 00:00:00"};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
-        destinations = new int[]{1, 2};
-        arrivalTimes = new String[]{"2019-04-01 00:00:00"};
-        departureTimes = new String[]{};
+        isPublic = false;
+        destinations = new int[] {1, 2};
+        arrivalTimes = new String[] {"2019-04-01 00:00:00"};
+        departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
-        destinations = new int[]{1, 2};
-        arrivalTimes = new String[]{"2019-03-29 00:00:00", "2019-10-10 00:00:00"};
-        departureTimes = new String[]{};
+        isPublic = false;
+        destinations = new int[] {1, 2};
+        arrivalTimes = new String[] {"2019-03-29 00:00:00", "2019-10-10 00:00:00"};
+        departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         // Insert trips into database
@@ -362,21 +359,17 @@ public class TripControllerTest extends ControllersTest {
         JsonNode tripsJson = new ObjectMapper()
             .readValue(Helpers.contentAsString(getResult), JsonNode.class);
         trips = new ObjectMapper()
-            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {
-            });
+            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {});
         assertFalse(trips.isEmpty());
 
         for (int i = 0; i < trips.size() - 1; i++) {
             // If both not null, check index i date is after index i+1 date
-            if (trips.get(i).findFirstTripDate() != null
-                && trips.get(i + 1).findFirstTripDate() != null) {
-                assertTrue(
-                    trips.get(i).findFirstTripDate().compareTo(trips.get(i).findFirstTripDate())
-                        <= 0);
+            if (trips.get(i).findFirstTripDate() != null && trips.get(i+1).findFirstTripDate() != null) {
+                assertTrue(trips.get(i).findFirstTripDate().compareTo(trips.get(i).findFirstTripDate()) <= 0);
             }
             // Else ensure index i+1 date is null, if this is not null then index i will be null and it will not be ordered correctly
             else {
-                assertNull(trips.get(i + 1).findFirstTripDate());
+                assertNull(trips.get(i+1).findFirstTripDate());
             }
         }
     }
@@ -385,28 +378,28 @@ public class TripControllerTest extends ControllersTest {
     public void sortTripsByDateIsNullLast() throws IOException {
         List<Trip> trips = new ArrayList<>();
 
-        int privacy = 0;
-        int[] destinations = new int[]{1, 2};
-        String[] arrivalTimes = new String[]{};
-        String[] departureTimes = new String[]{};
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
-        destinations = new int[]{1, 2};
-        arrivalTimes = new String[]{"2019-04-01 00:00:00"};
-        departureTimes = new String[]{};
+        isPublic = false;
+        destinations = new int[] {1, 2};
+        arrivalTimes = new String[] {"2019-04-01 00:00:00"};
+        departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        privacy = 0;
-        destinations = new int[]{1, 2};
-        arrivalTimes = new String[]{};
-        departureTimes = new String[]{};
+        isPublic = false;
+        destinations = new int[] {1, 2};
+        arrivalTimes = new String[] {};
+        departureTimes = new String[] {};
 
-        trip = createTestTripObject(privacy, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         // Insert trips into database
@@ -424,21 +417,17 @@ public class TripControllerTest extends ControllersTest {
         JsonNode tripsJson = new ObjectMapper()
             .readValue(Helpers.contentAsString(getResult), JsonNode.class);
         trips = new ObjectMapper()
-            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {
-            });
+            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {});
         assertFalse(trips.isEmpty());
 
         for (int i = 0; i < trips.size() - 1; i++) {
             // If both not null, check index i date is after index i+1 date
-            if (trips.get(i).findFirstTripDate() != null
-                && trips.get(i + 1).findFirstTripDate() != null) {
-                assertTrue(
-                    trips.get(i).findFirstTripDate().compareTo(trips.get(i).findFirstTripDate())
-                        <= 0);
+            if (trips.get(i).findFirstTripDate() != null && trips.get(i+1).findFirstTripDate() != null) {
+                assertTrue(trips.get(i).findFirstTripDate().compareTo(trips.get(i).findFirstTripDate()) <= 0);
             }
             // Else ensure index i+1 date is null, if this is not null then index i will be null and it will not be ordered correctly
             else {
-                assertNull(trips.get(i + 1).findFirstTripDate());
+                assertNull(trips.get(i+1).findFirstTripDate());
             }
         }
     }

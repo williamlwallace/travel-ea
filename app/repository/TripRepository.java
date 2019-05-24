@@ -113,7 +113,7 @@ public class TripRepository {
                 ebeanServer.find(Trip.class)
                     .where()
                     .eq("user_id", userID)
-                    .eq("privacy", 1)
+                    .eq("is_public", 1)
                     .findList()
             , executionContext);
     }

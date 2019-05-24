@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Destination;
@@ -19,6 +20,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
+import repository.DestinationRepository;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -28,12 +30,16 @@ import util.validation.TripValidator;
  */
 public class TripController extends TEABackController {
 
-    private static final String PRIVACY = "privacy";
+    private static final String IS_PUBLIC = "isPublic";
     private final TripRepository tripRepository;
+    private final DestinationRepository destinationRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository) {
+    public TripController(TripRepository tripRepository,
+                          DestinationRepository destinationRepository) {
+
         this.tripRepository = tripRepository;
+        this.destinationRepository = destinationRepository;
     }
 
     /**
@@ -95,21 +101,29 @@ public class TripController extends TEABackController {
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
-    public CompletableFuture<Result> getTrip(Long tripId) {
-        // Get all the trip data (asynchronously) and then
-        // construct and return the json object to send
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrip(Http.Request request, Long tripId) {
+        User user = request.attrs().get(ActionState.USER);
+
         return tripRepository.getTripById(tripId).thenApplyAsync(
-            trip -> {
-                if (trip != null) {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(trip)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                trip -> {
+                    // If trip was not found in database
+                    if (trip == null) {
+                        return notFound();
                     }
-                } else {
-                    return notFound();
-                }
-            });
+                    // If trip was found and logged in user has privileges to retrieve trip
+                    else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
+                        try{
+                            return ok(sanitizeJson(Json.toJson(trip)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    }
+                    // If logged in user does not have privileges to retrieve trip
+                    else {
+                        return forbidden();
+                    }
+                });
     }
 
     /**
@@ -136,8 +150,12 @@ public class TripController extends TEABackController {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
+        trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get(PRIVACY).asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+
+        // Transfers ownership of destinations to master admin where necessary
+        transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
@@ -171,7 +189,7 @@ public class TripController extends TEABackController {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        trip.privacy = data.get(PRIVACY).asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
@@ -214,9 +232,12 @@ public class TripController extends TEABackController {
 
         // Assemble trip
         Trip trip = new Trip();
-        trip.userId = request.attrs().get(ActionState.USER).id;
+        trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get(PRIVACY).asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+
+        // Transfers ownership of destinations to master admin where necessary
+        transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         return tripRepository.insertTrip(trip).thenApplyAsync(result ->
             ok(Json.toJson("Successfully added trip"))
@@ -275,6 +296,24 @@ public class TripController extends TEABackController {
     }
 
     /**
+     * Checks the list of destinations used and if necessary transfers ownership to master admin
+     *
+     * @param userId Owner of trip being created or updated
+     * @param destinations List of tripData objects used in trip
+     */
+    private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
+        for (TripData tripData : destinations) {
+            Destination destination = tripData.destination;
+            destinationRepository.checkDestinationInTrip(destination, userId, MASTER_ADMIN_ID).thenApplyAsync(dest -> {
+                if (dest != null) {
+                    destinationRepository.makePermanentlyPublic(dest, MASTER_ADMIN_ID);
+                }
+                return true;
+            });
+        }
+    }
+
+    /**
      * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
@@ -284,10 +323,8 @@ public class TripController extends TEABackController {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.backend.routes.javascript.TripController.getAllTrips(),
-                controllers.frontend.routes.javascript.TripController.editTripIndex()
+                controllers.frontend.routes.javascript.TripController.editTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
-
 }
