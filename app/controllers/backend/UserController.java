@@ -225,20 +225,25 @@ public class UserController extends TEABackController {
                 // Otherwise if a user was found, check if correct password
                 else {
                     // Check if password given matches hashed and salted password on db
-                    if (CryptoManager
-                        .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
-                            foundUser.password)) {
-                        return ok(Json.toJson(SUCCESS)).withCookies(
-                            Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
-                            Cookie.builder(U_ID, foundUser.id.toString())
-                                .withHttpOnly(false)
-                                .build());
+                    try {
+                        if (CryptoManager
+                            .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
+                                foundUser.password)) {
+                            return ok(Json.toJson(SUCCESS)).withCookies(
+                                Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
+                                Cookie.builder(U_ID, foundUser.id.toString())
+                                    .withHttpOnly(false)
+                                    .build());
+                        } // If password was incorrect, return bad request
+                        else {
+                            errorResponse.map("Incorrect password", ERR_OTHER);
+                            return status(401, errorResponse.toJson());
+                        }
+
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        return internalServerError(Json.toJson("Error checking password!"));
                     }
-                    // If password was incorrect, return bad request
-                    else {
-                        errorResponse.map("Incorrect password", ERR_OTHER);
-                        return status(401, errorResponse.toJson());
-                    }
+
                 }
             });
     }
