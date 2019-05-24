@@ -12,7 +12,7 @@ function fillGallery(getPhotosUrl) {
         response.json().then(data => {
             // "data" should now be a list of photo models for the given user
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
-            let usersPhotos = [];
+            usersPhotos = [];
             for (let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 usersPhotos[i] = data[i];

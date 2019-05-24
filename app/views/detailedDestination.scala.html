@@ -52,6 +52,23 @@
                 @* Body Content *@
                 <div class="destination-main">
                     <div>
+                        <div class="section-title">
+                            <p>
+                                <span class="section-title">Pictures</span>
+                                @if(canModify) {
+                                    <a class="button-secondary" id="upload-gallery-image-button" >
+                                        <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
+                                    </a>
+                                    <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
+                                    accept="image/jpeg, image/png" style="display: none;" multiple/>
+                                }
+                            </p>
+                        </div><br>
+
+                        @* Photo Gallery *@
+                        <div id="main-gallery" class="text-center">There are no photos!</div>
+                        <div id="page-selection"></div>
+
                         @*Gallery modal, true as we want titles *@
                     @modules.gallery(loggedUser, canModify, true)
                     </div>
@@ -180,6 +197,7 @@
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
+        sendUserId(@loggedUser.id);
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
         populateDestinationDetails(@destinationId);
         src="@controllers.backend.routes.DestinationController.destinationRoutes()"
