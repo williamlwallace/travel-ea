@@ -66,20 +66,35 @@ function addDestination(url, redirect, userId) {
     // Post json data to given url
     post(url, data)
     .then(response => {
-
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
             if (response.status !== 200) {
                 showErrors(json);
-                toast("Error Creating Destination!", "Please try again later.", "danger");
             } else {
                 toast("Destination Created!", "The new destination will be added to the table.", "success");
                 $('#createDestinationModal').modal('hide');
 
-                // Refresh table
+                // Add row to table
                 let table = $('#dtDestination').DataTable();
-                populateDestinations(table, userId);
+                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json).url;
+                const name = data.name;
+                const type = data._type;
+                const district = data.district;
+                const latitude = data.latitude;
+                const longitude = data.longitude;
+                let country = data.country.id;
+
+                // Set country name
+                let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+                for (let i = 0; i < countries.length; i++) {
+                    if (parseInt(countries[i].value) === data.country.id) {
+                        country = countries[i].innerText;
+                        break;
+                    }
+                }
+
+                table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
             }
         });
     });
