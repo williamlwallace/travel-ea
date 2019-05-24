@@ -33,7 +33,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class TripControllerTest extends ControllersTest {
+public class TripControllerTest extends controllers.backend.ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and

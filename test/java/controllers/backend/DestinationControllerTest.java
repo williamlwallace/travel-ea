@@ -333,7 +333,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri(USER_DEST_URL);
+            .uri(CREATE_DEST_URL);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -378,7 +378,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         expectedMessages.put("_type", "Destination Type field must be present");
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
         expectedMessages.put("country", "Country field must be present");
-        expectedMessages.put("user", "user field must be present");
+        expectedMessages.put("user", "User field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {
