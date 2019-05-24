@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Destination;
 import models.TripData;
 import models.User;
@@ -24,6 +25,7 @@ import play.mvc.Result;
 /**
  * A repository that executes database operations for the Destination table.
  */
+@Singleton
 public class DestinationRepository {
 
     // The number of decimal places to check for determining similarity of destinations
@@ -208,8 +210,8 @@ public class DestinationRepository {
     // to also operate on the table joining photos and destinations
 
     /**
-     * Get all destinations that are found to be similar to some other destination.
-     * (does not include initial destination)
+     * Get all destinations that are found to be similar to some other destination. (does not
+     * include initial destination)
      *
      * This is checked by comparing their locations, and if these are similar to within some range,
      * then their names are also checked for similarity

@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
@@ -18,6 +19,7 @@ import util.objects.Pair;
 /**
  * A repository that executes database operations on the Photo database table.
  */
+@Singleton
 public class PhotoRepository {
 
     private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
@@ -119,7 +121,6 @@ public class PhotoRepository {
                 .eq(USER_ID, userID)
                 .eq(IS_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
-
 
             if (photo != null) {
                 System.out.println("RAW FROM DATABASE:");

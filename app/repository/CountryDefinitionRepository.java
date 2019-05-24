@@ -8,9 +8,11 @@ import io.ebean.PagedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.CountryDefinition;
 import play.db.ebean.EbeanConfig;
 
+@Singleton
 public class CountryDefinitionRepository {
 
     private final EbeanServer ebeanServer;
