@@ -24,7 +24,6 @@ public class Validator {
      * Checks field is not empty.
      *
      * @param field json field name
-     * @param name
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field, String name) {
