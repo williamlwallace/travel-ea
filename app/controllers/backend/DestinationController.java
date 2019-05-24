@@ -97,7 +97,7 @@ public class DestinationController extends TEABackController {
             }
             // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
             return destinationRepository.makeDestinationPublic(user, destination, MASTER_ADMIN_ID);
-        }).thenApplyAsync(result -> result); //?
+        }).thenApplyAsync(result -> result);
     }
 
     /**
@@ -270,13 +270,12 @@ public class DestinationController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
-                controllers.backend.routes.javascript.DestinationController
-                    .getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController
-                    .detailedDestinationIndex(),
-                controllers.backend.routes.javascript.DestinationController.editDestination()
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
+                controllers.backend.routes.javascript.DestinationController.editDestination(),
+                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
