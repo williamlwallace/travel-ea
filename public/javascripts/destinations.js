@@ -19,21 +19,21 @@ function onPageLoad(userId) {
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
     get(getCountriesUrl)
-        .then(response => {
-            response.json()
-            .then(data => {
-                // Json data is an array of destinations, iterate through it
-                let countryDict = {};
-
-                for(let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    countryDict[data[i]['id']] = data[i]['name'];
-                }
-
-                // Now fill the drop down box, and list of destinations
-                fillDropDown("countryDropDown", countryDict);
-            });
+    // Get the response of the request
+    .then(response => {
+        // Convert the response to json
+        response.json()
+        .then(data => {
+            // Json data is an array of destinations, iterate through it
+            let countryDict = {};
+            for (let i = 0; i < data.length; i++) {
+                // Also add the item to the dictionary
+                countryDict[data[i]['id']] = data[i]['name'];
+            }
+            // Now fill the drop down box, and list of destinations
+            fillDropDown("countryDropDown", countryDict);
         });
+    });
 }
 
 /**
@@ -43,8 +43,8 @@ function fillCountryInfo(getCountriesUrl) {
  */
 function addDestination(url, redirect, userId) {
     // Read data from destination form
-    const formData = new FormData(document.getElementById("addDestinationForm"));
-
+    const formData = new FormData(
+        document.getElementById("addDestinationForm"));
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -73,7 +73,9 @@ function addDestination(url, redirect, userId) {
             if (response.status !== 200) {
                 showErrors(json);
             } else {
-                toast("Destination Created!", "The new destination will be added to the table.", "success");
+                toast("Destination Created!",
+                    "The new destination will be added to the table.",
+                    "success");
                 $('#createDestinationModal').modal('hide');
 
                 // Add row to table
@@ -118,7 +120,8 @@ function populateDestinations(table, userId) {
             } else {
                 // Populates table
                 for (const dest in json) {
-                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                        json[dest].id).url;
                     const name = json[dest].name;
                     const type = json[dest]._type;
                     const district = json[dest].district;
@@ -126,7 +129,9 @@ function populateDestinations(table, userId) {
                     const longitude = json[dest].longitude;
                     const country = json[dest].country.name;
 
-                    table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
+                    table.row.add(
+                        [name, type, district, latitude, longitude, country,
+                            destination]).draw(false);
                 }
             }
         });
@@ -136,6 +141,6 @@ function populateDestinations(table, userId) {
 /**
  * Redirect to the destinations details page when row is clicked.
  */
-$('#dtDestination').on('click', 'tbody tr', function() {
+$('#dtDestination').on('click', 'tbody tr', function () {
     window.location = this.dataset.href;
 });

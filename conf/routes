@@ -90,7 +90,7 @@ GET           /signUp                controllers.frontend.ProfileController.crea
 GET           /home                  controllers.frontend.ApplicationController.home(request: Request)
 
 # People page
-GET           /people                controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /people                controllers.frontend.PeopleController.search(request: Request)
 
 # The Travelea trips page
 GET           /trips                 controllers.frontend.TripController.tripIndex(request: Request)

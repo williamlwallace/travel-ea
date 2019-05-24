@@ -17,7 +17,7 @@ import javax.persistence.Table;
 import org.joda.time.DateTime;
 
 /**
- * A class that models the Photo database table
+ * A class that models the Photo database table.
  */
 @Table(name = "Photo")
 @Entity
@@ -50,17 +50,17 @@ public class Photo extends Model {
     public List<Destination> destinationPhotos;
 
     /**
-     * Removes given destination from photo
+     * Removes given destination from photo.
      */
     public Boolean removeDestination(Long destId) {
         Iterator<Destination> iter = destinationPhotos.iterator();
-       while (iter.hasNext()) {
-           Destination dest = iter.next();
-           if (dest.id.equals(destId)) {
-               iter.remove();
-               return true;
-           }
-       }
-       return false;
+        while (iter.hasNext()) {
+            Destination dest = iter.next();
+            if (dest.id.equals(destId)) {
+                iter.remove();
+                return true;
+            }
+        }
+        return false;
     }
 }

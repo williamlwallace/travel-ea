@@ -3,6 +3,8 @@ package util.validation;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.regex.Pattern;
 
 /**
@@ -13,7 +15,7 @@ public class Validator {
     private final JsonNode form; //json form data
     private ErrorResponse errorResponse;
 
-    public Validator(JsonNode form, ErrorResponse errorResponse) {
+    Validator(JsonNode form, ErrorResponse errorResponse) {
         this.form = form;
         this.errorResponse = errorResponse;
     }
@@ -24,16 +26,16 @@ public class Validator {
      * @param field json field name
      * @return Boolean whether validation succeeds
      */
-    protected Boolean required(String field) {
+    protected Boolean required(String field, String name) {
         if (this.form.has(field)) {
-            if ((this.form.get(field) != null && !this.form.get(field).asText("").equals("")) ||
-                this.form.get(field).isObject()) {
+            if ((this.form.get(field) != null && !this.form.get(field).asText("").equals(""))
+                || this.form.get(field).isObject()) {
                 return true;
             } else if (this.form.get(field).isArray() && this.form.get(field).size() > 0) {
                 return true;
             }
         }
-        this.errorResponse.map(String.format("%s field must be present", field), field);
+        this.errorResponse.map(String.format("%s field must be present", name), field);
         return false;
     }
 
@@ -44,7 +46,7 @@ public class Validator {
      * @param min Min field length
      * @return Boolean whether validation succeeds
      */
-    protected Boolean minTextLength(String field, int min) {
+    Boolean minTextLength(String field, int min) {
         if (this.form.get(field).asText("").length() < min) {
             this.errorResponse
                 .map(String.format("%s has a minTextLength length of %d", field, min), field);
@@ -75,7 +77,7 @@ public class Validator {
      * @param field json field name
      * @return Boolean whether condition is met
      */
-    protected Boolean isText(String field) {
+    Boolean isText(String field) {
         if (!this.form.get(field).isTextual()) {
             this.errorResponse.map(String.format("%s must be text", field), field);
             return false;
@@ -117,7 +119,7 @@ public class Validator {
      * @param field json field name
      * @return Boolean whether condition is met
      */
-    protected Boolean isDoubleOrInt(String field) {
+    Boolean isDoubleOrInt(String field) {
         if (!this.form.get(field).isDouble() && !this.form.get(field).isInt()) {
             this.errorResponse.map(String.format("%s must be of type double", field), field);
             return false;
@@ -132,7 +134,7 @@ public class Validator {
      * @param max maxTextLength value of integer in field
      * @return Boolean whether condition is met
      */
-    protected Boolean maxDoubleValue(String field, double max) {
+    Boolean maxDoubleValue(String field, double max) {
         if (this.form.get(field).asDouble() > max) {
             this.errorResponse
                 .map(String.format("%s must be not be more than %f", field, max), field);
@@ -148,7 +150,7 @@ public class Validator {
      * @param min minTextLength value of integer in field
      * @return Boolean whether condition is met
      */
-    protected Boolean minDoubleValue(String field, double min) {
+    Boolean minDoubleValue(String field, double min) {
         if (this.form.get(field).asDouble() < min) {
             this.errorResponse.map(String.format("%s must be at least %f", field, min), field);
             return false;
@@ -212,7 +214,12 @@ public class Validator {
     protected Boolean date(String field) {
         String date = this.form.get(field).asText("");
         try {
-            new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            Date formDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+            Date currentDate = Calendar.getInstance().getTime();
+            if (formDate.after(currentDate)) {
+                this.errorResponse.map("Date of Birth cannot be after current date", field);
+                return false;
+            }
         } catch (ParseException e) {
             this.errorResponse.map("Invalid date", field);
             return false;
@@ -249,7 +256,7 @@ public class Validator {
      *
      * @return ErrorResponse
      */
-    protected ErrorResponse getErrorResponse() {
+    ErrorResponse getErrorResponse() {
         return this.errorResponse;
     }
 }
