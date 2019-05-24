@@ -27,7 +27,7 @@ import views.html.destinations;
 @Singleton
 public class DestinationController extends TEAFrontController {
 
-    private WSClient ws;
+    private final WSClient ws;
 
     @Inject
     public DestinationController(WSClient ws, HttpExecutionContext httpExecutionContext) {
@@ -52,11 +52,12 @@ public class DestinationController extends TEAFrontController {
     /**
      * Gets a Destination of selected id from api endpoint via get request.
      *
-     * @param request Http request containing authentication information
-     * @param destinationId ID of user to retrieve destinations for
-     * @return List of destinations
+     * @param request the http request.
+     * @param destinationId the id of the destination to retrieve
+     * @return List of destinations wrapped in completable future
      */
-    private CompletableFuture<Destination> getDestination(Http.Request request, Long destinationId) {
+    private CompletableFuture<Destination> getDestination(Http.Request request,
+        Long destinationId) {
         String url = "http://" + request.host() + controllers.backend.routes.DestinationController
             .getDestination(destinationId);
         CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
@@ -73,8 +74,8 @@ public class DestinationController extends TEAFrontController {
     }
 
     /**
-     * Displays a selected destinations details. Checks if the logged user is the destination owner or an admin and
-     * sets permissions accordingly.
+     * Displays a selected destinations details. Checks if the logged user is the destination owner
+     * or an admin and sets permissions accordingly.
      *
      * @param request the http request
      * @param destinationId the id of the destination to view the details of
@@ -84,9 +85,9 @@ public class DestinationController extends TEAFrontController {
     public CompletableFuture<Result> detailedDestinationIndex(Http.Request request, Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
-                    boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
-                    return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
-                }, httpExecutionContext.current());
+            boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
+            return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+        }, httpExecutionContext.current());
     }
 
 }

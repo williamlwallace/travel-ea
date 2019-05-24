@@ -6,17 +6,19 @@ import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.typesafe.config.Config;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
-import java.io.IOException;
 import javax.inject.Inject;
 import models.User;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Cookie;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.UserRepository;
@@ -60,7 +62,7 @@ public class UserController extends TEABackController {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id)
             .thenApplyAsync(users -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(users)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
@@ -72,7 +74,7 @@ public class UserController extends TEABackController {
      * Delete a users account.
      *
      * @param request HTTP request
-     * @return Ok if user successfully deleted, badrequest if no such user found
+     * @return Ok if user successfully deleted, bad request if no such user found
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteUser(Http.Request request) {
@@ -84,7 +86,7 @@ public class UserController extends TEABackController {
      * Delete a user with given uid admin only.
      *
      * @param userId ID of user to delete
-     * @return Ok if user successfully deleted, badrequest if no such user found
+     * @return Ok if user successfully deleted, bad request if no such user found
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteOtherUser(Http.Request request, Long userId) {
@@ -100,7 +102,7 @@ public class UserController extends TEABackController {
      * Delete a user with given uid helper function.
      *
      * @param userId ID of user to delete
-     * @return Ok if user successfully deleted, badrequest if no such user found
+     * @return Ok if user successfully deleted, bad request if no such user found
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
         return userRepository.deleteUser(userId)
@@ -145,9 +147,15 @@ public class UserController extends TEABackController {
             //Generate a new salt for the new user
             newUser.salt = CryptoManager.generateNewSalt();
 
-            //Generate the salted password
-            newUser.password = CryptoManager
-                .hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
+            try {
+                //Generate the salted password
+                newUser.password = CryptoManager
+                    .hashPassword(newUser.password, Base64.getDecoder().decode(newUser.salt));
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                return CompletableFuture.supplyAsync(() ->
+                    internalServerError(Json.toJson("Error hashing password"))
+                );
+            }
 
             //This block ensures that the username (email) is
             // not taken already, and returns a CompletableFuture<Result>
@@ -159,12 +167,14 @@ public class UserController extends TEABackController {
                         //If a user is found pass null into the next function
                         return CompletableFuture.supplyAsync(() -> null);
                     } else {
-                        //If a user is not found pass the result of insertUser (a Long) ito the next function
+                        //If a user is not found pass the result of insertUser
+                        // (a Long) ito the next function
                         return userRepository.insertUser(newUser);
                     }
                 })
                 .thenApplyAsync(user -> {
-                    //Num should be a uid of a new user or null, the return of this lambda is the overall return of the whole method
+                    //Num should be a uid of a new user or null,
+                    // the return of this lambda is the overall return of the whole method
                     if (user == null) {
                         //Create the error to be sent to client
                         validatorResult.map("Email already in use", ERR_OTHER);
@@ -172,7 +182,8 @@ public class UserController extends TEABackController {
                             .toJson());    //If the uid is null, return a badRequest message...
                     } else {
                         if (request.cookies().getCookie(JWT_AUTH).orElse(null) == null) {
-                            //If the auth cookie is not null, return an ok message with the uid contained within
+                            //If the auth cookie is not null,
+                            // return an ok message with the uid contained within
                             return ok(Json.toJson(SUCCESS))
                                 .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
                         } else {
@@ -208,34 +219,37 @@ public class UserController extends TEABackController {
             .thenApplyAsync(foundUser -> {
                 // If no such user was found with that username, return bad request
                 if (foundUser == null) {
-                    errorResponse.map("Unauthorised", ERR_OTHER);
+                    errorResponse.map("Incorrect email", ERR_OTHER);
                     return status(401, errorResponse.toJson());
                 }
                 // Otherwise if a user was found, check if correct password
                 else {
                     // Check if password given matches hashed and salted password on db
-                    if (CryptoManager
-                        .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
-                            foundUser.password)) {
-                        return ok(Json.toJson(SUCCESS)).withCookies(
-                            Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
-                            Cookie.builder(U_ID, foundUser.id.toString())
-                                .withHttpOnly(false)
-                                .build());
+                    try {
+                        if (CryptoManager
+                            .checkPasswordMatch(json.get("password").asText(""), foundUser.salt,
+                                foundUser.password)) {
+                            return ok(Json.toJson(SUCCESS)).withCookies(
+                                Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
+                                Cookie.builder(U_ID, foundUser.id.toString())
+                                    .withHttpOnly(false)
+                                    .build());
+                        } // If password was incorrect, return bad request
+                        else {
+                            errorResponse.map("Incorrect password", ERR_OTHER);
+                            return status(401, errorResponse.toJson());
+                        }
+
+                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                        return internalServerError(Json.toJson("Error checking password!"));
                     }
-                    // If password was incorrect, return bad request
-                    else {
-                        errorResponse.map("Unauthorised", ERR_OTHER);
-                        return status(401, errorResponse.toJson());
-                    }
+
                 }
             });
     }
 
-    // TODO: Update API spec
-
     /**
-     * Returns a user with the given id
+     * Returns a user with the given id.
      *
      * @param userId User id of user to retrieve name of
      * @return User object
@@ -258,7 +272,7 @@ public class UserController extends TEABackController {
                 }
             });
         } else {
-            return CompletableFuture.supplyAsync(() -> forbidden());
+            return CompletableFuture.supplyAsync(Results::forbidden);
         }
     }
 
@@ -290,7 +304,7 @@ public class UserController extends TEABackController {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */

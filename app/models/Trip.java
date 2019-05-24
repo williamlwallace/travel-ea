@@ -2,8 +2,6 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
-
-import java.util.Comparator;
 import java.util.List;
 import javax.persistence.*;
 
@@ -38,9 +36,15 @@ public class Trip extends Model implements Comparable<Trip> {
     public String findFirstTripDate() {
         for (TripData tripData : tripDataList) {
             if (tripData.arrivalTime != null) {
-                return tripData.arrivalTime.toString().substring(0, 10);
+                String arrivalYear = tripData.arrivalTime.toString().substring(0, 4);
+                String arrivalMonth = tripData.arrivalTime.toString().substring(5, 7);
+                String arrivalDay = tripData.arrivalTime.toString().substring(8, 10);
+                return arrivalDay + "-" + arrivalMonth + "-" + arrivalYear;
             } else if (tripData.departureTime != null) {
-                return tripData.departureTime.toString().substring(0, 10);
+                String departYear = tripData.departureTime.toString().substring(0, 4);
+                String departMonth = tripData.departureTime.toString().substring(5, 7);
+                String departDay = tripData.departureTime.toString().substring(8, 10);
+                return departDay + "-" + departMonth + "-" + departYear;
             }
         }
 
@@ -48,8 +52,8 @@ public class Trip extends Model implements Comparable<Trip> {
     }
 
     /**
-     * Comparator which allows for trips to be compared and sorted by date
-     * Will sort by recent first, with nulls last
+     * Comparator which allows for trips to be compared and sorted by date. Will sort by recent
+     * first, with nulls last
      *
      * @param other Trip to compare against
      * @return Negative or zero integer if this trip should be first, otherwise positive
