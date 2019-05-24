@@ -124,11 +124,7 @@ function populateEditDestination(destinationId) {
 }
 
 let USERID = null;
-let canEdit;
-
-function setPermissions(loggedUser, user) {
-    canEdit = (loggedUser === user);
-}
+let canEdit = true;
 
 /**
  * allows the upload image button call the link photo modal which then
@@ -149,4 +145,10 @@ function sendUserIdAndFillGallery(userId) {
     USERID = userId;
     //TODO update this to be the get linked destinations method
     fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "main-gallery", "page-selection")
+}
+
+function linkPhoto(currentIndex, imagesCount) {
+    console.log("Suop");
+
+
 }

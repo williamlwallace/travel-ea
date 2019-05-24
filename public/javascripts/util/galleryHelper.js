@@ -45,10 +45,13 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
                 // Also add the item to the dictionary
                 usersPhotos[i] = data[i];
             }
-            // Now create gallery objects
-            let galleryObjects = createGalleryObjects(true);
-            // And populate the gallery!
-            addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
+            if (galleryId === "link-gallery") {
+                let galleryObjects = createGalleryObjects(false, true);
+                addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
+            } else {
+                let galleryObjects = createGalleryObjects(true);
+                addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
+            }
         });
     });
 }
@@ -60,7 +63,7 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * @param hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
  * @returns {Array} the array of photo gallery objects
  */
-function createGalleryObjects(hasFullSizeLinks) {
+function createGalleryObjects(hasFullSizeLinks, withLinkButton=false) {
     let galleryObjects = [];
     let numPages = Math.ceil(usersPhotos.length / 6);
     for (let page = 0; page < numPages; page++) {
@@ -96,25 +99,14 @@ function createGalleryObjects(hasFullSizeLinks) {
                     deleteButton.innerHTML = "&times;";
                     tile.appendChild(deleteButton);
 
-                    // Create toggle button TODO this is in an ugly position, will change
-                    let toggleButton = document.createElement("span");
-                    let toggleLabel = document.createElement("input");
-                    toggleLabel.setAttribute("class", "privacy");
-                    toggleLabel.setAttribute("id", guid + "privacy");
-                    toggleLabel.setAttribute("type", "image");
-
-                    if (isPublic) {
-                        toggleLabel.setAttribute("src",
-                            "/assets/images/public.png");
-                    } else {
-                        toggleLabel.setAttribute("src",
-                            "/assets/images/private.png");
-                    }
-                    toggleLabel.innerHTML = isPublic ? "Public" : "Private";
-                    toggleLabel.setAttribute("onClick",
-                        "togglePrivacy(" + guid + "," + !isPublic + ")");
-                    toggleButton.appendChild(toggleLabel);
+                    // Create toggle button
+                    let toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
+
+                    if (withLinkButton) {
+                        let linkButton = createToggleButton(isPublic, guid);
+                        tile.appendChild(linkButton)
+                    }
                 }
                 photo.href = filename;
             }
@@ -142,6 +134,33 @@ function createGalleryObjects(hasFullSizeLinks) {
 }
 
 /**
+ * Helper function to greate the button on the photo that toggles privacy
+ * @param isPublic current state of the photo
+ * @returns {HTMLElement} the created toggle button to add to the photo
+ */
+function createToggleButton (isPublic, guid) {
+    let toggleButton = document.createElement("span");
+    let toggleLabel = document.createElement("input");
+    toggleLabel.setAttribute("class", "privacy");
+    toggleLabel.setAttribute("id", guid + "privacy");
+    toggleLabel.setAttribute("type", "image");
+
+    if (isPublic) {
+        toggleLabel.setAttribute("src",
+            "/assets/images/public.png");
+    } else {
+        toggleLabel.setAttribute("src",
+            "/assets/images/private.png");
+    }
+    toggleLabel.innerHTML = isPublic ? "Public" : "Private";
+    toggleLabel.setAttribute("onClick",
+        "togglePrivacy(" + guid + "," + !isPublic + ")");
+    toggleButton.appendChild(toggleLabel);
+    return toggleButton;
+}
+
+
+/**
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
@@ -162,9 +181,10 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         }).on("page", function (event, num) {
             currentPage = num;
             $(galleryId).html(galleryObjects[currentPage - 1]);
-            if (galleryId === "link-gallery") {
+            if (galleryId[0].id === "link-gallery") {
                 baguetteBox.run('.tz-gallery', {
-                    buttons: false
+                    buttons: false,
+                    afterShow: linkPhoto()
                 });
             } else {
                 baguetteBox.run('.tz-gallery');
@@ -173,15 +193,15 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
                 let guid = $(this).closest('.img-wrap').find('a').data("id");
                 let filename = $(this).closest('.img-wrap').find('a').data(
                     "filename");
-
                 removePhoto(guid, filename);
             });
         });
         // set first page
         $(galleryId).html(galleryObjects[currentPage - 1]);
-        if (galleryId === "link-gallery") {
+        if (galleryId[0].id === "link-gallery") {
             baguetteBox.run('.tz-gallery', {
-                buttons: false
+                buttons: false,
+                afterShow: linkPhoto()
             });
         } else {
             baguetteBox.run('.tz-gallery');
