@@ -30,6 +30,7 @@ import util.validation.TripValidator;
  */
 public class TripController extends TEABackController {
 
+    private static final String IS_PUBLIC = "isPublic";
     private final TripRepository tripRepository;
     private final DestinationRepository destinationRepository;
 
@@ -76,7 +77,7 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Attempts to get all trips
+     * Attempts to get all trips.
      *
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
@@ -84,7 +85,7 @@ public class TripController extends TEABackController {
     public CompletableFuture<Result> getAllTrips() {
         return tripRepository.getAllTrips()
             .thenApplyAsync(trips -> {
-                try{
+                try {
                     return ok(sanitizeJson(Json.toJson(trips)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
@@ -111,7 +112,7 @@ public class TripController extends TEABackController {
                         return notFound();
                     }
                     // If trip was found and logged in user has privileges to retrieve trip
-                    else if (user.admin || user.id.equals(trip.userId) || trip.privacy == 1) {
+                    else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
                         try{
                             return ok(sanitizeJson(Json.toJson(trip)));
                         } catch (IOException e) {
@@ -151,7 +152,7 @@ public class TripController extends TEABackController {
         trip.id = data.get("id").asLong();
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -160,15 +161,14 @@ public class TripController extends TEABackController {
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
             if (uploaded) {
                 return ok(Json.toJson(trip.id));
-            }
-            else {
+            } else {
                 return badRequest();
             }
         });
     }
 
     /**
-     * Updates the privacy of a trip
+     * Updates the privacy of a trip.
      *
      * @param request Request containing JSON data of trip to update
      * @return Returns ok with trip id on success, otherwise bad request
@@ -189,7 +189,7 @@ public class TripController extends TEABackController {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
@@ -234,7 +234,7 @@ public class TripController extends TEABackController {
         Trip trip = new Trip();
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -246,14 +246,14 @@ public class TripController extends TEABackController {
 
     /**
      * Helper method to convert some json node of the format that is sent by the front end, to an
-     * arraylist of trip data, which is much more usable by the rest of the java code. By taking
+     * array list of trip data, which is much more usable by the rest of the java code. By taking
      * this approach, we are also able to avoid the issue where jackson required all fields to be
      * present when deserializing, but as per our design requirements, the arrival and departure
      * times for each point must be able to not be specified
      *
      * @param data JSON object storing list of tripData
      * @param trip Trip object to be referenced to by tripData
-     * @return Arraylist of tripData that has been deserialized from node
+     * @return Array list of tripData that has been deserialized from node
      */
     private ArrayList<TripData> nodeToTripDataList(JsonNode data, Trip trip) {
         // Store created data points in list
@@ -264,7 +264,7 @@ public class TripController extends TEABackController {
             // Assemble trip data
             TripData tripData = new TripData();
 
-            // Assign tripdata to correct trip
+            // Assign trip data to correct trip
             tripData.trip = trip;
 
             // Get position and destinationId from json object,
@@ -304,9 +304,9 @@ public class TripController extends TEABackController {
     private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
         for (TripData tripData : destinations) {
             Destination destination = tripData.destination;
-            destinationRepository.checkDestinationInTrip(destination, userId).thenApplyAsync(dest -> {
+            destinationRepository.checkDestinationInTrip(destination, userId, MASTER_ADMIN_ID).thenApplyAsync(dest -> {
                 if (dest != null) {
-                    destinationRepository.makePermanentlyPublic(dest);
+                    destinationRepository.makePermanentlyPublic(dest, MASTER_ADMIN_ID);
                 }
                 return true;
             });
@@ -314,7 +314,7 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */
@@ -323,7 +323,7 @@ public class TripController extends TEABackController {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.frontend.routes.javascript.TripController.editTripIndex()
+                controllers.frontend.routes.javascript.TripController.editTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

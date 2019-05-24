@@ -48,7 +48,7 @@ public class TripData extends Model {
     public LocalDateTime departureTime;
 
     /**
-     * Transforms the arrival time to an ISO string an returns it
+     * Transforms the arrival time to an ISO string an returns it.
      *
      * @return ISO string format of the arrival time or null
      */
@@ -61,7 +61,7 @@ public class TripData extends Model {
     }
 
     /**
-     * Transforms the departure time to an ISO string an returns it
+     * Transforms the departure time to an ISO string an returns it.
      *
      * @return ISO string format of the departure time or null
      */

@@ -1,17 +1,18 @@
 let countryDict = {};
+let destinationTable;
 
 /**
  * Initializes destination table and calls method to populate
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const table = $('#destTable').DataTable( {
+    destinationTable = $('#destTable').DataTable( {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length-2]);
             $(row).attr('data-countryId', data[data.length-1]);
         }
     });
-    populateTable(table, userId);
+    populateTable(destinationTable, userId);
 }
 
 /**
@@ -19,7 +20,7 @@ function onPageLoad(userId) {
  * @param {Object} table to populate
  * @param {Number} userId - ID of user to retrieve destinations for
  */
-function populateTable(table, userId){
+function populateTable(table, userId) {
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
     .then(response => {
         // Read response from server, which will be a json object
@@ -28,7 +29,7 @@ function populateTable(table, userId){
             if(response.status !== 200) {
                 showErrors(json);
             } else {
-                for(const destination of json) {
+                for (const destination of json) {
                     const id = destination.id;
                     const name = destination.name;
                     const type = destination._type;
@@ -57,7 +58,7 @@ $('#destTable').on('click', 'button', function() {
     let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
     let countryId = $(this).parents('tr').attr("data-countryId");
     let id = $(this).parents('tr').attr('id');
-    
+
     addDestinationToTrip(id, name, district, type, latitude, longitude, countryId);
 });
 
@@ -94,7 +95,7 @@ function addDestination(url, redirect, userId) {
 
             // Read response from server, which will be a json object
             response.json()
-                .then(json => {
+                .then(destId => {
                     if (response.status !== 200) {
                         showErrors(json);
                     } else {
@@ -102,36 +103,43 @@ function addDestination(url, redirect, userId) {
                         $('#createDestinationModal').modal('hide');
 
                         // Add row to table
-                        let table = $('#destTable').DataTable();
-
-                        const id = response.data;
-                        const name = data.name;
-                        const type = data._type;
-                        const district = data.district;
-                        const latitude = data.latitude;
-                        const longitude = data.longitude;
-                        let country = data.country.id;
-
-                        // Set country name
-                        let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
-                        for (let i = 0; i < countries.length; i++) {
-                            if (parseInt(countries[i].value) === data.country.id) {
-                                country = countries[i].innerText;
-                                break;
-                            }
-                        }
-
-                        const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                        const row = [name, type, district, latitude, longitude, country, button, id, data.country.id];
-                        table.row.add(row).draw(false);
+                        data.id = destId;
+                        addRow(data);
                     }
                 });
         });
 }
 
 /**
+ * Adds a row to the destinations table with the given data
+ * @param {Object} data - Data object to be added to table
+ */
+function addRow(data) {
+    const id = data.id;
+    const name = data.name;
+    const type = data._type;
+    const district = data.district;
+    const latitude = data.latitude;
+    const longitude = data.longitude;
+    let country = data.country.id;
+
+    // Set country name
+    let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+    for (let i = 0; i < countries.length; i++) {
+        if (parseInt(countries[i].value) === data.country.id) {
+            country = countries[i].innerText;
+            break;
+        }
+    }
+
+    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+    const row = [name, type, district, latitude, longitude, country, button, id, data.country.id];
+    destinationTable.row.add(row).draw(false);
+}
+
+/**
  * Gets all countries and fills into dropdown
- * @param {stirng} getCountriesUrl - get all countries URI
+ * @param {string} getCountriesUrl - get all countries URI
  */
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
@@ -143,7 +151,7 @@ function fillCountryInfo(getCountriesUrl) {
         .then(data => {
             // Json data is an array of destinations, iterate through it
             countryDict = {};
-            for(let i = 0; i < data.length; i++) {
+            for (let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 countryDict[data[i]['id']] = data[i]['name'];
             }
@@ -166,7 +174,7 @@ function updateDestinationsCountryField(countryDict) {
 
         for (let j = 0; j < dataList.length; j++) {
             if (dataList[j].getAttribute("id") === "country") {
-                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))]; // No idea why tds[i].value is not working
+                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))];
             }
         }
     }
@@ -215,15 +223,14 @@ function newDestination(uri) {
 
     console.log(data);
     // Post json data to given uri
-    post(uri,data)
+    post(uri, data)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-            if (response.status != 200) {
+        .then(json => {
+            if (response.status !== 200) {
                 showErrors(json);
             } else {
-                // TODO: Get toggle working
                 document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
             }
         });
@@ -232,10 +239,18 @@ function newDestination(uri) {
 
 /**
  * Adds destination card and fills data
- * @param {Object} dest - List of destination data
+ *
+ * @param id Id of the destination
+ * @param name Name of the destination
+ * @param type Type of the destination
+ * @param district District of the destination
+ * @param latitude Latitude of the destination
+ * @param longitude Longitude of the destination
+ * @param countryId CountryID of the destination
  */
-function addDestinationToTrip(id, name, type, district, latitude, longitude, countryId) {
-    let cards = $( "#list" ).sortable('toArray');
+function addDestinationToTrip(id, name, type, district, latitude, longitude,
+    countryId) {
+    let cards = $("#list").sortable('toArray');
     let cardId = 0;
 
     // Finds id not used
@@ -245,42 +260,47 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude, cou
 
     document.getElementById('list').insertAdjacentHTML('beforeend',
         '<div class="card flex-row" id=' + cardId + '>\n' +
-            '<label id=' + id + '></label>' +
+        '<label id=' + id + '></label>' +
         '<div class="card-header border-0" style="height: 100%">\n' +
-            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n' +    // TODO: Store default card image rather than reference
+        '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
+        +    // TODO: Store default card image rather than reference
         '</div>\n' +
         '<div class="card-block px-2">\n' +
-            '<div id="topCardBlock">\n' +
-                '<h4 class="card-title">' + name + '</h4>\n' +
-        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(' + cardId + ')"></button>\n' +
-            '</div>\n' +
-            '<div id="left">\n' +
-                '<p class="card-text" id="card-text">' +
-                    '<b>Type: </b> '+ type + '<br/>' +
-                    '<b>District: </b> '+ district + '<br/>' +
-                    '<b>Latitude: </b>' + latitude + '<br/>' +
-                    '<b>Longitude: </b>' + longitude + '<br/>' +
-                    '<b>Country: </b>' + countryDict[countryId] +
-                '</p>\n' +
-            '</div>' +
-            '<div id="right">\n' +
-                '<form id="arrivalDepartureForm">\n' +
-    '                <div class="modal-body mx-3">\n' +
-    '                    <div id="arrival">Arrival\n' +
-    '                        <i class="fas prefix grey-text"></i>\n' +
-    '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n' +
-    '                    </div>\n' +
-    '                    <div id="depart">Departure\n' +
-    '                        <i class="fas prefix grey-text"></i>\n' +
-    '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n' +
-    '                    </div>\n' +
-    '                </div>\n' +
-    '            </form>\n' +
-                '<div style="text-align: center;">\n' +
-                    '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n' +
-                    '<br/>\n' +
-                '</div>\n' +
-            '</div>\n' +
+        '<div id="topCardBlock">\n' +
+        '<h4 class="card-title">' + name + '</h4>\n' +
+        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
+        + cardId + ')"></button>\n' +
+        '</div>\n' +
+        '<div id="left">\n' +
+        '<p class="card-text" id="card-text">' +
+        '<b>Type: </b> ' + type + '<br/>' +
+        '<b>District: </b> ' + district + '<br/>' +
+        '<b>Latitude: </b>' + latitude + '<br/>' +
+        '<b>Longitude: </b>' + longitude + '<br/>' +
+        '<b>Country: </b>' + countryDict[countryId] +
+        '</p>\n' +
+        '</div>' +
+        '<div id="right">\n' +
+        '<form id="arrivalDepartureForm">\n' +
+        '                <div class="modal-body mx-3">\n' +
+        '                    <div id="arrival">Arrival\n' +
+        '                        <i class="fas prefix grey-text"></i>\n' +
+        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
+        +
+        '                    </div>\n' +
+        '                    <div id="depart">Departure\n' +
+        '                        <i class="fas prefix grey-text"></i>\n' +
+        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
+        +
+        '                    </div>\n' +
+        '                </div>\n' +
+        '            </form>\n' +
+        '<div style="text-align: center;">\n' +
+        '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
+        +
+        '<br/>\n' +
+        '</div>\n' +
+        '</div>\n' +
         '</div>'
     );
 }
@@ -333,23 +353,23 @@ function createTrip(uri, redirect, userId) {
 
     // Value of 1 for public, 0 for private
     if (tripPrivacy === "Make Private") {
-        tripData["privacy"] = 1;
+        tripData["isPublic"] = true;
     }
     else {
-        tripData["privacy"] = 0;
+        tripData["isPublic"] = false;
     }
 
     post(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-                if (response.status === 400) {
-                    showErrors(json);
-                } else if (response.status === 200) {
-                    window.location.href = redirect;
-                }
-            });
+        .then(json => {
+            if (response.status === 400) {
+                showErrors(json);
+            } else if (response.status === 200) {
+                window.location.href = redirect;
+            }
         });
+    });
 }
 
 /**
@@ -419,7 +439,7 @@ function showErrors(json) {
     if (keys.includes("trip")) {
         tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
             '<a class="close" data-dismiss="alert">×</a>' +
-            '<span>'+ json["trip"] +'</span></div>';
+            '<span>' + json["trip"] + '</span></div>';
     }
     else {
         tripError.innerHTML = "";
@@ -449,7 +469,7 @@ function showErrors(json) {
 
 /**
  * Relocate to individual trip page
- * @param {stirng} uri - URI of trip
+ * @param {string} uri - URI of trip
  */
 function viewTrip(uri) {
     window.location.href = uri;
@@ -458,7 +478,7 @@ function viewTrip(uri) {
 /**
  * Gathers trip data and sends to API to update
  * @param {string} uri - API URI to update trip
- * @param {stirng} redirect - URI to redirect if successful
+ * @param {string} redirect - URI to redirect if successful
  * @param {Number} tripId - ID of trip to update
  * @param {Number} userId - User ID of trip owner
  */
@@ -483,23 +503,25 @@ function updateTrip(uri, redirect, tripId, userId) {
 
     // Value of 1 for public, 0 for private
     if (tripPrivacy === "Make Private") {
-        tripData["privacy"] = 1;
+        tripData["isPublic"] = true;
     }
     else {
-        tripData["privacy"] = 0;
+        tripData["isPublic"] = false;
     }
 
     put(uri, tripData).then(response => {
         // Read response from server, which will be a json object
         response.json()
-            .then(json => {
-                if (response.status === 400) {
-                    showErrors(json);
-                } else if (response.status === 200) {
-                    window.location.href = redirect;
-                } else {
-                    document.getElementById("destinationError").innerHTML = "Error(s): " + Object.values(json).join(", ");
-                }
-            });
+        .then(json => {
+            if (response.status === 400) {
+                showErrors(json);
+            } else if (response.status === 200) {
+                window.location.href = redirect;
+            } else {
+                document.getElementById(
+                    "destinationError").innerHTML = "Error(s): "
+                    + Object.values(json).join(", ");
+            }
+        });
     });
 }

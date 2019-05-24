@@ -90,16 +90,16 @@ GET           /signUp                controllers.frontend.ProfileController.crea
 GET           /home                  controllers.frontend.ApplicationController.home(request: Request)
 
 # People page
-GET           /people                controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /people                controllers.frontend.PeopleController.search(request: Request)
 
 # The Travelea trips page
 GET           /trips                 controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET           /trips/create/:id      controllers.frontend.TripController.createTripIndex(request: Request, id: Long)
+GET           /trips/create/:id      controllers.frontend.TripController.createTrip(request: Request, id: Long)
 
 # The Travelea edit trip page
-GET           /trips/edit/:id        controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
+GET           /trips/edit/:id        controllers.frontend.TripController.editTrip(request: Request, id: Long)
 
 # Create new profile
 GET           /profile/create        controllers.frontend.ProfileController.createProfileIndex(request: Request)

@@ -61,7 +61,7 @@ public class TripController extends TEAFrontController {
      * @return OK status while rendering and displaying the create trip page
      */
     @With({Everyone.class, Authenticator.class})
-    public Result createTripIndex(Http.Request request, Long userId) {
+    public Result createTrip(Http.Request request, Long userId) {
         User loggedInUser = request.attrs().get(ActionState.USER);
 
         if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
@@ -80,10 +80,10 @@ public class TripController extends TEAFrontController {
      * @return displays the create trip or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> editTripIndex(Http.Request request, Long tripId) {
+    public CompletableFuture<Result> editTrip(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
 
-        return getTrip(request, tripId).thenComposeAsync(
+        return this.getTrip(request, tripId).thenComposeAsync(
                 trip -> {
                     // If user is allowed to edit trip, renders edit trip page
                     if (user.admin || user.id.equals(trip.userId)) {
@@ -106,7 +106,8 @@ public class TripController extends TEAFrontController {
      */
     private CompletableFuture<List<Trip>> getUserTrips(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        String url = "http://" + request.host() + controllers.backend.routes.TripController.getAllUserTrips(user.id);
+        String url = HTTP + request.host() + controllers.backend.routes.TripController
+            .getAllUserTrips(user.id);
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
@@ -131,7 +132,7 @@ public class TripController extends TEAFrontController {
      * @return Requested trip object
      */
     private CompletableFuture<Trip> getTrip(Http.Request request, Long tripId) {
-        String url = "http://" + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
+        String url = HTTP + request.host() + controllers.backend.routes.TripController.getTrip(tripId);
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))

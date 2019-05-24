@@ -1,30 +1,35 @@
 /**
  * Function to populate gallery with current users photos
- * @param {string} the url to get all photos
+ *
+ * @param getPhotosUrl TODO: Please fill
  */
 function fillGallery(getPhotosUrl) {
-    console.log("suo");
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
-        .then(response => {
-            // Convert the response to json
-            response.json().then(data => {
-                // "data" should now be a list of photo models for the given user
-                // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
-                // Now create gallery objects
-                let galleryObjects = createGalleryObjects(true);
-                // And populate the gallery!
-                addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
-            });
+    .then(response => {
+        // Convert the response to json
+        response.json().then(data => {
+            // "data" should now be a list of photo models for the given user
+            // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+            let usersPhotos = [];
+            for (let i = 0; i < data.length; i++) {
+                // Also add the item to the dictionary
+                usersPhotos[i] = data[i];
+            }
+            // Now create gallery objects
+            let galleryObjects = createGalleryObjects(true);
+            // And populate the gallery!
+            addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
         });
+    });
 }
 
 /**
  * allows the upload image button to act as an input field by clicking on the upload image file field
  * For a normal photo
  */
-$("#upload-gallery-image-button").click(function() {
+$("#upload-gallery-image-button").click(function () {
     $("#upload-gallery-image-file").click();
 });
 
@@ -32,13 +37,12 @@ $("#upload-gallery-image-button").click(function() {
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
- * @returns {Object} the array of photo gallery objects
+ * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks) {
-    //TODO split this up into helper functions
     let galleryObjects = [];
     let numPages = Math.ceil(usersPhotos.length / 6);
-    for(let page = 0; page < numPages; page++) {
+    for (let page = 0; page < numPages; page++) {
         // page is the page number starting from 0
         // Create a gallery which will have 6 photos
         let newGallery = document.createElement("div");
@@ -48,7 +52,9 @@ function createGalleryObjects(hasFullSizeLinks) {
         let row = document.createElement("div");
         row.setAttribute("class", "row");
         // create each photo tile
-        for (let position = 0; position <= 5 && (6 * page + position) < usersPhotos.length; position++) {
+        for (let position = 0;
+            position <= 5 && (6 * page + position) < usersPhotos.length;
+            position++) {
             let tile = document.createElement("div");
             tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
 
@@ -77,12 +83,15 @@ function createGalleryObjects(hasFullSizeLinks) {
                     toggleLabel.setAttribute("type", "image");
 
                     if (isPublic) {
-                        toggleLabel.setAttribute("src", "/assets/images/public.png");
+                        toggleLabel.setAttribute("src",
+                            "/assets/images/public.png");
                     } else {
-                        toggleLabel.setAttribute("src", "/assets/images/private.png");
+                        toggleLabel.setAttribute("src",
+                            "/assets/images/private.png");
                     }
                     toggleLabel.innerHTML = isPublic ? "Public" : "Private";
-                    toggleLabel.setAttribute("onClick","togglePrivacy(" + guid + "," + !isPublic + ")");
+                    toggleLabel.setAttribute("onClick",
+                        "togglePrivacy(" + guid + "," + !isPublic + ")");
                     toggleButton.appendChild(toggleLabel);
                     tile.appendChild(toggleButton);
                 }
@@ -91,7 +100,8 @@ function createGalleryObjects(hasFullSizeLinks) {
             photo.setAttribute("data-id", guid);
             photo.setAttribute("data-filename", filename);
             // thumbnail
-            let thumbnail = usersPhotos[(6 * page + position)]["thumbnailFilename"];
+            let thumbnail = usersPhotos[(6 * page
+                + position)]["thumbnailFilename"];
             let thumb = document.createElement("img");
             thumb.src = thumbnail;
             // add image to photo a
@@ -110,9 +120,8 @@ function createGalleryObjects(hasFullSizeLinks) {
     return galleryObjects;
 }
 
-
 /**
- * Adds galleryObjects to a gallery with a gallryID and a pageSelectionID
+ * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  *
  * @param galleryObjects a list of photo objects to insert
  * @param galleryId the id of the gallery to populate
@@ -128,13 +137,14 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             maxVisible: 5,
             page: 1,
             leaps: false,
-        }).on("page", function(event, num){
+        }).on("page", function (event, num) {
             currentPage = num;
             $(galleryId).html(galleryObjects[currentPage - 1]);
             baguetteBox.run('.tz-gallery');
-            $('.img-wrap .close').on('click', function() {
+            $('.img-wrap .close').on('click', function () {
                 let guid = $(this).closest('.img-wrap').find('a').data("id");
-                let filename = $(this).closest('.img-wrap').find('a').data("filename");
+                let filename = $(this).closest('.img-wrap').find('a').data(
+                    "filename");
 
                 removePhoto(guid, filename);
             });
@@ -142,9 +152,10 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         // set first page
         $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery');
-        $('.img-wrap .close').on('click', function() {
+        $('.img-wrap .close').on('click', function () {
             let guid = $(this).closest('.img-wrap').find('a').data("id");
-            let filename = $(this).closest('.img-wrap').find('a').data("filename");
+            let filename = $(this).closest('.img-wrap').find('a').data(
+                "filename");
             removePhoto(guid, filename);
         });
     } else {
