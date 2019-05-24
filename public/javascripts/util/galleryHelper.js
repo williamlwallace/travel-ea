@@ -1,9 +1,37 @@
 /**
+ * Takes the users selected photos and  creates a form from them
+ * Sends this form to  the appropriate url
+ *
+ * @param {string} url the appropriate  photo backend controller
+ * TODO add parameters x2
+ */
+function uploadNewGalleryPhoto(url, galleryId, pageId) {
+    const selectedPhotos = document.getElementById(
+        'upload-gallery-image-file').files;
+    let formData = new FormData();
+    for (let i = 0; i < selectedPhotos.length; i++) {
+        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
+    }
+    // Send request and handle response
+    postMultipart(url, formData).then(response => {
+        // Read response from server, which will be a json object
+        response.json().then(data => {
+            if (response.status === 201) {
+                fillGallery(getAllPhotosUrl, galleryId, pageId);
+                toast("Photo Added!",
+                    "The new photo will be shown in the picture gallery.",
+                    "success");
+            }
+        })
+    })
+}
+
+/**
  * Function to populate gallery with current users photos
  *
- * @param getPhotosUrl TODO: Please fill
+ * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  */
-function fillGallery(getPhotosUrl) {
+function fillGallery(getPhotosUrl, galleryId, pageId) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -20,7 +48,7 @@ function fillGallery(getPhotosUrl) {
             // Now create gallery objects
             let galleryObjects = createGalleryObjects(true);
             // And populate the gallery!
-            addPhotos(galleryObjects, $("#main-gallery"), $('#page-selection'));
+            addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
         });
     });
 }
@@ -115,6 +143,7 @@ function createGalleryObjects(hasFullSizeLinks) {
 
 /**
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
+ * If galleryId is link-gallery the arrows to move between photos are removed
  *
  * @param galleryObjects a list of photo objects to insert
  * @param galleryId the id of the gallery to populate
@@ -133,7 +162,13 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         }).on("page", function (event, num) {
             currentPage = num;
             $(galleryId).html(galleryObjects[currentPage - 1]);
-            baguetteBox.run('.tz-gallery');
+            if (galleryId === "link-gallery") {
+                baguetteBox.run('.tz-gallery', {
+                    buttons: false
+                });
+            } else {
+                baguetteBox.run('.tz-gallery');
+            }
             $('.img-wrap .close').on('click', function () {
                 let guid = $(this).closest('.img-wrap').find('a').data("id");
                 let filename = $(this).closest('.img-wrap').find('a').data(
@@ -144,7 +179,13 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         });
         // set first page
         $(galleryId).html(galleryObjects[currentPage - 1]);
-        baguetteBox.run('.tz-gallery');
+        if (galleryId === "link-gallery") {
+            baguetteBox.run('.tz-gallery', {
+                buttons: false
+            });
+        } else {
+            baguetteBox.run('.tz-gallery');
+        }
         $('.img-wrap .close').on('click', function () {
             let guid = $(this).closest('.img-wrap').find('a').data("id");
             let filename = $(this).closest('.img-wrap').find('a').data(

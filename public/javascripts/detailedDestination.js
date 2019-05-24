@@ -136,9 +136,8 @@ function setPermissions(loggedUser, user) {
  * For a normal photo
  */
 $("#upload-gallery-image-button").click(function() {
-    console.log("HELLLLO");
     $("#linkPhotoToDestinationModal").modal('show');
-    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url);
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "link-gallery", "link-selection");
     // $("#upload-gallery-image-file").click();
 });
 
@@ -146,6 +145,8 @@ $("#upload-gallery-image-button").click(function() {
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
  * @param {Long} userId
  */
-function sendUserId(userId) {
+function sendUserIdAndFillGallery(userId) {
     USERID = userId;
+    //TODO update this to be the get linked destinations method
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "main-gallery", "page-selection")
 }

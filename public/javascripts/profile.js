@@ -222,7 +222,7 @@ function deletePhoto(route) {
         response.json().then(data => {
             if (response.status === 200) {
                 $('#deletePhotoModal').modal('hide');
-                fillGallery(getAllPhotosUrl);
+                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
                 toast("Picture deleted!",
                     "The photo will no longer be displayed in the gallery.",
                     "success");
@@ -253,32 +253,6 @@ function uploadNewPhoto() {
     $('#cropProfilePictureModal').modal('show');
 }
 
-/**
- * Takes the users selected photos and  creates a form from them
- * Sends this form to  the appropriate url
- *
- * @param {string} url the appropriate  photo backend controller
- */
-function uploadNewGalleryPhoto(url) {
-    const selectedPhotos = document.getElementById(
-        'upload-gallery-image-file').files;
-    let formData = new FormData();
-    for (let i = 0; i < selectedPhotos.length; i++) {
-        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
-    }
-    // Send request and handle response
-    postMultipart(url, formData).then(response => {
-        // Read response from server, which will be a json object
-        response.json().then(data => {
-            if (response.status === 201) {
-                fillGallery(getAllPhotosUrl);
-                toast("Photo Added!",
-                    "The new photo will be shown in the picture gallery.",
-                    "success");
-            }
-        })
-    })
-}
 
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
@@ -305,7 +279,7 @@ function getProfilePicture(url) {
  */
 function getPictures(url) {
     getAllPhotosUrl = url;
-    fillGallery(getAllPhotosUrl);
+    fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
 }
 
 /**
