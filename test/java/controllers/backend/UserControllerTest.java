@@ -167,8 +167,8 @@ public class UserControllerTest extends ControllersTest {
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("username", "username field must be present");
-        expectedMessages.put("password", "password field must be present");
+        expectedMessages.put("username", "Username field must be present");
+        expectedMessages.put("password", "Password field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {

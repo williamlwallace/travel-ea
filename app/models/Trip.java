@@ -36,9 +36,15 @@ public class Trip extends Model implements Comparable<Trip> {
     public String findFirstTripDate() {
         for (TripData tripData : tripDataList) {
             if (tripData.arrivalTime != null) {
-                return tripData.arrivalTime.toString().substring(0, 10);
+                String arrivalYear = tripData.arrivalTime.toString().substring(0, 4);
+                String arrivalMonth = tripData.arrivalTime.toString().substring(5, 7);
+                String arrivalDay = tripData.arrivalTime.toString().substring(8, 10);
+                return arrivalDay + "-" + arrivalMonth + "-" + arrivalYear;
             } else if (tripData.departureTime != null) {
-                return tripData.departureTime.toString().substring(0, 10);
+                String departYear = tripData.departureTime.toString().substring(0, 4);
+                String departMonth = tripData.departureTime.toString().substring(5, 7);
+                String departDay = tripData.departureTime.toString().substring(8, 10);
+                return departDay + "-" + departMonth + "-" + departYear;
             }
         }
 

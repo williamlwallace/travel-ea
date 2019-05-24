@@ -139,12 +139,12 @@ public class ProfileControllerTest extends ControllersTest {
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("firstName", "firstName field must be present");
-        expectedMessages.put("lastName", "lastName field must be present");
+        expectedMessages.put("firstName", "First Name field must be present");
+        expectedMessages.put("lastName", "Last Name field must be present");
         expectedMessages.put("dateOfBirth", "Invalid date");
         expectedMessages.put("gender", "Invalid gender");
-        expectedMessages.put("nationalities", "nationalities field must be present");
-        expectedMessages.put("travellerTypes", "travellerTypes field must be present");
+        expectedMessages.put("nationalities", "Nationality field must be present");
+        expectedMessages.put("travellerTypes", "Traveller Type field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {
