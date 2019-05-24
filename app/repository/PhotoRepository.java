@@ -139,17 +139,42 @@ public class PhotoRepository {
      */
     public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
         return supplyAsync(() -> {
+
+            //DEBUGGING:
+            List<Photo> photosDebug = ebeanServer.find(Photo.class)
+                .where()
+                .eq(USER_ID, Iterables.get(photos, 0).userId)
+                .findList();
+
+            System.out.println("CURRENT PHOTOS:");
+            for (Photo photo : photosDebug) {
+                System.out.println("PHOTO: " + photo);
+            }
+
             if (photos.size() == 1) {
                 Photo pictureToUpload = Iterables.get(photos, 0);
                 if (pictureToUpload.isProfile) {
-                    ebeanServer.find(Photo.class)
+                    int test = ebeanServer.find(Photo.class)
                         .where()
                         .eq(USER_ID, pictureToUpload.userId)
                         .eq(IS_PROFILE, true)
                         .delete();
+                    System.out.println("PHOTO REPOSITORY ADD PHOTOS, PHOTOS DELETED: " + test);
                 }
             }
             ebeanServer.insertAll(photos);
+
+            //DEBUGGING:
+            List<Photo> photosDebug2 = ebeanServer.find(Photo.class)
+                .where()
+                .eq(USER_ID, Iterables.get(photos, 0).userId)
+                .findList();
+
+            System.out.println("UPDATED PHOTOS:");
+            for (Photo photo : photosDebug2) {
+                System.out.println("PHOTO: " + photo);
+            }
+
             return ok();
         }, executionContext);
     }

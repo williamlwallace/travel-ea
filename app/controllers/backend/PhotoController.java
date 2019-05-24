@@ -217,6 +217,7 @@ public class PhotoController extends TEABackController {
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
                     .copyTo(Paths.get(pair.getKey().thumbnailFilename));
             } catch (IOException e) {
+                System.out.println("PHOTO FAILED TO SAVE");
                 // TODO: Handle case where a file failed to save
             }
         }

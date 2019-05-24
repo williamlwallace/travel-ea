@@ -10,6 +10,51 @@ junit:
   script:
     - sbt test
 
+junit1:
+  stage: test
+  script:
+  - sbt test
+
+junit2:
+  stage: test
+  script:
+  - sbt test
+
+junit3:
+  stage: test
+  script:
+  - sbt test
+
+junit4:
+  stage: test
+  script:
+  - sbt test
+
+junit5:
+  stage: test
+  script:
+  - sbt test
+
+junit6:
+  stage: test
+  script:
+  - sbt test
+
+junit7:
+  stage: test
+  script:
+  - sbt test
+
+junit8:
+  stage: test
+  script:
+  - sbt test
+
+junit9:
+  stage: test
+  script:
+  - sbt test
+
 recent-artifacts:
   stage: deploy
   script:
