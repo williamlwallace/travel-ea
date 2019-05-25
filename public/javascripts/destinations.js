@@ -1,3 +1,6 @@
+var markers = []; //wont let me use let for some reason?
+var destJson = null;
+
 /**
  * Initializes destination table and calls method to populate
  * @param {Number} userId - ID of user to get destinations for
@@ -10,6 +13,7 @@ function onPageLoad(userId) {
         }
     });
     populateDestinations(destinationTable, userId);
+    populateMarkers(userId);
 }
 
 /**
@@ -130,6 +134,69 @@ function populateDestinations(table, userId) {
             }
         });
     })
+}
+
+function populateMarkers(userId) {
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                document.getElementById("otherError").innerHTML = json;
+            } else {
+                // Populates table
+                for (const dest in json) {
+                    // console.log(json[dest].name);
+                }
+            }
+        });
+    })
+}
+
+/**
+ * Initialises google maps
+ */
+function initMap() {
+    // Map options
+    let options = {
+        zoom: 5,
+        center: {lat:-40.9006, lng:174.8860}
+    }
+
+    // New map
+    let map = new google.maps.Map(document.getElementById('map'), options);
+
+    // Add Marker Function
+    function addMarker(props){
+        let marker = new google.maps.Marker({
+            position:props.coords,
+            map:map
+        });
+
+        // Check for customicon
+        if(props.iconImage){
+            // Set icon image
+            marker.setIcon(props.iconImage);
+        }
+
+        // Check content
+        if(props.content){
+            let infoWindow = new google.maps.InfoWindow({
+                content:props.content
+            });
+
+            marker.addListener('click', function(){
+                infoWindow.open(map, marker);
+            });
+        }
+    }
+    // addMarker({
+    //     coords:{lat:42.4668,lng:-70.9495},
+    //     iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
+    //     content:'<h1>Lynn MA</h1>'
+    // })
+
+
 }
 
 /**
