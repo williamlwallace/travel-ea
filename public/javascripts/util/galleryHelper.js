@@ -26,6 +26,8 @@ function uploadNewGalleryPhoto(url, galleryId, pageId) {
     })
 }
 
+let usersPhotos = [];
+
 /**
  * Function to populate gallery with current users photos
  *
@@ -45,17 +47,42 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
                 // Also add the item to the dictionary
                 usersPhotos[i] = data[i];
             }
-            if (galleryId === "link-gallery") {
-                let galleryObjects = createGalleryObjects(false, true);
-                addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
-            } else {
-                let galleryObjects = createGalleryObjects(true);
-                addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
-            }
+            let galleryObjects = createGalleryObjects(true);
+            addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
         });
     });
 }
 
+/**
+ * Function to populate gallery with current users photos with link destination functionality
+ *
+ * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
+ */
+function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
+    // Run a get request to fetch all users photos
+    get(getPhotosUrl)
+    // Get the response of the request
+    .then(response => {
+        // Convert the response to json
+        response.json().then(data => {
+            //TODO change this url to be one that gets a users linked photos
+            get(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url)
+            .then(response => {
+                response.json().then(linkedPhotos => {
+                    usersPhotos = [];
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i] in linkedPhotos) {
+                            data[i]["isLinked"] = true;
+                        }
+                        usersPhotos[i] = data[i];
+                    }
+                })
+            });
+            let galleryObjects = createGalleryObjects(false, true, destinationId);
+            addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
+        });
+    });
+}
 
 /**
  * Creates gallery objects from the users photos to display on picture galleries.
@@ -63,7 +90,7 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * @param hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
  * @returns {Array} the array of photo gallery objects
  */
-function createGalleryObjects(hasFullSizeLinks, withLinkButton=false) {
+function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinationId=null) {
     let galleryObjects = [];
     let numPages = Math.ceil(usersPhotos.length / 6);
     for (let page = 0; page < numPages; page++) {
@@ -102,13 +129,12 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false) {
                     // Create toggle button
                     let toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
-
-                    if (withLinkButton) {
-                        let linkButton = createToggleButton(isPublic, guid);
-                        tile.appendChild(linkButton)
-                    }
                 }
                 photo.href = filename;
+            }
+            if (withLinkButton) {
+                let linkButton = createLinkButton(isPublic, guid, destinationId);
+                tile.appendChild(linkButton)
             }
             photo.setAttribute("data-id", guid);
             photo.setAttribute("data-filename", filename);
@@ -159,6 +185,32 @@ function createToggleButton (isPublic, guid) {
     return toggleButton;
 }
 
+/**
+ * Helper function to create the button on the photo that links a photo to a destination
+ * @param isLinked current state of the photo re being linked to a destination
+ * @returns {HTMLElement} the created toggle button to add to the photo
+ */
+function createLinkButton (isLinked, guid, destinationId) {
+    let linkButton = document.createElement("span");
+    let linkLabel = document.createElement("input");
+    linkLabel.setAttribute("class", "privacy");
+    linkLabel.setAttribute("id", guid + "privacy");
+    linkLabel.setAttribute("type", "image");
+
+    if (isLinked) {
+        linkLabel.setAttribute("src",
+            "/assets/images/location-linked.png");
+    } else {
+        linkLabel.setAttribute("src",
+            "/assets/images/location-unlinked.png");
+    }
+    linkLabel.innerHTML = isLinked ? "Linked" : "Not-Linked";
+    linkLabel.setAttribute("onClick",
+        "toggleLinked(" + guid + "," + !isLinked + "," + destinationId + ")");
+    linkButton.appendChild(linkLabel);
+    return linkButton;
+}
+
 
 /**
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
@@ -183,8 +235,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             $(galleryId).html(galleryObjects[currentPage - 1]);
             if (galleryId[0].id === "link-gallery") {
                 baguetteBox.run('.tz-gallery', {
-                    buttons: false,
-                    afterShow: linkPhoto()
+                    buttons: false
                 });
             } else {
                 baguetteBox.run('.tz-gallery');
@@ -200,8 +251,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         $(galleryId).html(galleryObjects[currentPage - 1]);
         if (galleryId[0].id === "link-gallery") {
             baguetteBox.run('.tz-gallery', {
-                buttons: false,
-                afterShow: linkPhoto()
+                buttons: false
             });
         } else {
             baguetteBox.run('.tz-gallery');

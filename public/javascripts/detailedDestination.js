@@ -124,31 +124,58 @@ function populateEditDestination(destinationId) {
 }
 
 let USERID = null;
-let canEdit = true;
+let DESTINATIONID = null;
+let canEdit = false;
 
 /**
  * allows the upload image button call the link photo modal which then
- * calls the upload image file field
- * For a normal photo
+ * fills the gallery with all the users photos, and indicates which are already linked
  */
 $("#upload-gallery-image-button").click(function() {
     $("#linkPhotoToDestinationModal").modal('show');
-    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "link-gallery", "link-selection");
-    // $("#upload-gallery-image-file").click();
+    fillLinkGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "link-gallery", "link-selection", DESTINATIONID);
 });
 
 /**
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
+ * Also fills the initial gallery on photos
  * @param {Long} userId
  */
-function sendUserIdAndFillGallery(userId) {
+function sendUserIdAndFillGallery(userId, destinationId) {
     USERID = userId;
+    DESTINATIONID = destinationId;
     //TODO update this to be the get linked destinations method
     fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "main-gallery", "page-selection")
 }
 
-function linkPhoto(currentIndex, imagesCount) {
-    console.log("Suop");
-
-
+/**
+ * Function to toggle the linked status of a photo.
+ * Is used even though Intellij doesn't think so
+ * @param guid of the photo to be linked
+ * @param newLinked the new status of the photo
+ * @param destinationId the destination to link (or unlink) the photo to/from
+ */
+function toggleLinked(guid, newLinked, destinationId) {
+    const label = document.getElementById(guid + "linked");
+    const data = {
+        "isLinked": newLinked
+    };
+    patch(photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url, data)
+    .then(res => {
+        if (res.status === 200) {
+            label.innerHTML = newLinked ? "Linked" : "Not-Linked";
+            if (newLinked) {
+                label.setAttribute("src", "/assets/images/destination-linked.png");
+            } else {
+                label.setAttribute("src", "/assets/images/destination-unlinked.png");
+            }
+            label.setAttribute("onClick",
+                "toggleLinked(" + guid + "," + !newLinked + ")");
+            if (newLinked) {
+                toast("Photo Linked", "Photo Successfully linked to this destination, success");
+            } else {
+                toast("Photo Unlinked", "Photo has been successfully removed from this destination", "success")
+            }
+        }
+    })
 }

@@ -455,7 +455,8 @@ public class PhotoController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy(),
-                controllers.backend.routes.javascript.PhotoController.getAllUserPhotos()
+                controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
+                controllers.backend.routes.javascript.PhotoController.linkPhotoToDest()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
