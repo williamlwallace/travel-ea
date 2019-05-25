@@ -103,45 +103,6 @@ public class DestinationRepository {
     }
 
     /**
-     * Makes a destination public, if it is found and not already public. Also find similar
-     * destinations and merge them into the destination being made public If the destination is
-     * being used in a trip by another user, then update the ownership of the destination to be
-     * master admin
-     *
-     * @param destination The destination to mark as public
-     * @return notFound if no such ID found, badRequest if it is found but already public, ok if
-     * found and successfully updated to public from private
-     */
-    public CompletableFuture<Result> makeDestinationPublic(User user, Destination destination, Long masterId) {
-        return supplyAsync(() -> {
-            // Update the publicity of the destination in the database, and check what status gets returned
-            Result result = setDestinationToPublicInDatabase(destination.id);
-
-            // if the result was anything other than okay, return this as it is an error condition
-            if (result.status() != ok().status()) {
-                return result;
-            }
-
-            // Find all similar destinations that need to be merged
-            List<Destination> destinations = getSimilarDestinations(destination);
-            List<Long> similarIds = destinations.stream().map(x -> x.id)
-                .collect(Collectors.toList());
-
-            // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
-            // TripData
-            int rowsChanged = mergeDestinationsTripData(user.id, similarIds, destination.id);
-            // Photos
-            //TODO: call the method that updates the photos. Also not written
-            // If any rows were changed when re-referencing, the destination
-            // has been used by another user and must be transferred to admin ownership
-            if (rowsChanged > 0) {
-                changeDestinationOwner(destination.id, masterId);
-            }
-            return ok();
-        });
-    }
-
-    /**
      * Changes the database entry for a destination to have a public state of true. Returns not
      * found if no such destination exists, and returns badRequest if the destination was already
      * public
@@ -150,22 +111,14 @@ public class DestinationRepository {
      * @return Result of call, ok if good, badRequest if already public, not found if no such
      * destination ID found
      */
-    private Result setDestinationToPublicInDatabase(Long destinationId) {
+    public void setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
             .where()
             .eq("id", destinationId).findOneOrEmpty().orElse(null);
-        // If no destination was found, return not found
-        if (destination == null) {
-            return notFound();
-        }
-        // If destination was found but is already marked public, return bad request
-        if (destination.isPublic) {
-            return badRequest();
-        }
+
         // Otherwise set to public, update it, and return ok
         destination.isPublic = true;
         ebeanServer.update(destination);
-        return ok();
     }
 
     /**
@@ -185,7 +138,7 @@ public class DestinationRepository {
      * @return Number of rows changed by this operation (the number of instances where a destination
      * that is being merged was used by a different user)
      */
-    private int mergeDestinationsTripData(Long userId, Collection<Long> similarDestinationIds,
+    public int mergeDestinationsTripData(Long userId, Collection<Long> similarDestinationIds,
         Long newDestinationId) {
         // Return 0 rows changed if no similar destinations found
         if (similarDestinationIds.isEmpty()) {
