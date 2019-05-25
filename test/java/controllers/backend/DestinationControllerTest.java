@@ -24,12 +24,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.TripData;
 import models.User;
 import org.junit.Assert;
 import org.junit.Before;
@@ -393,7 +395,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .prepareStatement("SELECT * FROM Destination WHERE id = 1;");
 
         // Store destination and make sure it is not null and is private
-        Destination destination = resultSetToDestList(statement.executeQuery()).stream()
+        Destination destination = destinationsFromResultSet(statement.executeQuery()).stream()
             .filter(x -> x.id == 1).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
@@ -409,7 +411,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(OK, result.status());
 
         // Check that destination with id 1 is now public
-        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 1)
+        destination = destinationsFromResultSet(statement.executeQuery()).stream().filter(x -> x.id == 1)
             .findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertTrue(destination.isPublic);
@@ -422,7 +424,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .prepareStatement("SELECT * FROM Destination WHERE id = 3;");
 
         // Store destination and make sure it is not null and is private
-        Destination destination = resultSetToDestList(statement.executeQuery()).stream()
+        Destination destination = destinationsFromResultSet(statement.executeQuery()).stream()
             .filter(x -> x.id == 3).findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
@@ -438,11 +440,10 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(FORBIDDEN, result.status());
 
         // Check that destination with id 3 is still private
-        destination = resultSetToDestList(statement.executeQuery()).stream().filter(x -> x.id == 3)
+        destination = destinationsFromResultSet(statement.executeQuery()).stream().filter(x -> x.id == 3)
             .findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
-
     }
 
     @Test
@@ -454,46 +455,45 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .getSimilarDestinations(allDestinations.get(0));
 
         // Assert that 3 destinations were found, and 2 similar ones
-        Assert.assertEquals(3, allDestinations.size());
-        Assert.assertEquals(2, similarDestinations.size());
+        assertEquals(3, similarDestinations.size());
 
-        // Now check destinations 2 and 3 were found in similarities, and 1 and 4 were not
-        for (Destination destination : allDestinations) {
-            if (destination.id == 1) {
-                assertFalse(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
-                    .contains(destination.id));
-            } else {
-                assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
-                    .contains(destination.id));
-            }
-        }
+        // Now check destinations 2, 3, and 8 were found in similarities
+        assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
+            .contains(2L));
+        assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
+            .contains(3L));
+        assertTrue(similarDestinations.stream().map(x -> x.id).collect(Collectors.toList())
+            .contains(8L));
     }
 
-    /**
-     * Converts a result set from a query for rows from destination table into java list of
-     * destinations
-     *
-     * @param rs Result set
-     * @return List of destinations read from result set
-     */
-    private List<Destination> resultSetToDestList(ResultSet rs) throws SQLException {
-        List<Destination> destinations = new ArrayList<>();
-        while (rs.next()) {
-            Destination destination = new Destination();
-            destination.id = rs.getLong("id");
-            destination._type = rs.getString("type");
-            destination.country = new CountryDefinition();
-            destination.country.id = rs.getLong("country_id");
-            destination.district = rs.getString("district");
-            destination.isPublic = rs.getBoolean("is_public");
-            destination.latitude = rs.getDouble("latitude");
-            destination.longitude = rs.getDouble("longitude");
-            destination.user = new User();
-            destination.user.id = rs.getLong("user_id");
+    @Test
+    public void makeDestinationPublicAndMergeSimilar() throws SQLException {
+        // Get existing trip data and photo which reference destination 2
+        TripData oldTripData = tripDataFromResultSet(db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;").executeQuery()).iterator().next();
+        ResultSet rs = db.getConnection().prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        rs.next();
+        Long oldPhotoDestId = rs.getLong(1);
+        assertEquals((Long)2L, oldTripData.destination.id);
+        assertEquals((Long)2L, oldPhotoDestId);
 
-            destinations.add(destination);
-        }
+        // Call API to make destination 8 public, this should merge all of destination 1 and 2 into destination 8
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/makePublic/8");
 
-        return destinations;
+        // Get result and check it was successfully
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check that trip data got pointed to new destination
+        TripData newTripData = tripDataFromResultSet(db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;").executeQuery()).iterator().next();
+        assertEquals((Long)8L, newTripData.destination.id);
+
+        // Check that photo got pointed to new destination
+        ResultSet newRs = db.getConnection().prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        newRs.next();
+        Long newPhotoDestId = newRs.getLong(1);
+        assertEquals((Long)8L, newPhotoDestId);
     }
 }
