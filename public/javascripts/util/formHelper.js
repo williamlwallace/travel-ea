@@ -159,7 +159,7 @@ function arrayToString(array, dataName, URL) {
  * @param {string} title A string of the toast title
  * @param {string} message a string of the inner message of the toast
  * @param {string} type a string of the type of toast to display
- * @param {integer} delay an int of a custom delay in milliseconds before the toast disappears
+ * @param {number} delay an int of a custom delay in milliseconds before the toast disappears
  */
 function toast(title, message, type = "primary", delay = 2000) {
     const toasterHTML = '<div id="toaster" aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 5px; right: 5px;">'

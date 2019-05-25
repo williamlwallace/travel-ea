@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.User;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
@@ -42,6 +43,9 @@ public class DestinationTestSteps {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
         node.set("country", Json.toJson(countryDefinition));
+        User user = new User();
+        user.id = 1L;
+        node.set("user", Json.toJson(user));
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -93,12 +97,11 @@ public class DestinationTestSteps {
 
 
     @Then("The next time I retrieve all public destinations, my private destination is not among them")
-    public void the_next_time_I_retrieve_all_public_destinations_my_private_destination_is_not_among_them()
-        throws IOException {
+    public void the_next_time_I_retrieve_all_public_destinations_my_private_destination_is_not_among_them() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
-            .uri("/api/destination");
+            .uri("/api/user/destination/1");
 
         Result result = route(fakeApp, request);
 
@@ -106,8 +109,7 @@ public class DestinationTestSteps {
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        Assert.assertTrue(destinations.stream().map(d -> d.id).collect(Collectors.toList())
-            .contains(destinationId));
+        Assert.assertTrue(destinations.stream().map(d -> d.id).collect(Collectors.toList()).contains(destinationId));
 
     }
 

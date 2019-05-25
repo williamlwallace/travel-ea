@@ -44,25 +44,30 @@ public class DestinationController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
         JsonNode data = request.body().asJson();
-        //Sends the received data to the validator for checking
+        User user = request.attrs().get(ActionState.USER);
+
+        // Sends the received data to the validator for checking, if error returns bad request
         ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        } else {
-            //Else, no errors found, continue with adding to the database
-            Destination newDestination = Json.fromJson(data, Destination.class);
-            // Add destination owner to be whichever user uploaded it
-            newDestination.user = new User();
-            newDestination.user.id = request.attrs().get(ActionState.USER).id;
-            return destinationRepository.addDestination(newDestination)
-                .thenApplyAsync(id -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(id)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
         }
+
+        // Add destination owner to be whichever user uploaded it
+        Destination newDestination = Json.fromJson(data, Destination.class);
+
+        // Checks if user logged in is not allowed to create dest for userId
+        if (!user.admin && !user.id.equals(newDestination.user.id)) {
+            return CompletableFuture.supplyAsync(() -> forbidden());
+        }
+
+        return destinationRepository.addDestination(newDestination)
+            .thenApplyAsync(id -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(id)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
@@ -90,10 +95,9 @@ public class DestinationController extends TEABackController {
                 return CompletableFuture.supplyAsync(
                     () -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
-            // Otherwise perform the repository call which will
-            // return either 200, 400, or 404 as appropriate
-            return destinationRepository.makeDestinationPublic(user, destination);
-        }).thenApplyAsync(result -> result); //?
+            // Otherwise perform the repository call which will return either 200, 400, or 404 as appropriate
+            return destinationRepository.makeDestinationPublic(user, destination, MASTER_ADMIN_ID);
+        }).thenApplyAsync(result -> result);
     }
 
     /**
@@ -169,19 +173,38 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets all destinations. Returns a json list of all destinations.
+     * Gets all destinations valid for the requesting user
      *
-     * @return OK with list of destinations
+     * @param request Http request containing authentication information
+     * @param userId ID of user to retrieve destinations for
+     * @return OK status code with a list of destinations in the body
      */
-    public CompletableFuture<Result> getAllDestinations() {
-        return destinationRepository.getAllDestinations()
-            .thenApplyAsync(allDestinations -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(allDestinations)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
+        User user = request.attrs().get(ActionState.USER);
+
+        // If user is admin or requesting for their own destinations
+        if (user.admin || user.id.equals(userId)) {
+            return destinationRepository.getAllDestinations(userId)
+                    .thenApplyAsync(allDestinations -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(allDestinations)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    });
+        }
+        // Else return only public destinations
+        else {
+            return destinationRepository.getAllPublicDestinations()
+                    .thenApplyAsync(allDestinations -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(allDestinations)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    });
+        }
     }
 
     /**
@@ -247,13 +270,12 @@ public class DestinationController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
-                controllers.backend.routes.javascript.DestinationController
-                    .getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController
-                    .detailedDestinationIndex(),
-                controllers.backend.routes.javascript.DestinationController.editDestination()
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
+                controllers.backend.routes.javascript.DestinationController.editDestination(),
+                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
