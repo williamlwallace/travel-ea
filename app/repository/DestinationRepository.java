@@ -10,6 +10,7 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.PagedList;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -145,15 +146,13 @@ public class DestinationRepository {
      * destinations in use that have been merged, i.e that we must transfer this newly public
      * destination to the ownership of master admin
      *
-     * @param userId ID of user who is changing the destination to public (i.e forcing a merge to
-     * happen)
      * @param similarDestinationIds The IDs of all destinations which have been found to be similar
      * @param newDestinationId The ID of the destination which has been made public, that will now
      * be used in place of old destinations
      * @return Number of rows changed by this operation (the number of instances where a destination
      * that is being merged was used by a different user)
      */
-    public int mergeDestinationsTripData(Long userId, Collection<Long> similarDestinationIds,
+    public int mergeDestinationsTripData(Collection<Long> similarDestinationIds,
         Long newDestinationId) {
         // Return 0 rows changed if no similar destinations found
         if (similarDestinationIds.isEmpty()) {
@@ -162,17 +161,45 @@ public class DestinationRepository {
 
         String sql = "UPDATE TripData "
             + "SET destination_id=:newDestId "
-            + "WHERE (SELECT user_id FROM TRIP WHERE id = trip_id) != :userId "
-            + "AND destination_id IN (:oldDestIds);";
+            + "WHERE destination_id IN (:oldDestIds);";
 
         return ebeanServer.createUpdate(TripData.class, sql)
             .setParameter("newDestId", newDestinationId)
-            .setParameter("userId", userId)
             .setParameter("oldDestIds", similarDestinationIds)
             .execute();
     }
 
-    //TODO: Copy the above method (mergeDestinationsTripData) to also operate on the table joining photos and destinations
+    /**
+     * Changes any references in DestinationPhoto of similar destinations,
+     * to the id of the destination that they have been merged to. I.e if there are 3 Eiffel towers,
+     * and one of them is made public, the other two will now point to the new public Eiffel tower.
+     *
+     * The number of rows changed is also returned, use this to check if there were other
+     * destinations in use that have been merged, i.e that we must transfer this newly public
+     * destination to the ownership of master admin
+     *
+     * @param similarDestinationIds The IDs of all destinations which have been found to be similar
+     * @param newDestinationId The ID of the destination which has been made public, that will now
+     * be used in place of old destinations
+     * @return Number of rows changed by this operation (the number of instances where a destination
+     * that is being merged was used by a different user)
+     */
+    public int mergeDestinationsPhotos(Collection<Long> similarDestinationIds,
+        Long newDestinationId) {
+        // Return 0 rows changed if no similar destinations found
+        if (similarDestinationIds.isEmpty()) {
+            return 0;
+        }
+
+        String sql = "UPDATE DestinationPhoto "
+            + "SET destination_id=:newDestId "
+            + "WHERE destination_id IN (:oldDestIds);";
+
+        return ebeanServer.createSqlUpdate(sql)
+            .setParameter("newDestId", newDestinationId)
+            .setParameter("oldDestIds", similarDestinationIds)
+            .execute();
+    }
 
     /**
      * Get all destinations that are found to be similar to some other destination.

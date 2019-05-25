@@ -4,12 +4,14 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import cucumber.api.java.hu.De;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.TripData;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
@@ -109,10 +111,9 @@ public class DestinationController extends TEABackController {
 
             // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
-            int rowsChanged = destinationRepository.mergeDestinationsTripData(user.id, similarIds, destination.id);
+            int rowsChanged = destinationRepository.mergeDestinationsTripData(similarIds, destination.id);
             // Photos
-            //TODO: call the method that updates the photos. Also not written
-            // When written should look like: rowsChanged += destinationRepository.mergeDestinationsPhotos(user.id, similarIds, destination.id);
+            rowsChanged += destinationRepository.mergeDestinationsPhotos(similarIds, destination.id);
 
             // If any rows were changed when re-referencing, the destination
             // has been used by another user and must be transferred to admin ownership

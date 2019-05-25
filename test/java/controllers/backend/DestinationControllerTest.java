@@ -46,6 +46,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     private static final String DEST_URL_SLASH = "/api/destination/";
     private static final String USER_DEST_URL = "/api/user/destination/";
     private static final String CREATE_DEST_URL = "/api/destination";
+    private static final String MAKE_PUBLIC_URL = "/api/destination/makePublic/";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -404,7 +405,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/destination/makePublic/1");
+            .uri(MAKE_PUBLIC_URL + "1");
 
         // Get result and check it was successfully
         Result result = route(fakeApp, request);
@@ -433,7 +434,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/makePublic/3");
+            .uri(MAKE_PUBLIC_URL + "3");
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
@@ -480,7 +481,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/makePublic/8");
+            .uri(MAKE_PUBLIC_URL + "8");
 
         // Get result and check it was successfully
         Result result = route(fakeApp, request);
