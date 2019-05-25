@@ -90,7 +90,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
         // Check that list has exactly 3 results
-        assertEquals(3, destinations.size());
+        assertEquals(6, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
@@ -120,7 +120,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "4");
+            .uri(DEST_URL_SLASH + "7");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -178,7 +178,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             .method(PUT)
             .bodyJson(Json.toJson(destination))
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "4");
+            .uri(DEST_URL_SLASH + "7");
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
@@ -344,7 +344,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         // Get id of destination, check it is 5
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(Long.valueOf(5), idOfDestination);
+        assertEquals(Long.valueOf(9), idOfDestination);
     }
 
     @Test
