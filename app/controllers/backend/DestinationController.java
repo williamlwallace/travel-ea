@@ -14,6 +14,7 @@ import models.User;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.CountryDefinitionRepository;
@@ -59,7 +60,7 @@ public class DestinationController extends TEABackController {
 
         // Checks if user logged in is not allowed to create dest for userId
         if (!user.admin && !user.id.equals(newDestination.user.id)) {
-            return CompletableFuture.supplyAsync(() -> forbidden());
+            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Error: You do not have permission to create a destination for someone else")));
         }
 
         return destinationRepository.addDestination(newDestination)
@@ -85,9 +86,8 @@ public class DestinationController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
-        // Try to get the destination, if it is not found throw 404
         return destinationRepository.getDestination(id).thenApplyAsync(destination -> {
-            // Check for 404
+            // Check for 404, i.e the destination to make public doesn't exist
             if (destination == null) {
                 return notFound(Json.toJson("No such destination exists"));
             }
@@ -110,7 +110,6 @@ public class DestinationController extends TEABackController {
             // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
             int rowsChanged = destinationRepository.mergeDestinationsTripData(user.id, similarIds, destination.id);
-
             // Photos
             //TODO: call the method that updates the photos. Also not written
             // When written should look like: rowsChanged += destinationRepository.mergeDestinationsPhotos(user.id, similarIds, destination.id);
@@ -120,6 +119,9 @@ public class DestinationController extends TEABackController {
             if (rowsChanged > 0) {
                 destinationRepository.changeDestinationOwner(destination.id, MASTER_ADMIN_ID);
             }
+
+            // Once all old usages have been re-referenced, delete the found similar destinations
+            destinationRepository.deleteDestinations(similarIds);
 
             return ok("Successfully made destination public, and re-referenced " + rowsChanged + " to new public destination");
         });

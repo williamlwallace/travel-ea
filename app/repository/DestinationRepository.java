@@ -74,6 +74,21 @@ public class DestinationRepository {
     }
 
     /**
+     * Deletes multiple destinations from database
+     *
+     * @param id Unique destination IDs of destinations to be deleted
+     * @return The number of rows deleted
+     */
+    public CompletableFuture<Integer> deleteDestinations(Collection<Long> ids) {
+        return supplyAsync(() ->
+                ebeanServer.find(Destination.class)
+                    .where()
+                    .idIn(ids)
+                    .delete()
+            , executionContext);
+    }
+
+    /**
      * Updates a destination.
      *
      * @param destination The destination object to update, with the updated parameters
