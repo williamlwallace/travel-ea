@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import java.util.Iterator;
@@ -55,6 +56,7 @@ public class Destination extends Model {
     @Constraints.Required
     public CountryDefinition country;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "destinationPhotos")
     @JoinTable(
         name = "DestinationPhoto",
