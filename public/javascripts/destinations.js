@@ -1,6 +1,3 @@
-var markers = []; //wont let me use let for some reason?
-var destJson = null;
-
 /**
  * Initializes destination table and calls method to populate
  * @param {Number} userId - ID of user to get destinations for
@@ -136,6 +133,13 @@ function populateDestinations(table, userId) {
     })
 }
 
+// Maps marker list
+let markers = [];
+
+/**
+ * Populates the markers list which can be iterated over to dynamically add destination markers
+ * @param userId
+ */
 function populateMarkers(userId) {
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
     .then(response => {
@@ -144,20 +148,24 @@ function populateMarkers(userId) {
             if (response.status !== 200) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
-                // Populates table
                 for (const dest in json) {
-                    // console.log(json[dest].name);
+                    markers.push({
+                        coords:{lat: json[dest].latitude, lng: json[dest].longitude},
+                        iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', //TODO Make our own marker or remove this field to use default marker
+                        content:'<h1>' + json[dest].name + '</h1>' //TODO Max and campbell will pimp this out
+                    });
                 }
+                initMap();
             }
         });
     })
 }
 
 /**
- * Initialises google maps
+ * Initialises google maps on destination page and dynamically adds destination markers
  */
 function initMap() {
-    // Map options
+    // Initial map options
     let options = {
         zoom: 5,
         center: {lat:-40.9006, lng:174.8860}
@@ -185,16 +193,18 @@ function initMap() {
                 content:props.content
             });
 
+            // if content exists then make a info window
             marker.addListener('click', function(){
                 infoWindow.open(map, marker);
             });
         }
     }
-    // addMarker({
-    //     coords:{lat:42.4668,lng:-70.9495},
-    //     iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png',
-    //     content:'<h1>Lynn MA</h1>'
-    // })
+
+    // Loop through markers list and add them to the map
+    for (let i = 0; i < markers.length ; i++) {
+        addMarker(markers[i]);
+    }
+
 
 
 }
