@@ -149,15 +149,17 @@ function populateMarkers(userId) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
                 for (const dest in json) {
+                    let privacySrc;
+                    json[dest].isPublic ? privacySrc = "/assets/images/public.png" : privacySrc = "/assets/images/private.png";
                     markers.push({
                         coords:{lat: json[dest].latitude, lng: json[dest].longitude},
                         iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', //TODO Make our own marker or remove this field to use default marker
-                        content:'<h3>' + json[dest].name + '</h3>'
+                        content:'<h3>' + json[dest].name + '&nbsp;&nbsp;<img src="' + privacySrc + '"height="20"></h3>'
                                 + '<p> Type: ' + json[dest]._type + '<br>'
                                 + 'District: ' + json[dest].district + '<br>'
                                 + 'Latitude: ' + json[dest].latitude + '<br>'
                                 + 'Longitude: ' + json[dest].longitude + '<br>'
-                                + 'Country: ' + json[dest].country.name + '</p>'//TODO Max and campbell will pimp this out
+                                + 'Country: ' + json[dest].country.name + '</p>'
                     });
                 }
                 initMap();
@@ -174,7 +176,7 @@ function initMap() {
     let options = {
         zoom: 5,
         center: {lat:-40.9006, lng:174.8860}
-    }
+    };
 
     // New map
     let map = new google.maps.Map(document.getElementById('map'), options);
@@ -209,9 +211,6 @@ function initMap() {
     for (let i = 0; i < markers.length ; i++) {
         addMarker(markers[i]);
     }
-
-
-
 }
 
 /**
