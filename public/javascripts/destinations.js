@@ -66,7 +66,6 @@ function addDestination(url, redirect, userId) {
     // Post json data to given url
     post(url, data)
     .then(response => {
-
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
@@ -78,8 +77,7 @@ function addDestination(url, redirect, userId) {
 
                 // Add row to table
                 let table = $('#dtDestination').DataTable();
-
-                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(response.data).url;
+                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json).url;
                 const name = data.name;
                 const type = data._type;
                 const district = data.district;
@@ -109,6 +107,7 @@ function addDestination(url, redirect, userId) {
  */
 function populateDestinations(table, userId) {
     // Query API endpoint to get all destinations
+    table.clear();
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
     .then(response => {
         response.json()

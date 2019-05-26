@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import models.CountryDefinition;
@@ -187,12 +186,57 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     }
 
     @Test
-    public void updateTrip() {
+    public void updateTrip() throws IOException {
         // Creates trip object
         boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
-        String[] arrivalTimes = new String[] {};
-        String[] departureTimes = new String[] {};
+        String[] arrivalTimes = new String[] {null, null};
+        String[] departureTimes = new String[] {null, null};
+
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip.id = 1L;    // Needs to be set to trip created in evolutions
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(PUT)
+                .bodyJson(node)
+                .cookie(adminAuthCookie)
+                .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(node)
+                .cookie(adminAuthCookie)
+                .uri("/api/trip/1");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = trip.tripDataList.get(i);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertNull(tripData.arrivalTime);
+            assertNull(tripData.departureTime);
+        }
+    }
+
+    @Test
+    public void updateTripDatesAndTimes() throws IOException {
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
+        String[] departureTimes = new String[] {"2018-05-13 09:00:00", "2018-05-27 23:15:00"};
 
         Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
@@ -207,9 +251,159 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(node)
+                .cookie(adminAuthCookie)
+                .uri("/api/trip/1");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = trip.tripDataList.get(i);
+            LocalDateTime actualArrTime = LocalDateTime.parse(arrivalTimes[i], formatter);
+            LocalDateTime actualDepTime = LocalDateTime.parse(departureTimes[i], formatter);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertEquals(actualArrTime, tripData.arrivalTime);
+            assertEquals(actualDepTime, tripData.departureTime);
+        }
     }
 
-    // TODO: Write tests for updateTrip (change dest order and change arrival departure times
+    @Test
+    public void updateTripInvalidDatesAndTimes() throws IOException {
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
+        String[] departureTimes = new String[] {"2018-05-13 13:26:00", "2018-05-27 23:15:00"};
+
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip.id = 1L;    // Needs to be set to trip created in evolutions
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+    }
+
+    @Test
+    public void updateTripOrder() throws IOException {
+        // Create a new trip with details
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2};
+        String[] arrivalTimes = new String[] {null, null};
+        String[] departureTimes = new String[] {null, null};
+
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        JsonNode node = Json.toJson(trip);
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+                .method(POST)
+                .bodyJson(node)
+                .cookie(adminAuthCookie)
+                .uri("/api/trip");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result insertResult = route(fakeApp, insertRequest);
+        assertEquals(OK, insertResult.status());
+
+        Long tripId = new ObjectMapper().readValue(Helpers.contentAsString(insertResult), Long.class);
+
+        // Create new trip with modified destination order, set tripId to created trip ID
+        destinations = new int[] {2, 1};
+
+        Trip tripToUpdate = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
+        node = Json.toJson(tripToUpdate);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(PUT)
+                .bodyJson(node)
+                .cookie(adminAuthCookie)
+                .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+                .method(GET)
+                .bodyJson(node)
+                .cookie(adminAuthCookie)
+                .uri("/api/trip/" + tripId);
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = tripToUpdate.tripDataList.get(i);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertNull(tripData.arrivalTime);
+            assertNull(tripData.departureTime);
+        }
+    }
+
+    @Test
+    public void updateTripInvalidOrder() throws IOException {
+        // Create a new trip with details
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2, 1, 3};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
+
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        JsonNode node = Json.toJson(trip);
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+            .method(POST)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result insertResult = route(fakeApp, insertRequest);
+        assertEquals(OK, insertResult.status());
+
+        Long tripId = new ObjectMapper().readValue(Helpers.contentAsString(insertResult), Long.class);
+
+        // Create new trip with modified destination order, set tripId to created trip ID
+        destinations = new int[] {2, 1, 1, 3};
+
+        Trip tripToUpdate = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
+        node = Json.toJson(tripToUpdate);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+    }
 
     @Test
     public void updateTripInvalidId() {
@@ -232,6 +426,60 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
+    }
+
+    @Test
+    public void transferDestinationOwnershipByTrip() throws IOException {
+        // Check destination 4 is public and owned by user 2
+        Http.RequestBuilder initGetRequest = Helpers.fakeRequest()
+            .method(GET)
+            .uri("/api/destination/4");
+
+        // Get result and check it was successful
+        Result initGetResult = route(fakeApp, initGetRequest);
+        assertEquals(OK, initGetResult.status());
+
+        // Check destination privacy and owner
+        JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(initGetResult), JsonNode.class);
+        Destination getDest = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Destination>() {});
+        assertEquals(Long.valueOf(2), getDest.user.id);
+        assertTrue(getDest.isPublic);
+
+        // Create new trip by user 3 using destination 4
+        boolean isPublic = false;
+        int[] destinations = new int[] {1, 2, 4};
+        String[] arrivalTimes = new String[] {};
+        String[] departureTimes = new String[] {};
+
+        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip.userId = 3L;
+        JsonNode node = Json.toJson(trip);
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+            .method(POST)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        // Get result and check it was successful
+        Result insertResult = route(fakeApp, insertRequest);
+        assertEquals(OK, insertResult.status());
+
+        // Check destination 4 is now owned by master admin and is public
+        Http.RequestBuilder finalGetRequest = Helpers.fakeRequest()
+            .method(GET)
+            .uri("/api/destination/4");
+
+        // Get result and check it was successful
+        Result finalGetResult = route(fakeApp, finalGetRequest);
+        assertEquals(OK, finalGetResult.status());
+
+        // Check destination privacy and owner
+        JsonNode json2 = new ObjectMapper().readValue(Helpers.contentAsString(finalGetResult), JsonNode.class);
+        Destination getDest2 = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json2), new TypeReference<Destination>() {});
+        assertEquals(Long.valueOf(1), getDest2.user.id);
+        assertTrue(getDest2.isPublic);
     }
 
     @Test

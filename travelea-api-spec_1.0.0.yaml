@@ -685,6 +685,34 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
+  '/destination/{id}/photo':
+    get:
+      tags:
+      - Destinations
+      summary: Get destination photos
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to retrieve photos from
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved photos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '404':
+          description: No such destination found
+        '403':
+          description: Forbidden, user does not have permistion to acces destination photos
+        '401':
+          description: Unauthorized
           
   '/destination/search':
     get:
