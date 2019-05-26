@@ -138,7 +138,7 @@ let markers = [];
 
 /**
  * Populates the markers list which can be iterated over to dynamically add destination markers
- * @param userId
+ * @param {Number} userId - ID of user to retrieve destinations for
  */
 function populateMarkers(userId) {
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
@@ -188,19 +188,16 @@ function initMap() {
             position:props.coords,
             map:map
         });
-
         // Check for customicon
         if(props.iconImage){
             // Set icon image
             marker.setIcon(props.iconImage);
         }
-
         // Check content
         if(props.content){
             let infoWindow = new google.maps.InfoWindow({
                 content:props.content
             });
-
             // if content exists then make a info window
             marker.addListener('click', function(){
                 infoWindow.open(map, marker);
