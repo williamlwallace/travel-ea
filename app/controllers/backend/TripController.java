@@ -7,9 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
 import models.Trip;
@@ -296,21 +299,14 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Checks the list of destinations used and if necessary transfers ownership to master admin
+     * Transfers ownership of destinations used in trip to master admin if used by another user
      *
      * @param userId Owner of trip being created or updated
      * @param destinations List of tripData objects used in trip
      */
     private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
-        for (TripData tripData : destinations) {
-            Destination destination = tripData.destination;
-            destinationRepository.checkDestinationInTrip(destination, userId, MASTER_ADMIN_ID).thenApplyAsync(dest -> {
-                if (dest != null) {
-                    return destinationRepository.changeDestinationOwner(dest.id, MASTER_ADMIN_ID);
-                }
-                return true;
-            });
-        }
+        List<Long> destIds = destinations.stream().map(x -> x.destination.id).collect(Collectors.toList());
+        destinationRepository.updateDestinationOwnershipUsedInTrip(destIds, userId, MASTER_ADMIN_ID);
     }
 
     /**
