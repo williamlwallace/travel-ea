@@ -149,17 +149,18 @@ function populateMarkers(userId) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
                 for (const dest in json) {
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
                     let privacySrc;
                     json[dest].isPublic ? privacySrc = "/assets/images/public.png" : privacySrc = "/assets/images/private.png";
                     markers.push({
                         coords:{lat: json[dest].latitude, lng: json[dest].longitude},
                         iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', //TODO Make our own marker or remove this field to use default marker
-                        content:'<h3>' + json[dest].name + '&nbsp;&nbsp;<img src="' + privacySrc + '"height="20"></h3>'
-                                + '<p> Type: ' + json[dest]._type + '<br>'
-                                + 'District: ' + json[dest].district + '<br>'
-                                + 'Latitude: ' + json[dest].latitude + '<br>'
-                                + 'Longitude: ' + json[dest].longitude + '<br>'
-                                + 'Country: ' + json[dest].country.name + '</p>'
+                        content:'<a class="marker-link" title="View detailed destination" href="' + destination + '"><h3 style="display:inline">' + json[dest].name + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="' + privacySrc + '"height="20" style="margin-bottom:13px">'
+                                + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
+                                + '<b>District:</b> ' + json[dest].district + '<br>'
+                                + '<b>Latitude:</b> ' + json[dest].latitude + '<br>'
+                                + '<b>Longitude:</b> ' + json[dest].longitude + '<br>'
+                                + '<b>Country:</b> ' + json[dest].country.name + '</p>'
                     });
                 }
                 initMap();

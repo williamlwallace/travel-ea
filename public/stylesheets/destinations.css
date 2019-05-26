@@ -1,0 +1,8 @@
+a.marker-link {
+    text-decoration: none;
+    color: #000000;
+}
+
+a.marker-link:hover {
+    opacity:0.5;
+}
