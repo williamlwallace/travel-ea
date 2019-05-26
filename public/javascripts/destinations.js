@@ -207,7 +207,6 @@ function initMap() {
             });
         }
     }
-
     // Loop through markers list and add them to the map
     for (let i = 0; i < markers.length ; i++) {
         addMarker(markers[i]);
