@@ -18,6 +18,7 @@ server.pid
 *.db
 /.idea/*
 .idea/*
+.idea/workspace.xml
 
 # Ignore all files inside storage, except the placeholder text files, which make sure that git includes the directories
 /public/storage
