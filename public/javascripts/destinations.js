@@ -178,10 +178,8 @@ function initMap() {
         zoom: 5,
         center: {lat:-40.9006, lng:174.8860}
     };
-
     // New map
     let map = new google.maps.Map(document.getElementById('map'), options);
-
     /**
      * Inserts marker on map
      * @param {JSON} props contain destination coords, destination information, and styling
