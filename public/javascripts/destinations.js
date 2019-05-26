@@ -137,7 +137,7 @@ function populateDestinations(table, userId) {
 let markers = [];
 
 /**
- * Populates the markers list which can be iterated over to dynamically add destination markers
+ * Populates the markers list with props which can be iterated over to dynamically add destination markers
  * @param {Number} userId - ID of user to retrieve destinations for
  */
 function populateMarkers(userId) {
@@ -182,7 +182,10 @@ function initMap() {
     // New map
     let map = new google.maps.Map(document.getElementById('map'), options);
 
-    // Add Marker Function
+    /**
+     * Inserts marker on map
+     * @param {JSON} props contain destination coords, destination information, and styling
+     */
     function addMarker(props){
         let marker = new google.maps.Marker({
             position:props.coords,
