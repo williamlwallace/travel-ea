@@ -190,8 +190,7 @@ $("#upload-gallery-image-button").click(function() {
 function sendUserIdAndFillGallery(userId, destinationId) {
     USERID = userId;
     DESTINATIONID = destinationId;
-    //TODO update this to be the get linked destinations method
-    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "main-gallery", "page-selection")
+    fillGallery(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url, "main-gallery", "page-selection")
 }
 
 /**
@@ -204,10 +203,14 @@ function sendUserIdAndFillGallery(userId, destinationId) {
 function toggleLinked(guid, newLinked, destinationId) {
     const label = document.getElementById(guid + "linked");
     const data = {
-        "isLinked": newLinked
     };
-    patch(photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url, data)
+    let url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url;
+    if (!newLinked) {
+        url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
+    }
+    put(url, data)
     .then(res => {
+        console.log(res);
         if (res.status === 200) {
             label.innerHTML = newLinked ? "Linked" : "Not-Linked";
             if (newLinked) {

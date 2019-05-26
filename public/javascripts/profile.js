@@ -99,7 +99,6 @@ let profilePictureToCrop = document.getElementById('image');
 let profilePictureSize = 350;
 let cropper;
 
-let usersPhotos = [];
 let getAllPhotosUrl;
 let profilePictureControllerUrl;
 let canEdit;

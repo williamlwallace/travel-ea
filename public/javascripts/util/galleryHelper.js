@@ -194,7 +194,7 @@ function createLinkButton (isLinked, guid, destinationId) {
     let linkButton = document.createElement("span");
     let linkLabel = document.createElement("input");
     linkLabel.setAttribute("class", "privacy");
-    linkLabel.setAttribute("id", guid + "privacy");
+    linkLabel.setAttribute("id", guid + "linked");
     linkLabel.setAttribute("type", "image");
 
     if (isLinked) {

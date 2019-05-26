@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import controllers.backend.routes.javascript;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -500,7 +501,9 @@ public class PhotoController extends TEABackController {
             JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy(),
                 controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
-                controllers.backend.routes.javascript.PhotoController.linkPhotoToDest()
+                controllers.backend.routes.javascript.PhotoController.linkPhotoToDest(),
+                controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
+                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
