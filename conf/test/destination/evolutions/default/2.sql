@@ -12,13 +12,34 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
 
 -- Insert a destination to test getting
+-- User 1 private destinations
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 0);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 0);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Sky Tower', 'Monument', 'Auckland', -36.8484, 174.76000, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Britomart Monument', 'Monument', 'Akaroa', -43.81546, 172.94883, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'London Eye', 'Monument', 'London', 56.3453, 23.94883, 1, 0);
+
+-- User 2 private destinations
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (2, 'Tower Bridge', 'Monument', 'London', 51.50333132, -0.071999712, 1, 0);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (2, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 0);
+
+-- Add photo
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
+
+-- Add photo-destination link that can be merged
+INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
+
+-- Insert a trip that uses destinations that will be merged
+INSERT INTO Trip (user_id) VALUES (2);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES
+  (1, 0, 4, null, null), (1, 1, 5, null, null), (1, 2, 2, null, null)
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM TripData;
+DELETE FROM Photo;
+DELETE FROM DestinationPhoto;
 DELETE FROM Destination;
 DELETE FROM Profile;
 DELETE FROM User;
