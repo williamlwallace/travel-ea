@@ -10,6 +10,7 @@ function onPageLoad(userId) {
         }
     });
     populateDestinations(destinationTable, userId);
+    populateMarkers(userId);
 }
 
 /**
@@ -130,6 +131,84 @@ function populateDestinations(table, userId) {
             }
         });
     })
+}
+
+// Maps marker list
+let markers = [];
+
+/**
+ * Populates the markers list with props which can be iterated over to dynamically add destination markers
+ * @param {Number} userId - ID of user to retrieve destinations for
+ */
+function populateMarkers(userId) {
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                document.getElementById("otherError").innerHTML = json;
+            } else {
+                for (const dest in json) {
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
+                    let privacySrc;
+                    json[dest].isPublic ? privacySrc = "/assets/images/public.png" : privacySrc = "/assets/images/private.png";
+                    markers.push({
+                        coords:{lat: json[dest].latitude, lng: json[dest].longitude},
+                        iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', //TODO Make our own marker or remove this field to use default marker
+                        content:'<a class="marker-link" title="View detailed destination" href="' + destination + '"><h3 style="display:inline">' + json[dest].name + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="' + privacySrc + '"height="20" style="margin-bottom:13px">'
+                                + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
+                                + '<b>District:</b> ' + json[dest].district + '<br>'
+                                + '<b>Latitude:</b> ' + json[dest].latitude + '<br>'
+                                + '<b>Longitude:</b> ' + json[dest].longitude + '<br>'
+                                + '<b>Country:</b> ' + json[dest].country.name + '</p>'
+                    });
+                }
+                initMap();
+            }
+        });
+    })
+}
+
+/**
+ * Initialises google maps on destination page and dynamically adds destination markers
+ */
+function initMap() {
+    // Initial map options
+    let options = {
+        zoom: 5,
+        center: {lat:-40.9006, lng:174.8860}
+    };
+    // New map
+    let map = new google.maps.Map(document.getElementById('map'), options);
+    /**
+     * Inserts marker on map
+     * @param {JSON} props contain destination coords, destination information, and styling
+     */
+    function addMarker(props){
+        let marker = new google.maps.Marker({
+            position:props.coords,
+            map:map
+        });
+        // Check for customicon
+        if(props.iconImage){
+            // Set icon image
+            marker.setIcon(props.iconImage);
+        }
+        // Check content
+        if(props.content){
+            let infoWindow = new google.maps.InfoWindow({
+                content:props.content
+            });
+            // if content exists then make a info window
+            marker.addListener('click', function(){
+                infoWindow.open(map, marker);
+            });
+        }
+    }
+    // Loop through markers list and add them to the map
+    for (let i = 0; i < markers.length ; i++) {
+        addMarker(markers[i]);
+    }
 }
 
 /**
