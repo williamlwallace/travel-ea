@@ -311,21 +311,26 @@ public class DestinationRepository {
     }
 
     /**
-     * Checks if a destination belongs to the user provided
+     * Transfers the ownership of a destination to master admin if the destination is
+     * being used by another user
      *
-     * @param destination Destination object to check ownership of
+     * @param destinations List of ID's of destinations to check ownership and potentially transfer
      * @param userId ID of user using the destination
-     * @return A destination object if one is found and doesn't belong to the
-     * specified user or the master admin, otherwise null
+     * @param masterId ID of the master admin (ID to transfer ownership to)
+     * @return The number of destinations transferred to the master admin
      */
-    public CompletableFuture<Destination> checkDestinationInTrip(Destination destination, Long userId, Long masterId) {
-        return supplyAsync(() -> ebeanServer.find(Destination.class)
-                        .where()
-                        .idEq(destination.id)
-                        .ne("user_id", userId)
-                        .ne("user_id", masterId)
-                        .findOneOrEmpty()
-                        .orElse(null)
-                , executionContext);
+    public Integer updateDestinationOwnershipUsedInTrip(Collection<Long> destinations, Long userId, Long masterId) {
+        String sql = "UPDATE Destination "
+            + "SET user_id = :masterId, "
+            + "is_public = 1 "
+            + "WHERE user_id != :userId "
+            + "AND user_id != :masterId "
+            + "AND id IN (:destinations);";
+
+        return ebeanServer.createUpdate(Destination.class, sql)
+            .setParameter("destinations", destinations)
+            .setParameter("userId", userId)
+            .setParameter("masterId", masterId)
+            .execute();
     }
 }
