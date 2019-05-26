@@ -152,7 +152,12 @@ function populateMarkers(userId) {
                     markers.push({
                         coords:{lat: json[dest].latitude, lng: json[dest].longitude},
                         iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', //TODO Make our own marker or remove this field to use default marker
-                        content:'<h1>' + json[dest].name + '</h1>' //TODO Max and campbell will pimp this out
+                        content:'<h3>' + json[dest].name + '</h3>'
+                                + '<p> Type: ' + json[dest]._type + '<br>'
+                                + 'District: ' + json[dest].district + '<br>'
+                                + 'Latitude: ' + json[dest].latitude + '<br>'
+                                + 'Longitude: ' + json[dest].longitude + '<br>'
+                                + 'Country: ' + json[dest].country.name + '</p>'//TODO Max and campbell will pimp this out
                     });
                 }
                 initMap();
