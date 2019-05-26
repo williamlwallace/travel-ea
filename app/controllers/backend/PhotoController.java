@@ -24,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -261,7 +261,7 @@ public class PhotoController extends TEABackController {
         photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
         photo.thumbnailFilename = (savePath + ((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY)
             + "thumbnails/" + fileName);
-        photo.uploaded = DateTime.now();
+        photo.uploaded = LocalDateTime.now();
         photo.userId = userId;
 
         // Return the created photo object
