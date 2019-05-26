@@ -129,8 +129,11 @@
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                                 <span aria-hidden="true">&times;</span>
                                                             </button>
-                                                        </div>
+                                                        </div><br>
 
+                                                        <div class="text-center">
+                                                            <img src="@routes.Assets.at("images/plane-takeoff.png")" style="opacity: 0.4" alt="plane-takeoff">
+                                                        </div>
                                                         <section id="timeline">
                                                         @for(dest <- t.tripDataList) {
                                                             <article>
@@ -159,6 +162,9 @@
                                                             </article>
                                                         }
                                                         </section>
+                                                        <div class="text-center">
+                                                            <img src="@routes.Assets.at("images/plane-landing.png")" style="opacity: 0.4" alt="plane-takeoff">
+                                                        </div><br>
 
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
