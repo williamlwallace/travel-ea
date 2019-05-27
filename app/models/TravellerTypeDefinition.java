@@ -37,7 +37,7 @@ public class TravellerTypeDefinition extends Model {
     @JsonBackReference
     @JoinTable(
         name = "DestinationTravellerType",
-        joinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"),
+        joinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
 
     public List<Destination> destTravellerTypes;

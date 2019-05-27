@@ -13,6 +13,8 @@ import javax.inject.Inject;
 import models.Destination;
 import models.TripData;
 import models.User;
+import models.DestinationTravellerType;
+import models.TravellerTypeDefinition;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -21,6 +23,8 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
+import repository.DestinationTravellerTypeRepository;
+import repository.TravellerTypeDefinitionRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -31,12 +35,18 @@ public class DestinationController extends TEABackController {
 
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
+    private final DestinationTravellerTypeRepository destinationTravellerTypeRepository;
+    private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        CountryDefinitionRepository countryDefinitionRepository) {
+        CountryDefinitionRepository countryDefinitionRepository,
+        DestinationTravellerTypeRepository destinationTravellerTypeRepository,
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
+        this.destinationTravellerTypeRepository = destinationTravellerTypeRepository;
+        this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
     }
 
     /**
@@ -212,6 +222,49 @@ public class DestinationController extends TEABackController {
                 return CompletableFuture.supplyAsync(() -> forbidden(
                     "Forbidden, user does not have permission to edit this destination"));
             }
+        });
+    }
+
+    /**
+     * Adds or requests to add a travellertype to a destination depending on a users priveleges
+     *
+     * @param request The request
+     * @param id The id of the destination to edit
+     * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
+     * fails, 403 if the user cannot edit the destination and 200 if successful
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId, Long ttId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("Destination with provided ID not found"));
+            }
+            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(ttId).thenComposeAsync(travellerType -> {
+                if (travellerType == null) {
+                    return CompletableFuture
+                        .supplyAsync(() -> notFound("Traveller Type with provided ID not found"));
+                }
+                DestinationTravellerType type = new DestinationTravellerType();
+                type.destId = destId;
+                type.travellerTypeDefinition = travellerType;
+                if (destination.user.id.equals(user.id) || user.admin) {
+                    type.isPending = false;
+                    
+                    return destinationTravellerTypeRepository.addLink(type)
+                        .thenApplyAsync(rows -> {
+                            return ok(Json.toJson("Successfully added traveller type to destination"));
+                        });
+                } else {
+                    type.isPending = true;
+                    
+                    return destinationTravellerTypeRepository.addLink(type)
+                        .thenApplyAsync(rows -> {
+                            return ok(Json.toJson("Successfully added traveller type to destination"));
+                        });
+                }
+            });
         });
     }
 

@@ -107,13 +107,13 @@ CREATE TABLE IF NOT EXISTS DestinationTravellerType
   (
     guid              INT NOT NULL AUTO_INCREMENT,
     dest_id           INT NOT NULL,
-    traveller_type_id INT NOT NULL,
+    traveller_type_definition_id INT NOT NULL,
     is_pending        BIT NOT NULL,
     FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    FOREIGN KEY (traveller_type_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
-    INDEX travellertype_index (dest_id, traveller_type_id),
-    UNIQUE(dest_id, traveller_type_id)
+    INDEX travellertype_index (dest_id, traveller_type_definition_id),
+    UNIQUE(dest_id, traveller_type_definition_id)
   );
 
 -- Create Trip table, which maps trips to users
