@@ -14,6 +14,9 @@ function showErrors(json, parentElement = "main") {
                 const data = json[key]
                 if (data.startsWith("_")) {
                     elements[i].innerHTML = data.slice(1);
+                } else if (data.endsWith("0")) {
+                    const tempNum = data.split(".");
+                    elements[i].innerHTML = tempNum[0];
                 } else {
                     elements[i].innerHTML = data;
                 }
