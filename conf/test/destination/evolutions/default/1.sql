@@ -1,4 +1,4 @@
--- AUTHOR: Matthew Minish, William Wallace
+-- AUTHOR: Matthew Minish, William Wallace, what about me?
 -- MODIFIED: 14/3/2019 2.00PM
 
 -- !Ups
@@ -102,6 +102,19 @@ CREATE TABLE IF NOT EXISTS Destination
     PRIMARY KEY (id)
   );
 
+-- Create DestinationTravellerType table, which specifies the traveller types of users
+CREATE TABLE IF NOT EXISTS DestinationTravellerType
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    dest_id           INT NOT NULL,
+    traveller_type_definition_id INT NOT NULL,
+    is_pending        BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id)
+  );
+
 -- Create Trip table, which maps trips to users
 CREATE TABLE IF NOT EXISTS Trip
   (
@@ -127,20 +140,6 @@ CREATE TABLE IF NOT EXISTS TripData
     PRIMARY KEY (guid),
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
-  );
-
--- Create DestinationTravellerType table, which specifies the traveller types of users
-CREATE TABLE IF NOT EXISTS DestinationTravellerType
-  (
-    guid              INT NOT NULL AUTO_INCREMENT,
-    dest_id           INT NOT NULL,
-    traveller_type_definition_id INT NOT NULL,
-    is_pending        BIT NOT NULL,
-    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
-    PRIMARY KEY (guid),
-    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id),
-    UNIQUE(dest_id, traveller_type_definition_id)
   );
 
 -- Create Photo table, which stores the filenames and details for all photos

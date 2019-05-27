@@ -25,7 +25,7 @@ public class TravellerTypeDefinition extends Model {
     public String description;
 
     @ManyToMany(mappedBy = "travellerTypes")
-    @JsonBackReference
+    @JsonBackReference("tt-reference")
     @JoinTable(
         name = "TravellerType",
         joinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"),
@@ -34,10 +34,10 @@ public class TravellerTypeDefinition extends Model {
     public List<Profile> travellerTypes;
 
     @ManyToMany(mappedBy = "travellerTypes")
-    @JsonBackReference
+    @JsonBackReference("desttt-reference")
     @JoinTable(
         name = "DestinationTravellerType",
-        joinColumns = @JoinColumn(name = "traveller_type_definition_idt ", referencedColumnName = "id"),
+        joinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
 
     public List<Destination> destTravellerTypes;

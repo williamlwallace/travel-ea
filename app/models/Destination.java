@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import java.util.Iterator;
@@ -56,7 +57,7 @@ public class Destination extends Model {
     @Constraints.Required
     public CountryDefinition country;
 
-    @JsonBackReference
+    @JsonIgnore
     @ManyToMany(mappedBy = "destinationPhotos")
     @JoinTable(
         name = "DestinationPhoto",
@@ -65,7 +66,6 @@ public class Destination extends Model {
 
     public List<Photo> destinationPhotos;
 
-    @JsonBackReference
     @ManyToMany(mappedBy = "destTravellerTypes")
     @JoinTable(
         name = "TravellerType",
@@ -84,6 +84,23 @@ public class Destination extends Model {
         while (iter.hasNext()) {
             Photo photo = iter.next();
             if (photo.guid.equals(photoId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if traveller type is linked to destination.
+     *
+     * @param ttId id of destination of id
+     * @return True if dest is linked to photo
+     */
+    public Boolean isLinkedTravellerType(Long ttId) {
+        Iterator<TravellerTypeDefinition> iter = travellerTypes.iterator();
+        while (iter.hasNext()) {
+            TravellerTypeDefinition travellerType = iter.next();
+            if (travellerType.id.equals(ttId)) {
                 return true;
             }
         }

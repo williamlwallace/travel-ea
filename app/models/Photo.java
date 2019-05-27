@@ -43,7 +43,7 @@ public class Photo extends Model {
     public Boolean isProfile;
 
     @ManyToMany(mappedBy = "destinationPhotos")
-    @JsonBackReference
+    @JsonBackReference("photo-reference")
     @JoinTable(
         name = "DestinationPhoto",
         joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),

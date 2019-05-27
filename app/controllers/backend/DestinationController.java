@@ -247,6 +247,10 @@ public class DestinationController extends TEABackController {
                 return CompletableFuture
                     .supplyAsync(() -> notFound("Destination with provided ID not found"));
             }
+            if (destination.isLinkedTravellerType(ttId)) {
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest("Destination already has that traveller type"));
+            }
             return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(ttId).thenComposeAsync(travellerType -> {
                 if (travellerType == null) {
                     return CompletableFuture

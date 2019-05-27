@@ -72,6 +72,7 @@ public class ProfileController extends TEAFrontController {
                             tripList -> {
                                 boolean canModify =
                                     loggedUser.id.equals(userId) || loggedUser.admin;
+                                System.out.println("\n\n" + profile + "\n\n" + user + "\n\n" + tripList + "\n\n");
                                 return ok(views.html.profile
                                     .render(profile, user, loggedUser, asScala(tripList),
                                         canModify));
