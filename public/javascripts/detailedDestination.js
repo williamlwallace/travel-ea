@@ -57,16 +57,19 @@ function deleteDestination(destinationId, redirect) {
  * @param {number} destinationId the id of the destination to make public
  */
 function makeDestinationPublic(destinationId) {
-   put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(destinationId).url, {})
-       .then(response => {
-           if (response.status === 200) {
-               $("#makeDestinationPublicModal").modal('hide');
-               createPrivacyButton(true);
-               toast('Destination Privacy Changed', 'The destination is now public.', 'success');
-           } else {
-               toast('Error changing privacy', response.toString(), 'danger', 5000);
-           }
-       });
+    put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(
+        destinationId).url, {})
+    .then(response => {
+        if (response.status === 200) {
+            $("#makeDestinationPublicModal").modal('hide');
+            createPrivacyButton(true);
+            toast('Destination Privacy Changed',
+                'The destination is now public.', 'success');
+        } else {
+            toast('Error changing privacy', response.toString(), 'danger',
+                5000);
+        }
+    });
 }
 
 /**
@@ -90,7 +93,8 @@ function createPrivacyButton(isPublic) {
         makePublicButton.title = "Destination is Private, Click to make public.";
         makePublicButton.src = "/assets/images/private.png";
         makePublicButton.setAttribute("data-toggle", "modal");
-        makePublicButton.setAttribute("data-target", "#makeDestinationPublicModal");
+        makePublicButton.setAttribute("data-target",
+            "#makeDestinationPublicModal");
         makePublicButton.setAttribute("style", "vertical-align: sub;");
         privacyWrapper.append(makePublicButton)
     }
@@ -139,7 +143,8 @@ function editDestination(destinationId) {
                         if (response.status !== 200) {
                             if (data === "Duplicate destination") {
                                 toast("Destination could not be edited!",
-                                    "The destination already exists.", "danger", 5000);
+                                    "The destination already exists.", "danger",
+                                    5000);
                                 $('#editDestinationModal').modal('hide');
                             } else {
                                 showErrors(data);

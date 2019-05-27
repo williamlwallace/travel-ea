@@ -27,6 +27,7 @@ public class ProfileRepository {
     /**
      * Adds a new profile to the database.
      *
+     *
      * This method should be simpler, but at the moment it can't be. Because play is brain-dead, and
      * is broken. We have working bridging code, that play fails on, except when we run app as
      * production.

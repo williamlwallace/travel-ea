@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -23,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
-import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -448,7 +448,7 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Get Destination photos based on logged in user
+     * Get Destination photos based on logged in user.
      *
      * @param request Request
      * @param destId id of destination
@@ -473,8 +473,8 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Removes photos that shouldnt be seen by given user
-     * 
+     * Removes photos that shouldnt be seen by given user.
+     *
      * @param photos List of photos
      * @param userId Id of authenticated user
      * @return List of filtered photos

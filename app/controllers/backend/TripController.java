@@ -3,14 +3,11 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
-import actions.roles.Admin;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -40,7 +37,7 @@ public class TripController extends TEABackController {
 
     @Inject
     public TripController(TripRepository tripRepository,
-                          DestinationRepository destinationRepository) {
+        DestinationRepository destinationRepository) {
 
         this.tripRepository = tripRepository;
         this.destinationRepository = destinationRepository;
@@ -122,24 +119,24 @@ public class TripController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         return tripRepository.getTripById(tripId).thenApplyAsync(
-                trip -> {
-                    // If trip was not found in database
-                    if (trip == null) {
-                        return notFound();
+            trip -> {
+                // If trip was not found in database
+                if (trip == null) {
+                    return notFound();
+                }
+                // If trip was found and logged in user has privileges to retrieve trip
+                else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trip)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
-                    // If trip was found and logged in user has privileges to retrieve trip
-                    else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
-                        try{
-                            return ok(sanitizeJson(Json.toJson(trip)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    }
-                    // If logged in user does not have privileges to retrieve trip
-                    else {
-                        return forbidden();
-                    }
-                });
+                }
+                // If logged in user does not have privileges to retrieve trip
+                else {
+                    return forbidden();
+                }
+            });
     }
 
     /**
@@ -312,14 +309,16 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Transfers ownership of destinations used in trip to master admin if used by another user
+     * Transfers ownership of destinations used in trip to master admin if used by another user.
      *
      * @param userId Owner of trip being created or updated
      * @param destinations List of tripData objects used in trip
      */
     private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
-        List<Long> destIds = destinations.stream().map(x -> x.destination.id).collect(Collectors.toList());
-        destinationRepository.updateDestinationOwnershipUsedInTrip(destIds, userId, MASTER_ADMIN_ID);
+        List<Long> destIds = destinations.stream().map(x -> x.destination.id)
+            .collect(Collectors.toList());
+        destinationRepository
+            .updateDestinationOwnershipUsedInTrip(destIds, userId, MASTER_ADMIN_ID);
     }
 
     /**

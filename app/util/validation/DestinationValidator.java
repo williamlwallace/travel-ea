@@ -1,7 +1,6 @@
 package util.validation;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import models.User;
 
 /**
  * A class which validates Destination information.
@@ -31,7 +30,8 @@ public class DestinationValidator extends Validator {
         }
 
         // Checks destination has an owner with an ID
-        if (this.required("user", "User") && this.form.get("user").get("id").asText("").equals("")) {
+        if (this.required("user", "User") && this.form.get("user").get("id").asText("")
+            .equals("")) {
             this.required("userId", "UserId");    // Yes I'm a bad person
         }
 

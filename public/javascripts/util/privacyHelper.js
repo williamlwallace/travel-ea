@@ -30,12 +30,16 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
             if (response.status === 200) {
                 console.log(currentPrivacy);
                 if (currentPrivacy === "Public") {
-                    document.getElementById("privacyImg" + tripId).title = "Private";
-                    document.getElementById("privacyImg" + tripId).src = privateImageSrc;
+                    document.getElementById(
+                        "privacyImg" + tripId).title = "Private";
+                    document.getElementById(
+                        "privacyImg" + tripId).src = privateImageSrc;
                 }
                 else {
-                    document.getElementById("privacyImg" + tripId).title = "Public";
-                    document.getElementById("privacyImg" + tripId).src = publicImageSrc;
+                    document.getElementById(
+                        "privacyImg" + tripId).title = "Public";
+                    document.getElementById(
+                        "privacyImg" + tripId).src = publicImageSrc;
                 }
             }
         });
