@@ -166,12 +166,15 @@ public class PhotoController extends TEABackController {
 
             // If no photos were actually found, and no other error has been thrown, throw it now
             if (photos.isEmpty()) {
+                System.out.println("UPLOAD (CONTROLLER) NO PHOTOS");
                 return badRequest("No files given");
             } else {
+                System.out.println("CALLING SAVE MULTIPLE PHOTOS");
                 saveMultiplePhotos(photos);
             }
 
             // Return OK if no issues were encountered
+            System.out.println("UPLOAD (CONTROLLER) RETURNING CREATED STATUS");
             return status(201, Json.toJson("File(s) uploaded successfully"));
         });
     }
@@ -189,7 +192,9 @@ public class PhotoController extends TEABackController {
         for (Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>> pair : photos) {
             // if photo to add is marked as new profile pic, clear any existing profile pic first
             if (pair.getKey().isProfile) {
+                System.out.println("SAVE MULTIPLE PHOTOS: IS PROFILE");
                 photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
+                    System.out.println("INSIDE CLEAR PROFILE PHOTO IN SAVE MULTIPLE PHOTOS");
                     if (fileNamesPair != null) {
                         File thumbFile = new File(fileNamesPair.getKey());
                         File mainFile = new File(fileNamesPair.getValue());
@@ -216,6 +221,7 @@ public class PhotoController extends TEABackController {
                     .copyTo(Paths.get(pair.getKey().filename), true);
                 createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
                     .copyTo(Paths.get(pair.getKey().thumbnailFilename));
+                System.out.println("COMPLETED TRY BLOCK SAVE MULTIPLE PHOTOS");
             } catch (IOException e) {
                 System.out.println("PHOTO FAILED TO SAVE");
                 System.out.println("ERROR: " + e + "\nStack Trace: ");
@@ -224,6 +230,7 @@ public class PhotoController extends TEABackController {
             }
         }
         // Collect all keys from the list to upload
+        System.out.println("ABOUT TO CALL ADD PHOTOS (REPOSITORY METHOD)");
         photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
     }
 

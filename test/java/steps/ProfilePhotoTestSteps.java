@@ -30,7 +30,9 @@ public class ProfilePhotoTestSteps {
     @Then("I can set it as my profile photo")
     @When("I set it as my profile photo")
     public void i_set_it_as_my_profile_photo() throws IOException {
+        System.out.println("-------------------------------------------");
         System.out.println("I SET IT AS MY PROFILE PHOTO");
+        System.out.println("-------------------------------------------");
         File file = getFile("./public/images/favicon.png");
 
         List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
@@ -69,7 +71,9 @@ public class ProfilePhotoTestSteps {
 
     @Then("A thumbnail is created")
     public void a_thumbnail_is_created() throws IOException {
+        System.out.println("-------------------------------------------");
         System.out.println("A THUMBNAIL IS CREATED");
+        System.out.println("-------------------------------------------");
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
@@ -87,7 +91,9 @@ public class ProfilePhotoTestSteps {
 
     @Then("It is returned as my profile picture")
     public void it_is_returned_as_my_profile_picture() throws IOException {
+        System.out.println("-------------------------------------------");
         System.out.println("IT IS RETURNED AS MY PROFILE PICTURE");
+        System.out.println("-------------------------------------------");
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
