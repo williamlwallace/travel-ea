@@ -20,7 +20,7 @@ import util.objects.Pair;
  */
 public class PhotoRepository {
 
-    private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
+    public static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
     private static final String IS_PROFILE = "is_profile";
     private final EbeanServer ebeanServer;
@@ -175,7 +175,7 @@ public class PhotoRepository {
      *
      * @param photos Photos to append path to
      */
-    private List<Photo> appendAssetsUrl(List<Photo> photos) {
+    public List<Photo> appendAssetsUrl(List<Photo> photos) {
         for (Photo photo : photos) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
             photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
