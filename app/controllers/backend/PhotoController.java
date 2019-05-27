@@ -5,7 +5,6 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import controllers.backend.routes.javascript;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -465,6 +464,7 @@ public class PhotoController extends TEABackController {
             } else {
                 List<Photo> photos = filterPhotos(destination.destinationPhotos, userId);
                 try {
+                    photos = photoRepository.appendAssetsUrl(photos);
                     return ok(sanitizeJson(Json.toJson(photos)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));

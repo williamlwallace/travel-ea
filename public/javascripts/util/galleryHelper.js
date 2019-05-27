@@ -34,6 +34,7 @@ let usersPhotos = [];
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  */
 function fillGallery(getPhotosUrl, galleryId, pageId) {
+    console.log(getPhotosUrl);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -59,27 +60,27 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  */
 function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
+    console.log(getPhotosUrl);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
     .then(response => {
         // Convert the response to json
         response.json().then(data => {
-            //TODO change this url to be one that gets a users linked photos
-            get(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url)
+            usersPhotos = [];
+            get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(USERID).url)
             .then(response => {
                 response.json().then(linkedPhotos => {
-                    usersPhotos = [];
                     for (let i = 0; i < data.length; i++) {
                         if (data[i] in linkedPhotos) {
                             data[i]["isLinked"] = true;
                         }
                         usersPhotos[i] = data[i];
                     }
+                    let galleryObjects = createGalleryObjects(false, true, destinationId);
+                    addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
                 })
             });
-            let galleryObjects = createGalleryObjects(false, true, destinationId);
-            addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
         });
     });
 }
@@ -116,6 +117,8 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
             const filename = usersPhotos[(6 * page + position)]["filename"];
             const guid = usersPhotos[(6 * page + position)]["guid"];
             const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
+            const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
+
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
@@ -133,7 +136,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
                 photo.href = filename;
             }
             if (withLinkButton) {
-                let linkButton = createLinkButton(isPublic, guid, destinationId);
+                let linkButton = createLinkButton(isLinked, guid, destinationId);
                 tile.appendChild(linkButton)
             }
             photo.setAttribute("data-id", guid);
@@ -233,13 +236,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         }).on("page", function (event, num) {
             currentPage = num;
             $(galleryId).html(galleryObjects[currentPage - 1]);
-            if (galleryId[0].id === "link-gallery") {
-                baguetteBox.run('.tz-gallery', {
-                    buttons: false
-                });
-            } else {
-                baguetteBox.run('.tz-gallery');
-            }
+            baguetteBox.run('.tz-gallery');
             $('.img-wrap .close').on('click', function () {
                 let guid = $(this).closest('.img-wrap').find('a').data("id");
                 let filename = $(this).closest('.img-wrap').find('a').data(
@@ -249,13 +246,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         });
         // set first page
         $(galleryId).html(galleryObjects[currentPage - 1]);
-        if (galleryId[0].id === "link-gallery") {
-            baguetteBox.run('.tz-gallery', {
-                buttons: false
-            });
-        } else {
-            baguetteBox.run('.tz-gallery');
-        }
+        baguetteBox.run('.tz-gallery');
         $('.img-wrap .close').on('click', function () {
             let guid = $(this).closest('.img-wrap').find('a').data("id");
             let filename = $(this).closest('.img-wrap').find('a').data(

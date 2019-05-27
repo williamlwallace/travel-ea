@@ -214,9 +214,9 @@ function toggleLinked(guid, newLinked, destinationId) {
         if (res.status === 200) {
             label.innerHTML = newLinked ? "Linked" : "Not-Linked";
             if (newLinked) {
-                label.setAttribute("src", "/assets/images/destination-linked.png");
+                label.setAttribute("src", "/assets/images/location-linked.png");
             } else {
-                label.setAttribute("src", "/assets/images/destination-unlinked.png");
+                label.setAttribute("src", "/assets/images/location-unlinked.png");
             }
             label.setAttribute("onClick",
                 "toggleLinked(" + guid + "," + !newLinked + ")");
@@ -225,6 +225,7 @@ function toggleLinked(guid, newLinked, destinationId) {
             } else {
                 toast("Photo Unlinked", "Photo has been successfully removed from this destination", "success")
             }
+            $("#linkPhotoToDestinationModal").modal('hide');
         }
     })
 }

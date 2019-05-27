@@ -175,7 +175,7 @@ public class PhotoRepository {
      *
      * @param photos Photos to append path to
      */
-    private List<Photo> appendAssetsUrl(List<Photo> photos) {
+    public List<Photo> appendAssetsUrl(List<Photo> photos) {
         for (Photo photo : photos) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
             photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
