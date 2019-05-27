@@ -171,10 +171,13 @@ public class PhotoController extends TEABackController {
                 return badRequest("No files given");
             } else {
                 System.out.println("CALLING SAVE MULTIPLE PHOTOS");
-                saveMultiplePhotos(photos);
-                // Return OK if no issues were encountered
-                System.out.println("UPLOAD (CONTROLLER) RETURNING CREATED STATUS");
-                return status(201, Json.toJson("File(s) uploaded successfully"));
+                if (saveMultiplePhotos(photos)) {
+                    // Return OK if no issues were encountered
+                    System.out.println("UPLOAD (CONTROLLER) RETURNING CREATED STATUS");
+                    return status(201, Json.toJson("File(s) uploaded successfully"));
+                } else {
+                    return internalServerError();
+                }
             }
         });
     }
@@ -184,7 +187,7 @@ public class PhotoController extends TEABackController {
      *
      * @param photos Collection of pairs of Photo and HTTP multipart form data file parts
      */
-    private void saveMultiplePhotos(
+    private boolean saveMultiplePhotos(
         Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos) {
         // Add all the photos we found to the database
         int thumbWidth = THUMB_WIDTH;
@@ -233,7 +236,8 @@ public class PhotoController extends TEABackController {
         System.out.println("ABOUT TO CALL ADD PHOTOS (REPOSITORY METHOD)");
         List<Photo> photosToAdd = photos.stream().map(Pair::getKey).collect(Collectors.toList());
         System.out.println("PHOTOS BEING PASSED INTO ADD PHOTOS: " + photosToAdd);
-        photoRepository.addPhotos(photosToAdd);
+        photoRepository.addPhotos(photosToAdd).join();
+        return true;
     }
 
     /**
