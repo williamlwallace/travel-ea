@@ -98,43 +98,65 @@ function createPrivacyButton(isPublic) {
 
 /**
  * Edits the current destination
+ * What the actual fuck is this
  * @param {number} destinationId the id of the destination to edit
  */
 function editDestination(destinationId) {
-    // Read data from destination form
-    const formData = new FormData(
-        document.getElementById("editDestinationForm"));
-    // Convert data to json object
-    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
-    }), {});
-    // Convert lat and long to double values, and id to int
-    data.latitude = parseFloat(data.latitude);
-    data.longitude = parseFloat(data.longitude);
-    data.countryId = parseInt(data.countryId);
-
-    // Convert country id to country object
-    data.country = {"id": data.countryId};
-
-    data.id = destinationId;
-    delete data.countryId;
-    // Post json data to given uri
-    put(destinationRouter.controllers.backend.DestinationController.editDestination(
-        destinationId).url, data)
+    get(destinationRouter.controllers.backend.DestinationController.getDestination(
+        destinationId).url)
     .then(response => {
-        response.json().then(data => {
+        // Read response from server, which will be a json object
+        response.json()
+        .then(destination => {
             if (response.status !== 200) {
-                showErrors(data);
-            } else if (response.status === 200) {
-                populateDestinationDetails(destinationId);
-                $('#editDestinationModal').modal('hide');
-                toast("Destination Updated", "Updated Details are now showing",
-                    'success');
+                showErrors(destination);
             } else {
-                toast("Not Updated",
-                    "There was an error updating the destination details",
-                    "danger");
+                // Read data from destination form
+                const formData = new FormData(
+                    document.getElementById("editDestinationForm"));
+                // Convert data to json object
+                const data = Array.from(formData.entries()).reduce(
+                    (memo, pair) => ({
+                        ...memo,
+                        [pair[0]]: pair[1],
+                    }), {});
+                // Convert lat and long to double values, and id to int
+                destination.latitude = parseFloat(data.latitude);
+                destination.longitude = parseFloat(data.longitude);
+                data.countryId = parseInt(data.countryId);
+
+                // Convert country id to country object
+                destination.country.id = data.countryId;
+                destination._type = data._type;
+                destination.name = data.name;
+                destination.district = data.district;
+
+                // Post json data to given uri
+                put(destinationRouter.controllers.backend.DestinationController.editDestination(
+                    destinationId).url, destination)
+                .then(response => {
+                    response.json().then(data => {
+                        if (response.status !== 200) {
+                            if (data === "Duplicate destination") {
+                                toast("Destination could not be edited!",
+                                    "The destination already exists.", "danger", 5000);
+                                $('#editDestinationModal').modal('hide');
+                            } else {
+                                showErrors(data);
+                            }
+                        } else if (response.status === 200) {
+                            populateDestinationDetails(destinationId);
+                            $('#editDestinationModal').modal('hide');
+                            toast("Destination Updated",
+                                "Updated Details are now showing",
+                                'success');
+                        } else {
+                            toast("Not Updated",
+                                "There was an error updating the destination details",
+                                "danger");
+                        }
+                    });
+                });
             }
         });
     });
@@ -154,6 +176,7 @@ function populateEditDestination(destinationId) {
             if (response.status !== 200) {
                 showErrors(destination);
             } else {
+                hideErrors("editDestinationForm");
                 document.getElementById("name").value = destination.name;
                 document.getElementById("_type").value = destination._type;
                 document.getElementById(

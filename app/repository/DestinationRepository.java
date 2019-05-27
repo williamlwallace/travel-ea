@@ -79,7 +79,7 @@ public class DestinationRepository {
     /**
      * Deletes multiple destinations from database
      *
-     * @param id Unique destination IDs of destinations to be deleted
+     * @param ids Unique destination IDs of destinations to be deleted
      * @return The number of rows deleted
      */
     public CompletableFuture<Integer> deleteDestinations(Collection<Long> ids) {

@@ -62,9 +62,15 @@ public class DestinationController extends TEABackController {
 
         // Checks if user logged in is not allowed to create dest for userId
         if (!user.admin && !user.id.equals(newDestination.user.id)) {
-            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Error: You do not have permission to create a destination for someone else")));
+            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You do not have permission to create a destination for someone else")));
         }
-
+        //check if destination already exists
+        List<Destination> destinations = destinationRepository.getSimilarDestinations(newDestination);
+        for (Destination destination: destinations) {
+            if (destination.user.id.equals(user.id) || destination.isPublic) {
+                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+            }
+        }
         return destinationRepository.addDestination(newDestination)
             .thenApplyAsync(id -> {
                 try {
@@ -122,7 +128,9 @@ public class DestinationController extends TEABackController {
             }
 
             // Once all old usages have been re-referenced, delete the found similar destinations
-            destinationRepository.deleteDestinations(similarIds);
+            for (Long simId: similarIds) {
+                destinationRepository.deleteDestination(simId);
+            }
 
             return ok("Successfully made destination public, and re-referenced " + rowsChanged + " to new public destination");
         });
@@ -185,6 +193,13 @@ public class DestinationController extends TEABackController {
                         .supplyAsync(() -> badRequest(validatorResult.toJson()));
                 }
                 Destination editedDestination = Json.fromJson(data, Destination.class);
+                //check if destination already exists
+                List<Destination> destinations = destinationRepository.getSimilarDestinations(editedDestination);
+                for (Destination dest: destinations) {
+                    if (dest.user.id.equals(user.id) || dest.isPublic) {
+                        return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                    }
+                }
                 return destinationRepository.updateDestination(editedDestination)
                     .thenApplyAsync(updatedDestination -> {
                         try {

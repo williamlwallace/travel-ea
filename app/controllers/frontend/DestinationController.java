@@ -85,8 +85,13 @@ public class DestinationController extends TEAFrontController {
     public CompletableFuture<Result> detailedDestinationIndex(Http.Request request, Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
-            boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
-            return ok(views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+            if (destination.user == null) {
+                return notFound();
+            } else {
+                boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
+                return ok(
+                    views.html.detailedDestination.render(destinationId, loggedUser, canModify));
+            }
         }, httpExecutionContext.current());
     }
 
