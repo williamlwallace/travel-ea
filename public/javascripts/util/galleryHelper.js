@@ -34,7 +34,6 @@ let usersPhotos = [];
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  */
 function fillGallery(getPhotosUrl, galleryId, pageId) {
-    console.log(getPhotosUrl);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -60,7 +59,6 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  */
 function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
-    console.log(getPhotosUrl);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request

@@ -375,10 +375,8 @@ public class PhotoController extends TEABackController {
     public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
         Boolean isPublic = data.get("isPublic").asBoolean();
-        System.out.println(isPublic);
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
             if (photo != null) {
-                System.out.println(isPublic);
                 photo.isPublic = isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
