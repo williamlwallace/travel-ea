@@ -114,6 +114,7 @@ public class DestinationController extends TEABackController {
             List<Destination> destinations = destinationRepository.getSimilarDestinations(destination);
             List<Long> similarIds = destinations.stream().map(x -> x.id)
                 .collect(Collectors.toList());
+            System.out.println(similarIds);
 
             // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
@@ -128,7 +129,9 @@ public class DestinationController extends TEABackController {
             }
 
             // Once all old usages have been re-referenced, delete the found similar destinations
-            destinationRepository.deleteDestinations(similarIds);
+            for (Long simId: similarIds) {
+                destinationRepository.deleteDestination(simId);
+            }
 
             return ok("Successfully made destination public, and re-referenced " + rowsChanged + " to new public destination");
         });
