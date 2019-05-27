@@ -43,7 +43,7 @@ GET           /api/destination/getCountries          controllers.backend.Destina
 
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
-GET           /api/destination                       controllers.backend.DestinationController.getAllDestinations()
+GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
 DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
@@ -57,6 +57,8 @@ PUT           /api/destination/:destId/photo/:photoId  controllers.backend.Photo
 
 DELETE        /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
 
+GET        /api/destination/:destId/photo           controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
+
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
@@ -65,9 +67,7 @@ PUT           /api/trip                              controllers.backend.TripCon
 
 PUT           /api/trip/privacy                      controllers.backend.TripController.updateTripPrivacy(request:Request)
 
-GET           /api/trip                              controllers.backend.TripController.getAllTrips()
-
-GET           /api/trip/:id                          controllers.backend.TripController.getTrip(id:Long)
+GET           /api/trip/:id                          controllers.backend.TripController.getTrip(request:Request, id:Long)
 
 DELETE        /api/trip/:id                          controllers.backend.TripController.deleteTrip(id:Long)
 
@@ -98,10 +98,10 @@ GET           /people                controllers.frontend.PeopleController.searc
 GET           /trips                 controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET           /trips/create          controllers.frontend.TripController.createTripIndex(request: Request)
+GET           /trips/create/:id      controllers.frontend.TripController.createTrip(request: Request, id: Long)
 
 # The Travelea edit trip page
-GET           /trips/edit/:id        controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
+GET           /trips/edit/:id        controllers.frontend.TripController.editTrip(request: Request, id: Long)
 
 # Create new profile
 GET           /profile/create        controllers.frontend.ProfileController.createProfileIndex(request: Request)

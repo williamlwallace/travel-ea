@@ -31,13 +31,19 @@
                 @* Destination Details *@
                 <div id="destination-summary">
                     <div class="destination-details">
-                        <p class="heading" id="destination_name">Destination Name</p>
-                        <p class="heading">Type <span id="summary_type" class="destination-info">type</span></p>
-                        <p class="heading">District <span id="summary_district" class="destination-info">district</span></p>
-                        <p class="heading">Country <span id="summary_country" class="destination-info">country</span></p>
-                        <p class="heading">Latitude <span id="summary_latitude" class="destination-info">latitude</span></p>
-                        <p class="heading">Longitude <span id="summary_longitude" class="destination-info">longitude</span></p>
+                        <div style="padding-bottom: 10px">
+                            <span id="destination_name" class="destination_name h1" style="display: inline"></span>
+                            @if(canModify) {
+                                <div style="display: inline; padding-left: 5px" id="privacy_wrapper"></div>
+                            }
+                        </div>
+                        <p class="heading">Type <span id="summary_type" class="destination-info"></span></p>
+                        <p class="heading">District <span id="summary_district" class="destination-info"></span></p>
+                        <p class="heading">Country <span id="summary_country" class="destination-info"></span></p>
+                        <p class="heading">Latitude <span id="summary_latitude" class="destination-info"></span></p>
+                        <p class="heading">Longitude <span id="summary_longitude" class="destination-info"></span></p>
                         @if(canModify) {
+                            <p class="heading"></p>
                             <a data-toggle="modal" data-target="#editDestinationModal" onclick="populateEditDestination(@destinationId)">
                                 <span class="destination-button" style="float: left; padding-top: 15px; padding-bottom: 0px;">Edit Destination</span>
                             </a>
@@ -59,7 +65,7 @@
         </div>
     </body>
 
-    @* Delete Destination Modal *@
+    @* Edit Destination Modal *@
     <div class="modal fade" id="editDestinationModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -122,6 +128,7 @@
             </div>
         </div>
     </div>
+
     @* Delete Destination Modal *@
     <div class="modal fade" id="deleteDestinationModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
@@ -141,6 +148,32 @@
                         No<em class="fas fa-paper-plane-o ml-1"></em>
                     </button>
                     <button class="btn btn-danger" onclick="deleteDestination(@destinationId, '@controllers.frontend.routes.DestinationController.index()')">
+                        Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Make Destination Public Modal *@
+    <div class="modal fade" id="makeDestinationPublicModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Make Destination Public</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <br>
+                <div>
+                    <p align="center">Are you sure you want to make this destination Public? This cannot be undone.</p>
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
+                        No<i class="fas fa-paper-plane-o ml-1"></i>
+                    </button>
+                    <button class="btn btn-primary" onclick="makeDestinationPublic(@destinationId)">
                         Yes
                     </button>
                 </div>

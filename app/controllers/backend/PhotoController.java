@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
-import org.joda.time.DateTime;
+import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -274,7 +276,7 @@ public class PhotoController extends TEABackController {
         photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
         photo.thumbnailFilename = (savePath + ((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY)
             + "thumbnails/" + fileName);
-        photo.uploaded = DateTime.now();
+        photo.uploaded = LocalDateTime.now();
         photo.userId = userId;
 
         // Return the created photo object
@@ -461,6 +463,48 @@ public class PhotoController extends TEABackController {
         });
     }
 
+    /**
+     * Get Destination photos based on logged in user
+     *
+     * @param request Request
+     * @param destId id of destination
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId) {
+        Long userId = request.attrs().get(ActionState.USER).id;
+        return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
+            if (destination == null) {
+                return notFound(Json.toJson(destId));
+            } else if (!destination.isPublic && destination.user.id != userId) {
+                return forbidden();
+            } else {
+                List<Photo> photos = filterPhotos(destination.destinationPhotos, userId);
+                try {
+                    return ok(sanitizeJson(Json.toJson(photos)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            }
+        });
+    }
+
+    /**
+     * Removes photos that shouldnt be seen by given user
+     * 
+     * @param photos List of photos
+     * @param userId Id of authenticated user
+     * @return List of filtered photos
+     */
+    private List<Photo> filterPhotos(List<Photo> photos, Long userId) {
+        Iterator<Photo> iter = photos.iterator();
+        while (iter.hasNext()) {
+            Photo photo = iter.next();
+            if (!photo.isPublic && !photo.userId.equals(userId)) {
+                iter.remove();
+            }
+        }
+        return photos;
+    }
 
     /**
      * Lists routes to put in JS router for use from frontend.

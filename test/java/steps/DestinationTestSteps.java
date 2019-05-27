@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.User;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
@@ -42,6 +43,9 @@ public class DestinationTestSteps {
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
         node.set("country", Json.toJson(countryDefinition));
+        User user = new User();
+        user.id = 1L;
+        node.set("user", Json.toJson(user));
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -73,6 +77,48 @@ public class DestinationTestSteps {
         assertEquals(OK, result.status());
     }
 
+    @When("A public destination is created which is the same as my private destination")
+    public void a_public_destination_is_created_which_is_the_same_as_my_private_destination() throws IOException {
+        // Create new json object node
+        ObjectNode node = Json.newObject();
+        node.put("name", "Eiffel Tower");
+        node.put("_type", "Monument");
+        node.put("district", "Paris");
+        node.put("latitude", 48.8583);
+        node.put("longitude", 2.2945);
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
+        node.set("country", Json.toJson(countryDefinition));
+        User user = new User();
+        user.id = 1L;
+        node.set("user", Json.toJson(user));
+
+        // Create request to create a new destination
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .bodyJson(node)
+            .cookie(authCookie)
+            .uri("/api/destination");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get id of destination
+        destinationId = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Long.class);
+
+        // Create request to make destination public
+        Http.RequestBuilder privacyRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(authCookie)
+            .uri("/api/destination/makePublic/" + destinationId);
+
+        // Get result and check it was successfully
+        Result privacyResult = route(fakeApp, privacyRequest);
+        assertEquals(OK, privacyResult.status());
+    }
+
     @Then("The next time i retrieve it, it is public")
     public void the_next_time_i_retrieve_it_it_is_public() throws IOException {
 
@@ -93,12 +139,11 @@ public class DestinationTestSteps {
 
 
     @Then("The next time I retrieve all public destinations, my private destination is not among them")
-    public void the_next_time_I_retrieve_all_public_destinations_my_private_destination_is_not_among_them()
-        throws IOException {
+    public void the_next_time_I_retrieve_all_public_destinations_my_private_destination_is_not_among_them() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
-            .uri("/api/destination");
+            .uri("/api/user/destination/1");
 
         Result result = route(fakeApp, request);
 
@@ -106,8 +151,11 @@ public class DestinationTestSteps {
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        Assert.assertTrue(destinations.stream().map(d -> d.id).collect(Collectors.toList())
-            .contains(destinationId));
+        Assert.assertTrue(destinations.stream().map(d -> d.id).collect(Collectors.toList()).contains(destinationId));
+    }
+
+    @Then("My private destination is automatically merged with the public one")
+    public void my_private_destination_is_automatically_merged_with_the_public_one() {
 
     }
 

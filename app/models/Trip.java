@@ -1,12 +1,10 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import play.data.validation.Constraints;
 
 /**
@@ -14,6 +12,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "Trip")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Trip extends Model implements Comparable<Trip> {
 
     @Id
@@ -23,7 +22,8 @@ public class Trip extends Model implements Comparable<Trip> {
     public Long userId;
 
     @Constraints.Required
-    public Long privacy;
+    @Column(name = "is_public")
+    public boolean isPublic;
 
     @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
