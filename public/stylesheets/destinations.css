@@ -8,6 +8,10 @@ a.marker-link:hover {
 }
 
 #map{
-    height:400px;
+    height:60%;
     width:100%;
+}
+
+a.black-nav {
+    color: black !important;
 }
