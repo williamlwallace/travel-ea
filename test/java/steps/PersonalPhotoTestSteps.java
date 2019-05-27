@@ -33,6 +33,7 @@ public class PersonalPhotoTestSteps {
 
     @Given("I have no photos")
     public void i_have_no_photos() throws IOException {
+        System.out.println("I HAVE NO PHOTOS");
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
@@ -66,6 +67,7 @@ public class PersonalPhotoTestSteps {
 
     @When("I upload a valid photo")
     public void i_upload_a_valid_photo() throws IOException {
+        System.out.println("I UPLOAD A VALID PHOTO");
         // Load a file from the public images to upload
         File file = getFile("./public/images/favicon.png");
 
@@ -108,6 +110,7 @@ public class PersonalPhotoTestSteps {
 
     @Then("the number of photos i can view will be {int}")
     public void the_number_of_photos_i_have_will_be(int int1) throws IOException {
+        System.out.println("THE NUMBER OF PHOTOS I CAN VIEW WILL BE INT");
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
@@ -124,6 +127,7 @@ public class PersonalPhotoTestSteps {
 
     @Then("I can view all my photos")
     public void i_can_view_all_my_photos() throws IOException {
+        System.out.println("I CAN VIEW ALL MY PHOTOS");
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
