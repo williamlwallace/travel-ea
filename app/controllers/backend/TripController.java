@@ -205,7 +205,6 @@ public class TripController extends TEABackController {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        System.out.println(data);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Update trip in db
