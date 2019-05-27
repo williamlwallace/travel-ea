@@ -116,17 +116,6 @@ public class PhotoRepository {
      */
     public CompletableFuture<Photo> getUserProfilePicture(Long userID) {
         return supplyAsync(() -> {
-            //DEBUGGING:
-            List<Photo> photosDebug = ebeanServer.find(Photo.class)
-                .where()
-                .eq(USER_ID, userID)
-                .findList();
-
-            System.out.println("GET USER PROFILE PICTURE CURRENT PHOTOS:");
-            for (Photo photo : photosDebug) {
-                System.out.println("PHOTO: " + photo);
-            }
-
             Photo photo = ebeanServer.find(Photo.class)
                 .where()
                 .eq(USER_ID, userID)
@@ -146,49 +135,19 @@ public class PhotoRepository {
      * Adds photos into the database. Will replace the users profile picture if needed.
      *
      * @param photos A list of photos to upload
-     * @return an ok response.
      */
-    public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
-        System.out.println("ADD PHOTOS (REPOSITORY) CALLED");
-        return supplyAsync(() -> {
-            System.out.println("ADD PHOTOS (REPOSITORY) ENTERED SUPPLY ASYNC");
-            //DEBUGGING:
-            List<Photo> photosDebug = ebeanServer.find(Photo.class)
-                .where()
-                .eq(USER_ID, Iterables.get(photos, 0).userId)
-                .findList();
-
-            System.out.println("CURRENT PHOTOS:");
-            for (Photo photo : photosDebug) {
-                System.out.println("PHOTO: " + photo);
+    public void addPhotos(Collection<Photo> photos) {
+        if (photos.size() == 1) {
+            Photo pictureToUpload = Iterables.get(photos, 0);
+            if (pictureToUpload.isProfile) {
+                ebeanServer.find(Photo.class)
+                    .where()
+                    .eq(USER_ID, pictureToUpload.userId)
+                    .eq(IS_PROFILE, true)
+                    .delete();
             }
-
-            if (photos.size() == 1) {
-                Photo pictureToUpload = Iterables.get(photos, 0);
-                if (pictureToUpload.isProfile) {
-                    int test = ebeanServer.find(Photo.class)
-                        .where()
-                        .eq(USER_ID, pictureToUpload.userId)
-                        .eq(IS_PROFILE, true)
-                        .delete();
-                    System.out.println("PHOTO REPOSITORY ADD PHOTOS, PHOTOS DELETED: " + test);
-                }
-            }
-            ebeanServer.insertAll(photos);
-
-            //DEBUGGING:
-            List<Photo> photosDebug2 = ebeanServer.find(Photo.class)
-                .where()
-                .eq(USER_ID, Iterables.get(photos, 0).userId)
-                .findList();
-
-            System.out.println("UPDATED PHOTOS:");
-            for (Photo photo : photosDebug2) {
-                System.out.println("PHOTO: " + photo);
-            }
-
-            return ok();
-        }, executionContext);
+        }
+        ebeanServer.insertAll(photos);
     }
 
     /**
