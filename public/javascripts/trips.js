@@ -6,10 +6,10 @@ let destinationTable;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    destinationTable = $('#destTable').DataTable( {
+    destinationTable = $('#destTable').DataTable({
         createdRow: function (row, data, dataIndex) {
-            $(row).attr('id', data[data.length-2]);
-            $(row).attr('data-countryId', data[data.length-1]);
+            $(row).attr('id', data[data.length - 2]);
+            $(row).attr('data-countryId', data[data.length - 1]);
         }
     });
     populateTable(destinationTable, userId);
@@ -21,12 +21,13 @@ function onPageLoad(userId) {
  * @param {Number} userId - ID of user to retrieve destinations for
  */
 function populateTable(table, userId) {
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
         .then(json => {
-            if(response.status !== 200) {
+            if (response.status !== 200) {
                 showTripErrors(json);
             } else {
                 for (const destination of json) {
@@ -38,7 +39,8 @@ function populateTable(table, userId) {
                     const longitude = destination.longitude;
                     const country = destination.country.name;
                     const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                    const row = [name, type, district, latitude, longitude, country, button, id, destination.country.id];
+                    const row = [name, type, district, latitude, longitude,
+                        country, button, id, destination.country.id];
                     table.row.add(row).draw(false);
                 }
             }
@@ -49,7 +51,7 @@ function populateTable(table, userId) {
 /**
  * Click listener that handles clicks in destination table
  */
-$('#destTable').on('click', 'button', function() {
+$('#destTable').on('click', 'button', function () {
     let tableAPI = $('#destTable').dataTable().api();
     let name = tableAPI.cell($(this).parents('tr'), 0).data();
     let district = tableAPI.cell($(this).parents('tr'), 1).data();
@@ -59,7 +61,8 @@ $('#destTable').on('click', 'button', function() {
     let countryId = $(this).parents('tr').attr("data-countryId");
     let id = $(this).parents('tr').attr('id');
 
-    addDestinationToTrip(id, name, district, type, latitude, longitude, countryId);
+    addDestinationToTrip(id, name, district, type, latitude, longitude,
+        countryId);
 });
 
 /**
@@ -69,7 +72,8 @@ $('#destTable').on('click', 'button', function() {
  */
 function addDestination(url, redirect, userId) {
     // Read data from destination form
-    const formData = new FormData(document.getElementById("addDestinationForm"));
+    const formData = new FormData(
+        document.getElementById("addDestinationForm"));
 
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
@@ -91,23 +95,25 @@ function addDestination(url, redirect, userId) {
 
     // Post json data to given url
     post(url, data)
-        .then(response => {
+    .then(response => {
 
-            // Read response from server, which will be a json object
-            response.json()
-                .then(json => {
-                    if (response.status !== 200) {
-                        showErrors(json);
-                    } else {
-                        toast("Destination Created!", "The new destination will be added to the table.", "success");
-                        $('#createDestinationModal').modal('hide');
+        // Read response from server, which will be a json object
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                showErrors(json);
+            } else {
+                toast("Destination Created!",
+                    "The new destination will be added to the table.",
+                    "success");
+                $('#createDestinationModal').modal('hide');
 
-                        // Add row to table
-                        data.id = json;
-                        addRow(data);
-                    }
-                });
+                // Add row to table
+                data.id = json;
+                addRow(data);
+            }
         });
+    });
 }
 
 /**
@@ -124,7 +130,8 @@ function addRow(data) {
     let country = data.country.id;
 
     // Set country name
-    let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+    let countries = document.getElementById(
+        "countryDropDown").getElementsByTagName("option");
     for (let i = 0; i < countries.length; i++) {
         if (parseInt(countries[i].value) === data.country.id) {
             country = countries[i].innerText;
@@ -133,7 +140,8 @@ function addRow(data) {
     }
 
     const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-    const row = [name, type, district, latitude, longitude, country, button, id, data.country.id];
+    const row = [name, type, district, latitude, longitude, country, button, id,
+        data.country.id];
     destinationTable.row.add(row).draw(false);
 }
 
@@ -174,7 +182,8 @@ function updateDestinationsCountryField(countryDict) {
 
         for (let j = 0; j < dataList.length; j++) {
             if (dataList[j].getAttribute("id") === "country") {
-                dataList[j].innerHTML = countryDict[parseInt(rowList[i].getAttribute("id"))];
+                dataList[j].innerHTML = countryDict[parseInt(
+                    rowList[i].getAttribute("id"))];
             }
         }
     }
@@ -206,7 +215,8 @@ function updateCountryCardField(countryDict) {
  */
 function newDestination(uri) {
     // Read data from destination form
-    const formData = new FormData(document.getElementById("addDestinationForm"));
+    const formData = new FormData(
+        document.getElementById("addDestinationForm"));
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -229,7 +239,8 @@ function newDestination(uri) {
             if (response.status !== 200) {
                 showTripErrors(json);
             } else {
-                document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
+                document.getElementById("modalContactForm").setAttribute(
+                    "aria-hidden", "true");
             }
         });
     });
@@ -390,14 +401,16 @@ function listItemToTripData(listItem, index) {
     let DTInputs = listItem.getElementsByTagName("input");
 
     try {
-        json["arrivalTime"] = formatDateTime(DTInputs[0].value, DTInputs[1].value);
+        json["arrivalTime"] = formatDateTime(DTInputs[0].value,
+            DTInputs[1].value);
     }
     catch {
         json["arrivalTime"] = null;
     }
 
     try {
-        json["departureTime"] = formatDateTime(DTInputs[2].value, DTInputs[3].value);
+        json["departureTime"] = formatDateTime(DTInputs[2].value,
+            DTInputs[3].value);
     }
     catch {
         json["departureTime"] = null;

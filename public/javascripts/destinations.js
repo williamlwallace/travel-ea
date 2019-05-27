@@ -20,21 +20,21 @@ function onPageLoad(userId) {
 function fillCountryInfo(getCountriesUrl) {
     // Run a get request to fetch all destinations
     get(getCountriesUrl)
-        .then(response => {
-            response.json()
-            .then(data => {
-                // Json data is an array of destinations, iterate through it
-                let countryDict = {};
+    .then(response => {
+        response.json()
+        .then(data => {
+            // Json data is an array of destinations, iterate through it
+            let countryDict = {};
 
-                for(let i = 0; i < data.length; i++) {
-                    // Also add the item to the dictionary
-                    countryDict[data[i]['id']] = data[i]['name'];
-                }
+            for (let i = 0; i < data.length; i++) {
+                // Also add the item to the dictionary
+                countryDict[data[i]['id']] = data[i]['name'];
+            }
 
-                // Now fill the drop down box, and list of destinations
-                fillDropDown("countryDropDown", countryDict);
-            });
+            // Now fill the drop down box, and list of destinations
+            fillDropDown("countryDropDown", countryDict);
         });
+    });
 }
 
 /**
@@ -44,7 +44,8 @@ function fillCountryInfo(getCountriesUrl) {
  */
 function addDestination(url, redirect, userId) {
     // Read data from destination form
-    const formData = new FormData(document.getElementById("addDestinationForm"));
+    const formData = new FormData(
+        document.getElementById("addDestinationForm"));
 
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
@@ -79,12 +80,15 @@ function addDestination(url, redirect, userId) {
                     showErrors(json);
                 }
             } else {
-                toast("Destination Created!", "The new destination will be added to the table.", "success");
+                toast("Destination Created!",
+                    "The new destination will be added to the table.",
+                    "success");
                 $('#createDestinationModal').modal('hide');
 
                 // Add row to table
                 let table = $('#dtDestination').DataTable();
-                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json).url;
+                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                    json).url;
                 const name = data.name;
                 const type = data._type;
                 const district = data.district;
@@ -93,7 +97,8 @@ function addDestination(url, redirect, userId) {
                 let country = data.country.id;
 
                 // Set country name
-                let countries = document.getElementById("countryDropDown").getElementsByTagName("option");
+                let countries = document.getElementById(
+                    "countryDropDown").getElementsByTagName("option");
                 for (let i = 0; i < countries.length; i++) {
                     if (parseInt(countries[i].value) === data.country.id) {
                         country = countries[i].innerText;
@@ -101,7 +106,9 @@ function addDestination(url, redirect, userId) {
                     }
                 }
 
-                table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
+                table.row.add(
+                    [name, type, district, latitude, longitude, country,
+                        destination]).draw(false);
                 populateMarkers(userId);
 
             }
@@ -117,7 +124,8 @@ function addDestination(url, redirect, userId) {
 function populateDestinations(table, userId) {
     // Query API endpoint to get all destinations
     table.clear();
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url)
     .then(response => {
         response.json()
         .then(json => {
@@ -126,7 +134,8 @@ function populateDestinations(table, userId) {
             } else {
                 // Populates table
                 for (const dest in json) {
-                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                        json[dest].id).url;
                     const name = json[dest].name;
                     const type = json[dest]._type;
                     const district = json[dest].district;
@@ -134,7 +143,9 @@ function populateDestinations(table, userId) {
                     const longitude = json[dest].longitude;
                     const country = json[dest].country.name;
 
-                    table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
+                    table.row.add(
+                        [name, type, district, latitude, longitude, country,
+                            destination]).draw(false);
                 }
             }
         });
@@ -149,7 +160,8 @@ let markers = [];
  * @param {Number} userId - ID of user to retrieve destinations for
  */
 function populateMarkers(userId) {
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url)
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url)
     .then(response => {
         response.json()
         .then(json => {
@@ -158,11 +170,14 @@ function populateMarkers(userId) {
             } else {
                 for (const dest in json) {
                     //Link to detailed destination in info window
-                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                        json[dest].id).url;
 
                     //Setting public and privacy icon in info window
                     let privacySrc;
-                    json[dest].isPublic ? privacySrc = "/assets/images/public.png" : privacySrc = "/assets/images/private.png";
+                    json[dest].isPublic
+                        ? privacySrc = "/assets/images/public.png"
+                        : privacySrc = "/assets/images/private.png";
 
                     //Setting public and private marker images, resized
                     const marker = {
@@ -175,14 +190,24 @@ function populateMarkers(userId) {
                     };
 
                     markers.push({
-                        coords:{lat: json[dest].latitude, lng: json[dest].longitude},
-                        iconImage:json[dest].isPublic ? marker : markerPrivate,
-                        content:'<a class="marker-link" title="View detailed destination" href="' + destination + '"><h3 style="display:inline">' + json[dest].name + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="' + privacySrc + '"height="20" style="margin-bottom:13px">'
-                                + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
-                                + '<b>District:</b> ' + json[dest].district + '<br>'
-                                + '<b>Latitude:</b> ' + json[dest].latitude + '<br>'
-                                + '<b>Longitude:</b> ' + json[dest].longitude + '<br>'
-                                + '<b>Country:</b> ' + json[dest].country.name + '</p>'
+                        coords: {
+                            lat: json[dest].latitude,
+                            lng: json[dest].longitude
+                        },
+                        iconImage: json[dest].isPublic ? marker : markerPrivate,
+                        content: '<a class="marker-link" title="View detailed destination" href="'
+                            + destination + '"><h3 style="display:inline">'
+                            + json[dest].name
+                            + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="'
+                            + privacySrc
+                            + '"height="20" style="margin-bottom:13px">'
+                            + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
+                            + '<b>District:</b> ' + json[dest].district + '<br>'
+                            + '<b>Latitude:</b> ' + json[dest].latitude + '<br>'
+                            + '<b>Longitude:</b> ' + json[dest].longitude
+                            + '<br>'
+                            + '<b>Country:</b> ' + json[dest].country.name
+                            + '</p>'
                     });
                 }
                 initMap();
@@ -198,37 +223,39 @@ function initMap() {
     // Initial map options
     let options = {
         zoom: 1.8,
-        center: {lat:2.0, lng:2.0}
+        center: {lat: 2.0, lng: 2.0}
     };
     // New map
     let map = new google.maps.Map(document.getElementById('map'), options);
+
     /**
      * Inserts marker on map
      * @param {JSON} props contain destination coords, destination information, and styling
      */
-    function addMarker(props){
+    function addMarker(props) {
         let marker = new google.maps.Marker({
-            position:props.coords,
-            map:map
+            position: props.coords,
+            map: map
         });
         // Check for customicon
-        if(props.iconImage){
+        if (props.iconImage) {
             // Set icon image
             marker.setIcon(props.iconImage);
         }
         // Check content
-        if(props.content){
+        if (props.content) {
             let infoWindow = new google.maps.InfoWindow({
-                content:props.content
+                content: props.content
             });
             // if content exists then make a info window
-            marker.addListener('click', function(){
+            marker.addListener('click', function () {
                 infoWindow.open(map, marker);
             });
         }
     }
+
     // Loop through markers list and add them to the map
-    for (let i = 0; i < markers.length ; i++) {
+    for (let i = 0; i < markers.length; i++) {
         addMarker(markers[i]);
     }
 }
@@ -236,6 +263,6 @@ function initMap() {
 /**
  * Redirect to the destinations details page when row is clicked.
  */
-$('#dtDestination').on('click', 'tbody tr', function() {
+$('#dtDestination').on('click', 'tbody tr', function () {
     window.location = this.dataset.href;
 });
