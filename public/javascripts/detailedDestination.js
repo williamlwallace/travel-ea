@@ -196,16 +196,16 @@ function sendUserIdAndFillGallery(userId, destinationId) {
 /**
  * Function to toggle the linked status of a photo.
  * Is used even though Intellij doesn't think so
- * @param guid of the photo to be linked
- * @param newLinked the new status of the photo
- * @param destinationId the destination to link (or unlink) the photo to/from
+ * @param {Long} guid of the photo to be linked
+ * @param {boolean} newLinked the new status of the photo
+ * @param {Long} destinationId the destination to link (or unlink) the photo to/from
  */
 function toggleLinked(guid, newLinked, destinationId) {
     const label = document.getElementById(guid + "linked");
     const data = {
     };
     if (!newLinked) {
-        let url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
+        const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
         _delete(url)
         .then(res => {
             if (res.status === 200) {
@@ -217,7 +217,7 @@ function toggleLinked(guid, newLinked, destinationId) {
             }
         })
     } else {
-        let url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url;
+        const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url;
         put(url, data)
         .then(res => {
             if (res.status === 200) {

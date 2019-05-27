@@ -3,7 +3,8 @@
  * Sends this form to  the appropriate url
  *
  * @param {string} url the appropriate  photo backend controller
- * TODO add parameters x2
+ * @param {string} galleryId the id of the gallery to add the photo to
+ * @param {string} pageId the id of the pagination that the gallery is in
  */
 function uploadNewGalleryPhoto(url, galleryId, pageId) {
     const selectedPhotos = document.getElementById(
@@ -32,6 +33,8 @@ let usersPhotos = [];
  * Function to populate gallery with current users photos
  *
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
+ * @param {string} galleryId the id of the gallery to add the photo to
+ * @param {string} pageId the id of the pagination that the gallery is in
  */
 function fillGallery(getPhotosUrl, galleryId, pageId) {
     // Run a get request to fetch all users photos
@@ -57,6 +60,9 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * Function to populate gallery with current users photos with link destination functionality
  *
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
+ * @param {string} galleryId the id of the gallery to add the photo to
+ * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {Long} destinationId the id of the destination to link the photos to
  */
 function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
     // Run a get request to fetch all users photos
@@ -89,7 +95,9 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
 /**
  * Creates gallery objects from the users photos to display on picture galleries.
  *
- * @param hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
+ * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
+ * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
+ * @param {Long} destinationId the id of the destination to link the photos to
  * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinationId=null) {
@@ -131,13 +139,13 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
                     tile.appendChild(deleteButton);
 
                     // Create toggle button
-                    let toggleButton = createToggleButton(isPublic, guid);
+                    const toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
                 }
                 photo.href = filename;
             }
             if (withLinkButton) {
-                let linkButton = createLinkButton(isLinked, guid, destinationId);
+                const linkButton = createLinkButton(isLinked, guid, destinationId);
                 tile.appendChild(linkButton)
             }
             photo.setAttribute("data-id", guid);
@@ -165,12 +173,13 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
 
 /**
  * Helper function to greate the button on the photo that toggles privacy
- * @param isPublic current state of the photo
+ * @param {boolean} isPublic current state of the photo
+ * @param {Long} guid the id of the photo on which to create a toggle button
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
 function createToggleButton (isPublic, guid) {
-    let toggleButton = document.createElement("span");
-    let toggleLabel = document.createElement("input");
+    const toggleButton = document.createElement("span");
+    const toggleLabel = document.createElement("input");
     toggleLabel.setAttribute("class", "privacy");
     toggleLabel.setAttribute("id", guid + "privacy");
     toggleLabel.setAttribute("type", "image");
@@ -191,12 +200,14 @@ function createToggleButton (isPublic, guid) {
 
 /**
  * Helper function to create the button on the photo that links a photo to a destination
- * @param isLinked current state of the photo re being linked to a destination
+ * @param {boolean} isLinked current state of the photo re being linked to a destination
+ * @param {Long} guid the id of the photo on which to create a link button
+ * @param {Long} destinationId the id of the destination the button will link to
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
 function createLinkButton (isLinked, guid, destinationId) {
-    let linkButton = document.createElement("span");
-    let linkLabel = document.createElement("input");
+    const linkButton = document.createElement("span");
+    const linkLabel = document.createElement("input");
     linkLabel.setAttribute("class", "privacy");
     linkLabel.setAttribute("id", guid + "linked");
     linkLabel.setAttribute("type", "image");
@@ -220,9 +231,9 @@ function createLinkButton (isLinked, guid, destinationId) {
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param galleryObjects a list of photo objects to insert
- * @param galleryId the id of the gallery to populate
- * @param pageSelectionId the id of the page selector for the provided gallery
+ * @param {List} galleryObjects a list of photo objects to insert
+ * @param {string} galleryId the id of the gallery to populate
+ * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     let numPages = Math.ceil(usersPhotos.length / 6);
