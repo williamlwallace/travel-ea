@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS DestinationTravellerType
     FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
     FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
-    INDEX travellertype_index (dest_id, traveller_type_definition_id),
+    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id),
     UNIQUE(dest_id, traveller_type_definition_id)
   );
 
@@ -207,7 +207,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 -- !Downs
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
-DROP TABLE DestinationTravellerType
+DROP TABLE DestinationTravellerType;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;

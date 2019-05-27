@@ -58,7 +58,21 @@
                 @* Body Content *@
                 <div class="destination-main">
                     <div>
-                    @modules.gallery(loggedUser, canModify)
+                        <div class="section-title">
+                            <p>
+                                <span class="section-title">Destination Photos</span>
+                                @if(canModify) {
+                                    <a class="button-secondary" id="upload-gallery-image-button" >
+                                        <span class="profile-button" style="float: right; padding-left:10px;">Link Photo</span>
+                                    </a>
+                                    <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
+                                    accept="image/jpeg, image/png" style="display: none;" multiple/>
+                                }
+                            </p>
+                        </div>
+                        @* Photo Gallery *
+                        @*Gallery modal, false as we want no titles and no add photo button*@
+                        @modules.gallery(false, false, "main-gallery", "page-selection")
                     </div>
                 </div>
             </div>
@@ -154,6 +168,22 @@
             </div>
         </div>
     </div>
+    @*Link Photo to Destination Modal*@
+    <div class="modal fade" id="linkPhotoToDestinationModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Link Photo to Destination</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                @* all images gallery *@
+                @modules.gallery(false, false, "link-gallery", "link-selection")
+            </div>
+        </div>
+    </div>
+
 
     @* Make Destination Public Modal *@
     <div class="modal fade" id="makeDestinationPublicModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
@@ -171,7 +201,7 @@
                 </div>
                 <div class="modal-footer d-flex justify-content-center">
                     <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
-                        No<i class="fas fa-paper-plane-o ml-1"></i>
+                        No<em class="fas fa-paper-plane-o ml-1"></em>
                     </button>
                     <button class="btn btn-primary" onclick="makeDestinationPublic(@destinationId)">
                         Yes
@@ -185,6 +215,7 @@
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
+        sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
         populateDestinationDetails(@destinationId);
         src="@controllers.backend.routes.DestinationController.destinationRoutes()"

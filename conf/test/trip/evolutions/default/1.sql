@@ -129,6 +129,20 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
+-- Create DestinationTravellerType table, which specifies the traveller types of users
+CREATE TABLE IF NOT EXISTS DestinationTravellerType
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    dest_id           INT NOT NULL,
+    traveller_type_definition_id INT NOT NULL,
+    is_pending        BIT NOT NULL,
+    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id),
+    UNIQUE(dest_id, traveller_type_definition_id)
+  );
+
 -- Create Photo table, which stores the filenames and details for all photos
 CREATE TABLE IF NOT EXISTS Photo
   (
@@ -160,6 +174,7 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 -- !Downs
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
+DROP TABLE DestinationTravellerType;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;

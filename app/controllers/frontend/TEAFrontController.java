@@ -11,8 +11,8 @@ import play.mvc.Controller;
 @Singleton
 public class TEAFrontController extends Controller {
 
-    final HttpExecutionContext httpExecutionContext;
     static final String HTTP = "http://";
+    final HttpExecutionContext httpExecutionContext;
 
     @Inject
     protected TEAFrontController(HttpExecutionContext httpExecutionContext) {

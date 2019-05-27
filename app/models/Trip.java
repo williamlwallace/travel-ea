@@ -3,8 +3,12 @@ package models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import java.util.List;
-import javax.persistence.*;
-
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**

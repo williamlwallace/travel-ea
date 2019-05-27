@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
+import javax.inject.Singleton;
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
@@ -15,6 +16,7 @@ import play.db.ebean.EbeanConfig;
 /**
  * A repository which executes operations of the Trip database table.
  */
+@Singleton
 public class TripRepository {
 
     private final EbeanServer ebeanServer;

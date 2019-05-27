@@ -65,6 +65,7 @@ public class Destination extends Model {
 
     public List<Photo> destinationPhotos;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "destTravellerTypes")
     @JoinTable(
         name = "TravellerType",

@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
-import java.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -448,7 +448,7 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Get Destination photos based on logged in user
+     * Get Destination photos based on logged in user.
      *
      * @param request Request
      * @param destId id of destination
@@ -464,6 +464,7 @@ public class PhotoController extends TEABackController {
             } else {
                 List<Photo> photos = filterPhotos(destination.destinationPhotos, userId);
                 try {
+                    photos = photoRepository.appendAssetsUrl(photos);
                     return ok(sanitizeJson(Json.toJson(photos)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
@@ -473,8 +474,8 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Removes photos that shouldnt be seen by given user
-     * 
+     * Removes photos that shouldnt be seen by given user.
+     *
      * @param photos List of photos
      * @param userId Id of authenticated user
      * @return List of filtered photos
@@ -498,7 +499,11 @@ public class PhotoController extends TEABackController {
     public Result photoRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy()
+                controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy(),
+                controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
+                controllers.backend.routes.javascript.PhotoController.linkPhotoToDest(),
+                controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
+                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

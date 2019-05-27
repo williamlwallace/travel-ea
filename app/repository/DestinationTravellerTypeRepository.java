@@ -6,6 +6,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Destination;
 import models.DestinationTravellerType;
 import play.db.ebean.EbeanConfig;
@@ -14,6 +15,7 @@ import play.db.ebean.EbeanConfig;
 /**
  * A repository that executes database operations for the Destination table.
  */
+@Singleton
 public class DestinationTravellerTypeRepository {
 
     private final EbeanServer ebeanServer;

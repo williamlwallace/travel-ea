@@ -4,21 +4,18 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.java.hu.De;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
-import models.TripData;
 import models.User;
 import models.DestinationTravellerType;
 import models.TravellerTypeDefinition;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.CountryDefinitionRepository;
@@ -72,13 +69,16 @@ public class DestinationController extends TEABackController {
 
         // Checks if user logged in is not allowed to create dest for userId
         if (!user.admin && !user.id.equals(newDestination.user.id)) {
-            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You do not have permission to create a destination for someone else")));
+            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
+                "You do not have permission to create a destination for someone else")));
         }
         //check if destination already exists
-        List<Destination> destinations = destinationRepository.getSimilarDestinations(newDestination);
-        for (Destination destination: destinations) {
+        List<Destination> destinations = destinationRepository
+            .getSimilarDestinations(newDestination);
+        for (Destination destination : destinations) {
             if (destination.user.id.equals(user.id) || destination.isPublic) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
             }
         }
         return destinationRepository.addDestination(newDestination)
@@ -114,22 +114,25 @@ public class DestinationController extends TEABackController {
                 return forbidden(Json.toJson("You are not allowed to perform this action"));
             }
             // Check if destination was already public
-            if(destination.isPublic) {
+            if (destination.isPublic) {
                 return badRequest(Json.toJson("Destination was already public"));
             }
 
             destinationRepository.setDestinationToPublicInDatabase(destination.id);
 
             // Find all similar destinations that need to be merged and collect only their IDs
-            List<Destination> destinations = destinationRepository.getSimilarDestinations(destination);
+            List<Destination> destinations = destinationRepository
+                .getSimilarDestinations(destination);
             List<Long> similarIds = destinations.stream().map(x -> x.id)
                 .collect(Collectors.toList());
 
             // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
-            int rowsChanged = destinationRepository.mergeDestinationsTripData(similarIds, destination.id);
+            int rowsChanged = destinationRepository
+                .mergeDestinationsTripData(similarIds, destination.id);
             // Photos
-            rowsChanged += destinationRepository.mergeDestinationsPhotos(similarIds, destination.id);
+            rowsChanged += destinationRepository
+                .mergeDestinationsPhotos(similarIds, destination.id);
 
             // If any rows were changed when re-referencing, the destination
             // has been used by another user and must be transferred to admin ownership
@@ -138,11 +141,12 @@ public class DestinationController extends TEABackController {
             }
 
             // Once all old usages have been re-referenced, delete the found similar destinations
-            for (Long simId: similarIds) {
+            for (Long simId : similarIds) {
                 destinationRepository.deleteDestination(simId);
             }
 
-            return ok("Successfully made destination public, and re-referenced " + rowsChanged + " to new public destination");
+            return ok("Successfully made destination public, and re-referenced " + rowsChanged
+                + " to new public destination");
         });
     }
 
@@ -204,10 +208,12 @@ public class DestinationController extends TEABackController {
                 }
                 Destination editedDestination = Json.fromJson(data, Destination.class);
                 //check if destination already exists
-                List<Destination> destinations = destinationRepository.getSimilarDestinations(editedDestination);
-                for (Destination dest: destinations) {
+                List<Destination> destinations = destinationRepository
+                    .getSimilarDestinations(editedDestination);
+                for (Destination dest : destinations) {
                     if (dest.user.id.equals(user.id) || dest.isPublic) {
-                        return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                        return CompletableFuture
+                            .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
                     }
                 }
                 return destinationRepository.updateDestination(editedDestination)
@@ -269,7 +275,7 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets all destinations valid for the requesting user
+     * Gets all destinations valid for the requesting user.
      *
      * @param request Http request containing authentication information
      * @param userId ID of user to retrieve destinations for
@@ -282,24 +288,24 @@ public class DestinationController extends TEABackController {
         // If user is admin or requesting for their own destinations
         if (user.admin || user.id.equals(userId)) {
             return destinationRepository.getAllDestinations(userId)
-                    .thenApplyAsync(allDestinations -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(allDestinations)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    });
+                .thenApplyAsync(allDestinations -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(allDestinations)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
         }
         // Else return only public destinations
         else {
             return destinationRepository.getAllPublicDestinations()
-                    .thenApplyAsync(allDestinations -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(allDestinations)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    });
+                .thenApplyAsync(allDestinations -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(allDestinations)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
         }
     }
 
@@ -369,7 +375,8 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
+                controllers.frontend.routes.javascript.DestinationController
+                    .detailedDestinationIndex(),
                 controllers.backend.routes.javascript.DestinationController.editDestination(),
                 controllers.backend.routes.javascript.DestinationController.makeDestinationPublic()
             )
