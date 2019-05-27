@@ -33,6 +33,15 @@ public class TravellerTypeDefinition extends Model {
 
     public List<Profile> travellerTypes;
 
+    @ManyToMany(mappedBy = "travellerTypes")
+    @JsonBackReference
+    @JoinTable(
+        name = "DestinationTravellerType",
+        joinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
+
+    public List<Destination> destTravellerTypes;
+
     @Override
     public String toString() {
         StringBuilder toReturn = new StringBuilder();

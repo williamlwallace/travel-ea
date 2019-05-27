@@ -65,6 +65,13 @@ public class Destination extends Model {
 
     public List<Photo> destinationPhotos;
 
+    @ManyToMany(mappedBy = "destTravellerTypes")
+    @JoinTable(
+        name = "TravellerType",
+        joinColumns = @JoinColumn(name = "id", referencedColumnName = "dest_id"),
+        inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
+    public List<TravellerTypeDefinition> travellerTypes;
+
     /**
      * Checks if photo is linked to destination.
      *
