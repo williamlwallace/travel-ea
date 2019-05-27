@@ -76,7 +76,7 @@ public class CountryDefinitionRepository {
     }
 
     /**
-     * Gets all countries from the database
+     * Gets all countries from the database.
      *
      * @return A list of all the countries from the database
      */

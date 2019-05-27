@@ -462,7 +462,7 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Get Destination photos based on logged in user
+     * Get Destination photos based on logged in user.
      *
      * @param request Request
      * @param destId id of destination
@@ -488,7 +488,7 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Removes photos that shouldnt be seen by given user
+     * Removes photos that shouldnt be seen by given user.
      *
      * @param photos List of photos
      * @param userId Id of authenticated user
