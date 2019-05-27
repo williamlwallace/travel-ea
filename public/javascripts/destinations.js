@@ -71,7 +71,13 @@ function addDestination(url, redirect, userId) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                showErrors(json);
+                if (json === "Duplicate destination") {
+                    toast("Destination could not be created!",
+                        "The destination already exists.", "danger", 5000);
+                    $('#createDestinationModal').modal('hide');
+                } else {
+                    showErrors(json);
+                }
             } else {
                 toast("Destination Created!", "The new destination will be added to the table.", "success");
                 $('#createDestinationModal').modal('hide');
@@ -96,6 +102,8 @@ function addDestination(url, redirect, userId) {
                 }
 
                 table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
+                populateMarkers(userId);
+
             }
         });
     });
