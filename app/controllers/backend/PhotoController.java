@@ -198,7 +198,7 @@ public class PhotoController extends TEABackController {
             // if photo to add is marked as new profile pic, clear any existing profile pic first
             if (pair.getKey().isProfile) {
                 System.out.println("SAVE MULTIPLE PHOTOS: IS PROFILE");
-                photoRepository.clearProfilePhoto(pair.getKey().userId).thenApply(fileNamesPair -> {
+                photoRepository.clearProfilePhoto(pair.getKey().userId).thenApplyAsync(fileNamesPair -> {
                     System.out.println("INSIDE CLEAR PROFILE PHOTO IN SAVE MULTIPLE PHOTOS");
                     if (fileNamesPair != null) {
                         File thumbFile = new File(fileNamesPair.getKey());
@@ -216,7 +216,7 @@ public class PhotoController extends TEABackController {
                         }
                     }
                     return null;
-                });
+                }).join();
                 // Profile picture small thumbnail dimensions
                 thumbWidth = 100;
                 thumbHeight = 100;
