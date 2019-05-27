@@ -68,12 +68,15 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
         // Convert the response to json
         response.json().then(data => {
             usersPhotos = [];
-            get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(USERID).url)
+            get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url)
             .then(response => {
                 response.json().then(linkedPhotos => {
                     for (let i = 0; i < data.length; i++) {
-                        if (data[i] in linkedPhotos) {
-                            data[i]["isLinked"] = true;
+                        data[i]["isLinked"] = false;
+                        for (let photo of linkedPhotos) {
+                            if (photo.guid === data[i].guid) {
+                                data[i]["isLinked"] = true;
+                            }
                         }
                         usersPhotos[i] = data[i];
                     }
