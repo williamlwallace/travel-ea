@@ -31,6 +31,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
+import java.util.List;
 import util.objects.Pair;
 import util.validation.ErrorResponse;
 
@@ -171,11 +172,10 @@ public class PhotoController extends TEABackController {
             } else {
                 System.out.println("CALLING SAVE MULTIPLE PHOTOS");
                 saveMultiplePhotos(photos);
+                // Return OK if no issues were encountered
+                System.out.println("UPLOAD (CONTROLLER) RETURNING CREATED STATUS");
+                return status(201, Json.toJson("File(s) uploaded successfully"));
             }
-
-            // Return OK if no issues were encountered
-            System.out.println("UPLOAD (CONTROLLER) RETURNING CREATED STATUS");
-            return status(201, Json.toJson("File(s) uploaded successfully"));
         });
     }
 
@@ -231,7 +231,9 @@ public class PhotoController extends TEABackController {
         }
         // Collect all keys from the list to upload
         System.out.println("ABOUT TO CALL ADD PHOTOS (REPOSITORY METHOD)");
-        photoRepository.addPhotos(photos.stream().map(Pair::getKey).collect(Collectors.toList()));
+        List<Photo> photosToAdd = photos.stream().map(Pair::getKey).collect(Collectors.toList());
+        System.out.println("PHOTOS BEING PASSED INTO ADD PHOTOS: " + photosToAdd);
+        photoRepository.addPhotos(photosToAdd);
     }
 
     /**

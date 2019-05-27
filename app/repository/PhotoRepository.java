@@ -149,8 +149,9 @@ public class PhotoRepository {
      * @return an ok response.
      */
     public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
+        System.out.println("ADD PHOTOS (REPOSITORY) CALLED");
         return supplyAsync(() -> {
-
+            System.out.println("ADD PHOTOS (REPOSITORY) ENTERED SUPPLY ASYNC");
             //DEBUGGING:
             List<Photo> photosDebug = ebeanServer.find(Photo.class)
                 .where()
