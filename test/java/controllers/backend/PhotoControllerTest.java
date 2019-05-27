@@ -1,5 +1,7 @@
 package controllers.backend;
 
+import static controllers.backend.ControllersTest.adminAuthCookie;
+import static controllers.backend.ControllersTest.fakeApp;
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.route;
@@ -74,16 +76,16 @@ public class PhotoControllerTest extends ControllersTest {
         // Convert this file to a multipart form data part
         partsList.add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto.png", "image/png",
             FileIO.fromPath(file.toPath()),
-            Files.size(file.toPath())));
+            "form-data"));
 
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
             .method("POST")
             .cookie(adminAuthCookie)
-            .bodyRaw(
+            .bodyMultipart(
                 partsList,
                 play.libs.Files.singletonTemporaryFileCreator(),
-                app.asScala().materializer()
+                fakeApp.asScala().materializer()
             );
 
         // Post to url and get result, checking that a success was returned
@@ -118,17 +120,17 @@ public class PhotoControllerTest extends ControllersTest {
         partsList
             .add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto1.png", "image/png",
                 FileIO.fromPath(file1.toPath()),
-                Files.size(file1.toPath())));
+                "form-data"));
         partsList
             .add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto2.png", "image/png",
                 FileIO.fromPath(file2.toPath()),
-                Files.size(file2.toPath())));
+                "form-data"));
 
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
             .method("POST")
             .cookie(adminAuthCookie)
-            .bodyRaw(
+            .bodyMultipart(
                 partsList,
                 play.libs.Files.singletonTemporaryFileCreator(),
                 app.asScala().materializer()

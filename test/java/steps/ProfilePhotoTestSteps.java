@@ -47,13 +47,13 @@ public class ProfilePhotoTestSteps {
         // Convert this file to a multipart form data part
         partsList.add(new Http.MultipartFormData.FilePart<>("picture", "favicon.png", "image/png",
             FileIO.fromPath(file.toPath()),
-            Files.size(file.toPath())));
+            "form-data"));
 
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
             .method("POST")
             .cookie(authCookie)
-            .bodyRaw(
+            .bodyMultipart(
                 partsList,
                 play.libs.Files.singletonTemporaryFileCreator(),
                 fakeApp.asScala().materializer()
