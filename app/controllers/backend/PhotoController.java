@@ -24,7 +24,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
-import org.joda.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
