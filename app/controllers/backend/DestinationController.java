@@ -114,7 +114,6 @@ public class DestinationController extends TEABackController {
             List<Destination> destinations = destinationRepository.getSimilarDestinations(destination);
             List<Long> similarIds = destinations.stream().map(x -> x.id)
                 .collect(Collectors.toList());
-            System.out.println(similarIds);
 
             // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
             // TripData
