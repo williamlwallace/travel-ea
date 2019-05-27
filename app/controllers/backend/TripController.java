@@ -3,6 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import actions.roles.Admin;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -85,15 +86,27 @@ public class TripController extends TEABackController {
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllTrips() {
-        return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(trips)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+    public CompletableFuture<Result> getAllTrips(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        if (user.admin) {
+            return tripRepository.getAllTrips()
+                .thenApplyAsync(trips -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        } else {
+            return tripRepository.getAllPublicTrips(user.id)
+                .thenApplyAsync(trips -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        }
     }
 
     /**
@@ -192,6 +205,7 @@ public class TripController extends TEABackController {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
+        System.out.println(data);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Update trip in db
@@ -319,7 +333,8 @@ public class TripController extends TEABackController {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.frontend.routes.javascript.TripController.editTrip()
+                controllers.frontend.routes.javascript.TripController.editTrip(),
+                controllers.backend.routes.javascript.TripController.getAllTrips()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

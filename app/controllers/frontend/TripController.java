@@ -107,7 +107,7 @@ public class TripController extends TEAFrontController {
     private CompletableFuture<List<Trip>> getUserTrips(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         String url = HTTP + request.host() + controllers.backend.routes.TripController
-            .getAllUserTrips(user.id);
+            .getAllTrips();
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie", String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
