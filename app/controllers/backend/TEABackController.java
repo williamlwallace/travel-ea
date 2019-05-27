@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import javax.inject.Singleton;
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
 import play.mvc.Controller;
 
 
@@ -28,9 +26,6 @@ class TEABackController extends Controller {
     JsonNode sanitizeJson(JsonNode body) throws IOException {
         String bodyString = body.toString();
         bodyString = bodyString.replace(">", "&gt;").replace("<", "&lt;");
-        //Create a sanitizer
-        PolicyFactory policy = new HtmlPolicyBuilder().toFactory();
-        bodyString = policy.sanitize(bodyString).replace("&#34;", "\"").replace("&#64;", "@");
         //map new body back to a json object
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readTree(bodyString);
