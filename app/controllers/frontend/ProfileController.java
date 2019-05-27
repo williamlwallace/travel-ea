@@ -20,7 +20,6 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -31,19 +30,14 @@ import views.html.createProfile;
  * This controller contains an action to handle HTTP requests to the application's profile page.
  */
 @Singleton
-public class ProfileController extends Controller {
+public class ProfileController extends TEAFrontController {
 
-    private WSClient ws;
-    private HttpExecutionContext httpExecutionContext;
-    private TripController tripController;
+    private final WSClient ws;
 
     @Inject
-    public ProfileController(WSClient ws,
-                             HttpExecutionContext httpExecutionContext,
-                             TripController tripController) {
+    public ProfileController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+        super(httpExecutionContext);
         this.ws = ws;
-        this.httpExecutionContext = httpExecutionContext;
-        this.tripController = tripController;
     }
 
     /**
@@ -70,8 +64,8 @@ public class ProfileController extends Controller {
     public CompletableFuture<Result> index(Http.Request request, Long userId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getProfile(userId, request).thenComposeAsync(
-            profile -> {
-                return this.getUser(userId, request).thenComposeAsync(
+            profile ->
+                this.getUser(userId, request).thenComposeAsync(
                     user -> {
                         user.id = userId;
                         return this.getUserTrips(request, userId).thenApplyAsync(
@@ -85,8 +79,8 @@ public class ProfileController extends Controller {
                             httpExecutionContext.current()
                         );
                     },
-                    httpExecutionContext.current());
-            },
+                    httpExecutionContext.current())
+            ,
             httpExecutionContext.current());
     }
 
@@ -96,7 +90,7 @@ public class ProfileController extends Controller {
      * @return List of trips wrapped in completable future
      */
     private CompletableFuture<List<Trip>> getUserTrips(Http.Request request, Long userId) {
-        String url = "http://" + request.host() + controllers.backend.routes.TripController
+        String url = HTTP + request.host() + controllers.backend.routes.TripController
             .getAllUserTrips(userId);
         CompletableFuture<WSResponse> res = ws
             .url(url)
@@ -117,14 +111,14 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Gets profile of user to be viewed via get request
+     * Gets profile of user to be viewed via get request.
      *
      * @param userId Id of profile to be retrieved
      * @param request Request containing url and authentication information
      * @return CompletableFuture containing profile object
      */
     private CompletableFuture<Profile> getProfile(Long userId, Http.Request request) {
-        String url = "http://" + request.host() + controllers.backend.routes.ProfileController
+        String url = HTTP + request.host() + controllers.backend.routes.ProfileController
             .getProfile(userId);
         CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
         return res.thenApply(r -> {
@@ -140,7 +134,7 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Gets user object to be viewed in profile screen
+     * Gets user object to be viewed in profile screen.
      *
      * @param userId Id of user to be retrieved
      * @param request Request containing url and authentication information
@@ -148,7 +142,7 @@ public class ProfileController extends Controller {
      */
     private CompletableFuture<User> getUser(Long userId, Http.Request request) {
         String url =
-            "http://" + request.host() + controllers.backend.routes.UserController.getUser(userId);
+            HTTP + request.host() + controllers.backend.routes.UserController.getUser(userId);
         CompletableFuture<WSResponse> res = ws
             .url(url)
             .addHeader("Cookie",
@@ -167,7 +161,6 @@ public class ProfileController extends Controller {
         });
     }
 
-    // TODO: Whats this for
     public Result createProfile() {
         return ok();
     }

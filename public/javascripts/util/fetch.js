@@ -1,6 +1,6 @@
 /**
  * Sends GET Request to API
- * @param {string} uri - API URI 
+ * @param {string} uri - API URI
  */
 function get(uri) {
     return fetch(uri, {
@@ -10,7 +10,7 @@ function get(uri) {
 
 /**
  * Sends POST request to API
- * @param {string} uri - API URI 
+ * @param {string} uri - API URI
  * @param {JSON} data - JSON request body
  */
 function post(uri, data) {
@@ -37,7 +37,7 @@ function postMultipart(uri, data) {
 
 /**
  * Sends PUT request to API
- * @param {string} uri - API URI 
+ * @param {string} uri - API URI
  * @param {JSON} data - JSON request body
  */
 function put(uri, data) {
@@ -52,7 +52,7 @@ function put(uri, data) {
 
 /**
  * Sends PUT request to API
- * @param {string} uri - API URI 
+ * @param {string} uri - API URI
  * @param {JSON} data - JSON request body
  */
 function patch(uri, data) {
@@ -67,7 +67,7 @@ function patch(uri, data) {
 
 /**
  * Sends DELETE request to API
- * @param {string} uri - API URI 
+ * @param {string} uri - API URI
  */
 function _delete(uri) {
     return fetch(uri, {

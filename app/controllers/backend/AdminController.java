@@ -5,7 +5,6 @@ import actions.roles.Admin;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -15,7 +14,7 @@ import repository.UserRepository;
 /**
  * Manage a database of users.
  */
-public class AdminController extends Controller {
+public class AdminController extends TEABackController {
 
     private final UserRepository userRepository;
 
@@ -56,7 +55,7 @@ public class AdminController extends Controller {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.findID(id).thenApplyAsync(user -> {
             if (user != null
-                && user.id != 1) { //check user is not master admin
+                && user.id != MASTER_ADMIN_ID) { //check user is not master admin
                 user.admin = false;
                 userRepository.updateUser(user);
                 return ok(Json.toJson("Successfully demoted user from admin"));
@@ -66,7 +65,7 @@ public class AdminController extends Controller {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */

@@ -3,24 +3,28 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import actions.roles.Admin;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
 import models.Trip;
 import models.TripData;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
+import repository.DestinationRepository;
 import repository.TripRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
@@ -28,13 +32,18 @@ import util.validation.TripValidator;
 /**
  * Manages trips in the database.
  */
-public class TripController extends Controller {
+public class TripController extends TEABackController {
 
+    private static final String IS_PUBLIC = "isPublic";
     private final TripRepository tripRepository;
+    private final DestinationRepository destinationRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository) {
+    public TripController(TripRepository tripRepository,
+                          DestinationRepository destinationRepository) {
+
         this.tripRepository = tripRepository;
+        this.destinationRepository = destinationRepository;
     }
 
     /**
@@ -52,26 +61,52 @@ public class TripController extends Controller {
             return tripRepository.getAllUserTrips(userId)
                 .thenApplyAsync(trips -> {
                     Collections.sort(trips);
-                    return ok(Json.toJson(trips));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
                 });
         } else {
             return tripRepository.getAllPublicUserTrips(userId)
                 .thenApplyAsync(trips -> {
                     Collections.sort(trips);
-                    return ok(Json.toJson(trips));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
                 });
         }
     }
 
     /**
-     * Attempts to get all trips
+     * Attempts to get all trips.
      *
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllTrips() {
-        return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> ok(Json.toJson(trips)));
+    public CompletableFuture<Result> getAllTrips(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        if (user.admin) {
+            return tripRepository.getAllTrips()
+                .thenApplyAsync(trips -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        } else {
+            return tripRepository.getAllPublicTrips(user.id)
+                .thenApplyAsync(trips -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        }
     }
 
     /**
@@ -82,12 +117,29 @@ public class TripController extends Controller {
      * @param tripId ID of trip to find
      * @return JSON object with uid and trip data
      */
-    public CompletableFuture<Result> getTrip(Long tripId) {    // TODO: Authenticate
-        // Get all the trip data (asynchronously) and then
-        // construct and return the json object to send
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrip(Http.Request request, Long tripId) {
+        User user = request.attrs().get(ActionState.USER);
+
         return tripRepository.getTripById(tripId).thenApplyAsync(
-            trip -> (trip != null) ? ok(Json.toJson(trip)) : notFound()
-        );
+                trip -> {
+                    // If trip was not found in database
+                    if (trip == null) {
+                        return notFound();
+                    }
+                    // If trip was found and logged in user has privileges to retrieve trip
+                    else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
+                        try{
+                            return ok(sanitizeJson(Json.toJson(trip)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    }
+                    // If logged in user does not have privileges to retrieve trip
+                    else {
+                        return forbidden();
+                    }
+                });
     }
 
     /**
@@ -114,22 +166,25 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
+        trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+
+        // Transfers ownership of destinations to master admin where necessary
+        transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
             if (uploaded) {
                 return ok(Json.toJson(trip.id));
-            }
-            else {
+            } else {
                 return badRequest();
             }
         });
     }
 
     /**
-     * Updates the privacy of a trip
+     * Updates the privacy of a trip.
      *
      * @param request Request containing JSON data of trip to update
      * @return Returns ok with trip id on success, otherwise bad request
@@ -150,7 +205,7 @@ public class TripController extends Controller {
         // Assemble trip
         Trip trip = new Trip();
         trip.id = data.get("id").asLong();
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
         // Update trip in db
         return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
@@ -193,25 +248,28 @@ public class TripController extends Controller {
 
         // Assemble trip
         Trip trip = new Trip();
-        trip.userId = request.attrs().get(ActionState.USER).id;
+        trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
-        trip.privacy = data.get("privacy").asLong();
+        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
 
-        return tripRepository.insertTrip(trip).thenApplyAsync(result ->
-            ok(Json.toJson("Successfully added trip"))
+        // Transfers ownership of destinations to master admin where necessary
+        transferDestinationsOwnership(trip.userId, trip.tripDataList);
+
+        return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
+            ok(Json.toJson(tripId))
         );
     }
 
     /**
      * Helper method to convert some json node of the format that is sent by the front end, to an
-     * arraylist of trip data, which is much more usable by the rest of the java code. By taking
+     * array list of trip data, which is much more usable by the rest of the java code. By taking
      * this approach, we are also able to avoid the issue where jackson required all fields to be
      * present when deserializing, but as per our design requirements, the arrival and departure
      * times for each point must be able to not be specified
      *
      * @param data JSON object storing list of tripData
      * @param trip Trip object to be referenced to by tripData
-     * @return Arraylist of tripData that has been deserialized from node
+     * @return Array list of tripData that has been deserialized from node
      */
     private ArrayList<TripData> nodeToTripDataList(JsonNode data, Trip trip) {
         // Store created data points in list
@@ -222,7 +280,7 @@ public class TripController extends Controller {
             // Assemble trip data
             TripData tripData = new TripData();
 
-            // Assign tripdata to correct trip
+            // Assign trip data to correct trip
             tripData.trip = trip;
 
             // Get position and destinationId from json object,
@@ -254,7 +312,18 @@ public class TripController extends Controller {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Transfers ownership of destinations used in trip to master admin if used by another user
+     *
+     * @param userId Owner of trip being created or updated
+     * @param destinations List of tripData objects used in trip
+     */
+    private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
+        List<Long> destIds = destinations.stream().map(x -> x.destination.id).collect(Collectors.toList());
+        destinationRepository.updateDestinationOwnershipUsedInTrip(destIds, userId, MASTER_ADMIN_ID);
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */
@@ -263,8 +332,8 @@ public class TripController extends Controller {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.backend.routes.javascript.TripController.getAllTrips(),
-                controllers.frontend.routes.javascript.TripController.editTripIndex()
+                controllers.frontend.routes.javascript.TripController.editTrip(),
+                controllers.backend.routes.javascript.TripController.getAllTrips()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

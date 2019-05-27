@@ -1,10 +1,16 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
+import java.util.Iterator;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -50,4 +56,29 @@ public class Destination extends Model {
     @Constraints.Required
     public CountryDefinition country;
 
+    @JsonBackReference
+    @ManyToMany(mappedBy = "destinationPhotos")
+    @JoinTable(
+        name = "DestinationPhoto",
+        joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
+
+    public List<Photo> destinationPhotos;
+
+    /**
+     * Checks if photo is linked to destination.
+     *
+     * @param photoId id of destination of id
+     * @return True if dest is linked to photo
+     */
+    public Boolean isLinked(Long photoId) {
+        Iterator<Photo> iter = destinationPhotos.iterator();
+        while (iter.hasNext()) {
+            Photo photo = iter.next();
+            if (photo.guid.equals(photoId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

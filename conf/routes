@@ -35,8 +35,6 @@ GET           /api/profile/search                    controllers.backend.Profile
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
-DELETE        /api/profile/:userId                   controllers.backend.ProfileController.deleteProfile(userId:Long)
-
 GET           /api/profile/getTravellerTypes/        controllers.backend.ProfileController.getAllTravellerTypes()
 
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
@@ -45,13 +43,21 @@ GET           /api/destination/getCountries          controllers.backend.Destina
 
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
-GET           /api/destination                       controllers.backend.DestinationController.getAllDestinations()
+GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
-DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(id:Long)
+DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 
 GET           /api/destination/:id                   controllers.backend.DestinationController.getDestination(id:Long)
+
+PUT           /api/destination/:id                   controllers.backend.DestinationController.editDestination(request:Request, id:Long)
+
+PUT           /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.linkPhotoToDest(request:Request, destId:Long, photoId:Long)
+
+DELETE        /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
+
+GET        /api/destination/:destId/photo           controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
@@ -61,9 +67,9 @@ PUT           /api/trip                              controllers.backend.TripCon
 
 PUT           /api/trip/privacy                      controllers.backend.TripController.updateTripPrivacy(request:Request)
 
-GET           /api/trip                              controllers.backend.TripController.getAllTrips()
+GET           /api/trip                              controllers.backend.TripController.getAllTrips(request:Request)
 
-GET           /api/trip/:id                          controllers.backend.TripController.getTrip(id:Long)
+GET           /api/trip/:id                          controllers.backend.TripController.getTrip(request:Request, id:Long)
 
 DELETE        /api/trip/:id                          controllers.backend.TripController.deleteTrip(id:Long)
 
@@ -88,16 +94,16 @@ GET           /signUp                controllers.frontend.ProfileController.crea
 GET           /home                  controllers.frontend.ApplicationController.home(request: Request)
 
 # People page
-GET           /people                controllers.frontend.PeopleController.search(request: Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /people                controllers.frontend.PeopleController.search(request: Request)
 
 # The Travelea trips page
 GET           /trips                 controllers.frontend.TripController.tripIndex(request: Request)
 
 # The Travelea create trips page
-GET           /trips/create          controllers.frontend.TripController.createTripIndex(request: Request)
+GET           /trips/create/:id      controllers.frontend.TripController.createTrip(request: Request, id: Long)
 
 # The Travelea edit trip page
-GET           /trips/edit/:id        controllers.frontend.TripController.editTripIndex(request: Request, id: Long)
+GET           /trips/edit/:id        controllers.frontend.TripController.editTrip(request: Request, id: Long)
 
 # Create new profile
 GET           /profile/create        controllers.frontend.ProfileController.createProfileIndex(request: Request)
@@ -105,11 +111,15 @@ GET           /profile/create        controllers.frontend.ProfileController.crea
 # The TravelEA destinations page
 GET           /destinations          controllers.frontend.DestinationController.index(request: Request)
 
+# Specific destination page
+GET           /destinations/:id      controllers.frontend.DestinationController.detailedDestinationIndex(request: Request, id: Long)
+
 # The profile page
 GET           /profile/:id           controllers.frontend.ProfileController.index(request: Request, id: Long)
 
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
+
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
@@ -128,6 +138,6 @@ GET     /assets/routers/destination   controllers.backend.DestinationController.
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 
 # Static resources (not managed by the Play framework)
-GET     /user_content/*file           controllers.backend.PhotoController.getPhotoFromPath(path="/../", file)
+GET     /user_content/*file           controllers.backend.PhotoController.getPhotoFromPath(file)
 
 

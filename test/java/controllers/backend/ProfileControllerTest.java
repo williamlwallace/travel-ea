@@ -1,16 +1,13 @@
 package controllers.backend;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.CREATED;
-import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
-import static play.test.Helpers.FORBIDDEN;
 import static play.test.Helpers.UNAUTHORIZED;
 import static play.test.Helpers.route;
 
@@ -22,77 +19,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import models.CountryDefinition;
 import models.Profile;
 import models.TravellerTypeDefinition;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import play.Application;
-import play.db.Database;
-import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
-import play.test.WithApplication;
 
-public class ProfileControllerTest extends WithApplication {
-
-    private static Application fakeApp;
-    private static Database db;
-    private static Cookie authCookie;
-
-    /**
-     * Configures system to use profile database, and starts a fake app
-     */
-    @BeforeClass
-    public static void setUp() {
-        // Create custom settings that change the database to use test database instead of production
-        Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.driver", "org.h2.Driver");
-        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-
-        // Create a fake app that we can query just like we would if it was running
-        fakeApp = Helpers.fakeApplication(settings);
-        db = fakeApp.injector().instanceOf(Database.class);
-        authCookie = Http.Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
-            .withPath("/").build();
-
-        Helpers.start(fakeApp);
-    }
-
-    /**
-     * Stop the fake app
-     */
-    @AfterClass
-    public static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
-    }
+public class ProfileControllerTest extends ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
      * should contain minimal sql data needed for tests
      */
     @Before
-    public void applyEvolutions() {
-        // Only certain trips, namely initialisation, and profile folders
-        Evolutions.applyEvolutions(db,
-            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/profile/"));
-    }
-
-    /**
-     * Cleans up evolutions after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
+    public void runEvolutions() {
+        applyEvolutions("test/profile/");
     }
 
     @Test
@@ -100,7 +45,7 @@ public class ProfileControllerTest extends WithApplication {
         //Create the profile
         Profile newProfile = new Profile();
 
-        newProfile.userId = Long.valueOf(5);
+        newProfile.userId = 5L;
         newProfile.firstName = "NotDave";
         newProfile.lastName = "DefinitelyNotSmith";
         newProfile.dateOfBirth = "1186-11-05";
@@ -108,11 +53,11 @@ public class ProfileControllerTest extends WithApplication {
 
         CountryDefinition france = new CountryDefinition();
         france.name = "France";
-        france.id = Long.valueOf(2);
+        france.id = 2L;
 
         TravellerTypeDefinition backpacker = new TravellerTypeDefinition();
         backpacker.description = "Backpacker";
-        backpacker.id = Long.valueOf(2);
+        backpacker.id = 2L;
 
         newProfile.nationalities = new ArrayList<>();
         newProfile.nationalities.add(france);
@@ -127,7 +72,7 @@ public class ProfileControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(Json.toJson(newProfile))
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/profile");
 
         // Get result and check it was successful
@@ -140,7 +85,7 @@ public class ProfileControllerTest extends WithApplication {
         //Create the profile
         Profile newProfile = new Profile();
 
-        newProfile.userId = Long.valueOf(1);
+        newProfile.userId = 1L;
         newProfile.firstName = "NotDave";
         newProfile.lastName = "DefinitelyNotSmith";
         newProfile.dateOfBirth = "1186-11-05";
@@ -153,7 +98,7 @@ public class ProfileControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(Json.toJson(newProfile))
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/profile");
 
         // Get result and check it was successful
@@ -179,7 +124,7 @@ public class ProfileControllerTest extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/profile");
 
         // Get result and check it was successful
@@ -194,12 +139,12 @@ public class ProfileControllerTest extends WithApplication {
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("firstName", "firstName field must be present");
-        expectedMessages.put("lastName", "lastName field must be present");
+        expectedMessages.put("firstName", "First Name field must be present");
+        expectedMessages.put("lastName", "Last Name field must be present");
         expectedMessages.put("dateOfBirth", "Invalid date");
         expectedMessages.put("gender", "Invalid gender");
-        expectedMessages.put("nationalities", "nationalities field must be present");
-        expectedMessages.put("travellerTypes", "travellerTypes field must be present");
+        expectedMessages.put("nationalities", "Nationality field must be present");
+        expectedMessages.put("travellerTypes", "Traveller Type field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {
@@ -262,7 +207,7 @@ public class ProfileControllerTest extends WithApplication {
     public void getMyProfileAuth() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(this.authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/profile");
 
         // Get result and check it was successful
@@ -275,7 +220,7 @@ public class ProfileControllerTest extends WithApplication {
     private List<Profile> searchProfiles(String parameters) throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(this.authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/profile/search?" + parameters);
 
         Result result = route(fakeApp, request);
@@ -424,31 +369,5 @@ public class ProfileControllerTest extends WithApplication {
             }
             assertTrue(found);
         }
-    }
-
-    @Test
-    public void deleteProfileId() {
-        // Create request to delete newly created profile
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
-            .cookie(this.authCookie)
-            .uri("/api/profile/1");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-    }
-
-    @Test
-    public void deleteProfileIdDoesntExist() {
-        // Create request to delete a profile that doesn't exist
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
-            .cookie(this.authCookie)
-            .uri("/api/profile/10");
-
-        // Get result and check it was not successful
-        Result result = route(fakeApp, request);
-        assertEquals(NOT_FOUND, result.status());
     }
 }

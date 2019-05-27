@@ -1,4 +1,4 @@
--- AUTHOR: Matthew Minish, William Wallace
+-- AUTHOR: Matthew Minish, William Wallace, what about me?
 -- MODIFIED: 14/3/2019 2.00PM
 
 -- !Ups
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS Trip
   (
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
-    privacy           BIT NOT NULL DEFAULT 0,
+    is_public         BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -143,6 +143,19 @@ CREATE TABLE IF NOT EXISTS Photo
     PRIMARY KEY (guid)
   );
 
+    -- Create DestinationPhotos table, which specifies the photos of a Destinations
+CREATE TABLE IF NOT EXISTS DestinationPhoto
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    photo_id              INT NOT NULL,
+    destination_id        INT NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX Destination_photo_index (photo_id, destination_id),
+    UNIQUE(photo_id, destination_id)
+  );
+
 
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES
@@ -154,7 +167,7 @@ INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', 'pass',
 INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', 'pass', 'salt');
 
 -- Add sample data for TravellerTypeDefinitions
-INSERT INTO TravellerTypeDefinition (description) VALUES ('backpacker'), ('functional/business traveller'), ('groupies'), ('thrillseeker'), ('frequent weekender'), ('gap year');
+INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 
 -- Add sample Profile
 INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'UserFirst', 'UserMiddle', 'UserLast', '1990-01-01', 'Male');
@@ -178,6 +191,7 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
+DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
 DROP TABLE TravellerType;
 DROP TABLE Passport;

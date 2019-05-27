@@ -2,20 +2,18 @@ package controllers.backend;
 
 import actions.ActionState;
 import actions.Authenticator;
-import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.CountryDefinition;
 import models.Profile;
 import models.TravellerTypeDefinition;
 import models.User;
 import play.libs.Json;
-import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -28,7 +26,7 @@ import util.validation.UserValidator;
 /**
  * Manage a database of users.
  */
-public class ProfileController extends Controller {
+public class ProfileController extends TEABackController {
 
     private static final String ERR_OTHER = "other";
     private final ProfileRepository profileRepository;
@@ -48,7 +46,13 @@ public class ProfileController extends Controller {
      */
     public CompletableFuture<Result> getAllTravellerTypes() {
         return travellerTypeDefinitionRepository.getAllTravellerTypeDefinitions()
-            .thenApplyAsync(allTravellerTypes -> ok(Json.toJson(allTravellerTypes)));
+            .thenApplyAsync(allTravellerTypes -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(allTravellerTypes)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
@@ -120,26 +124,14 @@ public class ProfileController extends Controller {
                     errorResponse.map("Profile for that user not found", ERR_OTHER);
                     return notFound(errorResponse.toJson());
                 } else {
-                    return ok(Json.toJson(profile));
+                    try {
+                        return ok(sanitizeJson(Json.toJson(profile)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
                 }
             });
     }
-
-    // /**
-    //  * Updates the profile received in the body of the request as well as the related nationalities,
-    //  * passports and traveller types.
-    //  *
-    //  * @param request Contains the HTTP request info
-    //  * @return Ok if updated successfully, badRequest if profile json malformed
-    //  */
-    // @With({Everyone.class, Authenticator.class})
-    // public CompletionStage<Result> updateMyProfile(Http.Request request) {
-    //     //Get user
-    //     User user = request.attrs().get(ActionState.USER);
-    //     // Get json parameters
-    //     JsonNode json = request.body().asJson();
-    //     return updateProfileHelper(json, user.id);
-    // }
 
     /**
      * Updates the profile received in the body of the request as well as the related nationalities,
@@ -151,7 +143,7 @@ public class ProfileController extends Controller {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         User user = request.attrs().get(ActionState.USER);
-        if (userId == user.id || user.admin) {
+        if (userId.equals(user.id) || user.admin) {
             // Get json parameters
             JsonNode data = request.body().asJson();
             return updateProfileHelper(data, userId);
@@ -195,26 +187,6 @@ public class ProfileController extends Controller {
     }
 
     /**
-     * Deletes a profile based on the userID specified in the request.
-     *
-     * @param id Contains the HTTP request info
-     * @return Returns CompletableFuture type: ok if profile is deleted, badRequest if profile is
-     * not found for that userID.
-     */
-    @With({Admin.class, Authenticator.class})
-    public CompletableFuture<Result> deleteProfile(Long id) {
-        return profileRepository.deleteProfile(id).thenApplyAsync(rowsDeleted -> {
-            if (rowsDeleted < 1) {
-                ErrorResponse errorResponse = new ErrorResponse();
-                errorResponse.map("Profile not found for that user", ERR_OTHER);
-                return notFound(errorResponse.toJson());
-            } else {
-                return ok(Json.toJson(rowsDeleted));
-            }
-        });
-    }
-
-    /**
      * Retrieves all profiles, filters them and then returns the filtered list of profiles.
      *
      * @param nationalityId nationality request
@@ -226,14 +198,14 @@ public class ProfileController extends Controller {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender,
-        int minAge, int maxAge, Long travellerTypeId) {
+        String gender, int minAge, int maxAge, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
             List<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
-                if (gender != null && !profile.gender.equalsIgnoreCase(gender)) {
+                if (gender != null && !gender.equals("") && !profile.gender
+                    .equalsIgnoreCase(gender)) {
                     toReturn.remove(profile);
                     continue;
                 }
@@ -247,6 +219,7 @@ public class ProfileController extends Controller {
                 if (nationalityId != 0) {
                     boolean found = false;
                     for (CountryDefinition country : profile.nationalities) {
+
                         if (country.id.equals(nationalityId)) {
                             found = true;
                         }
@@ -256,7 +229,6 @@ public class ProfileController extends Controller {
                         continue;
                     }
                 }
-
                 if (travellerTypeId != 0) {
                     boolean found = false;
                     for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
@@ -290,19 +262,26 @@ public class ProfileController extends Controller {
         String gender,
         int minAge, int maxAge, Long travellerTypeId) {
         return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
-            .thenApplyAsync(profiles ->
-                ok(Json.toJson(profiles)));
+            .thenApplyAsync(profiles -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(profiles)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend
+     * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
      */
     public Result profileRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("profileRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes()
+                controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes(),
+                controllers.backend.routes.javascript.ProfileController.searchProfilesJson(),
+                controllers.frontend.routes.javascript.ProfileController.index()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

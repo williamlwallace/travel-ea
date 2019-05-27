@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.persistence.EntityNotFoundException;
-
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
@@ -41,7 +40,7 @@ public class TripRepository {
     }
 
     /**
-     * Updates a trip
+     * Updates a trip.
      *
      * @param trip the updated trip
      * @return true on successful update or false on fail
@@ -51,8 +50,7 @@ public class TripRepository {
             try {
                 ebeanServer.update(trip);
                 return true;
-            }
-            catch (EntityNotFoundException ex) {
+            } catch (EntityNotFoundException ex) {
                 return false;
             }
         }, executionContext);
@@ -105,6 +103,23 @@ public class TripRepository {
     }
 
     /**
+     * Finds all trips in database related to the given user ID or public.
+     *
+     * @param userID User to find all trips for
+     * @return List of Trip objects with the specified user ID
+     */
+    public CompletableFuture<List<Trip>> getAllPublicTrips(long userID) {
+        return supplyAsync(() ->
+                ebeanServer.find(Trip.class)
+                    .where()
+                    .or()
+                    .eq("is_public", 1)
+                    .eq("user_id", userID)
+                    .findList()
+            , executionContext);
+    }
+
+    /**
      * Finds all trips in database related to the given user ID which are public.
      *
      * @param userID User to find all trips for
@@ -115,7 +130,7 @@ public class TripRepository {
                 ebeanServer.find(Trip.class)
                     .where()
                     .eq("user_id", userID)
-                    .eq("privacy", 1)
+                    .eq("is_public", 1)
                     .findList()
             , executionContext);
     }
