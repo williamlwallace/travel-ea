@@ -9,7 +9,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class to link destinations and photos
+ * A class to link destinations and photos.
  */
 @Entity
 @Table(name = "DestinationPhoto")

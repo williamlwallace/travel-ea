@@ -24,7 +24,7 @@ public class CountryDefinitionRepository {
     }
 
     /**
-     * Insert a new country definition to database, autoincrements a new id for definition and
+     * Insert a new country definition to database, auto-increments a new id for definition and
      * returns this id.
      *
      * @param definition Country definition to add, ID field is not used
@@ -73,6 +73,11 @@ public class CountryDefinitionRepository {
             executionContext);
     }
 
+    /**
+     * Gets all countries from the database
+     *
+     * @return A list of all the countries from the database
+     */
     public CompletableFuture<List<CountryDefinition>> getAllCountries() {
         return supplyAsync(() ->
                 ebeanServer.find(CountryDefinition.class).findList(),

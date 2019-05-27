@@ -1,4 +1,4 @@
-@()
+@(userId: Long)
 <div class="modal fade" id="createDestinationModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
 aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -12,38 +12,39 @@ aria-hidden="true">
             <form id="addDestinationForm">
                 <div class="modal-body mx-3">
                     <div>Name
-                        <i class="fas prefix grey-text"></i>
+                        <em class="fas prefix grey-text"></em>
                         <input type="text" name="name" class="form-control validate" required>
                         <label id="nameError" class="error-messages"></label>
                     </div>
 
                     <div>Type
-                        <i class="fas prefix grey-text"></i>
+                        <em class="fas prefix grey-text"></em>
                         <input type="text" name="_type" class="form-control validate" required>
                         <label id="_typeError" class="error-messages"></label>
                     </div>
 
                     <div>District
-                        <i class="fas prefix grey-text"></i>
+                        <em class="fas prefix grey-text"></em>
                         <input type="text" name="district" class="form-control validate" required>
                         <label id="districtError" class="error-messages"></label>
                     </div>
 
                     <div>Latitude
-                        <i class="fas prefix grey-text"></i>
+                        <em class="fas prefix grey-text"></em>
                         <input type="number" name="latitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
                         <label id="latitudeError" class="error-messages"></label>
                     </div>
 
                     <div>Longitude
-                        <i class="fas prefix grey-text"></i>
+                        <em class="fas prefix grey-text"></em>
                         <input type="number" name="longitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" required>
                         <label id="longitudeError" class="error-messages"></label>
                     </div>
 
                     <div>Country
-                        <i class="fas prefix grey-text"></i>
+                        <em class="fas prefix grey-text"></em>
                         <select id="countryDropDown" name="countryId" class="form-control validate">
+
                         </select>
                         <label id="countryError" class="error-messages"></label>
                     </div>
@@ -51,12 +52,12 @@ aria-hidden="true">
             </form>
             <div class="modal-footer d-flex justify-content-center">
                 <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#createDestinationModal">
-                    Cancel<i class="fas fa-paper-plane-o ml-1"></i>
+                    Cancel<em class="fas fa-paper-plane-o ml-1"></em>
                 </button>
                 <button class="btn btn-popup" onclick=
                 'addDestination(
                         "@controllers.backend.routes.DestinationController.addNewDestination()",
-                        "@controllers.frontend.routes.ApplicationController.home()")'>
+                        "@controllers.frontend.routes.ApplicationController.home()", @userId)'>
                     Create
                 </button>
                 <label id="otherError"></label>
@@ -65,5 +66,4 @@ aria-hidden="true">
     </div>
 </div>
 
-<script src="@routes.Assets.at("javascripts/destinations.js")" type="text/javascript"></script>
 <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>

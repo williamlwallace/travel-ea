@@ -8,10 +8,10 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -56,6 +56,7 @@ public class Destination extends Model {
     @Constraints.Required
     public CountryDefinition country;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "destinationPhotos")
     @JoinTable(
         name = "DestinationPhoto",
@@ -65,19 +66,19 @@ public class Destination extends Model {
     public List<Photo> destinationPhotos;
 
     /**
-     * Checks if photo is linked to destination
+     * Checks if photo is linked to destination.
      *
-     * @param destId id of destination of id
+     * @param photoId id of destination of id
      * @return True if dest is linked to photo
      */
     public Boolean isLinked(Long photoId) {
         Iterator<Photo> iter = destinationPhotos.iterator();
-       while (iter.hasNext()) {
-           Photo photo = iter.next();
-           if (photo.guid.equals(photoId)) {
-               return true;
-           }
-       }
-       return false;
+        while (iter.hasNext()) {
+            Photo photo = iter.next();
+            if (photo.guid.equals(photoId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

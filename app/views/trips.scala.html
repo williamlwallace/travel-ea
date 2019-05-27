@@ -20,7 +20,7 @@
     <body>
         <div class="container">
             <div class="text-center">
-                <a class="btn btn-primary" href="/trips/create" role="button">Create New Trip</a>
+                <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
             </div><br>
 
             @if(tripList.isEmpty) {
@@ -62,10 +62,10 @@
                                         <div class="modal-content">
                                             <div class="modal-header text-center">
                                                 <div class="dropdown">
-                                                @if(t.privacy == 1) {
-                                                    <input id="privacyImg" class="privacy-image" type="image" title="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
-                                                } else {
-                                                    <input id="privacyImg" class="privacy-image" type="image" title="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
+                                                    @if(t.isPublic) {
+                                                        <input id="privacyImg" alt="Public" class="privacy-image" type="image" title="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
+                                                    } else {
+                                                        <input id="privacyImg" alt="Private" class="privacy-image" type="image" title="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
                                                     }
                                                 </div>
                                                 <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
