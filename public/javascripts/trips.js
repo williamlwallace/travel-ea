@@ -220,8 +220,6 @@ function newDestination(uri) {
     data.countryId = parseInt(data.countryId);
     data.country = {"id": data.countryId};
     delete data.countryId;
-
-    console.log(data);
     // Post json data to given uri
     post(uri, data)
     .then(response => {
