@@ -27,7 +27,7 @@ function populateTable(table, userId) {
         response.json()
         .then(json => {
             if(response.status !== 200) {
-                showErrors(json);
+                showTripErrors(json);
             } else {
                 for (const destination of json) {
                     const id = destination.id;
@@ -95,7 +95,7 @@ function addDestination(url, redirect, userId) {
 
             // Read response from server, which will be a json object
             response.json()
-                .then(destId => {
+                .then(json => {
                     if (response.status !== 200) {
                         showErrors(json);
                     } else {
@@ -103,7 +103,7 @@ function addDestination(url, redirect, userId) {
                         $('#createDestinationModal').modal('hide');
 
                         // Add row to table
-                        data.id = destId;
+                        data.id = json;
                         addRow(data);
                     }
                 });
@@ -229,7 +229,7 @@ function newDestination(uri) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                showErrors(json);
+                showTripErrors(json);
             } else {
                 document.getElementById("modalContactForm").setAttribute("aria-hidden", "true");
             }
@@ -364,7 +364,7 @@ function createTrip(uri, redirect, userId) {
         response.json()
         .then(json => {
             if (response.status === 400) {
-                showErrors(json);
+                showTripErrors(json);
             } else if (response.status === 200) {
                 window.location.href = redirect;
             }
@@ -430,7 +430,7 @@ function formatDateTime(date, time) {
  * Speciality show errors function for trips
  * @param {Object} json - Error Response Json
  */
-function showErrors(json) {
+function showTripErrors(json) {
     // Gets all the error key identifiers
     let keys = Object.keys(json);
 
@@ -514,7 +514,7 @@ function updateTrip(uri, redirect, tripId, userId) {
         response.json()
         .then(json => {
             if (response.status === 400) {
-                showErrors(json);
+                showTripErrors(json);
             } else if (response.status === 200) {
                 window.location.href = redirect;
             } else {
