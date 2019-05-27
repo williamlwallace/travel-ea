@@ -186,7 +186,7 @@ function togglePrivacy(guid, newPrivacy) {
     const label = document.getElementById(guid + "privacy");
     const data = {
         "isPublic": newPrivacy
-    }
+    };
     patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
         guid).url, data)
     .then(res => {

@@ -20,7 +20,7 @@ import util.objects.Pair;
  */
 public class PhotoRepository {
 
-    private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
+    public static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
     private static final String IS_PROFILE = "is_profile";
     private final EbeanServer ebeanServer;
@@ -205,6 +205,7 @@ public class PhotoRepository {
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
         return supplyAsync(() -> {
+                System.out.println(photo.isPublic);
                 ebeanServer.update(photo);
                 return photo.guid;
             },
