@@ -65,12 +65,4 @@ public class Photo extends Model {
         }
         return false;
     }
-
-    @Override
-    public String toString() {
-        return "Filename: " + filename
-            + "\nThumnail Filename: " + thumbnailFilename
-            + "\nUser ID: " + userId
-            + "\nIs Profile: " + isProfile;
-    }
 }

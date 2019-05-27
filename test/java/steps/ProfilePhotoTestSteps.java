@@ -65,7 +65,6 @@ public class ProfilePhotoTestSteps {
 
     }
 
-
     @Then("A thumbnail is created")
     public void a_thumbnail_is_created() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()

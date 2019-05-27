@@ -124,7 +124,6 @@ public class PersonalPhotoTestSteps {
 
     @Then("I can view all my photos")
     public void i_can_view_all_my_photos() throws IOException {
-        System.out.println("I CAN VIEW ALL MY PHOTOS");
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(authCookie)
