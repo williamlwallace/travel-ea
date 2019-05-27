@@ -154,7 +154,7 @@ function populateMarkers(userId) {
                     json[dest].isPublic ? privacySrc = "/assets/images/public.png" : privacySrc = "/assets/images/private.png";
                     markers.push({
                         coords:{lat: json[dest].latitude, lng: json[dest].longitude},
-                        iconImage:'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png', //TODO Make our own marker or remove this field to use default marker
+                        iconImage:json[dest].isPublic ? 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png' : '', //TODO Make our own marker or remove this field to use default marker
                         content:'<a class="marker-link" title="View detailed destination" href="' + destination + '"><h3 style="display:inline">' + json[dest].name + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="' + privacySrc + '"height="20" style="margin-bottom:13px">'
                                 + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
                                 + '<b>District:</b> ' + json[dest].district + '<br>'
@@ -175,8 +175,8 @@ function populateMarkers(userId) {
 function initMap() {
     // Initial map options
     let options = {
-        zoom: 5,
-        center: {lat:-40.9006, lng:174.8860}
+        zoom: 1.8,
+        center: {lat:2.0, lng:2.0}
     };
     // New map
     let map = new google.maps.Map(document.getElementById('map'), options);
