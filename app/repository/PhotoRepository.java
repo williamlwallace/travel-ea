@@ -116,6 +116,17 @@ public class PhotoRepository {
      */
     public CompletableFuture<Photo> getUserProfilePicture(Long userID) {
         return supplyAsync(() -> {
+            //DEBUGGING:
+            List<Photo> photosDebug = ebeanServer.find(Photo.class)
+                .where()
+                .eq(USER_ID, userID)
+                .findList();
+
+            System.out.println("GET USER PROFILE PICTURE CURRENT PHOTOS:");
+            for (Photo photo : photosDebug) {
+                System.out.println("PHOTO: " + photo);
+            }
+
             Photo photo = ebeanServer.find(Photo.class)
                 .where()
                 .eq(USER_ID, userID)
