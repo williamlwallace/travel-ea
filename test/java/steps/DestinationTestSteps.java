@@ -81,11 +81,11 @@ public class DestinationTestSteps {
     public void a_public_destination_is_created_which_is_the_same_as_my_private_destination() throws IOException {
         // Create new json object node
         ObjectNode node = Json.newObject();
-        node.put("name", "Eiffel Tower");
+        node.put("name", "Tower Bridge");
         node.put("_type", "Monument");
-        node.put("district", "Paris");
-        node.put("latitude", 48.8583);
-        node.put("longitude", 2.2945);
+        node.put("district", "London");
+        node.put("latitude", 51.50333132);
+        node.put("longitude", -0.071999712);
         CountryDefinition countryDefinition = new CountryDefinition();
         countryDefinition.id = 1L;
         node.set("country", Json.toJson(countryDefinition));
@@ -156,7 +156,14 @@ public class DestinationTestSteps {
 
     @Then("My private destination is automatically merged with the public one")
     public void my_private_destination_is_automatically_merged_with_the_public_one() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
+    }
 
+    @Then("Any private information on my merged destination remains private")
+    public void any_private_information_on_my_merged_destination_remains_private() {
+        // Write code here that turns the phrase above into concrete actions
+        throw new cucumber.api.PendingException();
     }
 
 }

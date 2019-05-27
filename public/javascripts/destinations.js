@@ -71,7 +71,13 @@ function addDestination(url, redirect, userId) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                showErrors(json);
+                if (json === "Duplicate destination") {
+                    toast("Destination could not be created!",
+                        "The destination already exists.", "danger", 5000);
+                    $('#createDestinationModal').modal('hide');
+                } else {
+                    showErrors(json);
+                }
             } else {
                 toast("Destination Created!", "The new destination will be added to the table.", "success");
                 $('#createDestinationModal').modal('hide');
@@ -96,6 +102,8 @@ function addDestination(url, redirect, userId) {
                 }
 
                 table.row.add([name, type, district, latitude, longitude, country, destination]).draw(false);
+                populateMarkers(userId);
+
             }
         });
     });
@@ -149,12 +157,26 @@ function populateMarkers(userId) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
                 for (const dest in json) {
+                    //Link to detailed destination in info window
                     const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(json[dest].id).url;
+
+                    //Setting public and privacy icon in info window
                     let privacySrc;
                     json[dest].isPublic ? privacySrc = "/assets/images/public.png" : privacySrc = "/assets/images/private.png";
+
+                    //Setting public and private marker images, resized
+                    const marker = {
+                        url: 'https://image.flaticon.com/icons/svg/149/149060.svg',
+                        scaledSize: new google.maps.Size(30, 30)
+                    };
+                    const markerPrivate = {
+                        url: 'https://image.flaticon.com/icons/svg/139/139012.svg',
+                        scaledSize: new google.maps.Size(30, 30)
+                    };
+
                     markers.push({
                         coords:{lat: json[dest].latitude, lng: json[dest].longitude},
-                        iconImage:json[dest].isPublic ? 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png' : '', //TODO Make our own marker or remove this field to use default marker
+                        iconImage:json[dest].isPublic ? marker : markerPrivate,
                         content:'<a class="marker-link" title="View detailed destination" href="' + destination + '"><h3 style="display:inline">' + json[dest].name + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="' + privacySrc + '"height="20" style="margin-bottom:13px">'
                                 + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
                                 + '<b>District:</b> ' + json[dest].district + '<br>'

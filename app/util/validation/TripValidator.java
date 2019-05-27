@@ -102,7 +102,7 @@ public class TripValidator {
         this.required("id");
 
         // Validation for trip privacy
-        this.required("privacy");
+        this.required("isPublic");
 
         return this.response;
     }
