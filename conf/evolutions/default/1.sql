@@ -234,7 +234,7 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
     (1, 'Tarsky Wilderness', 'Wilderness', 'Omsk Oblast', 58.0, 75.0, 7, 1),
 
     (1, 'Karabutak', 'Town', 'Karabutak', 50.0, 60.0, 9, 1),
-    (1, 'Amangeldi Wilderness', 'Wilderness', 'Amangeldi District', 50.0, 65.0, 9, 1),
+    (2, 'Amangeldi Wilderness', 'Wilderness', 'Amangeldi District', 50.0, 65.0, 9, 1),
     (1, 'Unnamed River', 'River', 'Nura District', 50.0, 70.0, 9, 1),
     (1, 'Karkaraly Wilderness', 'Wilderness', 'Karkaraly District', 50.0, 75.0, 9, 1),
     (1, 'Unnamed Riverside', 'Riverside', 'East Kazakhstan Province', 50.0, 80.0, 9, 1),
@@ -287,7 +287,8 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
     (1, 'Khabarovsky Artic Forest', 'Forest', 'Khabarovsk Krai', 50.0, 135.0, 7, 1);
 
 
-
+-- Add traveller type to destination
+INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id) VALUES (10, 3);
 
 -- Add sample data for trip
 INSERT INTO Trip (user_id) VALUES (1);

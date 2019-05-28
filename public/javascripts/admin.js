@@ -42,6 +42,7 @@ $('#dtTravellerTypeModifications').on('click', 'tbody tr', function () {
 
 /**
  * Makes delete request with given user
+ *
  * @param {Object} button - Html button element
  * @param {Object} tableAPI - data table api
  * @param {Number} id - user id
@@ -64,6 +65,7 @@ function deleteUser(button, tableAPI, id) {
 
 /**
  * Adds or removes users admin powers and changes button text
+ *
  * @param {Object} button - Html button element
  * @param {Object} tableAPI - data table api
  * @param {Number} id - user id
@@ -96,6 +98,7 @@ function toggleAdmin(button, tableAPI, id) {
 
 /**
  * Inserts users into admin table
+ *
  * @param {Object} table - data table object
  */
 function populateTable(table) {
@@ -128,6 +131,7 @@ function populateTable(table) {
 
 /**
  * Insert trip data into table
+ *
  * @param {Object} table - data table object
  */
 function populateTrips(table) {
@@ -161,7 +165,6 @@ function populateTrips(table) {
 
 /**
  * Populates the traveller type requests table
- * @param table - Table to be populated
  */
 function populateTravellerTypeRequests() {
     // Query API endpoint to get all destinations
@@ -196,6 +199,7 @@ function populateTravellerTypeRequests() {
 
 /**
  * Sends delete request with trip id
+ *
  * @param {Object} button - Html button element
  * @param {Object} tableAPI - data table api
  * @param {Number} id - user id
@@ -217,6 +221,7 @@ function deleteTrip(button, tableAPI, id) {
 
 /**
  * User creation for admins
+ *
  * @param {string} uri - api sign up uri
  * @param redirect the uri to redirect to
  */
@@ -242,6 +247,7 @@ function createUser(uri, redirect) {
 
 /**
  * Populates traveller type request modal on admin page
+ *
  * @param {Number} destId - ID of destination in request
  * @param {Number} ttId - ID of traveller type in request
  */
@@ -355,11 +361,23 @@ function showTTSuggestion(destId, ttId) {
     })
 }
 
+/**
+ * Removes the requested change from the traveller type request table.
+ *
+ * @param {Number} destId The destination of the request to remove
+ * @param {Number} ttId The traveler type id of the request to remove
+ */
 function removeRow(destId, ttId) {
     const element = document.getElementById(destId + "," + ttId);
     travellerTypeRequestTable.row(element).remove().draw(false);
 }
 
+/**
+ * Rejects a request made to add or remove a traveller type to a destination.
+ *
+ * @param {Number} destId The destination id
+ * @param {Number} ttId The traveller type id to add/remove
+ */
 function rejectTravellerTypeRequest(destId, ttId) {
     put(destinationRouter.controllers.backend.DestinationController.rejectTravellerType(
         destId, ttId).url, {})
