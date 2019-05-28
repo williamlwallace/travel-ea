@@ -2,8 +2,8 @@ package controllers.backend;
 
 import actions.ActionState;
 import actions.Authenticator;
-import actions.roles.Everyone;
 import actions.roles.Admin;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
@@ -364,17 +364,18 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> rejectTravellerType(Http.Request request, Long destId,
         Long travellerTypeId) {
         return destinationRepository.getDestination(destId).thenComposeAsync(dest -> {
-            if(dest == null) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Destination not found")));
+            if (dest == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("Destination not found")));
             }
-            if(dest.isPendingTravellerType(travellerTypeId)) {
+            if (dest.isPendingTravellerType(travellerTypeId)) {
                 dest.removePendingTravellerType(travellerTypeId);
             } else {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No traveller type modification request found")));
+                return CompletableFuture.supplyAsync(
+                    () -> notFound(Json.toJson("No traveller type modification request found")));
             }
-            return destinationRepository.updateDestination(dest).thenApplyAsync(rows -> {
-                return ok("Successfully rejected traveller type modification");
-            });
+            return destinationRepository.updateDestination(dest)
+                .thenApplyAsync(rows -> ok("Successfully rejected traveller type modification"));
         });
     }
 
