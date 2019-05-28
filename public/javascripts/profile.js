@@ -56,7 +56,8 @@ function updateProfileData(data) {
     arrayToString(data.passports, 'name',
         destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
     .then(out => {
-        document.getElementById("summary_passports").innerHTML = out;
+        // If passports were cleared, update html text to None: Fix for Issue #36
+        document.getElementById("summary_passports").innerHTML = out === "" ? "None" : out;
     });
     arrayToString(data.travellerTypes, 'description',
         profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
