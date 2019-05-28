@@ -247,6 +247,7 @@ public class DestinationController extends TEABackController {
                 return CompletableFuture
                     .supplyAsync(() -> notFound("Destination with provided ID not found"));
             }
+            // Check if the type is already linked
             if (destination.isLinkedTravellerType(ttId)) {
                 return CompletableFuture
                     .supplyAsync(() -> badRequest("Destination already has that traveller type or has already been requested"));
@@ -256,19 +257,18 @@ public class DestinationController extends TEABackController {
                     return CompletableFuture
                         .supplyAsync(() -> notFound("Traveller Type with provided ID not found"));
                 }
+                //Create the link and fill in details
                 DestinationTravellerType type = new DestinationTravellerType();
                 type.destId = destId;
                 type.travellerTypeDefinition = travellerType;
                 if (destination.user.id.equals(user.id) || user.admin) {
                     type.isPending = false;
-                    
                     return destinationTravellerTypeRepository.addLink(type)
                         .thenApplyAsync(rows -> {
                             return ok(Json.toJson("Successfully added traveller type to destination"));
                         });
                 } else {
-                    type.isPending = true;
-                    
+                    type.isPending = true; //Set type to pending if they are not the Owner
                     return destinationTravellerTypeRepository.addLink(type)
                         .thenApplyAsync(rows -> {
                             return ok(Json.toJson("Successfully requested traveller type to destination"));
