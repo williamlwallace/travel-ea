@@ -69,15 +69,15 @@ public class Destination extends Model {
     @ManyToMany(mappedBy = "destTravellerTypes")
     @JoinTable(
         name = "DestinationTravellerType",
-        joinColumns = @JoinColumn(name = "id", referencedColumnName = "dest_id"),
-        inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
+        joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
     @ManyToMany(mappedBy = "destTravellerTypesPending")
     @JoinTable(
         name = "DestinationTravellerTypePending",
-        joinColumns = @JoinColumn(name = "id", referencedColumnName = "dest_id"),
-        inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
+        joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypesPending;
 
     /**
