@@ -25,7 +25,7 @@ function updateProfile(uri, redirect) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                showErrors(json);
+                showErrors(json, "updateProfileForm");
             } else {
                 updateProfileData(data);
                 $("#editProfileModal").modal('hide');
