@@ -685,7 +685,7 @@ paths:
         '401':
           description: Unauthorized
 
-  '/destination/{destId}/travellertype/{ttId}':
+  '/destination/{destId}/travellertype/{travellerTypeId}':
     put:
       tags:
       - Destinations
@@ -709,7 +709,7 @@ paths:
           type: integer
           minimum: 1
       - in: path
-        name: ttId
+        name: travellerTypeId
         required: true
         description: The travellerType ID
         schema:

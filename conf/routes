@@ -59,7 +59,7 @@ DELETE        /api/destination/:destId/photo/:photoId  controllers.backend.Photo
 
 GET           /api/destination/:destId/photo         controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
-PUT           /api/destination/:destId/travellertype/:ttId  controllers.backend.DestinationController.addTravellerType(request:Request, destId:Long, ttId:Long)
+PUT           /api/destination/:destId/travellertype/:travellerTypeId  controllers.backend.DestinationController.addTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
