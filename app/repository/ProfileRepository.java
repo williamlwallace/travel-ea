@@ -27,6 +27,7 @@ public class ProfileRepository {
     /**
      * Adds a new profile to the database.
      *
+     *
      * This method should be simpler, but at the moment it can't be. Because play is brain-dead, and
      * is broken. We have working bridging code, that play fails on, except when we run app as
      * production.
@@ -90,15 +91,21 @@ public class ProfileRepository {
     }
 
     /**
-     * Gets all the profiles in the database except the given user id
+     * Gets all the profiles in the database except the given user id.
      *
      * @return A list of all profiles
      */
     public CompletableFuture<List<Profile>> getAllProfiles(Long userId) {
         return supplyAsync(() -> {
             ArrayList<Profile> profiles = new ArrayList<>(
-                ebeanServer.find(Profile.class).where()
-                    .ne("user_id", String.valueOf(userId))
+                ebeanServer.find(Profile.class)
+                    .where()
+//                    .eq("nationalities", String.valueOf(nationalityId))
+//                    .eq("gender", gender)
+//                    .ge("dateOfBirth", String.valueOf(minAge))
+//                    .le("maxAge", String.valueOf(maxAge))
+//                    .eq("travellerTypes", String.valueOf(travellerType))
+                    .ne("user_id", userId)
                     .findList());
             // Manually change bean lists to array lists, as this was causing an issue on front end
             for (Profile profile : profiles) {

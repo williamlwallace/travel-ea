@@ -1,4 +1,4 @@
-package util.customObjects;
+package util.objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 

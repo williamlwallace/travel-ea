@@ -13,17 +13,18 @@ import javax.inject.Inject;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
-import util.customObjects.Pair;
+import util.objects.Pair;
 
 /**
- * A repository that executees database operations on the Photo database table
+ * A repository that executes database operations on the Photo database table.
  */
 public class PhotoRepository {
 
+    public static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
+    private static final String USER_ID = "user_id";
+    private static final String IS_PROFILE = "is_profile";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
-
-    private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
 
     @Inject
     public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
@@ -32,7 +33,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Inserts new photo into database
+     * Inserts new photo into database.
      *
      * @param photo Photo to be added
      * @return Ok on success
@@ -45,7 +46,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Clears any existing profile photo for a user, and returns filenames of old files
+     * Clears any existing profile photo for a user, and returns filenames of old files.
      *
      * @param userID user ID to clear profile photo of
      * @return OK if successfully cleared existing profile pic, notFound if none found
@@ -55,8 +56,8 @@ public class PhotoRepository {
             Pair<String, String> returnPair;
             Photo profilePhoto = ebeanServer.find(Photo.class)
                 .where()
-                .eq("user_id", userID)
-                .eq("is_profile", true)
+                .eq(USER_ID, userID)
+                .eq(IS_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
             if (profilePhoto == null) {
                 return null;
@@ -69,7 +70,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Finds all photos in database related to the given user ID
+     * Finds all photos in database related to the given user ID.
      *
      * @param userID User to find all photos for
      * @return List of Photo objects with the specified user ID
@@ -78,8 +79,8 @@ public class PhotoRepository {
         return supplyAsync(() -> {
                 List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
-                    .eq("user_id", userID)
-                    .eq("is_profile", false)
+                    .eq(USER_ID, userID)
+                    .eq(IS_PROFILE, false)
                     .findList();
                 return appendAssetsUrl(photos);
             },
@@ -87,7 +88,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Finds all public photos in database related to the given user ID
+     * Finds all public photos in database related to the given user ID.
      *
      * @param userID User to find all public photos for
      * @return List of Photo objects with the specified user ID
@@ -96,9 +97,9 @@ public class PhotoRepository {
         return supplyAsync(() -> {
                 List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
-                    .eq("user_id", userID)
+                    .eq(USER_ID, userID)
                     .eq("is_public", true)
-                    .eq("is_profile", false)
+                    .eq(IS_PROFILE, false)
                     .findList();
                 return appendAssetsUrl(photos);
             },
@@ -106,7 +107,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Finds the profile picture in the database for the given user ID
+     * Finds the profile picture in the database for the given user ID.
      *
      * @param userID User to find profile picture for
      * @return a photo
@@ -115,8 +116,8 @@ public class PhotoRepository {
         return supplyAsync(() -> {
             Photo photo = ebeanServer.find(Photo.class)
                 .where()
-                .eq("user_id", userID)
-                .eq("is_profile", true)
+                .eq(USER_ID, userID)
+                .eq(IS_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
             if (photo != null) {
                 photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
@@ -139,8 +140,8 @@ public class PhotoRepository {
                 if (pictureToUpload.isProfile) {
                     ebeanServer.find(Photo.class)
                         .where()
-                        .eq("user_id", pictureToUpload.userId)
-                        .eq("is_profile", true)
+                        .eq(USER_ID, pictureToUpload.userId)
+                        .eq(IS_PROFILE, true)
                         .delete();
                 }
             }
@@ -170,11 +171,11 @@ public class PhotoRepository {
     }
 
     /**
-     * For a list of photos, append the default assets path to them
+     * For a list of photos, append the default assets path to them.
      *
      * @param photos Photos to append path to
      */
-    private List<Photo> appendAssetsUrl(List<Photo> photos) {
+    public List<Photo> appendAssetsUrl(List<Photo> photos) {
         for (Photo photo : photos) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
             photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
@@ -183,7 +184,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Get photo object form db
+     * Get photo object form db.
      *
      * @param id id of photo
      */
@@ -198,7 +199,7 @@ public class PhotoRepository {
     }
 
     /**
-     * Update photo row in database
+     * Update photo row in database.
      *
      * @param photo photo object to update
      */

@@ -22,7 +22,7 @@ import util.CryptoManager;
 
 public class Authenticator extends Action.Simple {
 
-    private static final String JWT_AUTH = "JWT-Auth"; //Here for sonarqube
+    private static final String JWT_AUTH = "JWT-Auth";
     private final Config config;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
@@ -65,7 +65,7 @@ public class Authenticator extends Action.Simple {
 
     /**
      * Action entry point. Should only let users pass that have benn authenticated to the correct
-     * degree otherwise redirect or return forbiden
+     * degree otherwise redirect or return forbidden
      *
      * @param request HTTP request
      * @return 403 or 401 if auth fails else continue and put the user in the request
@@ -86,7 +86,7 @@ public class Authenticator extends Action.Simple {
         if (token != null) {
             //get the userId if authentication is authentic
             Long userId = CryptoManager
-                .veryifyToken(token, config.getString("play.http.secret.key"));
+                .verifyToken(token, config.getString("play.http.secret.key"));
 
             if (userId != null) {
                 return userRepository.findID(userId).thenComposeAsync(user -> {
@@ -147,10 +147,10 @@ public class Authenticator extends Action.Simple {
     }
 
     /**
-     * Checks if user has created a profile, if not, redirects them
+     * Checks if user has created a profile, if not, redirects them.
      *
      * @param request Http request object
-     * @param user authed user obj
+     * @param user auth-ed user obj
      * @return Redirect to profile page if fails else delegates incoming request
      */
     private CompletionStage<Result> haveProfile(Http.Request request, User user, Boolean matched) {

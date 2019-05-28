@@ -34,7 +34,7 @@ public class CryptoManager {
      * @return True if passwords match, false otherwise
      */
     public static boolean checkPasswordMatch(String passwordToCheck, String salt,
-        String existingHashedPassword) {
+        String existingHashedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
         return checkPasswordMatch(passwordToCheck, Base64.getDecoder().decode(salt),
             existingHashedPassword);
     }
@@ -48,7 +48,7 @@ public class CryptoManager {
      * @return True if passwords match, false otherwise
      */
     private static boolean checkPasswordMatch(String passwordToCheck, byte[] salt,
-        String existingHashedPassword) {
+        String existingHashedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
         // First hash the given password with salt
         String newHashedPassword = hashPassword(passwordToCheck, salt);
 
@@ -63,22 +63,18 @@ public class CryptoManager {
      * @param salt Salt for password
      * @return Salted and hashed password
      */
-    public static String hashPassword(String password, byte[] salt) {
+    public static String hashPassword(String password, byte[] salt)
+        throws NoSuchAlgorithmException, InvalidKeySpecException {
         // Define iterations and key length
         Integer iterations = 10000;
         Integer keyLength = 256;
 
         // Now salt and hash the password
-        try {
-            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
-            SecretKey key = skf.generateSecret(spec);
-            byte[] res = key.getEncoded();
-            return Base64.getEncoder().encodeToString(res);
-
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        }
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, keyLength);
+        SecretKey key = skf.generateSecret(spec);
+        byte[] res = key.getEncoded();
+        return Base64.getEncoder().encodeToString(res);
     }
 
     /**
@@ -110,18 +106,21 @@ public class CryptoManager {
      */
     public static String createToken(Long userId, String secret) {
         Algorithm algorithm;
-        try {
-            algorithm = Algorithm.HMAC256(secret);
-        } catch (java.io.UnsupportedEncodingException e) {
-            return null;
-        }
+        algorithm = Algorithm.HMAC256(secret);
         return JWT.create()
             .withIssuer("TravelEA")
             .withClaim("userId", userId)
             .sign(algorithm);
     }
 
-    public static Long veryifyToken(String token, String secret) {
+    /**
+     * Verifies the token has been generated legitimately and gets the user id.
+     *
+     * @param token The token to verify
+     * @param secret The password from config
+     * @return The user's id
+     */
+    public static Long verifyToken(String token, String secret) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
@@ -129,7 +128,7 @@ public class CryptoManager {
                 .build();
             DecodedJWT jwt = verifier.verify(token);
             return jwt.getClaim("userId").asLong();
-        } catch (JWTVerificationException | java.io.UnsupportedEncodingException e) {
+        } catch (JWTVerificationException e) {
             return null;
         }
     }
