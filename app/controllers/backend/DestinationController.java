@@ -259,7 +259,7 @@ public class DestinationController extends TEABackController {
                     String message;
                     if (destination.user.id.equals(user.id) || user.admin) {
                         destination.travellerTypes.add(travellerType);
-                        if (destination.isLinkedTravellerType(travellerTypeId)) {
+                        if (destination.isPendingTravellerType(travellerTypeId)) {
                             destination.removePendingTravellerType(travellerTypeId);
                         }
                         message = "added";
