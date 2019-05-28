@@ -47,7 +47,7 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
             for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
+                data[i]["isOwned"] = true;
                 usersPhotos[i] = data[i];
             }
             let galleryObjects = createGalleryObjects(true);
@@ -93,6 +93,44 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
 }
 
 /**
+ * Function to populate gallery with current photos from a certain destination
+ * sets a isOwn variable
+ *
+ * @param {string} getDestinationPhotosUrl the url from where destination photos are retrieved from
+ * @param {string} getUserPhotosUrl the url where all users photos are from
+ * @param {string} galleryId the id of the gallery to add the photo to
+ * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {Long} destinationId the id of the destination to link the photos to
+ */
+function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl, galleryId, pageId, destinationId) {
+    // Run a get request to fetch all users photos
+    get(getDestinationPhotosUrl)
+    // Get the response of the request
+    .then(response => {
+        // Convert the response to json
+        response.json().then(destinationPhotos => {
+            usersPhotos = [];
+            get(getUserPhotosUrl)
+            .then(response => {
+                response.json().then(ownedPhotos => {
+                    for (let i = 0; i < destinationPhotos.length; i++) {
+                        data[i]["isOwned"] = false;
+                        for (let photo of ownedPhotos) {
+                            if (photo.guid === data[i].guid) {
+                                data[i]["isOwned"] = true;
+                            }
+                        }
+                        usersPhotos[i] = destinationPhotos[i];
+                    }
+                    let galleryObjects = createGalleryObjects(false, true, destinationId);
+                    addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
+                })
+            });
+        });
+    });
+}
+
+/**
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
@@ -127,21 +165,21 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
             const guid = usersPhotos[(6 * page + position)]["guid"];
             const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
             const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
-
+            const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
-                if (canEdit === true) {
-                    // Create delete button
-                    let deleteButton = document.createElement("span");
-                    deleteButton.setAttribute("class", "close");
-                    deleteButton.innerHTML = "&times;";
-                    tile.appendChild(deleteButton);
-
+                if (canEdit === true || isOwned) {
                     // Create toggle button
                     const toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
                 }
+                if (canDelete === true) {
+                    // Create delete button
+                    const deleteButton = createDeleteButton();
+                    tile.appendChild(deleteButton);
+                }
+
                 photo.href = filename;
             }
             if (withLinkButton) {
@@ -177,7 +215,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
  * @param {Long} guid the id of the photo on which to create a toggle button
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
-function createToggleButton (isPublic, guid) {
+function createToggleButton(isPublic, guid) {
     const toggleButton = document.createElement("span");
     const toggleLabel = document.createElement("input");
     toggleLabel.setAttribute("class", "privacy");
@@ -205,7 +243,7 @@ function createToggleButton (isPublic, guid) {
  * @param {Long} destinationId the id of the destination the button will link to
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
-function createLinkButton (isLinked, guid, destinationId) {
+function createLinkButton(isLinked, guid, destinationId) {
     const linkButton = document.createElement("span");
     const linkLabel = document.createElement("input");
     linkLabel.setAttribute("class", "privacy");
@@ -224,6 +262,13 @@ function createLinkButton (isLinked, guid, destinationId) {
         "toggleLinked(" + guid + "," + !isLinked + "," + destinationId + ")");
     linkButton.appendChild(linkLabel);
     return linkButton;
+}
+
+function createDeleteButton() {
+    let deleteButton = document.createElement("span");
+    deleteButton.setAttribute("class", "close");
+    deleteButton.innerHTML = "&times;";
+    return deleteButton;
 }
 
 
@@ -268,4 +313,28 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     } else {
         $(galleryId).html("There are no photos!");
     }
+}
+
+function togglePrivacy(guid, newPrivacy) {
+    const label = document.getElementById(guid + "privacy");
+    const data = {
+        "isPublic": newPrivacy
+    };
+    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
+        guid).url, data)
+    .then(res => {
+        if (res.status === 200) {
+            label.innerHTML = newPrivacy ? "Public" : "Private";
+            if (newPrivacy) {
+                label.setAttribute("src", "/assets/images/public.png");
+            } else {
+                label.setAttribute("src", "/assets/images/private.png");
+            }
+            label.setAttribute("onClick",
+                "togglePrivacy(" + guid + "," + !newPrivacy + ")");
+            toast("Picture privacy changed!",
+                "The photo is now " + (newPrivacy ? "Public" : "Private"),
+                "success");
+        }
+    })
 }

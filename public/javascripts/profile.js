@@ -103,9 +103,11 @@ let cropper;
 let getAllPhotosUrl;
 let profilePictureControllerUrl;
 let canEdit;
+let canDelete;
 
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);
+    canDelete = (loggedUser === user);
 }
 
 /**
@@ -183,29 +185,6 @@ cropGallery.on('click', 'img', function () {
     $('#cropProfilePictureModal').modal('show');
 });
 
-function togglePrivacy(guid, newPrivacy) {
-    const label = document.getElementById(guid + "privacy");
-    const data = {
-        "isPublic": newPrivacy
-    };
-    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
-        guid).url, data)
-    .then(res => {
-        if (res.status === 200) {
-            label.innerHTML = newPrivacy ? "Public" : "Private";
-            if (newPrivacy) {
-                label.setAttribute("src", "/assets/images/public.png");
-            } else {
-                label.setAttribute("src", "/assets/images/private.png");
-            }
-            label.setAttribute("onClick",
-                "togglePrivacy(" + guid + "," + !newPrivacy + ")");
-            toast("Picture privacy changed!",
-                "The photo is now " + (newPrivacy ? "Public" : "Private"),
-                "success");
-        }
-    })
-}
 
 function removePhoto(guid, filename) {
     $('#deletePhotoModal').modal('show');

@@ -197,9 +197,11 @@ function populateEditDestination(destinationId) {
     })
 }
 
-let USERID = null;
-let DESTINATIONID = null;
-let canEdit = false;
+let USERID;
+let DESTINATIONID;
+let canEdit = true;
+let canDelete = false;
+
 
 /**
  * allows the upload image button call the link photo modal which then
@@ -213,12 +215,13 @@ $("#upload-gallery-image-button").click(function() {
 /**
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
  * Also fills the initial gallery on photos
- * @param {Long} userId
+ * @param {Long} userId of the logged in user
+ * @param {Long} destinationId of the destination of photos to get
  */
 function sendUserIdAndFillGallery(userId, destinationId) {
     USERID = userId;
     DESTINATIONID = destinationId;
-    fillGallery(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url, "main-gallery", "page-selection")
+    fillDestinationGallery(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url, photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "main-gallery", "page-selection")
 }
 
 /**
