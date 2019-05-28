@@ -221,11 +221,16 @@ function updateTravellerTypes(destId) {
     let selected = select.options[select.selectedIndex];
 
     if (selected.text.includes("Add")) {
-        addTravellerType(destId, selected.value);
+        addTravellerType(destId, selected.value)
+        .then(() => {
+            populateDestinationDetails(destId);
+        });
     } else {
-        deleteTravellerType(destId, selected.value);
+        deleteTravellerType(destId, selected.value)
+        .then(() => {
+            populateDestinationDetails(destId);
+        });
     }
-    populateDestinationDetails(destId);
 }
 
 /**

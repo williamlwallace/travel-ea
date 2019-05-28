@@ -341,15 +341,16 @@ function removeRow(destId, ttId) {
 }
 
 function rejectTravellerTypeRequest(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.reject(destId, ttId).url)     //TODO: Change route
+    put(destinationRouter.controllers.backend.DestinationController.rejectTravellerType(destId, ttId).url, {})
     .then(response => {
         response.json()
         .then(data => {
+            console.log(data);
             if (response.status !== 200) {
                 toast("Could not reject request", data, "danger", 5000);
             } else {
-                populateTravellerTypeRequests(travellerTypeRequestTable);
                 toast("Request successfully rejected", data, "success");
+                removeRow(destId, ttId);
             }
         })
     })
