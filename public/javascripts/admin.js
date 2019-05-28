@@ -34,6 +34,7 @@ $('#dtTrips').on('click', 'button', function () {
     }
 });
 
+//Click listener for traveller type requests table
 $('#dtTravellerTypeModifications').on('click', 'tbody tr', function () {
     let idData = this.dataset.id.split(",");
     showTTSuggestion(idData[0], idData[1]);
@@ -237,7 +238,11 @@ function createUser(uri, redirect) {
     });
 }
 
-
+/**
+ * Populates traveller type request modal on admin page
+ * @param {Number} destId - ID of destination in request
+ * @param {Number} ttId - ID of traveller type in request
+ */
 function showTTSuggestion(destId, ttId) {
     get(destinationRouter.controllers.backend.DestinationController.getDestination(destId).url)
     .then(response => {
