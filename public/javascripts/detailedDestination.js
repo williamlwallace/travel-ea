@@ -1,5 +1,6 @@
 /**
  * Function to get the relevant destination and fill the HTML
+ *
  * @param {number} destinationId  of the destination to display
  */
 function populateDestinationDetails(destinationId) {
@@ -54,6 +55,7 @@ function populateDestinationDetails(destinationId) {
 
 /**
  * Deletes the current destination
+ *
  * @param {number} destinationId the id of the destination to delete
  * @param {string} redirect the url to redirect to if the destination is deleted successfully
  */
@@ -74,6 +76,7 @@ function deleteDestination(destinationId, redirect) {
 /**
  * Converts a private destination to a public destination. closes the makeDestinationPublicModal and shows
  * a success toast
+ *
  * @param {number} destinationId the id of the destination to make public
  */
 function makeDestinationPublic(destinationId) {
@@ -96,6 +99,7 @@ function makeDestinationPublic(destinationId) {
 /**
  * Creates the appropriate privacy button for the destination. Will only allow the user to change the privacy
  * from private to public.
+ *
  * @param {boolean} isPublic a boolean of the current destinations privacy, true if public, false if private
  */
 function createPrivacyButton(isPublic) {
@@ -123,7 +127,7 @@ function createPrivacyButton(isPublic) {
 
 /**
  * Edits the current destination
- * What the actual fuck is this
+ *
  * @param {number} destinationId the id of the destination to edit
  */
 function editDestination(destinationId) {
@@ -190,6 +194,7 @@ function editDestination(destinationId) {
 
 /**
  * Fills the edit destination modal with the information of that destination
+ *
  * @param {number} destinationId
  */
 function populateEditDestination(destinationId) {
@@ -276,7 +281,7 @@ let canEdit = true;
 let canDelete = false;
 
 /**
- * allows the upload image button call the link photo modal which then
+ * Allows the upload image button call the link photo modal which then
  * fills the gallery with all the users photos, and indicates which are already linked
  */
 $("#upload-gallery-image-button").click(function () {
@@ -289,6 +294,7 @@ $("#upload-gallery-image-button").click(function () {
 /**
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
  * Also fills the initial gallery on photos
+ *
  * @param {Long} userId of the logged in user
  * @param {Long} destinationId of the destination of photos to get
  */
@@ -305,6 +311,7 @@ function sendUserIdAndFillGallery(userId, destinationId) {
 /**
  * Function to toggle the linked status of a photo.
  * Is used even though Intellij doesn't think so
+ *
  * @param {Long} guid of the photo to be linked
  * @param {boolean} newLinked the new status of the photo
  * @param {Long} destinationId the destination to link (or unlink) the photo to/from
@@ -349,6 +356,8 @@ function toggleLinked(guid, newLinked, destinationId) {
 
 /**
  * Initialises google maps on detailed destinations page
+ *
+ * @param {Number} destinationId The destination id to center the map on
  */
 function initMap(destinationId) {
     get(destinationRouter.controllers.backend.DestinationController.getDestination(
