@@ -165,9 +165,11 @@ public class Authenticator extends Action.Simple {
                         controllers.frontend.routes.ProfileController.createProfileIndex()));
                 }
             }
-            return matched ? delegate.call(request.addAttr(ActionState.USER, user)) : supplyAsync(
+            CompletableFuture<Result> fail;
+            fail = request.uri().contains("/api/") ? supplyAsync(() -> forbidden(Json.toJson("Forbidden"))) : supplyAsync(
                 () -> redirect(controllers.frontend.routes.ApplicationController.cover())
                     .discardingCookie(JWT_AUTH));
+            return matched ? delegate.call(request.addAttr(ActionState.USER, user)) : fail;
         });
     }
 }
