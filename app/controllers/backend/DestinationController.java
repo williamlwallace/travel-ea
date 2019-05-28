@@ -28,6 +28,7 @@ import util.validation.ErrorResponse;
  */
 public class DestinationController extends TEABackController {
 
+    private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
@@ -195,7 +196,7 @@ public class DestinationController extends TEABackController {
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture
-                    .supplyAsync(() -> notFound("Destination with provided ID not found"));
+                    .supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
             } else if (destination.user.id.equals(user.id) || user.admin) {
                 if (validatorResult.error()) {
                     return CompletableFuture
@@ -221,7 +222,8 @@ public class DestinationController extends TEABackController {
                     });
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden(
-                    "Forbidden, user does not have permission to edit this destination"));
+                    Json.toJson(
+                        "Forbidden, user does not have permission to edit this destination")));
             }
         });
     }
@@ -242,20 +244,26 @@ public class DestinationController extends TEABackController {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture
-                    .supplyAsync(() -> notFound("Destination with provided ID not found"));
+                    .supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
             }
-            // Check if the type is already linked
-            if (destination.isLinkedTravellerType(travellerTypeId)) {
-                return CompletableFuture
-                    .supplyAsync(() -> badRequest("Destination already has that traveller type"));
-            }
+
             return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerTypeId)
                 .thenComposeAsync(travellerType -> {
                     if (travellerType == null) {
                         return CompletableFuture
                             .supplyAsync(
-                                () -> notFound("Traveller Type with provided ID not found"));
+                                () -> notFound(
+                                    Json.toJson("Traveller Type with provided ID not found")));
                     }
+
+                    // Check if the type is already linked
+                    if (destination.isLinkedTravellerType(travellerTypeId)) {
+                        return CompletableFuture
+                            .supplyAsync(
+                                () -> badRequest(
+                                    Json.toJson("Destination already has that traveller type")));
+                    }
+
                     //Create the link and fill in details
                     String message;
                     if (destination.user.id.equals(user.id) || user.admin) {
@@ -267,8 +275,8 @@ public class DestinationController extends TEABackController {
                     } else {
                         if (destination.isPendingTravellerType(travellerTypeId)) {
                             return CompletableFuture
-                                .supplyAsync(() -> ok(
-                                    "Successfully requested traveller type to destination"));
+                                .supplyAsync(() -> ok(Json.toJson(
+                                    "Successfully requested to add traveller type to destination")));
                         }
                         destination.travellerTypesPending.add(travellerType);
                         message = "requested to add";
@@ -278,6 +286,67 @@ public class DestinationController extends TEABackController {
                         .thenApplyAsync(rows -> ok(Json.toJson(
                             "Successfully " + message + " traveller type to destination")));
 
+                });
+        });
+    }
+
+    /**
+     * Removes or requests to remove a traveller type to a destination depending on a user's
+     * privileges.
+     *
+     * @param request The request
+     * @param destId The id of the destination to edit
+     * @param travellerTypeId The id of the traveller type to remove
+     * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
+     * fails, 403 if the user cannot edit the destination and 200 if successful
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> removeTravellerType(Http.Request request, Long destId,
+        Long travellerTypeId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
+            }
+
+            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerTypeId)
+                .thenComposeAsync(travellerType -> {
+                    if (travellerType == null) {
+                        return CompletableFuture
+                            .supplyAsync(
+                                () -> notFound(
+                                    Json.toJson("Traveller Type with provided ID not found")));
+                    }
+
+                    // Check if the type is not linked
+                    if (!destination.isLinkedTravellerType(travellerTypeId)) {
+                        return CompletableFuture
+                            .supplyAsync(
+                                () -> badRequest(
+                                    Json.toJson("Destination doesn't have that traveller type")));
+                    }
+
+                    String message;
+                    if (destination.user.id.equals(user.id) || user.admin) {
+                        destination.travellerTypes.remove(travellerType);
+                        if (destination.isPendingTravellerType(travellerTypeId)) {
+                            destination.removePendingTravellerType(travellerTypeId);
+                        }
+                        message = "removed";
+                    } else {
+                        if (destination.isPendingTravellerType(travellerTypeId)) {
+                            return CompletableFuture
+                                .supplyAsync(() -> ok(Json.toJson(
+                                    "Successfully requested to remove traveller type from destination")));
+                        }
+                        destination.travellerTypesPending.add(travellerType);
+                        message = "requested to remove";
+                    }
+
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(rows -> ok(Json.toJson(
+                            "Successfully " + message + " traveller type from destination")));
                 });
         });
     }
@@ -308,7 +377,7 @@ public class DestinationController extends TEABackController {
             });
         });
     }
-        
+
 
     /**
      * Gets all destinations valid for the requesting user.
