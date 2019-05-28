@@ -9,6 +9,7 @@
     <script src="@controllers.backend.routes.PhotoController.photoRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDCyC_ON0GgSmJIfPlL7oke5PZgbR8TLbg"></script>
 }
 
 @layouts.main("Destination", loggedUser, scripts){
@@ -17,11 +18,10 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
 
     @* The custom title section with background image *@
-    <div class="title-frame" id="title-frame">
-        <div class="title-bg" style="background-image: url(@routes.Assets.at("images/detailedDestination-bg.jpg"))">
-            <div class="title-text-wrap">
-                <p id="summary_name" class="title-text"></p>
-            </div>
+    <div class="title-frame" id="title-frame" style="pointer-events: all !important;">
+        <div class="title-bg" id="map"></div>
+        <div class="title-text-wrap" style="pointer-events: none !important;">
+            <p id="summary_name" class="title-text"></p>
         </div>
     </div>
 
@@ -216,5 +216,6 @@
         sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
         fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
         populateDestinationDetails(@destinationId);
+        initMap(@destinationId);
         src="@controllers.backend.routes.DestinationController.destinationRoutes()"
 </script>
