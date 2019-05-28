@@ -375,7 +375,8 @@ public class DestinationController extends TEABackController {
                     () -> notFound(Json.toJson("No traveller type modification request found")));
             }
             return destinationRepository.updateDestination(dest)
-                .thenApplyAsync(rows -> ok(Json.toJson("Successfully rejected traveller type modification")));
+                .thenApplyAsync(
+                    rows -> ok(Json.toJson("Successfully rejected traveller type modification")));
         });
     }
 

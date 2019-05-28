@@ -166,7 +166,8 @@ function populateTrips(table) {
 function populateTravellerTypeRequests() {
     // Query API endpoint to get all destinations
     travellerTypeRequestTable.clear();
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url)
+    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        MASTER_ADMIN_ID).url)
     .then(response => {
         response.json()
         .then(json => {
@@ -184,7 +185,8 @@ function populateTravellerTypeRequests() {
                         const modification = json[dest].travellerTypesPending[ttRequest].description;
                         const ttId = json[dest].travellerTypesPending[ttRequest].id;
                         travellerTypeRequestTable.row.add(
-                            [destId, destName, modification, username, ttId]).draw(false);
+                            [destId, destName, modification, username,
+                                ttId]).draw(false);
                     }
                 }
             }
@@ -244,39 +246,49 @@ function createUser(uri, redirect) {
  * @param {Number} ttId - ID of traveller type in request
  */
 function showTTSuggestion(destId, ttId) {
-    get(destinationRouter.controllers.backend.DestinationController.getDestination(destId).url)
+    get(destinationRouter.controllers.backend.DestinationController.getDestination(
+        destId).url)
     .then(response => {
         response.json()
         .then(dest => {
             if (response.status !== 200) {
                 toast("Could not retrieve request details", "", "danger", 5000);
             } else {
-                document.getElementById("requestDestName").innerText = dest.name;
-                document.getElementById("requestDestType").innerText = dest._type;
-                document.getElementById("requestDestDistrict").innerText = dest.district;
-                document.getElementById("requestDestCountry").innerText = dest.country.name;
+                document.getElementById(
+                    "requestDestName").innerText = dest.name;
+                document.getElementById(
+                    "requestDestType").innerText = dest._type;
+                document.getElementById(
+                    "requestDestDistrict").innerText = dest.district;
+                document.getElementById(
+                    "requestDestCountry").innerText = dest.country.name;
 
                 if (dest.travellerTypes.length > 0) {
                     let travellerTypes = "";
                     for (let i = 0; i < dest.travellerTypes.length; i++) {
-                        travellerTypes += ", " + dest.travellerTypes[i].description;
+                        travellerTypes += ", "
+                            + dest.travellerTypes[i].description;
                     }
-                    document.getElementById("requestDestTT").innerText = travellerTypes.substr(2);
+                    document.getElementById(
+                        "requestDestTT").innerText = travellerTypes.substr(2);
                 } else {
                     document.getElementById("requestDestTT").innerText = "None";
                 }
 
                 for (const tt in dest.travellerTypesPending) {
                     if (dest.travellerTypesPending[tt].id.toString() === ttId) {
-                        document.getElementById("requestDescription").innerText = dest.travellerTypesPending[tt].description;
+                        document.getElementById(
+                            "requestDescription").innerText = dest.travellerTypesPending[tt].description;
                         break;
                     }
                 }
 
                 let found = false;
                 for (const existingTT in dest.travellerTypes) {
-                    if (dest.travellerTypes[existingTT].id.toString() === ttId) {
-                        document.getElementById("requestType").innerText = "Remove:";
+                    if (dest.travellerTypes[existingTT].id.toString()
+                        === ttId) {
+                        document.getElementById(
+                            "requestType").innerText = "Remove:";
                         found = true;
                         break;
                     }
@@ -302,7 +314,7 @@ function showTTSuggestion(destId, ttId) {
                 rejectButton.setAttribute("class", "btn btn-danger");
                 rejectButton.setAttribute("data-toggle", "modal");
                 rejectButton.setAttribute("data-target", "#modal-destModify");
-                rejectButton.addEventListener('click', function() {
+                rejectButton.addEventListener('click', function () {
                     rejectTravellerTypeRequest(destId, ttId);
                 });
 
@@ -312,8 +324,9 @@ function showTTSuggestion(destId, ttId) {
                 acceptButton.setAttribute("class", "btn btn-success");
                 acceptButton.setAttribute("data-toggle", "modal");
                 acceptButton.setAttribute("data-target", "#modal-destModify");
-                acceptButton.addEventListener('click', function() {
-                    if (document.getElementById("requestType").innerText === "Remove:") {
+                acceptButton.addEventListener('click', function () {
+                    if (document.getElementById("requestType").innerText
+                        === "Remove:") {
                         deleteTravellerType(destId, ttId)
                         .then(status => {
                             if (status === 200) {
@@ -332,8 +345,10 @@ function showTTSuggestion(destId, ttId) {
                     }
                 });
 
-                document.getElementById("ttRequestButtons").appendChild(rejectButton);
-                document.getElementById("ttRequestButtons").appendChild(acceptButton);
+                document.getElementById("ttRequestButtons").appendChild(
+                    rejectButton);
+                document.getElementById("ttRequestButtons").appendChild(
+                    acceptButton);
                 $("#modal-destModify").modal("show");
             }
         })
@@ -346,7 +361,8 @@ function removeRow(destId, ttId) {
 }
 
 function rejectTravellerTypeRequest(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.rejectTravellerType(destId, ttId).url, {})
+    put(destinationRouter.controllers.backend.DestinationController.rejectTravellerType(
+        destId, ttId).url, {})
     .then(response => {
         response.json()
         .then(data => {

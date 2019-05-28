@@ -4,12 +4,15 @@
  * @param {Number} ttId - ID of traveller type to link
  */
 function addTravellerType(destId, ttId) {
-    return put(destinationRouter.controllers.backend.DestinationController.addTravellerType(destId, ttId).url, {})
+    return put(
+        destinationRouter.controllers.backend.DestinationController.addTravellerType(
+            destId, ttId).url, {})
     .then(response => {
         return response.json()
         .then(data => {
             if (response.status !== 200) {
-                toast("Could not modify destination traveller types", data, "danger", 5000);
+                toast("Could not modify destination traveller types", data,
+                    "danger", 5000);
             } else {
                 toast("Success", data, "success");
             }
@@ -24,12 +27,15 @@ function addTravellerType(destId, ttId) {
  * @param {Number} ttId - ID of traveller type to remove
  */
 function deleteTravellerType(destId, ttId) {
-    return put(destinationRouter.controllers.backend.DestinationController.removeTravellerType(destId, ttId).url, {})
+    return put(
+        destinationRouter.controllers.backend.DestinationController.removeTravellerType(
+            destId, ttId).url, {})
     .then(response => {
         return response.json()
         .then(data => {
             if (response.status !== 200) {
-                toast("Could not modify destination traveller types", data, "danger", 5000);
+                toast("Could not modify destination traveller types", data,
+                    "danger", 5000);
             } else {
                 toast("Success", data, "success");
             }
