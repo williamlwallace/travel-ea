@@ -26,6 +26,17 @@ function populateDestinationDetails(destinationId) {
                     "summary_latitude").innerText = destination.latitude;
                 document.getElementById(
                     "summary_longitude").innerText = destination.longitude;
+
+                if (false) {   // TODO: destination.travellerTypes.length > 0
+                    let travellerTypes = "";
+                    for (let i = 0; i < destination.travellerTypes.length; i++) {
+                        travellerTypes += ", " + destination.travellerTypes[i].description;
+                    }
+                    document.getElementById("summary_traveller_types").innerText = travellerTypes.substr(2);
+                } else {
+                    document.getElementById("summary_traveller_types").innerText = "No associated traveller types";
+                }
+
                 createPrivacyButton(destination.isPublic);
             }
         })
