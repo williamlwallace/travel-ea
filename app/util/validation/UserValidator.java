@@ -21,7 +21,7 @@ public class UserValidator extends Validator {
             this.email("username");
         }
         if (this.required("password", "Password")) {
-            this.minTextLength("password", 3);
+            this.minTextLength("password", "Password", 3);
         }
         return this.getErrorResponse();
     }
@@ -32,8 +32,14 @@ public class UserValidator extends Validator {
      * @return ErrorResponse object
      */
     public ErrorResponse profile() {
-        this.required("firstName", "First Name");
-        this.required("lastName", "Last Name");
+        if(this.required("firstName", "First Name")){
+            this.maxTextLength("firstName", "First Name", 64);
+        }
+        this.maxTextLength("middleName", "Middle Name", 64);
+        if(this.required("lastName", "Last Name")){
+            this.maxTextLength("lastName", "Last Name", 64);
+        }
+
         if (this.required("dateOfBirth", "Date of Birth")) {
             this.date("dateOfBirth");
         }
