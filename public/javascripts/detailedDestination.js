@@ -32,9 +32,10 @@ function populateDestinationDetails(destinationId) {
                     for (let i = 0; i < destination.travellerTypes.length; i++) {
                         travellerTypes += ", " + destination.travellerTypes[i].description;
                     }
+                    document.getElementById("heading_traveller_types").style.display = "block";    // TODO: Does this work
                     document.getElementById("summary_traveller_types").innerText = travellerTypes.substr(2);
                 } else {
-                    document.getElementById("summary_traveller_types").innerText = "No associated traveller types";
+                    document.getElementById("heading_traveller_types").style.display = "none";
                 }
 
                 createPrivacyButton(destination.isPublic);
@@ -206,6 +207,76 @@ function populateEditDestination(destinationId) {
             }
         })
     })
+}
+
+function updateTravellerTypes(destId) {
+    let select = document.getElementById("travellerTypesSelect");
+    let selected = select.options[select.selectedIndex];
+
+    if (selected.text.includes("Add") || true) {    // TODO: Remove true
+        addTravellerType(destId, selected.value);
+    } else {
+        deleteTravellerType(destId, selected.value);
+    }
+}
+
+function addTravellerType(destId, ttId) {
+    put(destinationRouter.controllers.backend.DestinationController.fillthis(destId, ttId))    // TODO: fill routes
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Could not modify destination traveller types", data, "danger", 5000);
+            } else {
+                populateDestinationDetails(destId);
+                toast("Success", data, "success");
+            }
+        })
+    })
+}
+
+function deleteTravellerType(destId, ttId) {
+    _delete(destinationRouter.controllers.backend.DestinationController.fillthis(destId, ttId))
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Could not modify destination traveller types", data, "danger", 5000);
+            } else {
+                populateDestinationDetails(destId);
+                toast("Success", data, "success");
+            }
+        })
+    })
+}
+
+/**
+ * Gets traveller types from API and fills drop down
+ *
+ * @param {string} URI - Traveller type API URI to get data from
+ */
+function fillTravellerTypeInfo(URI) {
+    get(URI)
+    .then(response => {
+        response.json()
+        .then(travellerTypes => {
+            let existingTravellerTypes = document.getElementById("summary_traveller_types").innerText.split(", ");
+            $("#travellerTypesSelect").empty();
+            let select = document.getElementById("travellerTypesSelect");
+            for (let i = 0; i < travellerTypes.length; i++) {
+                let option = document.createElement("option");
+
+                if (!existingTravellerTypes.includes(travellerTypes[i].description)) {
+                    option.text = "Add " + travellerTypes[i].description;
+                } else {
+                    option.text = "Remove " + travellerTypes[i].description;
+                }
+
+                option.val = travellerTypes[i].id;
+                select.add(option);
+            }
+        })
+    });
 }
 
 let USERID = null;
