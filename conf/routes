@@ -63,6 +63,8 @@ PUT           /api/destination/:destId/travellertype/:travellerTypeId/add  contr
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/remove  controllers.backend.DestinationController.removeTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
+PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.rejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
+
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)

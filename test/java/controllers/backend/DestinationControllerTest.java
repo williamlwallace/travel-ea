@@ -45,7 +45,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     private static final String USER_DEST_URL = "/api/user/destination/";
     private static final String CREATE_DEST_URL = "/api/destination";
     private static final String MAKE_PUBLIC_URL = "/api/destination/makePublic/";
-    private static final String DEST_TRAV_TYPE_UTL = "/travellertype/";
+    private static final String DEST_TRAV_TYPE_URL = "/travellertype/";
+    private static final String DEST_TRAV_TYPE_REJECT = "/reject";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -513,7 +514,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1/add");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1/add");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -525,7 +526,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1/add");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1/add");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -537,7 +538,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1/add");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/add");
 
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
@@ -548,7 +549,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/remove");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -562,7 +563,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "3/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "3/remove");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -577,7 +578,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "100/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "100/remove");
 
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
@@ -591,7 +592,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "100" + DEST_TRAV_TYPE_UTL + "1/remove");
+            .uri(DEST_URL_SLASH + "100" + DEST_TRAV_TYPE_URL + "1/remove");
 
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
@@ -605,7 +606,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "2/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "2/remove");
 
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
@@ -614,12 +615,13 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals("Destination doesn't have that traveller type", json.textValue());
     }
 
+
     @Test
     public void removeTravellerTypesAlreadyRequested() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/remove");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -629,4 +631,37 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             json.textValue());
     }
 
+
+    @Test
+    public void rejectTravellerType() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "2" + DEST_TRAV_TYPE_REJECT);
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void rejectTravellerTypeNotFound() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "3" + DEST_TRAV_TYPE_REJECT);
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
+
+    @Test
+    public void rejectTravellerTypeNotAdmin() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "2" + DEST_TRAV_TYPE_REJECT);
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
 }
