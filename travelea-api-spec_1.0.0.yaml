@@ -685,32 +685,46 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
-  '/destination/{id}/photo':
-    get:
+  
+  '/destination/{destId}/travellertype/{ttId}':
+    put:
       tags:
       - Destinations
-      summary: Get destination photos
+      summary: Creates a link between travellertype and a destination
+      description: |
+        Creates entry in join table for Destination and travellertype
+      security:
+      - UserToken: []
       parameters:
-      - in: path
-        name: id
+      - in: header
+        name: JWT-Auth
         required: true
-        description: The ID of the destination to retrieve photos from
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: ttId
+        required: true
+        description: The travellerType ID
         schema:
           type: integer
           minimum: 1
       responses:
         '200':
-          description: Successfully retrieved photos
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Photo'
+          description: Successfully added destination-traveller type link
+        '400':
+          description: Link already exists
         '404':
-          description: No such destination found
+          description: Destination or traveller type with provided ID not found
         '403':
-          description: Forbidden, user does not have permistion to acces destination photos
+          description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
           

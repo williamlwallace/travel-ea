@@ -249,7 +249,7 @@ public class DestinationController extends TEABackController {
             }
             if (destination.isLinkedTravellerType(ttId)) {
                 return CompletableFuture
-                    .supplyAsync(() -> badRequest("Destination already has that traveller type"));
+                    .supplyAsync(() -> badRequest("Destination already has that traveller type or has already been requested"));
             }
             return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(ttId).thenComposeAsync(travellerType -> {
                 if (travellerType == null) {
@@ -271,7 +271,7 @@ public class DestinationController extends TEABackController {
                     
                     return destinationTravellerTypeRepository.addLink(type)
                         .thenApplyAsync(rows -> {
-                            return ok(Json.toJson("Successfully added traveller type to destination"));
+                            return ok(Json.toJson("Successfully requested traveller type to destination"));
                         });
                 }
             });
