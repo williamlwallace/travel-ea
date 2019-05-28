@@ -114,15 +114,15 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl, galle
             .then(response => {
                 response.json().then(ownedPhotos => {
                     for (let i = 0; i < destinationPhotos.length; i++) {
-                        data[i]["isOwned"] = false;
+                        destinationPhotos[i]["isOwned"] = false;
                         for (let photo of ownedPhotos) {
-                            if (photo.guid === data[i].guid) {
-                                data[i]["isOwned"] = true;
+                            if (photo.guid === destinationPhotos[i].guid) {
+                                destinationPhotos[i]["isOwned"] = true;
                             }
                         }
                         usersPhotos[i] = destinationPhotos[i];
                     }
-                    let galleryObjects = createGalleryObjects(false, true, destinationId);
+                    let galleryObjects = createGalleryObjects(true);
                     addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
                 })
             });
@@ -169,7 +169,8 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
-                if (canEdit === true || isOwned) {
+                if (canEdit === true && isOwned) {
+                    console.log("yo");
                     // Create toggle button
                     const toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
@@ -183,6 +184,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
                 photo.href = filename;
             }
             if (withLinkButton) {
+                console.log("oi");
                 const linkButton = createLinkButton(isLinked, guid, destinationId);
                 tile.appendChild(linkButton)
             }
