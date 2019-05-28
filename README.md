@@ -1,19 +1,26 @@
-# TravelEA -SENG302 Team Proffat
+# TravelEA - SENG302 Team Proffat
 
-## How to run
+## Using TravelEA
 
-### Starting the application
+### Online
+- Open a browser and navigate to `travelea.online:443`
+- You should now be viewing the TravelEA website
+- Login or sign up to use TravelEA
+
+### Locally
 - Clone the git repository onto your computer
 - Navigate into the folder `team-400/`
 - Open a command window / terminal within this directory
 - Type `sbt dist` into the command window / terminal and press `enter`
-- Wait for the message `(Server started, use Enter to stop and go back to the console...)`
+- Extract the contents of the named `seng302-team-400-proffat-*.*.*.zip` file in `team-400/target/universal/`
+- Navigate into the extracted folder and then into the `bin` directory
+- Run the executable to start the server
+    - On UNIX systems use the Bash script
+    - On Windows systems use the .bat script
+- Wait for the message `p.c.s.AkkaHttpServer - Listening for HTTP on /0:0:0:0:0:0:0:0:9000`
 - Open your preferred browser and type `http://localhost:9000` in as a url then press `enter`
-- You should now be viewing the TravelEA start page and can login or sign up from here
-
-### Stopping the application
-- Navigate to your open command window / terminal where the application is running
-- Press `enter` to shut the application down
+- You should now be viewing the TravelEA website
+- Login or sign up to use TravelEA
 
 ## Basic Project Structure
  - `app/` Your application source
@@ -40,5 +47,4 @@ and the documentation can be found here:
 
 ### Forms
 
-Please see <https://playframework.com/documentation/latest/JavaForms>.
-
+Please see <https://playframework.com/documentation/latest/JavaForms>

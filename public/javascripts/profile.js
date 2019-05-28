@@ -25,7 +25,7 @@ function updateProfile(uri, redirect) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                showErrors(json);
+                showErrors(json, "updateProfileForm");
             } else {
                 updateProfileData(data);
                 $("#editProfileModal").modal('hide');
@@ -56,7 +56,9 @@ function updateProfileData(data) {
     arrayToString(data.passports, 'name',
         destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
     .then(out => {
-        document.getElementById("summary_passports").innerHTML = out;
+        // If passports were cleared, update html text to None: Fix for Issue #36
+        document.getElementById("summary_passports").innerHTML = out === ""
+            ? "None" : out;
     });
     arrayToString(data.travellerTypes, 'description',
         profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
@@ -102,9 +104,16 @@ let cropper;
 let getAllPhotosUrl;
 let profilePictureControllerUrl;
 let canEdit;
+let canDelete;
 
+/**
+ * Sets the permissions used for creating the gallery
+ * @param {User} loggedUser
+ * @param {User} user
+ */
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);
+    canDelete = (loggedUser === user);
 }
 
 /**
@@ -182,30 +191,6 @@ cropGallery.on('click', 'img', function () {
     $('#cropProfilePictureModal').modal('show');
 });
 
-function togglePrivacy(guid, newPrivacy) {
-    const label = document.getElementById(guid + "privacy");
-    const data = {
-        "isPublic": newPrivacy
-    };
-    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
-        guid).url, data)
-    .then(res => {
-        if (res.status === 200) {
-            label.innerHTML = newPrivacy ? "Public" : "Private";
-            if (newPrivacy) {
-                label.setAttribute("src", "/assets/images/public.png");
-            } else {
-                label.setAttribute("src", "/assets/images/private.png");
-            }
-            label.setAttribute("onClick",
-                "togglePrivacy(" + guid + "," + !newPrivacy + ")");
-            toast("Picture privacy changed!",
-                "The photo is now " + (newPrivacy ? "Public" : "Private"),
-                "success");
-        }
-    })
-}
-
 function removePhoto(guid, filename) {
     $('#deletePhotoModal').modal('show');
     document.getElementById("deleteMe").setAttribute("src", filename);
@@ -252,7 +237,6 @@ function uploadNewPhoto() {
     $('#cropProfilePictureModal').modal('show');
 }
 
-
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
  * the profile picture path to it.
@@ -295,6 +279,6 @@ function showProfilePictureGallery() {
  * allows the upload image button to act as an input field by clicking on the upload image file field
  * For a normal photo
  */
-$("#upload-gallery-image-button").click(function() {
+$("#upload-gallery-image-button").click(function () {
     $("#upload-gallery-image-file").click();
 });

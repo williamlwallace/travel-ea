@@ -346,6 +346,7 @@ function toggleTripPrivacy() {
  * @param {string} redirect - URI to redirect page
  */
 function createTrip(uri, redirect, userId) {
+    $("#createTripButton").prop('disabled', true);
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
 
@@ -373,6 +374,7 @@ function createTrip(uri, redirect, userId) {
         response.json()
         .then(json => {
             if (response.status === 400) {
+                $("#createTripButton").prop('disabled', false);
                 showTripErrors(json);
             } else if (response.status === 200) {
                 window.location.href = redirect;

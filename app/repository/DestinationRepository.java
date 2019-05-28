@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Destination;
 import models.TripData;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -19,6 +20,7 @@ import play.db.ebean.EbeanConfig;
 /**
  * A repository that executes database operations for the Destination table.
  */
+@Singleton
 public class DestinationRepository {
 
     // The number of decimal places to check for determining similarity of destinations

@@ -36,6 +36,7 @@ function populateDestinationDetails(destinationId) {
                     document.getElementById("summary_traveller_types").innerText = travellerTypes.substr(2);
                 } else {
                     document.getElementById("heading_traveller_types").style.display = "none";
+                    document.getElementById("summary_traveller_types").innerText = "";
                 }
 
                 createPrivacyButton(destination.isPublic);
@@ -75,6 +76,7 @@ function makeDestinationPublic(destinationId) {
         if (response.status === 200) {
             $("#makeDestinationPublicModal").modal('hide');
             createPrivacyButton(true);
+            initMap(destinationId);
             toast('Destination Privacy Changed',
                 'The destination is now public.', 'success');
         } else {
@@ -209,6 +211,11 @@ function populateEditDestination(destinationId) {
     })
 }
 
+/**
+ * Gets traveller type to modify for a destination and determines whether to add or remove, calls appropriate method
+ *
+ * @param {Number} destId - ID of destination to link traveller type to
+ */
 function updateTravellerTypes(destId) {
     let select = document.getElementById("travellerTypesSelect");
     let selected = select.options[select.selectedIndex];
@@ -218,36 +225,7 @@ function updateTravellerTypes(destId) {
     } else {
         deleteTravellerType(destId, selected.value);
     }
-}
-
-function addTravellerType(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.add(destId, ttId))    // TODO: fill routes
-    .then(response => {
-        response.json()
-        .then(data => {
-            if (response.status !== 200) {
-                toast("Could not modify destination traveller types", data, "danger", 5000);
-            } else {
-                populateDestinationDetails(destId);
-                toast("Success", data, "success");
-            }
-        })
-    })
-}
-
-function deleteTravellerType(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.remove(destId, ttId))
-    .then(response => {
-        response.json()
-        .then(data => {
-            if (response.status !== 200) {
-                toast("Could not modify destination traveller types", data, "danger", 5000);
-            } else {
-                populateDestinationDetails(destId);
-                toast("Success", data, "success");
-            }
-        })
-    })
+    populateDestinationDetails(destId);
 }
 
 /**
@@ -255,7 +233,7 @@ function deleteTravellerType(destId, ttId) {
  * type is already linked with destination
  */
 function fillTravellerTypeInfo() {
-    get(profileRouter.controllers.backend.ProfileController.getAllTravellerTypes())
+    get(profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
     .then(response => {
         response.json()
         .then(travellerTypes => {
@@ -271,35 +249,43 @@ function fillTravellerTypeInfo() {
                     option.text = "Remove " + travellerTypes[i].description;
                 }
 
-                option.val = travellerTypes[i].id;
+                option.value = travellerTypes[i].id;
                 select.add(option);
             }
         })
     });
 }
 
-let USERID = null;
-let DESTINATIONID = null;
-let canEdit = false;
+let USERID;
+let DESTINATIONID;
+let canEdit = true;
+let canDelete = false;
 
 /**
  * allows the upload image button call the link photo modal which then
  * fills the gallery with all the users photos, and indicates which are already linked
  */
-$("#upload-gallery-image-button").click(function() {
+$("#upload-gallery-image-button").click(function () {
     $("#linkPhotoToDestinationModal").modal('show');
-    fillLinkGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "link-gallery", "link-selection", DESTINATIONID);
+    fillLinkGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "link-gallery", "link-selection", DESTINATIONID);
 });
 
 /**
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
  * Also fills the initial gallery on photos
- * @param {Long} userId
+ * @param {Long} userId of the logged in user
+ * @param {Long} destinationId of the destination of photos to get
  */
 function sendUserIdAndFillGallery(userId, destinationId) {
     USERID = userId;
     DESTINATIONID = destinationId;
-    fillGallery(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url, "main-gallery", "page-selection")
+    fillDestinationGallery(
+        photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+            destinationId).url,
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "main-gallery", "page-selection")
 }
 
 /**
@@ -311,33 +297,93 @@ function sendUserIdAndFillGallery(userId, destinationId) {
  */
 function toggleLinked(guid, newLinked, destinationId) {
     const label = document.getElementById(guid + "linked");
-    const data = {
-    };
+    const data = {};
     if (!newLinked) {
-        const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
+        const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(
+            destinationId, guid).url;
         _delete(url)
         .then(res => {
             if (res.status === 200) {
                 label.innerHTML = "Not-Linked";
-                label.setAttribute("src", "/assets/images/location-unlinked.png");
+                label.setAttribute("src",
+                    "/assets/images/location-unlinked.png");
                 label.setAttribute("onClick",
                     "toggleLinked(" + guid + "," + !newLinked + ")");
-                toast("Photo Unlinked", "Photo has been successfully removed from this destination", "success")
+                toast("Photo Unlinked",
+                    "Photo has been successfully removed from this destination",
+                    "success")
             }
         })
     } else {
-        const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url;
+        const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(
+            destinationId, guid).url;
         put(url, data)
         .then(res => {
             if (res.status === 200) {
-                label.innerHTML ="Linked";
+                label.innerHTML = "Linked";
                 label.setAttribute("src", "/assets/images/location-linked.png");
                 label.setAttribute("onClick",
                     "toggleLinked(" + guid + "," + !newLinked + ")");
-                toast("Photo Linked", "Photo Successfully linked to this destination, success");
+                toast("Photo Linked",
+                    "Photo Successfully linked to this destination, success");
             }
         })
     }
     $("#linkPhotoToDestinationModal").modal('hide');
     window.location.href = '/destinations/' + destinationId;
+}
+
+/**
+ * Initialises google maps on detailed destinations page
+ */
+function initMap(destinationId) {
+    get(destinationRouter.controllers.backend.DestinationController.getDestination(
+        destinationId).url)
+    .then(response => {
+        // Read response from server, which will be a json object
+        response.json()
+        .then(destination => {
+            if (response.status !== 200) {
+                showErrors(destination);
+            } else {
+                // Initial map options
+                let options = {
+                    zoom: 4,
+                    center: {
+                        lat: destination.latitude - 2,
+                        lng: destination.longitude
+                    },
+                    disableDefaultUI: true,
+                    styles: [{"elementType":"labels","stylers":[{"visibility":"off"},{"color":"#f49f53"}]},{"featureType":"landscape","stylers":[{"color":"#f9ddc5"},{"lightness":-7}]},{"featureType":"road","stylers":[{"color":"#813033"},{"lightness":43}]},{"featureType":"poi.business","stylers":[{"color":"#645c20"},{"lightness":38}]},{"featureType":"water","stylers":[{"color":"#1994bf"},{"saturation":-69},{"gamma":0.99},{"lightness":43}]},{"featureType":"road.local","elementType":"geometry.fill","stylers":[{"color":"#f19f53"},{"weight":1.3},{"visibility":"on"},{"lightness":16}]},{"featureType":"poi.business"},{"featureType":"poi.park","stylers":[{"color":"#645c20"},{"lightness":39}]},{"featureType":"poi.school","stylers":[{"color":"#a95521"},{"lightness":35}]},{},{"featureType":"poi.medical","elementType":"geometry.fill","stylers":[{"color":"#813033"},{"lightness":38},{"visibility":"off"}]},{},{},{},{},{},{},{},{},{},{},{},{"elementType":"labels"},{"featureType":"poi.sports_complex","stylers":[{"color":"#9e5916"},{"lightness":32}]},{},{"featureType":"poi.government","stylers":[{"color":"#9e5916"},{"lightness":46}]},{"featureType":"transit.station","stylers":[{"visibility":"off"}]},{"featureType":"transit.line","stylers":[{"color":"#813033"},{"lightness":22}]},{"featureType":"transit","stylers":[{"lightness":38}]},{"featureType":"road.local","elementType":"geometry.stroke","stylers":[{"color":"#f19f53"},{"lightness":-10}]},{},{},{}]};
+
+                // New map
+                let map = new google.maps.Map(document.getElementById('map'), options);
+
+                //Setting public and private marker images, resized
+                const markerPublic = {
+                    url: 'https://image.flaticon.com/icons/svg/149/149060.svg',
+                    scaledSize: new google.maps.Size(30, 30)
+                };
+                const markerPrivate = {
+                    url: 'https://image.flaticon.com/icons/svg/139/139012.svg',
+                    scaledSize: new google.maps.Size(30, 30)
+                };
+
+                let marker = new google.maps.Marker({
+                    position: {
+                        lat: destination.latitude,
+                        lng: destination.longitude
+                    },
+                    map: map
+                });
+
+                marker.setIcon(destination.isPublic ? markerPublic
+                    : markerPrivate);
+
+                // Add marker
+                marker.setMap(map);
+
+            }
+        })
+    })
 }
