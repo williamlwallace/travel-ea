@@ -5,12 +5,13 @@ let travellerTypeRequestTable;
 $(document).ready(function () {
     populateTable($('#dtUser').DataTable());
     populateTrips($('#dtTrips').DataTable({}));
-    travellerTypeRequestTable = populateTravellerTypeRequests($('#dtTravellerTypeModifications').DataTable({
-        createdRow: function (row, destId, ttId) {
+    travellerTypeRequestTable = $('#dtTravellerTypeModifications').DataTable({
+        createdRow: function (row, data) {
             $(row).addClass("clickable-row");
-            $(row).attr('id', destId + "," + ttId);
-        },
-    }))
+            $(row).attr('data-id', data[0] + "," + data[4]);
+        }
+    });
+    populateTravellerTypeRequests();
 });
 
 //Click listener that handles clicks in user table
@@ -32,7 +33,6 @@ $('#dtTrips').on('click', 'button', function () {
         deleteTrip(this, tableAPI, id);
     }
 });
-
 
 $('#dtTravellerTypeModifications').on('click', 'tbody tr', function () {
     let idData = this.dataset.id.split(",");
@@ -158,13 +158,18 @@ function populateTrips(table) {
     })
 }
 
-function populateTravellerTypeRequests(table) {
+/**
+ * Populates the traveller type requests table
+ * @param table - Table to be populated
+ */
+function populateTravellerTypeRequests() {
     // Query API endpoint to get all destinations
-    table.clear();
+    travellerTypeRequestTable.clear();
     get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url)
     .then(response => {
         response.json()
         .then(json => {
+            console.log(json);
             if (response.status !== 200) {
                 document.getElementById("adminError").innerHTML = json;
             } else {
@@ -174,11 +179,11 @@ function populateTravellerTypeRequests(table) {
                     const destName = json[dest].name;
 
                     for (const ttRequest in json[dest].travellerTypesPending) {
-                        const username = json[dest].travellerTypesPending[ttRequest].user.username;
+                        const username = "";
                         const modification = json[dest].travellerTypesPending[ttRequest].description;
                         const ttId = json[dest].travellerTypesPending[ttRequest].id;
-                        table.row.add(
-                            [destId, destName, modification, username, destId, ttId]).draw(false);
+                        travellerTypeRequestTable.row.add(
+                            [destId, destName, modification, username, ttId]).draw(false);
                     }
                 }
             }
@@ -256,10 +261,8 @@ function showTTSuggestion(destId, ttId) {
                     document.getElementById("requestDestTT").innerText = "None";
                 }
 
-                document.getElementById("requestUsername").innerText = dest.user.username;
-
                 for (const tt in dest.travellerTypesPending) {
-                    if (dest.travellerTypesPending[tt].id === ttId) {
+                    if (dest.travellerTypesPending[tt].id.toString() === ttId) {
                         document.getElementById("requestDescription").innerText = dest.travellerTypesPending[tt].description;
                         break;
                     }
@@ -267,7 +270,7 @@ function showTTSuggestion(destId, ttId) {
 
                 let found = false;
                 for (const existingTT in dest.travellerTypes) {
-                    if (dest.travellerTypes[existingTT].id === ttId) {
+                    if (dest.travellerTypes[existingTT].id.toString() === ttId) {
                         document.getElementById("requestType").innerText = "Remove:";
                         found = true;
                         break;
@@ -278,25 +281,63 @@ function showTTSuggestion(destId, ttId) {
                     document.getElementById("requestType").innerText = "Add:";
                 }
 
-                let acceptButton = document.getElementById("acceptButton");
-                acceptButton.addEventListener('click', function() {
-                    if (document.getElementById("requestType").innerText === "Remove:") {
-                        deleteTravellerType(destId, ttId);
-                    } else {
-                        addTravellerType(destId, ttId);
-                    }
-                    populateTravellerTypeRequests(travellerTypeRequestTable);
-                });
+                let rejButton = document.getElementById("rejectButton");
+                if (rejButton != null) {
+                    rejButton.parentNode.removeChild(rejButton);
+                }
 
-                let rejectButton = document.getElementById("rejectButton");
+                let accButton = document.getElementById("acceptButton");
+                if (accButton != null) {
+                    accButton.parentNode.removeChild(accButton);
+                }
+
+                let rejectButton = document.createElement("button");
+                rejectButton.setAttribute("id", "rejectButton");
+                rejectButton.innerHTML = "Reject";
+                rejectButton.setAttribute("class", "btn btn-danger");
+                rejectButton.setAttribute("data-toggle", "modal");
+                rejectButton.setAttribute("data-target", "#modal-destModify");
                 rejectButton.addEventListener('click', function() {
                     rejectTravellerTypeRequest(destId, ttId);
                 });
 
+                let acceptButton = document.createElement("button");
+                acceptButton.setAttribute("id", "acceptButton");
+                acceptButton.innerHTML = "Accept";
+                acceptButton.setAttribute("class", "btn btn-success");
+                acceptButton.setAttribute("data-toggle", "modal");
+                acceptButton.setAttribute("data-target", "#modal-destModify");
+                acceptButton.addEventListener('click', function() {
+                    if (document.getElementById("requestType").innerText === "Remove:") {
+                        deleteTravellerType(destId, ttId)
+                        .then(status => {
+                            if (status === 200) {
+                                console.log("CALLED");
+                                removeRow(destId, ttId);
+                            }
+                        });
+                    } else {
+                        addTravellerType(destId, ttId)
+                        .then(status => {
+                            if (status === 200) {
+                                console.log("CALLED2");
+                                removeRow(destId, ttId);
+                            }
+                        });
+                    }
+                });
+
+                document.getElementById("ttRequestButtons").appendChild(rejectButton);
+                document.getElementById("ttRequestButtons").appendChild(acceptButton);
                 $("#modal-destModify").modal("show");
             }
         })
     })
+}
+
+function removeRow(destId, ttId) {
+    const element = document.getElementById(destId + "," + ttId);
+    travellerTypeRequestTable.row(element).remove().draw(false);
 }
 
 function rejectTravellerTypeRequest(destId, ttId) {

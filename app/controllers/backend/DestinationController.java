@@ -454,7 +454,9 @@ public class DestinationController extends TEABackController {
                 controllers.frontend.routes.javascript.DestinationController
                     .detailedDestinationIndex(),
                 controllers.backend.routes.javascript.DestinationController.editDestination(),
-                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic()
+                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic(),
+                controllers.backend.routes.javascript.DestinationController.addTravellerType(),
+                controllers.backend.routes.javascript.DestinationController.removeTravellerType()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

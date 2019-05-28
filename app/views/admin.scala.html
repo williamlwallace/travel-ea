@@ -7,6 +7,7 @@
     <script src="@controllers.backend.routes.AdminController.adminRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.UserController.userRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
 }
 
 @layouts.main("Admin", user, scripts) {
@@ -72,16 +73,9 @@
                         <th class="th-sm">Destination Id</th>
                         <th class="th-sm">Name</th>
                         <th class="th-sm">Modification</th>
-                        <th class="th-sm">Proposed By</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="clickable-row" data-toggle="modal" data-target="#modal-destModify">
-                        <td>3</td>
-                        <td>Brandenburg Gate</td>
-                        <td>4</td>
-                        <td>user1.gmail.com</td>
-                    </tr>
                 </tbody>
             </table>
         <div class="col-md-11">
@@ -93,7 +87,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header text-center">
-                    <h4 class="modal-title w-100 font-weight-bold">Destination Modifications</h4>
+                    <h4 class="modal-title w-100 font-weight-bold">Destination Modification</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -104,16 +98,14 @@
                         <b>Name: </b><label id="requestDestName"></label><br>
                         <b>Type: </b><label id="requestDestType"></label><br>
                         <b>District: </b><label id="requestDestDistrict"></label><br>
-                        <b>Country: </b><label id="requestDestCountry"></label>
-                        <button class="btn btn-link btn-sm" style="float: right">View Destination</button><br>
+                        <b>Country: </b><label id="requestDestCountry"></label><br>
                         <b>Traveller Types: </b><label id="requestDestTT"></label>
                     </p>
 
                     <h5>Traveller Type Modification</h5>
 
-                    <div class="modal-body mx-3" style="background-color: #f2f2f2">
-                        <div class="text-center">
-                            <p><label id="requestUsername"></label> proposed the following change:</p>
+                    <div style="background-color: #f2f2f2">
+                        <div class="text-center" style="padding-top: 1.5rem; padding-bottom: 0.38rem">
                             <p><label id="requestType"></label>
                                 <em><label id="requestDescription"></label></em>
                             </p>
@@ -121,17 +113,10 @@
                     </div>
                 </div>
 
-                <div class="modal-footer d-flex justify-content-center">
-                    <button class="btn btn-secondary" data-toggle="modal" data-target="#modal-destModify">
+                <div id="ttRequestButtons" class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-popup" data-toggle="modal" data-target="#modal-destModify">
                         Cancel
                     </button>
-                    <button id="rejectButton" class="btn btn-danger" data-toggle="modal" data-target="#modal-destModify">
-                        Reject
-                    </button>
-                    <button id="acceptButton" class="btn btn-success" data-toggle="modal" data-target="#modal-destModify">
-                        Accept
-                    </button>
-                    <label id="otherError"></label>
                 </div>
             </div>
         </div>
