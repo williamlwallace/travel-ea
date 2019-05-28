@@ -7,6 +7,7 @@ import io.ebean.EbeanServer;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.persistence.EntityNotFoundException;
 import javax.inject.Singleton;
 import models.Trip;

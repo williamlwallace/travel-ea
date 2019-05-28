@@ -121,10 +121,12 @@ public class PhotoRepository {
                 .eq(USER_ID, userID)
                 .eq(IS_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
+
             if (photo != null) {
                 photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
                 photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
             }
+
             return photo;
         }, executionContext);
     }
@@ -133,23 +135,19 @@ public class PhotoRepository {
      * Adds photos into the database. Will replace the users profile picture if needed.
      *
      * @param photos A list of photos to upload
-     * @return an ok response.
      */
-    public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
-        return supplyAsync(() -> {
-            if (photos.size() == 1) {
-                Photo pictureToUpload = Iterables.get(photos, 0);
-                if (pictureToUpload.isProfile) {
-                    ebeanServer.find(Photo.class)
-                        .where()
-                        .eq(USER_ID, pictureToUpload.userId)
-                        .eq(IS_PROFILE, true)
-                        .delete();
-                }
+    public void addPhotos(Collection<Photo> photos) {
+        if (photos.size() == 1) {
+            Photo pictureToUpload = Iterables.get(photos, 0);
+            if (pictureToUpload.isProfile) {
+                ebeanServer.find(Photo.class)
+                    .where()
+                    .eq(USER_ID, pictureToUpload.userId)
+                    .eq(IS_PROFILE, true)
+                    .delete();
             }
-            ebeanServer.insertAll(photos);
-            return ok();
-        }, executionContext);
+        }
+        ebeanServer.insertAll(photos);
     }
 
     /**

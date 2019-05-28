@@ -60,14 +60,12 @@
                     <div>
                         <div class="section-title">
                             <p>
-                                <span class="section-title">Destination Photos</span>
-                                @if(canModify) {
-                                    <a class="button-secondary" id="upload-gallery-image-button" >
-                                        <span class="profile-button" style="float: right; padding-left:10px;">Link Photo</span>
-                                    </a>
-                                    <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
-                                    accept="image/jpeg, image/png" style="display: none;" multiple/>
-                                }
+                            <span class="section-title">Destination Photos</span>
+                                <a class="button-secondary" id="upload-gallery-image-button" >
+                                    <span class="destination-button" style="float: right; padding-left:10px;">Link Photo</span>
+                                </a>
+                                <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
+                                accept="image/jpeg, image/png" style="display: none;" multiple/>
                             </p>
                         </div>
                         @* Photo Gallery *

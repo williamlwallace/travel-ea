@@ -10,7 +10,7 @@ lazy val myProject = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies += guice
 libraryDependencies += javaJdbc % Test
-libraryDependencies += "com.h2database" % "h2" % "1.4.199" % Test
+libraryDependencies += "com.h2database" % "h2" % "1.4.199"
 libraryDependencies += "com.auth0" % "java-jwt" % "3.8.0"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-core" % "2.3.0.1"
 libraryDependencies += "org.glassfish.jaxb" % "jaxb-runtime" % "2.3.0.1"
@@ -19,7 +19,6 @@ libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr3
 libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.9"
 libraryDependencies += "org.apache.commons" % "commons-text" % "1.6"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
-libraryDependencies += "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1"
 
 libraryDependencies += ws
 
