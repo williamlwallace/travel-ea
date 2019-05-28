@@ -56,7 +56,9 @@ function updateProfileData(data) {
     arrayToString(data.passports, 'name',
         destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
     .then(out => {
-        document.getElementById("summary_passports").innerHTML = out;
+        // If passports were cleared, update html text to None: Fix for Issue #36
+        document.getElementById("summary_passports").innerHTML = out === ""
+            ? "None" : out;
     });
     arrayToString(data.travellerTypes, 'description',
         profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
@@ -99,13 +101,19 @@ let profilePictureToCrop = document.getElementById('image');
 let profilePictureSize = 350;
 let cropper;
 
-let usersPhotos = [];
 let getAllPhotosUrl;
 let profilePictureControllerUrl;
 let canEdit;
+let canDelete;
 
+/**
+ * Sets the permissions used for creating the gallery
+ * @param {User} loggedUser
+ * @param {User} user
+ */
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);
+    canDelete = (loggedUser === user);
 }
 
 /**
@@ -183,30 +191,6 @@ cropGallery.on('click', 'img', function () {
     $('#cropProfilePictureModal').modal('show');
 });
 
-function togglePrivacy(guid, newPrivacy) {
-    const label = document.getElementById(guid + "privacy");
-    const data = {
-        "isPublic": newPrivacy
-    }
-    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
-        guid).url, data)
-    .then(res => {
-        if (res.status === 200) {
-            label.innerHTML = newPrivacy ? "Public" : "Private";
-            if (newPrivacy) {
-                label.setAttribute("src", "/assets/images/public.png");
-            } else {
-                label.setAttribute("src", "/assets/images/private.png");
-            }
-            label.setAttribute("onClick",
-                "togglePrivacy(" + guid + "," + !newPrivacy + ")");
-            toast("Picture privacy changed!",
-                "The photo is now " + (newPrivacy ? "Public" : "Private"),
-                "success");
-        }
-    })
-}
-
 function removePhoto(guid, filename) {
     $('#deletePhotoModal').modal('show');
     document.getElementById("deleteMe").setAttribute("src", filename);
@@ -222,7 +206,7 @@ function deletePhoto(route) {
         response.json().then(data => {
             if (response.status === 200) {
                 $('#deletePhotoModal').modal('hide');
-                fillGallery(getAllPhotosUrl);
+                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
                 toast("Picture deleted!",
                     "The photo will no longer be displayed in the gallery.",
                     "success");
@@ -254,33 +238,6 @@ function uploadNewPhoto() {
 }
 
 /**
- * Takes the users selected photos and  creates a form from them
- * Sends this form to  the appropriate url
- *
- * @param {string} url the appropriate  photo backend controller
- */
-function uploadNewGalleryPhoto(url) {
-    const selectedPhotos = document.getElementById(
-        'upload-gallery-image-file').files;
-    let formData = new FormData();
-    for (let i = 0; i < selectedPhotos.length; i++) {
-        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
-    }
-    // Send request and handle response
-    postMultipart(url, formData).then(response => {
-        // Read response from server, which will be a json object
-        response.json().then(data => {
-            if (response.status === 201) {
-                fillGallery(getAllPhotosUrl);
-                toast("Photo Added!",
-                    "The new photo will be shown in the picture gallery.",
-                    "success");
-            }
-        })
-    })
-}
-
-/**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
  * the profile picture path to it.
  *
@@ -305,7 +262,7 @@ function getProfilePicture(url) {
  */
 function getPictures(url) {
     getAllPhotosUrl = url;
-    fillGallery(getAllPhotosUrl);
+    fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
 }
 
 /**
@@ -318,3 +275,10 @@ function showProfilePictureGallery() {
     $('#changeProfilePictureModal').modal('show');
 }
 
+/**
+ * allows the upload image button to act as an input field by clicking on the upload image file field
+ * For a normal photo
+ */
+$("#upload-gallery-image-button").click(function () {
+    $("#upload-gallery-image-file").click();
+});

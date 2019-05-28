@@ -68,7 +68,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             dest.country = countryDefinition;
 
             TripData tripData = new TripData();
-            tripData.position = Long.valueOf(i + 1);    // Ensures the positions iterate from 1 upwards
+            tripData.position = i + 1L;    // Ensures the positions iterate from 1 upwards
             tripData.destination = dest;
 
             // Try set tripData arrival and departure times
@@ -576,7 +576,6 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-04-01 00:00:00"};
         departureTimes = new String[] {};
@@ -584,7 +583,6 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-03-29 00:00:00", "2019-10-10 00:00:00"};
         departureTimes = new String[] {};
@@ -634,7 +632,6 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-04-01 00:00:00"};
         departureTimes = new String[] {};
@@ -642,7 +639,6 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
-        isPublic = false;
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {};
         departureTimes = new String[] {};

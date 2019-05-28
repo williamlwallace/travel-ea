@@ -57,16 +57,19 @@ function deleteDestination(destinationId, redirect) {
  * @param {number} destinationId the id of the destination to make public
  */
 function makeDestinationPublic(destinationId) {
-   put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(destinationId).url, {})
-       .then(response => {
-           if (response.status === 200) {
-               $("#makeDestinationPublicModal").modal('hide');
-               createPrivacyButton(true);
-               toast('Destination Privacy Changed', 'The destination is now public.', 'success');
-           } else {
-               toast('Error changing privacy', response.toString(), 'danger', 5000);
-           }
-       });
+    put(destinationRouter.controllers.backend.DestinationController.makeDestinationPublic(
+        destinationId).url, {})
+    .then(response => {
+        if (response.status === 200) {
+            $("#makeDestinationPublicModal").modal('hide');
+            createPrivacyButton(true);
+            toast('Destination Privacy Changed',
+                'The destination is now public.', 'success');
+        } else {
+            toast('Error changing privacy', response.toString(), 'danger',
+                5000);
+        }
+    });
 }
 
 /**
@@ -90,7 +93,8 @@ function createPrivacyButton(isPublic) {
         makePublicButton.title = "Destination is Private, Click to make public.";
         makePublicButton.src = "/assets/images/private.png";
         makePublicButton.setAttribute("data-toggle", "modal");
-        makePublicButton.setAttribute("data-target", "#makeDestinationPublicModal");
+        makePublicButton.setAttribute("data-target",
+            "#makeDestinationPublicModal");
         makePublicButton.setAttribute("style", "vertical-align: sub;");
         privacyWrapper.append(makePublicButton)
     }
@@ -139,7 +143,8 @@ function editDestination(destinationId) {
                         if (response.status !== 200) {
                             if (data === "Duplicate destination") {
                                 toast("Destination could not be edited!",
-                                    "The destination already exists.", "danger", 5000);
+                                    "The destination already exists.", "danger",
+                                    5000);
                                 $('#editDestinationModal').modal('hide');
                             } else {
                                 showErrors(data);
@@ -190,4 +195,81 @@ function populateEditDestination(destinationId) {
             }
         })
     })
+}
+
+let USERID;
+let DESTINATIONID;
+let canEdit = true;
+let canDelete = false;
+
+/**
+ * allows the upload image button call the link photo modal which then
+ * fills the gallery with all the users photos, and indicates which are already linked
+ */
+$("#upload-gallery-image-button").click(function () {
+    $("#linkPhotoToDestinationModal").modal('show');
+    fillLinkGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "link-gallery", "link-selection", DESTINATIONID);
+});
+
+/**
+ * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
+ * Also fills the initial gallery on photos
+ * @param {Long} userId of the logged in user
+ * @param {Long} destinationId of the destination of photos to get
+ */
+function sendUserIdAndFillGallery(userId, destinationId) {
+    USERID = userId;
+    DESTINATIONID = destinationId;
+    fillDestinationGallery(
+        photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+            destinationId).url,
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "main-gallery", "page-selection")
+}
+
+/**
+ * Function to toggle the linked status of a photo.
+ * Is used even though Intellij doesn't think so
+ * @param {Long} guid of the photo to be linked
+ * @param {boolean} newLinked the new status of the photo
+ * @param {Long} destinationId the destination to link (or unlink) the photo to/from
+ */
+function toggleLinked(guid, newLinked, destinationId) {
+    const label = document.getElementById(guid + "linked");
+    const data = {};
+    if (!newLinked) {
+        const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(
+            destinationId, guid).url;
+        _delete(url)
+        .then(res => {
+            if (res.status === 200) {
+                label.innerHTML = "Not-Linked";
+                label.setAttribute("src",
+                    "/assets/images/location-unlinked.png");
+                label.setAttribute("onClick",
+                    "toggleLinked(" + guid + "," + !newLinked + ")");
+                toast("Photo Unlinked",
+                    "Photo has been successfully removed from this destination",
+                    "success")
+            }
+        })
+    } else {
+        const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(
+            destinationId, guid).url;
+        put(url, data)
+        .then(res => {
+            if (res.status === 200) {
+                label.innerHTML = "Linked";
+                label.setAttribute("src", "/assets/images/location-linked.png");
+                label.setAttribute("onClick",
+                    "toggleLinked(" + guid + "," + !newLinked + ")");
+                toast("Photo Linked",
+                    "Photo Successfully linked to this destination, success");
+            }
+        })
+    }
+    $("#linkPhotoToDestinationModal").modal('hide');
+    window.location.href = '/destinations/' + destinationId;
 }

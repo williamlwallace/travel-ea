@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
@@ -18,9 +19,10 @@ import util.objects.Pair;
 /**
  * A repository that executes database operations on the Photo database table.
  */
+@Singleton
 public class PhotoRepository {
 
-    private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
+    public static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
     private static final String IS_PROFILE = "is_profile";
     private final EbeanServer ebeanServer;
@@ -119,10 +121,12 @@ public class PhotoRepository {
                 .eq(USER_ID, userID)
                 .eq(IS_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
+
             if (photo != null) {
                 photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
                 photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
             }
+
             return photo;
         }, executionContext);
     }
@@ -131,23 +135,19 @@ public class PhotoRepository {
      * Adds photos into the database. Will replace the users profile picture if needed.
      *
      * @param photos A list of photos to upload
-     * @return an ok response.
      */
-    public CompletableFuture<Result> addPhotos(Collection<Photo> photos) {
-        return supplyAsync(() -> {
-            if (photos.size() == 1) {
-                Photo pictureToUpload = Iterables.get(photos, 0);
-                if (pictureToUpload.isProfile) {
-                    ebeanServer.find(Photo.class)
-                        .where()
-                        .eq(USER_ID, pictureToUpload.userId)
-                        .eq(IS_PROFILE, true)
-                        .delete();
-                }
+    public void addPhotos(Collection<Photo> photos) {
+        if (photos.size() == 1) {
+            Photo pictureToUpload = Iterables.get(photos, 0);
+            if (pictureToUpload.isProfile) {
+                ebeanServer.find(Photo.class)
+                    .where()
+                    .eq(USER_ID, pictureToUpload.userId)
+                    .eq(IS_PROFILE, true)
+                    .delete();
             }
-            ebeanServer.insertAll(photos);
-            return ok();
-        }, executionContext);
+        }
+        ebeanServer.insertAll(photos);
     }
 
     /**
@@ -175,7 +175,7 @@ public class PhotoRepository {
      *
      * @param photos Photos to append path to
      */
-    private List<Photo> appendAssetsUrl(List<Photo> photos) {
+    public List<Photo> appendAssetsUrl(List<Photo> photos) {
         for (Photo photo : photos) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
             photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;

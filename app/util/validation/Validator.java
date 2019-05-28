@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
-
 /**
  * Provides validation for json form data.
  */
@@ -46,10 +45,10 @@ public class Validator {
      * @param min Min field length
      * @return Boolean whether validation succeeds
      */
-    Boolean minTextLength(String field, int min) {
+    Boolean minTextLength(String field, String name, int min) {
         if (this.form.get(field).asText("").length() < min) {
             this.errorResponse
-                .map(String.format("%s has a minTextLength length of %d", field, min), field);
+                .map(String.format("%s has a minTextLength length of %d", name, min), field);
             return false;
         }
         return true;
@@ -62,10 +61,10 @@ public class Validator {
      * @param max maxTextLength field length
      * @return Boolean whether validation succeeds
      */
-    protected Boolean maxTextLength(String field, int max) {
+    protected Boolean maxTextLength(String field, String name, int max) {
         if (this.form.get(field).asText("").length() > max) {
             this.errorResponse
-                .map(String.format("%s has a maxTextLength length of %d", field, max), field);
+                .map(String.format("%s has a maximum length of %d characters", name, max), field);
             return false;
         }
         return true;

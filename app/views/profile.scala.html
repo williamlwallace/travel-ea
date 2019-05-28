@@ -42,12 +42,18 @@
                         <p class="heading">Gender <span id="summary_gender" class="user-info">@profile.gender</span></p>
                         <p class="heading">Nationalities <span id="summary_nationalities" class="user-info">@profile.nationalities.toString.substring(1, profile.nationalities.toString.length - 1)</span></p>
                         <p class="heading">Traveller Types <span id="summary_travellerTypes" class="user-info">@profile.travellerTypes.toString.substring(1, profile.travellerTypes.toString.length - 1)</span></p>
-                        @if(!profile.passports.isEmpty && canModify) {
+                        @if(!profile.passports.isEmpty) {
                             <p class="heading">Passports
                                 <span id="summary_passports" class="user-info">
                                 @profile.passports.toString.substring(1, profile.passports.toString.length - 1)
                                 </span>
                             </p>
+                        } else {
+                        <p class="heading">Passports
+                            <span id="summary_passports" class="user-info">
+                            None
+                            </span>
+                        </p>
                         }
 
                         @if(canModify) {
@@ -62,7 +68,8 @@
                 @* Body Content *@
                 <div class="profile-main">
                     <div>
-                        @modules.gallery(loggedUser, canModify)
+                        @*Call gallery modal, true indicating we want titles*@
+                        @modules.gallery(canModify, true, "main-gallery", "page-selection")
                         @* Trips table *@
                         <div class="section-title">
                             <p>
@@ -274,7 +281,7 @@
                                 <label id="nationalitiesError" class="error-messages"></label>
                             </div>
                             <br/>
-                            <pre for="country" id="country" class="control-label">Passports</pre>
+                            <pre for="country" id="country" class="control-label">Passports (Optional)</pre>
                             <div>
                                 <select name="passports" id="passports" multiple>
                                     <option value="" disabled hidden>Select Passports</option>

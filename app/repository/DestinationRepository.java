@@ -1,32 +1,26 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static play.mvc.Results.badRequest;
-import static play.mvc.Results.notFound;
-import static play.mvc.Results.ok;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.PagedList;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import models.Destination;
 import models.TripData;
-import models.User;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
-import play.mvc.Result;
 
 /**
  * A repository that executes database operations for the Destination table.
  */
+@Singleton
 public class DestinationRepository {
 
     // The number of decimal places to check for determining similarity of destinations
@@ -75,7 +69,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Deletes multiple destinations from database
+     * Deletes multiple destinations from database.
      *
      * @param ids Unique destination IDs of destinations to be deleted
      * @return The number of rows deleted
@@ -142,6 +136,7 @@ public class DestinationRepository {
      * to the id of the destination that they have been merged to. I.e if there are 3 Eiffel towers,
      * and one of them is made public, the other two will now point to the new public Eiffel tower.
      *
+     *
      * The number of rows changed is also returned, use this to check if there were other
      * destinations in use that have been merged, i.e that we must transfer this newly public
      * destination to the ownership of master admin
@@ -170,9 +165,10 @@ public class DestinationRepository {
     }
 
     /**
-     * Changes any references in DestinationPhoto of similar destinations,
-     * to the id of the destination that they have been merged to. I.e if there are 3 Eiffel towers,
-     * and one of them is made public, the other two will now point to the new public Eiffel tower.
+     * Changes any references in DestinationPhoto of similar destinations, to the id of the
+     * destination that they have been merged to. I.e if there are 3 Eiffel towers, and one of them
+     * is made public, the other two will now point to the new public Eiffel tower.
+     *
      *
      * The number of rows changed is also returned, use this to check if there were other
      * destinations in use that have been merged, i.e that we must transfer this newly public
@@ -202,8 +198,9 @@ public class DestinationRepository {
     }
 
     /**
-     * Get all destinations that are found to be similar to some other destination.
-     * (does not include initial destination)
+     * Get all destinations that are found to be similar to some other destination. (does not
+     * include initial destination)
+     *
      *
      * This is checked by comparing their locations, and if these are similar to within some range,
      * then their names are also checked for similarity
@@ -255,7 +252,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets all the destinations valid for the specified user
+     * Gets all the destinations valid for the specified user.
      *
      * @param userId ID of user to retrieve destinations for
      * @return List of destinations
@@ -267,20 +264,20 @@ public class DestinationRepository {
                 .eq("user_id", userId)
                 .eq("is_public", 1)
                 .findList()
-                , executionContext);
+            , executionContext);
     }
 
     /**
-     * Gets all the public destinations
+     * Gets all the public destinations.
      *
      * @return List of destinations
      */
     public CompletableFuture<List<Destination>> getAllPublicDestinations() {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
-                        .where()
-                        .eq("is_public", 1)
-                        .findList()
-                , executionContext);
+                .where()
+                .eq("is_public", 1)
+                .findList()
+            , executionContext);
     }
 
     /**
@@ -306,15 +303,16 @@ public class DestinationRepository {
     }
 
     /**
-     * Transfers the ownership of a destination to master admin if the destination is
-     * being used by another user
+     * Transfers the ownership of a destination to master admin if the destination is being used by
+     * another user.
      *
      * @param destinations List of ID's of destinations to check ownership and potentially transfer
      * @param userId ID of user using the destination
      * @param masterId ID of the master admin (ID to transfer ownership to)
      * @return The number of destinations transferred to the master admin
      */
-    public Integer updateDestinationOwnershipUsedInTrip(Collection<Long> destinations, Long userId, Long masterId) {
+    public Integer updateDestinationOwnershipUsedInTrip(Collection<Long> destinations, Long userId,
+        Long masterId) {
         String sql = "UPDATE Destination "
             + "SET user_id = :masterId, "
             + "is_public = 1 "
