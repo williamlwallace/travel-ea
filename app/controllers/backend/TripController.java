@@ -7,9 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -39,7 +37,7 @@ public class TripController extends TEABackController {
 
     @Inject
     public TripController(TripRepository tripRepository,
-                          DestinationRepository destinationRepository) {
+        DestinationRepository destinationRepository) {
 
         this.tripRepository = tripRepository;
         this.destinationRepository = destinationRepository;
@@ -85,15 +83,27 @@ public class TripController extends TEABackController {
      * @return JSON object with list of trips that a user has, bad request if user has no trips.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllTrips() {
-        return tripRepository.getAllTrips()
-            .thenApplyAsync(trips -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(trips)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+    public CompletableFuture<Result> getAllTrips(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        if (user.admin) {
+            return tripRepository.getAllTrips()
+                .thenApplyAsync(trips -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        } else {
+            return tripRepository.getAllPublicTrips(user.id)
+                .thenApplyAsync(trips -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trips)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        }
     }
 
     /**
@@ -109,24 +119,24 @@ public class TripController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         return tripRepository.getTripById(tripId).thenApplyAsync(
-                trip -> {
-                    // If trip was not found in database
-                    if (trip == null) {
-                        return notFound();
+            trip -> {
+                // If trip was not found in database
+                if (trip == null) {
+                    return notFound();
+                }
+                // If trip was found and logged in user has privileges to retrieve trip
+                else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(trip)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
-                    // If trip was found and logged in user has privileges to retrieve trip
-                    else if (user.admin || user.id.equals(trip.userId) || trip.isPublic) {
-                        try{
-                            return ok(sanitizeJson(Json.toJson(trip)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    }
-                    // If logged in user does not have privileges to retrieve trip
-                    else {
-                        return forbidden();
-                    }
-                });
+                }
+                // If logged in user does not have privileges to retrieve trip
+                else {
+                    return forbidden();
+                }
+            });
     }
 
     /**
@@ -299,14 +309,16 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Transfers ownership of destinations used in trip to master admin if used by another user
+     * Transfers ownership of destinations used in trip to master admin if used by another user.
      *
      * @param userId Owner of trip being created or updated
      * @param destinations List of tripData objects used in trip
      */
     private void transferDestinationsOwnership(Long userId, List<TripData> destinations) {
-        List<Long> destIds = destinations.stream().map(x -> x.destination.id).collect(Collectors.toList());
-        destinationRepository.updateDestinationOwnershipUsedInTrip(destIds, userId, MASTER_ADMIN_ID);
+        List<Long> destIds = destinations.stream().map(x -> x.destination.id)
+            .collect(Collectors.toList());
+        destinationRepository
+            .updateDestinationOwnershipUsedInTrip(destIds, userId, MASTER_ADMIN_ID);
     }
 
     /**
@@ -319,7 +331,8 @@ public class TripController extends TEABackController {
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
-                controllers.frontend.routes.javascript.TripController.editTrip()
+                controllers.frontend.routes.javascript.TripController.editTrip(),
+                controllers.backend.routes.javascript.TripController.getAllTrips()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
-import java.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -445,6 +447,49 @@ public class PhotoController extends TEABackController {
         });
     }
 
+    /**
+     * Get Destination photos based on logged in user.
+     *
+     * @param request Request
+     * @param destId id of destination
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId) {
+        Long userId = request.attrs().get(ActionState.USER).id;
+        return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
+            if (destination == null) {
+                return notFound(Json.toJson(destId));
+            } else if (!destination.isPublic && destination.user.id != userId) {
+                return forbidden();
+            } else {
+                List<Photo> photos = filterPhotos(destination.destinationPhotos, userId);
+                try {
+                    photos = photoRepository.appendAssetsUrl(photos);
+                    return ok(sanitizeJson(Json.toJson(photos)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            }
+        });
+    }
+
+    /**
+     * Removes photos that shouldnt be seen by given user.
+     *
+     * @param photos List of photos
+     * @param userId Id of authenticated user
+     * @return List of filtered photos
+     */
+    private List<Photo> filterPhotos(List<Photo> photos, Long userId) {
+        Iterator<Photo> iter = photos.iterator();
+        while (iter.hasNext()) {
+            Photo photo = iter.next();
+            if (!photo.isPublic && !photo.userId.equals(userId)) {
+                iter.remove();
+            }
+        }
+        return photos;
+    }
 
     /**
      * Lists routes to put in JS router for use from frontend.
@@ -454,7 +499,11 @@ public class PhotoController extends TEABackController {
     public Result photoRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy()
+                controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy(),
+                controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
+                controllers.backend.routes.javascript.PhotoController.linkPhotoToDest(),
+                controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
+                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

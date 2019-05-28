@@ -129,7 +129,7 @@ function populateTrips(table) {
                     const endDest = tripDataList[(tripDataList.length
                         - 1)].destination.name;
                     const tripLength = tripDataList.length;
-                    const editURL = tripRouter.controllers.frontend.TripController.editTripIndex(
+                    const editURL = tripRouter.controllers.frontend.TripController.editTrip(
                         id).url;
 
                     let update = "<a href=\"" + editURL

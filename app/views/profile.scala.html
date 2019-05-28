@@ -62,7 +62,8 @@
                 @* Body Content *@
                 <div class="profile-main">
                     <div>
-                        @modules.gallery(loggedUser, canModify)
+                        @*Call gallery modal, true indicating we want titles*@
+                        @modules.gallery(canModify, true, "main-gallery", "page-selection")
                         @* Trips table *@
                         <div class="section-title">
                             <p>

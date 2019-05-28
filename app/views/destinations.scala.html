@@ -9,32 +9,49 @@
 @layouts.imageHeader("Destinations", user, "images/destination-bg.jpg", scripts){
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/destinations.css")">
     <body>
-        <div class="container">
-            @* The create destination modal popup *@
-            @modules.createDestinationForm(user.id)
-            <div class="text-center">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create New Destination</button>
-            </div><br>
+        @* The create destination modal popup *@
+        @modules.createDestinationForm(user.id)
+        <div class="text-center">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create New Destination</button>
+        </div><br>
 
-            @* The destination table *@
-            <div>
-                <table id="dtDestination" class="table table-hover table-bordered" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th class="th-sm">Name</th>
-                            <th class="th-sm">Type</th>
-                            <th class="th-sm">District</th>
-                            <th class="th-sm">Latitude</th>
-                            <th class="th-sm">Longitude</th>
-                            <th class="th-sm">Country</th>
-                        </tr>
-                    </thead>
-                    <tbody id="destinationList">
-                    </tbody>
-                </table>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="black-nav nav-link active" id="map-tab" data-toggle="tab" href="#mapTab" role="tab" aria-controls="mapTab" aria-selected="true">Map</a>
+            </li>
+            <li class="nav-item">
+                <a class="black-nav nav-link" id="table-tab" data-toggle="tab" href="#tableTab" role="tab" aria-controls="tableTab" aria-selected="false">Table</a>
+            </li>
+        </ul>
+
+        <div class="tab-content pt-2" id="myTabContent">
+            <div class="tab-pane fade show active" id="mapTab" role="tabpanel" aria-labelledby="map-tab">
+                @* The destination map *@
+                <div id="map"></div>
+            </div>
+            <div class="tab-pane fade" id="tableTab" role="tabpanel" aria-labelledby="table-tab">
+                <div class="container">
+                    @* The destination table *@
+                    <div>
+                        <table id="dtDestination" class="table table-hover table-bordered" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th class="th-sm">Name</th>
+                                    <th class="th-sm">Type</th>
+                                    <th class="th-sm">District</th>
+                                    <th class="th-sm">Latitude</th>
+                                    <th class="th-sm">Longitude</th>
+                                    <th class="th-sm">Country</th>
+                                </tr>
+                            </thead>
+                            <tbody id="destinationList">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
-        <div id="map"></div>
     </body>
 }
 
