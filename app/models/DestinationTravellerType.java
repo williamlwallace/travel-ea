@@ -12,7 +12,6 @@ import play.data.validation.Constraints;
  * A class that stores information regarding users and which country passports they hold.
  */
 @Entity
-@Table(name = "DestinationTravellerType")
 public class DestinationTravellerType extends Model {
 
     @Id
@@ -25,7 +24,4 @@ public class DestinationTravellerType extends Model {
     @ManyToOne
     @Constraints.Required
     public TravellerTypeDefinition travellerTypeDefinition;
-
-    @Column(name = "is_pending")
-    public Boolean isPending;
 }

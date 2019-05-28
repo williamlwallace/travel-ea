@@ -68,10 +68,17 @@ public class Destination extends Model {
 
     @ManyToMany(mappedBy = "destTravellerTypes")
     @JoinTable(
-        name = "TravellerType",
+        name = "DestinationTravellerType",
         joinColumns = @JoinColumn(name = "id", referencedColumnName = "dest_id"),
         inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypes;
+
+    @ManyToMany(mappedBy = "destTravellerTypesPending")
+    @JoinTable(
+        name = "DestinationTravellerTypePending",
+        joinColumns = @JoinColumn(name = "id", referencedColumnName = "dest_id"),
+        inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
+    public List<TravellerTypeDefinition> travellerTypesPending;
 
     /**
      * Checks if photo is linked to destination.
@@ -96,14 +103,14 @@ public class Destination extends Model {
      * @param ttId id of destination of id
      * @return True if dest is linked to photo
      */
-    public Boolean isLinkedTravellerType(Long ttId) {
+    public TravellerTypeDefinition getLinkedTravellerType(Long ttId) {
         Iterator<TravellerTypeDefinition> iter = travellerTypes.iterator();
         while (iter.hasNext()) {
             TravellerTypeDefinition travellerType = iter.next();
             if (travellerType.id.equals(ttId)) {
-                return true;
+                return travellerType;
             }
         }
-        return false;
+        return null;
     }
 }

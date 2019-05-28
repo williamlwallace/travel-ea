@@ -42,6 +42,15 @@ public class TravellerTypeDefinition extends Model {
 
     public List<Destination> destTravellerTypes;
 
+    @ManyToMany(mappedBy = "travellerTypesPending")
+    @JsonBackReference("desttt-pending-reference")
+    @JoinTable(
+        name = "DestinationTravellerTypePending",
+        joinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
+
+    public List<Destination> destTravellerTypesPending;
+
     @Override
     public String toString() {
         StringBuilder toReturn = new StringBuilder();

@@ -174,6 +174,7 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
+DROP TABLE DestinationTravellerTypePending;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;

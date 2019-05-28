@@ -108,11 +108,24 @@ CREATE TABLE IF NOT EXISTS DestinationTravellerType
     guid              INT NOT NULL AUTO_INCREMENT,
     dest_id           INT NOT NULL,
     traveller_type_definition_id INT NOT NULL,
-    is_pending        BIT NOT NULL DEFAULT 1,
     FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
     FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
-    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id)
+    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id),
+    UNIQUE(dest_id, traveller_type_definition_id)
+  );
+
+-- Create DestinationTravellerTypePending table, which specifies the traveller types of users
+CREATE TABLE IF NOT EXISTS DestinationTravellerTypePending
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    dest_id           INT NOT NULL,
+    traveller_type_definition_id INT NOT NULL,
+    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id),
+    UNIQUE(dest_id, traveller_type_definition_id)
   );
 
 -- Create Trip table, which maps trips to users
@@ -207,6 +220,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
+DROP TABLE DestinationTravellerTypePending;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;
