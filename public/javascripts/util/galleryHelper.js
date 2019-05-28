@@ -51,7 +51,7 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
                 usersPhotos[i] = data[i];
             }
             let galleryObjects = createGalleryObjects(true);
-            addPhotos(galleryObjects, $("#" + galleryId), $('#' +pageId));
+            addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
 }
@@ -72,7 +72,8 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
         // Convert the response to json
         response.json().then(data => {
             usersPhotos = [];
-            get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url)
+            get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+                destinationId).url)
             .then(response => {
                 response.json().then(linkedPhotos => {
                     for (let i = 0; i < data.length; i++) {
@@ -84,8 +85,10 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
                         }
                         usersPhotos[i] = data[i];
                     }
-                    let galleryObjects = createGalleryObjects(false, true, destinationId);
-                    addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
+                    let galleryObjects = createGalleryObjects(false, true,
+                        destinationId);
+                    addPhotos(galleryObjects, $("#" + galleryId),
+                        $('#' + pageId));
                 })
             });
         });
@@ -102,7 +105,8 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
  * @param {string} pageId the id of the pagination that the gallery is in
  * @param {Long} destinationId the id of the destination to link the photos to
  */
-function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl, galleryId, pageId, destinationId) {
+function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
+    galleryId, pageId, destinationId) {
     // Run a get request to fetch all users photos
     get(getDestinationPhotosUrl)
     // Get the response of the request
@@ -123,7 +127,8 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl, galle
                         usersPhotos[i] = destinationPhotos[i];
                     }
                     let galleryObjects = createGalleryObjects(true);
-                    addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
+                    addPhotos(galleryObjects, $("#" + galleryId),
+                        $('#' + pageId));
                 })
             });
         });
@@ -138,7 +143,8 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl, galle
  * @param {Long} destinationId the id of the destination to link the photos to
  * @returns {Array} the array of photo gallery objects
  */
-function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinationId=null) {
+function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
+    destinationId = null) {
     let galleryObjects = [];
     let numPages = Math.ceil(usersPhotos.length / 6);
     for (let page = 0; page < numPages; page++) {
@@ -170,7 +176,6 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
                 if (canEdit === true && isOwned) {
-                    console.log("yo");
                     // Create toggle button
                     const toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
@@ -184,8 +189,8 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton=false, destinatio
                 photo.href = filename;
             }
             if (withLinkButton) {
-                console.log("oi");
-                const linkButton = createLinkButton(isLinked, guid, destinationId);
+                const linkButton = createLinkButton(isLinked, guid,
+                    destinationId);
                 tile.appendChild(linkButton)
             }
             photo.setAttribute("data-id", guid);
@@ -266,13 +271,16 @@ function createLinkButton(isLinked, guid, destinationId) {
     return linkButton;
 }
 
+/**
+ * Creates the delete button for photos in gallery
+ * @returns {HTMLElement}
+ */
 function createDeleteButton() {
     let deleteButton = document.createElement("span");
     deleteButton.setAttribute("class", "close");
     deleteButton.innerHTML = "&times;";
     return deleteButton;
 }
-
 
 /**
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
@@ -317,6 +325,12 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     }
 }
 
+/**
+ * Function that updates the privacy state of a photo
+ *
+ * @param {Long} guid of photo to update
+ * @param {boolean} newPrivacy
+ */
 function togglePrivacy(guid, newPrivacy) {
     const label = document.getElementById(guid + "privacy");
     const data = {

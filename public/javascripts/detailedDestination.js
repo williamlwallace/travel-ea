@@ -202,14 +202,15 @@ let DESTINATIONID;
 let canEdit = true;
 let canDelete = false;
 
-
 /**
  * allows the upload image button call the link photo modal which then
  * fills the gallery with all the users photos, and indicates which are already linked
  */
-$("#upload-gallery-image-button").click(function() {
+$("#upload-gallery-image-button").click(function () {
     $("#linkPhotoToDestinationModal").modal('show');
-    fillLinkGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "link-gallery", "link-selection", DESTINATIONID);
+    fillLinkGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "link-gallery", "link-selection", DESTINATIONID);
 });
 
 /**
@@ -221,7 +222,11 @@ $("#upload-gallery-image-button").click(function() {
 function sendUserIdAndFillGallery(userId, destinationId) {
     USERID = userId;
     DESTINATIONID = destinationId;
-    fillDestinationGallery(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(destinationId).url, photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, "main-gallery", "page-selection")
+    fillDestinationGallery(
+        photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+            destinationId).url,
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "main-gallery", "page-selection")
 }
 
 /**
@@ -233,30 +238,35 @@ function sendUserIdAndFillGallery(userId, destinationId) {
  */
 function toggleLinked(guid, newLinked, destinationId) {
     const label = document.getElementById(guid + "linked");
-    const data = {
-    };
+    const data = {};
     if (!newLinked) {
-        const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
+        const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(
+            destinationId, guid).url;
         _delete(url)
         .then(res => {
             if (res.status === 200) {
                 label.innerHTML = "Not-Linked";
-                label.setAttribute("src", "/assets/images/location-unlinked.png");
+                label.setAttribute("src",
+                    "/assets/images/location-unlinked.png");
                 label.setAttribute("onClick",
                     "toggleLinked(" + guid + "," + !newLinked + ")");
-                toast("Photo Unlinked", "Photo has been successfully removed from this destination", "success")
+                toast("Photo Unlinked",
+                    "Photo has been successfully removed from this destination",
+                    "success")
             }
         })
     } else {
-        const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url;
+        const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(
+            destinationId, guid).url;
         put(url, data)
         .then(res => {
             if (res.status === 200) {
-                label.innerHTML ="Linked";
+                label.innerHTML = "Linked";
                 label.setAttribute("src", "/assets/images/location-linked.png");
                 label.setAttribute("onClick",
                     "toggleLinked(" + guid + "," + !newLinked + ")");
-                toast("Photo Linked", "Photo Successfully linked to this destination, success");
+                toast("Photo Linked",
+                    "Photo Successfully linked to this destination, success");
             }
         })
     }
