@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityNotFoundException;
+import javax.inject.Singleton;
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;

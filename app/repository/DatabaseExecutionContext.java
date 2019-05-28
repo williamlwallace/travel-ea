@@ -2,6 +2,7 @@ package repository;
 
 import akka.actor.ActorSystem;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import play.libs.concurrent.CustomExecutionContext;
 
 /**
@@ -10,6 +11,7 @@ import play.libs.concurrent.CustomExecutionContext;
  *
  * @link https://www.playframework.com/documentation/latest/ThreadPools
  */
+@Singleton
 public class DatabaseExecutionContext extends CustomExecutionContext {
 
     @Inject

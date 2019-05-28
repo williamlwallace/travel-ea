@@ -47,6 +47,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     private static final String USER_DEST_URL = "/api/user/destination/";
     private static final String CREATE_DEST_URL = "/api/destination";
     private static final String MAKE_PUBLIC_URL = "/api/destination/makePublic/";
+    private static final String DEST_TRAV_TYPE_UTL = "/travellertype/";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -102,6 +103,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Double.valueOf(2.2945), dest.longitude);
         assertEquals(Long.valueOf(1), dest.country.id);
         assertEquals(Long.valueOf(1), dest.id);
+        assertEquals(1, dest.travellerTypes.size());
+        assertEquals(1, dest.travellerTypesPending.size());
     }
 
     @Test
@@ -496,5 +499,47 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         newRs.next();
         Long newPhotoDestId = newRs.getLong(1);
         assertEquals((Long)8L, newPhotoDestId);
+    }
+
+    @Test
+    public void addTravellerTypeOwner() throws SQLException {
+
+        // Create request to make destination public
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1");
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void addTravellerTypeNotOwner() throws SQLException {
+
+        // Create request to make destination public
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1");
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void addTravellerTypeDuplicate() throws SQLException {
+
+        // Create request to make destination public
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1");
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
     }
 }
