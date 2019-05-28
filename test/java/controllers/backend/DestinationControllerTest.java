@@ -103,7 +103,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Double.valueOf(2.2945), dest.longitude);
         assertEquals(Long.valueOf(1), dest.country.id);
         assertEquals(Long.valueOf(1), dest.id);
-        assertEquals(2, dest.travellerTypes.size());
+        assertEquals(1, dest.travellerTypes.size());
+        assertEquals(1, dest.travellerTypesPending.size());
     }
 
     @Test

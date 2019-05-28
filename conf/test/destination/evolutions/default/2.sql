@@ -35,8 +35,8 @@ INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile)
 INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
 
 -- Add traveller types to destination
-INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id, is_pending) VALUES (1, 1, 0);
-INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id, is_pending) VALUES (1, 2, 1);
+INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id) VALUES (1, 1);
+INSERT INTO DestinationTravellerTypePending(dest_id, traveller_type_definition_id) VALUES (1, 2);
 
 -- Insert a trip that uses destinations that will be merged
 INSERT INTO Trip (user_id) VALUES (2);
@@ -47,6 +47,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
 DELETE FROM TripData;
 DELETE FROM DestinationTravellerType;
+DELETE FROM DestinationTravellerTypePending;
 DELETE FROM Photo;
 DELETE FROM DestinationPhoto;
 DELETE FROM Destination;

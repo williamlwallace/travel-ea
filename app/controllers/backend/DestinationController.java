@@ -20,7 +20,6 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
-import repository.DestinationTravellerTypeRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
@@ -32,17 +31,14 @@ public class DestinationController extends TEABackController {
 
     private final DestinationRepository destinationRepository;
     private final CountryDefinitionRepository countryDefinitionRepository;
-    private final DestinationTravellerTypeRepository destinationTravellerTypeRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
         CountryDefinitionRepository countryDefinitionRepository,
-        DestinationTravellerTypeRepository destinationTravellerTypeRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
         this.destinationRepository = destinationRepository;
         this.countryDefinitionRepository = countryDefinitionRepository;
-        this.destinationTravellerTypeRepository = destinationTravellerTypeRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
     }
 
@@ -231,74 +227,57 @@ public class DestinationController extends TEABackController {
         });
     }
 
-    // /**
-    //  * Adds or requests to add a travellertype to a destination depending on a users priveleges
-    //  *
-    //  * @param request The request
-    //  * @param id The id of the destination to edit
-    //  * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
-    //  * fails, 403 if the user cannot edit the destination and 200 if successful
-    //  */
-    // @With({Everyone.class, Authenticator.class})
-    // public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId, Long ttId) {
-    //     User user = request.attrs().get(ActionState.USER);
-    //     return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
-    //         if (destination == null) {
-    //             return CompletableFuture
-    //                 .supplyAsync(() -> notFound("Destination with provided ID not found"));
-    //         }
-    //         // Check if the type is already linked
-    //         Boolean ttFound = false;
-    //         for (TravellerTypeDefinition tt: destination.travellerTypes) {
-    //             if (tt.id != ttId) {
-    //                 continue;
-    //             }
-    //             if (!tt.isPending) {
-    //                 return CompletableFuture
-    //                     .supplyAsync(() -> badRequest("Destination already has that traveller type"));
-    //             } else {
-    //                 ttFound = true;
-    //             }
-    //         }
-    //         if (tt != null && !tt.isPending) {
-    //             return CompletableFuture
-    //                 .supplyAsync(() -> badRequest("Destination already has that traveller type"));
-    //         }
-    //         return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(ttId).thenComposeAsync(travellerType -> {
-    //             if (travellerType == null) {
-    //                 return CompletableFuture
-    //                     .supplyAsync(() -> notFound("Traveller Type with provided ID not found"));
-    //             }
-    //             //Create the link and fill in details
-    //             DestinationTravellerType type = new DestinationTravellerType();
-    //             type.destId = destId;
-    //             type.travellerTypeDefinition = travellerType;
+    /**
+     * Adds or requests to add a travellertype to a destination depending on a users priveleges
+     *
+     * @param request The request
+     * @param id The id of the destination to edit
+     * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
+     * fails, 403 if the user cannot edit the destination and 200 if successful
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId, Long ttId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("Destination with provided ID not found"));
+            }
+            // Check if the type is already linked
+            if (destination.isLinkedTravellerType(ttId)) {
+                return CompletableFuture
+                        .supplyAsync(() -> badRequest("Destination already has that traveller type"));
+            }
+            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(ttId).thenComposeAsync(travellerType -> {
+                if (travellerType == null) {
+                    return CompletableFuture
+                        .supplyAsync(() -> notFound("Traveller Type with provided ID not found"));
+                }
+                //Create the link and fill in details
+                String message;
+                if (destination.user.id.equals(user.id) || user.admin) {
+                    destination.travellerTypes.add(travellerType);
+                    if (destination.isLinkedTravellerType(ttId)) {
+                        destination.removePendingTravellerType(ttId);
+                    }
+                    message = "added";
+                } else {
+                    if (destination.isPendingTravellerType(ttId)) {
+                        return CompletableFuture
+                        .supplyAsync(() -> ok("Successfully requested traveller type to destination"));
+                    }
+                    destination.travellerTypesPending.add(travellerType);
+                    message = "requested to add";
+                }
 
-    //             if (destination.user.id.equals(user.id) || user.admin) {
-    //                 type.isPending = false;
-    //                 if (ttFound) {
-    //                     return destinationTravellerTypeRepository.updateLink(type).thenApplyAsync(rows -> {
-    //                         return ok(Json.toJson("Successfully added traveller type to destination"));
-    //                     });
-    //                 }
-    //                 type.isPending = false;
-    //                 return destinationTravellerTypeRepository.addLink(type)
-    //                     .thenApplyAsync(rows -> {
-    //                         return ok(Json.toJson("Successfully added traveller type to destination"));
-    //                     });
-    //             } else {
-    //                 type.isPending = true; //Set type to pending if they are not the Owner
-    //                 if (ttFound) {
-    //                     return CompletableFuture.supplyAsync(() -> ok("Succefully requested to add traveller type to destination"));
-    //                 }
-    //                 return destinationTravellerTypeRepository.addLink(type)
-    //                     .thenApplyAsync(rows -> {
-    //                         return ok(Json.toJson("Successfully requested traveller type to destination"));
-    //                     });
-    //             }
-    //         });
-    //     });
-    // }
+                return destinationRepository.updateDestination(destination)
+                    .thenApplyAsync(rows -> {
+                        return ok(Json.toJson("Successfully " + message + " traveller type to destination"));
+                    });
+    
+            });
+        });
+    }
 
     /**
      * Gets all destinations valid for the requesting user.

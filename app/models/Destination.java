@@ -103,14 +103,46 @@ public class Destination extends Model {
      * @param ttId id of destination of id
      * @return True if dest is linked to photo
      */
-    public TravellerTypeDefinition getLinkedTravellerType(Long ttId) {
+    public Boolean isLinkedTravellerType(Long ttId) {
         Iterator<TravellerTypeDefinition> iter = travellerTypes.iterator();
         while (iter.hasNext()) {
             TravellerTypeDefinition travellerType = iter.next();
             if (travellerType.id.equals(ttId)) {
-                return travellerType;
+                return true;
             }
         }
-        return null;
+        return false;
+    }
+
+    /**
+     * Checks if traveller type is linked to destination.
+     *
+     * @param ttId id of destination of id
+     * @return True if dest is linked to photo
+     */
+    public Boolean isPendingTravellerType(Long ttId) {
+        Iterator<TravellerTypeDefinition> iter = travellerTypesPending.iterator();
+        while (iter.hasNext()) {
+            TravellerTypeDefinition travellerType = iter.next();
+            if (travellerType.id.equals(ttId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+     /**
+     * Removes given destination from photo.
+     */
+    public Boolean removePendingTravellerType(Long ttId) {
+        Iterator<TravellerTypeDefinition> iter = travellerTypesPending.iterator();
+        while (iter.hasNext()) {
+            TravellerTypeDefinition tt = iter.next();
+            if (tt.id.equals(ttId)) {
+                iter.remove();
+                return true;
+            }
+        }
+        return false;
     }
 }
