@@ -1,7 +1,6 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
@@ -16,15 +15,14 @@ import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -103,8 +101,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Double.valueOf(2.2945), dest.longitude);
         assertEquals(Long.valueOf(1), dest.country.id);
         assertEquals(Long.valueOf(1), dest.id);
-        assertEquals(1, dest.travellerTypes.size());
-        assertEquals(1, dest.travellerTypesPending.size());
+        assertEquals(2, dest.travellerTypes.size());
+        assertEquals(2, dest.travellerTypesPending.size());
     }
 
     @Test
@@ -415,7 +413,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(OK, result.status());
 
         // Check that destination with id 1 is now public
-        destination = destinationsFromResultSet(statement.executeQuery()).stream().filter(x -> x.id == 1)
+        destination = destinationsFromResultSet(statement.executeQuery()).stream()
+            .filter(x -> x.id == 1)
             .findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertTrue(destination.isPublic);
@@ -444,7 +443,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(FORBIDDEN, result.status());
 
         // Check that destination with id 3 is still private
-        destination = destinationsFromResultSet(statement.executeQuery()).stream().filter(x -> x.id == 3)
+        destination = destinationsFromResultSet(statement.executeQuery()).stream()
+            .filter(x -> x.id == 3)
             .findFirst().orElse(null);
         Assert.assertNotNull(destination);
         Assert.assertFalse(destination.isPublic);
@@ -473,12 +473,15 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     @Test
     public void makeDestinationPublicAndMergeSimilar() throws SQLException {
         // Get existing trip data and photo which reference destination 2
-        TripData oldTripData = tripDataFromResultSet(db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;").executeQuery()).iterator().next();
-        ResultSet rs = db.getConnection().prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        TripData oldTripData = tripDataFromResultSet(
+            db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+                .executeQuery()).iterator().next();
+        ResultSet rs = db.getConnection()
+            .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         rs.next();
         Long oldPhotoDestId = rs.getLong(1);
-        assertEquals((Long)2L, oldTripData.destination.id);
-        assertEquals((Long)2L, oldPhotoDestId);
+        assertEquals((Long) 2L, oldTripData.destination.id);
+        assertEquals((Long) 2L, oldPhotoDestId);
 
         // Call API to make destination 8 public, this should merge all of destination 1 and 2 into destination 8
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -491,55 +494,139 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(OK, result.status());
 
         // Check that trip data got pointed to new destination
-        TripData newTripData = tripDataFromResultSet(db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;").executeQuery()).iterator().next();
-        assertEquals((Long)8L, newTripData.destination.id);
+        TripData newTripData = tripDataFromResultSet(
+            db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+                .executeQuery()).iterator().next();
+        assertEquals((Long) 8L, newTripData.destination.id);
 
         // Check that photo got pointed to new destination
-        ResultSet newRs = db.getConnection().prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        ResultSet newRs = db.getConnection()
+            .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         newRs.next();
         Long newPhotoDestId = newRs.getLong(1);
-        assertEquals((Long)8L, newPhotoDestId);
+        assertEquals((Long) 8L, newPhotoDestId);
     }
 
     @Test
-    public void addTravellerTypeOwner() throws SQLException {
+    public void addTravellerTypeOwner() {
 
-        // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1/add");
 
-        // Get result and check its unauthorised
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
     }
 
     @Test
-    public void addTravellerTypeNotOwner() throws SQLException {
+    public void addTravellerTypeNotOwner() {
 
-        // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1/add");
 
-        // Get result and check its unauthorised
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
     }
 
     @Test
-    public void addTravellerTypeDuplicate() throws SQLException {
+    public void addTravellerTypeDuplicate() {
 
-        // Create request to make destination public
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1/add");
 
-        // Get result and check its unauthorised
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
     }
+
+    @Test
+    public void removeTravellerTypeAdminOrOwner() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1/remove");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully removed traveller type from destination", json.textValue());
+    }
+
+    @Test
+    public void removeTravellerTypeNotAdminOrOwner() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "3/remove");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully requested to remove traveller type from destination",
+            json.textValue());
+    }
+
+    @Test
+    public void removeTravellerTypeNotFound() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "100/remove");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Traveller Type with provided ID not found", json.textValue());
+    }
+
+    @Test
+    public void removeTravellerTypeDestNotFound() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "100" + DEST_TRAV_TYPE_UTL + "1/remove");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Destination with provided ID not found", json.textValue());
+    }
+
+    @Test
+    public void removeTravellerTypeDestDoesntHave() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "2/remove");
+
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Destination doesn't have that traveller type", json.textValue());
+    }
+
+    @Test
+    public void removeTravellerTypesAlreadyRequested() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1/remove");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully requested to remove traveller type from destination",
+            json.textValue());
+    }
+
 }
