@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: SENG302 Team 400 - Travel EA
-  version: "1.0.0-oas3"
+  version: "1.0.1-oas3"
   title: Travel EA
   contact:
     email: s302team400@cosc.canterbury.ac.nz
@@ -25,7 +25,6 @@ tags:
   description: Photo calls
 
 paths:
-
   '/user':
     post:
       tags:
@@ -566,13 +565,13 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
-          
+
     put:
       tags:
       - Destinations
       summary: Edit an existing destination with given ID.
       description: |
-         Updates an existing destination in the database, that is owned by thr current user
+        Updates an existing destination in the database, that is owned by thr current user
       security:
       - UserToken: []
       parameters:
@@ -605,7 +604,7 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
-  
+
   '/destination/{destId}/photo/{photoId}':
     put:
       tags:
@@ -685,35 +684,7 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
-  '/destination/{id}/photo':
-    get:
-      tags:
-      - Destinations
-      summary: Get destination photos
-      parameters:
-      - in: path
-        name: id
-        required: true
-        description: The ID of the destination to retrieve photos from
-        schema:
-          type: integer
-          minimum: 1
-      responses:
-        '200':
-          description: Successfully retrieved photos
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Photo'
-        '404':
-          description: No such destination found
-        '403':
-          description: Forbidden, user does not have permistion to acces destination photos
-        '401':
-          description: Unauthorized
-          
+
   '/destination/search':
     get:
       tags:
@@ -1162,43 +1133,28 @@ paths:
         '404':
           description: No such photo found
 
-  '/photo/privacy/{id}':
-    patch:
+  '/user_content/{filePath}':
+    get:
       tags:
       - Photos
-      summary: 'Update privacy for a given photo ID'
-      security:
-      - UserToken: []
+      summary: "Gets a photo uploaded by a user"
+      description: 'The response type will be either `image/png` or `image/jpeg`, depending on the file type of the image.'
       parameters:
-      - in: header
-        name: JWT-Auth
+      - in: path
+        name: filePath
         required: true
-        description: Authentication cookie.
+        description: The file path of the photo to be retrieved
         schema:
           type: string
-      - in: path
-        name: id
-        required: true
-        description: The ID of photo to be updated
-        schema:
-          type: integer
-          minimum: 1
       responses:
-        '200':
-          description: Successfully updated privacy
-        '404':
-          description: No such photo found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-              - userName
-              properties:
-                isPublic:
-                  type: boolean
-
+        200:
+          description: Successfully retrieved photo
+          content:
+            image:
+              schema:
+                $ref: '#/components/schemas/BinaryImageFile'
+        404:
+          description: Photo Not Found
 
 
 servers:
@@ -1517,3 +1473,9 @@ components:
           type: string
           format: ISO date-time
           example: '2019-04-01T23:26:00.000'
+
+    BinaryImageFile:
+      type: string
+      format: binary
+      description: The raw content of the JPEG or PNG image file.
+      example: Raw content of JPEG or PNG image file
