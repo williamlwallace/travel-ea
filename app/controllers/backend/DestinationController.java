@@ -375,7 +375,8 @@ public class DestinationController extends TEABackController {
                     () -> notFound(Json.toJson("No traveller type modification request found")));
             }
             return destinationRepository.updateDestination(dest)
-                .thenApplyAsync(rows -> ok("Successfully rejected traveller type modification"));
+                .thenApplyAsync(
+                    rows -> ok(Json.toJson("Successfully rejected traveller type modification")));
         });
     }
 
@@ -484,7 +485,10 @@ public class DestinationController extends TEABackController {
                 controllers.frontend.routes.javascript.DestinationController
                     .detailedDestinationIndex(),
                 controllers.backend.routes.javascript.DestinationController.editDestination(),
-                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic()
+                controllers.backend.routes.javascript.DestinationController.makeDestinationPublic(),
+                controllers.backend.routes.javascript.DestinationController.addTravellerType(),
+                controllers.backend.routes.javascript.DestinationController.removeTravellerType(),
+                controllers.backend.routes.javascript.DestinationController.rejectTravellerType()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

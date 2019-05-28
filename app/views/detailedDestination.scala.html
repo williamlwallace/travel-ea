@@ -42,6 +42,16 @@
                         <p class="heading">Country <span id="summary_country" class="destination-info"></span></p>
                         <p class="heading">Latitude <span id="summary_latitude" class="destination-info"></span></p>
                         <p class="heading">Longitude <span id="summary_longitude" class="destination-info"></span></p>
+                        <p class="heading" id="heading_traveller_types">Traveller Types <span id="summary_traveller_types" class="destination-info"></span></p>
+                        <a data-toggle="modal" data-target="#travellerTypeModal">
+                            <span class="destination-button" style="float: left;" onclick='fillTravellerTypeInfo();'>
+                                @if(canModify) {
+                                    Edit Traveller Types
+                                } else {
+                                    Suggest Traveller Types
+                                }
+                            </span>
+                        </a>
                         @if(canModify) {
                             <p class="heading"></p>
                             <a data-toggle="modal" data-target="#editDestinationModal" onclick="populateEditDestination(@destinationId)">
@@ -133,7 +143,7 @@
                     <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
                         Cancel<em class="fas fa-paper-plane-o ml-1"></em>
                     </button>
-                    <button class="btn btn-popup" onclick="editDestination(@destinationId)">
+                    <button class="btn btn-primary" onclick="editDestination(@destinationId)">
                         Confirm changes
                     </button>
                 </div>
@@ -166,6 +176,7 @@
             </div>
         </div>
     </div>
+
     @*Link Photo to Destination Modal*@
     <div class="modal fade" id="linkPhotoToDestinationModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel">
         <div class="modal-dialog modal-xl" role="document">
@@ -203,6 +214,37 @@
                     </button>
                     <button class="btn btn-primary" onclick="makeDestinationPublic(@destinationId)">
                         Yes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* Traveller Type Modal *@
+    <div class="modal fade" id="travellerTypeModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Change Traveller Types</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <br>
+
+                <div class="text-center" style="padding-bottom: 15px;">
+                    <div align="center">
+                        <select id="travellerTypesSelect" class="form-control" data-style="form-control selectpicker" style="width: 70%" align="center"></select><br>
+                    </div>
+                    <button class="btn btn-popup" id="remove-all" data-dismiss="modal" style="margin-right: 4px">
+                        Cancel
+                    </button>
+                    <button class="btn btn-primary" onclick='updateTravellerTypes(@destinationId)' data-dismiss="modal" style="margin-left:  4px">
+                        @if(canModify) {
+                            Submit
+                        } else {
+                            Suggest Changes
+                        }
                     </button>
                 </div>
             </div>
