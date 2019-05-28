@@ -375,8 +375,7 @@ function createTrip(uri, redirect, userId) {
         .then(json => {
             if (response.status === 400) {
                 $("#createTripButton").prop('disabled', false);
-                showTripErrors(json)
-                ;
+                showTripErrors(json);
             } else if (response.status === 200) {
                 window.location.href = redirect;
             }
