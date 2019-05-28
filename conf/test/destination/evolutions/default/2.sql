@@ -6,6 +6,7 @@ INSERT INTO CountryDefinition (name) VALUES ('Test Country');
 --Add traveller types for testing
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Test TravellerType 1');
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker');
+INSERT INTO TravellerTypeDefinition (description) VALUES ('Ollie');
 
 -- Add sample user for testing
 INSERT INTO User(username, password, salt, admin) VALUES ('admin@travelea.co.nz', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', true);
@@ -36,7 +37,9 @@ INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
 
 -- Add traveller types to destination
 INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id) VALUES (1, 1);
+INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id) VALUES (1, 3);
 INSERT INTO DestinationTravellerTypePending(dest_id, traveller_type_definition_id) VALUES (1, 2);
+INSERT INTO DestinationTravellerTypePending(dest_id, traveller_type_definition_id) VALUES (1, 1);
 
 -- Insert a trip that uses destinations that will be merged
 INSERT INTO Trip (user_id) VALUES (2);
