@@ -19,7 +19,6 @@ libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr3
 libraryDependencies += "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.9.9"
 libraryDependencies += "org.apache.commons" % "commons-text" % "1.6"
 libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.12"
-libraryDependencies += "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20180219.1"
 
 libraryDependencies += ws
 
