@@ -234,8 +234,6 @@ function createUser(uri, redirect) {
 
 
 function showTTSuggestion(destId, ttId) {
-    alert(destId + ttId);
-
     get(destinationRouter.controllers.backend.DestinationController.getDestination(destId).url)
     .then(response => {
         response.json()
@@ -302,7 +300,7 @@ function showTTSuggestion(destId, ttId) {
 }
 
 function rejectTravellerTypeRequest(destId, ttId) {
-    _delete(destinationRouter.controllers.backend.DestinationController.getDestination(destId).url)     //TODO: Change route
+    put(destinationRouter.controllers.backend.DestinationController.reject(destId, ttId).url)     //TODO: Change route
     .then(response => {
         response.json()
         .then(data => {

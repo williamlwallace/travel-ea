@@ -27,7 +27,7 @@ function populateDestinationDetails(destinationId) {
                 document.getElementById(
                     "summary_longitude").innerText = destination.longitude;
 
-                if (false) {   // TODO: destination.travellerTypes.length > 0
+                if (destination.travellerTypes.length > 0) {
                     let travellerTypes = "";
                     for (let i = 0; i < destination.travellerTypes.length; i++) {
                         travellerTypes += ", " + destination.travellerTypes[i].description;
@@ -213,7 +213,7 @@ function updateTravellerTypes(destId) {
     let select = document.getElementById("travellerTypesSelect");
     let selected = select.options[select.selectedIndex];
 
-    if (selected.text.includes("Add") || true) {    // TODO: Remove true
+    if (selected.text.includes("Add")) {
         addTravellerType(destId, selected.value);
     } else {
         deleteTravellerType(destId, selected.value);
@@ -221,7 +221,7 @@ function updateTravellerTypes(destId) {
 }
 
 function addTravellerType(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.fillthis(destId, ttId))    // TODO: fill routes
+    put(destinationRouter.controllers.backend.DestinationController.add(destId, ttId))    // TODO: fill routes
     .then(response => {
         response.json()
         .then(data => {
@@ -236,7 +236,7 @@ function addTravellerType(destId, ttId) {
 }
 
 function deleteTravellerType(destId, ttId) {
-    _delete(destinationRouter.controllers.backend.DestinationController.fillthis(destId, ttId))
+    put(destinationRouter.controllers.backend.DestinationController.remove(destId, ttId))
     .then(response => {
         response.json()
         .then(data => {
@@ -251,12 +251,11 @@ function deleteTravellerType(destId, ttId) {
 }
 
 /**
- * Gets traveller types from API and fills drop down
- *
- * @param {string} URI - Traveller type API URI to get data from
+ * Gets traveller types from API and populates drop down, includes checking to see if traveller
+ * type is already linked with destination
  */
-function fillTravellerTypeInfo(URI) {
-    get(URI)
+function fillTravellerTypeInfo() {
+    get(profileRouter.controllers.backend.ProfileController.getAllTravellerTypes())
     .then(response => {
         response.json()
         .then(travellerTypes => {
