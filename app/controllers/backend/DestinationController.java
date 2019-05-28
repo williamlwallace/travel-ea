@@ -230,13 +230,13 @@ public class DestinationController extends TEABackController {
      *
      * @param request The request
      * @param destId The id of the destination to edit
-     * @param travelerTypeId The id of the traveler type to add
+     * @param travellerTypeId The id of the traveller type to add
      * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
      * fails, 403 if the user cannot edit the destination and 200 if successful
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId,
-        Long travelerTypeId) {
+        Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -244,11 +244,11 @@ public class DestinationController extends TEABackController {
                     .supplyAsync(() -> notFound("Destination with provided ID not found"));
             }
             // Check if the type is already linked
-            if (destination.isLinkedTravellerType(travelerTypeId)) {
+            if (destination.isLinkedTravellerType(travellerTypeId)) {
                 return CompletableFuture
                     .supplyAsync(() -> badRequest("Destination already has that traveller type"));
             }
-            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travelerTypeId)
+            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerTypeId)
                 .thenComposeAsync(travellerType -> {
                     if (travellerType == null) {
                         return CompletableFuture
@@ -259,12 +259,12 @@ public class DestinationController extends TEABackController {
                     String message;
                     if (destination.user.id.equals(user.id) || user.admin) {
                         destination.travellerTypes.add(travellerType);
-                        if (destination.isLinkedTravellerType(travelerTypeId)) {
-                            destination.removePendingTravellerType(travelerTypeId);
+                        if (destination.isLinkedTravellerType(travellerTypeId)) {
+                            destination.removePendingTravellerType(travellerTypeId);
                         }
                         message = "added";
                     } else {
-                        if (destination.isPendingTravellerType(travelerTypeId)) {
+                        if (destination.isPendingTravellerType(travellerTypeId)) {
                             return CompletableFuture
                                 .supplyAsync(() -> ok(
                                     "Successfully requested traveller type to destination"));
