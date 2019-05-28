@@ -727,6 +727,46 @@ paths:
         '401':
           description: Unauthorized
           
+  '/destination/{destId}/travellertype/{travellerTypeId}/reject':
+    put:
+      tags:
+      - Destinations
+      summary: Jejects pending modifactions to estination traveller types
+      description: |
+        removes entry form pending travellertype table
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: travellerTypeId
+        required: true
+        description: The travellerType ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully rejected destination-traveller type link
+        '404':
+          description: Destination or traveller type with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+          
   '/destination/search':
     get:
       tags:

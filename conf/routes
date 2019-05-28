@@ -61,6 +61,8 @@ GET           /api/destination/:destId/photo         controllers.backend.PhotoCo
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId  controllers.backend.DestinationController.addTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
+PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.rejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
+
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)

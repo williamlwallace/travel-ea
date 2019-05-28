@@ -3,6 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import actions.roles.Admin;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
@@ -280,6 +281,34 @@ public class DestinationController extends TEABackController {
                 });
         });
     }
+
+    /**
+     * Rejects and removes a pending traveller type change.
+     *
+     * @param request The request
+     * @param destId The id of the destination
+     * @param travellerTypeId The id of the traveller type
+     * @return 400 is the request is bad, 404 if the pending change isnt found, 500 if sanitization
+     * fails, 403 if the user cannot edit the destination and 200 if successful
+     */
+    @With({Admin.class, Authenticator.class})
+    public CompletableFuture<Result> rejectTravellerType(Http.Request request, Long destId,
+        Long travellerTypeId) {
+        return destinationRepository.getDestination(destId).thenComposeAsync(dest -> {
+            if(dest == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Destination not found")));
+            }
+            if(dest.isPendingTravellerType(travellerTypeId)) {
+                dest.removePendingTravellerType(travellerTypeId);
+            } else {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No traveller type modification request found")));
+            }
+            return destinationRepository.updateDestination(dest).thenApplyAsync(rows -> {
+                return ok("Successfully rejected traveller type modification");
+            });
+        });
+    }
+        
 
     /**
      * Gets all destinations valid for the requesting user.

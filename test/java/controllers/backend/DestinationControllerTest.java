@@ -47,7 +47,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     private static final String USER_DEST_URL = "/api/user/destination/";
     private static final String CREATE_DEST_URL = "/api/destination";
     private static final String MAKE_PUBLIC_URL = "/api/destination/makePublic/";
-    private static final String DEST_TRAV_TYPE_UTL = "/travellertype/";
+    private static final String DEST_TRAV_TYPE_URL = "/travellertype/";
+    private static final String DEST_TRAV_TYPE_REJECT = "/reject";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -508,7 +509,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1");
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
@@ -522,7 +523,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_UTL + "1");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1");
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
@@ -536,10 +537,52 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_UTL + "1");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1");
 
         // Get result and check its unauthorised
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
+    }
+
+    @Test
+    public void rejectTravellerType() throws SQLException {
+
+        // Create a request to reject a traveller type modification
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "2" + DEST_TRAV_TYPE_REJECT);
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void rejectTravellerTypeNotFound() throws SQLException {
+
+        // Create a request to reject a traveller type modification
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "3" + DEST_TRAV_TYPE_REJECT);
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
+
+    @Test
+    public void rejectTravellerTypeNotAdmin() throws SQLException {
+
+        // Create a request to reject a traveller type modification
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "2" + DEST_TRAV_TYPE_REJECT);
+
+        // Get result and check its unauthorised
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
     }
 }
