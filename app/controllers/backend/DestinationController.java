@@ -11,8 +11,6 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
 import models.User;
-import models.DestinationTravellerType;
-import models.TravellerTypeDefinition;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -228,15 +226,17 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Adds or requests to add a travellertype to a destination depending on a users priveleges
+     * Adds or requests to add a traveller type to a destination depending on a users privileges.
      *
      * @param request The request
-     * @param id The id of the destination to edit
+     * @param destId The id of the destination to edit
+     * @param travelerTypeId The id of the traveler type to add
      * @return 400 is the request is bad, 404 if the destination is not found, 500 if sanitization
      * fails, 403 if the user cannot edit the destination and 200 if successful
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId, Long ttId) {
+    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId,
+        Long travelerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -244,38 +244,40 @@ public class DestinationController extends TEABackController {
                     .supplyAsync(() -> notFound("Destination with provided ID not found"));
             }
             // Check if the type is already linked
-            if (destination.isLinkedTravellerType(ttId)) {
+            if (destination.isLinkedTravellerType(travelerTypeId)) {
                 return CompletableFuture
-                        .supplyAsync(() -> badRequest("Destination already has that traveller type"));
+                    .supplyAsync(() -> badRequest("Destination already has that traveller type"));
             }
-            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(ttId).thenComposeAsync(travellerType -> {
-                if (travellerType == null) {
-                    return CompletableFuture
-                        .supplyAsync(() -> notFound("Traveller Type with provided ID not found"));
-                }
-                //Create the link and fill in details
-                String message;
-                if (destination.user.id.equals(user.id) || user.admin) {
-                    destination.travellerTypes.add(travellerType);
-                    if (destination.isLinkedTravellerType(ttId)) {
-                        destination.removePendingTravellerType(ttId);
-                    }
-                    message = "added";
-                } else {
-                    if (destination.isPendingTravellerType(ttId)) {
+            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travelerTypeId)
+                .thenComposeAsync(travellerType -> {
+                    if (travellerType == null) {
                         return CompletableFuture
-                        .supplyAsync(() -> ok("Successfully requested traveller type to destination"));
+                            .supplyAsync(
+                                () -> notFound("Traveller Type with provided ID not found"));
                     }
-                    destination.travellerTypesPending.add(travellerType);
-                    message = "requested to add";
-                }
+                    //Create the link and fill in details
+                    String message;
+                    if (destination.user.id.equals(user.id) || user.admin) {
+                        destination.travellerTypes.add(travellerType);
+                        if (destination.isLinkedTravellerType(travelerTypeId)) {
+                            destination.removePendingTravellerType(travelerTypeId);
+                        }
+                        message = "added";
+                    } else {
+                        if (destination.isPendingTravellerType(travelerTypeId)) {
+                            return CompletableFuture
+                                .supplyAsync(() -> ok(
+                                    "Successfully requested traveller type to destination"));
+                        }
+                        destination.travellerTypesPending.add(travellerType);
+                        message = "requested to add";
+                    }
 
-                return destinationRepository.updateDestination(destination)
-                    .thenApplyAsync(rows -> {
-                        return ok(Json.toJson("Successfully " + message + " traveller type to destination"));
-                    });
-    
-            });
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(rows -> ok(Json.toJson(
+                            "Successfully " + message + " traveller type to destination")));
+
+                });
         });
     }
 

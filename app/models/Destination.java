@@ -1,6 +1,5 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
@@ -87,9 +86,9 @@ public class Destination extends Model {
      * @return True if dest is linked to photo
      */
     public Boolean isLinked(Long photoId) {
-        Iterator<Photo> iter = destinationPhotos.iterator();
-        while (iter.hasNext()) {
-            Photo photo = iter.next();
+        Iterator<Photo> iterator = destinationPhotos.iterator();
+        while (iterator.hasNext()) {
+            Photo photo = iterator.next();
             if (photo.guid.equals(photoId)) {
                 return true;
             }
@@ -100,14 +99,14 @@ public class Destination extends Model {
     /**
      * Checks if traveller type is linked to destination.
      *
-     * @param ttId id of destination of id
+     * @param travellerTypeId id of destination of id
      * @return True if dest is linked to photo
      */
-    public Boolean isLinkedTravellerType(Long ttId) {
-        Iterator<TravellerTypeDefinition> iter = travellerTypes.iterator();
-        while (iter.hasNext()) {
-            TravellerTypeDefinition travellerType = iter.next();
-            if (travellerType.id.equals(ttId)) {
+    public Boolean isLinkedTravellerType(Long travellerTypeId) {
+        Iterator<TravellerTypeDefinition> iterator = travellerTypes.iterator();
+        while (iterator.hasNext()) {
+            TravellerTypeDefinition travellerType = iterator.next();
+            if (travellerType.id.equals(travellerTypeId)) {
                 return true;
             }
         }
@@ -117,29 +116,32 @@ public class Destination extends Model {
     /**
      * Checks if traveller type is linked to destination.
      *
-     * @param ttId id of destination of id
+     * @param travellerTypeId id of destination of id
      * @return True if dest is linked to photo
      */
-    public Boolean isPendingTravellerType(Long ttId) {
-        Iterator<TravellerTypeDefinition> iter = travellerTypesPending.iterator();
-        while (iter.hasNext()) {
-            TravellerTypeDefinition travellerType = iter.next();
-            if (travellerType.id.equals(ttId)) {
+    public Boolean isPendingTravellerType(Long travellerTypeId) {
+        Iterator<TravellerTypeDefinition> iterator = travellerTypesPending.iterator();
+        while (iterator.hasNext()) {
+            TravellerTypeDefinition travellerType = iterator.next();
+            if (travellerType.id.equals(travellerTypeId)) {
                 return true;
             }
         }
         return false;
     }
 
-     /**
-     * Removes given destination from photo.
+    /**
+     * Removes given destination from photo
+     *
+     * @param travellerTypeId The id of the traveller type to remove
+     * @return true if the traveller type was removed, false if not
      */
-    public Boolean removePendingTravellerType(Long ttId) {
-        Iterator<TravellerTypeDefinition> iter = travellerTypesPending.iterator();
-        while (iter.hasNext()) {
-            TravellerTypeDefinition tt = iter.next();
-            if (tt.id.equals(ttId)) {
-                iter.remove();
+    public Boolean removePendingTravellerType(Long travellerTypeId) {
+        Iterator<TravellerTypeDefinition> iterator = travellerTypesPending.iterator();
+        while (iterator.hasNext()) {
+            TravellerTypeDefinition travellerType = iterator.next();
+            if (travellerType.id.equals(travellerTypeId)) {
+                iterator.remove();
                 return true;
             }
         }
