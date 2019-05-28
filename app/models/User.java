@@ -25,8 +25,10 @@ public class User extends Model {
     public String username;
 
     @Constraints.Required
+    @JsonIgnore
     public String password;
 
+    @JsonIgnore
     public String salt;
 
     //    @JsonFormat(pattern = "YYYY-MM-dd HH:mm")
