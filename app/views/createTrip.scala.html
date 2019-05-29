@@ -10,24 +10,23 @@
 }
 
 @layouts.imageHeader(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, "images/home-bg.jpg", scripts){
-
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/createTrips.css")">
     <main role="main" id="createTripContainer">
 
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create Destination</button>
+                <button class="btn btn-secondary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create Destination</button>
                 @*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal">Create Destination</button>*@
-                <button type="submit" class="btn btn-primary"
-                data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
+                <button type="submit" class="btn btn-secondary" data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
             <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
             <div style="float: right;">
                 @if(trip.tripDataList.length == 0 || !trip.isPublic) {
-                    <button class="btn btn-primary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Public</button>
+                    <button class="btn btn-secondary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Public</button>
                 } else {
-                    <button class="btn btn-primary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Private</button>
+                    <button class="btn btn-secondary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Private</button>
                 }
 
                 @if(trip.tripDataList.length == 0) {
