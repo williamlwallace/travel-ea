@@ -394,7 +394,16 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // If user is admin or requesting for their own destinations
-        if (user.admin || user.id.equals(userId)) {
+        if (user.admin) {
+            return destinationRepository.getAllDestinationsAdmin()
+                .thenApplyAsync(allDestinations -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(allDestinations)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        } else if (user.id.equals(userId)) {
             return destinationRepository.getAllDestinations(userId)
                 .thenApplyAsync(allDestinations -> {
                     try {

@@ -281,6 +281,17 @@ public class DestinationRepository {
     }
 
     /**
+     * Gets all the destinations, ALL of them.
+     *
+     * @return List of destinations
+     */
+    public CompletableFuture<List<Destination>> getAllDestinationsAdmin() {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+                .findList()
+            , executionContext);
+    }
+
+    /**
      * Gets a paged list of destinations conforming to the amount of destinations requested and the
      * provided order and filters.
      *

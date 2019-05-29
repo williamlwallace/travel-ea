@@ -23,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
+import models.User;
 import org.joda.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
@@ -473,14 +474,14 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId) {
-        Long userId = request.attrs().get(ActionState.USER).id;
+        User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
             if (destination == null) {
                 return notFound(Json.toJson(destId));
-            } else if (!destination.isPublic && destination.user.id != userId) {
+            } else if (!destination.isPublic && !destination.user.id.equals(user.id) && !user.admin) {
                 return forbidden();
             } else {
-                List<Photo> photos = filterPhotos(destination.destinationPhotos, userId);
+                List<Photo> photos = filterPhotos(destination.destinationPhotos, user.id);
                 try {
                     photos = photoRepository.appendAssetsUrl(photos);
                     return ok(sanitizeJson(Json.toJson(photos)));
