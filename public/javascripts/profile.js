@@ -219,7 +219,6 @@ function deletePhoto(route) {
  * allows the upload image button to act as an input field by clicking on the upload image file field
  */
 $("#upload-image-button").click(function () {
-    console.log("upload clicked");
     $("#upload-image-file").click();
 });
 
@@ -228,7 +227,6 @@ $("#upload-image-button").click(function () {
  * The appropriate modals are shown and hidden.
  */
 function uploadNewPhoto() {
-    console.log("upload new photo");
     const selectedFile = document.getElementById('upload-image-file').files[0];
     profilePictureToCrop.setAttribute('src',
         window.URL.createObjectURL(selectedFile));

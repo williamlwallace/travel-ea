@@ -90,7 +90,7 @@ function addDestination(url, redirect, userId) {
                 const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
                     json).url;
                 const name = data.name;
-                const type = data._type;
+                const type = data.destType;
                 const district = data.district;
                 const latitude = data.latitude;
                 const longitude = data.longitude;
@@ -137,7 +137,7 @@ function populateDestinations(table, userId) {
                     const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
                         json[dest].id).url;
                     const name = json[dest].name;
-                    const type = json[dest]._type;
+                    const type = json[dest].destType;
                     const district = json[dest].district;
                     const latitude = json[dest].latitude;
                     const longitude = json[dest].longitude;
@@ -201,7 +201,7 @@ function populateMarkers(userId) {
                             + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="'
                             + privacySrc
                             + '"height="20" style="margin-bottom:13px">'
-                            + '<p><b>Type:</b> ' + json[dest]._type + '<br>'
+                            + '<p><b>Type:</b> ' + json[dest].destType + '<br>'
                             + '<b>District:</b> ' + json[dest].district + '<br>'
                             + '<b>Latitude:</b> ' + json[dest].latitude + '<br>'
                             + '<b>Longitude:</b> ' + json[dest].longitude

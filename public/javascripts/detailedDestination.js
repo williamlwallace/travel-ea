@@ -18,7 +18,7 @@ function populateDestinationDetails(destinationId) {
                 document.getElementById(
                     "destination_name").innerText = destination.name;
                 document.getElementById(
-                    "summary_type").innerText = destination._type;
+                    "summary_type").innerText = destination.destType;
                 document.getElementById(
                     "summary_district").innerText = destination.district;
                 document.getElementById(
@@ -149,6 +149,7 @@ function editDestination(destinationId) {
                         ...memo,
                         [pair[0]]: pair[1],
                     }), {});
+
                 // Convert lat and long to double values, and id to int
                 destination.latitude = parseFloat(data.latitude);
                 destination.longitude = parseFloat(data.longitude);
@@ -156,7 +157,7 @@ function editDestination(destinationId) {
 
                 // Convert country id to country object
                 destination.country.id = data.countryId;
-                destination._type = data._type;
+                destination.destType = data.destType;
                 destination.name = data.name;
                 destination.district = data.district;
 
@@ -209,7 +210,8 @@ function populateEditDestination(destinationId) {
             } else {
                 hideErrors("editDestinationForm");
                 document.getElementById("name").value = destination.name;
-                document.getElementById("_type").value = destination._type;
+                document.getElementById(
+                    "destType").value = destination.destType;
                 document.getElementById(
                     "district").value = destination.district;
                 document.getElementById(

@@ -36,7 +36,7 @@ public class DestinationTestSteps {
         // Create new json object node
         ObjectNode node = Json.newObject();
         node.put("name", "Eiffel Tower");
-        node.put("_type", "Monument");
+        node.put("destType", "Monument");
         node.put("district", "Paris");
         node.put("latitude", 48.8583);
         node.put("longitude", 2.2945);
@@ -82,7 +82,7 @@ public class DestinationTestSteps {
         // Create new json object node
         ObjectNode node = Json.newObject();
         node.put("name", "Tower Bridge");
-        node.put("_type", "Monument");
+        node.put("destType", "Monument");
         node.put("district", "London");
         node.put("latitude", 51.50333132);
         node.put("longitude", -0.071999712);

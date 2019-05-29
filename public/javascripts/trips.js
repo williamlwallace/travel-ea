@@ -33,7 +33,7 @@ function populateTable(table, userId) {
                 for (const destination of json) {
                     const id = destination.id;
                     const name = destination.name;
-                    const type = destination._type;
+                    const type = destination.destType;
                     const district = destination.district;
                     const latitude = destination.latitude;
                     const longitude = destination.longitude;
@@ -123,7 +123,7 @@ function addDestination(url, redirect, userId) {
 function addRow(data) {
     const id = data.id;
     const name = data.name;
-    const type = data._type;
+    const type = data.destType;
     const district = data.district;
     const latitude = data.latitude;
     const longitude = data.longitude;
