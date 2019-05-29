@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.Model;
 import java.time.LocalDateTime;
@@ -25,10 +26,10 @@ public class User extends Model {
     public String username;
 
     @Constraints.Required
-    @JsonIgnore
+    @JsonBackReference("password-reference")
     public String password;
 
-    @JsonIgnore
+    @JsonBackReference("salt-reference")
     public String salt;
 
     //    @JsonFormat(pattern = "YYYY-MM-dd HH:mm")

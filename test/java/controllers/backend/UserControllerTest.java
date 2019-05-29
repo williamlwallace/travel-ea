@@ -59,8 +59,6 @@ public class UserControllerTest extends ControllersTest {
         User user = users.get(0);
         assertEquals(Long.valueOf(2), user.id);
         assertEquals("bob@gmail.com", user.username);
-        assertEquals("password", user.password); //cat
-        assertEquals("salt", user.salt);
     }
 
     @Test
