@@ -338,7 +338,8 @@ public class DestinationController extends TEABackController {
                         if (destination.isPendingTravellerType(travellerTypeId)) {
                             return CompletableFuture
                                 .supplyAsync(() -> ok(Json.toJson(
-                                    "Successfully requested to remove traveller type from destination")));
+                                    "Successfully reque"
+                                        + "sted to remove traveller type from destination")));
                         }
                         destination.travellerTypesPending.add(travellerType);
                         message = "requested to remove";

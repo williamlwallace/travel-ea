@@ -171,7 +171,6 @@ function populateTravellerTypeRequests() {
     .then(response => {
         response.json()
         .then(json => {
-            console.log(json);
             if (response.status !== 200) {
                 document.getElementById("adminError").innerHTML = json;
             } else {
@@ -257,7 +256,7 @@ function showTTSuggestion(destId, ttId) {
                 document.getElementById(
                     "requestDestName").innerText = dest.name;
                 document.getElementById(
-                    "requestDestType").innerText = dest._type;
+                    "requestDestType").innerText = dest.destType;
                 document.getElementById(
                     "requestDestDistrict").innerText = dest.district;
                 document.getElementById(
@@ -330,7 +329,6 @@ function showTTSuggestion(destId, ttId) {
                         deleteTravellerType(destId, ttId)
                         .then(status => {
                             if (status === 200) {
-                                console.log("CALLED");
                                 removeRow(destId, ttId);
                             }
                         });
@@ -338,7 +336,6 @@ function showTTSuggestion(destId, ttId) {
                         addTravellerType(destId, ttId)
                         .then(status => {
                             if (status === 200) {
-                                console.log("CALLED2");
                                 removeRow(destId, ttId);
                             }
                         });
@@ -366,7 +363,6 @@ function rejectTravellerTypeRequest(destId, ttId) {
     .then(response => {
         response.json()
         .then(data => {
-            console.log(data);
             if (response.status !== 200) {
                 toast("Could not reject request", data, "danger", 5000);
             } else {

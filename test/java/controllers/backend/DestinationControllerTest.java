@@ -96,7 +96,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
         assertEquals("Eiffel Tower", dest.name);
-        assertEquals("Monument", dest._type);
+        assertEquals("Monument", dest.destType);
         assertEquals("Paris", dest.district);
         assertEquals(Double.valueOf(48.8583), dest.latitude);
         assertEquals(Double.valueOf(2.2945), dest.longitude);
@@ -322,7 +322,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         // Create new json object node
         ObjectNode node = Json.newObject();
         node.put("name", "Test destination");
-        node.put("_type", "Monument");
+        node.put("destType", "Monument");
         node.put("district", "Canterbury");
         node.put("latitude", 10.0);
         node.put("longitude", 20.0);
@@ -380,7 +380,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         expectedMessages.put("district", "District field must be present");
         expectedMessages.put("latitude", "latitude must be at least -90.000000");
         expectedMessages.put("name", "Destination Name field must be present");
-        expectedMessages.put("_type", "Destination Type field must be present");
+        expectedMessages.put("destType", "Destination Type field must be present");
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
         expectedMessages.put("country", "Country field must be present");
         expectedMessages.put("user", "User field must be present");

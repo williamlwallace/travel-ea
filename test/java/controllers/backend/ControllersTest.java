@@ -98,7 +98,7 @@ public abstract class ControllersTest extends WithApplication {
         while (rs.next()) {
             Destination destination = new Destination();
             destination.id = rs.getLong("id");
-            destination._type = rs.getString("type");
+            destination.destType = rs.getString("type");
             destination.country = new CountryDefinition();
             destination.country.id = rs.getLong("country_id");
             destination.district = rs.getString("district");
