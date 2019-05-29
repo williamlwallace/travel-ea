@@ -125,9 +125,9 @@
                                                             @if(canModify) {
                                                             <div class="dropdown">
                                                                 @if(t.isPublic) {
-                                                                    <input id="privacyImg" class="privacy-image" type="image" title="Public" alt="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
+                                                                    <input id="privacyImg" class="privacy-image" type="image" title="Public" alt="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', '')">
                                                                 } else {
-                                                                    <input id="privacyImg" class="privacy-image" type="image" title="Private" alt="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
+                                                                    <input id="privacyImg" class="privacy-image" type="image" title="Private" alt="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', '')">
                                                                 }
                                                             </div>
                                                             }
