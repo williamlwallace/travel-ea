@@ -91,7 +91,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
         // Check that list has exactly 3 results
-        assertEquals(6, destinations.size());
+        assertEquals(8, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
