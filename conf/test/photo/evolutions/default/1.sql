@@ -1,4 +1,4 @@
--- AUTHOR: Matthew Minish, William Wallace
+-- AUTHOR: Matthew Minish, William Wallace, what about me?
 -- MODIFIED: 14/3/2019 2.00PM
 
 -- !Ups
@@ -102,6 +102,32 @@ CREATE TABLE IF NOT EXISTS Destination
     PRIMARY KEY (id)
   );
 
+-- Create DestinationTravellerType table, which specifies the traveller types of users
+CREATE TABLE IF NOT EXISTS DestinationTravellerType
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    dest_id           INT NOT NULL,
+    traveller_type_definition_id INT NOT NULL,
+    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX destinationtravellertype_index (dest_id, traveller_type_definition_id),
+    UNIQUE(dest_id, traveller_type_definition_id)
+  );
+
+-- Create DestinationTravellerTypePending table, which specifies the traveller types of users
+CREATE TABLE IF NOT EXISTS DestinationTravellerTypePending
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    dest_id           INT NOT NULL,
+    traveller_type_definition_id INT NOT NULL,
+    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (traveller_type_definition_id) REFERENCES TravellerTypeDefinition(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid),
+    INDEX destinationtravellertypepending_index (dest_id, traveller_type_definition_id),
+    UNIQUE(dest_id, traveller_type_definition_id)
+  );
+
 -- Create Trip table, which maps trips to users
 CREATE TABLE IF NOT EXISTS Trip
   (
@@ -160,6 +186,8 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 -- !Downs
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
+DROP TABLE DestinationTravellerType;
+DROP TABLE DestinationTravellerTypePending;
 DROP TABLE TravellerType;
 DROP TABLE Passport;
 DROP TABLE Nationality;

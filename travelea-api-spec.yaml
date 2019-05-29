@@ -2,7 +2,7 @@ openapi: 3.0.0
 
 info:
   description: SENG302 Team 400 - Travel EA
-  version: "1.0.1-oas3"
+  version: "1.0.2-oas3"
   title: Travel EA
   contact:
     email: s302team400@cosc.canterbury.ac.nz
@@ -685,6 +685,130 @@ paths:
         '401':
           description: Unauthorized
 
+  '/destination/{destId}/travellertype/{travellerTypeId/add':
+    put:
+      tags:
+      - Destinations
+      summary: Creates a link between travellertype and a destination
+      description: |
+        Creates entry in join table for Destination and travellertype
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: travellerTypeId
+        required: true
+        description: The travellerType ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully added destination-traveller type link
+        '400':
+          description: Link already exists
+        '404':
+          description: Destination or traveller type with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+
+  '/destination/{destId}/travellertype/{travellerTypeId/remove':
+    put:
+      tags:
+      - Destinations
+      summary: Removes a link between travellertype and a destination
+      description: |
+        Removes entry in join table for Destination and travellertype
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: travellerTypeId
+        required: true
+        description: The travellerType ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully removed destination-traveller type link
+        '400':
+          description: Link doesn't exist
+        '404':
+          description: Destination or traveller type with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+
+  '/destination/{destId}/travellertype/{travellerTypeId}/reject':
+    put:
+      tags:
+      - Destinations
+      summary: Jejects pending modifactions to estination traveller types
+      description: |
+        removes entry form pending travellertype table
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: travellerTypeId
+        required: true
+        description: The travellerType ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully rejected destination-traveller type link
+        '404':
+          description: Destination or traveller type with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+
   '/destination/search':
     get:
       tags:
@@ -862,6 +986,35 @@ paths:
       responses:
         '200':
           description: Successfully retrieved (possibly zero) profiles
+
+  '/destination/{id}/photo':
+    get:
+      tags:
+      - Destinations
+      summary: Get destination photos
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to retrieve photos from
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved photos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '404':
+          description: No such destination found
+        '403':
+          description: Forbidden, user does not have permistion to acces destination photos
+        '401':
+          description: Unauthorized
 
   '/profile/{userId}':
     get:

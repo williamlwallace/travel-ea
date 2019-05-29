@@ -11,7 +11,7 @@ function showErrors(json, parentElement = "main") {
         elements[i].innerHTML = "";
         for (const key of Object.keys(json)) {
             if (elements[i].id === (key + "Error")) {
-                const data = json[key]
+                const data = json[key];
                 if (data.startsWith("_")) {
                     elements[i].innerHTML = data.slice(1);
                 } else if (data.endsWith("0")) {

@@ -7,9 +7,10 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 public class DestinationValidator extends Validator {
 
-    private static final String TYPE = "_type";
+    private static final String TYPE = "destType";
     private static final String LATITUDE = "latitude";
     private static final String LONGITUDE = "longitude";
+    private static final String DISTRICT = "district";
     private final JsonNode form;
 
     public DestinationValidator(JsonNode form) {
@@ -41,8 +42,8 @@ public class DestinationValidator extends Validator {
         }
 
         // Check that the destination district is present, is text, and not empty
-        if (this.required("district", "District") && this.isText("district")) {
-            this.minTextLength(TYPE, "District", 1);
+        if (this.required(DISTRICT, "District") && this.isText(DISTRICT)) {
+            this.minTextLength(DISTRICT, "District", 1);
         }
 
         // Check that the destination's country id is present, is text, and not empty

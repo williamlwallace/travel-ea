@@ -25,13 +25,31 @@ public class TravellerTypeDefinition extends Model {
     public String description;
 
     @ManyToMany(mappedBy = "travellerTypes")
-    @JsonBackReference
+    @JsonBackReference("tt-reference")
     @JoinTable(
         name = "TravellerType",
         joinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"))
 
     public List<Profile> travellerTypes;
+
+    @ManyToMany(mappedBy = "travellerTypes")
+    @JsonBackReference("dest-tt-reference")
+    @JoinTable(
+        name = "DestinationTravellerType",
+        joinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
+
+    public List<Destination> destTravellerTypes;
+
+    @ManyToMany(mappedBy = "travellerTypesPending")
+    @JsonBackReference("dest-tt-pending-reference")
+    @JoinTable(
+        name = "DestinationTravellerTypePending",
+        joinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
+
+    public List<Destination> destTravellerTypesPending;
 
     @Override
     public String toString() {

@@ -28,7 +28,6 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
         .then(json => {
             // On successful update
             if (response.status === 200) {
-                console.log(currentPrivacy);
                 if (currentPrivacy === "Public") {
                     document.getElementById(
                         "privacyImg" + tripId).title = "Private";
