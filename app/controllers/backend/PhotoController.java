@@ -201,9 +201,13 @@ public class PhotoController extends TEABackController {
                 thumbHeight = 100;
             }
 
-            pair.getValue().getRef()
-                .copyTo(Paths.get(pair.getKey().filename), true);
-            createThumbnailFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
+            // Buffer the image and use same file creation process as
+            BufferedImage fullImage = ImageIO.read(pair.getValue().getRef().path().toFile());
+            // Create and save main image
+            createPhotoFromFile(pair.getValue().getRef(), fullImage.getWidth(),
+                fullImage.getHeight()).copyTo(Paths.get(pair.getKey().filename));
+            // Create and save thumbnail image
+            createPhotoFromFile(pair.getValue().getRef(), thumbWidth, thumbHeight)
                 .copyTo(Paths.get(pair.getKey().thumbnailFilename));
 
         }
@@ -287,7 +291,7 @@ public class PhotoController extends TEABackController {
      * @param fullImageFile The full image to create a filename for
      * @return Temporary file of thumbnail
      */
-    private Files.TemporaryFile createThumbnailFromFile(Files.TemporaryFile fullImageFile,
+    private Files.TemporaryFile createPhotoFromFile(Files.TemporaryFile fullImageFile,
         int thumbWidth, int thumbHeight) throws IOException {
         BufferedImage thumbImage = new BufferedImage(thumbWidth, thumbHeight,
             BufferedImage.TYPE_INT_RGB);
