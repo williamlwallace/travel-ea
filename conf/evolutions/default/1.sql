@@ -185,13 +185,13 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 
 CREATE TABLE IF NOT EXISTS TreasureHunt
   (
-    id                  INT NOT NULL AUTO_INCREMENT,
+    id                    INT NOT NULL AUTO_INCREMENT,
     destination_id        INT NOT NULL,
     riddle                VARCHAR(1024) NOT NULL,
     start_date            DATETIME NOT NULL,
     end_date              DATETIME NOT NULL,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    PRIMARY KEY (guid)
+    PRIMARY KEY (id)
   )
 
 -- Add countries
@@ -309,6 +309,7 @@ INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
 -- !Downs
+DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
