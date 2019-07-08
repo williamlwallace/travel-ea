@@ -182,6 +182,18 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     UNIQUE(photo_id, destination_id)
   );
 
+
+CREATE TABLE IF NOT EXISTS TreasureHunt
+  (
+    id                  INT NOT NULL AUTO_INCREMENT,
+    destination_id        INT NOT NULL,
+    riddle                VARCHAR(1024) NOT NULL,
+    start_date            DATETIME NOT NULL,
+    end_date              DATETIME NOT NULL,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  )
+
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES
 ('France'),('England'),('New Zealand'),('Australia'),('Germany'),('United States'),('Russia'),('Finland'),('Kazakhstan'),('Mongolia');
