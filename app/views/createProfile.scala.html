@@ -97,6 +97,6 @@
     }
 
 <script type="text/javascript">
-    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
+    getAndFillDD("https://restcountries.eu/rest/v2/all?fields=name", ["nationalities", "passports"], "name", true);
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
 </script>

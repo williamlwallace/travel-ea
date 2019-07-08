@@ -45,8 +45,9 @@ function hideErrors(parentElement) {
  * @param {string} URI - API URI to get data from
  * @param {string} colName - name of data column
  * @param {Boolean} capitalise - Whether to capitalised first letter
+ * @param {Boolean} country - True if getting data for country from external API
  */
-function getHardData(URI, colName, capitalise = false) {
+function getHardData(URI, colName, country = false, capitalise = false) {
     // Run a get request to fetch all destinations
     return get(URI)
     // Get the response of the request
@@ -55,6 +56,9 @@ function getHardData(URI, colName, capitalise = false) {
         return response.json()
         .then(data => {
             // Json data is an array of destinations, iterate through it
+            if (country) {
+                addIdToJSON(data);
+            }
             let dict = {};
             for (let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
@@ -65,6 +69,7 @@ function getHardData(URI, colName, capitalise = false) {
                     dict[data[i]['id']] = data[i][colName];
                 }
             }
+            console.log(dict);
             return dict;
         });
     });
@@ -197,4 +202,33 @@ function toast(title, message, type = "primary", delay = 2000) {
     toasterWrapper.on('hidden.bs.toast', '.toast', function () {
         $(this).remove();
     });
+}
+
+// Id count for adding id's to JSON from external APIs
+let iterator = 1;
+
+/**
+ * Adds an id to the target
+ * @param target is a JSON object
+ */
+function addIdentifier(target){
+    target.id = iterator;
+    iterator++;
+}
+
+/**
+ * Loops through JSON object and recursively adds id's to all entries
+ * @param obj is a JSON object
+ */
+function addIdToJSON(obj){
+    for (let i in obj) {
+        let c = obj[i];
+        if (typeof c === 'object') {
+            if (c.length === undefined) {
+                //c is not an array
+                addIdentifier(c);
+            }
+            addIdToJSON(c);
+        }
+    }
 }
