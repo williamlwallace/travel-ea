@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -22,13 +22,15 @@ public class TreasureHunt extends Model {
     @Id
     public Long id;
 
-    @OneToOne
+    @Constraints.Required
+    @ManyToOne
     @JoinTable(
         name = "User",
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     public User user;
 
-    @OneToOne
+    @Constraints.Required
+    @ManyToOne
     @JoinTable(
         name = "Destination",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
