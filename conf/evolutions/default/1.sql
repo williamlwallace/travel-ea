@@ -1,5 +1,5 @@
--- AUTHOR: Matthew Minish, William Wallace, what about me?
--- MODIFIED: 14/3/2019 2.00PM
+-- AUTHOR: Matthew Minish, William Wallace, Ollie Sharplin, what about me?
+-- MODIFIED: 9/7/2019 2.00PM
 
 -- !Ups
 
@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS Profile
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
   );
 
+-- Create the country definition table, which is static and defines all possible countries
 CREATE TABLE IF NOT EXISTS CountryDefinition
   (
     id                INT NOT NULL AUTO_INCREMENT,
@@ -182,7 +183,7 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     UNIQUE(photo_id, destination_id)
   );
 
-
+-- Create treasure hunt table, which stores the riddle and dates or a treasure hunt about a destination
 CREATE TABLE IF NOT EXISTS TreasureHunt
   (
     id                    INT NOT NULL AUTO_INCREMENT,
@@ -192,7 +193,7 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     end_date              DATETIME NOT NULL,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
-  )
+  );
 
 -- Add countries
 INSERT INTO CountryDefinition (name) VALUES
