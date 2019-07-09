@@ -126,6 +126,9 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
+# Treasure Hunt page
+GET           /treasure             controllers.frontend.TreasureController.index(request: Request)
+
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
