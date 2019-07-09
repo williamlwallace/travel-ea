@@ -187,6 +187,7 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 CREATE TABLE IF NOT EXISTS TreasureHunt
   (
     id                    INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
     destination_id        INT NOT NULL,
     riddle                VARCHAR(1024) NOT NULL,
     start_date            DATETIME NOT NULL,

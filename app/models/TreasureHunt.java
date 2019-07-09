@@ -24,6 +24,12 @@ public class TreasureHunt extends Model {
 
     @OneToOne
     @JoinTable(
+        name = "User",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    public User user;
+
+    @OneToOne
+    @JoinTable(
         name = "Destination",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
     public Destination destination;
