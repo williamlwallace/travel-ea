@@ -89,6 +89,8 @@ DELETE        /api/photo/:id                         controllers.backend.PhotoCo
 
 GET           /api/photo/:id/profile                 controllers.backend.PhotoController.getProfilePicture(id:Long)
 
+POST          /api/treasureHunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
