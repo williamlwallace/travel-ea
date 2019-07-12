@@ -2,7 +2,7 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.BAD_REQUEST;
-import static play.mvc.Http.Status.UNAUTHORIZED;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.mvc.Http.Status.OK;
@@ -144,6 +144,6 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
             .uri("/api/treasureHunt/1");
 
         Result result = route(fakeApp, request);
-        assertEquals(UNAUTHORIZED, result.status());
+        assertEquals(FORBIDDEN, result.status());
     }
 }
