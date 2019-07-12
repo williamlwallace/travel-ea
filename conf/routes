@@ -91,6 +91,8 @@ GET           /api/photo/:id/profile                 controllers.backend.PhotoCo
 
 POST          /api/treasureHunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
 
+GET           /api/treasureHunt                      controllers.backend.TreasureHuntController.getAllTreasureHunts(request:Request)
+
 GET           /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.getAllUserTreasureHunts(request:Request, id:Long)
 
 # ~~~~~~frontend~~~~~~~

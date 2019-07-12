@@ -67,6 +67,24 @@ public class TreasureHuntController extends TEABackController {
     }
 
     /**
+     * Gets all treasure hunts in database
+     *
+     * @param request the HTTP request
+     * @return JSON object with list of treasure hunts
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllTreasureHunts(Http.Request request) {
+        return treasureHuntRepository.getAllTreasureHunts()
+            .thenApplyAsync(hunts -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(hunts)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
+    }
+
+    /**
      * Attempts to get all user trips for a given userID.
      *
      * @param request the HTTP request
@@ -94,6 +112,7 @@ public class TreasureHuntController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
+                controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
                 controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts()
             )
         ).as(MimeTypes.JAVASCRIPT);

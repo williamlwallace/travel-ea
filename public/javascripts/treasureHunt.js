@@ -1,6 +1,9 @@
 function onTreasureHuntPageLoad(userId) {
     const myTreasureHuntTable = $("#myTreasure").DataTable();
+    const allTreasureHuntTable = $("#allTreasure").DataTable();
     populateMyTreasureHunts(myTreasureHuntTable, userId);
+    populateAllTreasureHunts(allTreasureHuntTable, userId);
+
     fillDestinationDropDown();
 }
 
@@ -28,6 +31,30 @@ function populateMyTreasureHunts(table, userId) {
                     table.row.add(
                         [riddle, destination, startDate, endDate]).draw(false);
 
+                }
+            }
+        })
+    })
+}
+
+function populateAllTreasureHunts(table, userId) {
+    table.clear();
+    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
+        userId).url)
+    .then( response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                document.getElementById("otherErro").innerHTML = json;
+            } else {
+                for (const hunt in json) {
+                    if (json[hunt].user.id !== userId) {
+                        const riddle = json[hunt].riddle;
+                        const startDate = json[hunt].startDate;
+                        const endDate = json[hunt].endDate;
+
+                        table.row.add([riddle, startDate, endDate]).draw(false);
+                    }
                 }
             }
         })
