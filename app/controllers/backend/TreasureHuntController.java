@@ -10,8 +10,10 @@ import models.TreasureHunt;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
+import play.mvc.Http.MimeTypes;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.TreasureHuntRepository;
 import util.validation.ErrorResponse;
 import util.validation.TreasureHuntValidator;
@@ -61,5 +63,13 @@ public class TreasureHuntController extends TEABackController {
         return treasureHuntRepository.addTreasureHunt(treasureHunt).thenApplyAsync(treasureHuntId ->
             ok(Json.toJson(treasureHuntId))
         );
+    }
+
+    public  Result treasureHuntRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt()
+            )
+        ).as(MimeTypes.JAVASCRIPT);
     }
 }
