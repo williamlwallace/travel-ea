@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import models.Destination;
 import models.TreasureHunt;
@@ -50,8 +49,8 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Set other required information for a valid treasure hunt
         treasureHunt.riddle = "Init";
-        treasureHunt.startDate = LocalDateTime.of(2019, 5, 29, 0, 0, 0);
-        treasureHunt.endDate = LocalDateTime.of(2019, 7, 30, 0, 0, 0);
+        treasureHunt.startDate = "2019-05-29";
+        treasureHunt.endDate = "2019-07-30";
 
         // Convert treasure hunt object to Json
         JsonNode treasureHuntJson = Json.toJson(treasureHunt);
