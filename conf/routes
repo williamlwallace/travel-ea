@@ -133,7 +133,7 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
 # Treasure Hunt page
-GET           /treasure             controllers.frontend.TreasureController.index(request: Request)
+GET           /treasureHunts         controllers.frontend.TreasureHuntController.index(request: Request)
 
 
 #~~~~~~~~ Assets ~~~~~~~~~

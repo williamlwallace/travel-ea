@@ -17,10 +17,10 @@ import views.html.treasureHunt;
  * This controller contains an action to handle HTTP requests to the application's treasure hunt page.
  */
 @Singleton
-public class TreasureController extends TEAFrontController {
+public class TreasureHuntController extends TEAFrontController {
 
     @Inject
-    public TreasureController(HttpExecutionContext httpExecutionContext) {
+    public TreasureHuntController(HttpExecutionContext httpExecutionContext) {
         super(httpExecutionContext);
     }
 
