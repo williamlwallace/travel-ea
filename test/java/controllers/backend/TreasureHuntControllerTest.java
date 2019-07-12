@@ -2,6 +2,7 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.mvc.Http.Status.OK;
@@ -124,8 +125,8 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void getAllUserTreasureHunts() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(nonAdminAuthCookie)
-            .uri("api/treasureHunt/1");
+            .cookie(adminAuthCookie)
+            .uri("/api/treasureHunt/1");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -133,5 +134,16 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         JsonNode hunts = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertEquals(1, hunts.size());
+    }
+
+    @Test
+    public void getUnauthorizedTreasureHunts() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/treasureHunt/1");
+
+        Result result = route(fakeApp, request);
+        assertEquals(UNAUTHORIZED, result.status());
     }
 }
