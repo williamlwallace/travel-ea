@@ -37,6 +37,11 @@ function populateMyTreasureHunts(table, userId) {
     })
 }
 
+/**
+ * Insert all treasure hunts NOT including those of the current user
+ * @param {Object} table - data table object
+ * @param {Number} userId - ID of current user, who hunts are excluded
+ */
 function populateAllTreasureHunts(table, userId) {
     table.clear();
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
