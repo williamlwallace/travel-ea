@@ -148,6 +148,8 @@ GET     /assets/routers/profile       controllers.backend.ProfileController.prof
 
 GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
 
+GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
+
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 
 # Static resources (not managed by the Play framework)
