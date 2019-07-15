@@ -78,9 +78,9 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Attempts to get all trips.
+     * Gets all trips if user is admin, otherwise gets all public trips.
      *
-     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     * @return JSON object with list of trips that a user has, bad request if user has no trips
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips(Http.Request request) {
