@@ -47,7 +47,7 @@ public class TripController extends TEAFrontController {
     public CompletableFuture<Result> tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
         return this.getUserTrips(request).thenApplyAsync(
-            tripList -> ok(trips.render(user, asScala(tripList))),
+            tripList -> ok(trips.render(user)),
             httpExecutionContext.current());
     }
 
@@ -93,7 +93,7 @@ public class TripController extends TEAFrontController {
                 // Else renders trips page
                 else {
                     return this.getUserTrips(request).thenApplyAsync(
-                        tripList -> ok(trips.render(user, asScala(tripList))),
+                        tripList -> ok(trips.render(user)),
                         httpExecutionContext.current());
                 }
             },
