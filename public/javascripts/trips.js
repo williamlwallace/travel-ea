@@ -2,16 +2,17 @@ let tripTable;
 
 /**
  * Initializes trip table and calls method to populate
- * @param {Number} userId - ID of user to get destinations for
+ * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
     tripTable = $('#tripTable').DataTable({
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
-        }
+        },
+        order: []
     });
-    populateTripTable(tripTable,userId);
+    populateTripTable(tripTable, userId);
 }
 
 /**
@@ -20,8 +21,7 @@ function onPageLoad(userId) {
  * @param {Number} userId - ID of user to retrieve trips for
  */
 function populateTripTable(table, userId) {
-    get(tripsRouter.controllers.backend.TripsController.getAllUserTrips(
-        userId).url)
+    get(tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
@@ -31,15 +31,24 @@ function populateTripTable(table, userId) {
             } else {
                 for (const trip of json) {
                     const id = trip.id;
-                    const name = destination.name;
-                    const type = destination.destType;
-                    const district = destination.district;
-                    const latitude = destination.latitude;
-                    const longitude = destination.longitude;
-                    const country = destination.country.name;
-                    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                    const row = [name, type, district, latitude, longitude,
-                        country, button, id, destination.country.id];
+                    const startDestination = trip.tripDataList[0].destination.name;
+                    let endDestination;
+                    if (trip.tripDataList.length > 1) {
+                        endDestination = trip.tripDataList[trip.tripDataList.
+                            length - 1].destination.name;
+                    } else {
+                        endDestination = "-"
+                    }
+                    const tripLength = trip.tripDataList.length;
+                    let date;
+                    let firstDate = findFirstTripDate(trip);
+                    if (firstDate != null) {
+                        date = firstDate.toLocaleDateString();
+                    } else {
+                        date = "No Date"
+                    }
+                    const row = [startDestination, endDestination, tripLength,
+                        date, id];
                     table.row.add(row).draw(false);
                 }
             }
@@ -48,19 +57,25 @@ function populateTripTable(table, userId) {
 }
 
 /**
- * Click listener that handles clicks in trips table
+ * Finds the first date in a trip, if there is one.
+ * @return the date found as a JS Date or null if no date was found
  */
-//TODO
-$('#destTable').on('click', 'button', function () {
-    let tableAPI = $('#destTable').dataTable().api();
-    let name = tableAPI.cell($(this).parents('tr'), 0).data();
-    let district = tableAPI.cell($(this).parents('tr'), 1).data();
-    let type = tableAPI.cell($(this).parents('tr'), 2).data();
-    let latitude = tableAPI.cell($(this).parents('tr'), 3).data();
-    let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
-    let countryId = $(this).parents('tr').attr("data-countryId");
-    let id = $(this).parents('tr').attr('id');
+function findFirstTripDate(trip) {
+    for (const tripDestination of trip.tripDataList) {
+        if (tripDestination.arrivalTime != null) {
+            return new Date(tripDestination.arrivalTime);
+        } else if (tripDestination.departureTime != null) {
+            return new Date(tripDestination.departureTime);
+        }
+    }
 
-    addDestinationToTrip(id, name, district, type, latitude, longitude,
-        countryId);
+    return null;
+}
+
+/**
+ * Trip table click listener
+ */
+$('#tripTable').on('click', 'tbody tr', function () {
+    console.log("row clicked with trip id: " + this.dataset.href);
+    //TODO: Show modal for the trip clicked
 });
