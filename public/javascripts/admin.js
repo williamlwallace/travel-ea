@@ -3,7 +3,8 @@ let travellerTypeRequestTable;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
-    populateTable($('#dtUser').DataTable());
+    usersGetURL = userRouter.controllers.backend.UserController.userSearch().url
+    EATable('dtUser', {}, populateTable($('#dtUser').DataTable());
     populateTrips($('#dtTrips').DataTable({}));
     travellerTypeRequestTable = $('#dtTravellerTypeModifications').DataTable({
         createdRow: function (row, data) {

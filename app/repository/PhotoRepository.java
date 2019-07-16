@@ -145,6 +145,7 @@ public class PhotoRepository {
                     .eq(USER_ID, pictureToUpload.userId)
                     .eq(IS_PROFILE, true)
                     .delete();
+                System.out.println("add deleteet");
             }
         }
         ebeanServer.insertAll(photos);
@@ -165,6 +166,7 @@ public class PhotoRepository {
                     .orElse(null);
 
                 photo.delete();
+                System.out.println("yeet-delete/n/n/nyeet");
                 return photo;
             }
             , executionContext);
