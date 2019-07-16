@@ -25,6 +25,8 @@ class EATable {
         // Query API endpoint to get all destinations
         this.table.clear().draw();
         if (!url) url = this.getURL;
+        console.log(url);
+        
         get(url)
         .then(response => {
             response.json()

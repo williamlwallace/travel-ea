@@ -190,8 +190,8 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     user_id               INT NOT NULL,
     destination_id        INT NOT NULL,
     riddle                VARCHAR(1024) NOT NULL,
-    start_date            DATETIME NOT NULL,
-    end_date              DATETIME NOT NULL,
+    start_date            DATE NOT NULL,
+    end_date              DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
