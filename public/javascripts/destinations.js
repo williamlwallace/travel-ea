@@ -14,30 +14,6 @@ function onPageLoad(userId) {
 }
 
 /**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    .then(response => {
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            let countryDict = {};
-
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
-}
-
-/**
  * Add destination to database
  * @param {string} url - API URI to add destination
  * @param {string} redirect - URI of redirect page

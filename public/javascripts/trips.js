@@ -146,30 +146,6 @@ function addRow(data) {
 }
 
 /**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            countryDict = {};
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
-}
-
-/**
  * Maps countries into destinations
  * @param {Object} countryDict - Dictionary of Countries
  */
