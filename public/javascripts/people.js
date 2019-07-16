@@ -34,9 +34,7 @@ $(document).ready(function () {
                     $('#gender').val('');
                     $('#minAge').val(null);
                     $('#maxAge').val(null);
-                    table.clear().draw();
-                    populateTable(table,
-                        profileRouter.controllers.backend.ProfileController.searchProfilesJson().url);
+                    table.populateTable();
                 }
             }
         ]
@@ -109,6 +107,6 @@ function searchParams() {
     let url = profileRouter.controllers.backend.ProfileController.searchProfilesJson(
         nationalityId, gender, minAge, maxAge, travellerTypeId).url;
 
-    table.refresh()
+    table.populateTable(url)
     $('#peopleFilterModal').modal('toggle');
 }

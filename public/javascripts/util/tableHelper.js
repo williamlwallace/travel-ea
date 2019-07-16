@@ -21,22 +21,21 @@ class EATable {
     /**
      * Populates the data of the table using the population callback
      */
-    populateTable() {
+    populateTable(url=null) {
         // Query API endpoint to get all destinations
-        get(this.getURL)
+        this.table.clear().draw();
+        const getURL = url ? url : this.getURL;
+        get(getURL)
         .then(response => {
             response.json()
             .then(json => {
                 if (response.status !== 200) {
                     error(json);
                 } else {
-                    Promise.resolve(populate(json)).then((rows) => {
+                    Promise.resolve(this.populate(json)).then((rows) => {
                         for (const row of rows) {
                             console.log(row);
-                            
                             this.table.row.add(row).draw(false);
-                            console.log(this.table);
-                            
                         }
                     });
                     
@@ -51,22 +50,14 @@ class EATable {
      * @param {Object} colFunctions Object where column is the key and callback is the value
      */
     initButtonClicks(colFunctions) {
-        table.on('click', 'button', function () {
-            const tableAPI = table.api();
+        const tableAPI = $(`#${this.id}`).dataTable().api();
+        this.table.on('click', 'button', function () {
             const id = tableAPI.cell($(this).parents('tr'), 0).data();
             const col = $(this).parents('td').index();
-            if (colFunctions.includes(col)) {
-                colFunctions.col(this, tableAPI, id);
+            if (col.toString() in colFunctions) {
+                colFunctions[col.toString()](this, tableAPI, id);
             }
         });
-    }
-
-    /**
-     * Clears and repopulates table
-     */
-    refresh() {
-        this.table.clear().draw();
-        this.populateTable()
     }
 
     /**
@@ -74,5 +65,14 @@ class EATable {
     */
     initRowClicks(clickFunction) {
         this.table.on('click', 'tbody tr', clickFunction);
+    }
+
+    /**
+     * Removes row from table
+     *
+     * @param element element to remove from table
+     */
+    remove(element) {
+        this.table.row(element).remove().draw(false);
     }
 }
