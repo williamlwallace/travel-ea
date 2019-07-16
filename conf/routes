@@ -41,6 +41,8 @@ GET           /api/profile/getTravellerTypes/        controllers.backend.Profile
 
 GET           /api/destination/getCountries          controllers.backend.DestinationController.getAllCountries()
 
+GET           /api/destination/getAllPublic          controllers.backend.DestinationController.getAllPublicDestinations()
+
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)

@@ -107,6 +107,11 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
+    public void getPublicDestinations() throws IOException {
+
+    }
+
+    @Test
     public void getDestinationById() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
