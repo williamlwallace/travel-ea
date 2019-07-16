@@ -1,3 +1,7 @@
+/**
+ * Sets up the two treasure hunt tables, calls methods to fill the data
+ * @param {Number} userId - Id of logged in user
+ */
 function onTreasureHuntPageLoad(userId) {
     const myTreasureHuntTable = $("#myTreasure").DataTable();
     const allTreasureHuntTable = $("#allTreasure").DataTable();
@@ -76,18 +80,17 @@ function fillDestinationDropDown() {
     .then(response => {
         response.json()
         .then(json => {
-            let destinationDict = {};
-            for (let i = 0; i < json.length; i++) {
-                destinationDict[json[i]['id']] = json[i]['name'];
-            }
+            const destinationDict = {};
+            json.forEach(function (destination) {
+                destinationDict[destination['id']] = destination['name'];
+            });
             fillDropDown("destinationDropDown", destinationDict);
         });
     });
 }
 
-
 /**
- * Function creates the treasure hunt from information entered in the
+ * Function creates the treasure hunt from information entered in the form
  * @param {string} url - API URL to add a Treasure Hunt
  * @param {string} redirect - URL of redirect page
  * @param {Long} userId - the id of the user adding the hunt
@@ -122,17 +125,17 @@ function addTreasureHunt(url, redirect, userId) {
                     "success");
                 $("#createTreasureHuntModal").modal("hide");
 
-                let table = $('#myTreasure').DataTable();
+                const table = $('#myTreasure').DataTable();
                 const riddle = data.riddle;
                 const startDate = data.startDate;
                 const endDate = data.endDate;
                 let destination = data.destination;
 
-                let destinations = document.getElementById(
+                const destinations = document.getElementById(
                     "destinationDropDown").getElementsByTagName("option");
-                for (let i = 0; i < destinations.length; i++) {
-                    if (parseInt(destinations[i].value) === data.destination.id) {
-                        destination = destinations[i].innerText;
+                for (let dest of destinations) {
+                    if (parseInt(dest.value) === data.destination.id) {
+                        destination = dest.innerText;
                         break;
                     }
                 }

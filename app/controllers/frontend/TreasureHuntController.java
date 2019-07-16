@@ -25,11 +25,9 @@ public class TreasureHuntController extends TEAFrontController {
     }
 
     /**
-     * Displays the trips page. Called with the /trips URL and uses a GET request. Checks that a
-     * user is logged in. Takes them to the trips page if they are, otherwise they are taken to the
-     * start page.
+     * Displays the treasure hunt page. Called with the /treasureHunts URL and uses a GET request.
      *
-     * @return displays the trips or start page.
+     * @return displays the treasure hunt page
      */
     @With({Everyone.class, Authenticator.class})
     public Result index(Http.Request request) {
