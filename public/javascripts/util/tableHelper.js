@@ -24,8 +24,8 @@ class EATable {
     populateTable(url=null) {
         // Query API endpoint to get all destinations
         this.table.clear().draw();
-        const getURL = url ? url : this.getURL;
-        get(getURL)
+        if (!url) url = this.getURL;
+        get(url)
         .then(response => {
             response.json()
             .then(json => {
@@ -62,6 +62,8 @@ class EATable {
 
     /**
     * Redirect to users profile when row is clicked.
+    *
+    * @param {Function} clickFunction on row click callback function
     */
     initRowClicks(clickFunction) {
         this.table.on('click', 'tbody tr', clickFunction);
@@ -70,9 +72,18 @@ class EATable {
     /**
      * Removes row from table
      *
-     * @param element element to remove from table
+     * @param {Object} element element to remove from table
      */
     remove(element) {
         this.table.row(element).remove().draw(false);
+    }
+
+    /**
+     * Adds a row to table
+     *
+     * @param {Object} rowData Array of row data
+     */
+    add(rowData) {
+        this.table.row.add(rowData).draw(false);
     }
 }

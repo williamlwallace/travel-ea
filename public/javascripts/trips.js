@@ -6,13 +6,19 @@ let destinationTable;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    destinationTable = $('#destTable').DataTable({
+    const tripGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url
+    const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length - 2]);
             $(row).attr('data-countryId', data[data.length - 1]);
         }
+    }
+    destinationTable = new EATable('destTable', tableModal, tripGetURL, populate, showTripErrors)
+    destinationTable.initButtonClicks({
+        6:addDestClick
     });
-    populateTable(destinationTable, userId);
+    
 }
 
 /**
@@ -20,50 +26,39 @@ function onPageLoad(userId) {
  * @param {Object} table to populate
  * @param {Number} userId - ID of user to retrieve destinations for
  */
-function populateTable(table, userId) {
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showTripErrors(json);
-            } else {
-                for (const destination of json) {
-                    const id = destination.id;
-                    const name = destination.name;
-                    const type = destination.destType;
-                    const district = destination.district;
-                    const latitude = destination.latitude;
-                    const longitude = destination.longitude;
-                    const country = destination.country.name;
-                    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                    const row = [name, type, district, latitude, longitude,
-                        country, button, id, destination.country.id];
-                    table.row.add(row).draw(false);
-                }
-            }
-        })
-    })
+function populate(json) {
+    const rows = [];
+    for (const destination of json) {
+        const id = destination.id;
+        const name = destination.name;
+        const type = destination.destType;
+        const district = destination.district;
+        const latitude = destination.latitude;
+        const longitude = destination.longitude;
+        const country = destination.country.name;
+        const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+        const row = [name, type, district, latitude, longitude,
+            country, button, id, destination.country.id];
+        rows.push(row);
+    }
+    return rows;
 }
 
 /**
  * Click listener that handles clicks in destination table
  */
-$('#destTable').on('click', 'button', function () {
-    let tableAPI = $('#destTable').dataTable().api();
-    let name = tableAPI.cell($(this).parents('tr'), 0).data();
-    let district = tableAPI.cell($(this).parents('tr'), 1).data();
-    let type = tableAPI.cell($(this).parents('tr'), 2).data();
-    let latitude = tableAPI.cell($(this).parents('tr'), 3).data();
-    let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
-    let countryId = $(this).parents('tr').attr("data-countryId");
-    let id = $(this).parents('tr').attr('id');
+function addDestClick(button, tableAPI, cellId) {
+    let name = tableAPI.cell($(button).parents('tr'), 0).data();
+    let district = tableAPI.cell($(button).parents('tr'), 1).data();
+    let type = tableAPI.cell($(button).parents('tr'), 2).data();
+    let latitude = tableAPI.cell($(button).parents('tr'), 3).data();
+    let longitude = tableAPI.cell($(button).parents('tr'), 4).data();
+    let countryId = $(button).parents('tr').attr("data-countryId");
+    let id = $(button).parents('tr').attr('id');
 
     addDestinationToTrip(id, name, district, type, latitude, longitude,
         countryId);
-});
+};
 
 /**
  * Add destination to database
@@ -142,7 +137,7 @@ function addRow(data) {
     const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
     const row = [name, type, district, latitude, longitude, country, button, id,
         data.country.id];
-    destinationTable.row.add(row).draw(false);
+    destinationTable.add(row);
 }
 
 /**
