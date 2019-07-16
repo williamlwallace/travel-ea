@@ -134,6 +134,8 @@
             </div>
         </div>
 
+        @* Trip details modal *@
+        @modules.tripModal()
 
         @* Edit Profile Modal *@
         <div class="modal fade" id="editProfileModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel"
@@ -288,7 +290,7 @@
 
 <script type="text/javascript">
     setPermissions("@loggedUser.id", "@user.id");
-    onPageLoad(@user.id);
+    onPageLoad(@user.id, @canModify);
     getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");

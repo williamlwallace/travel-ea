@@ -4,19 +4,17 @@
  */
 function onPageLoad(userId) {
     const tripGetURL = tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url;
-    console.log(tripGetURL);
-    
     const tripModal = {
         createdRow: function (row, data, dataIndex) {
-            $(row).attr('data-href', data[data.length - 1]);
+            $(row).attr('data-id', data[data.length - 1]);
             $(row).addClass("clickable-row");
         },
         order: []
     };
     const tripTable = new EATable('tripTable', tripModal, tripGetURL, populate, showTripErrors);
     tripTable.initRowClicks(function () {
-        console.log("row clicked with trip id: " + this.dataset.href);
-        //TODO: Show modal for the trip clicked
+        populateModal(this);
+        $('#trip-modal').modal();
     });
 }
 
@@ -68,4 +66,70 @@ function findFirstTripDate(trip) {
     }
 
     return null;
+}
+
+/**
+ * Gets data relevent to trip and populates modal
+ *
+ * @param {Object} row row element
+ */
+function populateModal(row) {
+    const tripId = row.dataset.id;
+    get(tripRouter.controllers.backend.TripController.getTrip(tripId).url)
+   .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                error(json);
+            } else {
+                createTimeline(json);
+            }
+        });
+   });
+    
+}
+
+/**
+ * sets the apropriote data in the modal
+ *
+ * @param {Object} trip object containing all trip data
+ */
+function createTimeline(trip) {
+    $('#timeline').html("");
+    $('#edit-href').attr("href", tripRouter.controllers.frontend.TripController.editTrip(trip.id).url)
+    if (trip.isPublic) {
+        //Have to convert these to native DOM elements cos jquery dum
+        $("#privacy-img")[0].setAttribute("src", "/assets/images/public.png");
+    } else {
+        $("#privacy-img")[0].setAttribute("src", "/assets/images/private.png");
+    }
+    
+    for (dest of trip.tripDataList) {
+        let timeline = `<article>
+                            <div class="inner">\n`
+        if (dest.arrivalTime != null) {
+            timeline += `<span class="date">
+                            <span class="day">${dest.arrivalTime.substring(8,10)}</span>
+                            <span class="month">${dest.arrivalTime.substring(5,7)}</span>
+                            <span class="year">${dest.arrivalTime.substring(0,4)}</span>
+                        </span>\n`
+        }
+        timeline += `<h2>
+                    ${dest.destination.name}<br>
+                    ${dest.destination.country.name}
+                </h2>
+                <p>\n`
+        if(dest.arrivalTime != null) {
+            timeline += `Arrival: ${dest.arrivalTime.substring(11,13)}:${dest.arrivalTime.substring(14,16)}<br>\n`
+        }
+        if(dest.departureTime != null) {
+            timeline += `Departure: ${dest.departureTime.substring(11,13)}:${dest.departureTime.substring(14,16)}<br>
+            ${dest.departureTime.substring(8,10)}/${dest.departureTime.substring(5,7)}/${dest.departureTime.substring(0,4)}\n`
+        }
+        timeline += `
+                </p>
+            </div>
+        </article>`
+        $('#timeline').html($('#timeline').html() + timeline);
+    }
 }

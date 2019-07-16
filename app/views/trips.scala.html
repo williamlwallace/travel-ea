@@ -9,28 +9,33 @@
 }
 
 @layouts.imageHeader("Trips", user, "images/trips-bg.jpg", scripts){
-        <div class="container">
-            <div class="text-center">
-                <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
-            </div><br>
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/profile.css")">
 
-            @* The Trips Table *@
-            <div>
-                <table id="tripTable" class="table table-hover table-bordered" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th class="th-sm">Start Destination</th>
-                            <th class="th-sm">End Destination</th>
-                            <th class="th-sm">Trip Length</th>
-                            <th class="th-sm">Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
+    <div class="container">
+        <div class="text-center">
+            <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
+        </div><br>
 
+        @* The Trips Table *@
+        <div>
+            <table id="tripTable" class="table table-hover table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th class="th-sm">Start Destination</th>
+                        <th class="th-sm">End Destination</th>
+                        <th class="th-sm">Trip Length</th>
+                        <th class="th-sm">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
+
+    </div>
+
+    @* Trip details modal *@
+    @modules.tripModal()
 }
 
 <script type="text/javascript">
