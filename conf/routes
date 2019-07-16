@@ -39,7 +39,9 @@ GET           /api/profile/getTravellerTypes/        controllers.backend.Profile
 
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-GET           /api/destination/getCountries          controllers.backend.DestinationController.getAllCountries()
+GET           /api/country/getCountries              controllers.backend.CountryController.getAllCountries()
+
+GET           /api/country/getCountry/:id            controllers.backend.CountryController.getCountryById(id: Long)
 
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
@@ -140,6 +142,8 @@ GET     /assets/routers/photo         controllers.backend.PhotoController.photoR
 GET     /assets/routers/profile       controllers.backend.ProfileController.profileRoutes(request: Request)
 
 GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
+
+GET     /assets/routers/country       controllers.backend.CountryController.countryRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

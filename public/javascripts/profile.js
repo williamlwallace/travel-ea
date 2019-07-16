@@ -49,12 +49,12 @@ function updateProfileData(data) {
         Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
     arrayToString(data.nationalities, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
         document.getElementById("summary_nationalities").innerHTML = out;
     });
     arrayToString(data.passports, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
         // If passports were cleared, update html text to None: Fix for Issue #36
         document.getElementById("summary_passports").innerHTML = out === ""
@@ -69,7 +69,7 @@ function updateProfileData(data) {
 
 /**
  * The javascript method to populate the select boxes on the edit profile scene
- * @param url the route/url to send the request to to get the profile data
+ * @param uri the route/url to send the request to to get the profile data
  */
 function populateProfileData(uri) {
     get(uri)
