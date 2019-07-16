@@ -1,5 +1,5 @@
 -- AUTHOR: Matthew Minish, William Wallace, Ollie Sharplin, what about me?
--- MODIFIED: 9/7/2019 2.00PM
+-- MODIFIED: 12/7/2019 3.00PM
 
 -- !Ups
 
@@ -190,8 +190,8 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     user_id               INT NOT NULL,
     destination_id        INT NOT NULL,
     riddle                VARCHAR(1024) NOT NULL,
-    start_date            DATETIME NOT NULL,
-    end_date              DATETIME NOT NULL,
+    start_date            DATE NOT NULL,
+    end_date              DATE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
