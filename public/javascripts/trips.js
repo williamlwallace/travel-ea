@@ -46,6 +46,10 @@ function populate(json) {
 
 /**
  * Click listener that handles clicks in destination table
+ *
+ * @param {Object} button button element
+ * @param {Object} tableAPI table
+ * @param {Number} cellId id of containing cell 
  */
 function addDestClick(button, tableAPI, cellId) {
     let name = tableAPI.cell($(button).parents('tr'), 0).data();
