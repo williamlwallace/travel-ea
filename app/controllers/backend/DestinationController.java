@@ -238,8 +238,7 @@ public class DestinationController extends TEABackController {
      * fails, 403 if the user cannot edit the destination and 200 if successful
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId,
-        Long travellerTypeId) {
+    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -301,8 +300,7 @@ public class DestinationController extends TEABackController {
      * fails, 403 if the user cannot edit the destination and 200 if successful
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> removeTravellerType(Http.Request request, Long destId,
-        Long travellerTypeId) {
+    public CompletableFuture<Result> removeTravellerType(Http.Request request, Long destId, Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -381,6 +379,19 @@ public class DestinationController extends TEABackController {
         });
     }
 
+    /**
+     * Gets all destinations that are strictly public, regardless of which user is requesting them
+     * @return 200 code with public destination array on success, otherwise 500 if sanitization error
+     */
+    public CompletableFuture<Result> getAllPublicDestinations() {
+        return destinationRepository.getAllPublicDestinations().thenApplyAsync(publicDestinations -> {
+            try {
+                return ok(sanitizeJson(Json.toJson(publicDestinations)));
+            } catch (IOException e) {
+                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+            }
+        });
+    }
 
     /**
      * Gets all destinations valid for the requesting user.
@@ -472,10 +483,7 @@ public class DestinationController extends TEABackController {
      * @param filter The sort order (either asc or desc)
      * @return OK with paged list of destinations
      */
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String
-        order,
-        String filter) {
-        // TODO: Destinations should be returned here which are not currently, update API spec
+    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }
@@ -490,10 +498,10 @@ public class DestinationController extends TEABackController {
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getAllPublicDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController
-                    .detailedDestinationIndex(),
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
                 controllers.backend.routes.javascript.DestinationController.editDestination(),
                 controllers.backend.routes.javascript.DestinationController.makeDestinationPublic(),
                 controllers.backend.routes.javascript.DestinationController.addTravellerType(),

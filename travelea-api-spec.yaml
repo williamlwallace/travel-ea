@@ -453,6 +453,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CountryDefinition'
+                  
+  '/destination/getAllPublic':
+    get:
+      tags:
+        - Destinations
+      summary: Get all destinations that are strictly public
+      responses:
+        '200':
+          description: Successfully retrieved public destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Destination'
 
   '/user/destination/{id}':
     get:
