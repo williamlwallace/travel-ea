@@ -1,14 +1,46 @@
+let isAdmin;
+
 /**
  * Sets up the two treasure hunt tables, calls methods to fill the data
  * @param {Number} userId - Id of logged in user
+ * @param {Boolean} admin - Whether or not the logged in user is an admin
  */
-function onTreasureHuntPageLoad(userId) {
-    const myTreasureHuntTable = $("#myTreasure").DataTable();
-    const allTreasureHuntTable = $("#allTreasure").DataTable();
+function onTreasureHuntPageLoad(userId, admin) {
+    isAdmin = admin;
+    let myTreasureHuntTable = $("#myTreasure").DataTable();
+    let allTreasureHuntTable = $("#allTreasure").DataTable();
     populateMyTreasureHunts(myTreasureHuntTable, userId);
     populateAllTreasureHunts(allTreasureHuntTable, userId);
 
     fillDestinationDropDown();
+}
+
+/**
+ * Deletes the treasure hunt with given ID, and forced table to reload
+ * @param id
+ */
+function deleteTreasureHunt(id, userId, deletingOther) {
+
+    let myTreasureHuntTable = $("#myTreasure").DataTable();
+    let allTreasureHuntTable = $("#allTreasure").DataTable();
+
+    _delete(treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url)
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                document.getElementById("otherError").innerHTML = json;
+            } else {
+                if(deletingOther) {
+                    populateAllTreasureHunts(allTreasureHuntTable, userId);
+                    allTreasureHuntTable.draw();
+                } else {
+                    populateMyTreasureHunts(myTreasureHuntTable, userId);
+                    myTreasureHuntTable.draw();
+                }
+            }
+        })
+    })
 }
 
 /**
@@ -26,14 +58,17 @@ function populateMyTreasureHunts(table, userId) {
             if (response.status !== 200) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
-                for (const hunt in json) {
-                    const riddle = json[hunt].riddle;
-                    const destination = json[hunt].destination.name;
-                    const startDate = json[hunt].startDate;
-                    const endDate = json[hunt].endDate;
+                for (let hunt in json) {
+                    let riddle = json[hunt].riddle;
+                    let destination = json[hunt].destination.name;
+                    let startDate = json[hunt].startDate;
+                    let endDate = json[hunt].endDate;
+                    let huntId = json[hunt].id;
+
+                    let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`
 
                     table.row.add(
-                        [riddle, destination, startDate, endDate]).draw(false);
+                        [riddle, destination, startDate, endDate, function () { return buttonHtml }]).draw(false);
 
                 }
             }
@@ -54,15 +89,21 @@ function populateAllTreasureHunts(table, userId) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                document.getElementById("otherErro").innerHTML = json;
+                document.getElementById("otherError").innerHTML = json;
             } else {
-                for (const hunt in json) {
+                for (let hunt in json) {
                     if (json[hunt].user.id !== userId) {
-                        const riddle = json[hunt].riddle;
-                        const startDate = json[hunt].startDate;
-                        const endDate = json[hunt].endDate;
+                        let riddle = json[hunt].riddle;
+                        let startDate = json[hunt].startDate;
+                        let endDate = json[hunt].endDate;
+                        let huntId = json[hunt].id;
 
-                        table.row.add([riddle, startDate, endDate]).draw(false);
+                        if(isAdmin) {
+                            let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, true)">Admin Delete</button>`
+                            table.row.add([riddle, startDate, endDate, function () { return buttonHtml }]).draw(false);
+                        } else {
+                            table.row.add([riddle, startDate, endDate]).draw(false);
+                        }
                     }
                 }
             }
@@ -125,23 +166,9 @@ function addTreasureHunt(url, redirect, userId) {
                     "success");
                 $("#createTreasureHuntModal").modal("hide");
 
-                const table = $('#myTreasure').DataTable();
-                const riddle = data.riddle;
-                const startDate = data.startDate;
-                const endDate = data.endDate;
-                let destination = data.destination;
-
-                const destinations = document.getElementById(
-                    "destinationDropDown").getElementsByTagName("option");
-                for (let dest of destinations) {
-                    if (parseInt(dest.value) === data.destination.id) {
-                        destination = dest.innerText;
-                        break;
-                    }
-                }
-
-                table.row.add([riddle, destination, startDate, endDate]).draw(false);
-
+                let myTreasureHuntTable = $("#myTreasure").DataTable();
+                populateMyTreasureHunts(myTreasureHuntTable, userId);
+                myTreasureHuntTable.draw();
             }
         });
     });
