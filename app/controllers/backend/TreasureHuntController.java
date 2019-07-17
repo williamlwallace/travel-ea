@@ -11,7 +11,9 @@ import models.User;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.TreasureHuntRepository;
 import util.validation.ErrorResponse;
 import util.validation.TreasureHuntValidator;
@@ -61,5 +63,48 @@ public class TreasureHuntController extends TEABackController {
         return treasureHuntRepository.addTreasureHunt(treasureHunt).thenApplyAsync(treasureHuntId ->
             ok(Json.toJson(treasureHuntId))
         );
+    }
+
+    /**
+     * Deletes a treasure hunt from the database
+     *
+     * @param request Http request containing user cookie
+     * @param id ID of the treasure hunt to delete
+     * @return 200 on successful delete, 404 if no treasure hunt found, 403 if unauthorized
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> deleteTreasureHunt(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+
+        return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
+            // Check 404 condition where given ID does not exist
+            if(!treasureHunt.isPresent()) {
+               return CompletableFuture.supplyAsync(Results::notFound);
+            }
+
+            // Check user owns treasure hunt (or is an admin), otherwise return 403 FORBIDDEN
+            if(!(user.admin || treasureHunt.get().user.id.equals(user.id))) {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            }
+
+            // Delete the treasure hunt and return ok message if all other checks pass
+            return treasureHuntRepository.deleteTreasureHunt(id).thenApplyAsync(rows ->
+                ok()
+            );
+        });
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend.
+     *
+     * @return JSRouter Play result
+     */
+    public Result treasureHuntRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
+                controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }

@@ -91,6 +91,8 @@ GET           /api/photo/:id/profile                 controllers.backend.PhotoCo
 
 POST          /api/treasureHunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
 
+DELETE        /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
@@ -142,6 +144,8 @@ GET     /assets/routers/photo         controllers.backend.PhotoController.photoR
 GET     /assets/routers/profile       controllers.backend.ProfileController.profileRoutes(request: Request)
 
 GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
+
+GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

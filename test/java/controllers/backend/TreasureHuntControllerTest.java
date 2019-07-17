@@ -44,7 +44,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void deleteTreasureHunt() throws SQLException {
         // Get existing treasure hunts, check that two exist
         assertEquals(2, treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
 
         // Deletes the destination owned by this user
@@ -59,7 +59,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Now check that treasure hunt has indeed been deleted
         Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
         assertEquals(1, foundTreasureHunts.size());
         assertEquals("Big pointy thing in Paris", foundTreasureHunts.iterator().next().riddle);
     }
@@ -68,7 +68,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void deleteOtherPersonTreasureHuntAdmin() throws SQLException {
         // Get existing treasure hunts, check that two exist
         assertEquals(2, treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
 
         // Deletes the treasure hunt owned by the other user, as an admin
@@ -83,7 +83,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Now check that treasure hunt has indeed been deleted
         Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
         assertEquals(1, foundTreasureHunts.size());
         assertEquals("Big pointy thing in Paris", foundTreasureHunts.iterator().next().riddle);
     }
@@ -92,7 +92,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void deleteTreasureHuntUnauthorized() throws SQLException {
         // Get existing treasure hunts, check that two exist
         assertEquals(2, treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
 
         // Attempt to delete the admin's treasure hunt, as a regular user
@@ -107,7 +107,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Now check that no treasure hunts have been deleted
         assertEquals(2, treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
     }
 
@@ -115,7 +115,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void deleteTreasureHuntNotFound() throws SQLException {
         // Get existing treasure hunts, check that two exist
         assertEquals(2, treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
 
         // Attempt to delete a treasure hunt that does not exist
@@ -130,7 +130,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Now check that no treasure hunts have been deleted
         assertEquals(2, treasureHuntsFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
     }
 
