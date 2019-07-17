@@ -3,9 +3,13 @@ $('#gender').picker();
 
 /**
  * The JavaScript method to fill the initial profile data
+ * @param {Number} userId the id of the user who's profile to receive
+ * @param {String} email the email of the logged in user, which may or may not be displayed
  */
-function fillProfileData(userId, username) {
-    document.getElementById("summary_email").innerText = username;
+function fillProfileData(userId, email) {
+    if (document.getElementById("summary_email")) {
+        document.getElementById("summary_email").innerText = email;
+    }
     get(profileRouter.controllers.backend.ProfileController.getProfile(userId).url)
     .then(response => {
         response.json()
@@ -21,12 +25,12 @@ function fillProfileData(userId, username) {
                         Date.parse(profile.dateOfBirth));
                 document.getElementById(
                     "summary_gender").innerText = profile.gender;
-                arrayToString(profile.nationalities, 'name',
+                arrayToCountryString(profile.nationalities, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
                     document.getElementById("summary_nationalities").innerHTML = out;
                 });
-                arrayToString(profile.passports, 'name',
+                arrayToCountryString(profile.passports, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
                     // If passports were cleared, update html text to None: Fix for Issue #36
@@ -39,7 +43,6 @@ function fillProfileData(userId, username) {
                     document.getElementById("summary_travellerTypes").innerHTML = out;
                 });
             }
-
         })
     })
 }

@@ -45,20 +45,7 @@
                         <p class="heading">Gender <span id="summary_gender" class="user-info"></span></p>
                         <p class="heading">Nationalities <span id="summary_nationalities" class="user-info"></span></p>
                         <p class="heading">Traveller Types <span id="summary_travellerTypes" class="user-info"></span></p>
-                        @if(!profile.passports.isEmpty) {
-                            <p class="heading">Passports
-                                <span id="summary_passports" class="user-info">
-                                @profile.passports.toString.substring(1, profile.passports.toString.length - 1)
-                                </span>
-                            </p>
-                        } else {
-                        <p class="heading">Passports
-                            <span id="summary_passports" class="user-info">
-                            None
-                            </span>
-                        </p>
-                        }
-                        <span id="invalid-country-warning" class="invalid-country">Your Profile Uses Invalid Countries</span>
+                        <p class="heading">Passports <span id="summary_passports" class="user-info"></span></p>
 
                         @if(canModify) {
                             <a data-toggle="modal" data-target="#editProfileModal">
