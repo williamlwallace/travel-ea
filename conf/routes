@@ -97,6 +97,8 @@ GET           /api/treasureHunt/:id                  controllers.backend.Treasur
 
 PUT           /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.updateTreasureHunt(request:Request, id:Long)
 
+DELETE        /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)

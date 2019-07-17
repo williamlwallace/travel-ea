@@ -50,12 +50,11 @@ public class TreasureHuntRepository {
     public CompletableFuture<Optional<TreasureHunt>> getTreasureHuntById(Long id) {
         return supplyAsync(() ->
             ebeanServer.find(TreasureHunt.class)
-                .where()
-                .eq("id", id)
-                .findOneOrEmpty()
+            .where()
+            .eq("id", id)
+            .findOneOrEmpty()
         );
     }
-
 
     /**
      * Updates a TreasureHunt object in the database.
