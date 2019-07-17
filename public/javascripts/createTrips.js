@@ -6,64 +6,57 @@ let destinationTable;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    destinationTable = $('#destTable').DataTable({
+    const tripGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url
+    const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length - 2]);
             $(row).attr('data-countryId', data[data.length - 1]);
         }
+    }
+    destinationTable = new EATable('destTable', tableModal, tripGetURL, populate, showTripErrors)
+    destinationTable.initButtonClicks({
+        6:addDestClick
     });
-    populateDestinationTable(destinationTable, userId);
 }
 
-/**
- * Populates destination table
- * @param {Object} table to populate
- * @param {Number} userId - ID of user to retrieve destinations for
- */
-function populateDestinationTable(table, userId) {
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showTripErrors(json);
-            } else {
-                for (const destination of json) {
-                    const id = destination.id;
-                    const name = destination.name;
-                    const type = destination.destType;
-                    const district = destination.district;
-                    const latitude = destination.latitude;
-                    const longitude = destination.longitude;
-                    const country = destination.country.name;
-                    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                    const row = [name, type, district, latitude, longitude,
-                        country, button, id, destination.country.id];
-                    table.row.add(row).draw(false);
-                }
-            }
-        })
-    })
+function populate(json) {
+    const rows = [];
+    for (const destination of json) {
+        const id = destination.id;
+        const name = destination.name;
+        const type = destination.destType;
+        const district = destination.district;
+        const latitude = destination.latitude;
+        const longitude = destination.longitude;
+        const country = destination.country.name;
+        const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+        const row = [name, type, district, latitude, longitude,
+            country, button, id, destination.country.id];
+        rows.push(row);
+    }
+    return rows;
 }
 
 /**
  * Click listener that handles clicks in destination table
+ *
+ * @param {Object} button button element
+ * @param {Object} tableAPI table
+ * @param {Number} cellId id of containing cell 
  */
-$('#destTable').on('click', 'button', function () {
-    let tableAPI = $('#destTable').dataTable().api();
-    let name = tableAPI.cell($(this).parents('tr'), 0).data();
-    let district = tableAPI.cell($(this).parents('tr'), 1).data();
-    let type = tableAPI.cell($(this).parents('tr'), 2).data();
-    let latitude = tableAPI.cell($(this).parents('tr'), 3).data();
-    let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
-    let countryId = $(this).parents('tr').attr("data-countryId");
-    let id = $(this).parents('tr').attr('id');
+function addDestClick(button, tableAPI, cellId) {
+    let name = tableAPI.cell($(button).parents('tr'), 0).data();
+    let district = tableAPI.cell($(button).parents('tr'), 1).data();
+    let type = tableAPI.cell($(button).parents('tr'), 2).data();
+    let latitude = tableAPI.cell($(button).parents('tr'), 3).data();
+    let longitude = tableAPI.cell($(button).parents('tr'), 4).data();
+    let countryId = $(button).parents('tr').attr("data-countryId");
+    let id = $(button).parents('tr').attr('id');
 
     addDestinationToTrip(id, name, district, type, latitude, longitude,
         countryId);
-});
+};
 
 /**
  * Add destination to database
@@ -112,6 +105,59 @@ function addDestination(url, redirect, userId) {
                 data.id = json;
                 addRow(data);
             }
+        });
+    });
+}
+
+/**
+ * Adds a row to the destinations table with the given data
+ * @param {Object} data - Data object to be added to table
+ */
+function addRow(data) {
+    const id = data.id;
+    const name = data.name;
+    const type = data.destType;
+    const district = data.district;
+    const latitude = data.latitude;
+    const longitude = data.longitude;
+    let country = data.country.id;
+
+    // Set country name
+    let countries = document.getElementById(
+        "countryDropDown").getElementsByTagName("option");
+    for (let i = 0; i < countries.length; i++) {
+        if (parseInt(countries[i].value) === data.country.id) {
+            country = countries[i].innerText;
+            break;
+        }
+    }
+
+    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
+    const row = [name, type, district, latitude, longitude, country, button, id,
+        data.country.id];
+    destinationTable.add(row);
+}
+
+/**
+ * Gets all countries and fills into dropdown
+ * @param {string} getCountriesUrl - get all countries URI
+ */
+function fillCountryInfo(getCountriesUrl) {
+    // Run a get request to fetch all destinations
+    get(getCountriesUrl)
+    // Get the response of the request
+    .then(response => {
+        // Convert the response to json
+        response.json()
+        .then(data => {
+            // Json data is an array of destinations, iterate through it
+            countryDict = {};
+            for (let i = 0; i < data.length; i++) {
+                // Also add the item to the dictionary
+                countryDict[data[i]['id']] = data[i]['name'];
+            }
+            // Now fill the drop down box, and list of destinations
+            fillDropDown("countryDropDown", countryDict);
         });
     });
 }
@@ -436,45 +482,6 @@ function formatDateTime(date, time) {
     }
     else {
         return null;
-    }
-}
-
-/**
- * Speciality show errors function for trips
- * @param {Object} json - Error Response Json
- */
-function showTripErrors(json) {
-    // Gets all the error key identifiers
-    let keys = Object.keys(json);
-
-    // Resets and sets tripError label
-    let tripError = document.getElementById("tripError");
-    if (keys.includes("trip")) {
-        tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
-            '<a class="close" data-dismiss="alert">×</a>' +
-            '<span>' + json["trip"] + '</span></div>';
-    }
-    else {
-        tripError.innerHTML = "";
-    }
-
-    // Resets and sets the card error labels
-    let listItemArray = Array.of(document.getElementById("list").children)[0];
-
-    for (let j = 0; j < listItemArray.length; j++) {
-        let labels = listItemArray[j].getElementsByTagName("label");
-
-        for (let i = 0; i < labels.length; i++) {
-            if (labels[i].getAttribute("id") === "destinationError") {
-                if (keys.includes(j.toString())) {
-                    labels[i].innerText = json[j.toString()];
-                }
-                else {
-                    labels[i].innerText = "";
-                }
-                break;
-            }
-        }
     }
 }
 
