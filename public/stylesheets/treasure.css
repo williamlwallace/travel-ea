@@ -1,0 +1,35 @@
+/**
+ * The users info text titles
+ */
+span.section-title {
+    float: left;
+    font-weight: 600;
+}
+
+/**
+ * Styling for the section buttons
+ */
+a.button-secondary {
+    color: #1b1e21;
+}
+
+a.button-secondary:hover {
+    color: #6d6d6e;
+    text-decoration-line: underline;
+}
+
+a.button-secondary:active {
+    color: #1b1e21;
+}
+
+span.profile-button {
+    text-decoration: inherit;
+    color: inherit;
+    font-size: 20px;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+span.profile-button:hover {
+    text-decoration-line: underline;
+}

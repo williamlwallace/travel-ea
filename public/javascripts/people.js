@@ -12,7 +12,7 @@ function capitalizeFirstLetter(string) {
  * Initialises the data table and adds the filter button to the right of the search field
  */
 $(document).ready(function () {
-    table = $('#dtPeople').DataTable({
+    const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
@@ -34,57 +34,44 @@ $(document).ready(function () {
                     $('#gender').val('');
                     $('#minAge').val(null);
                     $('#maxAge').val(null);
-                    table.clear().draw();
-                    populateTable(table,
-                        profileRouter.controllers.backend.ProfileController.searchProfilesJson().url);
+                    table.populateTable();
                 }
             }
         ]
+    }
+    const getURL = profileRouter.controllers.backend.ProfileController.searchProfilesJson().url;
+    table = new EATable('dtPeople', tableModal, getURL, populate, showErrors);
+    table.initRowClicks(function() {
+        window.location = this.dataset.href;
     });
-    populateTable(table,
-        profileRouter.controllers.backend.ProfileController.searchProfilesJson().url);
 });
-
-/**
- * Populates people table
- * @param {Object} table to populate
- * @param {URL} url for lolling
- */
-function populateTable(table, url) {
-    get(url)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json);
-            } else {
-                for (const person of json) {
-                    populateTableHelper(table, person);
-                }
-            }
-        })
-    })
-}
 
 /**
  * Adds a person's information to the given table
  *
  * @param {Object} table Table to populate
- * @param {Object} person Person to pull information from
+ * @param {Object} josn json of people
  */
-function populateTableHelper(table, person) {
-    const profile = profileRouter.controllers.frontend.ProfileController.index(
-        person.userId).url;
-    const firstName = person.firstName;
-    const lastName = person.lastName;
-    const gender = person.gender;
-    const age = calc_age(Date.parse(person.dateOfBirth));
-    getNationalityAndTravellerStrings(person)
-    .then(natAndTravArray => {
-        table.row.add([firstName, lastName, gender, age,
-            natAndTravArray[0], natAndTravArray[1],
-            profile]).draw(false);
+function populate(json) {
+    const rows = []
+    for (const person of json) {
+        const profile = profileRouter.controllers.frontend.ProfileController.index(
+            person.userId).url;
+        const firstName = person.firstName;
+        const lastName = person.lastName;
+        const gender = person.gender;
+        const age = calc_age(Date.parse(person.dateOfBirth));
+        const row = getNationalityAndTravellerStrings(person)
+            .then(natAndTravArray => {
+                return [firstName, lastName, gender, age,
+                    natAndTravArray[0], natAndTravArray[1],
+                    profile]
+            });
+        rows.push(row)
+
+    }
+    return Promise.all(rows).then(finishedRows => {
+        return finishedRows
     });
 }
 
@@ -120,14 +107,6 @@ function searchParams() {
     let url = profileRouter.controllers.backend.ProfileController.searchProfilesJson(
         nationalityId, gender, minAge, maxAge, travellerTypeId).url;
 
-    table.clear().draw();
-    populateTable(table, url);
+    table.populateTable(url)
     $('#peopleFilterModal').modal('toggle');
 }
-
-/**
- * Redirect to users profile when row is clicked.
- */
-$('#dtPeople').on('click', 'tbody tr', function () {
-    window.location = this.dataset.href;
-});
