@@ -2,6 +2,7 @@ package controllers.backend;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
 import javax.inject.Singleton;
 import models.CountryDefinition;
 import models.Destination;
+import models.TreasureHunt;
 import models.Trip;
 import models.TripData;
 import models.User;
@@ -28,7 +30,9 @@ public abstract class ControllersTest extends WithApplication {
 
     static Application fakeApp;
     static Database db;
+    // Belongs to admin, userID = 1
     static Cookie adminAuthCookie;
+    // Belongs to non-admin, userID = 2
     static Cookie nonAdminAuthCookie;
     static DestinationRepository destinationRepository;
 
@@ -139,5 +143,31 @@ public abstract class ControllersTest extends WithApplication {
             tripDataCollection.add(tripData);
         }
         return tripDataCollection;
+    }
+
+    /**
+     * Converts a result set from a query for rows from TreasureHunt table into java collection
+     *
+     * Note: Does not join full objects where foreign keys are given, but rather just creates such an object with foreign key ID set
+     *
+     * @param rs Result set
+     * @return Collection of treasure hunts read from result set
+     */
+    Collection<TreasureHunt> treasureHuntsFromResultSet(ResultSet rs) throws SQLException {
+        Collection<TreasureHunt> treasureHuntCollection = new ArrayList<>();
+        while(rs.next()) {
+            TreasureHunt treasureHunt = new TreasureHunt();
+
+            treasureHunt.destination = new Destination();
+            treasureHunt.destination.id = rs.getLong("destination_id");
+            treasureHunt.id = rs.getLong("id");
+            treasureHunt.user = new User();
+            treasureHunt.user.id = rs.getLong("user_id");
+            treasureHunt.endDate = rs.getTimestamp("end_date").toLocalDateTime();
+            treasureHunt.startDate = rs.getTimestamp("start_date").toLocalDateTime();
+            treasureHunt.riddle = rs.getString("riddle");
+            treasureHuntCollection.add(treasureHunt);
+        }
+        return treasureHuntCollection;
     }
 }
