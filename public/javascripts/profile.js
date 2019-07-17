@@ -2,6 +2,49 @@
 $('#gender').picker();
 
 /**
+ * The JavaScript method to fill the initial profile data
+ */
+function fillProfileData(userId, username) {
+    document.getElementById("summary_email").innerText = username;
+    get(profileRouter.controllers.backend.ProfileController.getProfile(userId).url)
+    .then(response => {
+        response.json()
+        .then(profile => {
+            if (response.status !== 200) {
+                showErrors(profile);
+            } else {
+                document.getElementById(
+                    "summary_name").innerText = profile.firstName + ' '
+                    + profile.lastName;
+                document.getElementById(
+                    "summary_age").innerHTML = calc_age(
+                        Date.parse(profile.dateOfBirth));
+                document.getElementById(
+                    "summary_gender").innerText = profile.gender;
+                arrayToString(profile.nationalities, 'name',
+                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                .then(out => {
+                    document.getElementById("summary_nationalities").innerHTML = out;
+                });
+                arrayToString(profile.passports, 'name',
+                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                .then(out => {
+                    // If passports were cleared, update html text to None: Fix for Issue #36
+                    document.getElementById("summary_passports").innerHTML = out === ""
+                        ? "None" : out;
+                });
+                arrayToString(profile.travellerTypes, 'description',
+                    profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+                .then(out => {
+                    document.getElementById("summary_travellerTypes").innerHTML = out;
+                });
+            }
+
+        })
+    })
+}
+
+/**
  * The JavaScript function to process a client updating there profile
  * @param uri The route/uri to send the request to
  * @param redirect The page to redirect to if no errors are found
