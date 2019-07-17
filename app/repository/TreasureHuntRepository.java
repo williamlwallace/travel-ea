@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,6 +40,22 @@ public class TreasureHuntRepository {
             return treasureHunt.id;
         }, executionContext);
     }
+
+    /**
+     * Returns an optional treasure hunt, i.e if one is found with given id it is returned,
+     * otherwise optional will remain as none.
+     * @param id ID of treasure hunt to search for
+     * @return Optional treasureHunt, that is non-null if a treasure hunt with corresponding ID was found
+     */
+    public CompletableFuture<Optional<TreasureHunt>> getTreasureHuntById(Long id) {
+        return supplyAsync(() ->
+            ebeanServer.find(TreasureHunt.class)
+                .where()
+                .eq("id", id)
+                .findOneOrEmpty()
+        );
+    }
+
 
     /**
      * Updates a TreasureHunt object in the database.

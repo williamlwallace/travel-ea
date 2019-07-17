@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import models.Destination;
 import models.TreasureHunt;
@@ -32,6 +33,12 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     @Before
     public void runEvolutions() {
         applyEvolutions("test/treasureHunt/");
+    }
+
+    @Test
+    public void updateTreasureHunt() throws SQLException {
+
+        // Get existing treasure hunt
     }
 
     @Test

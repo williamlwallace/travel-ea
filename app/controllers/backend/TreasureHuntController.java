@@ -13,6 +13,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Http.MimeTypes;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.TreasureHuntRepository;
@@ -67,6 +68,35 @@ public class TreasureHuntController extends TEABackController {
     }
 
     /**
+     * Updates a treasure hunt in the database
+     *
+     * @param request the HTTP request containing the user cookie
+     * @param id ID of the treasure hunt to update
+     * @return 200 on successful update, 404 if no treasure hunt found, 403 if unauthorized
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> updateTreasureHunt(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+
+        return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
+            // Check if treasure hunt with given ID exists
+            if(!treasureHunt.isPresent()) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            }
+
+            // Check if user is authorized to update treasure hunt
+            if(!(user.admin || treasureHunt.get().user.id.equals(user.id))) {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            }
+
+            // Update the treasure hunt and return an ok message
+            return treasureHuntRepository.updateTreasureHunt(treasureHunt.get()).thenApplyAsync(rows ->
+                ok()
+            );
+        });
+    }
+
+    /**
      * Gets all treasure hunts in database
      *
      * @param request the HTTP request
@@ -118,7 +148,8 @@ public class TreasureHuntController extends TEABackController {
             JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
-                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts()
+                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts(),
+                controllers.backend.routes.javascript.TreasureHuntController.updateTreasureHunt()
             )
         ).as(MimeTypes.JAVASCRIPT);
     }
