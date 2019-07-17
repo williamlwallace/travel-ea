@@ -14,10 +14,22 @@ function updateProfile(uri, redirect) {
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
     data.travellerTypes = JSONFromDropDowns("travellerTypes");
+
+    console.log(data.nationalities);
+    for (let i in data.nationalities) {
+        console.log(data.nationalities[i].id);
+        checkCountryExists(data.nationalities[i].id).then(exists => {
+            if (!exists) {
+                // post(countryRouter.controllers.backend.CountryController.insertCountry(country).url)
+            }
+        });
+    }
+
     // Post json data to given uri
     put(uri, data)
     .then(response => {
@@ -37,6 +49,19 @@ function updateProfile(uri, redirect) {
     });
 }
 
+function checkCountryExists(id) {
+    return get(
+        countryRouter.controllers.backend.CountryController.getCountryById(
+            id).url)
+    .then(response => {
+        if (response.status !== 200) {
+            return false;
+        } else {
+            return true;
+        }
+    });
+}
+
 /**
  * Maps a json object to the profile summary data and updates it
  * @param {Object} data Json data object
@@ -48,13 +73,14 @@ function updateProfileData(data) {
     document.getElementById("summary_age").innerHTML = calc_age(
         Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
+
     arrayToString(data.nationalities, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
         document.getElementById("summary_nationalities").innerHTML = out;
     });
     arrayToString(data.passports, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
         // If passports were cleared, update html text to None: Fix for Issue #36
         document.getElementById("summary_passports").innerHTML = out === ""
@@ -69,7 +95,7 @@ function updateProfileData(data) {
 
 /**
  * The javascript method to populate the select boxes on the edit profile scene
- * @param url the route/url to send the request to to get the profile data
+ * @param uri the route/url to send the request to to get the profile data
  */
 function populateProfileData(uri) {
     get(uri)

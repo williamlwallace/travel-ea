@@ -256,7 +256,7 @@
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
         sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
-        fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
+        getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         populateDestinationDetails(@destinationId);
         initMap(@destinationId);
         src="@controllers.backend.routes.DestinationController.destinationRoutes()"

@@ -96,6 +96,6 @@
     }
 
 <script type="text/javascript">
-    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
+    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
 </script>

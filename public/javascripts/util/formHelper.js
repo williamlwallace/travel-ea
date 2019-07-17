@@ -1,3 +1,5 @@
+const countryApiUrl = "https://restcountries.eu/rest/v2/all?fields=name;numericCode";
+
 /**
  * Displays error messages in appropriate error labels
  *
@@ -43,10 +45,11 @@ function hideErrors(parentElement) {
  * Gets data from api and maps ids to given colName in a dictionary
  *
  * @param {string} URI - API URI to get data from
- * @param {string} colName - name of data column
+ * @param {string} dataKey - Key of accessed data from API
  * @param {Boolean} capitalise - Whether to capitalised first letter
+ * @param {string} idKey - Key of accessed ID from API
  */
-function getHardData(URI, colName, capitalise = false) {
+function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
     // Run a get request to fetch all destinations
     return get(URI)
     // Get the response of the request
@@ -59,10 +62,10 @@ function getHardData(URI, colName, capitalise = false) {
             for (let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 if (capitalise) {
-                    dict[data[i]['id']] = capitalizeFirstLetter(
-                        data[i][colName]);
+                    dict[data[i][idKey]] = capitalizeFirstLetter(
+                        data[i][dataKey]);
                 } else {
-                    dict[data[i]['id']] = data[i][colName];
+                    dict[data[i][idKey]] = data[i][dataKey];
                 }
             }
             return dict;
@@ -72,18 +75,23 @@ function getHardData(URI, colName, capitalise = false) {
 
 /**
  * Gets data from API and fills given drop downs
- *
  * @param {string} URI - API URI to get data from
  * @param {Object} dropdowns - Array of dropdown ids
- * @param {string} colName - name of data column
- * @param {Boolean} capitalise - Wheather is capatilise first letter
+ * @param {string} dataKey - Key of accessed data from API
+ * @param {Boolean} capitalise - Whether is capitalise first letter
+ * @param {string} idKey - Key of accessed ID from API
+ * @param {Boolean} sort - Whether or not the list should be sorted
  */
-function getAndFillDD(URI, dropdowns, colName, capitalise = false) {
-    getHardData(URI, colName, capitalise)
+function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
+    sort = false) {
+    checkCountryValidity("Bahrain", "48").then(result => {
+        console.log(result);
+    });
+    getHardData(URI, dataKey, capitalise, idKey)
     .then(dict => {
         // Now fill the selects
         dropdowns.forEach(element => {
-            fillDropDown(element, dict);
+            fillDropDown(element, dict, sort);
         });
     });
 }
@@ -92,17 +100,38 @@ function getAndFillDD(URI, dropdowns, colName, capitalise = false) {
  * Gets dropdown element and fills its data
  * @param {string} dropdownName - id of dropdown element
  * @param {Object} dict - dictionary of data to put in dropdown
+ * @param {Boolean} sort - Whether or not the list should be sorted
  */
-function fillDropDown(dropdownName, dict) {
+function fillDropDown(dropdownName, dict, sort = false) {
+    let array = [];
+    let item;
+
     for (let key in dict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = dict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById(dropdownName).appendChild(item);
+        item = {};
+        item.id = key;
+        item.value = dict[key];
+        array.push(item);
     }
-    // implements the plug in multi selector
+
+    if (sort) {
+        array.sort(function (a, b) {
+            if (a.value > b.value) {
+                return 1;
+            } else if (a.value < b.value) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+    }
+
+    for (let i in array) {
+        let option = document.createElement("OPTION");
+        option.innerHTML = array[i].value;
+        option.value = array[i].id;
+        // Add list element to drop down list
+        document.getElementById(dropdownName).appendChild(option);
+    }
     $('#' + dropdownName).picker();
 }
 
@@ -196,5 +225,27 @@ function toast(title, message, type = "primary", delay = 2000) {
     // Delete after hidden
     toasterWrapper.on('hidden.bs.toast', '.toast', function () {
         $(this).remove();
+    });
+}
+
+/**
+ * Checks a countries validity against the RestCountries API
+ * @param {string} countryName The full name of the country to check
+ * @param {string} countryCode The 3 digit country code
+ * @returns {boolean} a promise containing a boolean indicating if the country is valid
+ */
+function checkCountryValidity(countryName, countryCode) {
+    let countryUrl = "https://restcountries.eu/rest/v2/name/" + countryName
+        + "?fullText=true?fields=numericCode";
+    return get(countryUrl).then(countryResponse => {
+        console.log(countryResponse);
+        if (countryResponse.status > 400) {
+            return {result: false};
+        } else {
+            return countryResponse.json().then(countryData => {
+                return (parseInt(countryCode) === parseInt(
+                    countryData["0"].numericCode));
+            });
+        }
     });
 }
