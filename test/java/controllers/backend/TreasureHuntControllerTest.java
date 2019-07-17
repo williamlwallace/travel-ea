@@ -63,7 +63,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
             connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
         assertEquals(1, foundTreasureHunts.size());
-        assertEquals("Big pointy thing in Paris", foundTreasureHunts.iterator().next().riddle);
+        assertEquals("Your own Riddle", foundTreasureHunts.iterator().next().riddle);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
             connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
         assertEquals(1, foundTreasureHunts.size());
-        assertEquals("Big pointy thing in Paris", foundTreasureHunts.iterator().next().riddle);
+        assertEquals("Your own Riddle", foundTreasureHunts.iterator().next().riddle);
     }
 
     @Test

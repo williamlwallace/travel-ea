@@ -97,20 +97,6 @@ public class TreasureHuntController extends TEABackController {
     }
 
     /**
-     * Lists routes to put in JS router for use from frontend.
-     *
-     * @return JSRouter Play result
-     */
-    public Result treasureHuntRoutes(Http.Request request) {
-        return ok(
-            JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
-                controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
-            )
-        ).as(Http.MimeTypes.JAVASCRIPT);
-    }
-
-    /**
      * Gets all treasure hunts in database
      *
      * @param request the HTTP request
@@ -162,7 +148,8 @@ public class TreasureHuntController extends TEABackController {
             JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
-                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts()
+                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts(),
+                controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
             )
         ).as(MimeTypes.JAVASCRIPT);
     }

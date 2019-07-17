@@ -167,8 +167,8 @@ public abstract class ControllersTest extends WithApplication {
             treasureHunt.id = rs.getLong("id");
             treasureHunt.user = new User();
             treasureHunt.user.id = rs.getLong("user_id");
-            treasureHunt.endDate = rs.getTimestamp("end_date").toLocalDateTime();
-            treasureHunt.startDate = rs.getTimestamp("start_date").toLocalDateTime();
+            treasureHunt.endDate = rs.getString("end_date");
+            treasureHunt.startDate = rs.getString("start_date");
             treasureHunt.riddle = rs.getString("riddle");
             treasureHuntCollection.add(treasureHunt);
         }
