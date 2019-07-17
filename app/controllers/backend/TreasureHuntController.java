@@ -4,12 +4,14 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.TreasureHunt;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
+import play.mvc.Http.MimeTypes;
 import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.With;
@@ -106,5 +108,62 @@ public class TreasureHuntController extends TEABackController {
                 controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
+    }
+
+    /**
+     * Gets all treasure hunts in database
+     *
+     * @param request the HTTP request
+     * @return JSON object with list of treasure hunts
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllTreasureHunts(Http.Request request) {
+        return treasureHuntRepository.getAllTreasureHunts()
+            .thenApplyAsync(hunts -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(hunts)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
+    }
+
+    /**
+     * Attempts to get all user trips for a given userID.
+     *
+     * @param request the HTTP request
+     * @param userId the userID to retrieve trips for
+     * @return JSON object with list if trips that a user has
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllUserTreasureHunts(Http.Request request, Long userId) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
+        return treasureHuntRepository.getAllUserTreasureHunts(userId)
+            .thenApplyAsync(hunts -> {
+                if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(hunts)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                } else {
+                    return forbidden();
+                }
+        });
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend.
+     *
+     * @return JSRouter Play result
+     */
+    public Result treasureHuntRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
+                controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
+                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts()
+            )
+        ).as(MimeTypes.JAVASCRIPT);
     }
 }

@@ -91,6 +91,10 @@ GET           /api/photo/:id/profile                 controllers.backend.PhotoCo
 
 POST          /api/treasureHunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
 
+GET           /api/treasureHunt                      controllers.backend.TreasureHuntController.getAllTreasureHunts(request:Request)
+
+GET           /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.getAllUserTreasureHunts(request:Request, id:Long)
+
 DELETE        /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 # ~~~~~~frontend~~~~~~~
@@ -130,6 +134,9 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
+# Treasure Hunt page
+GET           /treasureHunts         controllers.frontend.TreasureHuntController.index(request: Request)
+
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
@@ -144,8 +151,6 @@ GET     /assets/routers/photo         controllers.backend.PhotoController.photoR
 GET     /assets/routers/profile       controllers.backend.ProfileController.profileRoutes(request: Request)
 
 GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
-
-GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

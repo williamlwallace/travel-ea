@@ -332,7 +332,8 @@ public class TripController extends TEABackController {
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
                 controllers.frontend.routes.javascript.TripController.editTrip(),
-                controllers.backend.routes.javascript.TripController.getAllTrips()
+                controllers.backend.routes.javascript.TripController.getAllTrips(),
+                controllers.backend.routes.javascript.TripController.getTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

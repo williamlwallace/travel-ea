@@ -5,6 +5,8 @@ import static play.mvc.Http.HttpVerbs.DELETE;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
+import static play.mvc.Http.Status.FORBIDDEN;
+import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.route;
@@ -152,8 +154,8 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Set other required information for a valid treasure hunt
         treasureHunt.riddle = "Init";
-        treasureHunt.startDate = LocalDateTime.of(2019, 5, 29, 0, 0, 0);
-        treasureHunt.endDate = LocalDateTime.of(2019, 7, 30, 0, 0, 0);
+        treasureHunt.startDate = "2019-05-29";
+        treasureHunt.endDate = "2019-07-30";
 
         // Convert treasure hunt object to Json
         JsonNode treasureHuntJson = Json.toJson(treasureHunt);
@@ -220,5 +222,31 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         for (String key : response.keySet()) {
             assertEquals(expectedMessages.get(key), response.get(key));
         }
+    }
+
+    @Test
+    public void getAllUserTreasureHunts() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/treasureHunt/1");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        JsonNode hunts = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals(1, hunts.size());
+    }
+
+    @Test
+    public void getUnauthorizedTreasureHunts() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/treasureHunt/1");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
     }
 }

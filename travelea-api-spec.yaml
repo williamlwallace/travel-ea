@@ -1340,6 +1340,42 @@ paths:
           description: You do not have permission to create a treasure hunt for someone else
 
   '/treasureHunt/{id}':
+    get:
+      tags:
+        - Treasure Hunts
+      summary: "Get all Treasure hunts for a certain user id"
+      description: "If the user is authorised get all treasure hunts created by the given id, including the answer"
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All treasure hunts of user (may be empty list)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TreasureHunt'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+
+  '/treasureHunt/{id}':
     delete:
       tags:
         - Treasure Hunts
@@ -1723,3 +1759,37 @@ components:
       format: binary
       description: The raw content of the JPEG or PNG image file.
       example: Raw content of JPEG or PNG image file
+
+    TreasureHunt:
+      type: object
+      required:
+        - userId
+        - destinationId
+        - startDate
+        - endDate
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          format: int64
+          description: >-
+            Automatically generated when hunt is created, should never be
+            specified manually
+        userId:
+          type: integer
+          minimum: 1
+          format: int64
+          description: References the id of an existing user
+        destinationId:
+          type: integer
+          minimum: 1
+          format: int64
+          description: References the id of an existing destination
+        startDate:
+          type: string
+          format: date yyyy/mm/dd
+          example: '2019-05-29'
+        endDate:
+          type: string
+          format: date yyyy/mm/dd
+          example: '2019-07-12'

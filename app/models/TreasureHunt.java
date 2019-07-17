@@ -1,9 +1,6 @@
 package models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
-import java.time.LocalDateTime;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -40,10 +37,8 @@ public class TreasureHunt extends Model {
     public String riddle;
 
     @Constraints.Required
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    public LocalDateTime startDate;
+    public String startDate;
 
     @Constraints.Required
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    public LocalDateTime endDate;
+    public String endDate;
 }

@@ -14,14 +14,13 @@ INSERT INTO CountryDefinition (name) VALUES ('Test Country');
 -- Add sample destination
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 0);
 
--- Add sample treasure hunt
--- Owned by admin
-INSERT INTO TreasureHunt (user_id, destination_id, riddle, start_date, end_date) VALUES (1, 1, 'Big pointy thing in Paris', '2000-01-01 00:00:00.0', '2030-01-01 00:00:00.0');
--- Not owned by admin
-INSERT INTO TreasureHunt (user_id, destination_id, riddle, start_date, end_date) VALUES (2, 1, 'Also found in Paris, Texas', '2000-01-01 00:00:00.0', '2030-01-01 00:00:00.0');
+-- Add sample treasure hunts, one the logged in user, the other not
+INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date) VALUES (1, 'Your own Riddle', 1, '2019-05-29', '2019-07-12');
+INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date) VALUES (2, 'A public Riddle', 1, '2019-05-29', '2019-07-12');
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM TreasureHunt;
 DELETE FROM Destination;
 DELETE FROM CountryDefinition;
 DELETE FROM Profile;

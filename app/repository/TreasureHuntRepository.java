@@ -98,4 +98,19 @@ public class TreasureHuntRepository {
                     .findList()
             , executionContext);
     }
+
+    /**
+     * Retrieves all TreasureHunt objects related to a given userId.
+     *
+     * @param userID User to find all hunts for
+     * @return List if TreasureHunt objects with the specified user ID
+     */
+    public CompletableFuture<List<TreasureHunt>> getAllUserTreasureHunts(long userID) {
+        return supplyAsync(() ->
+            ebeanServer.find(TreasureHunt.class)
+            .where()
+            .eq("user_id", userID)
+            .findList()
+        , executionContext);
+    }
 }
