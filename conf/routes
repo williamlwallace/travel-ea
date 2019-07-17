@@ -43,6 +43,8 @@ GET           /api/country/getCountries              controllers.backend.Country
 
 GET           /api/country/getCountry/:id            controllers.backend.CountryController.getCountryById(id: Long)
 
+POST          /api/country                           controllers.backend.CountryController.insertCountry(request:Request)
+
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)

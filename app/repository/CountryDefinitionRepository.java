@@ -34,7 +34,7 @@ public class CountryDefinitionRepository {
      */
     public CompletableFuture<Long> insertCountryDefinition(CountryDefinition definition) {
         // If country definition started with an ID, set it to null as this is generated
-        definition.id = null;
+//        definition.id = null;
 
         return supplyAsync(() -> {
             ebeanServer.insert(definition);

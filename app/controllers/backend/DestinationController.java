@@ -429,7 +429,6 @@ public class DestinationController extends TEABackController {
      * @return OK with a destination, notFound if destination does not exist
      */
     public CompletableFuture<Result> getDestination(long getId) {
-        System.out.println(controllers.backend.routes.javascript.DestinationController.getAllDestinations());
         return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
             if (destination == null) {
                 return notFound(Json.toJson(getId));
