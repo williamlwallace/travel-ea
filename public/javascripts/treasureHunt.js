@@ -74,8 +74,7 @@ function populateAllTreasureHunts(table, userId) {
  * Gets all public destinations and fills into a dropdown
  */
 function fillDestinationDropDown() {
-    //TODO change this api to one that only gets public destinations
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+    get(destinationRouter.controllers.backend.DestinationController.getAllPublicDestinations(
         1).url)
     .then(response => {
         response.json()

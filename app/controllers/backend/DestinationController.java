@@ -484,7 +484,6 @@ public class DestinationController extends TEABackController {
      * @return OK with paged list of destinations
      */
     public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
-        // TODO: Destinations should be returned here which are not currently, update API spec
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
     }
@@ -499,10 +498,10 @@ public class DestinationController extends TEABackController {
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllCountries(),
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getAllPublicDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController
-                    .detailedDestinationIndex(),
+                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
                 controllers.backend.routes.javascript.DestinationController.editDestination(),
                 controllers.backend.routes.javascript.DestinationController.makeDestinationPublic(),
                 controllers.backend.routes.javascript.DestinationController.addTravellerType(),
