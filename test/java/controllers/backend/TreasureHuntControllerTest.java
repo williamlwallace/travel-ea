@@ -1,7 +1,9 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static play.mvc.Http.HttpVerbs.DELETE;
+import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -42,10 +44,45 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         applyEvolutions("test/treasureHunt/");
     }
 
-    @Test
-    public void updateTreasureHunt() throws SQLException {
+    private TreasureHunt getTreasureHunt(int id) throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + id);
 
-        // Get existing treasure hunt
+        Result getResult = route(fakeApp, getRequest);
+
+        if (getResult.status() != OK) {
+            return null;
+        } else {
+            return new ObjectMapper()
+                .readValue(Helpers.contentAsString(getResult), TreasureHunt.class);
+        }
+    }
+
+    @Test
+    public void updateTreasureHunt() throws IOException {
+
+        TreasureHunt treasureHunt = getTreasureHunt(2);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.riddle = "X marks the spot";
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt))
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "7");
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        TreasureHunt updatedTreasureHunt = getTreasureHunt(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("X marks the spot", updatedTreasureHunt.riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
     }
 
     @Test
@@ -55,7 +92,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
             connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
         ).size());
 
-        // Deletes the destination owned by this user
+        // Deletes the treasure hunt owned by this user
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(DELETE)
             .cookie(nonAdminAuthCookie)
