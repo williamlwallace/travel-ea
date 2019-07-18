@@ -25,7 +25,6 @@ class EATable {
         // Query API endpoint to get all destinations
         this.table.clear().draw();
         if (!url) url = this.getURL;
-        console.log(url);
         
         get(url)
         .then(response => {
@@ -36,7 +35,6 @@ class EATable {
                 } else {
                     Promise.resolve(this.populate(json)).then((rows) => {
                         for (const row of rows) {
-                            console.log(row);
                             this.table.row.add(row).draw(false);
                         }
                     });
@@ -63,7 +61,7 @@ class EATable {
     }
 
     /**
-    * Redirect to users profile when row is clicked.
+    * Redirect to uri when row is clicked.
     *
     * @param {Function} clickFunction on row click callback function
     */

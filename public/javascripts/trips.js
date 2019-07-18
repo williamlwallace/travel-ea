@@ -9,13 +9,18 @@ function onPageLoad(userId) {
             $(row).attr('data-id', data[data.length - 1]);
             $(row).addClass("clickable-row");
         },
-        order: []
+        order: [],
+        aoColumnDefs: [
+            { 'bSortable': false, 'aTargets': [ 3 ] }
+        ]
     };
     const tripTable = new EATable('tripTable', tripModal, tripGetURL, populate, showTripErrors);
-    tripTable.initRowClicks(function () {
-        populateModal(this);
-        $('#trip-modal').modal();
-    });
+    if (!tripTable.table.data().any()) {
+        tripTable.initRowClicks(function () {
+            populateModal(this);
+        });
+    }
+
 }
 
 /**
@@ -25,7 +30,6 @@ function onPageLoad(userId) {
  */
 function populate(json) {
     const rows = [];
-    console.log(json);
     
     for (const trip of json) {
         const id = trip.id;
@@ -75,6 +79,7 @@ function findFirstTripDate(trip) {
  */
 function populateModal(row) {
     const tripId = row.dataset.id;
+    if (tripId == null) return;
     get(tripRouter.controllers.backend.TripController.getTrip(tripId).url)
    .then(response => {
         response.json()
@@ -83,6 +88,7 @@ function populateModal(row) {
                 error(json);
             } else {
                 createTimeline(json);
+                $('#trip-modal').modal();
             }
         });
    });
@@ -90,18 +96,29 @@ function populateModal(row) {
 }
 
 /**
- * sets the apropriote data in the modal
+ * sets the appropriate data in the modal
  *
  * @param {Object} trip object containing all trip data
  */
 function createTimeline(trip) {
     $('#timeline').html("");
-    $('#edit-href').attr("href", tripRouter.controllers.frontend.TripController.editTrip(trip.id).url)
-    if (trip.isPublic) {
-        //Have to convert these to native DOM elements cos jquery dum
-        $("#privacy-img")[0].setAttribute("src", "/assets/images/public.png");
-    } else {
-        $("#privacy-img")[0].setAttribute("src", "/assets/images/private.png");
+    $('#edit-href').attr("href", tripRouter.controllers.frontend.TripController.editTrip(trip.id).url);
+
+    if (true) {
+        $("#privacy-img").remove();
+        const privacyToggle = $("<input id=\"privacy-img\" class=\"privacy-image\" type=\"image\">");
+        $("#trip-dropdown").append(privacyToggle);
+
+        if (trip.isPublic) {
+            //Have to convert these to native DOM elements cos jquery dum
+            $("#privacy-img")[0].setAttribute("src", "/assets/images/public.png");
+            $("#privacy-img")[0].setAttribute("title", "Public");
+        } else {
+            $("#privacy-img")[0].setAttribute("src", "/assets/images/private.png");
+            $("#privacy-img")[0].setAttribute("title", "Private");
+        }
+
+        $("#privacy-img").click(function(){updateTripPrivacy(tripRouter.controllers.backend.TripController.updateTripPrivacy().url, "/assets/images/public.png", "/assets/images/private.png", trip.id)});
     }
     
     for (dest of trip.tripDataList) {
