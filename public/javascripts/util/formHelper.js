@@ -1,5 +1,3 @@
-const countryApiUrl = "https://restcountries.eu/rest/v2/all?fields=name;numericCode";
-
 /**
  * Displays error messages in appropriate error labels
  *
@@ -84,9 +82,6 @@ function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
  */
 function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
     sort = false) {
-    checkCountryValidity("Bahrain", "48").then(result => {
-        console.log(result);
-    });
     getHardData(URI, dataKey, capitalise, idKey)
     .then(dict => {
         // Now fill the selects
