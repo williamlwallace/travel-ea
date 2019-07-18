@@ -418,7 +418,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     @Test
     public void makeDestinationPublic() throws SQLException {
         // Statement to get destination with id 1
-        PreparedStatement statement = db.getConnection()
+        PreparedStatement statement = connection
             .prepareStatement("SELECT * FROM Destination WHERE id = 1;");
 
         // Store destination and make sure it is not null and is private
@@ -448,7 +448,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     @Test
     public void makeDestinationPublicForbidden() throws SQLException {
         // Statement to get destination with id 3
-        PreparedStatement statement = db.getConnection()
+        PreparedStatement statement = connection
             .prepareStatement("SELECT * FROM Destination WHERE id = 3;");
 
         // Store destination and make sure it is not null and is private
@@ -499,9 +499,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void makeDestinationPublicAndMergeSimilar() throws SQLException {
         // Get existing trip data and photo which reference destination 2
         TripData oldTripData = tripDataFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
                 .executeQuery()).iterator().next();
-        ResultSet rs = db.getConnection()
+        ResultSet rs = connection
             .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         rs.next();
         Long oldPhotoDestId = rs.getLong(1);
@@ -520,12 +520,12 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         // Check that trip data got pointed to new destination
         TripData newTripData = tripDataFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
                 .executeQuery()).iterator().next();
         assertEquals((Long) 8L, newTripData.destination.id);
 
         // Check that photo got pointed to new destination
-        ResultSet newRs = db.getConnection()
+        ResultSet newRs = connection
             .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         newRs.next();
         Long newPhotoDestId = newRs.getLong(1);

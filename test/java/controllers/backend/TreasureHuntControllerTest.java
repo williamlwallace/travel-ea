@@ -1,7 +1,10 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static play.mvc.Http.HttpVerbs.DELETE;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.FORBIDDEN;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
@@ -12,6 +15,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashMap;
 import models.Destination;
 import models.TreasureHunt;
@@ -25,6 +31,8 @@ import play.test.Helpers;
 
 public class TreasureHuntControllerTest extends controllers.backend.ControllersTest {
 
+    private static String DELETE_TREASURE_HUNT_URI = "/api/treasureHunt/";
+
     /**
      * Runs evolutions before each test. These evolutions are found in conf/test/(whatever), and
      * should contain minimal sql data needed for tests
@@ -33,6 +41,101 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void runEvolutions() {
         applyEvolutions("test/treasureHunt/");
     }
+
+    @Test
+    public void deleteTreasureHunt() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Deletes the destination owned by this user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "2");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Now check that treasure hunt has indeed been deleted
+        Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
+        assertEquals(1, foundTreasureHunts.size());
+        assertEquals("Your own Riddle", foundTreasureHunts.iterator().next().riddle);
+    }
+
+    @Test
+    public void deleteOtherPersonTreasureHuntAdmin() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Deletes the treasure hunt owned by the other user, as an admin
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(adminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "2");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Now check that treasure hunt has indeed been deleted
+        Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
+        assertEquals(1, foundTreasureHunts.size());
+        assertEquals("Your own Riddle", foundTreasureHunts.iterator().next().riddle);
+    }
+
+    @Test
+    public void deleteTreasureHuntUnauthorized() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Attempt to delete the admin's treasure hunt, as a regular user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "1");
+
+        // Get result and check it was rejected 403
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+
+        // Now check that no treasure hunts have been deleted
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+    }
+
+    @Test
+    public void deleteTreasureHuntNotFound() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Attempt to delete a treasure hunt that does not exist
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "3");
+
+        // Get result and check it returned 404 error
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+
+        // Now check that no treasure hunts have been deleted
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+    }
+
 
     @Test
     public void createValidTreasureHunt() {

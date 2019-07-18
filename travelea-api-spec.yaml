@@ -1390,6 +1390,38 @@ paths:
         '404':
           description: User not found
 
+  '/treasureHunt/{id}':
+    delete:
+      tags:
+        - Treasure Hunts
+      summary: "Deletes a treasure hunt from the database"
+      description: |
+        Deletes a treasure hunt from the database, the treasure hunt must either be owned by the user or the user must be an admin
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: The ID of the treasure hunt to delete
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully deleted treasure hunt
+        '401':
+          description: Unauthenticated
+        '403':
+          description: You do not have permission to delete that treasure hunt
+        '404':
+          description: No such treasure hunt found with that ID
 
 servers:
   - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'

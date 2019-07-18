@@ -97,6 +97,8 @@ GET           /api/treasureHunt                      controllers.backend.Treasur
 
 GET           /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.getAllUserTreasureHunts(request:Request, id:Long)
 
+DELETE        /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
