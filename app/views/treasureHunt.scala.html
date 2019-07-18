@@ -34,6 +34,7 @@
                             <th class="th-sm">Answer</th>
                             <th class="th-sm">Start Date</th>
                             <th class="th-sm">End Date</th>
+                            <th class="th-sm">Delete</th>
                         </tr>
                     </thead>
                     <tbody id="destinationList">
@@ -52,6 +53,10 @@
                             <th class="th-sm">Riddle</th>
                             <th class="th-sm">Start Date</th>
                             <th class="th-sm">End Date</th>
+                            @if(user.admin) {
+                                <th class="th-sm">Admin delete</th>
+                            }
+
                         </tr>
                     </thead>
                     <tbody id="destinationList">
@@ -116,5 +121,5 @@
 }
 
 <script type="text/javascript">
-    onTreasureHuntPageLoad(@user.id);
+    onTreasureHuntPageLoad(@user.id, @user.admin);
 </script>

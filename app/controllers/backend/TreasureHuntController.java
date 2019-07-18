@@ -81,17 +81,19 @@ public class TreasureHuntController extends TEABackController {
         return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
             // Check 404 condition where given ID does not exist
             if(!treasureHunt.isPresent()) {
-               return CompletableFuture.supplyAsync(Results::notFound);
+               return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(
+                   "No treasure hunt with given ID found")));
             }
 
             // Check user owns treasure hunt (or is an admin), otherwise return 403 FORBIDDEN
             if(!(user.admin || treasureHunt.get().user.id.equals(user.id))) {
-                return CompletableFuture.supplyAsync(Results::forbidden);
+                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
+                    "You do not have permission to delete that treasure hunt")));
             }
 
             // Delete the treasure hunt and return ok message if all other checks pass
             return treasureHuntRepository.deleteTreasureHunt(id).thenApplyAsync(rows ->
-                ok()
+                ok(Json.toJson("Successfully delete treasure hunt with ID: " + id))
             );
         });
     }
