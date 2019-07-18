@@ -171,7 +171,7 @@ function JSONFromDropDowns(dropdown) {
  * Turns array into string whilst mapping the inner object ids to real values
  * @param {Object} array array to translate
  * @param {string} dataName column name
- * @param {string} URL Address to retrive
+ * @param {string} URL Address to retrieve
  */
 function arrayToString(array, dataName, URL) {
     return getHardData(URL, dataName)

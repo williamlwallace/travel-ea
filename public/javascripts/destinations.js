@@ -108,8 +108,10 @@ function populateDestinations(json) {
         const district = json[dest].district;
         const latitude = json[dest].latitude;
         const longitude = json[dest].longitude;
-        const country = json[dest].country.name;
-
+        let country = json[dest].country.name;
+        if(!checkCountryValidity(json[dest].country.name, json[dest].country.id)) {
+            country = json[dest].country.name + ' (invalid)';
+        }
         rows.push(
             [name, type, district, latitude, longitude, country,
                 destination]);
