@@ -7,16 +7,17 @@ let destinationTable;
  */
 function onPageLoad(userId) {
     const tripGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url
+        userId).url;
     const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length - 2]);
             $(row).attr('data-countryId', data[data.length - 1]);
         }
-    }
-    destinationTable = new EATable('destTable', tableModal, tripGetURL, populate, showTripErrors)
+    };
+    destinationTable = new EATable('destTable', tableModal, tripGetURL,
+        populate, showTripErrors)
     destinationTable.initButtonClicks({
-        6:addDestClick
+        6: addDestClick
     });
 }
 
@@ -43,7 +44,7 @@ function populate(json) {
  *
  * @param {Object} button button element
  * @param {Object} tableAPI table
- * @param {Number} cellId id of containing cell 
+ * @param {Number} cellId id of containing cell
  */
 function addDestClick(button, tableAPI, cellId) {
     let name = tableAPI.cell($(button).parents('tr'), 0).data();
@@ -56,12 +57,13 @@ function addDestClick(button, tableAPI, cellId) {
 
     addDestinationToTrip(id, name, district, type, latitude, longitude,
         countryId);
-};
+}
 
 /**
  * Add destination to database
  * @param {string} url - API URI to add destination
  * @param {string} redirect - URI of redirect page
+ * @param {Number} userId - The id of the current user
  */
 function addDestination(url, redirect, userId) {
     // Read data from destination form
@@ -141,30 +143,6 @@ function addRow(data) {
 }
 
 /**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            countryDict = {};
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
-}
-
-/**
  * Maps countries into destinations
  * @param {Object} countryDict - Dictionary of Countries
  */
@@ -205,43 +183,6 @@ function updateCountryCardField(countryDict) {
 }
 
 /**
- * Send new destination data to API
- * @param {string} uri - API URI to send destination
- */
-function newDestination(uri) {
-    // Read data from destination form
-    const formData = new FormData(
-        document.getElementById("addDestinationForm"));
-    // Convert data to json object
-    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
-    }), {});
-
-    // Convert lat and long to double values, and id to int
-    data.latitude = parseFloat(data.latitude);
-    data.longitude = parseFloat(data.longitude);
-    // Convert country id to country object
-    data.countryId = parseInt(data.countryId);
-    data.country = {"id": data.countryId};
-    delete data.countryId;
-    // Post json data to given uri
-    post(uri, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showTripErrors(json);
-            } else {
-                document.getElementById("modalContactForm").setAttribute(
-                    "aria-hidden", "true");
-            }
-        });
-    });
-}
-
-/**
  * Adds destination card and fills data
  *
  * @param id Id of the destination
@@ -262,51 +203,53 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
         cardId++;
     }
 
-    document.getElementById('list').insertAdjacentHTML('beforeend',
-        '<div class="card flex-row" id=' + cardId + '>\n' +
-        '<label id=' + id + '></label>' +
-        '<div class="card-header border-0" style="height: 100%">\n' +
-        '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
-        +    // TODO: Store default card image rather than reference
-        '</div>\n' +
-        '<div class="card-block px-2">\n' +
-        '<div id="topCardBlock">\n' +
-        '<h4 class="card-title">' + name + '</h4>\n' +
-        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
-        + cardId + ')"></button>\n' +
-        '</div>\n' +
-        '<div id="left">\n' +
-        '<p class="card-text" id="card-text">' +
-        '<b>Type: </b> ' + type + '<br/>' +
-        '<b>District: </b> ' + district + '<br/>' +
-        '<b>Latitude: </b>' + latitude + '<br/>' +
-        '<b>Longitude: </b>' + longitude + '<br/>' +
-        '<b>Country: </b>' + countryDict[countryId] +
-        '</p>\n' +
-        '</div>' +
-        '<div id="right">\n' +
-        '<form id="arrivalDepartureForm">\n' +
-        '                <div class="modal-body mx-3">\n' +
-        '                    <div id="arrival">Arrival\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
-        +
-        '                    </div>\n' +
-        '                    <div id="depart">Departure\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
-        +
-        '                    </div>\n' +
-        '                </div>\n' +
-        '            </form>\n' +
-        '<div style="text-align: center;">\n' +
-        '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
-        +
-        '<br/>\n' +
-        '</div>\n' +
-        '</div>\n' +
-        '</div>'
-    );
+    getCountryNameById(countryId).then(countryName => {
+        document.getElementById('list').insertAdjacentHTML('beforeend',
+            '<div class="card flex-row" id=' + cardId + '>\n' +
+            '<label id=' + id + '></label>' +
+            '<div class="card-header border-0" style="height: 100%">\n' +
+            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
+            +    // TODO: Store default card image rather than reference
+            '</div>\n' +
+            '<div class="card-block px-2">\n' +
+            '<div id="topCardBlock">\n' +
+            '<h4 class="card-title">' + name + '</h4>\n' +
+            '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
+            + cardId + ')"></button>\n' +
+            '</div>\n' +
+            '<div id="left">\n' +
+            '<p class="card-text" id="card-text">' +
+            '<b>Type: </b> ' + type + '<br/>' +
+            '<b>District: </b> ' + district + '<br/>' +
+            '<b>Latitude: </b>' + latitude + '<br/>' +
+            '<b>Longitude: </b>' + longitude + '<br/>' +
+            '<b>Country: </b>' + countryName +
+            '</p>\n' +
+            '</div>' +
+            '<div id="right">\n' +
+            '<form id="arrivalDepartureForm">\n' +
+            '                <div class="modal-body mx-3">\n' +
+            '                    <div id="arrival">Arrival\n' +
+            '                        <i class="fas prefix grey-text"></i>\n' +
+            '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
+            +
+            '                    </div>\n' +
+            '                    <div id="depart">Departure\n' +
+            '                        <i class="fas prefix grey-text"></i>\n' +
+            '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
+            +
+            '                    </div>\n' +
+            '                </div>\n' +
+            '            </form>\n' +
+            '<div style="text-align: center;">\n' +
+            '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
+            +
+            '<br/>\n' +
+            '</div>\n' +
+            '</div>\n' +
+            '</div>'
+        );
+    });
 }
 
 /**
@@ -339,6 +282,7 @@ function toggleTripPrivacy() {
  * Creates trip and posts to API
  * @param {string} uri - API URI to add trip
  * @param {string} redirect - URI to redirect page
+ * @param {Number} userId - the id of the current user
  */
 function createTrip(uri, redirect, userId) {
     $("#createTripButton").prop('disabled', true);
@@ -357,12 +301,7 @@ function createTrip(uri, redirect, userId) {
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
     // Value of 1 for public, 0 for private
-    if (tripPrivacy === "Make Private") {
-        tripData["isPublic"] = true;
-    }
-    else {
-        tripData["isPublic"] = false;
-    }
+    tripData["isPublic"] = tripPrivacy === "Make Private";
 
     post(uri, tripData).then(response => {
         // Read response from server, which will be a json object
@@ -461,12 +400,7 @@ function updateTrip(uri, redirect, tripId, userId) {
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
     // Value of 1 for public, 0 for private
-    if (tripPrivacy === "Make Private") {
-        tripData["isPublic"] = true;
-    }
-    else {
-        tripData["isPublic"] = false;
-    }
+    tripData["isPublic"] = tripPrivacy === "Make Private";
 
     put(uri, tripData).then(response => {
         // Read response from server, which will be a json object
