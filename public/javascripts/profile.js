@@ -66,45 +66,26 @@ function updateProfile(uri, redirect) {
     data.passports = JSONFromDropDowns("passports");
     data.travellerTypes = JSONFromDropDowns("travellerTypes");
 
-    console.log(data.nationalities);
-    for (let i in data.nationalities) {
-        console.log(data.nationalities[i].id);
-        checkCountryExists(data.nationalities[i].id).then(exists => {
-            if (!exists) {
-                // post(countryRouter.controllers.backend.CountryController.insertCountry(country).url)
-            }
+    addNonExistingCountries(data.nationalities).then(nationalityResult => {
+        addNonExistingCountries(data.passports).then(passportResult => {
+            // Post json data to given uri
+            put(uri, data)
+            .then(response => {
+                // Read response from server, which will be a json object
+                response.json()
+                .then(json => {
+                    if (response.status !== 200) {
+                        showErrors(json, "updateProfileForm");
+                    } else {
+                        updateProfileData(data);
+                        $("#editProfileModal").modal('hide');
+                        toast("Profile Updated!",
+                            "The updated information will be displayed on your profile.",
+                            "success");
+                    }
+                })
+            });
         });
-    }
-
-    // Post json data to given uri
-    put(uri, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json, "updateProfileForm");
-            } else {
-                updateProfileData(data);
-                $("#editProfileModal").modal('hide');
-                toast("Profile Updated!",
-                    "The updated information will be displayed on your profile.",
-                    "success");
-            }
-        })
-    });
-}
-
-function checkCountryExists(id) {
-    return get(
-        countryRouter.controllers.backend.CountryController.getCountryById(
-            id).url)
-    .then(response => {
-        if (response.status !== 200) {
-            return false;
-        } else {
-            return true;
-        }
     });
 }
 

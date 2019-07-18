@@ -1,7 +1,6 @@
 package controllers.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.backend.routes.javascript;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -51,7 +50,7 @@ public class CountryController extends TEABackController {
         });
     }
 
-    public CompletableFuture<Result> insertCountry(Http.Request request) {
+    public CompletableFuture<Result> addCountry(Http.Request request) {
         JsonNode data = request.body().asJson();
 
         CountryDefinition newCountry = Json.fromJson(data, CountryDefinition.class);
@@ -76,7 +75,7 @@ public class CountryController extends TEABackController {
             JavaScriptReverseRouter.create("countryRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.CountryController.getAllCountries(),
                 controllers.backend.routes.javascript.CountryController.getCountryById(),
-                controllers.backend.routes.javascript.CountryController.insertCountry()
+                controllers.backend.routes.javascript.CountryController.addCountry()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

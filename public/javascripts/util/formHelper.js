@@ -1,5 +1,3 @@
-const countryApiUrl = "https://restcountries.eu/rest/v2/all?fields=name;numericCode";
-
 /**
  * Displays error messages in appropriate error labels
  *
@@ -84,9 +82,6 @@ function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
  */
 function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
     sort = false) {
-    checkCountryValidity("Bahrain", "48").then(result => {
-        console.log(result);
-    });
     getHardData(URI, dataKey, capitalise, idKey)
     .then(dict => {
         // Now fill the selects
@@ -250,27 +245,5 @@ function toast(title, message, type = "primary", delay = 2000) {
     // Delete after hidden
     toasterWrapper.on('hidden.bs.toast', '.toast', function () {
         $(this).remove();
-    });
-}
-
-/**
- * Checks a countries validity against the RestCountries API
- * @param {string} countryName The full name of the country to check
- * @param {string} countryCode The 3 digit country code
- * @returns {boolean} a promise containing a boolean indicating if the country is valid
- */
-function checkCountryValidity(countryName, countryCode) {
-    let countryUrl = "https://restcountries.eu/rest/v2/name/" + countryName
-        + "?fullText=true?fields=numericCode";
-    return get(countryUrl).then(countryResponse => {
-        console.log(countryResponse);
-        if (countryResponse.status > 400) {
-            return {result: false};
-        } else {
-            return countryResponse.json().then(countryData => {
-                return (parseInt(countryCode) === parseInt(
-                    countryData["0"].numericCode));
-            });
-        }
     });
 }
