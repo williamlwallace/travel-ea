@@ -1,5 +1,7 @@
 package controllers.backend;
 
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -8,6 +10,7 @@ import models.CountryDefinition;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.CountryDefinitionRepository;
 
@@ -25,6 +28,7 @@ public class CountryController extends TEABackController {
      *
      * @return OK with list of countries
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllCountries() {
         return countryDefinitionRepository.getAllCountries()
             .thenApplyAsync(allCountries -> {
@@ -36,6 +40,13 @@ public class CountryController extends TEABackController {
             });
     }
 
+    /**
+     * Gets a country by id
+     *
+     * @param id the id of the country to retrieve
+     * @return The country if found, or an error if not
+     */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getCountryById(Long id) {
         return countryDefinitionRepository.findCountryByID(id).thenApplyAsync(country -> {
             if (country == null) {
@@ -50,6 +61,13 @@ public class CountryController extends TEABackController {
         });
     }
 
+    /**
+     * Adds a country to the database
+     *
+     * @param request The request containing the country id and name
+     * @return Ok with the country id if successful or an error if not
+     */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addCountry(Http.Request request) {
         JsonNode data = request.body().asJson();
 
