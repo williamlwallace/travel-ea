@@ -84,27 +84,29 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
-    delete data.countryId;
 
     // Post json data to given url
-    post(url, data)
-    .then(response => {
+    addNonExistingCountries([data.country]).then(result => {
+        // Post json data to given url
+        post(url, data)
+        .then(response => {
 
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json);
-            } else {
-                toast("Destination Created!",
-                    "The new destination will be added to the table.",
-                    "success");
-                $('#createDestinationModal').modal('hide');
+            // Read response from server, which will be a json object
+            response.json()
+            .then(json => {
+                if (response.status !== 200) {
+                    showErrors(json);
+                } else {
+                    toast("Destination Created!",
+                        "The new destination will be added to the table.",
+                        "success");
+                    $('#createDestinationModal').modal('hide');
 
-                // Add row to table
-                data.id = json;
-                addRow(data);
-            }
+                    // Add row to table
+                    data.id = json;
+                    addRow(data);
+                }
+            });
         });
     });
 }
@@ -136,59 +138,6 @@ function addRow(data) {
     const row = [name, type, district, latitude, longitude, country, button, id,
         data.country.id];
     destinationTable.add(row);
-}
-
-/**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            countryDict = {};
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
-}
-
-/**
- * Adds a row to the destinations table with the given data
- * @param {Object} data - Data object to be added to table
- */
-function addRow(data) {
-    const id = data.id;
-    const name = data.name;
-    const type = data.destType;
-    const district = data.district;
-    const latitude = data.latitude;
-    const longitude = data.longitude;
-    let country = data.country.id;
-
-    // Set country name
-    let countries = document.getElementById(
-        "countryDropDown").getElementsByTagName("option");
-    for (let i = 0; i < countries.length; i++) {
-        if (parseInt(countries[i].value) === data.country.id) {
-            country = countries[i].innerText;
-            break;
-        }
-    }
-
-    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-    const row = [name, type, district, latitude, longitude, country, button, id,
-        data.country.id];
-    destinationTable.row.add(row).draw(false);
 }
 
 /**
