@@ -217,7 +217,7 @@ public class DestinationController extends TEABackController {
                         try {
                             return ok(sanitizeJson(Json.toJson("Successfully added destination")));
                         } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            return ok(Json.toJson(SANITIZATION_ERROR));
                         }
                     });
             } else {

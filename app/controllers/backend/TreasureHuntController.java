@@ -76,23 +76,41 @@ public class TreasureHuntController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTreasureHunt(Http.Request request, Long id) {
+        JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
+
+        // Sends the received data to the validator for checking
+        ErrorResponse validatorResult = new TreasureHuntValidator(data).validateTreasureHunt();
+
+        // Checks if the validator found any errors in the data
+        if (validatorResult.error()) {
+            return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
+        }
 
         return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
             // Check if treasure hunt with given ID exists
-            if(!treasureHunt.isPresent()) {
+            if (treasureHunt == null) {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
 
             // Check if user is authorized to update treasure hunt
-            if(!(user.admin || treasureHunt.get().user.id.equals(user.id))) {
+            if (!(user.admin || treasureHunt.user.id.equals(user.id))) {
                 return CompletableFuture.supplyAsync(Results::forbidden);
             }
 
+            // Assemble TreasureHunt
+            TreasureHunt updatedTreasureHunt = Json.fromJson(data, TreasureHunt.class);
+            updatedTreasureHunt.id = id;
+
             // Update the treasure hunt and return an ok message
-            return treasureHuntRepository.updateTreasureHunt(treasureHunt.get()).thenApplyAsync(rows ->
-                ok()
-            );
+            return treasureHuntRepository.updateTreasureHunt(updatedTreasureHunt)
+                .thenApplyAsync(rows -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson("Successfully added destination")));
+                    } catch (IOException e) {
+                        return ok(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
         });
     }
 
@@ -109,13 +127,13 @@ public class TreasureHuntController extends TEABackController {
 
         return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
             // Check 404 condition where given ID does not exist
-            if(!treasureHunt.isPresent()) {
-               return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(
-                   "No treasure hunt with given ID found")));
+            if (treasureHunt == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(
+                    "No treasure hunt with given ID found")));
             }
 
             // Check user owns treasure hunt (or is an admin), otherwise return 403 FORBIDDEN
-            if(!(user.admin || treasureHunt.get().user.id.equals(user.id))) {
+            if (!(user.admin || treasureHunt.user.id.equals(user.id))) {
                 return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
                     "You do not have permission to delete that treasure hunt")));
             }
@@ -166,7 +184,7 @@ public class TreasureHuntController extends TEABackController {
                 } else {
                     return forbidden();
                 }
-        });
+            });
     }
 
     /**
@@ -179,7 +197,8 @@ public class TreasureHuntController extends TEABackController {
             JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
-                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts(),
+                controllers.backend.routes.javascript.TreasureHuntController
+                    .getAllUserTreasureHunts(),
                 controllers.backend.routes.javascript.TreasureHuntController.updateTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
             )

@@ -19,8 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import models.Destination;
 import models.TreasureHunt;
 import models.User;
@@ -44,44 +46,45 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         applyEvolutions("test/treasureHunt/");
     }
 
-    private TreasureHunt getTreasureHunt(int id) throws IOException {
+    private List<TreasureHunt> getTreasureHunts(int userId) throws IOException {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri(DELETE_TREASURE_HUNT_URI + id);
+            .uri(DELETE_TREASURE_HUNT_URI + userId);
 
         Result getResult = route(fakeApp, getRequest);
 
         if (getResult.status() != OK) {
             return null;
         } else {
-            return new ObjectMapper()
-                .readValue(Helpers.contentAsString(getResult), TreasureHunt.class);
+            return Arrays.asList(
+                new ObjectMapper().readValue(Helpers.contentAsString(getResult), TreasureHunt[].class));
         }
     }
 
     @Test
     public void updateTreasureHunt() throws IOException {
 
-        TreasureHunt treasureHunt = getTreasureHunt(2);
+        List<TreasureHunt> treasureHunt = getTreasureHunts(2);
         assertNotNull(treasureHunt);
 
-        treasureHunt.riddle = "X marks the spot";
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
 
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
-            .bodyJson(Json.toJson(treasureHunt))
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
             .cookie(nonAdminAuthCookie)
-            .uri(DELETE_TREASURE_HUNT_URI + "7");
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
         assertEquals(OK, putResult.status());
 
-        TreasureHunt updatedTreasureHunt = getTreasureHunt(2);
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
         assertNotNull(updatedTreasureHunt);
 
-        assertEquals("X marks the spot", updatedTreasureHunt.riddle);
+        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
         assertEquals(treasureHunt, updatedTreasureHunt);
     }
 
