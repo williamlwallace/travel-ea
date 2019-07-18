@@ -118,57 +118,59 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            @* Update Treasure Hunt Modal *@
-            <div class="modal fade" id="updateTreasureHuntModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header text-center">
-                            <h4 class="modal-title w-100 font-weight-bold">Update Treasure Hunt</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">×</span>
-                            </button>
-                        </div>
-                        <form id="addTreasureHuntForm">
-                            <div class="modal-body mx-3">
-                                <div>Riddle
-                                    <em class="fas prefix grey-text"></em>
-                                    <input type="text" name="riddle" class="form-control validate" required>
-                                    <label id="riddleError" class="error-messages"></label>
-                                </div>
-
-                                <div>Answer
-                                    <em class="fas prefix grey-text"></em>
-                                    <select name="destinationId" id="destinationDropDown" class="form-control validate" required></select>
-                                    <label id="destinationError" class="error-messages"></label>
-                                </div>
-
-                                <div>Start Date
-                                    <em class="fas prefix grey-text"></em>
-                                    <input type="date" size="8" name="startDate" class="form-control validate" required>
-                                    <label id="startDateError" class="error-messages"></label>
-                                </div>
-
-                                <div>End Date
-                                    <em class="fas prefix grey-text"></em>
-                                    <input type="date" name="endDate" class="form-control validate" required>
-                                    <label id="endDateError" class="error-messages"></label>
-                                </div>
+        @* Update Treasure Hunt Modal *@
+        <div class="modal fade" id="updateTreasureHuntModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Update Treasure Hunt</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <form id="updateTreasureHuntForm">
+                        <div class="modal-body mx-3">
+                            <div>Riddle
+                                <em class="fas prefix grey-text"></em>
+                                <input type="text" name="riddle" id="riddle" class="form-control validate" required>
+                                <label id="riddleError" class="error-messages"></label>
                             </div>
-                        </form>
-                        <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#createTreasureHuntModal">
-                                Cancel<em class="fas fa-paper-plane-o ml-1"></em>
-                            </button>
-                            <button class="btn btn-popup" onclick= 'updateTreasureHunt()'>
-                                Update
-                            </button>
-                            <label id="otherError"></label>
+
+                            <div>Answer
+                                <em class="fas prefix grey-text"></em>
+                                <select name="destinationId" id="destinationDropDown" class="form-control validate" required></select>
+                                <label id="destinationError" class="error-messages"></label>
+                            </div>
+
+                            <div>Start Date
+                                <em class="fas prefix grey-text"></em>
+                                <input id="startDate" type="date" size="8" name="startDate" class="form-control validate" required>
+                                <label id="startDateError" class="error-messages"></label>
+                            </div>
+
+                            <div>End Date
+                                <em class="fas prefix grey-text"></em>
+                                <input id="endDate" type="date" name="endDate" class="form-control validate" required>
+                                <label id="endDateError" class="error-messages"></label>
+                            </div>
                         </div>
+                    </form>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#updateTreasureHuntModal">
+                            Cancel<em class="fas fa-paper-plane-o ml-1"></em>
+                        </button>
+                        <button class="btn btn-popup" onclick= 'updateTreasureHunt()'>
+                            Update
+                        </button>
+                        <label id="otherError"></label>
                     </div>
                 </div>
+            </div>
         </div>
-    </body>
+    </div>
+</body>
 }
 
 <script type="text/javascript">

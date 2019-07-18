@@ -146,6 +146,28 @@ public class TreasureHuntController extends TEABackController {
     }
 
     /**
+     * Gets a treasure hunt with a given id. Returns a json with treasure hunt object.
+     *
+     * @param request Http request containing user cookie
+     * @param getId ID of wanted treasure hunt
+     * @return OK with a treasure hunt, notFound if treasure hunt does not exist
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTreasureHuntById(Http.Request request, Long getId) {
+        return treasureHuntRepository.getTreasureHuntById(getId).thenApplyAsync(treasureHunt -> {
+            if (treasureHunt == null) {
+                return notFound(Json.toJson(getId));
+            } else {
+                try {
+                    return ok(sanitizeJson(Json.toJson(treasureHunt)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            }
+        });
+    }
+
+    /**
      * Gets all treasure hunts in database
      *
      * @param request the HTTP request
@@ -196,11 +218,12 @@ public class TreasureHuntController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("treasureHuntRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
+                controllers.backend.routes.javascript.TreasureHuntController.getTreasureHuntById(),
                 controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
-                controllers.backend.routes.javascript.TreasureHuntController
-                    .getAllUserTreasureHunts(),
+                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts(),
                 controllers.backend.routes.javascript.TreasureHuntController.updateTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
+
             )
         ).as(MimeTypes.JAVASCRIPT);
     }
