@@ -67,7 +67,10 @@ function addNonExistingCountries(countries) {
                         return post(
                             countryRouter.controllers.backend.CountryController.addCountry().url,
                             newCountry).then(response => {
-                            return {id: countryId, result: response.status === 200};
+                            return {
+                                id: countryId,
+                                result: response.status === 200
+                            };
                         });
                     }
                 });

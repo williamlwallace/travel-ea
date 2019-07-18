@@ -1,7 +1,6 @@
 package controllers.backend;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import controllers.backend.routes.javascript;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
