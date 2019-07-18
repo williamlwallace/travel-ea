@@ -277,6 +277,29 @@ public class UserController extends TEABackController {
     }
 
     /**
+     * Checks if the authenticated user has permission to view/edit data owned by userId. If so
+     * returns true, otherwise returns false.
+     *
+     * @param request Http request containing authentication information
+     * @param userId ID of owner of restricted data
+     * @return Ok with boolean of whether user hasPermission to view/edit data
+     */
+    @With({Everyone.class, Authenticator.class})
+    public Result hasPermission(Http.Request request, Long userId) {
+        User user = request.attrs().get(ActionState.USER);
+
+        // True if logged in user is admin or same user as object owner
+        boolean hasPermission = loggedInUser.admin || loggedInUser.id.equals(userId);
+        try {
+            return ok(sanitizeJson(Json.toJson({
+                "hasPermission": hasPermission
+            })));
+        } catch (IOException e) {
+            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+        }
+    }
+
+    /**
      * Returns user id in body and sets cookie to store it. This will be used when a user is
      * authenticated but the user-id cookie is somehow removed.
      *

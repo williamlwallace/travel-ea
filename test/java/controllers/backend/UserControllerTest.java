@@ -266,4 +266,54 @@ public class UserControllerTest extends ControllersTest {
         assertEquals(BAD_REQUEST, result.status());
     }
 
+    @Test
+    public void nonAdminHasPermission() {
+        // Create request to check if a user has permission
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/user/hasPermission/2");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check response data
+        HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
+        assertTrue(response.get("hasPermission"));
+    }
+
+    @Test
+    public void nonAdminDoesNotHavePermission() {
+        // Create request to check if a user has permission
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/user/hasPermission/1");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check response data
+        HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
+        assertFalse(response.get("hasPermission"));
+    }
+
+    @Test
+    public void adminHasPermission() {
+        // Create request to check if a user has permission
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/hasPermission/2");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check response data
+        HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
+        assertTrue(response.get("hasPermission"));
+    }
 }

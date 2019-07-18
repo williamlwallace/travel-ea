@@ -3,6 +3,8 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
+GET           /api/user/hasPermission/:id            controllers.backend.UserController.hasPermission(request:Request, id:Long)
+
 POST          /api/admin/grant/:id                   controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
 
 POST          /api/admin/revoke/:id                  controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
