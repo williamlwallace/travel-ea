@@ -1,15 +1,18 @@
+let table;
+
 /**
  * Initializes destination table and calls method to populate
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationTable = $('#dtDestination').DataTable({
+    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url;
+    const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
-    });
-    populateDestinations(destinationTable, userId);
+    }
+    table = new EATable('dtDestination', tableModal, destinationGetURL, populateDestinations, (json) => {document.getElementById("otherError").innerHTML = json;})
     populateMarkers(userId);
 }
 
@@ -62,7 +65,6 @@ function addDestination(url, redirect, userId) {
                     $('#createDestinationModal').modal('hide');
 
                     // Add row to table
-                    let table = $('#dtDestination').DataTable();
                     const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
                         json).url;
                     const name = data.name;
@@ -82,9 +84,9 @@ function addDestination(url, redirect, userId) {
                         }
                     }
 
-                    table.row.add(
+                    table.add(
                         [name, type, district, latitude, longitude, country,
-                            destination]).draw(false);
+                            destination]);
                     populateMarkers(userId);
 
                 }
@@ -95,38 +97,25 @@ function addDestination(url, redirect, userId) {
 
 /**
  * Insert destination data into table
- * @param {Object} table - data table object
- * @param {Number} userId - ID of user to retrieve destinations for
+ * @param {Object} json Json object containing destination data
  */
-function populateDestinations(table, userId) {
-    // Query API endpoint to get all destinations
-    table.clear();
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("otherError").innerHTML = json;
-            } else {
-                // Populates table
-                for (const dest in json) {
-                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                        json[dest].id).url;
-                    const name = json[dest].name;
-                    const type = json[dest].destType;
-                    const district = json[dest].district;
-                    const latitude = json[dest].latitude;
-                    const longitude = json[dest].longitude;
-                    const country = json[dest].country.name;
+function populateDestinations(json) {
+    const rows = []
+    for (const dest in json) {
+        const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+            json[dest].id).url;
+        const name = json[dest].name;
+        const type = json[dest].destType;
+        const district = json[dest].district;
+        const latitude = json[dest].latitude;
+        const longitude = json[dest].longitude;
+        const country = json[dest].country.name;
 
-                    table.row.add(
-                        [name, type, district, latitude, longitude, country,
-                            destination]).draw(false);
-                }
-            }
-        });
-    })
+        rows.push(
+            [name, type, district, latitude, longitude, country,
+                destination]);
+    }
+    return rows;
 }
 
 // Maps marker list

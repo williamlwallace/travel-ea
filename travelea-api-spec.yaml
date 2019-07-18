@@ -23,6 +23,10 @@ tags:
     description: Trip calls
   - name: Photos
     description: Photo calls
+  - name: Treasure Hunts
+    description: Treasure hunt calls
+  - name: Countries
+    description: Country calls
 
 paths:
   '/user':
@@ -460,6 +464,21 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CountryDefinition'
+
+  '/destination/getAllPublic':
+    get:
+      tags:
+        - Destinations
+      summary: Get all destinations that are strictly public
+      responses:
+        '200':
+          description: Successfully retrieved public destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Destination'
 
   '/country/getCountry/{id}':
     get:
@@ -1380,6 +1399,102 @@ paths:
         404:
           description: Photo Not Found
 
+  '/treasureHunt':
+    post:
+      tags:
+        - Treasure Hunts
+      summary: "Add a treasure hunt to the database"
+      description: |
+        Inserts a new treasure hunt into the database, by the currently logged in user.
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/postTreasureHunt'
+      responses:
+        '200':
+          description: Successfully added treasure hunt
+        '400':
+          description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
+        '401':
+          description: Unauthorized
+        '403':
+          description: You do not have permission to create a treasure hunt for someone else
+
+  '/treasureHunt/{id}':
+    get:
+      tags:
+        - Treasure Hunts
+      summary: "Get all Treasure hunts for a certain user id"
+      description: "If the user is authorised get all treasure hunts created by the given id, including the answer"
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All treasure hunts of user (may be empty list)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TreasureHunt'
+        '401':
+          description: Unauthorized
+        '404':
+          description: User not found
+
+  '/treasureHunt/{id}':
+    delete:
+      tags:
+        - Treasure Hunts
+      summary: "Deletes a treasure hunt from the database"
+      description: |
+        Deletes a treasure hunt from the database, the treasure hunt must either be owned by the user or the user must be an admin
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: The ID of the treasure hunt to delete
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully deleted treasure hunt
+        '401':
+          description: Unauthenticated
+        '403':
+          description: You do not have permission to delete that treasure hunt
+        '404':
+          description: No such treasure hunt found with that ID
 
 servers:
   - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
@@ -1415,7 +1530,7 @@ components:
                 type: integer
                 minimum: 1
                 format: int64
-                description: References a the id of an existing user
+                description: References the id of an existing user
               tripDataCollection:
                 type: array
                 items:
@@ -1436,17 +1551,46 @@ components:
                 type: integer
                 minimum: 1
                 format: int64
-                description: References a the id of an existing user
+                description: References the id of an existing user
               tripId:
                 type: integer
                 minimum: 1
                 format: int64
-                description: References a the id of the trip that is being updated
+                description: References the id of the trip that is being updated
               tripDataCollection:
                 type: array
                 items:
                   $ref: '#/components/schemas/TripData'
       description: 'Trip data necessary for new trip to be added. Note: destination field only needs to include id property, nothing else.'
+
+    postTreasureHunt:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - destinationId
+              - riddle
+              - startDate
+              - endDate
+            properties:
+              destinationId:
+                type: integer
+                minimum: 1
+                format: int64
+                description: References the id of the destination of which the treasure hunt is based on
+              riddle:
+                type: string
+                description: Hint towards the answer of the treasure hunt
+              startDate:
+                type: string
+                format: date
+                description: Date when treasure hunt begins
+              endDate:
+                type: string
+                format: date
+                description: Date when treasure hunt ends
+      description: Treasure hunt object to insert into database.
 
   schemas:
     User:
@@ -1703,3 +1847,37 @@ components:
       format: binary
       description: The raw content of the JPEG or PNG image file.
       example: Raw content of JPEG or PNG image file
+
+    TreasureHunt:
+      type: object
+      required:
+        - userId
+        - destinationId
+        - startDate
+        - endDate
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          format: int64
+          description: >-
+            Automatically generated when hunt is created, should never be
+            specified manually
+        userId:
+          type: integer
+          minimum: 1
+          format: int64
+          description: References the id of an existing user
+        destinationId:
+          type: integer
+          minimum: 1
+          format: int64
+          description: References the id of an existing destination
+        startDate:
+          type: string
+          format: date yyyy/mm/dd
+          example: '2019-05-29'
+        endDate:
+          type: string
+          format: date yyyy/mm/dd
+          example: '2019-07-12'

@@ -1,518 +1,135 @@
-let countryDict = {};
-let destinationTable;
-
 /**
- * Initializes destination table and calls method to populate
- * @param {Number} userId - ID of user to get destinations for
+ * Initializes trip table and calls method to populate
+ * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
-    destinationTable = $('#destTable').DataTable({
+    const tripGetURL = tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url;
+    const tripModal = {
         createdRow: function (row, data, dataIndex) {
-            $(row).attr('id', data[data.length - 2]);
-            $(row).attr('data-countryId', data[data.length - 1]);
-        }
-    });
-    populateTable(destinationTable, userId);
-}
-
-/**
- * Populates destination table
- * @param {Object} table to populate
- * @param {Number} userId - ID of user to retrieve destinations for
- */
-function populateTable(table, userId) {
-    get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showTripErrors(json);
-            } else {
-                for (const destination of json) {
-                    const id = destination.id;
-                    const name = destination.name;
-                    const type = destination.destType;
-                    const district = destination.district;
-                    const latitude = destination.latitude;
-                    const longitude = destination.longitude;
-                    const country = destination.country.name;
-                    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-                    const row = [name, type, district, latitude, longitude,
-                        country, button, id, destination.country.id];
-                    table.row.add(row).draw(false);
-                }
-            }
-        })
-    })
-}
-
-/**
- * Click listener that handles clicks in destination table
- */
-$('#destTable').on('click', 'button', function () {
-    let tableAPI = $('#destTable').dataTable().api();
-    let name = tableAPI.cell($(this).parents('tr'), 0).data();
-    let district = tableAPI.cell($(this).parents('tr'), 1).data();
-    let type = tableAPI.cell($(this).parents('tr'), 2).data();
-    let latitude = tableAPI.cell($(this).parents('tr'), 3).data();
-    let longitude = tableAPI.cell($(this).parents('tr'), 4).data();
-    let countryId = $(this).parents('tr').attr("data-countryId");
-    let id = $(this).parents('tr').attr('id');
-
-    addDestinationToTrip(id, name, district, type, latitude, longitude,
-        countryId);
-});
-
-/**
- * Add destination to database
- * @param {string} url - API URI to add destination
- * @param {string} redirect - URI of redirect page
- */
-function addDestination(url, redirect, userId) {
-    // Read data from destination form
-    const formData = new FormData(
-        document.getElementById("addDestinationForm"));
-
-    // Convert data to json object
-    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
-    }), {});
-
-    // Convert lat and long to double values, and id to int
-    data.latitude = parseFloat(data.latitude);
-    data.longitude = parseFloat(data.longitude);
-    data.countryId = parseInt(data.countryId);
-    data.user = {
-        id: userId
-    };
-
-    // Convert country id to country object
-    data.country = {"id": data.countryId};
-
-    // Post json data to given url
-    addNonExistingCountries([data.country]).then(result => {
-        // Post json data to given url
-        post(url, data)
-        .then(response => {
-
-            // Read response from server, which will be a json object
-            response.json()
-            .then(json => {
-                if (response.status !== 200) {
-                    showErrors(json);
-                } else {
-                    toast("Destination Created!",
-                        "The new destination will be added to the table.",
-                        "success");
-                    $('#createDestinationModal').modal('hide');
-
-                    // Add row to table
-                    data.id = json;
-                    addRow(data);
-                }
-            });
-        });
-    });
-}
-
-/**
- * Adds a row to the destinations table with the given data
- * @param {Object} data - Data object to be added to table
- */
-function addRow(data) {
-    const id = data.id;
-    const name = data.name;
-    const type = data.destType;
-    const district = data.district;
-    const latitude = data.latitude;
-    const longitude = data.longitude;
-    let country = data.country.id;
-
-    // Set country name
-    let countries = document.getElementById(
-        "countryDropDown").getElementsByTagName("option");
-    for (let i = 0; i < countries.length; i++) {
-        if (parseInt(countries[i].value) === data.country.id) {
-            country = countries[i].innerText;
-            break;
-        }
-    }
-
-    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-    const row = [name, type, district, latitude, longitude, country, button, id,
-        data.country.id];
-    destinationTable.row.add(row).draw(false);
-}
-
-/**
- * Maps countries into destinations
- * @param {Object} countryDict - Dictionary of Countries
- */
-function updateDestinationsCountryField(countryDict) {
-    let tableBody = document.getElementsByTagName('tbody')[0];
-    let rowList = tableBody.getElementsByTagName('tr');
-
-    for (let i = 0; i < rowList.length; i++) {
-        let dataList = rowList[i].getElementsByTagName('td');
-
-        for (let j = 0; j < dataList.length; j++) {
-            if (dataList[j].getAttribute("id") === "country") {
-                dataList[j].innerHTML = countryDict[parseInt(
-                    rowList[i].getAttribute("id"))];
-            }
-        }
-    }
-}
-
-/**
- * Maps Countries into the Card fields
- * @param {Object} countryDict - Dictionary of Countries
- */
-function updateCountryCardField(countryDict) {
-    let cards = Array.of(document.getElementById("list").children)[0];
-
-    for (let i = 0; i < cards.length; i++) {
-        let labels = cards[i].getElementsByTagName("label");
-
-        for (let j in labels) {
-            if (labels[j].getAttribute("id") === "countryField") {
-                let destinationId = parseInt(labels[0].getAttribute("id"));
-                labels[j].innerHTML = countryDict[destinationId];
-                break;
-            }
-        }
-    }
-}
-
-/**
- * Send new destination data to API
- * @param {string} uri - API URI to send destination
- */
-function newDestination(uri) {
-    // Read data from destination form
-    const formData = new FormData(
-        document.getElementById("addDestinationForm"));
-    // Convert data to json object
-    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
-    }), {});
-
-    // Convert lat and long to double values, and id to int
-    data.latitude = parseFloat(data.latitude);
-    data.longitude = parseFloat(data.longitude);
-    // Convert country id to country object
-    data.countryId = parseInt(data.countryId);
-    data.country = {"id": data.countryId};
-    delete data.countryId;
-    // Post json data to given uri
-    post(uri, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showTripErrors(json);
-            } else {
-                document.getElementById("modalContactForm").setAttribute(
-                    "aria-hidden", "true");
-            }
-        });
-    });
-}
-
-/**
- * Adds destination card and fills data
- *
- * @param id Id of the destination
- * @param name Name of the destination
- * @param type Type of the destination
- * @param district District of the destination
- * @param latitude Latitude of the destination
- * @param longitude Longitude of the destination
- * @param countryId CountryID of the destination
- */
-function addDestinationToTrip(id, name, type, district, latitude, longitude,
-    countryId) {
-    let cards = $("#list").sortable('toArray');
-    let cardId = 0;
-
-    // Finds id not used
-    while (cards.includes(cardId.toString())) {
-        cardId++;
-    }
-
-    document.getElementById('list').insertAdjacentHTML('beforeend',
-        '<div class="card flex-row" id=' + cardId + '>\n' +
-        '<label id=' + id + '></label>' +
-        '<div class="card-header border-0" style="height: 100%">\n' +
-        '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
-        +    // TODO: Store default card image rather than reference
-        '</div>\n' +
-        '<div class="card-block px-2">\n' +
-        '<div id="topCardBlock">\n' +
-        '<h4 class="card-title">' + name + '</h4>\n' +
-        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
-        + cardId + ')"></button>\n' +
-        '</div>\n' +
-        '<div id="left">\n' +
-        '<p class="card-text" id="card-text">' +
-        '<b>Type: </b> ' + type + '<br/>' +
-        '<b>District: </b> ' + district + '<br/>' +
-        '<b>Latitude: </b>' + latitude + '<br/>' +
-        '<b>Longitude: </b>' + longitude + '<br/>' +
-        '<b>Country: </b>' + countryDict[countryId] +
-        '</p>\n' +
-        '</div>' +
-        '<div id="right">\n' +
-        '<form id="arrivalDepartureForm">\n' +
-        '                <div class="modal-body mx-3">\n' +
-        '                    <div id="arrival">Arrival\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
-        +
-        '                    </div>\n' +
-        '                    <div id="depart">Departure\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
-        +
-        '                    </div>\n' +
-        '                </div>\n' +
-        '            </form>\n' +
-        '<div style="text-align: center;">\n' +
-        '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
-        +
-        '<br/>\n' +
-        '</div>\n' +
-        '</div>\n' +
-        '</div>'
-    );
-}
-
-/**
- * Removes card with given id
- * @param {Number} cardId - Id of card
- */
-function removeDestinationFromTrip(cardId) {
-    let destinations = Array.of(document.getElementById("list").children)[0];
-
-    for (let i = 0; i < destinations.length; i++) {
-        if (parseInt(destinations[i].getAttribute("id")) === cardId) {
-            destinations[i].parentNode.removeChild(destinations[i]);
-            break;
-        }
-    }
-}
-
-function toggleTripPrivacy() {
-    let currentPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
-    if (currentPrivacy === "Make Public") {
-        document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
-    }
-    else if (currentPrivacy === "Make Private") {
-        document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
-    }
-}
-
-/**
- * Creates trip and posts to API
- * @param {string} uri - API URI to add trip
- * @param {string} redirect - URI to redirect page
- */
-function createTrip(uri, redirect, userId) {
-    $("#createTripButton").prop('disabled', true);
-    let listItemArray = Array.of(document.getElementById("list").children);
-    let tripDataList = [];
-
-    for (let i = 0; i < listItemArray[0].length; i++) {
-        tripDataList.push(listItemToTripData(listItemArray[0][i], i));
-    }
-
-    let tripData = {
-        "userId": userId,
-        "tripDataList": tripDataList
-    };
-
-    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
-    // Value of 1 for public, 0 for private
-    if (tripPrivacy === "Make Private") {
-        tripData["isPublic"] = true;
-    }
-    else {
-        tripData["isPublic"] = false;
-    }
-
-    post(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status === 400) {
-                $("#createTripButton").prop('disabled', false);
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
-            }
-        });
-    });
-}
-
-/**
- * Gets data from trip and creates json
- * @param {Object} listItem - Html element
- * @param {Number} index - Index of trip data
- */
-function listItemToTripData(listItem, index) {
-    // Create json object to store data
-    let json = {};
-
-    // Assign position to be equal to given index
-    json["position"] = index;
-
-    // Read destination id
-    json["destination"] = {
-        "id": listItem.getElementsByTagName('label')[0].getAttribute("id")
-    };
-
-    let DTInputs = listItem.getElementsByTagName("input");
-
-    try {
-        json["arrivalTime"] = formatDateTime(DTInputs[0].value,
-            DTInputs[1].value);
-    }
-    catch {
-        json["arrivalTime"] = null;
-    }
-
-    try {
-        json["departureTime"] = formatDateTime(DTInputs[2].value,
-            DTInputs[3].value);
-    }
-    catch {
-        json["departureTime"] = null;
-    }
-
-    return json;
-}
-
-/**
- * Formats the date retrieved from the destination cards
- * @param date Date entered by user
- * @param time Time entered by user
- * @returns {string|null} String representation of valid date or null if fields not filled in
- */
-function formatDateTime(date, time) {
-    if (date.length === 10 && time.length === 5) {
-        return date + "T" + time + ":00.000";
-    }
-    else if (date.length === 10) {
-        return date + "T" + "00:00:00.000";
-    }
-    else {
-        return null;
-    }
-}
-
-/**
- * Speciality show errors function for trips
- * @param {Object} json - Error Response Json
- */
-function showTripErrors(json) {
-    // Gets all the error key identifiers
-    let keys = Object.keys(json);
-
-    // Resets and sets tripError label
-    let tripError = document.getElementById("tripError");
-    if (keys.includes("trip")) {
-        tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
-            '<a class="close" data-dismiss="alert">×</a>' +
-            '<span>' + json["trip"] + '</span></div>';
-    }
-    else {
-        tripError.innerHTML = "";
-    }
-
-    // Resets and sets the card error labels
-    let listItemArray = Array.of(document.getElementById("list").children)[0];
-
-    for (let j = 0; j < listItemArray.length; j++) {
-        let labels = listItemArray[j].getElementsByTagName("label");
-
-        for (let i = 0; i < labels.length; i++) {
-            if (labels[i].getAttribute("id") === "destinationError") {
-                if (keys.includes(j.toString())) {
-                    labels[i].innerText = json[j.toString()];
-                }
-                else {
-                    labels[i].innerText = "";
-                }
-                break;
-            }
-        }
-    }
-}
-
-// METHODS FOR TRIPS
-
-/**
- * Relocate to individual trip page
- * @param {string} uri - URI of trip
- */
-function viewTrip(uri) {
-    window.location.href = uri;
-}
-
-/**
- * Gathers trip data and sends to API to update
- * @param {string} uri - API URI to update trip
- * @param {string} redirect - URI to redirect if successful
- * @param {Number} tripId - ID of trip to update
- * @param {Number} userId - User ID of trip owner
- */
-function updateTrip(uri, redirect, tripId, userId) {
-    let listItemArray = Array.of(document.getElementById("list").children);
-    let tripDataList = [];
-
-    for (let i = 0; i < listItemArray[0].length; i++) {
-        tripDataList.push(listItemToTripData(listItemArray[0][i], i));
-    }
-
-    let tripData = {
-        "id": tripId,
-        "userId": userId,
-        "trip": {
-            "id": tripId
+            $(row).attr('data-id', data[data.length - 1]);
+            $(row).addClass("clickable-row");
         },
-        "tripDataList": tripDataList
+        order: []
     };
+    const tripTable = new EATable('tripTable', tripModal, tripGetURL, populate, showTripErrors);
+    tripTable.initRowClicks(function () {
+        populateModal(this);
+        $('#trip-modal').modal();
+    });
+}
 
-    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
+/**
+ * Populates trips table
+ *
+ * @param {Object} json json object containing row data
+ */
+function populate(json) {
+    const rows = [];
+    console.log(json);
 
-    // Value of 1 for public, 0 for private
-    if (tripPrivacy === "Make Private") {
-        tripData["isPublic"] = true;
+    for (const trip of json) {
+        const id = trip.id;
+        const startDestination = trip.tripDataList[0].destination.name;
+        let endDestination;
+        if (trip.tripDataList.length > 1) {
+            endDestination = trip.tripDataList[trip.tripDataList.
+                length - 1].destination.name;
+        } else {
+            endDestination = "-"
+        }
+        const tripLength = trip.tripDataList.length;
+        let date;
+        let firstDate = findFirstTripDate(trip);
+        if (firstDate != null) {
+            date = firstDate.toLocaleDateString();
+        } else {
+            date = "No Date"
+        }
+        const row = [startDestination, endDestination, tripLength,
+            date, id];
+        rows.push(row);
     }
-    else {
-        tripData["isPublic"] = false;
+    return rows;
+}
+
+/**
+ * Finds the first date in a trip, if there is one.
+ * @return the date found as a JS Date or null if no date was found
+ */
+function findFirstTripDate(trip) {
+    for (const tripDestination of trip.tripDataList) {
+        if (tripDestination.arrivalTime != null) {
+            return new Date(tripDestination.arrivalTime);
+        } else if (tripDestination.departureTime != null) {
+            return new Date(tripDestination.departureTime);
+        }
     }
 
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
+    return null;
+}
+
+/**
+ * Gets data relevent to trip and populates modal
+ *
+ * @param {Object} row row element
+ */
+function populateModal(row) {
+    const tripId = row.dataset.id;
+    get(tripRouter.controllers.backend.TripController.getTrip(tripId).url)
+   .then(response => {
         response.json()
         .then(json => {
-            if (response.status === 400) {
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
+            if (response.status !== 200) {
+                error(json);
             } else {
-                document.getElementById(
-                    "destinationError").innerHTML = "Error(s): "
-                    + Object.values(json).join(", ");
+                createTimeline(json);
             }
         });
-    });
+   });
+
+}
+
+/**
+ * sets the apropriote data in the modal
+ *
+ * @param {Object} trip object containing all trip data
+ */
+function createTimeline(trip) {
+    $('#timeline').html("");
+    $('#edit-href').attr("href", tripRouter.controllers.frontend.TripController.editTrip(trip.id).url)
+    if (trip.isPublic) {
+        //Have to convert these to native DOM elements cos jquery dum
+        $("#privacy-img")[0].setAttribute("src", "/assets/images/public.png");
+    } else {
+        $("#privacy-img")[0].setAttribute("src", "/assets/images/private.png");
+    }
+
+    for (dest of trip.tripDataList) {
+        let timeline = `<article>
+                            <div class="inner">\n`
+        if (dest.arrivalTime != null) {
+            timeline += `<span class="date">
+                            <span class="day">${dest.arrivalTime.substring(8,10)}</span>
+                            <span class="month">${dest.arrivalTime.substring(5,7)}</span>
+                            <span class="year">${dest.arrivalTime.substring(0,4)}</span>
+                        </span>\n`
+        }
+        timeline += `<h2>
+                    ${dest.destination.name}<br>
+                    ${dest.destination.country.name}
+                </h2>
+                <p>\n`
+        if(dest.arrivalTime != null) {
+            timeline += `Arrival: ${dest.arrivalTime.substring(11,13)}:${dest.arrivalTime.substring(14,16)}<br>\n`
+        }
+        if(dest.departureTime != null) {
+            timeline += `Departure: ${dest.departureTime.substring(11,13)}:${dest.departureTime.substring(14,16)}<br>
+            ${dest.departureTime.substring(8,10)}/${dest.departureTime.substring(5,7)}/${dest.departureTime.substring(0,4)}\n`
+        }
+        timeline += `
+                </p>
+            </div>
+        </article>`
+        $('#timeline').html($('#timeline').html() + timeline);
+    }
 }

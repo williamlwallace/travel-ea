@@ -78,9 +78,9 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Attempts to get all trips.
+     * Gets all trips if user is admin, otherwise gets all public trips.
      *
-     * @return JSON object with list of trips that a user has, bad request if user has no trips.
+     * @return JSON object with list of trips that a user has, bad request if user has no trips
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips(Http.Request request) {
@@ -332,7 +332,8 @@ public class TripController extends TEABackController {
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
                 controllers.backend.routes.javascript.TripController.getAllUserTrips(),
                 controllers.frontend.routes.javascript.TripController.editTrip(),
-                controllers.backend.routes.javascript.TripController.getAllTrips()
+                controllers.backend.routes.javascript.TripController.getAllTrips(),
+                controllers.backend.routes.javascript.TripController.getTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

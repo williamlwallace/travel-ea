@@ -90,8 +90,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         List<Destination> destinations = Arrays.asList(
             new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
 
-        // Check that list has exactly 3 results
-        assertEquals(8, destinations.size());
+        // Check that list has exactly 10 results
+        assertEquals(10, destinations.size());
 
         // Check that the destination is what we expect having run destination test evolution
         Destination dest = destinations.get(0);
@@ -104,6 +104,30 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Long.valueOf(1), dest.id);
         assertEquals(2, dest.travellerTypes.size());
         assertEquals(2, dest.travellerTypesPending.size());
+    }
+
+    @Test
+    public void getPublicDestinations() throws IOException {
+        // Gets all destinations of user with ID 1
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "getAllPublic");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Deserialize result to list of destinations
+        List<Destination> destinations = Arrays.asList(
+            new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
+
+        // Check that list has exactly 2 results
+        assertEquals(2, destinations.size());
+
+        // Check that the destination is what we expect having run destination test evolution
+        assertEquals("Public dest one", destinations.get(0).name);
+        assertEquals("Public dest two", destinations.get(1).name);
     }
 
     @Test
@@ -347,7 +371,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         // Get id of destination, check it is 5
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(Long.valueOf(9), idOfDestination);
+        assertEquals(Long.valueOf(11), idOfDestination);
     }
 
     @Test
@@ -394,7 +418,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     @Test
     public void makeDestinationPublic() throws SQLException {
         // Statement to get destination with id 1
-        PreparedStatement statement = db.getConnection()
+        PreparedStatement statement = connection
             .prepareStatement("SELECT * FROM Destination WHERE id = 1;");
 
         // Store destination and make sure it is not null and is private
@@ -424,7 +448,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     @Test
     public void makeDestinationPublicForbidden() throws SQLException {
         // Statement to get destination with id 3
-        PreparedStatement statement = db.getConnection()
+        PreparedStatement statement = connection
             .prepareStatement("SELECT * FROM Destination WHERE id = 3;");
 
         // Store destination and make sure it is not null and is private
@@ -475,9 +499,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void makeDestinationPublicAndMergeSimilar() throws SQLException {
         // Get existing trip data and photo which reference destination 2
         TripData oldTripData = tripDataFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
                 .executeQuery()).iterator().next();
-        ResultSet rs = db.getConnection()
+        ResultSet rs = connection
             .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         rs.next();
         Long oldPhotoDestId = rs.getLong(1);
@@ -496,12 +520,12 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         // Check that trip data got pointed to new destination
         TripData newTripData = tripDataFromResultSet(
-            db.getConnection().prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
                 .executeQuery()).iterator().next();
         assertEquals((Long) 8L, newTripData.destination.id);
 
         // Check that photo got pointed to new destination
-        ResultSet newRs = db.getConnection()
+        ResultSet newRs = connection
             .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         newRs.next();
         Long newPhotoDestId = newRs.getLong(1);

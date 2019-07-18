@@ -45,6 +45,8 @@ GET           /api/country/getCountry/:id            controllers.backend.Country
 
 POST          /api/country                           controllers.backend.CountryController.addCountry(request:Request)
 
+GET           /api/destination/getAllPublic          controllers.backend.DestinationController.getAllPublicDestinations()
+
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
@@ -93,6 +95,14 @@ DELETE        /api/photo/:id                         controllers.backend.PhotoCo
 
 GET           /api/photo/:id/profile                 controllers.backend.PhotoController.getProfilePicture(id:Long)
 
+POST          /api/treasureHunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
+
+GET           /api/treasureHunt                      controllers.backend.TreasureHuntController.getAllTreasureHunts(request:Request)
+
+GET           /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.getAllUserTreasureHunts(request:Request, id:Long)
+
+DELETE        /api/treasureHunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
@@ -130,6 +140,9 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
+# Treasure Hunt page
+GET           /treasureHunts         controllers.frontend.TreasureHuntController.index(request: Request)
+
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
@@ -146,6 +159,8 @@ GET     /assets/routers/profile       controllers.backend.ProfileController.prof
 GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
 
 GET     /assets/routers/country       controllers.backend.CountryController.countryRoutes(request: Request)
+
+GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

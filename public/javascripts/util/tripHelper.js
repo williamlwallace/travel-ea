@@ -44,3 +44,42 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
         });
     });
 }
+
+/**
+ * Speciality show errors function for trips
+ * @param {Object} json - Error Response Json
+ */
+function showTripErrors(json) {
+    // Gets all the error key identifiers
+    let keys = Object.keys(json);
+
+    // Resets and sets tripError label
+    let tripError = document.getElementById("tripError");
+    if (keys.includes("trip")) {
+        tripError.innerHTML = '<div class="alert alert-danger" role="alert">' +
+            '<a class="close" data-dismiss="alert">×</a>' +
+            '<span>' + json["trip"] + '</span></div>';
+    }
+    else {
+        tripError.innerHTML = "";
+    }
+
+    // Resets and sets the card error labels
+    let listItemArray = Array.of(document.getElementById("list").children)[0];
+
+    for (let j = 0; j < listItemArray.length; j++) {
+        let labels = listItemArray[j].getElementsByTagName("label");
+
+        for (let i = 0; i < labels.length; i++) {
+            if (labels[i].getAttribute("id") === "destinationError") {
+                if (keys.includes(j.toString())) {
+                    labels[i].innerText = json[j.toString()];
+                }
+                else {
+                    labels[i].innerText = "";
+                }
+                break;
+            }
+        }
+    }
+}

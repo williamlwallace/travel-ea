@@ -65,19 +65,12 @@ public class ProfileController extends TEAFrontController {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getProfile(userId, request).thenComposeAsync(
             profile ->
-                this.getUser(userId, request).thenComposeAsync(
+                this.getUser(userId, request).thenApplyAsync(
                     user -> {
                         user.id = userId;
-                        return this.getUserTrips(request, userId).thenApplyAsync(
-                            tripList -> {
-                                boolean canModify =
-                                    loggedUser.id.equals(userId) || loggedUser.admin;
-                                return ok(views.html.profile
-                                    .render(profile, user, loggedUser, asScala(tripList),
-                                        canModify));
-                            },
-                            httpExecutionContext.current()
-                        );
+                        boolean canModify = loggedUser.id.equals(userId) || loggedUser.admin;
+                        return ok(views.html.profile
+                            .render(profile, user, loggedUser, canModify));
                     },
                     httpExecutionContext.current())
             ,
