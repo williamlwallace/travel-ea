@@ -39,55 +39,56 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
-    delete data.countryId;
 
     // Post json data to given url
-    post(url, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                if (json === "Duplicate destination") {
-                    toast("Destination could not be created!",
-                        "The destination already exists.", "danger", 5000);
-                    $('#createDestinationModal').modal('hide');
-                } else {
-                    showErrors(json);
-                }
-            } else {
-                toast("Destination Created!",
-                    "The new destination will be added to the table.",
-                    "success");
-                $('#createDestinationModal').modal('hide');
-
-                // Add row to table
-                let table = $('#dtDestination').DataTable();
-                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                    json).url;
-                const name = data.name;
-                const type = data.destType;
-                const district = data.district;
-                const latitude = data.latitude;
-                const longitude = data.longitude;
-                let country = data.country.id;
-
-                // Set country name
-                let countries = document.getElementById(
-                    "countryDropDown").getElementsByTagName("option");
-                for (let i = 0; i < countries.length; i++) {
-                    if (parseInt(countries[i].value) === data.country.id) {
-                        country = countries[i].innerText;
-                        break;
+    addNonExistingCountries([data.country]).then(result => {
+        post(url, data)
+        .then(response => {
+            // Read response from server, which will be a json object
+            response.json()
+            .then(json => {
+                if (response.status !== 200) {
+                    if (json === "Duplicate destination") {
+                        toast("Destination could not be created!",
+                            "The destination already exists.", "danger", 5000);
+                        $('#createDestinationModal').modal('hide');
+                    } else {
+                        showErrors(json);
                     }
+                } else {
+                    toast("Destination Created!",
+                        "The new destination will be added to the table.",
+                        "success");
+                    $('#createDestinationModal').modal('hide');
+
+                    // Add row to table
+                    let table = $('#dtDestination').DataTable();
+                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                        json).url;
+                    const name = data.name;
+                    const type = data.destType;
+                    const district = data.district;
+                    const latitude = data.latitude;
+                    const longitude = data.longitude;
+                    let country = data.country.id;
+
+                    // Set country name
+                    let countries = document.getElementById(
+                        "countryDropDown").getElementsByTagName("option");
+                    for (let i = 0; i < countries.length; i++) {
+                        if (parseInt(countries[i].value) === data.country.id) {
+                            country = countries[i].innerText;
+                            break;
+                        }
+                    }
+
+                    table.row.add(
+                        [name, type, district, latitude, longitude, country,
+                            destination]).draw(false);
+                    populateMarkers(userId);
+
                 }
-
-                table.row.add(
-                    [name, type, district, latitude, longitude, country,
-                        destination]).draw(false);
-                populateMarkers(userId);
-
-            }
+            });
         });
     });
 }

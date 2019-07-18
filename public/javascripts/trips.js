@@ -91,27 +91,29 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
-    delete data.countryId;
 
     // Post json data to given url
-    post(url, data)
-    .then(response => {
+    addNonExistingCountries([data.country]).then(result => {
+        // Post json data to given url
+        post(url, data)
+        .then(response => {
 
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json);
-            } else {
-                toast("Destination Created!",
-                    "The new destination will be added to the table.",
-                    "success");
-                $('#createDestinationModal').modal('hide');
+            // Read response from server, which will be a json object
+            response.json()
+            .then(json => {
+                if (response.status !== 200) {
+                    showErrors(json);
+                } else {
+                    toast("Destination Created!",
+                        "The new destination will be added to the table.",
+                        "success");
+                    $('#createDestinationModal').modal('hide');
 
-                // Add row to table
-                data.id = json;
-                addRow(data);
-            }
+                    // Add row to table
+                    data.id = json;
+                    addRow(data);
+                }
+            });
         });
     });
 }
