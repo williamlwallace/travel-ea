@@ -5,14 +5,18 @@ let table;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url;
+    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url;
     const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
     }
-    table = new EATable('dtDestination', tableModal, destinationGetURL, populateDestinations, (json) => {document.getElementById("otherError").innerHTML = json;})
+    table = new EATable('dtDestination', tableModal, destinationGetURL,
+        populateDestinations, (json) => {
+            document.getElementById("otherError").innerHTML = json;
+        })
     populateMarkers(userId);
 }
 

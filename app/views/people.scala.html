@@ -93,6 +93,6 @@
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
-        getAndFillDD("https://restcountries.eu/rest/v2/all?fields=name", ["nationalities"], "name", true);
+        getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
         getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description", true);
 </script>
