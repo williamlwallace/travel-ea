@@ -11,7 +11,7 @@ function checkCountryValidity(countryName, countryCode) {
         + "?fullText=true?fields=numericCode";
     return get(countryUrl).then(countryResponse => {
         if (countryResponse.status > 400) {
-            return {result: false};
+            return false;
         } else {
             return countryResponse.json().then(countryData => {
                 return (parseInt(countryCode) === parseInt(

@@ -192,17 +192,26 @@ function arrayToCountryString(array, dataName, URL) {
     return getHardData(URL, dataName)
     .then(dict => {
         let out = "";
-        for (const item of array) {
-            if (checkCountryValidity(dict[item.id], item.id)) {
-                out += dict[item.id] + ", ";
-            } else {
-                out += dict[item.id] + " (invalid), ";
-            }
-
-        }
-        //remove extra separator
-        out = out.slice(0, out.length - 2);
-        return out
+        let promises = [];
+        array.forEach(item => {
+            promises.push([item, checkCountryValidity(dict[item.id], item.id)])
+        });
+        console.log(promises);
+        Promise.all(promises)
+        .then((result) => {
+            result.forEach(item => {
+                console.log(item[1].resolve());
+                if (item[1] === true) {
+                    out += dict[item[0].id] + ", ";
+                } else {
+                    out += dict[item[0].id] + " (invalid), ";
+                }
+            });
+            //remove extra separator
+            out = out.slice(0, out.length - 2);
+            console.log(out);
+            return out
+        })
     });
 }
 
