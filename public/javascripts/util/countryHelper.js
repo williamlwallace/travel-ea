@@ -14,17 +14,24 @@ function checkCountryValidity(countryName, countryCode) {
             return {result: false};
         } else {
             return countryResponse.json().then(countryData => {
-                return (countryCode === parseInt(countryData["0"].numericCode));
+                return (parseInt(countryCode) === parseInt(
+                    countryData["0"].numericCode));
             });
         }
     });
 }
 
+/**
+ * Finds the name of a country according to restcountries.eu by id
+ * @param {String} countryCode the country code/id
+ * @returns The name of the country or null if not found
+ */
 function getCountryNameById(countryCode) {
     return get(countryApiUrl).then(response => {
         return response.json().then(data => {
             for (let country in data) {
-                if (parseInt(data[country].numericCode) === countryCode) {
+                if (parseInt(data[country].numericCode) === parseInt(
+                    countryCode)) {
                     return data[country].name;
                 }
             }

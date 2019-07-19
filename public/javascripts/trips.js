@@ -3,7 +3,8 @@
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
-    const tripGetURL = tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url;
+    const tripGetURL = tripRouter.controllers.backend.TripController.getAllUserTrips(
+        userId).url;
     const tripModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-id', data[data.length - 1]);
@@ -11,7 +12,8 @@ function onPageLoad(userId) {
         },
         order: []
     };
-    const tripTable = new EATable('tripTable', tripModal, tripGetURL, populate, showTripErrors);
+    const tripTable = new EATable('tripTable', tripModal, tripGetURL, populate,
+        showTripErrors);
     tripTable.initRowClicks(function () {
         populateModal(this);
         $('#trip-modal').modal();
@@ -25,15 +27,14 @@ function onPageLoad(userId) {
  */
 function populate(json) {
     const rows = [];
-    console.log(json);
-    
+
     for (const trip of json) {
         const id = trip.id;
         const startDestination = trip.tripDataList[0].destination.name;
         let endDestination;
         if (trip.tripDataList.length > 1) {
-            endDestination = trip.tripDataList[trip.tripDataList.
-                length - 1].destination.name;
+            endDestination = trip.tripDataList[trip.tripDataList.length
+            - 1].destination.name;
         } else {
             endDestination = "-"
         }
@@ -76,7 +77,7 @@ function findFirstTripDate(trip) {
 function populateModal(row) {
     const tripId = row.dataset.id;
     get(tripRouter.controllers.backend.TripController.getTrip(tripId).url)
-   .then(response => {
+    .then(response => {
         response.json()
         .then(json => {
             if (response.status !== 200) {
@@ -85,8 +86,8 @@ function populateModal(row) {
                 createTimeline(json);
             }
         });
-   });
-    
+    });
+
 }
 
 /**
@@ -96,22 +97,26 @@ function populateModal(row) {
  */
 function createTimeline(trip) {
     $('#timeline').html("");
-    $('#edit-href').attr("href", tripRouter.controllers.frontend.TripController.editTrip(trip.id).url)
+    $('#edit-href').attr("href",
+        tripRouter.controllers.frontend.TripController.editTrip(trip.id).url)
     if (trip.isPublic) {
         //Have to convert these to native DOM elements cos jquery dum
         $("#privacy-img")[0].setAttribute("src", "/assets/images/public.png");
     } else {
         $("#privacy-img")[0].setAttribute("src", "/assets/images/private.png");
     }
-    
+
     for (dest of trip.tripDataList) {
         let timeline = `<article>
                             <div class="inner">\n`
         if (dest.arrivalTime != null) {
             timeline += `<span class="date">
-                            <span class="day">${dest.arrivalTime.substring(8,10)}</span>
-                            <span class="month">${dest.arrivalTime.substring(5,7)}</span>
-                            <span class="year">${dest.arrivalTime.substring(0,4)}</span>
+                            <span class="day">${dest.arrivalTime.substring(8,
+                10)}</span>
+                            <span class="month">${dest.arrivalTime.substring(5,
+                7)}</span>
+                            <span class="year">${dest.arrivalTime.substring(0,
+                4)}</span>
                         </span>\n`
         }
         timeline += `<h2>
@@ -119,12 +124,16 @@ function createTimeline(trip) {
                     ${dest.destination.country.name}
                 </h2>
                 <p>\n`
-        if(dest.arrivalTime != null) {
-            timeline += `Arrival: ${dest.arrivalTime.substring(11,13)}:${dest.arrivalTime.substring(14,16)}<br>\n`
+        if (dest.arrivalTime != null) {
+            timeline += `Arrival: ${dest.arrivalTime.substring(11,
+                13)}:${dest.arrivalTime.substring(14, 16)}<br>\n`
         }
-        if(dest.departureTime != null) {
-            timeline += `Departure: ${dest.departureTime.substring(11,13)}:${dest.departureTime.substring(14,16)}<br>
-            ${dest.departureTime.substring(8,10)}/${dest.departureTime.substring(5,7)}/${dest.departureTime.substring(0,4)}\n`
+        if (dest.departureTime != null) {
+            timeline += `Departure: ${dest.departureTime.substring(11,
+                13)}:${dest.departureTime.substring(14, 16)}<br>
+            ${dest.departureTime.substring(8,
+                10)}/${dest.departureTime.substring(5,
+                7)}/${dest.departureTime.substring(0, 4)}\n`
         }
         timeline += `
                 </p>

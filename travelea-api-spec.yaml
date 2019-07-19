@@ -25,6 +25,8 @@ tags:
     description: Photo calls
   - name: Treasure Hunts
     description: Treasure hunt calls
+  - name: Countries
+    description: Country calls
 
 paths:
   '/user':
@@ -439,11 +441,20 @@ paths:
         '403':
           description: Forbidden
 
-  '/destination/getCountries':
+  '/country/getCountries':
     get:
       tags:
-        - Destinations
+        - Countries
       summary: Get all possible country options
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
       responses:
         '200':
           description: Successfully retrieved all countries
@@ -453,7 +464,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CountryDefinition'
-                  
+
   '/destination/getAllPublic':
     get:
       tags:
@@ -468,6 +479,68 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Destination'
+
+  '/country/getCountry/{id}':
+    get:
+      tags:
+        - Countries
+      summary: Get a country by id
+      description: Gets a country by id from the database, usually this is the ISO 3166-1 numeric code for the country
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: The user ID
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully retrieved country
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountryDefinition'
+        '400':
+          description: Country with that id not found
+
+  '/country':
+    post:
+      tags:
+        - Countries
+      summary: Add a new country
+      description: Adds a new country to the database
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CountryDefinition'
+      responses:
+        '200':
+          description: Successfully retrieved country
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountryDefinition'
+        '400':
+          description: Country with that id not found
 
   '/user/destination/{id}':
     get:
@@ -1390,6 +1463,38 @@ paths:
         '404':
           description: User not found
 
+  '/treasureHunt/{id}':
+    delete:
+      tags:
+        - Treasure Hunts
+      summary: "Deletes a treasure hunt from the database"
+      description: |
+        Deletes a treasure hunt from the database, the treasure hunt must either be owned by the user or the user must be an admin
+      security:
+        - UserToken: []
+      parameters:
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+        - in: path
+          name: id
+          required: true
+          description: The ID of the treasure hunt to delete
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Successfully deleted treasure hunt
+        '401':
+          description: Unauthenticated
+        '403':
+          description: You do not have permission to delete that treasure hunt
+        '404':
+          description: No such treasure hunt found with that ID
 
 servers:
   - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
