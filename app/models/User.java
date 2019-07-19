@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import io.ebean.annotation.SoftDelete;
 import play.data.validation.Constraints;
 
 /**
@@ -37,4 +38,7 @@ public class User extends Model {
     public LocalDateTime creationDate;
 
     public Boolean admin = false;
+
+    @SoftDelete
+    public Boolean deleted;
 }

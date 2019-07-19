@@ -5,18 +5,6 @@ const requestTypes = {
 }
 
 /**
- * This acts as an interface as too what gets put on the undo redo stack
- * @param {Object} undoReqData ReqData object for redo request
- * @param {Object} redoReqData ReqData object for undo request
- */
-class UndoRedoReq {
-    constructor(undoReqData, redoReqData) {
-        this.undoReq = undoReq;
-        this.redoReq = redoReq;
-    }
-}
-
-/**
  * Acts as an interface for what should be put insto the UndoRedoReq
  *
  * @param {Number} type type of request represented by requestTypes
@@ -32,11 +20,23 @@ class ReqData {
 }
 
 /**
+ * This acts as an interface as too what gets put on the undo redo stack
+ * @param {Object} undoReqData ReqData object for redo request
+ * @param {Object} redoReqData ReqData object for undo request
+ */
+class UndoRedoReq {
+    constructor(undoReqData, redoReqData) {
+        this.undoReq = undoReq;
+        this.redoReq = redoReq;
+    }
+}
+
+/**
  * Stack for request data
  */
 class ReqStack {
     constructor() {
-        this.#stack = [];
+        this.stack = [];
     }
 
     /**
@@ -45,7 +45,7 @@ class ReqStack {
      * @param {Object} undoRedoReq UndoRedoReq object to be pushed onto stack
      */
     push(undoRedoReq) {
-        this.#stack.push(undoRedoReq);
+        this.stack.push(undoRedoReq);
     }
 
     /**
@@ -53,6 +53,48 @@ class ReqStack {
      */
      pop() {
          //Maybe we will do stuff here?
-         return this.#stack.pop();
+         return this.stack.pop();
      }
+}
+
+/**
+ * This is the main structur for managing undoredo by hacing two stacks
+ */
+class UndoRedo {
+    constructor() {
+        this.undo = new ReqStack();
+        this.redo = new ReqStack();
+    }
+
+    /**
+     * An intemadatory step for sending requests to the api. 
+     * Will store this request as a redoreq and create an inverse undoReq
+     *
+     * @param {Object} reqData ReqData instance that contains data for request to send
+     */
+    sendAndAppend(reqData) {
+        let response;
+        switch(reqData.type) {
+            case requestTypes["DELETE"]:
+                //Delete should toggle so its inverse is itself
+                response = _delete(reqData.URL);
+                const undoReq = reqData;
+                break;
+            case requestTypes["POST"]:
+
+                break;
+            case requestTypes["PUT"]:
+                break;
+            default:
+                throw "Request type not found";
+        }
+        const undoRedoReq = new UndoRedoReq(undoReq, reqData);
+        this.undo.push(undoRedoReq);
+        return response;
+    }
+
+    undo() {
+        const undoRedoReq = this.undo.pop();
+        return _delete(undoRedoReq.URL)
+    }
 }

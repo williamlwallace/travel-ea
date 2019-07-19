@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS User
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
     admin             BOOLEAN NOT NULL DEFAULT false,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)

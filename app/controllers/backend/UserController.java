@@ -105,11 +105,23 @@ public class UserController extends TEABackController {
      * @return Ok if user successfully deleted, bad request if no such user found
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
-        return userRepository.deleteUser(userId)
-            .thenApplyAsync(rowsDeleted -> (rowsDeleted > 0) ? ok(
-                Json.toJson("Successfully deleted user with uid: " + userId))
-                    : badRequest(Json.toJson("No user with such uid found")),
-                httpExecutionContext.current());
+        return userRepository.findID(userId).thenComposeAsync(user -> {
+            if (user == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest("No user with such uid found"));
+            } else {
+                user.deleted = !user.deleted;
+                return userRepository.updateUser(user)
+                .thenApplyAsync(uid -> ok(
+                    Json.toJson("Successfully toggled user deletion of user with uid: " + userId)),
+                    httpExecutionContext.current());
+            }
+        });
+        // return userRepository.deleteUser(userId)
+        //     .thenApplyAsync(rowsDeleted -> (rowsDeleted > 0) ? ok(
+        //         Json.toJson("Successfully deleted user with uid: " + userId))
+        //             : badRequest(Json.toJson("No user with such uid found")),
+        //         httpExecutionContext.current());
     }
 
     /**
