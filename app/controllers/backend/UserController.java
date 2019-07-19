@@ -289,11 +289,13 @@ public class UserController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // True if logged in user is admin or same user as object owner
-        boolean hasPermission = loggedInUser.admin || loggedInUser.id.equals(userId);
+        boolean hasPermissions = user.admin || user.id.equals(userId);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.set("hasPermission", hasPermissions);
+
         try {
-            return ok(sanitizeJson(Json.toJson({
-                "hasPermission": hasPermission
-            })));
+            return ok(sanitizeJson(Json.toJson(objectNode)));
         } catch (IOException e) {
             return internalServerError(Json.toJson(SANITIZATION_ERROR));
         }

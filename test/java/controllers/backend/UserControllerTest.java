@@ -267,7 +267,7 @@ public class UserControllerTest extends ControllersTest {
     }
 
     @Test
-    public void nonAdminHasPermission() {
+    public void nonAdminHasPermission() throws IOException {
         // Create request to check if a user has permission
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
@@ -279,12 +279,13 @@ public class UserControllerTest extends ControllersTest {
         assertEquals(OK, result.status());
 
         // Check response data
+        System.out.println(result);
         HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
-        assertTrue(response.get("hasPermission"));
+        assertEquals(true, response.get("hasPermission"));
     }
 
     @Test
-    public void nonAdminDoesNotHavePermission() {
+    public void nonAdminDoesNotHavePermission() throws IOException {
         // Create request to check if a user has permission
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
@@ -297,11 +298,11 @@ public class UserControllerTest extends ControllersTest {
 
         // Check response data
         HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
-        assertFalse(response.get("hasPermission"));
+        assertEquals(false, response.get("hasPermission"));
     }
 
     @Test
-    public void adminHasPermission() {
+    public void adminHasPermission() throws IOException {
         // Create request to check if a user has permission
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
@@ -314,6 +315,6 @@ public class UserControllerTest extends ControllersTest {
 
         // Check response data
         HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
-        assertTrue(response.get("hasPermission"));
+        assertEquals(true, response.get("hasPermission"));
     }
 }
