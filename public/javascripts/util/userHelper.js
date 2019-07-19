@@ -10,7 +10,7 @@ function getUserId() {
     return get('api/user/setid')
     .then(response => {
         //need access to response status, so cant return promise
-        response.json()
+        return response.json()
         .then(json => {
             if (response.status !== 200) {
                 window.location.href = '/'
@@ -42,4 +42,24 @@ function calc_age(dt1) {
     diff /= (60 * 60 * 24);
     // Best conversion method without moment etc
     return Math.abs(Math.floor(diff / 365.25));
+}
+
+/**
+ * Checks the logged in user has permission to view/edit object data with owner userId.
+ * @param userId ID of owner of object
+ * @returns {boolean} True if user has permission to view/edit, otherwise false
+ */
+function hasPermission(userId) {
+    return get(userRouter.controllers.backend.UserController.hasPermission(userId).url)
+    .then(response => {
+        //need access to response status, so cant return promise
+        return response.json()
+        .then(json => {
+            if (response.status === 200) {
+                return json.hasPermission;
+            } else {
+                return false;
+            }
+        });
+    });
 }

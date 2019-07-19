@@ -5,7 +5,9 @@ import actions.Authenticator;
 import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
+import controllers.backend.routes.javascript;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -289,10 +291,10 @@ public class UserController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // True if logged in user is admin or same user as object owner
-        boolean hasPermissions = user.admin || user.id.equals(userId);
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.set("hasPermission", hasPermissions);
+        boolean permission = user.admin || user.id.equals(userId);
+
+        ObjectNode objectNode = Json.newObject();
+        objectNode.put("hasPermission", permission);
 
         try {
             return ok(sanitizeJson(Json.toJson(objectNode)));
@@ -338,7 +340,8 @@ public class UserController extends TEABackController {
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
                 controllers.backend.routes.javascript.UserController.userSearch(),
-                controllers.backend.routes.javascript.UserController.userSearch()
+                controllers.backend.routes.javascript.UserController.userSearch(),
+                controllers.backend.routes.javascript.UserController.hasPermission()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

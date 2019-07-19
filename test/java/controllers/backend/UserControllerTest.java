@@ -1,6 +1,8 @@
 package controllers.backend;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
@@ -279,9 +281,8 @@ public class UserControllerTest extends ControllersTest {
         assertEquals(OK, result.status());
 
         // Check response data
-        System.out.println(result);
         HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
-        assertEquals(true, response.get("hasPermission"));
+        assertTrue(response.get("hasPermission"));
     }
 
     @Test
@@ -298,7 +299,7 @@ public class UserControllerTest extends ControllersTest {
 
         // Check response data
         HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
-        assertEquals(false, response.get("hasPermission"));
+        assertFalse(response.get("hasPermission"));
     }
 
     @Test
@@ -315,6 +316,6 @@ public class UserControllerTest extends ControllersTest {
 
         // Check response data
         HashMap<String, Boolean> response = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<HashMap<String, Boolean>>() {});
-        assertEquals(true, response.get("hasPermission"));
+        assertTrue(response.get("hasPermission"));
     }
 }

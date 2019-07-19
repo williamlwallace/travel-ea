@@ -98,16 +98,6 @@ pre {
 .btn-primary {
     font-family: 'Roboto', sans-serif;
     background-color: #5283B7;
-    border-radius: 8px;
-    border: 2px solid #5283B7;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-}
-
-.btn-primary:hover {
-    background-color: white;
-    color: #5283B7;
-    border: 2px solid #5283B7;
 }
 
 .btn-popup {
