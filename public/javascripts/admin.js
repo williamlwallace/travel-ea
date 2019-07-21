@@ -1,5 +1,6 @@
 const MASTER_ADMIN_ID = 1;
 let travellerTypeRequestTable;
+let usersTable;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
@@ -16,7 +17,7 @@ $(document).ready(function () {
         }
     }
     //create tables
-    const usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
+    usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
     const tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips, errorRes);
     travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes)
     //set table click callbacks callbacks
@@ -41,19 +42,23 @@ $(document).ready(function () {
  * @param {Number} id - user id
  */
 function deleteUser(button, tableAPI, id) {
-    _delete(
-        userRouter.controllers.backend.UserController.deleteOtherUser(id).url)
-    .then(response => {
-        //need access to response status, so cant return promise
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("adminError").innerHTML = json;
-            } else {
-                tableAPI.row($(button).parents('tr')).remove().draw(false);
-            }
+    const handler = (res) => {
+        res
+        .then(response => {
+            //need access to response status, so cant return promise
+            response.json()
+            .then(json => {
+                if (response.status !== 200) {
+                    document.getElementById("adminError").innerHTML = json;
+                } else {
+                    usersTable.populateTable();
+                }
+            });
         });
-    });
+    }
+    const URL = userRouter.controllers.backend.UserController.deleteOtherUser(id).url;
+    const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
@@ -64,29 +69,24 @@ function deleteUser(button, tableAPI, id) {
  * @param {Number} id - user id
  */
 function toggleAdmin(button, tableAPI, id) {
-    let uri;
-    let innerHTML;
-    if (button.innerHTML.trim().startsWith("Revoke")) {
-        uri = adminRouter.controllers.backend.AdminController.revokeAdmin(
-            id).url;
-        innerHTML = "Grant admin";
-    } else {
-        uri = adminRouter.controllers.backend.AdminController.grantAdmin(
-            id).url;
-        innerHTML = "Revoke admin";
-    }
-    post(uri, "")
-    .then(response => {
-        //need access to response status, so cant return promise
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("adminError").innerHTML = json;
-            } else {
-                button.innerHTML = innerHTML;
-            }
+    const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
+    const handler = function(res) {
+        res
+        .then(response => {
+            //need access to response status, so cant return promise
+            response.json()
+            .then(json => {
+                if (response.status !== 200) {
+                    document.getElementById('adminError').innerHTML = json;
+                } else {
+                    const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
+                    this.button.innerHTML = innerHTML;
+                }
+            });
         });
-    });
+    }.bind({button});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
