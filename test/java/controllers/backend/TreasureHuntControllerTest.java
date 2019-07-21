@@ -89,6 +89,84 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     }
 
     @Test
+    public void updateOtherPersonTreasureHuntAdmin() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(2);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(adminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
+    public void updateTreasureHuntUnauthorized() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(1);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
+    public void updateTreasureHuntNotFound() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(3);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
     public void deleteTreasureHunt() throws SQLException {
         // Get existing treasure hunts, check that two exist
         assertEquals(2, treasureHuntsFromResultSet(
