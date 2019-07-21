@@ -1,6 +1,7 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static play.mvc.Http.HttpVerbs.DELETE;
 import static play.mvc.Http.HttpVerbs.PUT;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import javax.xml.bind.SchemaOutputResolver;
 import models.Destination;
 import models.TreasureHunt;
 import models.User;
@@ -35,7 +37,8 @@ import play.test.Helpers;
 
 public class TreasureHuntControllerTest extends controllers.backend.ControllersTest {
 
-    private static String DELETE_TREASURE_HUNT_URI = "/api/treasureHunt/";
+    private static String DELETE_TREASURE_HUNT_URI = "/api/treasurehunt/";
+    private static String USER_TREASURE_HUNT_URI = "/api/user/";
 
     /**
      * Runs evolutions before each test. These evolutions are found in conf/test/(whatever), and
@@ -50,7 +53,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri(DELETE_TREASURE_HUNT_URI + userId);
+            .uri(USER_TREASURE_HUNT_URI + userId + "/treasurehunt");
 
         Result getResult = route(fakeApp, getRequest);
 
@@ -66,6 +69,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void updateTreasureHunt() throws IOException {
 
         List<TreasureHunt> treasureHunt = getTreasureHunts(2);
+        System.out.println(treasureHunt);
         assertNotNull(treasureHunt);
 
         treasureHunt.get(0).riddle = "X marks the spot";
@@ -131,38 +135,37 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
-        assertEquals(OK, putResult.status());
+        assertEquals(FORBIDDEN, putResult.status());
 
         List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
         assertNotNull(updatedTreasureHunt);
 
-        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
-        assertEquals(treasureHunt, updatedTreasureHunt);
+        assertEquals("A public Riddle", updatedTreasureHunt.get(0).riddle);
+        assertNotEquals(treasureHunt, updatedTreasureHunt);
     }
 
     @Test
     public void updateTreasureHuntNotFound() throws IOException {
 
-        List<TreasureHunt> treasureHunt = getTreasureHunts(3);
+        List<TreasureHunt> treasureHunt = getTreasureHunts(2);
         assertNotNull(treasureHunt);
 
         treasureHunt.get(0).riddle = "X marks the spot";
-        Long treasureHuntId = treasureHunt.get(0).id;
 
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(treasureHunt.get(0)))
             .cookie(nonAdminAuthCookie)
-            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+            .uri(DELETE_TREASURE_HUNT_URI + 3);
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
-        assertEquals(OK, putResult.status());
+        assertEquals(NOT_FOUND, putResult.status());
 
         List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
         assertNotNull(updatedTreasureHunt);
 
-        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
+        assertEquals("A public Riddle", updatedTreasureHunt.get(0).riddle);
         assertEquals(treasureHunt, updatedTreasureHunt);
     }
 
@@ -289,7 +292,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
             .method(POST)
             .bodyJson(treasureHuntJson)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/treasureHunt");
+            .uri("/api/treasurehunt");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -324,7 +327,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
             .method(POST)
             .bodyJson(treasureHuntJson)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/treasureHunt");
+            .uri("/api/treasurehunt");
 
         // Get result and check it failed
         Result result = route(fakeApp, request);
@@ -353,7 +356,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/treasureHunt/1");
+            .uri("/api/user/1/treasurehunt");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -368,7 +371,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/treasureHunt/1");
+            .uri("/api/user/1/treasurehunt");
 
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
