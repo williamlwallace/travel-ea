@@ -22,6 +22,19 @@ function getUserId() {
 }
 
 /**
+ * return boolean of if the user is an admin
+ */
+function isUserAdmin() {
+    const CNAME = "Is-Admin";
+    let value = getCookie(CNAME);
+    if (value !== "") {
+        return value.toLowerCase() === "true";
+    } else {
+        return false;
+    }
+}
+
+/**
  * Logs out user and redirects to given page
  * @param {string} uri - API logout URI
  * @param {string} redirect - Successful logout redirect URI
@@ -42,24 +55,4 @@ function calc_age(dt1) {
     diff /= (60 * 60 * 24);
     // Best conversion method without moment etc
     return Math.abs(Math.floor(diff / 365.25));
-}
-
-/**
- * Checks the logged in user has permission to view/edit object data with owner userId.
- * @param userId ID of owner of object
- * @returns {boolean} True if user has permission to view/edit, otherwise false
- */
-function hasPermission(userId) {
-    return get(userRouter.controllers.backend.UserController.hasPermission(userId).url)
-    .then(response => {
-        //need access to response status, so cant return promise
-        return response.json()
-        .then(json => {
-            if (response.status === 200) {
-                return json.hasPermission;
-            } else {
-                return false;
-            }
-        });
-    });
 }

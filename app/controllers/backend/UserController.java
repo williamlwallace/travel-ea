@@ -5,9 +5,7 @@ import actions.Authenticator;
 import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
-import controllers.backend.routes.javascript;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -235,6 +233,9 @@ public class UserController extends TEABackController {
                                 Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
                                 Cookie.builder(U_ID, foundUser.id.toString())
                                     .withHttpOnly(false)
+                                    .build(),
+                                Cookie.builder("Is-Admin", foundUser.admin.toString())
+                                    .withHttpOnly(false)
                                     .build());
                         } // If password was incorrect, return bad request
                         else {
@@ -279,31 +280,6 @@ public class UserController extends TEABackController {
     }
 
     /**
-     * Checks if the authenticated user has permission to view/edit data owned by userId. If so
-     * returns true, otherwise returns false.
-     *
-     * @param request Http request containing authentication information
-     * @param userId ID of owner of restricted data
-     * @return Ok with boolean of whether user hasPermission to view/edit data
-     */
-    @With({Everyone.class, Authenticator.class})
-    public Result hasPermission(Http.Request request, Long userId) {
-        User user = request.attrs().get(ActionState.USER);
-
-        // True if logged in user is admin or same user as object owner
-        boolean permission = user.admin || user.id.equals(userId);
-
-        ObjectNode objectNode = Json.newObject();
-        objectNode.put("hasPermission", permission);
-
-        try {
-            return ok(sanitizeJson(Json.toJson(objectNode)));
-        } catch (IOException e) {
-            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-        }
-    }
-
-    /**
      * Returns user id in body and sets cookie to store it. This will be used when a user is
      * authenticated but the user-id cookie is somehow removed.
      *
@@ -339,9 +315,7 @@ public class UserController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
-                controllers.backend.routes.javascript.UserController.userSearch(),
-                controllers.backend.routes.javascript.UserController.userSearch(),
-                controllers.backend.routes.javascript.UserController.hasPermission()
+                controllers.backend.routes.javascript.UserController.userSearch()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
