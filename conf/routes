@@ -11,7 +11,7 @@ GET           /api/user/search                       controllers.backend.UserCon
 
 GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
-PUT           /api/user/:id/delete                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
+DELETE        /api/user/:id/                         controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
 DELETE        /api/user                              controllers.backend.UserController.deleteUser(request:Request)
 
@@ -45,7 +45,7 @@ POST          /api/destination                       controllers.backend.Destina
 
 GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
-PUT           /api/destination/:id/delete                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
+DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 

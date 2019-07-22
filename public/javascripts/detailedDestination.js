@@ -68,7 +68,7 @@ function deleteDestination(destinationId, redirect) {
     }
     const URL = destinationRouter.controllers.backend.DestinationController.deleteDestination(
             destinationId).url;
-    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    const reqData = new ReqData(requestTypes['DELETE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
 
