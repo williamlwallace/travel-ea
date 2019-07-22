@@ -118,7 +118,7 @@ function addDestination(url, redirect, userId) {
         }
     }
     // Post json data to given url
-    const reqData = new ReqData(requestTypes['POST'], url, handler, data)
+    const reqData = new ReqData(requestTypes['CREATE'], url, handler, data)
     undoRedo.sendAndAppend(reqData, inverseHandler);
 }
 

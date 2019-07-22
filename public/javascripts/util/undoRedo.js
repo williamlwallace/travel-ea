@@ -2,8 +2,8 @@
  * Types of request recognised by undo redo stack.
  */
 const requestTypes = {
-    "POST": 1,
-    "PUT": 2,
+    "CREATE": 1,
+    "UPDATE": 2,
     "TOGGLE": 3,
 }
 
@@ -131,7 +131,7 @@ class UndoRedo {
                     });
                 });
                 
-            case requestTypes["POST"]:
+            case requestTypes["CREATE"]:
                 //Send a post request with req data and generate a delete toggle
                 return post(reqData.URL, reqData.body).then(sponse => {
                     return sponse.json().then(json => {
@@ -139,7 +139,7 @@ class UndoRedo {
                         return {status: sponse.status, json, inverseData};    
                     });
                 });
-            case requestTypes["PUT"]:
+            case requestTypes["UPDATE"]:
                 break;
             default:
                 throw "Request type not found";
