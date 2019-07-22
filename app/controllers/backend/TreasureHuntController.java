@@ -46,7 +46,7 @@ public class TreasureHuntController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking
-        ErrorResponse validatorResult = new TreasureHuntValidator(data).validateTreasureHunt();
+        ErrorResponse validatorResult = new TreasureHuntValidator(data).validateTreasureHunt(false);
 
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {
@@ -80,7 +80,7 @@ public class TreasureHuntController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking
-        ErrorResponse validatorResult = new TreasureHuntValidator(data).validateTreasureHunt();
+        ErrorResponse validatorResult = new TreasureHuntValidator(data).validateTreasureHunt(true);
 
         // Checks if the validator found any errors in the data
         if (validatorResult.error()) {

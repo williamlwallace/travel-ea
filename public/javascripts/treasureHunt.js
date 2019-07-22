@@ -26,51 +26,46 @@ function updateTreasureHunt(id, userId) {
     let myTreasureHuntTable = $("#myTreasure").DataTable();
     let allTreasureHuntTable = $("#allTreasure").DataTable();
 
-    const formData = new FormData(document.getElementById("updateTreasureHuntForm"));
+    const formData = new FormData(
+        document.getElementById("updateTreasureHuntForm"));
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
     }), {});
 
-    console.log(id);
+    data.destination = {
+        id: data.destinationId
+    };
 
-    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(id).url)
+    delete data.destinationId;
+
+    put(treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
+        id).url, data)
     .then(response => {
         response.json()
-        .then(treasureHunt => {
+        .then(json => {
             if (response.status !== 200) {
-                showErrors(treasureHunt);
-            } else {
-                data.id = id;
-                data.destination = treasureHunt.destination;
-                data.user = treasureHunt.user;
-                put(treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
-                    id).url, data)
-                .then(response => {
-                    response.json()
-                    .then(json => {
-                        if (response.status !== 200) {
-                            document.getElementById(
-                                "otherError").innerHTML = json;
-                            toast("Treasure hunt could not be updated", "There was an error in updating the treasure hunt",
-                                "danger", 5000);
+                document.getElementById(
+                    "otherError").innerHTML = json;
+                toast("Treasure hunt could not be updated",
+                    "There was an error in updating the treasure hunt",
+                    "danger", 5000);
 
-                        } else {
-                            populateAllTreasureHunts(allTreasureHuntTable, userId);
-                            allTreasureHuntTable.draw();
-                            populateMyTreasureHunts(myTreasureHuntTable, userId);
-                            myTreasureHuntTable.draw();
-                            toast("Treasure hunt successfully updated", "Your treasure hunt has been updated",
-                                "success");
-                            $("#updateTreasureHuntModal").modal("hide");
-                        }
-                    })
-                })
+            } else {
+                populateAllTreasureHunts(allTreasureHuntTable, userId);
+                allTreasureHuntTable.draw();
+                populateMyTreasureHunts(myTreasureHuntTable, userId);
+                myTreasureHuntTable.draw();
+
+                toast("Treasure hunt successfully updated",
+                    "Your treasure hunt has been updated",
+                    "success");
+
+                $("#updateTreasureHuntModal").modal("hide");
             }
-        });
+        })
     });
-    console.log(data);
 }
 
 /**
@@ -79,7 +74,10 @@ function updateTreasureHunt(id, userId) {
  * @param {Number} id - the ID of the treasure hunt
  */
 function populateUpdateTreasureHunt(id) {
-    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(id).url)
+
+    fillDestinationDropDown();
+    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(
+        id).url)
     .then(response => {
         response.json()
         .then(treasureHunt => {
@@ -87,11 +85,21 @@ function populateUpdateTreasureHunt(id) {
                 showErrors(treasureHunt);
             } else {
                 hideErrors("updateTreasureHuntForm");
-                document.getElementById("updateRiddle").value = treasureHunt.riddle;
-                document.getElementById("updateStartDate").value = treasureHunt.startDate;
-                document.getElementById("updateEndDate").value = treasureHunt.endDate;
-                $('#destinationDropDown').picker('set', treasureHunt.destination.id);
-                document.getElementById("updateTreasureHunt").onclick = function() {updateTreasureHunt(id, getUserId())}
+                document.getElementById(
+                    "updateRiddle").value = treasureHunt.riddle;
+                document.getElementById(
+                    "updateStartDate").value = treasureHunt.startDate;
+                $('#updateDestinationDropDown').picker('set',
+                    treasureHunt.destination.id);
+                document.getElementById(
+                    "updateEndDate").value = treasureHunt.endDate;
+
+                getUserId().then(userId => {
+                    document.getElementById(
+                        "updateTreasureHunt").onclick = function () {
+                        updateTreasureHunt(id, userId)
+                    }
+                });
             }
         })
     })
@@ -108,14 +116,16 @@ function deleteTreasureHunt(id, userId, deletingOther) {
     let myTreasureHuntTable = $("#myTreasure").DataTable();
     let allTreasureHuntTable = $("#allTreasure").DataTable();
 
-    _delete(treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url)
+    _delete(
+        treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
+            id).url)
     .then(response => {
         response.json()
         .then(json => {
             if (response.status !== 200) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
-                if(deletingOther) {
+                if (deletingOther) {
                     populateAllTreasureHunts(allTreasureHuntTable, userId);
                     allTreasureHuntTable.draw();
                 } else {
@@ -143,7 +153,6 @@ function populateMyTreasureHunts(table, userId) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
                 for (let hunt in json) {
-                    console.log(json[hunt]);
                     let riddle = json[hunt].riddle;
                     let destination = json[hunt].destination.name;
                     let startDate = json[hunt].startDate;
@@ -154,7 +163,11 @@ function populateMyTreasureHunts(table, userId) {
                     let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
 
                     table.row.add(
-                        [riddle, destination, startDate, endDate, function() { return updateButton }, function () { return buttonHtml }]).draw(false);
+                        [riddle, destination, startDate, endDate, function () {
+                            return updateButton
+                        }, function () {
+                            return buttonHtml
+                        }]).draw(false);
 
                 }
             }
@@ -171,7 +184,7 @@ function populateAllTreasureHunts(table, userId) {
     table.clear();
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
         userId).url)
-    .then( response => {
+    .then(response => {
         response.json()
         .then(json => {
             if (response.status !== 200) {
@@ -184,11 +197,18 @@ function populateAllTreasureHunts(table, userId) {
                         let endDate = json[hunt].endDate;
                         let huntId = json[hunt].id;
 
-                        if(isAdmin) {
+                        if (isAdmin) {
+                            let updateButton = `<button type="button" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Admin Update</button>`;
                             let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, true)">Admin Delete</button>`
-                            table.row.add([riddle, startDate, endDate, function () { return buttonHtml }]).draw(false);
+                            table.row.add(
+                                [riddle, startDate, endDate, function () {
+                                    return updateButton
+                                }, function () {
+                                    return buttonHtml
+                                }]).draw(false);
                         } else {
-                            table.row.add([riddle, startDate, endDate]).draw(false);
+                            table.row.add([riddle, startDate, endDate]).draw(
+                                false);
                         }
                     }
                 }
@@ -212,6 +232,7 @@ function fillDestinationDropDown() {
                 destinationDict[destination['id']] = destination['name'];
             });
             fillDropDown("destinationDropDown", destinationDict);
+            fillDropDown("updateDestinationDropDown", destinationDict);
         });
     });
 }
@@ -223,7 +244,7 @@ function fillDestinationDropDown() {
  * @param {Long} userId - the id of the user adding the hunt
  */
 function addTreasureHunt(url, redirect, userId) {
-    const formData =  new FormData(
+    const formData = new FormData(
         document.getElementById("addTreasureHuntForm"));
 
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
