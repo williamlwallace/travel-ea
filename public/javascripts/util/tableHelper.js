@@ -34,7 +34,6 @@ class EATable {
                 } else {
                     Promise.resolve(this.populate(json)).then((rows) => {
                         for (const row of rows) {
-                            console.log(row);
                             this.table.row.add(row).draw(false);
                         }
                     });

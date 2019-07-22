@@ -41,7 +41,8 @@ class UndoRedoReq {
  */
 class ReqStack {
     constructor() {
-        this.stack = [];
+        this.stack = [];    @SoftDelete
+    public Boolean deleted;
     }
 
     /**
@@ -103,7 +104,7 @@ class UndoRedo {
 
     /**
      * Handles the next redo and will add it to the undo stack. Throws error if no redos.
-     */
+     */sendAndAppend
     redo() {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) throw "No redos";

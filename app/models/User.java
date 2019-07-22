@@ -38,7 +38,4 @@ public class User extends BaseModel {
     public LocalDateTime creationDate;
 
     public Boolean admin = false;
-
-    @SoftDelete
-    public Boolean deleted;
 }

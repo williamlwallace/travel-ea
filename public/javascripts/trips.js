@@ -25,7 +25,6 @@ function onPageLoad(userId) {
  */
 function populate(json) {
     const rows = [];
-    console.log(json);
     
     for (const trip of json) {
         const id = trip.id;
