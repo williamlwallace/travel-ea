@@ -6,16 +6,16 @@
  * @param {Number} tripId Id of trip to update
  */
 function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
-    let currentPrivacy = document.getElementById("privacyImg" + tripId).title;
+    let currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
 
     let tripData = {
         "id": tripId
     };
 
-    if (currentPrivacy === "Public") {
+    if (currentPrivacyImgSrc === publicImageSrc) {
         tripData["isPublic"] = false;
     }
-    else if (currentPrivacy === "Private") {
+    else if (currentPrivacyImgSrc === privateImageSrc) {
         tripData["isPublic"] = true;
     }
     else {
@@ -28,17 +28,13 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
         .then(json => {
             // On successful update
             if (response.status === 200) {
-                if (currentPrivacy === "Public") {
-                    document.getElementById(
-                        "privacyImg" + tripId).title = "Private";
-                    document.getElementById(
-                        "privacyImg" + tripId).src = privateImageSrc;
+                if (currentPrivacyImgSrc === publicImageSrc) {
+                    document.getElementById("privacy-img").setAttribute("src", privateImageSrc);
+                    document.getElementById("privacy-img").setAttribute("title", "Private");
                 }
                 else {
-                    document.getElementById(
-                        "privacyImg" + tripId).title = "Public";
-                    document.getElementById(
-                        "privacyImg" + tripId).src = publicImageSrc;
+                    document.getElementById("privacy-img").setAttribute("src", publicImageSrc);
+                    document.getElementById("privacy-img").setAttribute("title", "Public");
                 }
             }
         });

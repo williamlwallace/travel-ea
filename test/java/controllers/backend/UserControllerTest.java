@@ -1,6 +1,8 @@
 package controllers.backend;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.DELETE;
