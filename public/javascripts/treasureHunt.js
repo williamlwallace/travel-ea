@@ -21,7 +21,7 @@ function onTreasureHuntPageLoad(userId, admin) {
  * @param {Number} userId - ID of the logged in user
  * @param {Boolean} deletingOther - checking whether updating own hunt or another
  */
-function updateTreasureHunt(id, userId, deletingOther) {
+function updateTreasureHunt(id, userId) {
 
     let myTreasureHuntTable = $("#myTreasure").DataTable();
     let allTreasureHuntTable = $("#allTreasure").DataTable();
@@ -33,6 +33,7 @@ function updateTreasureHunt(id, userId, deletingOther) {
         [pair[0]]: pair[1],
     }), {});
 
+    console.log(id);
 
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(id).url)
     .then(response => {
@@ -41,8 +42,9 @@ function updateTreasureHunt(id, userId, deletingOther) {
             if (response.status !== 200) {
                 showErrors(treasureHunt);
             } else {
+                data.id = id;
                 data.destination = treasureHunt.destination;
-                data.user = parseFloat(treasureHunt.user);
+                data.user = treasureHunt.user;
                 put(treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
                     id).url, data)
                 .then(response => {
@@ -51,16 +53,17 @@ function updateTreasureHunt(id, userId, deletingOther) {
                         if (response.status !== 200) {
                             document.getElementById(
                                 "otherError").innerHTML = json;
+                            toast("Treasure hunt could not be updated", "There was an error in updating the treasure hunt",
+                                "danger", 5000);
+
                         } else {
-                            if (deletingOther) {
-                                populateAllTreasureHunts(
-                                    allTreasureHuntTable, userId);
-                                allTreasureHuntTable.draw();
-                            } else {
-                                populateMyTreasureHunts(myTreasureHuntTable,
-                                    userId);
-                                myTreasureHuntTable.draw();
-                            }
+                            populateAllTreasureHunts(allTreasureHuntTable, userId);
+                            allTreasureHuntTable.draw();
+                            populateMyTreasureHunts(myTreasureHuntTable, userId);
+                            myTreasureHuntTable.draw();
+                            toast("Treasure hunt successfully updated", "Your treasure hunt has been updated",
+                                "success");
+                            $("#updateTreasureHuntModal").modal("hide");
                         }
                     })
                 })
@@ -88,7 +91,7 @@ function populateUpdateTreasureHunt(id) {
                 document.getElementById("updateStartDate").value = treasureHunt.startDate;
                 document.getElementById("updateEndDate").value = treasureHunt.endDate;
                 $('#destinationDropDown').picker('set', treasureHunt.destination.id);
-                document.getElementById("updateTreasureHunt").onclick = function() {updateTreasureHunt(id, getUserId(), false)}
+                document.getElementById("updateTreasureHunt").onclick = function() {updateTreasureHunt(id, getUserId())}
             }
         })
     })
