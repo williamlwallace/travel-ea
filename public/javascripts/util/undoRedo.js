@@ -77,10 +77,10 @@ class UndoRedo {
      *
      * @param {Object} reqData ReqData instance that contains data for request to send
      */
-    sendAndAppend(reqData, inverseHandler) {
-        this.resAndInverse(reqData, inverseHandler).then(({sponse, json, inverseData}) => {
-            reqData.handler(sponse, json);
-            if (sponse.status !== 201 && sponse.status !== 200) return;
+    sendAndAppend(reqData, inverseHandler=null) {
+        this.resAndInverse(reqData, inverseHandler).then(({status, json, inverseData}) => {
+            reqData.handler(status, json);
+            if (status !== 201 && status !== 200) return;
             const undoRedoReq = new UndoRedoReq(inverseData, reqData);
             this.undoStack.push(undoRedoReq);
         });
@@ -93,9 +93,9 @@ class UndoRedo {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) throw "No undos";
         
-        this.resAndInverse(undoRedoReq.undoReq).then(({sponse, json, inverseData}) => {
-            undoRedoReq.undoReq.handler(sponse, json);
-            if (sponse.status !== 201 && sponse.status !== 200) return;
+        this.resAndInverse(undoRedoReq.undoReq).then(({status, json, inverseData}) => {
+            undoRedoReq.undoReq.handler(status, json);
+            if (status !== 201 && status !== 200) return;
             this.redoStack.push(new UndoRedoReq(undoRedoReq.undoReq, inverseData));
         });
         
@@ -103,14 +103,14 @@ class UndoRedo {
 
     /**
      * Handles the next redo and will add it to the undo stack. Throws error if no redos.
-     */sendAndAppend
+     */
     redo() {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) throw "No redos";
         
-        this.resAndInverse(undoRedoReq.redoReq).then(({sponse, json, inverseData}) => {
-            undoRedoReq.redoReq.handler(sponse, json);
-            if (sponse.status !== 201 && sponse.status !== 200) return;
+        this.resAndInverse(undoRedoReq.redoReq).then(({status, json, inverseData}) => {
+            undoRedoReq.redoReq.handler(status, json);
+            if (status !== 201 && status !== 200) return;
             this.undoStack.push(new UndoRedoReq(inverseData, undoRedoReq.redoReq));
         });
     }
@@ -127,7 +127,7 @@ class UndoRedo {
                 //Delete should toggle so its inverse is itself
                 return put(reqData.URL, reqData.body).then(sponse => {
                     return sponse.json().then(json => {
-                        return {sponse, json, inverseData: reqData};
+                        return {status: sponse.status, json, inverseData: reqData};
                     });
                 });
                 
@@ -136,7 +136,7 @@ class UndoRedo {
                 return post(reqData.URL, reqData.body).then(sponse => {
                     return sponse.json().then(json => {
                         const inverseData = new ReqData(requestTypes['TOGGLE'], `${reqData.URL}/${json}/delete`, inverseHandler);
-                        return {sponse, json, inverseData};    
+                        return {status: sponse.status, json, inverseData};    
                     });
                 });
             case requestTypes["PUT"]:

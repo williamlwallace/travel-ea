@@ -42,8 +42,8 @@ $(document).ready(function () {
  * @param {Number} id - user id
  */
 function deleteUser(button, tableAPI, id) {
-    const handler = (response, json) => {
-        if (response.status !== 200) {
+    const handler = (status, json) => {
+        if (status !== 200) {
             document.getElementById("adminError").innerHTML = json;
         } else {
             usersTable.populateTable();
@@ -63,8 +63,8 @@ function deleteUser(button, tableAPI, id) {
  */
 function toggleAdmin(button, tableAPI, id) {
     const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
-    const handler = function(response, json) {
-        if (response.status !== 200) {
+    const handler = function(status, json) {
+        if (status !== 200) {
             document.getElementById('adminError').innerHTML = json;
         } else {
             const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';

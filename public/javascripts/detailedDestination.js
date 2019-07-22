@@ -60,8 +60,8 @@ function populateDestinationDetails(destinationId) {
  * @param {string} redirect the url to redirect to if the destination is deleted successfully
  */
 function deleteDestination(destinationId, redirect) {
-    const handler = (response, json) => {
-        if (response.status === 200) {
+    const handler = (status, json) => {
+        if (status === 200) {
             $('#deleteDestinationModal').modal('hide');
             window.location.href = redirect;
         }

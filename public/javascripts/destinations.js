@@ -69,8 +69,8 @@ function addDestination(url, redirect, userId) {
     delete data.countryId;
 
     //Create response handler
-    const handler = function(response, json) {
-        if (response.status !== 200) {
+    const handler = function(status, json) {
+        if (status !== 200) {
             if (json === "Duplicate destination") {
                 toast("Destination could not be created!",
                     "The destination already exists.", "danger", 5000);
@@ -111,8 +111,8 @@ function addDestination(url, redirect, userId) {
 
         }
     }.bind({userId, data});
-    const inverseHandler = (response, json) => {
-        if (response.status === 200) {
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
             table.populateTable();
             populateMarkers(userId);
         }
