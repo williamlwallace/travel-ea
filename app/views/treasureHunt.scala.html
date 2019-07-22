@@ -134,25 +134,25 @@
                         <div class="modal-body mx-3">
                             <div>Riddle
                                 <em class="fas prefix grey-text"></em>
-                                <input type="text" name="riddle" id="riddle" class="form-control validate" required>
+                                <input type="text" name="riddle" id="updateRiddle" class="form-control validate" required>
                                 <label id="riddleError" class="error-messages"></label>
                             </div>
 
                             <div>Answer
                                 <em class="fas prefix grey-text"></em>
-                                <select name="destinationId" id="destinationDropDown" class="form-control validate" required></select>
+                                <select name="destinationId" id="updateDestinationDropDown" class="form-control validate" required></select>
                                 <label id="destinationError" class="error-messages"></label>
                             </div>
 
                             <div>Start Date
                                 <em class="fas prefix grey-text"></em>
-                                <input id="startDate" type="date" size="8" name="startDate" class="form-control validate" required>
+                                <input id="updateStartDate" type="date" size="8" name="startDate" class="form-control validate" required>
                                 <label id="startDateError" class="error-messages"></label>
                             </div>
 
                             <div>End Date
                                 <em class="fas prefix grey-text"></em>
-                                <input id="endDate" type="date" name="endDate" class="form-control validate" required>
+                                <input id="updateEndDate" type="date" name="endDate" class="form-control validate" required>
                                 <label id="endDateError" class="error-messages"></label>
                             </div>
                         </div>
@@ -161,7 +161,7 @@
                         <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#updateTreasureHuntModal">
                             Cancel<em class="fas fa-paper-plane-o ml-1"></em>
                         </button>
-                        <button class="btn btn-popup" onclick= 'updateTreasureHunt()'>
+                        <button class="btn btn-popup" id="updateTreasureHunt">
                             Update
                         </button>
                         <label id="otherError"></label>

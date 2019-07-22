@@ -19,9 +19,9 @@ public class TreasureHuntValidator extends Validator {
      *
      * @return Error response containing error information if it has any
      */
-    public ErrorResponse validateTreasureHunt() {
-        if (this.required("user", "User") && this.form.get("user").get("id").asText("")
-            .equals("")) {
+    public ErrorResponse validateTreasureHunt(boolean isUpdating) {
+        if((!isUpdating) && (this.required("user", "User") && this.form.get("user").get("id").asText("")
+            .equals(""))) {
             this.required("userId", "UserId");
         }
 
