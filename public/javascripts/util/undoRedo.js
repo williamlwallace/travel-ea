@@ -41,8 +41,7 @@ class UndoRedoReq {
  */
 class ReqStack {
     constructor() {
-        this.stack = [];    @SoftDelete
-    public Boolean deleted;
+        this.stack = [];
     }
 
     /**
