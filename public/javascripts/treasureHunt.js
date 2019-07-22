@@ -16,8 +16,63 @@ function onTreasureHuntPageLoad(userId, admin) {
 }
 
 /**
+ * Updates the treasure hunt with given ID, and force table to reload
+ * @param {Number} id - ID of the treasure hunt
+ * @param {Number} userId - ID of the logged in user
+ * @param {Boolean} deletingOther - checking whether updating own hunt or another
+ */
+function updateTreasureHunt(id, userId, deletingOther) {
+
+    let myTreasureHuntTable = $("#myTreasure").DataTable();
+    let allTreasureHuntTable = $("#allTreasure").DataTable();
+
+    put(treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(id).url)
+    .then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                document.getElementById("otherError").innerHTML = json;
+            } else {
+                if(deletingOther) {
+                    populateAllTreasureHunts(allTreasureHuntTable, userId);
+                    allTreasureHuntTable.draw();
+                } else {
+                    populateMyTreasureHunts(myTreasureHuntTable, userId);
+                    myTreasureHuntTable.draw();
+                }
+            }
+        })
+    })
+}
+
+/**
+ * Fills the update treasure hunt modal with the information of that treasure hunt
+ *
+ * @param {Number} id - the ID of the treasure hunt
+ */
+function populateUpdateTreasureHunt(id) {
+    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(id).url)
+    .then(response => {
+        response.json()
+        .then(treasureHunt => {
+            if (response.status !== 200) {
+                showErrors(treasureHunt);
+            } else {
+                hideErrors("updateDestinationForm");
+                document.getElementById("riddle").value = treasureHunt.riddle;
+                document.getElementById("startDate").value = treasureHunt.startDate;
+                document.getElementById("endDate").value = treasureHunt.endDate;
+                $('#destinationDropDown').picker('set', treasureHunt.destinationId);
+            }
+        })
+    })
+}
+
+/**
  * Deletes the treasure hunt with given ID, and forced table to reload
- * @param id
+ * @param {Number} id - ID of the treasure hunt
+ * @param {Number} userId - ID of the logged in user
+ * @param {Boolean} deletingOther - checking whether updating own hunt or another
  */
 function deleteTreasureHunt(id, userId, deletingOther) {
 
@@ -65,10 +120,11 @@ function populateMyTreasureHunts(table, userId) {
                     let endDate = json[hunt].endDate;
                     let huntId = json[hunt].id;
 
-                    let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`
+                    let updateButton = `<button type="button" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(huntId)'>Update</button>`;
+                    let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
 
                     table.row.add(
-                        [riddle, destination, startDate, endDate, function () { return buttonHtml }]).draw(false);
+                        [riddle, destination, startDate, endDate, function() { return updateButton }, function () { return buttonHtml }]).draw(false);
 
                 }
             }
