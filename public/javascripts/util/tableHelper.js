@@ -25,8 +25,6 @@ class EATable {
         // Query API endpoint to get all destinations
         this.table.clear().draw();
         if (!url) url = this.getURL;
-        console.log(url);
-        
         get(url)
         .then(response => {
             response.json()
@@ -36,7 +34,6 @@ class EATable {
                 } else {
                     Promise.resolve(this.populate(json)).then((rows) => {
                         for (const row of rows) {
-                            console.log(row);
                             this.table.row.add(row).draw(false);
                         }
                     });
