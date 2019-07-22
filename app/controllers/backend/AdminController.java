@@ -2,7 +2,6 @@ package controllers.backend;
 
 import actions.Authenticator;
 import actions.roles.Admin;
-import controllers.backend.routes.javascript;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.Json;

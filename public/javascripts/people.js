@@ -81,7 +81,7 @@ function populate(json) {
  */
 function getNationalityAndTravellerStrings(people) {
     return arrayToString(people.nationalities, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(nationalities => {
         return arrayToString(people.travellerTypes, 'description',
             profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
