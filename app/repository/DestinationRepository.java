@@ -252,6 +252,21 @@ public class DestinationRepository {
     }
 
     /**
+     * Gets a single includeding deleted destination given the destination ID.
+     *
+     * @param id Unique destination ID of the requested destination
+     * @return A single destination with the requested ID, or null if none was found
+     */
+    public CompletableFuture<Destination> getDeletedDestination(Long id) {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+            .setIncludeSoftDeletes()
+            .where()
+            .idEq(id)
+            .findOneOrEmpty()
+            .orElse(null), executionContext);
+    }
+
+    /**
      * Gets all the destinations valid for the specified user.
      *
      * @param userId ID of user to retrieve destinations for

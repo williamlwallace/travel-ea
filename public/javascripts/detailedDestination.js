@@ -60,17 +60,16 @@ function populateDestinationDetails(destinationId) {
  * @param {string} redirect the url to redirect to if the destination is deleted successfully
  */
 function deleteDestination(destinationId, redirect) {
-    _delete(
-        destinationRouter.controllers.backend.DestinationController.deleteDestination(
-            destinationId).url)
-    .then(response => {
-        response.json().then(data => {
-            if (response.status === 200) {
-                $('#deleteDestinationModal').modal('hide');
-                window.location.href = redirect;
-            }
-        });
-    });
+    const handler = (response, json) => {
+        if (response.status === 200) {
+            $('#deleteDestinationModal').modal('hide');
+            window.location.href = redirect;
+        }
+    }
+    const URL = destinationRouter.controllers.backend.DestinationController.deleteDestination(
+            destinationId).url;
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**

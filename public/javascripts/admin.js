@@ -42,19 +42,12 @@ $(document).ready(function () {
  * @param {Number} id - user id
  */
 function deleteUser(button, tableAPI, id) {
-    const handler = (res) => {
-        res
-        .then(response => {
-            //need access to response status, so cant return promise
-            response.json()
-            .then(json => {
-                if (response.status !== 200) {
-                    document.getElementById("adminError").innerHTML = json;
-                } else {
-                    usersTable.populateTable();
-                }
-            });
-        });
+    const handler = (response, json) => {
+        if (response.status !== 200) {
+            document.getElementById("adminError").innerHTML = json;
+        } else {
+            usersTable.populateTable();
+        }
     }
     const URL = userRouter.controllers.backend.UserController.deleteOtherUser(id).url;
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
@@ -70,20 +63,13 @@ function deleteUser(button, tableAPI, id) {
  */
 function toggleAdmin(button, tableAPI, id) {
     const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
-    const handler = function(res) {
-        res
-        .then(response => {
-            //need access to response status, so cant return promise
-            response.json()
-            .then(json => {
-                if (response.status !== 200) {
-                    document.getElementById('adminError').innerHTML = json;
-                } else {
-                    const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
-                    this.button.innerHTML = innerHTML;
-                }
-            });
-        });
+    const handler = function(response, json) {
+        if (response.status !== 200) {
+            document.getElementById('adminError').innerHTML = json;
+        } else {
+            const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
+            this.button.innerHTML = innerHTML;
+        }
     }.bind({button});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);

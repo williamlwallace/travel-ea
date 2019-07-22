@@ -16,7 +16,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "User")
-public class User extends Model {
+public class User extends BaseModel {
 
     @Id
     public Long id;

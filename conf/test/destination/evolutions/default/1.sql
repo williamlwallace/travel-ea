@@ -1,5 +1,5 @@
 -- AUTHOR: Matthew Minish, William Wallace, Ollie Sharplin, what about me?
--- MODIFIED: 12/7/2019 3.00PM
+-- MODIFIED: 9/7/2019 2.00PM
 
 -- !Ups
 
@@ -99,6 +99,7 @@ CREATE TABLE IF NOT EXISTS Destination
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)

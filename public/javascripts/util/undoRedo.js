@@ -77,12 +77,11 @@ class UndoRedo {
      *
      * @param {Object} reqData ReqData instance that contains data for request to send
      */
-    sendAndAppend(reqData) {
-        this.resAndInverse(reqData);
-        reqData.handler(this.res);
-        this.res.then(sponse => {
+    sendAndAppend(reqData, inverseHandler) {
+        this.resAndInverse(reqData, inverseHandler).then(({sponse, json, inverseData}) => {
+            reqData.handler(sponse, json);
             if (sponse.status !== 201 && sponse.status !== 200) return;
-            const undoRedoReq = new UndoRedoReq(this.inverseData, reqData);
+            const undoRedoReq = new UndoRedoReq(inverseData, reqData);
             this.undoStack.push(undoRedoReq);
         });
     }
@@ -92,15 +91,14 @@ class UndoRedo {
      */
     undo() {
         const undoRedoReq = this.undoStack.pop();
-        console.log(undoRedoReq);
         if (!undoRedoReq) throw "No undos";
         
-        this.resAndInverse(undoRedoReq.undoReq);
-        undoRedoReq.undoReq.handler(this.res);
-        this.res.then(sponse => {
+        this.resAndInverse(undoRedoReq.undoReq).then(({sponse, json, inverseData}) => {
+            undoRedoReq.undoReq.handler(sponse, json);
             if (sponse.status !== 201 && sponse.status !== 200) return;
-            this.redoStack.push(new UndoRedoReq(undoRedoReq.undoReq, this.inverseData));
+            this.redoStack.push(new UndoRedoReq(undoRedoReq.undoReq, inverseData));
         });
+        
     }
 
     /**
@@ -110,13 +108,11 @@ class UndoRedo {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) throw "No redos";
         
-        this.resAndInverse(undoRedoReq.redoReq);
-        undoRedoReq.redoReq.handler(this.res);
-        this.res.then(sponse => {
+        this.resAndInverse(undoRedoReq.redoReq).then(({sponse, json, inverseData}) => {
+            undoRedoReq.redoReq.handler(sponse, json);
             if (sponse.status !== 201 && sponse.status !== 200) return;
-            this.undoStack.push(new UndoRedoReq(this.inverseData, undoRedoReq.redoReq));
-        })
-        
+            this.undoStack.push(new UndoRedoReq(inverseData, undoRedoReq.redoReq));
+        });
     }
 
     /**
@@ -125,17 +121,24 @@ class UndoRedo {
      *
      * @param {Object} reqData ReqData instance that contains data for request to send
      */
-    resAndInverse(reqData) {
+    resAndInverse(reqData, inverseHandler) {
         switch(reqData.type) {
             case requestTypes["TOGGLE"]:
                 //Delete should toggle so its inverse is itself
-                this.res = put(reqData.URL, reqData.body);
-                this.inverseData = Object.assign({}, reqData);
-                console.log(this.inverseData);
-                break;
+                return put(reqData.URL, reqData.body).then(sponse => {
+                    return sponse.json().then(json => {
+                        return {sponse, json, inverseData: reqData};
+                    });
+                });
+                
             case requestTypes["POST"]:
-
-                break;
+                //Send a post request with req data and generate a delete toggle
+                return post(reqData.URL, reqData.body).then(sponse => {
+                    return sponse.json().then(json => {
+                        const inverseData = new ReqData(requestTypes['TOGGLE'], `${reqData.URL}/${json}/delete`, inverseHandler);
+                        return {sponse, json, inverseData};    
+                    });
+                });
             case requestTypes["PUT"]:
                 break;
             default:
@@ -147,4 +150,3 @@ class UndoRedo {
 
 //Initialise
 const undoRedo = new UndoRedo();
-console.log(undoRedo.undo());
