@@ -114,7 +114,6 @@ function populateMyTreasureHunts(table, userId) {
                 document.getElementById("otherError").innerHTML = json;
             } else {
                 for (let hunt in json) {
-                    console.log(json[hunt]);
                     let riddle = json[hunt].riddle;
                     let destination = json[hunt].destination.name;
                     let startDate = json[hunt].startDate;

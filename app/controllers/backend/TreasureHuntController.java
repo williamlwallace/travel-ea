@@ -106,9 +106,9 @@ public class TreasureHuntController extends TEABackController {
             return treasureHuntRepository.updateTreasureHunt(updatedTreasureHunt)
                 .thenApplyAsync(rows -> {
                     try {
-                        return ok(sanitizeJson(Json.toJson("Successfully added destination")));
+                        return ok(sanitizeJson(Json.toJson("Successfully updated treasure hunt")));
                     } catch (IOException e) {
-                        return ok(Json.toJson(SANITIZATION_ERROR));
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         });
