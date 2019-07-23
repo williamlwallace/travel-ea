@@ -8,7 +8,7 @@ $(document).ready(function () {
     //set table population urls
     const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url;
     const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
-    let ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url;
+    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url;
 
     const ttTableModal = {
         createdRow: function (row, data) {
@@ -105,7 +105,7 @@ function populateUsers(json) {
  * @param {Object} json - data table object
  */
 function populateTrips(json) {
-    let rows = [];
+    const rows = [];
     for (const trip in json) {
         const id = json[trip].id;
         const tripDataList = json[trip].tripDataList;
