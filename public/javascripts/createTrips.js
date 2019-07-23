@@ -222,7 +222,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<h4 class="modal-title w-100 font-weight-bold">Delete destination</h4>\n' +
             '</div>\n' +
             '<div class="modal-body">\n' +
-            '<p>Are you sure you want to delete this destination?</p>\n' +
+            '<p>Are you sure you wish to delete this destination?</p>\n' +
             '</div>\n' +
             '<div class="modal-footer d-flex justify-content-center">\n' +
             '<button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>\n' +
