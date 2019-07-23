@@ -6,20 +6,20 @@ let usersTable;
 $(document).ready(function () {
     const errorRes = json => { document.getElementById('adminError').innerHTML = json; };
     //set table population urls
-    const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url
-    const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url
-    ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url
+    const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url;
+    const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
+    let ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url;
 
     const ttTableModal = {
         createdRow: function (row, data) {
             $(row).addClass("clickable-row");
             $(row).attr('data-id', data[0] + "," + data[4]);
         }
-    }
+    };
     //create tables
     usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
     const tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips, errorRes);
-    travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes)
+    travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
     //set table click callbacks callbacks
     usersTable.initButtonClicks({
         2: toggleAdmin,
@@ -102,10 +102,10 @@ function populateUsers(json) {
 /**
  * Insert trip data into table
  *
- * @param {Object} table - data table object
+ * @param {Object} json - data table object
  */
 function populateTrips(json) {
-    rows = []
+    let rows = [];
     for (const trip in json) {
         const id = json[trip].id;
         const tripDataList = json[trip].tripDataList;
@@ -129,7 +129,7 @@ function populateTrips(json) {
  * Populates the traveller type requests table
  */
 function populateTravellerTypeRequests(json) {
-   const rows = []
+   const rows = [];
     for (const dest in json) {
         const destId = json[dest].id;
         const destName = json[dest].name;
