@@ -5,14 +5,13 @@ const requestTypes = {
     "CREATE": 1,
     "UPDATE": 2,
     "TOGGLE": 3,
-    'DELETE': 4,
 };
 
 /**
- * Acts as an interface for what should be put insto the UndoRedoReq.
+ * Acts as an interface for what should be put into the UndoRedoReq.
  *
  * @param {Number} type type of request represented by requestTypes
- * @param {String} URL address that request is meant to be delivered to
+ * @param {String} URL address that request is ment to be delivered
  * @param {Object} handler the function to pass the response through
  * @param {Object} body body of request if applicable
  */
@@ -65,7 +64,7 @@ class ReqStack {
 }
 
 /**
- * This is the main structur for managing undoredo by hacing two stacks.
+ * This is the main structure for managing undo/redo by having two stacks.
  */
 class UndoRedo {
     constructor() {
@@ -74,8 +73,8 @@ class UndoRedo {
     }
 
     /**
-     * An intemadatory step for sending requests to the api.
-     * Will store this request as a redoreq and create an inverse undoReq.
+     * An intermediary step for sending requests to the api.
+     * Will store this request as a redoReq and create an inverse undoReq.
      *
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
@@ -139,27 +138,15 @@ class UndoRedo {
      *
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
-
      */
     resAndInverse(reqData, inverseHandler) {
         switch (reqData.type) {
-            case requestTypes['DELETE']:
-                //Delete should toggle so its inverse is itself
-                return _delete(reqData.URL).then(response => {
-                    return response.json().then(json => {
-                        return {
-                            status: response.status,
-                            json,
-                            inverseData: reqData
-                        };
-                    });
-                });
             case requestTypes["TOGGLE"]:
                 //Delete should toggle so its inverse is itself
-                return put(reqData.URL, reqData.body).then(response => {
-                    return response.json().then(json => {
+                return put(reqData.URL, reqData.body).then(sponse => {
+                    return sponse.json().then(json => {
                         return {
-                            status: response.status,
+                            status: sponse.status,
                             json,
                             inverseData: reqData
                         };
@@ -168,11 +155,11 @@ class UndoRedo {
 
             case requestTypes["CREATE"]:
                 //Send a post request with req data and generate a delete toggle
-                return post(reqData.URL, reqData.body).then(response => {
-                    return response.json().then(json => {
-                        const inverseData = new ReqData(requestTypes['DELETE'],
-                            `${reqData.URL}/${json}`, inverseHandler);
-                        return {status: response.status, json, inverseData};
+                return post(reqData.URL, reqData.body).then(sponse => {
+                    return sponse.json().then(json => {
+                        const inverseData = new ReqData(requestTypes['TOGGLE'],
+                            `${reqData.URL}/${json}/delete`, inverseHandler);
+                        return {status: sponse.status, json, inverseData};
                     });
                 });
             case requestTypes["UPDATE"]:
