@@ -3,7 +3,7 @@ class EATable {
     /**
      * Constructor
      *
-     * @param  {Int} id Html id of table
+     * @param  {Number} id Html id of table
      * @param  {Object} tableModal modal representing table
      * @param  {String} getURL url to get the data to populate
      * @param  {Function} populate function for data population
@@ -20,6 +20,8 @@ class EATable {
 
     /**
      * Populates the data of the table using the population callback
+     *
+     * @param {String} url the url to make the call to
      */
     populateTable(url=null) {
         // Query API endpoint to get all destinations
@@ -45,7 +47,7 @@ class EATable {
     }
 
     /**
-     * Initizilisies onclick functions for specified coloumns
+     * Initialises onclick functions for specified columns
      *
      * @param {Object} colFunctions Object where column is the key and callback is the value
      */

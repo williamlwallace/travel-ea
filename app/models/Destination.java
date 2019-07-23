@@ -22,7 +22,7 @@ import play.data.validation.Constraints;
 @Entity
 @Table(name = "Destination")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Destination extends Model {
+public class Destination extends BaseModel {
 
     @Id
     @Constraints.Required

@@ -3,9 +3,7 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-POST          /api/admin/grant/:id                   controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
-
-POST          /api/admin/revoke/:id                  controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
+PUT           /api/user/:id/admin                   controllers.backend.AdminController.toggleAdmin(request:Request, id:Long)
 
 GET           /api/user/setid                        controllers.backend.UserController.setId(request:Request)
 
@@ -13,9 +11,9 @@ GET           /api/user/search                       controllers.backend.UserCon
 
 GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
-DELETE        /api/user/:id                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
+PUT           /api/user/:id/delete                   controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
-DELETE        /api/user                              controllers.backend.UserController.deleteUser(request:Request)
+PUT           /api/user/delete                       controllers.backend.UserController.deleteUser(request:Request)
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
@@ -51,7 +49,7 @@ POST          /api/destination                       controllers.backend.Destina
 
 GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
-DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
+PUT           /api/destination/:id/delete            controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 

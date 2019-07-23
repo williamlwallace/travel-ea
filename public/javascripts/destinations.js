@@ -47,55 +47,59 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    //Create response handler
+    const handler = function(status, json) {
+        if (status !== 200) {
+            if (json === "Duplicate destination") {
+                toast("Destination could not be created!",
+                    "The destination already exists.", "danger", 5000);
+                $('#createDestinationModal').modal('hide');
+            } else {
+                showErrors(json);
+            }
+        } else {
+            toast("Destination Created!",
+                "The new destination will be added to the table.",
+                "success");
+            $('#createDestinationModal').modal('hide');
+
+            // Add row to table
+            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                json).url;
+            const name = data.name;
+            const type = data.destType;
+            const district = data.district;
+            const latitude = data.latitude;
+            const longitude = data.longitude;
+            let country = data.country.id;
+
+            // Set country name
+            let countries = document.getElementById(
+                "countryDropDown").getElementsByTagName("option");
+            for (let i = 0; i < countries.length; i++) {
+                if (parseInt(countries[i].value) === data.country.id) {
+                    country = countries[i].innerText;
+                    break;
+                }
+            }
+
+            table.add(
+                [name, type, district, latitude, longitude, country,
+                    destination]);
+            populateMarkers(userId);
+
+        }
+    }.bind({userId, data});
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            table.populateTable();
+            populateMarkers(userId);
+        }
+    }
     // Post json data to given url
     addNonExistingCountries([data.country]).then(result => {
-        post(url, data)
-        .then(response => {
-            // Read response from server, which will be a json object
-            response.json()
-            .then(json => {
-                if (response.status !== 200) {
-                    if (json === "Duplicate destination") {
-                        toast("Destination could not be created!",
-                            "The destination already exists.", "danger", 5000);
-                        $('#createDestinationModal').modal('hide');
-                    } else {
-                        showErrors(json);
-                    }
-                } else {
-                    toast("Destination Created!",
-                        "The new destination will be added to the table.",
-                        "success");
-                    $('#createDestinationModal').modal('hide');
-
-                    // Add row to table
-                    const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                        json).url;
-                    const name = data.name;
-                    const type = data.destType;
-                    const district = data.district;
-                    const latitude = data.latitude;
-                    const longitude = data.longitude;
-                    let country = data.country.id;
-
-                    // Set country name
-                    let countries = document.getElementById(
-                        "countryDropDown").getElementsByTagName("option");
-                    for (let i = 0; i < countries.length; i++) {
-                        if (parseInt(countries[i].value) === data.country.id) {
-                            country = countries[i].innerText;
-                            break;
-                        }
-                    }
-
-                    table.add(
-                        [name, type, district, latitude, longitude, country,
-                            destination]);
-                    populateMarkers(userId);
-
-                }
-            });
-        });
+        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data)
+        undoRedo.sendAndAppend(reqData, inverseHandler);
     });
 }
 
