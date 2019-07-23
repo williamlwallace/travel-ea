@@ -3,12 +3,10 @@ package controllers.backend;
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
-import static play.test.Helpers.DELETE;
-import static play.test.Helpers.PUT;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
+import static play.test.Helpers.PUT;
 import static play.test.Helpers.UNAUTHORIZED;
-import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -264,6 +262,7 @@ public class UserControllerTest extends ControllersTest {
 
         // Get result and check it failed
         Result result = route(fakeApp, request);
+        System.out.println("Test");
         assertEquals(BAD_REQUEST, result.status());
     }
 

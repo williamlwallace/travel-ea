@@ -112,9 +112,10 @@ public class UserController extends TEABackController {
             } else {
                 user.deleted = !user.deleted;
                 return userRepository.updateUser(user)
-                .thenApplyAsync(uid -> ok(
-                    Json.toJson("Successfully toggled user deletion of user with uid: " + userId)),
-                    httpExecutionContext.current());
+                    .thenApplyAsync(uid -> ok(
+                        Json.toJson(
+                            "Successfully toggled user deletion of user with uid: " + userId)),
+                        httpExecutionContext.current());
             }
         });
         // return userRepository.deleteUser(userId)
