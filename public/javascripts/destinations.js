@@ -5,39 +5,19 @@ let table;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url;
+    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url;
     const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
     }
-    table = new EATable('dtDestination', tableModal, destinationGetURL, populateDestinations, (json) => {document.getElementById("otherError").innerHTML = json;})
+    table = new EATable('dtDestination', tableModal, destinationGetURL,
+        populateDestinations, (json) => {
+            document.getElementById("otherError").innerHTML = json;
+        })
     populateMarkers(userId);
-}
-
-/**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    .then(response => {
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            let countryDict = {};
-
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
 }
 
 /**
@@ -66,7 +46,6 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
-    delete data.countryId;
 
     //Create response handler
     const handler = function(status, json) {
@@ -118,8 +97,10 @@ function addDestination(url, redirect, userId) {
         }
     }
     // Post json data to given url
-    const reqData = new ReqData(requestTypes['CREATE'], url, handler, data)
-    undoRedo.sendAndAppend(reqData, inverseHandler);
+    addNonExistingCountries([data.country]).then(result => {
+        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data)
+        undoRedo.sendAndAppend(reqData, inverseHandler);
+    });
 }
 
 /**

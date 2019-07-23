@@ -24,7 +24,8 @@ class EATable {
     populateTable(url=null) {
         // Query API endpoint to get all destinations
         this.table.clear().draw();
-        if (!url) url = this.getURL;
+        if (!url) url = this.getURL0;
+
         get(url)
         .then(response => {
             response.json()
@@ -60,7 +61,7 @@ class EATable {
     }
 
     /**
-    * Redirect to users profile when row is clicked.
+    * Redirect to uri when row is clicked.
     *
     * @param {Function} clickFunction on row click callback function
     */

@@ -160,31 +160,34 @@ function editDestination(destinationId) {
                 destination.name = data.name;
                 destination.district = data.district;
 
-                // Post json data to given uri
-                put(destinationRouter.controllers.backend.DestinationController.editDestination(
-                    destinationId).url, destination)
-                .then(response => {
-                    response.json().then(data => {
-                        if (response.status !== 200) {
-                            if (data === "Duplicate destination") {
-                                toast("Destination could not be edited!",
-                                    "The destination already exists.", "danger",
-                                    5000);
+                addNonExistingCountries([destination.country]).then(result => {
+                    // Post json data to given uri
+                    put(destinationRouter.controllers.backend.DestinationController.editDestination(
+                        destinationId).url, destination)
+                    .then(response => {
+                        response.json().then(data => {
+                            if (response.status !== 200) {
+                                if (data === "Duplicate destination") {
+                                    toast("Destination could not be edited!",
+                                        "The destination already exists.",
+                                        "danger",
+                                        5000);
+                                    $('#editDestinationModal').modal('hide');
+                                } else {
+                                    showErrors(data);
+                                }
+                            } else if (response.status === 200) {
+                                populateDestinationDetails(destinationId);
                                 $('#editDestinationModal').modal('hide');
+                                toast("Destination Updated",
+                                    "Updated Details are now showing",
+                                    'success');
                             } else {
-                                showErrors(data);
+                                toast("Not Updated",
+                                    "There was an error updating the destination details",
+                                    "danger");
                             }
-                        } else if (response.status === 200) {
-                            populateDestinationDetails(destinationId);
-                            $('#editDestinationModal').modal('hide');
-                            toast("Destination Updated",
-                                "Updated Details are now showing",
-                                'success');
-                        } else {
-                            toast("Not Updated",
-                                "There was an error updating the destination details",
-                                "danger");
-                        }
+                        });
                     });
                 });
             }

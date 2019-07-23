@@ -47,13 +47,14 @@ public class TreasureHuntRepository {
      * @param id ID of treasure hunt to search for
      * @return Optional treasureHunt, that is non-null if a treasure hunt with corresponding ID was found
      */
-    public CompletableFuture<Optional<TreasureHunt>> getTreasureHuntById(Long id) {
+    public CompletableFuture<TreasureHunt> getTreasureHuntById(Long id) {
         return supplyAsync(() ->
             ebeanServer.find(TreasureHunt.class)
             .where()
             .eq("id", id)
             .findOneOrEmpty()
-        );
+            .orElse(null)
+            , executionContext);
     }
 
     /**

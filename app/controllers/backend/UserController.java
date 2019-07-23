@@ -35,6 +35,7 @@ public class UserController extends TEABackController {
     private static final String SUCCESS = "Success";
     private static final String JWT_AUTH = "JWT-Auth";
     private static final String U_ID = "User-ID";
+    private static final String IS_ADMIN = "Is-Admin";
     private static final String ERR_OTHER = "other";
     private final UserRepository userRepository;
     private final HttpExecutionContext httpExecutionContext;
@@ -133,9 +134,11 @@ public class UserController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public Result logout(Http.Request request) {
-        return ok(Json.toJson(SUCCESS)).discardingCookie(JWT_AUTH).discardingCookie(U_ID);
+        return ok(Json.toJson(SUCCESS))
+            .discardingCookie(JWT_AUTH)
+            .discardingCookie(U_ID)
+            .discardingCookie(IS_ADMIN);
     }
-
 
     /**
      * Method to handle adding a new user to the database. The username provided must be unique, and
@@ -246,6 +249,9 @@ public class UserController extends TEABackController {
                                 Cookie.builder(JWT_AUTH, createToken(foundUser)).build(),
                                 Cookie.builder(U_ID, foundUser.id.toString())
                                     .withHttpOnly(false)
+                                    .build(),
+                                Cookie.builder(IS_ADMIN, foundUser.admin.toString())
+                                    .withHttpOnly(false)
                                     .build());
                         } // If password was incorrect, return bad request
                         else {
@@ -325,7 +331,6 @@ public class UserController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
-                controllers.backend.routes.javascript.UserController.userSearch(),
                 controllers.backend.routes.javascript.UserController.userSearch()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
