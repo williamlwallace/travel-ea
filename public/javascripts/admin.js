@@ -48,7 +48,7 @@ function deleteUser(button, tableAPI, id) {
         } else {
             usersTable.populateTable();
         }
-    }
+    };
     const URL = userRouter.controllers.backend.UserController.deleteOtherUser(id).url;
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);

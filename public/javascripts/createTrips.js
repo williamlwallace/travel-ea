@@ -285,6 +285,7 @@ function toggleTripPrivacy() {
  * @param {Number} userId - the id of the current user
  */
 function createTrip(uri, redirect, userId) {
+    // Building request body
     $("#createTripButton").prop('disabled', true);
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
@@ -299,22 +300,22 @@ function createTrip(uri, redirect, userId) {
     };
 
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
-    // Value of 1 for public, 0 for private
     tripData["isPublic"] = tripPrivacy === "Make Private";
 
-    post(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status === 400) {
-                $("#createTripButton").prop('disabled', false);
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
-            }
-        });
-    });
+    // Setting up undo/redo
+    const URL = tripRouter.controllers.backend.TripController.insertTrip().url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            $("#createTripButton").prop('disabled', false);
+            showTripErrors(json);
+        } else {
+            window.location.href = redirect;
+        }
+    };
+    const reqData = new ReqData(requestTypes["CREATE"], URL, handler, tripData);
+
+    // Send create trip request and store undo request
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
