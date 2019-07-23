@@ -139,7 +139,7 @@ class UndoRedo {
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
-    resAndInverse(reqData, inverseHandler) {
+    resAndInverse(reqData, inverseHandler = null) {
         switch (reqData.type) {
             case requestTypes["TOGGLE"]:
                 //Delete should toggle so its inverse is itself
@@ -155,6 +155,7 @@ class UndoRedo {
 
             case requestTypes["CREATE"]:
                 //Send a post request with req data and generate a delete toggle
+                inverseHandler = inverseHandler || reqData.handler;
                 return post(reqData.URL, reqData.body).then(sponse => {
                     return sponse.json().then(json => {
                         const inverseData = new ReqData(requestTypes['TOGGLE'],
