@@ -48,6 +48,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Long> addDestination(Destination destination) {
         return supplyAsync(() -> {
+            destination.deleted = false;
             ebeanServer.insert(destination);
             return destination.id;
         }, executionContext);

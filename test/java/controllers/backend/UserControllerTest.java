@@ -1,14 +1,13 @@
 package controllers.backend;
 
-import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.PUT;
 import static play.test.Helpers.UNAUTHORIZED;
+import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,7 +24,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class UserControllerTest extends ControllersTest {
+public class UserControllerTest extends controllers.backend.ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
