@@ -413,7 +413,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        assertEquals(NOT_FOUND, result.status());
     }
 
     @Test
@@ -530,9 +530,9 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     public void getAllUserTripsHasNoTrips() throws IOException {
         // Deletes trip added in evolutions
         Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri("/api/trip/1/delete");
 
         Result deleteResult = route(fakeApp, deleteRequest);
         assertEquals(OK, deleteResult.status());
@@ -664,9 +664,9 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     @Test
     public void deleteTrip() {
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri("/api/trip/1/delete");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);

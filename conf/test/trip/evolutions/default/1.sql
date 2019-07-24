@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS Trip
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)

@@ -311,11 +311,16 @@ function createTrip(uri, redirect, userId) {
         } else {
             window.location.href = redirect;
         }
+    }.bind({redirect});
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            // Currently no implementation as undo for creating trip is not being used
+        }
     };
     const reqData = new ReqData(requestTypes["CREATE"], URL, handler, tripData);
 
     // Send create trip request and store undo request
-    undoRedo.sendAndAppend(reqData);
+    undoRedo.sendAndAppend(reqData, inverseHandler);
 }
 
 /**
