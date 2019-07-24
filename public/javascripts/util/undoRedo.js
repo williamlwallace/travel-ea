@@ -111,7 +111,7 @@ class UndoRedo {
                 }
                 this.redoStack.push(
                     new UndoRedoReq(undoRedoReq.undoReq, inverseData));
-                toast('Undo', 'Successfuly completed a undo', 'success');
+                toast('Undo', 'Undo successful', 'success');
             });
 
     }
@@ -135,7 +135,7 @@ class UndoRedo {
                 }
                 this.undoStack.push(
                     new UndoRedoReq(inverseData, undoRedoReq.redoReq));
-                toast('Redo', 'Successfuly completed a redo', 'success');
+                toast('Redo', 'Redo successful', 'success');
             });
     }
 
