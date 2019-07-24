@@ -173,3 +173,15 @@ class UndoRedo {
 
 //Initialise
 const undoRedo = new UndoRedo();
+
+//Add custom key shortcuts
+document.onkeydown = (e) => {
+    const key = e.which || e.keyCode;
+    if (e.ctrlKey && key == 90) {
+        //ctrl + z
+        undoRedo.undo();
+    } else if (e.ctrlKey && key == 89) {
+        //ctrl + y
+        undoRedo.redo();
+    }
+};
