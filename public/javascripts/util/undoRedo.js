@@ -179,8 +179,6 @@ document.onkeydown = (e) => {
     const key = e.which || e.keyCode;
     if (e.ctrlKey && key == 90) {
         //ctrl + z
-        console.log("z");
-        
         undoRedo.undo();
     } else if (e.ctrlKey && key == 89) {
         //ctrl + y
