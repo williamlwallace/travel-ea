@@ -171,7 +171,19 @@ class UndoRedo {
                     });
                 });
             case requestTypes["UPDATE"]:
-                break;
+                return put(reqData.URL, reqData.body).then(sponse => {
+                    return sponse.json().then(json => {
+                        const inverseData = {
+                            ...reqData,
+                            body: json,
+                        };
+                        return {
+                            status: sponse.status,
+                            json,
+                            inverseData,
+                        };
+                    });
+                });
             default:
                 throw "Request type not found";
         }
