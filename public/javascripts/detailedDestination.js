@@ -173,7 +173,9 @@ function editDestination(destinationId) {
                                     5000);
                                 $('#editDestinationModal').modal('hide');
                             } else {
-                                showErrors(data);
+                                toast("Not Updated",
+                                "There was an error updating the destination details:" + data,
+                                "danger");
                             }
                         } else if (status === 200) {
                             populateDestinationDetails(this.destinationId);
@@ -181,10 +183,6 @@ function editDestination(destinationId) {
                             toast("Destination Updated",
                                 "Updated Details are now showing",
                                 'success');
-                        } else {
-                            toast("Not Updated",
-                                "There was an error updating the destination details",
-                                "danger");
                         }
                     }.bind({destinationId});
                     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, body);
