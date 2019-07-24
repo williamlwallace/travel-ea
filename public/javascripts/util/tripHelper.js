@@ -38,7 +38,7 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
                     "Public");
             }
         }
-    }.bind({publicImageSrc, privateImageSrc}); // Does this need .bind?
+    };
 
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, tripData);
     undoRedo.sendAndAppend(reqData);
