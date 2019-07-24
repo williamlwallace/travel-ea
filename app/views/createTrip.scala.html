@@ -80,7 +80,23 @@
                                 <div class="card-block px-2">
                                     <div id="topCardBlock">
                                         <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
-                                        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(@i)"></button>
+                                        <button id="removeTrip" type="button" data-toggle="modal" data-target="#removeTripModal" target="_blank" rel="nofollow noopener"></button>
+                                        <div class="modal fade" id="removeTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content text-center">
+                                                    <div class="modal-header text-center">
+                                                        <h4 class="modal-title w-100 font-weight-bold">Delete destination</h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you wish to delete this destination?</p>
+                                                    </div>
+                                                    <div class="modal-footer d-flex justify-content-center">
+                                                        <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip(@i)">Confirm</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div id="left">
                                         <p class="card-text" id="card-text">

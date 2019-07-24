@@ -172,24 +172,25 @@ function deleteTrip(button, tableAPI, id) {
  * @param {string} uri - api sign up uri
  * @param redirect the uri to redirect to
  */
-function createUser(uri, redirect) {
+function createUser(URL) {
     const formData = new FormData(document.getElementById("signupForm"));
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
     }), {});
-    post(uri, data)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json, "signupForm");
-            } else {
-                window.location.href = redirect;
-                location.reload();
-            }
-        });
-    });
+    const handler = (status, json) => {
+        if (status !== 200) {
+            document.getElementById("adminError").innerHTML = JSON.stringify(json);
+            toast('User error', JSON.stringify(json),'danger');
+        } else {
+            usersTable.populateTable();
+            $('#createUser').modal('hide');
+        }
+    }
+    
+    const reqData = new ReqData(requestTypes['CREATE'], URL, handler, data);
+    //Handler can be used for inverse aswell
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**

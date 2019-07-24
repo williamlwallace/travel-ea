@@ -84,6 +84,7 @@ class UndoRedo {
             ({status, json, inverseData}) => {
                 reqData.handler(status, json);
                 if (status !== 201 && status !== 200) {
+                    //Handler should take care of this case
                     return;
                 }
                 const undoRedoReq = new UndoRedoReq(inverseData, reqData);
@@ -97,6 +98,7 @@ class UndoRedo {
     undo() {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
+            toast('Undo', 'Nothing to undo!', 'danger');
             throw "No undo's";
         }
 
@@ -104,10 +106,12 @@ class UndoRedo {
             ({status, json, inverseData}) => {
                 undoRedoReq.undoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
+                    //Handler should take care of this case
                     return;
                 }
                 this.redoStack.push(
                     new UndoRedoReq(undoRedoReq.undoReq, inverseData));
+                toast('Undo', 'Undo successful', 'success');
             });
 
     }
@@ -118,6 +122,7 @@ class UndoRedo {
     redo() {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) {
+            toast('Redo', 'Nothing to redo!', 'danger');
             throw "No redos";
         }
 
@@ -125,10 +130,12 @@ class UndoRedo {
             ({status, json, inverseData}) => {
                 undoRedoReq.redoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
+                    //Handler should take care of this case
                     return;
                 }
                 this.undoStack.push(
                     new UndoRedoReq(inverseData, undoRedoReq.redoReq));
+                toast('Redo', 'Redo successful', 'success');
             });
     }
 
@@ -185,3 +192,15 @@ class UndoRedo {
 
 //Initialise
 const undoRedo = new UndoRedo();
+
+//Add custom key shortcuts
+document.onkeydown = (e) => {
+    const key = e.which || e.keyCode;
+    if (e.ctrlKey && key == 90) {
+        //ctrl + z
+        undoRedo.undo();
+    } else if (e.ctrlKey && key == 89) {
+        //ctrl + y
+        undoRedo.redo();
+    }
+};

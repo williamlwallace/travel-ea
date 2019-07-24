@@ -14,5 +14,5 @@ import javax.persistence.MappedSuperclass;
 public class BaseModel extends Model {
     @JsonIgnore
     @SoftDelete
-    public Boolean deleted;
+    public Boolean deleted = false;
 }
