@@ -181,6 +181,11 @@ function populateMyTreasureHunts(table, userId) {
  * @param {Number} userId - ID of current user, who hunts are excluded
  */
 function populateAllTreasureHunts(table, userId) {
+
+    const today = new Date();
+    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    const todayDate = new Date(date);
+
     table.clear();
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
         userId).url)
@@ -196,19 +201,24 @@ function populateAllTreasureHunts(table, userId) {
                         let startDate = json[hunt].startDate;
                         let endDate = json[hunt].endDate;
                         let huntId = json[hunt].id;
+                        let startDateCompare = new Date(startDate);
+                        let endDateCompare = new Date(endDate);
 
-                        if (isAdmin) {
-                            let updateButton = `<button type="button" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Admin Update</button>`;
-                            let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, true)">Admin Delete</button>`
-                            table.row.add(
-                                [riddle, startDate, endDate, function () {
-                                    return updateButton
-                                }, function () {
-                                    return buttonHtml
-                                }]).draw(false);
-                        } else {
-                            table.row.add([riddle, startDate, endDate]).draw(
-                                false);
+                        if((todayDate >= startDateCompare) && (todayDate < endDateCompare)) {
+                            if (isAdmin) {
+                                let updateButton = `<button type="button" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Admin Update</button>`;
+                                let buttonHtml = `<button type="button" onclick="deleteTreasureHunt(${huntId}, ${userId}, true)">Admin Delete</button>`
+                                table.row.add(
+                                    [riddle, startDate, endDate, function () {
+                                        return updateButton
+                                    }, function () {
+                                        return buttonHtml
+                                    }]).draw(false);
+                            } else {
+                                table.row.add(
+                                    [riddle, startDate, endDate]).draw(
+                                    false);
+                            }
                         }
                     }
                 }
