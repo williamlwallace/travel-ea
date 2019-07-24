@@ -202,7 +202,7 @@ public class DestinationController extends TEABackController {
                 return destinationRepository.updateDestination(editedDestination)
                     .thenApplyAsync(updatedDestination -> {
                         try {
-                            return ok(sanitizeJson(Json.toJson("Successfully added destination")));
+                            return ok(sanitizeJson(Json.toJson(destination)));
                         } catch (IOException e) {
                             return internalServerError(Json.toJson(SANITIZATION_ERROR));
                         }
