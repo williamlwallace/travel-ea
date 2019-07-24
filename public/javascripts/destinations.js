@@ -12,11 +12,11 @@ function onPageLoad(userId) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
-    }
+    };
     table = new EATable('dtDestination', tableModal, destinationGetURL,
         populateDestinations, (json) => {
             document.getElementById("otherError").innerHTML = json;
-        })
+        });
     populateMarkers(userId);
 }
 
@@ -95,10 +95,10 @@ function addDestination(url, redirect, userId) {
             table.populateTable();
             populateMarkers(userId);
         }
-    }
+    };
     // Post json data to given url
     addNonExistingCountries([data.country]).then(result => {
-        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data)
+        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
         undoRedo.sendAndAppend(reqData, inverseHandler);
     });
 }

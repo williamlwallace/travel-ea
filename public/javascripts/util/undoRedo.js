@@ -97,7 +97,7 @@ class UndoRedo {
     undo() {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
-            throw "No undos";
+            throw "No undo's";
         }
 
         this.resAndInverse(undoRedoReq.undoReq).then(

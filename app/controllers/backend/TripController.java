@@ -188,6 +188,9 @@ public class TripController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateTripPrivacy(Http.Request request) {
+        // Get logged in users data
+        User user = request.attrs().get(ActionState.USER);
+
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -199,15 +202,21 @@ public class TripController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
 
-        // Assemble trip
-        Trip trip = new Trip();
-        trip.id = data.get("id").asLong();
-        trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+        Trip updatedTrip = Json.fromJson(data, Trip.class);
 
-        // Update trip in db
-        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded ->
-            ok(Json.toJson(trip.id))
-        );
+        // Get existing trip details
+        return tripRepository.getTripById(updatedTrip.id).thenComposeAsync(existingTrip -> {
+            if (existingTrip == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Not Found")));
+            } else if (!user.admin && !user.id.equals(existingTrip.userId)) {
+                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
+            } else {
+                // Update trip in db
+                return tripRepository.updateTrip(updatedTrip).thenApplyAsync(uploaded ->
+                    ok(Json.toJson(existingTrip))
+                );
+            }
+        });
     }
 
     /**

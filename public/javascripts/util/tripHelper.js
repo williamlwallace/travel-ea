@@ -22,9 +22,10 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
         return;
     }
 
-    const URL = tripRouter.backend.routes.TripController.updateTripPrivacy().url;
+    const URL = tripRouter.controllers.backend.TripController.updateTripPrivacy().url;
     const handler = function(status, json) {
         if (status === 200) {
+            currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
             if (currentPrivacyImgSrc === publicImageSrc) {
                 document.getElementById("privacy-img").setAttribute("src",
                     privateImageSrc);
@@ -37,9 +38,9 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
                     "Public");
             }
         }
-    }; // Does this need .bind?
+    }.bind({publicImageSrc, privateImageSrc}); // Does this need .bind?
 
-    const reqData = new ReqData(requestTypes['PUT'], URL, handler, tripData);
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, tripData);
     undoRedo.sendAndAppend(reqData);
 }
 
