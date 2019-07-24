@@ -664,6 +664,10 @@ paths:
       responses:
         '200':
           description: Successfully added destination
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Destination'
         '400':
           description: Invalid data supplied, ErrorResponse returned detailing specific validation failures
         '404':

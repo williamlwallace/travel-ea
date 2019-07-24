@@ -214,8 +214,23 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
             '<h4 class="card-title">' + name + '</h4>\n' +
-            '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
-            + cardId + ')"></button>\n' +
+            '<button id="removeTrip" type="button" data-toggle="modal" data-target="#removeTripModal" target="_blank" rel="nofollow noopener"></button>\n' +
+            '<div class="modal fade" id="removeTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">\n' +
+            '<div class="modal-dialog modal-dialog-centered" role="document">\n' +
+            '<div class="modal-content text-center">\n' +
+            '<div class="modal-header text-center">\n' +
+            '<h4 class="modal-title w-100 font-weight-bold">Delete destination</h4>\n' +
+            '</div>\n' +
+            '<div class="modal-body">\n' +
+            '<p>Are you sure you wish to delete this destination?</p>\n' +
+            '</div>\n' +
+            '<div class="modal-footer d-flex justify-content-center">\n' +
+            '<button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>\n' +
+            '<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip('
+            + cardId + ')">Confirm</button>\n' +
+            '</div>\n' +
+            '</div>\n' +
+            '</div>\n' +
             '</div>\n' +
             '<div id="left">\n' +
             '<p class="card-text" id="card-text">' +

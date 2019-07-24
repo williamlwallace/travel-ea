@@ -81,7 +81,7 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         // Check a success message was sent
         String message = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), String.class);
-        assertEquals("Success", message);
+        assertEquals("3", message);
     }
 
     @Test
