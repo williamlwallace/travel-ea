@@ -35,7 +35,7 @@ function getCountryNameById(countryCode) {
                     return data[country].name;
                 }
             }
-            return null;
+            return 'Invalid';
         });
     });
 }
