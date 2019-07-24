@@ -264,13 +264,8 @@ public class TripController extends TEABackController {
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
-        return tripRepository.insertTrip(trip).thenApplyAsync(tripId -> {
-            try {
-                return ok(sanitizeJson(Json.toJson(tripId)));
-            } catch (IOException e) {
-                return internalServerError(Json.toJson(SANITIZATION_ERROR));
-            }
-        });
+        return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
+            ok(Json.toJson(tripId)));
     }
 
     /**
