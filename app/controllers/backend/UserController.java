@@ -154,7 +154,6 @@ public class UserController extends TEABackController {
             //Else, no errors found, continue with adding to the database
             //Create a new user from the request data, basing off the User class
             User newUser = Json.fromJson(data, User.class);
-
             //Generate a new salt for the new user
             newUser.salt = CryptoManager.generateNewSalt();
 
@@ -195,10 +194,10 @@ public class UserController extends TEABackController {
                         if (request.cookies().getCookie(JWT_AUTH).orElse(null) == null) {
                             //If the auth cookie is not null,
                             // return an ok message with the uid contained within
-                            return ok(Json.toJson(SUCCESS))
+                            return ok(Json.toJson(user.id))
                                 .withCookies(Cookie.builder(JWT_AUTH, createToken(user)).build());
                         } else {
-                            return ok(Json.toJson(SUCCESS));
+                            return ok(Json.toJson(user.id));
                         }
                     }
                 });
