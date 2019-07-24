@@ -23,10 +23,13 @@ function populateDestinationDetails(destinationId) {
                     "summary_district").innerText = destination.district;
                 document.getElementById(
                     "summary_country").innerText = destination.country.name;
-                if(!checkCountryValidity(destination.country.name, destination.country.id)) {
-                    document.getElementById(
-                        "summary_country").innerText = destination.country.name + ' (invalid)';
-                }
+                checkCountryValidity(destination.country.name, destination.country.id)
+                .then(result =>  {
+                    if (result === false) {
+                        document.getElementById(
+                            "summary_country").innerText = destination.country.name + ' (invalid)';
+                    }
+                });
                 document.getElementById(
                     "summary_latitude").innerText = destination.latitude;
                 document.getElementById(
