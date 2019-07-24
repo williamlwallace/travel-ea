@@ -84,6 +84,7 @@ class UndoRedo {
             ({status, json, inverseData}) => {
                 reqData.handler(status, json);
                 if (status !== 201 && status !== 200) {
+                    //Handler should take care of this case
                     return;
                 }
                 const undoRedoReq = new UndoRedoReq(inverseData, reqData);
@@ -97,6 +98,7 @@ class UndoRedo {
     undo() {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
+            toast('Undo', 'Nothing to undo!', 'danger');
             throw "No undos";
         }
 
@@ -104,10 +106,12 @@ class UndoRedo {
             ({status, json, inverseData}) => {
                 undoRedoReq.undoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
+                    //Handler should take care of this case
                     return;
                 }
                 this.redoStack.push(
                     new UndoRedoReq(undoRedoReq.undoReq, inverseData));
+                toast('Undo', 'Successfuly completed a undo', 'success');
             });
 
     }
@@ -118,6 +122,7 @@ class UndoRedo {
     redo() {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) {
+            toast('Redo', 'Nothing to redo!', 'danger');
             throw "No redos";
         }
 
@@ -125,10 +130,12 @@ class UndoRedo {
             ({status, json, inverseData}) => {
                 undoRedoReq.redoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
+                    //Handler should take care of this case
                     return;
                 }
                 this.undoStack.push(
                     new UndoRedoReq(inverseData, undoRedoReq.redoReq));
+                toast('Redo', 'Successfuly completed a redo', 'success');
             });
     }
 
