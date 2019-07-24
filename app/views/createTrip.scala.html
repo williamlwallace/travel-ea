@@ -16,7 +16,6 @@
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button class="btn btn-secondary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create Destination</button>
                 @*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal">Create Destination</button>*@
                 <button type="submit" class="btn btn-secondary" data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
@@ -220,8 +219,8 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-popup waves-effect waves-light" type="button" data-toggle="modal" data-target="#modalAddForm">Close</button>
+                        <div class="modal-footer d-flex justify-content-center" style="display: block;" >
+                            <button id="createDestinationButton" data-toggle="modal" data-dismiss="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Don't see your destination? Click here to make one.</button>
                         </div>
                     </div>
                 </div>
