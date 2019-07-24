@@ -62,6 +62,22 @@ public class UserRepository {
     }
 
     /**
+     * Gets the user with some id from the database, or null if no such user exists.
+     *
+     * @param id Unique ID of user to retrieve
+     * @return User object with given ID, or null if none found
+     */
+    public CompletableFuture<User> findDeletedID(Long id) {
+        return supplyAsync(() ->
+                ebeanServer.find(User.class).setIncludeSoftDeletes()
+                    .where()
+                    .idEq(id)
+                    .findOneOrEmpty()
+                    .orElse(null),
+            executionContext);
+    }
+
+    /**
      * Find a user with a given username, if one exists, otherwise returns null.
      *
      * @param username Username to search for matching account

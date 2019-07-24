@@ -145,9 +145,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void deleteDestination() {
         // Create request to delete newly created destination
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "7");
+            .uri(DEST_URL_SLASH + "7/delete");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -171,9 +171,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void deleteDestinationNotOwner() {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "2");
+            .uri(DEST_URL_SLASH + "2/delete");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -184,9 +184,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void deleteDestinationNotOwnerButAdmin() {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "4");
+            .uri(DEST_URL_SLASH + "4/delete");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);

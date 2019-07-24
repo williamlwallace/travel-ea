@@ -48,6 +48,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Long> addDestination(Destination destination) {
         return supplyAsync(() -> {
+            destination.deleted = false;
             ebeanServer.insert(destination);
             return destination.id;
         }, executionContext);
@@ -245,6 +246,21 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> getDestination(Long id) {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
+            .where()
+            .idEq(id)
+            .findOneOrEmpty()
+            .orElse(null), executionContext);
+    }
+
+    /**
+     * Gets a single includeding deleted destination given the destination ID.
+     *
+     * @param id Unique destination ID of the requested destination
+     * @return A single destination with the requested ID, or null if none was found
+     */
+    public CompletableFuture<Destination> getDeletedDestination(Long id) {
+        return supplyAsync(() -> ebeanServer.find(Destination.class)
+            .setIncludeSoftDeletes()
             .where()
             .idEq(id)
             .findOneOrEmpty()
