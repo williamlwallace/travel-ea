@@ -210,8 +210,6 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
         assertEquals(OK, putResult.status());
-        
-        System.out.println("/n/n/n/n" + putResult.body().asJson() + "/n/n/n/n/n");
 
         Destination updatedDestination = getDestination(4);
         assertNotNull(updatedDestination);
