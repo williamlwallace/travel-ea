@@ -184,17 +184,27 @@ function arrayToString(array, dataName, URL) {
 /**
  * Turns an array of country ids into a string
  * If the country is invalid, adds (invalid) to the string
- * @param {object} array of countries
+ * @param {object} countries array of countries
  * @param {string} dataName column name
  * @param {string} URL Address to retrieve
  */
-function arrayToCountryString(array, dataName, URL) {
+function arrayToCountryString(countries, dataName, URL) {
     return getHardData(URL, dataName)
     .then(dict => {
-        let out = "";
         let promises = [];
-        array.forEach(item => {
-            promises.push([item, checkCountryValidity(dict[item.id], item.id)])
+        const validatorHandler = function (dict, item) {
+            return checkCountryValidity(dict[item.id], item.id)
+            .then( valid  => {
+                if (valid) {
+                    console.log(item.id);
+                    return dict[item.id] + ", ";
+                } else {
+                    return dict[item.id] + " (invalid), ";
+                }
+            });
+        }
+        countries.forEach(item => {
+            promises.push(validatorHandler(dict, item))
         });
         console.log(promises);
         Promise.all(promises)
@@ -211,7 +221,7 @@ function arrayToCountryString(array, dataName, URL) {
             out = out.slice(0, out.length - 2);
             console.log(out);
             return out
-        })
+        });
     });
 }
 
