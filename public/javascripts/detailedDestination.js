@@ -65,7 +65,7 @@ function deleteDestination(destinationId, redirect) {
             $('#deleteDestinationModal').modal('hide');
             window.location.href = redirect;
         }
-    }
+    };
     const URL = destinationRouter.controllers.backend.DestinationController.deleteDestination(
             destinationId).url;
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
