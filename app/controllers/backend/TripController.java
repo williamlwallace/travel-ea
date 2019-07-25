@@ -223,9 +223,9 @@ public class TripController extends TEABackController {
 
         return tripRepository.getDeletedTrip(tripId).thenComposeAsync(trip -> {
             if (trip == null) {
-                return CompletableFuture.supplyAsync(() -> notFound("Not Found"));
+                return CompletableFuture.supplyAsync(() -> notFound("No such trip exists"));
             } else if (!user.admin && !user.id.equals(trip.userId)) {
-                return CompletableFuture.supplyAsync(() -> notFound("Forbidden"));
+                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to delete a trip for someone else"));
             } else {
                 // Toggle deleted boolean and update
                 trip.deleted = !trip.deleted;
