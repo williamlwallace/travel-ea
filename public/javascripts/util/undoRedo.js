@@ -58,7 +58,7 @@ class ReqStack {
      * pops an object of the top of the stack.
      */
     pop() {
-        //Maybe we will do stuf
+        //Maybe we will do stuff here
         return this.stack.pop();
     }
 
@@ -99,6 +99,7 @@ class UndoRedo {
                 }
                 const undoRedoReq = new UndoRedoReq(inverseData, reqData);
                 this.undoStack.push(undoRedoReq);
+                this.updateButtons();
             });
     }
 
@@ -110,6 +111,7 @@ class UndoRedo {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
             toast('Undo', 'Nothing to undo!', 'danger');
+            this.updateButtons();
             throw "No undos";
         }
 
@@ -135,6 +137,7 @@ class UndoRedo {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) {
             toast('Redo', 'Nothing to redo!', 'danger');
+            this.updateButtons();
             throw "No redos";
         }
 
@@ -158,21 +161,22 @@ class UndoRedo {
      */
     updateButtons() {
 
-        const undoBut    $('#undoButton').click(function() {
-        this.undo();
-    });
-
-    $('#redoButton').click(function() {
-        this.redo();
-    });ton = document.getElementById("undoButton");
+        const undoButton = document.getElementById("undoButton");
         const redoButton = document.getElementById("redoButton");
 
-        undoButton.disabled = this.undoStack.isEmpty();
-        redoButton.disabled = this.redoStack.isEmpty();
+        if(this.undoStack.isEmpty()) {
+            undoButton.setAttribute("disabled", "true");
+        } else {
+            undoButton.removeAttribute("disabled");
+        }
 
+        if(this.redoStack.isEmpty()) {
+            redoButton.setAttribute("disabled", "true");
+        } else {
+            redoButton.removeAttribute("disabled");
+        }
     }
 
-    }
 
     /**
      * Generates a response by calling the appropriate fetch method and creates and
@@ -181,7 +185,7 @@ class UndoRedo {
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
-    resAndInverse(reqData, inverseHandler = null) {
+    resAndInverse(reqData, inverseHandler = null){
         switch (reqData.type) {
             case requestTypes["TOGGLE"]:
                 //Delete should toggle so its inverse is itself
@@ -220,6 +224,7 @@ class UndoRedo {
                     });
                 });
             default:
+
                 throw "Request type not found";
         }
     }
@@ -244,12 +249,18 @@ document.onkeydown = (e) => {
  * The undo button calls the undo function
  */
 $('#undoButton').click(function() {
-    undoRedo.undo();
+    let undoDisabledAttr = $('#undoButton').attr('disabled');
+    if(typeof undoDisabledAttr === typeof undefined) {
+        undoRedo.undo();
+    }
 });
 
 /**
  * The redo button calls the redo function
  */
 $('#redoButton').click(function() {
-    undoRedo.redo();
+    let redoDisabledAttr = $('#redoButton').attr('disabled');
+    if(typeof redoDisabledAttr === typeof undefined) {
+        undoRedo.redo();
+    }
 });
