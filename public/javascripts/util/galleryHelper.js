@@ -336,10 +336,13 @@ function togglePrivacy(guid, newPrivacy) {
     const data = {
         "isPublic": newPrivacy
     };
-    patch(photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
-        guid).url, data)
-    .then(res => {
-        if (res.status === 200) {
+    const URL = photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(guid).url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            toast("Failed to change privacy",
+                "Privacy has not been changed",
+                "error");
+        } else if (status === 200) {
             label.innerHTML = newPrivacy ? "Public" : "Private";
             if (newPrivacy) {
                 label.setAttribute("src", "/assets/images/public.png");
@@ -352,5 +355,7 @@ function togglePrivacy(guid, newPrivacy) {
                 "The photo is now " + (newPrivacy ? "Public" : "Private"),
                 "success");
         }
-    })
+    };
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
+    undoRedo.sendAndAppend(reqData);
 }

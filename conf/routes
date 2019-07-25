@@ -85,7 +85,7 @@ DELETE        /api/trip/:id                          controllers.backend.TripCon
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-PATCH         /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
+PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
 
 GET           /api/photo/:id                         controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
