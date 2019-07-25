@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import controllers.backend.routes.javascript;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -77,8 +78,8 @@ public class PhotoController extends TEABackController {
     }
 
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> makePhotoProfile(Http.Request request, String filename) {
-
+    public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long id) {
+        return null;
     }
 
     /**
@@ -224,8 +225,8 @@ public class PhotoController extends TEABackController {
             return photoRepository.clearProfilePhoto(userToRemoveProfilePhoto)
                 .thenApplyAsync(fileNamesPair -> {
                     photoRepository.addPhotos(photosToAdd);
-                    return created(Json.toJson("File(s) uploaded successfully"));
-
+                    // If no existing profile picture was overwritten
+                    return created(Json.toJson(photosToAdd.get(0).filename.substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1)));
                 });
         } else {
             return CompletableFuture.supplyAsync(() -> {
@@ -512,7 +513,8 @@ public class PhotoController extends TEABackController {
                 controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
                 controllers.backend.routes.javascript.PhotoController.linkPhotoToDest(),
                 controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
-                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos()
+                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos(),
+                controllers.backend.routes.javascript.PhotoController.makePhotoProfile()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

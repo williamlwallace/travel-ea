@@ -1347,6 +1347,8 @@ paths:
                     type: string
                     format: binary
       responses:
+        '200':
+          description: Replaced existing profile picture
         '201':
           description: Successfully uploaded one or more files
         '400':

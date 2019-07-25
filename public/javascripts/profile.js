@@ -159,28 +159,37 @@ $(document).ready(function () {
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  * @param {string} url the url to post image to
  */
-function uploadProfilePicture(url) {
+function uploadProfilePicture(url, toggleProfileURL) {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         let formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
 
-        // Set request data type, url, and handler
-        const type = requestTypes["CREATE"];
-        const handler = (status, data) => {
-            if (status === 201) {
-                //Sets the profile picture to the new image
-                getProfilePicture(profilePictureControllerUrl);
-                toast("Profile Picture Updated!",
-                    "This will be displayed on your profile.", "success");
-            } else if (status === 200) { // When undoing the create
+        // Send request and handle response
+        postMultipart(url, formData).then(response => {
+            // Read response from server, which will be a json object
+            response.json().then(data => {
+                if (response.status === 201) {
+                    const photoFilename = "/public/storage/photos/" + data;
 
-            }
-        };
-        const reqData = new ReqData(type, url, handler, formData);
+                    // Create reversible request to update profile photo to this new photo
+                    const handler = (status, json) => {
+                        if(status === 200) {
+                            getProfilePicture(profilePictureControllerUrl);
+                            toast("Profile Picture Updated!",
+                                "This will be displayed on your profile.", "success");
+                        } else {
+                            toast("Error",
+                                "Unable to update profile picture", "danger");
+                        }
+                    };
+                    const requestData = new ReqData(requestTypes["UPDATE"], toggleProfileURL, handler, photoFilename);
+                    undoRedo.sendAndAppend(requestData);
 
-        undoRedo.sendAndAppend()
+                }
+            });
+        });
     });
 
     $('#cropProfilePictureModal').modal('hide');
