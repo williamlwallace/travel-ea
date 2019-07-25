@@ -20,6 +20,8 @@
 
         @* The browser tab icon *@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+
+        <script src="https://kit.fontawesome.com/05bfc7df75.js"></script>
     </head>
 
     <body>
@@ -50,6 +52,12 @@
                     }
                 </ul>
                 <ul class="nav pull-right">
+
+                    <!--  Undo redo buttons on navbar -->
+                    <div class="pr-4">
+                        <a id="undoButton" class="undo-redo" data-placement="left" title="Undo" disabled="true"><i class="fas fa-undo fa-1x"></i></a><a id="redoButton" class="undo-redo" data-placement="left" title="Redo" disabled="true"><i class="fas fa-redo fa-1x"></i></a>
+                    </div>
+
                     <li class="dropdown">
                         <a class="dropdown-toggle dropdown-style @activeLink("/profile")" href="@controllers.frontend.routes.ProfileController.index(user.id)" id="navbarDropdown"
                             role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -58,7 +66,7 @@
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <a class="dropdown-item" href="@controllers.frontend.routes.ProfileController.index(user.id)">Your Profile</a>
                             <a class="dropdown-item" href="@controllers.frontend.routes.TreasureHuntController.index()">Treasure Hunts</a>
-                            <div class="dropdown-divider"></div>
+                           <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick=
                             'logout("@controllers.backend.routes.UserController.logout()",
                              "@controllers.frontend.routes.ApplicationController.home()")'>

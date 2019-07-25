@@ -58,8 +58,17 @@ class ReqStack {
      * pops an object of the top of the stack.
      */
     pop() {
-        //Maybe we will do stuff here?
+        //Maybe we will do stuf
         return this.stack.pop();
+    }
+
+    /**
+     * Returns true if the stack is empty, false otherwise
+     *
+     * @returns {boolean} true if the stack is empty, false otherwise
+     */
+    isEmpty() {
+        return this.stack.length === 0;
     }
 }
 
@@ -79,6 +88,7 @@ class UndoRedo {
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
+
     sendAndAppend(reqData, inverseHandler = null) {
         this.resAndInverse(reqData, inverseHandler).then(
             ({status, json, inverseData}) => {
@@ -91,6 +101,7 @@ class UndoRedo {
                 this.undoStack.push(undoRedoReq);
             });
     }
+
 
     /**
      * Handles the next undo and will add it to redo stack. Throws error if no undos.
@@ -112,6 +123,7 @@ class UndoRedo {
                 this.redoStack.push(
                     new UndoRedoReq(undoRedoReq.undoReq, inverseData));
                 toast('Undo', 'Undo successful', 'success');
+                this.updateButtons();
             });
 
     }
@@ -136,7 +148,30 @@ class UndoRedo {
                 this.undoStack.push(
                     new UndoRedoReq(inverseData, undoRedoReq.redoReq));
                 toast('Redo', 'Redo successful', 'success');
+                this.updateButtons();
             });
+    }
+
+    /**
+     * Updates the undo and redo buttons in the nav bar to either disabled if there
+     * are no undos or redos on the stack or not disabled if the opposite.
+     */
+    updateButtons() {
+
+        const undoBut    $('#undoButton').click(function() {
+        this.undo();
+    });
+
+    $('#redoButton').click(function() {
+        this.redo();
+    });ton = document.getElementById("undoButton");
+        const redoButton = document.getElementById("redoButton");
+
+        undoButton.disabled = this.undoStack.isEmpty();
+        redoButton.disabled = this.redoStack.isEmpty();
+
+    }
+
     }
 
     /**
@@ -204,3 +239,17 @@ document.onkeydown = (e) => {
         undoRedo.redo();
     }
 };
+
+/**
+ * The undo button calls the undo function
+ */
+$('#undoButton').click(function() {
+    undoRedo.undo();
+});
+
+/**
+ * The redo button calls the redo function
+ */
+$('#redoButton').click(function() {
+    undoRedo.redo();
+});
