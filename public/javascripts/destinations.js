@@ -108,7 +108,7 @@ function addDestination(url, redirect, userId) {
  * @param {Object} json Json object containing destination data
  */
 function populateDestinations(json) {
-    const rows = []
+    const rows = [];
     for (const dest in json) {
         const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
             json[dest].id).url;
@@ -117,13 +117,20 @@ function populateDestinations(json) {
         const district = json[dest].district;
         const latitude = json[dest].latitude;
         const longitude = json[dest].longitude;
-        const country = json[dest].country.name;
-
-        rows.push(
-            [name, type, district, latitude, longitude, country,
-                destination]);
+        let country = json[dest].country.name;
+        const row = checkCountryValidity(json[dest].country.name, json[dest].country.id)
+        .then(result => {
+            if(result === false) {
+                country = json[dest].country.name + ' (invalid)';
+            }
+            return [name, type, district, latitude, longitude, country,
+                destination]
+        });
+        rows.push(row);
     }
-    return rows;
+    return Promise.all(rows).then(finishedRows => {
+        return finishedRows
+    });
 }
 
 // Maps marker list

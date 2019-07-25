@@ -30,13 +30,21 @@ function populate(json) {
         const district = destination.district;
         const latitude = destination.latitude;
         const longitude = destination.longitude;
-        const country = destination.country.name;
+        let country = destination.country.name;
         const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-        const row = [name, type, district, latitude, longitude,
-            country, button, id, destination.country.id];
+        const row = checkCountryValidity(destination.country.name, destination.country.id)
+        .then(result => {
+            if(result === false) {
+                country = destination.country.name + ' (invalid)';
+            }
+            return [name, type, district, latitude, longitude,
+                country, button, id, destination.country.id]
+        });
         rows.push(row);
     }
-    return rows;
+    return Promise.all(rows).then(finishedRows => {
+        return finishedRows
+    });
 }
 
 /**

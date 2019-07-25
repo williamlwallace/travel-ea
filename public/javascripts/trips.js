@@ -149,38 +149,49 @@ function createTimeline(trip) {
             });
         }
 
+        const promises = [];
         for (let dest of trip.tripDataList) {
-            let timeline = `<article>
+            promises.push(checkCountryValidity(dest.destination.country.name, dest.destination.country.id)
+            .then(valid => {
+                if(!valid) {
+                    dest.destination.country.name = dest.destination.country.name + ' (invalid)'
+                }
+                let timeline = `<article>
                     <div class="inner">\n`
-            if (dest.arrivalTime != null) {
-                timeline += `<span class="date">
-                    <span class="day">${dest.arrivalTime.substring(8, 10)}</span>
-                    <span class="month">${dest.arrivalTime.substring(5, 7)}</span>
-                    <span class="year">${dest.arrivalTime.substring(0, 4)}</span>
-                </span>\n`
-            }
-            timeline += `<h2>
-            ${dest.destination.name}<br>
-            ${dest.destination.country.name}
-            </h2>
-            <p>\n`
-            if (dest.arrivalTime != null) {
-                timeline += `Arrival: ${dest.arrivalTime.substring(11,
-                    13)}:${dest.arrivalTime.substring(14, 16)}<br>\n`
-            }
-            if (dest.departureTime != null) {
-                timeline += `Departure: ${dest.departureTime.substring(11,
-                    13)}:${dest.departureTime.substring(14, 16)}<br>
-                ${dest.departureTime.substring(8,
-                    10)}/${dest.departureTime.substring(5,
-                    7)}/${dest.departureTime.substring(0, 4)}\n`
-            }
-            timeline += `
+                if (dest.arrivalTime != null) {
+                    timeline += `<span class="date">
+                        <span class="day">${dest.arrivalTime.substring(8, 10)}</span>
+                        <span class="month">${dest.arrivalTime.substring(5, 7)}</span>
+                        <span class="year">${dest.arrivalTime.substring(0, 4)}</span>
+                    </span>\n`
+                }
+                timeline += `<h2>
+                ${dest.destination.name}<br>
+                ${dest.destination.country.name}
+                </h2>
+                <p>\n`
+                if (dest.arrivalTime != null) {
+                    timeline += `Arrival: ${dest.arrivalTime.substring(11,
+                        13)}:${dest.arrivalTime.substring(14, 16)}<br>\n`
+                }
+                if (dest.departureTime != null) {
+                    timeline += `Departure: ${dest.departureTime.substring(11,
+                        13)}:${dest.departureTime.substring(14, 16)}<br>
+                    ${dest.departureTime.substring(8,
+                        10)}/${dest.departureTime.substring(5,
+                        7)}/${dest.departureTime.substring(0, 4)}\n`
+                }
+                timeline += `
                 </p>
                 </div>
                 </article>`
-            $('#timeline').html($('#timeline').html() + timeline);
+                return timeline
+            }));
         }
+        Promise.all(promises).then(result => {
+            const timeline = result.join('\n');
+            $('#timeline').html($('#timeline').html() + timeline);
+        })
     });
 }
 
