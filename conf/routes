@@ -81,7 +81,7 @@ GET           /api/trip                              controllers.backend.TripCon
 
 GET           /api/trip/:id                          controllers.backend.TripController.getTrip(request:Request, id:Long)
 
-DELETE        /api/trip/:id                          controllers.backend.TripController.deleteTrip(id:Long)
+PUT           /api/trip/:id/delete                   controllers.backend.TripController.deleteTrip(request:Request, id:Long)
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
