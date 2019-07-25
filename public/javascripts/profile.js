@@ -166,18 +166,21 @@ function uploadProfilePicture(url) {
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
 
-        // Send request and handle response
-        postMultipart(url, formData).then(response => {
-            // Read response from server, which will be a json object
-            response.json().then(data => {
-                if (response.status === 201) {
-                    //Sets the profile picture to the new image
-                    getProfilePicture(profilePictureControllerUrl);
-                    toast("Profile Picture Updated!",
-                        "This will be displayed on your profile.", "success");
-                }
-            });
-        });
+        // Set request data type, url, and handler
+        const type = requestTypes["CREATE"];
+        const handler = (status, data) => {
+            if (status === 201) {
+                //Sets the profile picture to the new image
+                getProfilePicture(profilePictureControllerUrl);
+                toast("Profile Picture Updated!",
+                    "This will be displayed on your profile.", "success");
+            } else if (status === 200) { // When undoing the create
+
+            }
+        };
+        const reqData = new ReqData(type, url, handler, formData);
+
+        undoRedo.sendAndAppend()
     });
 
     $('#cropProfilePictureModal').modal('hide');

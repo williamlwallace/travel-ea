@@ -76,6 +76,11 @@ public class PhotoController extends TEABackController {
         return ok(file, true);
     }
 
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> makePhotoProfile(Http.Request request, String filename) {
+
+    }
+
     /**
      * Returns all photos belonging to a user. Only returns public photos if it is not the owner of
      * the photos getting them
@@ -218,21 +223,6 @@ public class PhotoController extends TEABackController {
         if (userToRemoveProfilePhoto > 0) {
             return photoRepository.clearProfilePhoto(userToRemoveProfilePhoto)
                 .thenApplyAsync(fileNamesPair -> {
-                    if (fileNamesPair != null) {
-                        File thumbFile = new File(fileNamesPair.getKey());
-                        File mainFile = new File(fileNamesPair.getValue());
-                        // Mark the files for deletion
-                        if (!thumbFile.delete()) {
-                            // If file fails to delete immediately,
-                            // mark file for deletion when VM shuts down
-                            thumbFile.deleteOnExit();
-                        }
-                        if (!mainFile.delete()) {
-                            // If file fails to delete immediately,
-                            // mark file for deletion when VM shuts down
-                            mainFile.deleteOnExit();
-                        }
-                    }
                     photoRepository.addPhotos(photosToAdd);
                     return created(Json.toJson("File(s) uploaded successfully"));
 
