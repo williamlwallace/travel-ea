@@ -175,7 +175,7 @@ public class TripController extends TEABackController {
             if (uploaded) {
                 return ok(Json.toJson(trip.id));
             } else {
-                return badRequest();
+                return notFound();
             }
         });
     }
@@ -211,16 +211,28 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Deletes a trip (and all trip data) of a trip with given ID.
+     * Toggles the soft deletion status of a trip with given ID.
      *
-     * @param tripId ID of trip to delete
-     * @return 1 if trip found and deleted, 0 otherwise
+     * @param tripId ID of trip to toggle deletion
+     * @return On success, ID of trip, otherwise 401, 403, or 404 error code
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> deleteTrip(Long tripId) {
-        // Delete trip record in trips table
-        return tripRepository.deleteTrip(tripId).thenApplyAsync(rows ->
-            (rows > 0) ? ok(Json.toJson(rows)) : notFound());
+    public CompletableFuture<Result> deleteTrip(Http.Request request, Long tripId) {
+        // Gets logged in users details
+        User user = request.attrs().get(ActionState.USER);
+
+        return tripRepository.getDeletedTrip(tripId).thenComposeAsync(trip -> {
+            if (trip == null) {
+                return CompletableFuture.supplyAsync(() -> notFound("Not Found"));
+            } else if (!user.admin && !user.id.equals(trip.userId)) {
+                return CompletableFuture.supplyAsync(() -> notFound("Forbidden"));
+            } else {
+                // Toggle deleted boolean and update
+                trip.deleted = !trip.deleted;
+                return tripRepository.updateTrip(trip).thenApplyAsync(updatedTrip ->
+                    ok(Json.toJson(tripId)));
+            }
+        });
     }
 
     /**
@@ -253,8 +265,7 @@ public class TripController extends TEABackController {
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
-            ok(Json.toJson(tripId))
-        );
+            ok(Json.toJson(tripId)));
     }
 
     /**
@@ -334,7 +345,8 @@ public class TripController extends TEABackController {
                 controllers.frontend.routes.javascript.TripController.editTrip(),
                 controllers.backend.routes.javascript.TripController.getAllTrips(),
                 controllers.backend.routes.javascript.TripController.getTrip(),
-                controllers.backend.routes.javascript.TripController.updateTripPrivacy()
+                controllers.backend.routes.javascript.TripController.updateTripPrivacy(),
+                controllers.backend.routes.javascript.TripController.insertTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
