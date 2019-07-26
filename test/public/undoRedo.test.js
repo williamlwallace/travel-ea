@@ -127,4 +127,24 @@ describe('I can undo and redo sent actions', () => {
         expect(undoRedo.undoStack.stack.length).toEqual(1);
         expect(undoRedo.undoStack.stack[0]).toEqual(new UndoRedo.UndoRedoReq(reqData, reqData));
     });
+
+    test('I can\'t redo an action that doesnt exist', async () => {
+        const undoRedo = new UndoRedo.UndoRedo();
+        try {
+            await undoRedo.redo();
+            throw "No error" //this doesnt make sense
+        } catch (e) {
+            expect(e).toEqual('No redos');
+        }
+    });
+
+    test('I can\'t undo an action that doesnt exist', async () => {
+        const undoRedo = new UndoRedo.UndoRedo();
+        try {
+            await undoRedo.undo();
+            throw "No error" //this doesnt make sense
+        } catch (e) {
+            expect(e).toEqual('No undos');
+        }
+    });
 });
