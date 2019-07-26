@@ -103,7 +103,7 @@ class UndoRedo {
             throw "No undos";
         }
 
-        this.resAndInverse(undoRedoReq.undoReq).then(
+        return this.resAndInverse(undoRedoReq.undoReq).then(
             ({status, json, inverseData}) => {
                 undoRedoReq.undoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
@@ -127,7 +127,7 @@ class UndoRedo {
             throw "No redos";
         }
 
-        this.resAndInverse(undoRedoReq.redoReq).then(
+        return this.resAndInverse(undoRedoReq.redoReq).then(
             ({status, json, inverseData}) => {
                 undoRedoReq.redoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
@@ -210,6 +210,7 @@ document.onkeydown = (e) => {
 //this will only be imported if run by node
 if (typeof module !== 'undefined' && module.exports) {
     var {put, post, _delete} = require('./fetch');
+    var toast = () => {};
     try {
         module.exports = {
             ReqStack,

@@ -18,7 +18,7 @@ describe('I can mipulate a ReqStack ', () => {
 describe('I can send requests and create inverse actions', () => {
     test('I can use a TOGGLE request', async () => {
         const undoRedo = new UndoRedo.UndoRedo();
-        const URL = 'https://postman-echo.com/put'; //This doesnt matter as server isnt running
+        const URL = 'https://postman-echo.com/put';
         const type = UndoRedo.requestTypes['TOGGLE'];
         const handler = (status, json) => {
             expect(status).toEqual(200);
@@ -32,7 +32,7 @@ describe('I can send requests and create inverse actions', () => {
 
     test('I can use a CREATE request', async () => {
         const undoRedo = new UndoRedo.UndoRedo();
-        const URL = 'https://postman-echo.com/post'; //This doesnt matter as server isnt running
+        const URL = 'https://postman-echo.com/post';
         const type = UndoRedo.requestTypes['CREATE'];
         const handler = (status, json) => {
             expect(status).toEqual(200);
@@ -45,9 +45,9 @@ describe('I can send requests and create inverse actions', () => {
         expect(undoRedo.undoStack.stack[0].undoReq.type).toEqual(UndoRedo.requestTypes['TOGGLE']);
     });
 
-    test('I can use a UPDATE request', async () => {
+    test('I can use an UPDATE request', async () => {
         const undoRedo = new UndoRedo.UndoRedo();
-        const URL = 'https://postman-echo.com/put'; //This doesnt matter as server isnt running
+        const URL = 'https://postman-echo.com/put';
         const type = UndoRedo.requestTypes['UPDATE'];
         const handler = (status, json) => {
             expect(status).toEqual(200);
@@ -76,4 +76,55 @@ describe('I can send requests and create inverse actions', () => {
         });
     });
 
+    test('An invalid request will not create an inverse action', async () => {
+        const undoRedo = new UndoRedo.UndoRedo();
+        const URL = 'https://postman-echo.com/thisisnotarealreasource'; //Not real
+        const type = UndoRedo.requestTypes['UPDATE'];
+        const handler = (status, json) => {
+            expect(status).toEqual(404);
+            expect(json.data.name).toEqual('Tester');
+        }
+        const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
+        //This doesnt exactly happen if it was our api, but its close enough lmao
+        try {
+            await undoRedo.sendAndAppend(reqData);
+        } catch (e) {};
+        expect(undoRedo.undoStack.stack.length).toEqual(0);
+    });
+
+});
+
+
+describe('I can undo and redo sent actions', () => {
+    test('I can undo an action', async () => {
+        const undoRedo = new UndoRedo.UndoRedo();
+        const URL = 'https://postman-echo.com/put'; 
+        const type = UndoRedo.requestTypes['TOGGLE'];
+        const handler = (status, json) => {
+            expect(status).toEqual(200);
+            expect(json.data.name).toEqual('Tester');
+        }
+        const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
+        undoRedo.undoStack.stack = [new UndoRedo.UndoRedoReq(reqData, {})];
+        await undoRedo.undo();
+        expect(undoRedo.undoStack.stack.length).toEqual(0);
+        expect(undoRedo.redoStack.stack.length).toEqual(1);
+        expect(undoRedo.redoStack.stack[0]).toEqual(new UndoRedo.UndoRedoReq(reqData, reqData));
+    });
+
+    test('I can redo an action', async () => {
+        const undoRedo = new UndoRedo.UndoRedo();
+        const URL = 'https://postman-echo.com/put';
+        const type = UndoRedo.requestTypes['TOGGLE'];
+        const handler = (status, json) => {
+            expect(status).toEqual(200);
+            expect(json.data.name).toEqual('Tester');
+        }
+        const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
+        undoRedo.redoStack.stack = [new UndoRedo.UndoRedoReq({}, reqData)];
+        await undoRedo.redo();
+        expect(undoRedo.redoStack.stack.length).toEqual(0);
+        expect(undoRedo.undoStack.stack.length).toEqual(1);
+        expect(undoRedo.undoStack.stack[0]).toEqual(new UndoRedo.UndoRedoReq(reqData, reqData));
+    });
 });
