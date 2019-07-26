@@ -156,6 +156,8 @@ function populateMyTreasureHunts(table, userId) {
                     let riddle = json[hunt].riddle;
                     let destination = json[hunt].destination.name;
                     let startDate = json[hunt].startDate;
+                    console.log(startDate);
+                    console.log(typeof startDate);
                     let endDate = json[hunt].endDate;
                     let huntId = json[hunt].id;
 
