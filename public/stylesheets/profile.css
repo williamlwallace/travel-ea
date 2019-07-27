@@ -313,3 +313,7 @@ section#timeline article:nth-child(n) div.inner h2 {
 section#timeline article:nth-child(n) div.inner h2:after {
     background: #5283B7;
 }
+section#timeline a {
+    color: #FFFFFF;
+    font-size: larger;
+}
