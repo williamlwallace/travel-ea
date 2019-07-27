@@ -468,11 +468,16 @@ function updateTrip(uri, redirect, tripId, userId) {
     });
 }
 
-//TODO
-function setDestinationToRemove(destId) {
+/**
+ * Sets the destination that will be removed from the trip when the remove
+ * destination action in the modal is confirmed.
+ *
+ * @param cardId the id of the destination card to be removed.
+ */
+function setDestinationToRemove(cardId) {
     let destTripModal = $('#removeDestinationFromTripModal');
-    console.log("remove trip button pressed with id: " + destId);
-    destTripModal.attr("destId", destId);
+    console.log("remove trip button pressed with id: " + cardId);
+    destTripModal.attr("destId", cardId);
     destTripModal.modal('show');
 }
 
