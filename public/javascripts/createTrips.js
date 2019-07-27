@@ -261,7 +261,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
             '<h4 class="card-title">' + name + '</h4>\n' +
-            '<button id="removeTrip" type="button" data-toggle="modal" data-target="#removeTripModal" target="_blank" rel="nofollow noopener"></button>\n' +
+            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId + ')"></div>\n' +
             '<div id="left">\n' +
             '<p class="card-text" id="card-text">' +
             '<b>Type: </b> ' + type + '<br/>' +
@@ -302,16 +302,9 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
  * @param {Number} cardId - Id of card
  */
 function removeDestinationFromTrip() {
-    //TODO:Finish this
-    let cardId = document.getElementById("removeDestinationFromTripModal").tagName;
-    let destinations = Array.of(document.getElementById("list").children)[0];
-
-    for (let i = 0; i < destinations.length; i++) {
-        if (parseInt(destinations[i].getAttribute("id")) === cardId) {
-            destinations[i].parentNode.removeChild(destinations[i]);
-            break;
-        }
-    }
+    let cardId = $('#removeDestinationFromTripModal').attr("destId");
+    console.log("cardId: " + cardId);
+    $('#' + cardId).remove();
 }
 
 /**
@@ -475,19 +468,21 @@ function updateTrip(uri, redirect, tripId, userId) {
     });
 }
 
+//TODO
+function setDestinationToRemove(destId) {
+    let destTripModal = $('#removeDestinationFromTripModal');
+    console.log("remove trip button pressed with id: " + destId);
+    destTripModal.attr("destId", destId);
+    destTripModal.modal('show');
+}
+
 /**
  * Create destination modal form cancel button click handler.
  */
-$('#CreateDestinationCancelButton').click(function() {
+$('#CreateDestinationCancelButton').click(function () {
     $('#createDestinationModal').modal('hide');
     resetDestinationModal();
 });
 
 
-/**
- * Create destination modal form cancel button click handler.
- */
-$('#removeTripButton').click(function() {
-    $('#removeDestinationFromTripModal').modal('show');
-});
 

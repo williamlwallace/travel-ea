@@ -81,7 +81,7 @@
                                 <div class="card-block px-2">
                                     <div id="topCardBlock">
                                         <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
-                                        <button id="removeTripButton" type="button"></button>
+                                        <div id="removeTrip" onclick="setDestinationToRemove(@i)"></div>
                                     </div>
                                     <div id="left">
                                         <p class="card-text" id="card-text">
@@ -144,7 +144,7 @@
                     </div>
                     <div class="modal-footer d-flex justify-content-center">
                         <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip()">Confirm</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
                     </div>
                 </div>
             </div>
