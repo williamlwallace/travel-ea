@@ -1,3 +1,5 @@
+let tripTable;
+
 /**
  * Initializes trip table and calls method to populate
  * @param {Number} userId - ID of user to get trips for
@@ -15,14 +17,13 @@ function onPageLoad(userId) {
             {'bSortable': false, 'aTargets': [3]}
         ]
     };
-    const tripTable = new EATable('tripTable', tripModal, tripGetURL, populate,
+    tripTable = new EATable('tripTable', tripModal, tripGetURL, populate,
         showTripErrors);
     if (!tripTable.table.data().any()) {
         tripTable.initRowClicks(function () {
             populateModal(this);
         });
     }
-
 }
 
 /**
@@ -96,7 +97,6 @@ function populateModal(row) {
             }
         });
     });
-
 }
 
 /**
@@ -132,47 +132,88 @@ function createTimeline(trip) {
                     trip.id)
             });
 
+            // Add edit and delete trip buttons
             $("#edit-href").remove();
             const editButton = $(
                 "<a id=\"edit-href\" href=\"\"><button id=\"editTrip\" type=\"button\" class=\"btn btn-primary\">Edit Trip</button></a>");
             $("#edit-button-wrapper").append(editButton);
             $('#edit-href').attr("href",
-                tripRouter.controllers.frontend.TripController.editTrip(
-                    trip.id).url);
+                tripRouter.controllers.frontend.TripController.editTrip(trip.id).url);
+
+            $("#deleteTrip").remove();
+            const deleteButton = $(
+                "<button id=\"deleteTrip\" type=\"button\" class=\"btn btn-danger\">Delete Trip</button>");
+            $("#delete-button-wrapper").append(deleteButton);
+            $("#deleteTrip").click(function() {
+                deleteTrip(trip.id, trip.userId);
+            });
         }
 
+        const promises = [];
         for (let dest of trip.tripDataList) {
-            let timeline = `<article>
+            promises.push(checkCountryValidity(dest.destination.country.name, dest.destination.country.id)
+            .then(valid => {
+                if(!valid) {
+                    dest.destination.country.name = dest.destination.country.name + ' (invalid)'
+                }
+                let timeline = `<article>
                     <div class="inner">\n`
-            if (dest.arrivalTime != null) {
-                timeline += `<span class="date">
-                    <span class="day">${dest.arrivalTime.substring(8, 10)}</span>
-                    <span class="month">${dest.arrivalTime.substring(5, 7)}</span>
-                    <span class="year">${dest.arrivalTime.substring(0, 4)}</span>
-                </span>\n`
-            }
-            timeline += `<h2>
-            ${dest.destination.name}<br>
-            ${dest.destination.country.name}
-            </h2>
-            <p>\n`
-            if (dest.arrivalTime != null) {
-                timeline += `Arrival: ${dest.arrivalTime.substring(11,
-                    13)}:${dest.arrivalTime.substring(14, 16)}<br>\n`
-            }
-            if (dest.departureTime != null) {
-                timeline += `Departure: ${dest.departureTime.substring(11,
-                    13)}:${dest.departureTime.substring(14, 16)}<br>
-                ${dest.departureTime.substring(8,
-                    10)}/${dest.departureTime.substring(5,
-                    7)}/${dest.departureTime.substring(0, 4)}\n`
-            }
-            timeline += `
+                if (dest.arrivalTime != null) {
+                    timeline += `<span class="date">
+                        <span class="day">${dest.arrivalTime.substring(8, 10)}</span>
+                        <span class="month">${dest.arrivalTime.substring(5, 7)}</span>
+                        <span class="year">${dest.arrivalTime.substring(0, 4)}</span>
+                    </span>\n`
+                }
+                timeline += `<h2>
+                ${dest.destination.name}<br>
+                ${dest.destination.country.name}
+                </h2>
+                <p>\n`
+                if (dest.arrivalTime != null) {
+                    timeline += `Arrival: ${dest.arrivalTime.substring(11,
+                        13)}:${dest.arrivalTime.substring(14, 16)}<br>\n`
+                }
+                if (dest.departureTime != null) {
+                    timeline += `Departure: ${dest.departureTime.substring(11,
+                        13)}:${dest.departureTime.substring(14, 16)}<br>
+                    ${dest.departureTime.substring(8,
+                        10)}/${dest.departureTime.substring(5,
+                        7)}/${dest.departureTime.substring(0, 4)}\n`
+                }
+                timeline += `
                 </p>
                 </div>
                 </article>`
-            $('#timeline').html($('#timeline').html() + timeline);
+                return timeline
+            }));
         }
+        Promise.all(promises).then(result => {
+            const timeline = result.join('\n');
+            $('#timeline').html($('#timeline').html() + timeline);
+        })
     });
+}
 
+/**
+ * Creates and submits request to delete a trip
+ *
+ * @param {Number} tripId ID of trip to be deleted
+ * @param {Number} userId ID of owner of trip to refresh trips for
+ */
+function deleteTrip(tripId, userId) {
+    const URL = tripRouter.controllers.backend.TripController.deleteTrip(tripId).url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            toast("Failed to delete trip", json, "danger");
+        } else {
+            toast("Success", "Trip deleted!", "success");
+        }
+
+        const getTripURL = tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url;
+        tripTable.populateTable(getTripURL);
+        $('#trip-modal').modal('hide');
+    };
+    const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }

@@ -386,36 +386,6 @@ paths:
         '403':
           description: Forbidden
 
-    delete:
-      tags:
-        - Trips
-      summary: Delete trip with given ID
-      security:
-        - UserToken: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: The ID of the trip to delete
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successfully deleted trip
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: No such trip found
-
   '/trip/privacy':
     put:
       tags:
@@ -441,8 +411,43 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+
+  '/trip/{id}/delete':
+    put:
+      tags:
+        - Trips
+      summary: Toggles the soft deletion of a trip with the given ID
+      security:
+        - UserToken: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: The ID of the trip to delete
+          schema:
+            type: integer
+            minimum: 1
+        - in: header
+          name: JWT-Auth
+          required: true
+          description: Authentication cookie.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully deleted trip
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+                example: 1
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
         '404':
-          description: Not Found
+          description: No such trip found
 
   '/country/getCountries':
     get:

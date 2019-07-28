@@ -7,6 +7,7 @@
 @scripts = {
     <script src="@routes.Assets.at("javascripts/createTrips.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TripController.tripRoutes" type="text/javascript"></script>
 }
 
 @layouts.imageHeader(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, "images/home-bg.jpg", scripts){

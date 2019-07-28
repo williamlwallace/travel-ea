@@ -18,7 +18,7 @@ import play.data.validation.Constraints;
 @Entity
 @Table(name = "Trip")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Trip extends Model implements Comparable<Trip> {
+public class Trip extends BaseModel implements Comparable<Trip> {
 
     @Id
     public Long id;

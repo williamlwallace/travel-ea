@@ -78,6 +78,14 @@ span.user-info {
 }
 
 /**
+* Invalid countrys
+ */
+span.invalid-country {
+    font-weight: 400;
+    color: red;
+}
+
+/**
  * The photo Gallery
  */
 div.photo-gallery {

@@ -166,7 +166,7 @@ function JSONFromDropDowns(dropdown) {
  * Turns array into string whilst mapping the inner object ids to real values
  * @param {Object} array array to translate
  * @param {string} dataName column name
- * @param {string} URL Address to retrive
+ * @param {string} URL Address to retrieve
  */
 function arrayToString(array, dataName, URL) {
     return getHardData(URL, dataName)
@@ -178,6 +178,50 @@ function arrayToString(array, dataName, URL) {
         //remove extra separator
         out = out.slice(0, out.length - 2);
         return out
+    });
+}
+
+/**
+ * Turns an array of country ids into a string
+ * If the country is invalid, adds (invalid) to the string
+ * @param {object} countries array of countries
+ * @param {string} dataName column name
+ * @param {string} URL Address to retrieve
+ */
+function arrayToCountryString(countries, dataName, URL) {
+    return getHardData(URL, dataName)
+    .then(dict => {
+        let promises = [];
+        const validatorHandler = function (dict, item) {
+            return checkCountryValidity(dict[item.id], item.id)
+            .then( valid  => {
+                if (valid) {
+                    console.log(item.id);
+                    return dict[item.id] + ", ";
+                } else {
+                    return dict[item.id] + " (invalid), ";
+                }
+            });
+        }
+        countries.forEach(item => {
+            promises.push(validatorHandler(dict, item))
+        });
+        console.log(promises);
+        Promise.all(promises)
+        .then((result) => {
+            result.forEach(item => {
+                console.log(item[1].resolve());
+                if (item[1] === true) {
+                    out += dict[item[0].id] + ", ";
+                } else {
+                    out += dict[item[0].id] + " (invalid), ";
+                }
+            });
+            //remove extra separator
+            out = out.slice(0, out.length - 2);
+            console.log(out);
+            return out
+        });
     });
 }
 
