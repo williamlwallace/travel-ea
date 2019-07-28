@@ -413,7 +413,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        assertEquals(NOT_FOUND, result.status());
     }
 
     @Test
@@ -530,9 +530,9 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     public void getAllUserTripsHasNoTrips() throws IOException {
         // Deletes trip added in evolutions
         Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri("/api/trip/1/delete");
 
         Result deleteResult = route(fakeApp, deleteRequest);
         assertEquals(OK, deleteResult.status());
@@ -663,14 +663,25 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void deleteTrip() {
+        // Create request to delete trip
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/1/delete");
+
+        // Send request and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Create get request to check trip no longer exists
+        Http.RequestBuilder checkDeletedRequest = Helpers.fakeRequest()
+            .method(GET)
             .cookie(adminAuthCookie)
             .uri("/api/trip/1");
 
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        // Send request and check trip wasn't found
+        Result checkDeletedResult = route(fakeApp, checkDeletedRequest);
+        assertEquals(NOT_FOUND, checkDeletedResult.status());
     }
 
     @Test

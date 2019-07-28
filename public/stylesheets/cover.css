@@ -150,6 +150,11 @@ div.success {
 }
 
 div.field-container {
-  margin-bottom: 15px;
   text-align: left;
+  margin-bottom: 5px;
+}
+
+.start-field-heading {
+  padding-left: 2px;
+  margin-bottom: 5px;
 }

@@ -99,7 +99,7 @@ class UndoRedo {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
             toast('Undo', 'Nothing to undo!', 'danger');
-            throw "No undos";
+            throw "No undo's";
         }
 
         this.resAndInverse(undoRedoReq.undoReq).then(

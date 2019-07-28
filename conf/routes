@@ -81,11 +81,11 @@ GET           /api/trip                              controllers.backend.TripCon
 
 GET           /api/trip/:id                          controllers.backend.TripController.getTrip(request:Request, id:Long)
 
-DELETE        /api/trip/:id                          controllers.backend.TripController.deleteTrip(id:Long)
+PUT           /api/trip/:id/delete                   controllers.backend.TripController.deleteTrip(request:Request, id:Long)
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-PATCH         /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
+PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
 
 GET           /api/photo/:id                         controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
