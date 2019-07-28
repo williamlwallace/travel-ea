@@ -20,8 +20,6 @@
 
         @* The browser tab icon *@
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
-
-        <script src="https://kit.fontawesome.com/05bfc7df75.js"></script>
     </head>
 
     <body>
@@ -81,7 +79,6 @@
             @* Page content *@
             @content
         </div>
-        
 
         @* Import javascript files to the template. Speeds up page load times importing here. *@
         <script src="@routes.Assets.at("javascripts/common/jquery-3.3.1.min.js")" type="text/javascript"></script>
@@ -101,9 +98,10 @@
         <script src="@routes.Assets.at("javascripts/util/countryHelper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/undoRedo.js")" type="text/javascript"></script>
 
-
         @* Imports MBBootstrap Datatables JS. *@
         <script src="@routes.Assets.at("javascripts/common/datatables.min.js")" type="text/javascript"></script>
+        @* Imports FontAwesome icons and font library. *@
+        <script src="https://kit.fontawesome.com/05bfc7df75.js"></script>
 
         @scripts
     </body>

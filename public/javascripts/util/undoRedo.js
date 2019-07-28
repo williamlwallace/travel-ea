@@ -88,7 +88,6 @@ class UndoRedo {
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
-
     sendAndAppend(reqData, inverseHandler = null) {
         this.resAndInverse(reqData, inverseHandler).then(
             ({status, json, inverseData}) => {
@@ -103,7 +102,6 @@ class UndoRedo {
             });
     }
 
-
     /**
      * Handles the next undo and will add it to redo stack. Throws error if no undos.
      */
@@ -112,7 +110,7 @@ class UndoRedo {
         if (!undoRedoReq) {
             toast('Undo', 'Nothing to undo!', 'danger');
             this.updateButtons();
-            throw "No undos";
+            throw "No undo's";
         }
 
         this.resAndInverse(undoRedoReq.undoReq).then(
@@ -160,7 +158,6 @@ class UndoRedo {
      * are no undos or redos on the stack or not disabled if the opposite.
      */
     updateButtons() {
-
         const undoButton = document.getElementById("undoButton");
         const redoButton = document.getElementById("redoButton");
 
@@ -185,7 +182,7 @@ class UndoRedo {
      * @param {Object} reqData ReqData instance that contains data for request to send
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
-    resAndInverse(reqData, inverseHandler = null){
+    resAndInverse(reqData, inverseHandler = null) {
         switch (reqData.type) {
             case requestTypes["TOGGLE"]:
                 //Delete should toggle so its inverse is itself
@@ -224,7 +221,6 @@ class UndoRedo {
                     });
                 });
             default:
-
                 throw "Request type not found";
         }
     }
@@ -249,8 +245,7 @@ document.onkeydown = (e) => {
  * The undo button calls the undo function
  */
 $('#undoButton').click(function() {
-    let undoDisabledAttr = $('#undoButton').attr('disabled');
-    if(typeof undoDisabledAttr === typeof undefined) {
+    if(!$('#undoButton').attr('disabled')) {
         undoRedo.undo();
     }
 });
@@ -259,8 +254,7 @@ $('#undoButton').click(function() {
  * The redo button calls the redo function
  */
 $('#redoButton').click(function() {
-    let redoDisabledAttr = $('#redoButton').attr('disabled');
-    if(typeof redoDisabledAttr === typeof undefined) {
+    if(!$('#redoButton').attr('disabled')) {
         undoRedo.redo();
     }
 });
