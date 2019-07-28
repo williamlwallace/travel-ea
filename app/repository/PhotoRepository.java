@@ -220,7 +220,6 @@ public class PhotoRepository {
      * @param filename Name of file
      */
     public CompletableFuture<Boolean> deletePhotoByFilename(String filename) {
-        System.out.println(filename);
         return supplyAsync(() -> {
             Photo photo = ebeanServer.find(Photo.class)
                 .where()
