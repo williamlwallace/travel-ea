@@ -268,6 +268,8 @@ function getProfilePicture(url) {
             response.json().then(data => {
                 $("#ProfilePicture").attr("src", data.filename);
             });
+        } else if (response.status === 404) {
+            $("#ProfilePicture").attr("src", "/assets/images/default-profile-picture.jpg");
         }
     });
 }
