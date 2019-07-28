@@ -43,10 +43,11 @@ function hideErrors(parentElement) {
  * Gets data from api and maps ids to given colName in a dictionary
  *
  * @param {string} URI - API URI to get data from
- * @param {string} colName - name of data column
+ * @param {string} dataKey - Key of accessed data from API
  * @param {Boolean} capitalise - Whether to capitalised first letter
+ * @param {string} idKey - Key of accessed ID from API
  */
-function getHardData(URI, colName, capitalise = false) {
+function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
     // Run a get request to fetch all destinations
     return get(URI)
     // Get the response of the request
@@ -59,10 +60,10 @@ function getHardData(URI, colName, capitalise = false) {
             for (let i = 0; i < data.length; i++) {
                 // Also add the item to the dictionary
                 if (capitalise) {
-                    dict[data[i]['id']] = capitalizeFirstLetter(
-                        data[i][colName]);
+                    dict[data[i][idKey]] = capitalizeFirstLetter(
+                        data[i][dataKey]);
                 } else {
-                    dict[data[i]['id']] = data[i][colName];
+                    dict[data[i][idKey]] = data[i][dataKey];
                 }
             }
             return dict;
@@ -72,18 +73,20 @@ function getHardData(URI, colName, capitalise = false) {
 
 /**
  * Gets data from API and fills given drop downs
- *
  * @param {string} URI - API URI to get data from
  * @param {Object} dropdowns - Array of dropdown ids
- * @param {string} colName - name of data column
- * @param {Boolean} capitalise - Wheather is capatilise first letter
+ * @param {string} dataKey - Key of accessed data from API
+ * @param {Boolean} capitalise - Whether is capitalise first letter
+ * @param {string} idKey - Key of accessed ID from API
+ * @param {Boolean} sort - Whether or not the list should be sorted
  */
-function getAndFillDD(URI, dropdowns, colName, capitalise = false) {
-    getHardData(URI, colName, capitalise)
+function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
+    sort = false) {
+    getHardData(URI, dataKey, capitalise, idKey)
     .then(dict => {
         // Now fill the selects
         dropdowns.forEach(element => {
-            fillDropDown(element, dict);
+            fillDropDown(element, dict, sort);
         });
     });
 }
@@ -92,17 +95,38 @@ function getAndFillDD(URI, dropdowns, colName, capitalise = false) {
  * Gets dropdown element and fills its data
  * @param {string} dropdownName - id of dropdown element
  * @param {Object} dict - dictionary of data to put in dropdown
+ * @param {Boolean} sort - Whether or not the list should be sorted
  */
-function fillDropDown(dropdownName, dict) {
+function fillDropDown(dropdownName, dict, sort = false) {
+    let array = [];
+    let item;
+
     for (let key in dict) {
-        // For each destination, make a list element that is the json string of object
-        let item = document.createElement("OPTION");
-        item.innerHTML = dict[key];
-        item.value = key;
-        // Add list element to drop down list
-        document.getElementById(dropdownName).appendChild(item);
+        item = {};
+        item.id = key;
+        item.value = dict[key];
+        array.push(item);
     }
-    // implements the plug in multi selector
+
+    if (sort) {
+        array.sort(function (a, b) {
+            if (a.value > b.value) {
+                return 1;
+            } else if (a.value < b.value) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+    }
+
+    for (let i in array) {
+        let option = document.createElement("OPTION");
+        option.innerHTML = array[i].value;
+        option.value = array[i].id;
+        // Add list element to drop down list
+        document.getElementById(dropdownName).appendChild(option);
+    }
     $('#' + dropdownName).picker();
 }
 
@@ -142,7 +166,7 @@ function JSONFromDropDowns(dropdown) {
  * Turns array into string whilst mapping the inner object ids to real values
  * @param {Object} array array to translate
  * @param {string} dataName column name
- * @param {string} URL Address to retrive
+ * @param {string} URL Address to retrieve
  */
 function arrayToString(array, dataName, URL) {
     return getHardData(URL, dataName)
@@ -154,6 +178,50 @@ function arrayToString(array, dataName, URL) {
         //remove extra separator
         out = out.slice(0, out.length - 2);
         return out
+    });
+}
+
+/**
+ * Turns an array of country ids into a string
+ * If the country is invalid, adds (invalid) to the string
+ * @param {object} countries array of countries
+ * @param {string} dataName column name
+ * @param {string} URL Address to retrieve
+ */
+function arrayToCountryString(countries, dataName, URL) {
+    return getHardData(URL, dataName)
+    .then(dict => {
+        let promises = [];
+        const validatorHandler = function (dict, item) {
+            return checkCountryValidity(dict[item.id], item.id)
+            .then( valid  => {
+                if (valid) {
+                    console.log(item.id);
+                    return dict[item.id] + ", ";
+                } else {
+                    return dict[item.id] + " (invalid), ";
+                }
+            });
+        }
+        countries.forEach(item => {
+            promises.push(validatorHandler(dict, item))
+        });
+        console.log(promises);
+        Promise.all(promises)
+        .then((result) => {
+            result.forEach(item => {
+                console.log(item[1].resolve());
+                if (item[1] === true) {
+                    out += dict[item[0].id] + ", ";
+                } else {
+                    out += dict[item[0].id] + " (invalid), ";
+                }
+            });
+            //remove extra separator
+            out = out.slice(0, out.length - 2);
+            console.log(out);
+            return out
+        });
     });
 }
 

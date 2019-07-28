@@ -3,9 +3,9 @@ package controllers.backend;
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
-import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
+import static play.test.Helpers.PUT;
 import static play.test.Helpers.UNAUTHORIZED;
 import static play.test.Helpers.route;
 
@@ -24,7 +24,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 
-public class UserControllerTest extends ControllersTest {
+public class UserControllerTest extends controllers.backend.ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
@@ -81,7 +81,7 @@ public class UserControllerTest extends ControllersTest {
         // Check a success message was sent
         String message = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), String.class);
-        assertEquals("Success", message);
+        assertEquals("3", message);
     }
 
     @Test
@@ -244,9 +244,9 @@ public class UserControllerTest extends ControllersTest {
     public void deleteValidUser() {
         // Create request to delete newly created user
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/user/2");
+            .uri("/api/user/2/delete");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -257,12 +257,13 @@ public class UserControllerTest extends ControllersTest {
     public void deleteInvalidUser() {
         // Create request to delete a user that does not exist
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/user/12");
+            .uri("/api/user/12/delete");
 
         // Get result and check it failed
         Result result = route(fakeApp, request);
+        System.out.println("Test");
         assertEquals(BAD_REQUEST, result.status());
     }
 

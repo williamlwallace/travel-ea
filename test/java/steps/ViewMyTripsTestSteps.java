@@ -2,6 +2,7 @@ package steps;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
@@ -58,9 +59,9 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
         for (int i = 0; i < trips.size(); i++) {
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
-                .method(DELETE)
+                .method(PUT)
                 .cookie(authCookie)
-                .uri("/api/trip/" + trips.get(i).get("id"));
+                .uri("/api/trip/" + trips.get(i).get("id") + "/delete");
 
             Result deleteResult = route(fakeApp, deleteRequest);
         }

@@ -13,7 +13,7 @@ div.profile {
  */
  #profile-summary {
     background-color: #FFFFFF;
-    width: 68%;
+    width: 80%;
     height: auto;
     margin-top: -120px;
     margin-left: auto;
@@ -75,6 +75,14 @@ span.section-title {
  */
 span.user-info {
     font-weight: 400;
+}
+
+/**
+* Invalid countrys
+ */
+span.invalid-country {
+    font-weight: 400;
+    color: red;
 }
 
 /**
@@ -304,4 +312,8 @@ section#timeline article:nth-child(n) div.inner h2 {
 }
 section#timeline article:nth-child(n) div.inner h2:after {
     background: #5283B7;
+}
+section#timeline a {
+    color: #FFFFFF;
+    font-size: larger;
 }

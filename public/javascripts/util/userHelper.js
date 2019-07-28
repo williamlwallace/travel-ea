@@ -10,7 +10,7 @@ function getUserId() {
     return get('api/user/setid')
     .then(response => {
         //need access to response status, so cant return promise
-        response.json()
+        return response.json()
         .then(json => {
             if (response.status !== 200) {
                 window.location.href = '/'
@@ -19,6 +19,19 @@ function getUserId() {
             }
         });
     });
+}
+
+/**
+ * return boolean of if the user is an admin
+ */
+function isUserAdmin() {
+    const CNAME = "Is-Admin";
+    let value = getCookie(CNAME);
+    if (value !== "") {
+        return value.toLowerCase() === "true";
+    } else {
+        return false;
+    }
 }
 
 /**

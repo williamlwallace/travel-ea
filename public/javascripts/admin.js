@@ -1,24 +1,25 @@
 const MASTER_ADMIN_ID = 1;
 let travellerTypeRequestTable;
+let usersTable;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
     const errorRes = json => { document.getElementById('adminError').innerHTML = json; };
     //set table population urls
-    const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url
-    const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url
-    ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url
+    const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url;
+    const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
+    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url;
 
     const ttTableModal = {
         createdRow: function (row, data) {
             $(row).addClass("clickable-row");
             $(row).attr('data-id', data[0] + "," + data[4]);
         }
-    }
+    };
     //create tables
-    const usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
+    usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
     const tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips, errorRes);
-    travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes)
+    travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
     //set table click callbacks callbacks
     usersTable.initButtonClicks({
         2: toggleAdmin,
@@ -41,19 +42,16 @@ $(document).ready(function () {
  * @param {Number} id - user id
  */
 function deleteUser(button, tableAPI, id) {
-    _delete(
-        userRouter.controllers.backend.UserController.deleteOtherUser(id).url)
-    .then(response => {
-        //need access to response status, so cant return promise
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("adminError").innerHTML = json;
-            } else {
-                tableAPI.row($(button).parents('tr')).remove().draw(false);
-            }
-        });
-    });
+    const handler = (status, json) => {
+        if (status !== 200) {
+            document.getElementById("adminError").innerHTML = json;
+        } else {
+            usersTable.populateTable();
+        }
+    };
+    const URL = userRouter.controllers.backend.UserController.deleteOtherUser(id).url;
+    const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
@@ -64,29 +62,17 @@ function deleteUser(button, tableAPI, id) {
  * @param {Number} id - user id
  */
 function toggleAdmin(button, tableAPI, id) {
-    let uri;
-    let innerHTML;
-    if (button.innerHTML.trim().startsWith("Revoke")) {
-        uri = adminRouter.controllers.backend.AdminController.revokeAdmin(
-            id).url;
-        innerHTML = "Grant admin";
-    } else {
-        uri = adminRouter.controllers.backend.AdminController.grantAdmin(
-            id).url;
-        innerHTML = "Revoke admin";
-    }
-    post(uri, "")
-    .then(response => {
-        //need access to response status, so cant return promise
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("adminError").innerHTML = json;
-            } else {
-                button.innerHTML = innerHTML;
-            }
-        });
-    });
+    const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            document.getElementById('adminError').innerHTML = json;
+        } else {
+            const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
+            this.button.innerHTML = innerHTML;
+        }
+    }.bind({button});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
@@ -116,10 +102,10 @@ function populateUsers(json) {
 /**
  * Insert trip data into table
  *
- * @param {Object} table - data table object
+ * @param {Object} json - data table object
  */
 function populateTrips(json) {
-    rows = []
+    const rows = [];
     for (const trip in json) {
         const id = json[trip].id;
         const tripDataList = json[trip].tripDataList;
@@ -143,7 +129,7 @@ function populateTrips(json) {
  * Populates the traveller type requests table
  */
 function populateTravellerTypeRequests(json) {
-   const rows = []
+   const rows = [];
     for (const dest in json) {
         const destId = json[dest].id;
         const destName = json[dest].name;
@@ -186,24 +172,25 @@ function deleteTrip(button, tableAPI, id) {
  * @param {string} uri - api sign up uri
  * @param redirect the uri to redirect to
  */
-function createUser(uri, redirect) {
+function createUser(URL) {
     const formData = new FormData(document.getElementById("signupForm"));
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
     }), {});
-    post(uri, data)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json, "signupForm");
-            } else {
-                window.location.href = redirect;
-                location.reload();
-            }
-        });
-    });
+    const handler = (status, json) => {
+        if (status !== 200) {
+            document.getElementById("adminError").innerHTML = JSON.stringify(json);
+            toast('User error', JSON.stringify(json),'danger');
+        } else {
+            usersTable.populateTable();
+            $('#createUser').modal('hide');
+        }
+    }
+    
+    const reqData = new ReqData(requestTypes['CREATE'], URL, handler, data);
+    //Handler can be used for inverse aswell
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**

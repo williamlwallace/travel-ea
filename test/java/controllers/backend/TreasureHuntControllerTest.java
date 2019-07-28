@@ -1,7 +1,13 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static play.mvc.Http.HttpVerbs.DELETE;
+import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.FORBIDDEN;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
@@ -12,7 +18,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import javax.xml.bind.SchemaOutputResolver;
 import models.Destination;
 import models.TreasureHunt;
 import models.User;
@@ -25,6 +37,9 @@ import play.test.Helpers;
 
 public class TreasureHuntControllerTest extends controllers.backend.ControllersTest {
 
+    private static String DELETE_TREASURE_HUNT_URI = "/api/treasurehunt/";
+    private static String USER_TREASURE_HUNT_URI = "/api/user/";
+
     /**
      * Runs evolutions before each test. These evolutions are found in conf/test/(whatever), and
      * should contain minimal sql data needed for tests
@@ -33,6 +48,221 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
     public void runEvolutions() {
         applyEvolutions("test/treasureHunt/");
     }
+
+    private List<TreasureHunt> getTreasureHunts(int userId) throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri(USER_TREASURE_HUNT_URI + userId + "/treasurehunt");
+
+        Result getResult = route(fakeApp, getRequest);
+
+        if (getResult.status() != OK) {
+            return null;
+        } else {
+            return Arrays.asList(
+                new ObjectMapper().readValue(Helpers.contentAsString(getResult), TreasureHunt[].class));
+        }
+    }
+
+    @Test
+    public void updateTreasureHunt() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(2);
+        System.out.println(treasureHunt);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
+    public void updateOtherPersonTreasureHuntAdmin() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(2);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(adminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("X marks the spot", updatedTreasureHunt.get(0).riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
+    public void updateTreasureHuntUnauthorized() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(1);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+        Long treasureHuntId = treasureHunt.get(0).id;
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + treasureHuntId);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(FORBIDDEN, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("A public Riddle", updatedTreasureHunt.get(0).riddle);
+        assertNotEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
+    public void updateTreasureHuntNotFound() throws IOException {
+
+        List<TreasureHunt> treasureHunt = getTreasureHunts(2);
+        assertNotNull(treasureHunt);
+
+        treasureHunt.get(0).riddle = "X marks the spot";
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(treasureHunt.get(0)))
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + 3);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(NOT_FOUND, putResult.status());
+
+        List<TreasureHunt> updatedTreasureHunt = getTreasureHunts(2);
+        assertNotNull(updatedTreasureHunt);
+
+        assertEquals("A public Riddle", updatedTreasureHunt.get(0).riddle);
+        assertEquals(treasureHunt, updatedTreasureHunt);
+    }
+
+    @Test
+    public void deleteTreasureHunt() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Deletes the treasure hunt owned by this user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "2");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Now check that treasure hunt has indeed been deleted
+        Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
+        assertEquals(1, foundTreasureHunts.size());
+        assertEquals("Your own Riddle", foundTreasureHunts.iterator().next().riddle);
+    }
+
+    @Test
+    public void deleteOtherPersonTreasureHuntAdmin() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Deletes the treasure hunt owned by the other user, as an admin
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(adminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "2");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Now check that treasure hunt has indeed been deleted
+        Collection<TreasureHunt> foundTreasureHunts = treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery());
+        assertEquals(1, foundTreasureHunts.size());
+        assertEquals("Your own Riddle", foundTreasureHunts.iterator().next().riddle);
+    }
+
+    @Test
+    public void deleteTreasureHuntUnauthorized() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Attempt to delete the admin's treasure hunt, as a regular user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "1");
+
+        // Get result and check it was rejected 403
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+
+        // Now check that no treasure hunts have been deleted
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+    }
+
+    @Test
+    public void deleteTreasureHuntNotFound() throws SQLException {
+        // Get existing treasure hunts, check that two exist
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+
+        // Attempt to delete a treasure hunt that does not exist
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(DELETE)
+            .cookie(nonAdminAuthCookie)
+            .uri(DELETE_TREASURE_HUNT_URI + "3");
+
+        // Get result and check it returned 404 error
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+
+        // Now check that no treasure hunts have been deleted
+        assertEquals(2, treasureHuntsFromResultSet(
+            connection.prepareStatement("SELECT * FROM TreasureHunt;").executeQuery()
+        ).size());
+    }
+
 
     @Test
     public void createValidTreasureHunt() {
@@ -62,7 +292,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
             .method(POST)
             .bodyJson(treasureHuntJson)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/treasureHunt");
+            .uri("/api/treasurehunt");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -97,7 +327,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
             .method(POST)
             .bodyJson(treasureHuntJson)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/treasureHunt");
+            .uri("/api/treasurehunt");
 
         // Get result and check it failed
         Result result = route(fakeApp, request);
@@ -126,7 +356,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/treasureHunt/1");
+            .uri("/api/user/1/treasurehunt");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -141,7 +371,7 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/treasureHunt/1");
+            .uri("/api/user/1/treasurehunt");
 
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());

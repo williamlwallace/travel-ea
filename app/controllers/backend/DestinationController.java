@@ -17,7 +17,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
-import repository.CountryDefinitionRepository;
 import repository.DestinationRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.validation.DestinationValidator;
@@ -30,15 +29,12 @@ public class DestinationController extends TEABackController {
 
     private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
-    private final CountryDefinitionRepository countryDefinitionRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        CountryDefinitionRepository countryDefinitionRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
         this.destinationRepository = destinationRepository;
-        this.countryDefinitionRepository = countryDefinitionRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
     }
 
@@ -157,23 +153,14 @@ public class DestinationController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deleteDestination(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
+        return destinationRepository.getDeletedDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture.supplyAsync(() -> notFound("No such destination found"));
             } else if (destination.user.id.equals(user.id) || user.admin) {
-                return destinationRepository.deleteDestination(id).thenApplyAsync(rowsDeleted -> {
-                    if (rowsDeleted < 1) {
-                        ErrorResponse errorResponse = new ErrorResponse();
-                        errorResponse.map("Destination not found", "other");
-                        return badRequest(errorResponse.toJson());
-                    } else {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(rowsDeleted)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    }
-                });
+                destination.deleted = !destination.deleted; 
+                return destinationRepository.updateDestination(destination)
+                .thenApplyAsync(upId -> ok(
+                    Json.toJson("Successfully toggled destination deletion of destination with id: " + upId)));
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden("Forbidden"));
             }
@@ -215,7 +202,7 @@ public class DestinationController extends TEABackController {
                 return destinationRepository.updateDestination(editedDestination)
                     .thenApplyAsync(updatedDestination -> {
                         try {
-                            return ok(sanitizeJson(Json.toJson("Successfully added destination")));
+                            return ok(sanitizeJson(Json.toJson(destination)));
                         } catch (IOException e) {
                             return internalServerError(Json.toJson(SANITIZATION_ERROR));
                         }
@@ -438,22 +425,6 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets all countries. Returns a json list of all countries.
-     *
-     * @return OK with list of countries
-     */
-    public CompletableFuture<Result> getAllCountries() {
-        return countryDefinitionRepository.getAllCountries()
-            .thenApplyAsync(allCountries -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(allCountries)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
-    }
-
-    /**
      * Gets a destination with a given id. Returns a json with destination object.
      *
      * @param getId ID of wanted destination
@@ -496,7 +467,6 @@ public class DestinationController extends TEABackController {
     public Result destinationRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.DestinationController.getAllCountries(),
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getAllPublicDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),

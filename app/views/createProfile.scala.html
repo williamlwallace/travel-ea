@@ -2,6 +2,7 @@
 
     @scripts = {
         <script src="@routes.Assets.at("javascripts/createProfile.js")" type="text/javascript"></script>
+        <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
     }
 
     @layouts.imageHeader("Profile", user, "images/profile-bg.jpg", scripts) {
@@ -96,6 +97,6 @@
     }
 
 <script type="text/javascript">
-    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
+    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
 </script>

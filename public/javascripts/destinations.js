@@ -5,39 +5,19 @@ let table;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(userId).url;
+    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        userId).url;
     const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
-    }
-    table = new EATable('dtDestination', tableModal, destinationGetURL, populateDestinations, (json) => {document.getElementById("otherError").innerHTML = json;})
-    populateMarkers(userId);
-}
-
-/**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    .then(response => {
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            let countryDict = {};
-
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
+    };
+    table = new EATable('dtDestination', tableModal, destinationGetURL,
+        populateDestinations, (json) => {
+            document.getElementById("otherError").innerHTML = json;
         });
-    });
+    populateMarkers(userId);
 }
 
 /**
@@ -66,56 +46,71 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
-    delete data.countryId;
 
-    // Post json data to given url
-    post(url, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                if (json === "Duplicate destination") {
-                    toast("Destination could not be created!",
-                        "The destination already exists.", "danger", 5000);
-                    $('#createDestinationModal').modal('hide');
-                } else {
-                    showErrors(json);
-                }
-            } else {
-                toast("Destination Created!",
-                    "The new destination will be added to the table.",
-                    "success");
+    //Create response handler
+    const handler = function(status, json) {
+        if (status !== 200) {
+            if (json === "Duplicate destination") {
+                toast("Destination could not be created!",
+                    "The destination already exists.", "danger", 5000);
                 $('#createDestinationModal').modal('hide');
-
-                // Add row to table
-                const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                    json).url;
-                const name = data.name;
-                const type = data.destType;
-                const district = data.district;
-                const latitude = data.latitude;
-                const longitude = data.longitude;
-                let country = data.country.id;
-
-                // Set country name
-                let countries = document.getElementById(
-                    "countryDropDown").getElementsByTagName("option");
-                for (let i = 0; i < countries.length; i++) {
-                    if (parseInt(countries[i].value) === data.country.id) {
-                        country = countries[i].innerText;
-                        break;
-                    }
-                }
-
-                table.add(
-                    [name, type, district, latitude, longitude, country,
-                        destination]);
-                populateMarkers(userId);
-
+                resetDestinationModal();
+            } else {
+                showErrors(json);
             }
-        });
+        } else {
+            toast("Destination Created!",
+                "The new destination will be added to the table.",
+                "success");
+            $('#createDestinationModal').modal('hide');
+            resetDestinationModal();
+
+            // Add row to table
+            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                json).url;
+            const name = data.name;
+            const type = data.destType;
+            const district = data.district;
+            const latitude = data.latitude;
+            const longitude = data.longitude;
+            let country = data.country.id;
+
+            // Set country name
+            let countries = document.getElementById(
+                "countryDropDown").getElementsByTagName("option");
+            for (let i = 0; i < countries.length; i++) {
+                if (parseInt(countries[i].value) === data.country.id) {
+                    country = countries[i].innerText;
+                    break;
+                }
+            }
+
+            table.add(
+                [name, type, district, latitude, longitude, country,
+                    destination]);
+            populateMarkers(userId);
+
+        }
+    }.bind({userId, data});
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            table.populateTable();
+            populateMarkers(userId);
+        }
+    };
+    // Post json data to given url
+    addNonExistingCountries([data.country]).then(result => {
+        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
+        undoRedo.sendAndAppend(reqData, inverseHandler);
     });
+}
+
+/**
+ * Clears all fields and error labels in the create destination modal form
+ */
+function resetDestinationModal() {
+    document.getElementById("addDestinationForm").reset();
+    hideErrors("addDestinationForm");
 }
 
 /**
@@ -123,7 +118,7 @@ function addDestination(url, redirect, userId) {
  * @param {Object} json Json object containing destination data
  */
 function populateDestinations(json) {
-    const rows = []
+    const rows = [];
     for (const dest in json) {
         const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
             json[dest].id).url;
@@ -132,13 +127,20 @@ function populateDestinations(json) {
         const district = json[dest].district;
         const latitude = json[dest].latitude;
         const longitude = json[dest].longitude;
-        const country = json[dest].country.name;
-
-        rows.push(
-            [name, type, district, latitude, longitude, country,
-                destination]);
+        let country = json[dest].country.name;
+        const row = checkCountryValidity(json[dest].country.name, json[dest].country.id)
+        .then(result => {
+            if(result === false) {
+                country = json[dest].country.name + ' (invalid)';
+            }
+            return [name, type, district, latitude, longitude, country,
+                destination]
+        });
+        rows.push(row);
     }
-    return rows;
+    return Promise.all(rows).then(finishedRows => {
+        return finishedRows
+    });
 }
 
 // Maps marker list
@@ -254,4 +256,12 @@ function initMap() {
  */
 $('#dtDestination').on('click', 'tbody tr', function () {
     window.location = this.dataset.href;
+});
+
+/**
+ * Create destination modal form cancel button click handler.
+ */
+$('#CreateDestinationCancelButton').click(function() {
+    $('#createDestinationModal').modal('hide');
+    resetDestinationModal();
 });

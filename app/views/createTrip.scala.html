@@ -7,6 +7,7 @@
 @scripts = {
     <script src="@routes.Assets.at("javascripts/createTrips.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TripController.tripRoutes" type="text/javascript"></script>
 }
 
 @layouts.imageHeader(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, "images/home-bg.jpg", scripts){
@@ -80,7 +81,7 @@
                                 <div class="card-block px-2">
                                     <div id="topCardBlock">
                                         <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
-                                        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip(@i)"></button>
+                                        <div id="removeTrip" onclick="setDestinationToRemove(@i)"></div>
                                     </div>
                                     <div id="left">
                                         <p class="card-text" id="card-text">
@@ -120,7 +121,6 @@
                                         <div class="text-center">
                                             <label id="destinationError"></label><br/>
                                         </div>
-                                            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
                                     </div>
                                 </div>
                             </div>
@@ -132,6 +132,23 @@
             </body>
         </html>
 
+        <!-- Remove Destination From Trip Modal -->
+        <div class="modal fade" id="removeDestinationFromTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content text-center">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Remove Destination</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you wish to remove this destination from the trip?</p>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Create destination form -->
         <div class="container">
@@ -217,5 +234,5 @@
 
 <script type="text/javascript">
         onPageLoad(@ownerId);
-        fillCountryInfo("@controllers.backend.routes.DestinationController.getAllCountries()");
+        getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
 </script>

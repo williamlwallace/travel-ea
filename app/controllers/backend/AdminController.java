@@ -2,7 +2,6 @@ package controllers.backend;
 
 import actions.Authenticator;
 import actions.roles.Admin;
-import controllers.backend.routes.javascript;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import play.libs.Json;
@@ -25,41 +24,20 @@ public class AdminController extends TEABackController {
     }
 
     /**
-     * Grant admin privileges to user.
+     * toggles users admin privileges.
      *
      * @param request Request object
      * @param id Id of user to be granted
      * @return Returns a CompletionStage ok type for successful query
      */
     @With({Admin.class, Authenticator.class})
-    public CompletionStage<Result> grantAdmin(Http.Request request, Long id) {
+    public CompletionStage<Result> toggleAdmin(Http.Request request, Long id) {
         // Run a db operation in another thread (using DatabaseExecutionContext)
         return userRepository.findID(id).thenApplyAsync(user -> {
             if (user != null) {
-                user.admin = true;
+                user.admin = !user.admin;
                 userRepository.updateUser(user);
-                return ok(Json.toJson("Successfully promoted user to admin"));
-            }
-            return badRequest(Json.toJson("User not found"));
-        });
-    }
-
-    /**
-     * Revoke admin privileges to user.
-     *
-     * @param request Request object
-     * @param id Id of user to be granted
-     * @return Returns a CompletionStage ok type for successful query
-     */
-    @With({Admin.class, Authenticator.class})
-    public CompletionStage<Result> revokeAdmin(Http.Request request, Long id) {
-        // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.findID(id).thenApplyAsync(user -> {
-            if (user != null
-                && user.id != MASTER_ADMIN_ID) { //check user is not master admin
-                user.admin = false;
-                userRepository.updateUser(user);
-                return ok(Json.toJson("Successfully demoted user from admin"));
+                return ok(Json.toJson("Successfully toggled users admin privleges"));
             }
             return badRequest(Json.toJson("User not found"));
         });
@@ -73,8 +51,7 @@ public class AdminController extends TEABackController {
     public Result adminRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("adminRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.AdminController.revokeAdmin(),
-                controllers.backend.routes.javascript.AdminController.grantAdmin()
+                controllers.backend.routes.javascript.AdminController.toggleAdmin()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

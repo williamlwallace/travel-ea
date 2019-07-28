@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS User
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
     admin             BOOLEAN NOT NULL DEFAULT false,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)
@@ -98,6 +99,7 @@ CREATE TABLE IF NOT EXISTS Destination
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)

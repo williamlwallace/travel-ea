@@ -23,6 +23,13 @@ function populateDestinationDetails(destinationId) {
                     "summary_district").innerText = destination.district;
                 document.getElementById(
                     "summary_country").innerText = destination.country.name;
+                checkCountryValidity(destination.country.name, destination.country.id)
+                .then(result =>  {
+                    if (result === false) {
+                        document.getElementById(
+                            "summary_country").innerText = destination.country.name + ' (invalid)';
+                    }
+                });
                 document.getElementById(
                     "summary_latitude").innerText = destination.latitude;
                 document.getElementById(
@@ -60,17 +67,16 @@ function populateDestinationDetails(destinationId) {
  * @param {string} redirect the url to redirect to if the destination is deleted successfully
  */
 function deleteDestination(destinationId, redirect) {
-    _delete(
-        destinationRouter.controllers.backend.DestinationController.deleteDestination(
-            destinationId).url)
-    .then(response => {
-        response.json().then(data => {
-            if (response.status === 200) {
-                $('#deleteDestinationModal').modal('hide');
-                window.location.href = redirect;
-            }
-        });
-    });
+    const handler = (status, json) => {
+        if (status === 200) {
+            $('#deleteDestinationModal').modal('hide');
+            window.location.href = redirect;
+        }
+    };
+    const URL = destinationRouter.controllers.backend.DestinationController.deleteDestination(
+            destinationId).url;
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
@@ -160,33 +166,34 @@ function editDestination(destinationId) {
                 destination.destType = data.destType;
                 destination.name = data.name;
                 destination.district = data.district;
-
-                // Post json data to given uri
-                put(destinationRouter.controllers.backend.DestinationController.editDestination(
-                    destinationId).url, destination)
-                .then(response => {
-                    response.json().then(data => {
-                        if (response.status !== 200) {
+                addNonExistingCountries([destination.country]).then(result => {
+                    // Post json data to given uri
+                    const URL = destinationRouter.controllers.backend.DestinationController.editDestination(
+                        destinationId).url;
+                    const body = destination;
+                    const handler = function(status, data) {
+                        if (status !== 200) {
                             if (data === "Duplicate destination") {
                                 toast("Destination could not be edited!",
-                                    "The destination already exists.", "danger",
+                                    "The destination already exists.",
+                                    "danger",
                                     5000);
                                 $('#editDestinationModal').modal('hide');
                             } else {
-                                showErrors(data);
+                                toast("Not Updated",
+                                "There was an error updating the destination details:" + data,
+                                "danger");
                             }
-                        } else if (response.status === 200) {
-                            populateDestinationDetails(destinationId);
+                        } else if (status === 200) {
+                            populateDestinationDetails(this.destinationId);
                             $('#editDestinationModal').modal('hide');
                             toast("Destination Updated",
                                 "Updated Details are now showing",
                                 'success');
-                        } else {
-                            toast("Not Updated",
-                                "There was an error updating the destination details",
-                                "danger");
                         }
-                    });
+                    }.bind({destinationId});
+                    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, body);
+                    undoRedo.sendAndAppend(reqData);
                 });
             }
         });

@@ -7,16 +7,17 @@ let destinationTable;
  */
 function onPageLoad(userId) {
     const tripGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url
+        userId).url;
     const tableModal = {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('id', data[data.length - 2]);
             $(row).attr('data-countryId', data[data.length - 1]);
         }
-    }
-    destinationTable = new EATable('destTable', tableModal, tripGetURL, populate, showTripErrors)
+    };
+    destinationTable = new EATable('destTable', tableModal, tripGetURL,
+        populate, showTripErrors)
     destinationTable.initButtonClicks({
-        6:addDestClick
+        6: addDestClick
     });
 }
 
@@ -29,13 +30,21 @@ function populate(json) {
         const district = destination.district;
         const latitude = destination.latitude;
         const longitude = destination.longitude;
-        const country = destination.country.name;
+        let country = destination.country.name;
         const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-        const row = [name, type, district, latitude, longitude,
-            country, button, id, destination.country.id];
+        const row = checkCountryValidity(destination.country.name, destination.country.id)
+        .then(result => {
+            if(result === false) {
+                country = destination.country.name + ' (invalid)';
+            }
+            return [name, type, district, latitude, longitude,
+                country, button, id, destination.country.id]
+        });
         rows.push(row);
     }
-    return rows;
+    return Promise.all(rows).then(finishedRows => {
+        return finishedRows
+    });
 }
 
 /**
@@ -43,7 +52,7 @@ function populate(json) {
  *
  * @param {Object} button button element
  * @param {Object} tableAPI table
- * @param {Number} cellId id of containing cell 
+ * @param {Number} cellId id of containing cell
  */
 function addDestClick(button, tableAPI, cellId) {
     let name = tableAPI.cell($(button).parents('tr'), 0).data();
@@ -56,7 +65,7 @@ function addDestClick(button, tableAPI, cellId) {
 
     addDestinationToTrip(id, name, district, type, latitude, longitude,
         countryId);
-};
+}
 
 /**
  * Add destination to database
@@ -84,29 +93,71 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
-    delete data.countryId;
 
-    // Post json data to given url
-    post(url, data)
-    .then(response => {
-
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json);
-            } else {
-                toast("Destination Created!",
-                    "The new destination will be added to the table.",
-                    "success");
+    //Create response handler
+    const handler = function(status, json) {
+        if (status !== 200) {
+            if (json === "Duplicate destination") {
+                toast("Destination could not be created!",
+                    "The destination already exists.", "danger", 5000);
                 $('#createDestinationModal').modal('hide');
-
-                // Add row to table
-                data.id = json;
-                addRow(data);
+                resetDestinationModal();
+            } else {
+                showErrors(json);
             }
-        });
+        } else {
+            toast("Destination Created!",
+                "The new destination will be added to the table.",
+                "success");
+            $('#createDestinationModal').modal('hide');
+            resetDestinationModal();
+
+            // Add row to table
+            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                json).url;
+            const name = data.name;
+            const type = data.destType;
+            const district = data.district;
+            const latitude = data.latitude;
+            const longitude = data.longitude;
+            let country = data.country.id;
+
+            // Set country name
+            let countries = document.getElementById(
+                "countryDropDown").getElementsByTagName("option");
+            for (let i = 0; i < countries.length; i++) {
+                if (parseInt(countries[i].value) === data.country.id) {
+                    country = countries[i].innerText;
+                    break;
+                }
+            }
+
+            table.add(
+                [name, type, district, latitude, longitude, country,
+                    destination]);
+            populateMarkers(userId);
+
+        }
+    }.bind({userId, data});
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            table.populateTable();
+            populateMarkers(userId);
+        }
+    };
+    // Post json data to given url
+    addNonExistingCountries([data.country]).then(result => {
+        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
+        undoRedo.sendAndAppend(reqData, inverseHandler);
     });
+}
+
+/**
+ * Clears all fields and error labels in the create destination modal form
+ */
+function resetDestinationModal() {
+    document.getElementById("addDestinationForm").reset();
+    hideErrors("addDestinationForm");
 }
 
 /**
@@ -136,83 +187,6 @@ function addRow(data) {
     const row = [name, type, district, latitude, longitude, country, button, id,
         data.country.id];
     destinationTable.add(row);
-}
-
-/**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            countryDict = {};
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
-}
-
-/**
- * Adds a row to the destinations table with the given data
- * @param {Object} data - Data object to be added to table
- */
-function addRow(data) {
-    const id = data.id;
-    const name = data.name;
-    const type = data.destType;
-    const district = data.district;
-    const latitude = data.latitude;
-    const longitude = data.longitude;
-    let country = data.country.id;
-
-    // Set country name
-    let countries = document.getElementById(
-        "countryDropDown").getElementsByTagName("option");
-    for (let i = 0; i < countries.length; i++) {
-        if (parseInt(countries[i].value) === data.country.id) {
-            country = countries[i].innerText;
-            break;
-        }
-    }
-
-    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-    const row = [name, type, district, latitude, longitude, country, button, id,
-        data.country.id];
-    destinationTable.row.add(row).draw(false);
-}
-
-/**
- * Gets all countries and fills into dropdown
- * @param {string} getCountriesUrl - get all countries URI
- */
-function fillCountryInfo(getCountriesUrl) {
-    // Run a get request to fetch all destinations
-    get(getCountriesUrl)
-    // Get the response of the request
-    .then(response => {
-        // Convert the response to json
-        response.json()
-        .then(data => {
-            // Json data is an array of destinations, iterate through it
-            countryDict = {};
-            for (let i = 0; i < data.length; i++) {
-                // Also add the item to the dictionary
-                countryDict[data[i]['id']] = data[i]['name'];
-            }
-            // Now fill the drop down box, and list of destinations
-            fillDropDown("countryDropDown", countryDict);
-        });
-    });
 }
 
 /**
@@ -256,43 +230,6 @@ function updateCountryCardField(countryDict) {
 }
 
 /**
- * Send new destination data to API
- * @param {string} uri - API URI to send destination
- */
-function newDestination(uri) {
-    // Read data from destination form
-    const formData = new FormData(
-        document.getElementById("addDestinationForm"));
-    // Convert data to json object
-    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
-    }), {});
-
-    // Convert lat and long to double values, and id to int
-    data.latitude = parseFloat(data.latitude);
-    data.longitude = parseFloat(data.longitude);
-    // Convert country id to country object
-    data.countryId = parseInt(data.countryId);
-    data.country = {"id": data.countryId};
-    delete data.countryId;
-    // Post json data to given uri
-    post(uri, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showTripErrors(json);
-            } else {
-                document.getElementById("modalContactForm").setAttribute(
-                    "aria-hidden", "true");
-            }
-        });
-    });
-}
-
-/**
  * Adds destination card and fills data
  *
  * @param id Id of the destination
@@ -313,68 +250,66 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
         cardId++;
     }
 
-    document.getElementById('list').insertAdjacentHTML('beforeend',
-        '<div class="card flex-row" id=' + cardId + '>\n' +
-        '<label id=' + id + '></label>' +
-        '<div class="card-header border-0" style="height: 100%">\n' +
-        '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
-        +    // TODO: Store default card image rather than reference
-        '</div>\n' +
-        '<div class="card-block px-2">\n' +
-        '<div id="topCardBlock">\n' +
-        '<h4 class="card-title">' + name + '</h4>\n' +
-        '        <button id="removeTrip" type="button" onclick="removeDestinationFromTrip('
-        + cardId + ')"></button>\n' +
-        '</div>\n' +
-        '<div id="left">\n' +
-        '<p class="card-text" id="card-text">' +
-        '<b>Type: </b> ' + type + '<br/>' +
-        '<b>District: </b> ' + district + '<br/>' +
-        '<b>Latitude: </b>' + latitude + '<br/>' +
-        '<b>Longitude: </b>' + longitude + '<br/>' +
-        '<b>Country: </b>' + countryDict[countryId] +
-        '</p>\n' +
-        '</div>' +
-        '<div id="right">\n' +
-        '<form id="arrivalDepartureForm">\n' +
-        '                <div class="modal-body mx-3">\n' +
-        '                    <div id="arrival">Arrival\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
-        +
-        '                    </div>\n' +
-        '                    <div id="depart">Departure\n' +
-        '                        <i class="fas prefix grey-text"></i>\n' +
-        '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
-        +
-        '                    </div>\n' +
-        '                </div>\n' +
-        '            </form>\n' +
-        '<div style="text-align: center;">\n' +
-        '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
-        +
-        '<br/>\n' +
-        '</div>\n' +
-        '</div>\n' +
-        '</div>'
-    );
+    getCountryNameById(countryId).then(countryName => {
+        document.getElementById('list').insertAdjacentHTML('beforeend',
+            '<div class="card flex-row" id=' + cardId + '>\n' +
+            '<label id=' + id + '></label>' +
+            '<div class="card-header border-0" style="height: 100%">\n' +
+            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
+            +    // TODO: Store default card image rather than reference
+            '</div>\n' +
+            '<div class="card-block px-2">\n' +
+            '<div id="topCardBlock">\n' +
+            '<h4 class="card-title">' + name + '</h4>\n' +
+            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId + ')"></div>\n' +
+            '<div id="left">\n' +
+            '<p class="card-text" id="card-text">' +
+            '<b>Type: </b> ' + type + '<br/>' +
+            '<b>District: </b> ' + district + '<br/>' +
+            '<b>Latitude: </b>' + latitude + '<br/>' +
+            '<b>Longitude: </b>' + longitude + '<br/>' +
+            '<b>Country: </b>' + countryName +
+            '</p>\n' +
+            '</div>' +
+            '<div id="right">\n' +
+            '<form id="arrivalDepartureForm">\n' +
+            '                <div class="modal-body mx-3">\n' +
+            '                    <div id="arrival">Arrival\n' +
+            '                        <i class="fas prefix grey-text"></i>\n' +
+            '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
+            +
+            '                    </div>\n' +
+            '                    <div id="depart">Departure\n' +
+            '                        <i class="fas prefix grey-text"></i>\n' +
+            '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
+            +
+            '                    </div>\n' +
+            '                </div>\n' +
+            '            </form>\n' +
+            '<div style="text-align: center;">\n' +
+            '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
+            +
+            '<br/>\n' +
+            '</div>\n' +
+            '</div>\n' +
+            '</div>'
+        );
+    });
 }
 
 /**
  * Removes card with given id
  * @param {Number} cardId - Id of card
  */
-function removeDestinationFromTrip(cardId) {
-    let destinations = Array.of(document.getElementById("list").children)[0];
-
-    for (let i = 0; i < destinations.length; i++) {
-        if (parseInt(destinations[i].getAttribute("id")) === cardId) {
-            destinations[i].parentNode.removeChild(destinations[i]);
-            break;
-        }
-    }
+function removeDestinationFromTrip() {
+    let cardId = $('#removeDestinationFromTripModal').attr("destId");
+    console.log("cardId: " + cardId);
+    $('#' + cardId).remove();
 }
 
+/**
+ * Toggles the change destination button text between make public and make private.
+ */
 function toggleTripPrivacy() {
     let currentPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
@@ -390,8 +325,10 @@ function toggleTripPrivacy() {
  * Creates trip and posts to API
  * @param {string} uri - API URI to add trip
  * @param {string} redirect - URI to redirect page
+ * @param {Number} userId - the id of the current user
  */
 function createTrip(uri, redirect, userId) {
+    // Building request body
     $("#createTripButton").prop('disabled', true);
     let listItemArray = Array.of(document.getElementById("list").children);
     let tripDataList = [];
@@ -406,27 +343,27 @@ function createTrip(uri, redirect, userId) {
     };
 
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
+    tripData["isPublic"] = tripPrivacy === "Make Private";
 
-    // Value of 1 for public, 0 for private
-    if (tripPrivacy === "Make Private") {
-        tripData["isPublic"] = true;
-    }
-    else {
-        tripData["isPublic"] = false;
-    }
+    // Setting up undo/redo
+    const URL = tripRouter.controllers.backend.TripController.insertTrip().url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            $("#createTripButton").prop('disabled', false);
+            showTripErrors(json);
+        } else {
+            window.location.href = redirect;
+        }
+    }.bind({redirect});
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            // Currently no implementation as undo for creating trip is not being used
+        }
+    };
+    const reqData = new ReqData(requestTypes["CREATE"], URL, handler, tripData);
 
-    post(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status === 400) {
-                $("#createTripButton").prop('disabled', false);
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
-            }
-        });
-    });
+    // Send create trip request and store undo request
+    undoRedo.sendAndAppend(reqData, inverseHandler);
 }
 
 /**
@@ -512,12 +449,7 @@ function updateTrip(uri, redirect, tripId, userId) {
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
     // Value of 1 for public, 0 for private
-    if (tripPrivacy === "Make Private") {
-        tripData["isPublic"] = true;
-    }
-    else {
-        tripData["isPublic"] = false;
-    }
+    tripData["isPublic"] = tripPrivacy === "Make Private";
 
     put(uri, tripData).then(response => {
         // Read response from server, which will be a json object
@@ -535,3 +467,27 @@ function updateTrip(uri, redirect, tripId, userId) {
         });
     });
 }
+
+/**
+ * Sets the destination that will be removed from the trip when the remove
+ * destination action in the modal is confirmed.
+ *
+ * @param cardId the id of the destination card to be removed.
+ */
+function setDestinationToRemove(cardId) {
+    let destTripModal = $('#removeDestinationFromTripModal');
+    console.log("remove trip button pressed with id: " + cardId);
+    destTripModal.attr("destId", cardId);
+    destTripModal.modal('show');
+}
+
+/**
+ * Create destination modal form cancel button click handler.
+ */
+$('#CreateDestinationCancelButton').click(function () {
+    $('#createDestinationModal').modal('hide');
+    resetDestinationModal();
+});
+
+
+

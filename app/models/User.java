@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import io.ebean.annotation.SoftDelete;
 import play.data.validation.Constraints;
 
 /**
@@ -15,7 +16,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "User")
-public class User extends Model {
+public class User extends BaseModel {
 
     @Id
     public Long id;

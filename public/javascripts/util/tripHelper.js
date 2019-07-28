@@ -6,43 +6,42 @@
  * @param {Number} tripId Id of trip to update
  */
 function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
-    let currentPrivacy = document.getElementById("privacyImg" + tripId).title;
+    let currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
 
     let tripData = {
         "id": tripId
     };
 
-    if (currentPrivacy === "Public") {
+    if (currentPrivacyImgSrc === publicImageSrc) {
         tripData["isPublic"] = false;
     }
-    else if (currentPrivacy === "Private") {
+    else if (currentPrivacyImgSrc === privateImageSrc) {
         tripData["isPublic"] = true;
     }
     else {
         return;
     }
 
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            // On successful update
-            if (response.status === 200) {
-                if (currentPrivacy === "Public") {
-                    document.getElementById(
-                        "privacyImg" + tripId).title = "Private";
-                    document.getElementById(
-                        "privacyImg" + tripId).src = privateImageSrc;
-                }
-                else {
-                    document.getElementById(
-                        "privacyImg" + tripId).title = "Public";
-                    document.getElementById(
-                        "privacyImg" + tripId).src = publicImageSrc;
-                }
+    const URL = tripRouter.controllers.backend.TripController.updateTripPrivacy().url;
+    const handler = function(status, json) {
+        if (status === 200) {
+            currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
+            if (currentPrivacyImgSrc === publicImageSrc) {
+                document.getElementById("privacy-img").setAttribute("src",
+                    privateImageSrc);
+                document.getElementById("privacy-img").setAttribute("title",
+                    "Private");
+            } else {
+                document.getElementById("privacy-img").setAttribute("src",
+                    publicImageSrc);
+                document.getElementById("privacy-img").setAttribute("title",
+                    "Public");
             }
-        });
-    });
+        }
+    };
+
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, tripData);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**

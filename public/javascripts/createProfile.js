@@ -22,17 +22,23 @@ function signUp(id, uri, redirect) {
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
     data.travellerTypes = JSONFromDropDowns("travellerTypes");
-    // Post json data to given uri
-    post(uri, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 201) {
-                showErrors(json);
-            } else {
-                window.location.href = redirect;
-            }
+
+    addNonExistingCountries(data.nationalities).then(nationalityResult => {
+        addNonExistingCountries(data.passports).then(passportResult => {
+            // Post json data to given uri
+            post(uri, data)
+            .then(response => {
+                // Read response from server, which will be a json object
+                response.json()
+                .then(json => {
+                    if (response.status !== 201) {
+                        showErrors(json);
+                    } else {
+                        window.location.href = redirect;
+                    }
+                });
+            });
         });
     });
+
 }

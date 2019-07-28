@@ -1,7 +1,9 @@
 package controllers.backend;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +12,7 @@ import java.util.Map;
 import javax.inject.Singleton;
 import models.CountryDefinition;
 import models.Destination;
+import models.TreasureHunt;
 import models.Trip;
 import models.TripData;
 import models.User;
@@ -27,8 +30,11 @@ import repository.DestinationRepository;
 public abstract class ControllersTest extends WithApplication {
 
     static Application fakeApp;
-    static Database db;
+    private static Database db;
+    static Connection connection;
+    // Belongs to admin, userID = 1
     static Cookie adminAuthCookie;
+    // Belongs to non-admin, userID = 2
     static Cookie nonAdminAuthCookie;
     static DestinationRepository destinationRepository;
 
@@ -36,7 +42,7 @@ public abstract class ControllersTest extends WithApplication {
      * Configures system to use dest database, and starts a fake app
      */
     @BeforeClass
-    public static void setUp() {
+    public static void setUp() throws SQLException {
         // Create custom settings that change the database to use test database instead of production
         Map<String, String> settings = new HashMap<>();
         settings.put("db.default.driver", "org.h2.Driver");
@@ -45,6 +51,8 @@ public abstract class ControllersTest extends WithApplication {
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
+        if(connection != null) connection.close();
+        connection = db.getConnection();
         adminAuthCookie = Cookie.builder("JWT-Auth",
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
             .withPath("/").build();
@@ -139,5 +147,31 @@ public abstract class ControllersTest extends WithApplication {
             tripDataCollection.add(tripData);
         }
         return tripDataCollection;
+    }
+
+    /**
+     * Converts a result set from a query for rows from TreasureHunt table into java collection
+     *
+     * Note: Does not join full objects where foreign keys are given, but rather just creates such an object with foreign key ID set
+     *
+     * @param rs Result set
+     * @return Collection of treasure hunts read from result set
+     */
+    Collection<TreasureHunt> treasureHuntsFromResultSet(ResultSet rs) throws SQLException {
+        Collection<TreasureHunt> treasureHuntCollection = new ArrayList<>();
+        while(rs.next()) {
+            TreasureHunt treasureHunt = new TreasureHunt();
+
+            treasureHunt.destination = new Destination();
+            treasureHunt.destination.id = rs.getLong("destination_id");
+            treasureHunt.id = rs.getLong("id");
+            treasureHunt.user = new User();
+            treasureHunt.user.id = rs.getLong("user_id");
+            treasureHunt.endDate = rs.getString("end_date");
+            treasureHunt.startDate = rs.getString("start_date");
+            treasureHunt.riddle = rs.getString("riddle");
+            treasureHuntCollection.add(treasureHunt);
+        }
+        return treasureHuntCollection;
     }
 }

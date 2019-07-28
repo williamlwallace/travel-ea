@@ -1,32 +1,31 @@
 @()
 <div class="modal fade" id="trip-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
 
-                    <div class="modal-header text-center">
-                        <div id="trip-dropdown" class="dropdown">
-                            <input id="privacy-img" class="privacy-image" type="image" title="Public" alt="Public">
-                        </div>
+            <div class="modal-header text-center">
+                <div id="trip-dropdown" class="dropdown"></div>
 
-                        <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div><br>
+                <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div><br>
 
-                    <div class="text-center">
-                        <img src="@routes.Assets.at("images/plane-takeoff.png")" style="opacity: 0.4" alt="plane-takeoff">
-                    </div>
-                    <section id="timeline">
-                    </section>
-                    <div class="text-center">
-                        <img src="@routes.Assets.at("images/plane-landing.png")" style="opacity: 0.4" alt="plane-landing">
-                    </div><br>
+            <div class="text-center">
+                <img src="@routes.Assets.at("images/plane-takeoff.png")" style="opacity: 0.4" alt="plane-takeoff">
+            </div>
+            <section id="timeline">
+            </section>
+            <div class="text-center">
+                <img src="@routes.Assets.at("images/plane-landing.png")" style="opacity: 0.4" alt="plane-landing">
+            </div><br>
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
-                        <a id="edit-href" href=""><button id="editTrip" type="button" class="btn btn-popup" >Edit Trip</button></a>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <div id="edit-button-wrapper"></div>
+                <div id="delete-button-wrapper"></div>
             </div>
         </div>
+    </div>
+</div>

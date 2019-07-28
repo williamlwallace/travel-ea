@@ -23,6 +23,8 @@ import util.CryptoManager;
 public class Authenticator extends Action.Simple {
 
     private static final String JWT_AUTH = "JWT-Auth";
+    private static final String API = "/api/";
+    private static final String FORBIDDEN = "Forbidden";
     private final Config config;
     private final UserRepository userRepository;
     private final ProfileRepository profileRepository;
@@ -75,9 +77,9 @@ public class Authenticator extends Action.Simple {
         String token = getTokenFromCookie(request);
         // Check if api or not and set failure response
         Result fail;
-        if (request.uri().contains("/api/")) {
+        if (request.uri().contains(API)) {
             fail = (token == null) ? unauthorized(Json.toJson("Unauthorized"))
-                : forbidden(Json.toJson("Forbidden"));
+                : forbidden(Json.toJson(FORBIDDEN));
         } else {
             fail = redirect(controllers.frontend.routes.ApplicationController.cover())
                 .discardingCookie(JWT_AUTH);
@@ -158,15 +160,15 @@ public class Authenticator extends Action.Simple {
             if (!request.uri().equals(
                 controllers.frontend.routes.ProfileController.createProfileIndex().toString())
                 && profile == null) {
-                if (request.uri().contains("/api/")) {
-                    return supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
+                if (request.uri().contains(API)) {
+                    return supplyAsync(() -> forbidden(Json.toJson(FORBIDDEN)));
                 } else {
                     return supplyAsync(() -> redirect(
                         controllers.frontend.routes.ProfileController.createProfileIndex()));
                 }
             }
             CompletableFuture<Result> fail;
-            fail = request.uri().contains("/api/") ? supplyAsync(() -> forbidden(Json.toJson("Forbidden"))) : supplyAsync(
+            fail = request.uri().contains(API) ? supplyAsync(() -> forbidden(Json.toJson(FORBIDDEN))) : supplyAsync(
                 () -> redirect(controllers.frontend.routes.ApplicationController.cover())
                     .discardingCookie(JWT_AUTH));
             return matched ? delegate.call(request.addAttr(ActionState.USER, user)) : fail;
