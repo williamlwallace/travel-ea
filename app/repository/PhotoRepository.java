@@ -8,6 +8,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -196,6 +197,42 @@ public class PhotoRepository {
                 .orElse(null),
             executionContext);
 
+    }
+
+    /**
+     * Get photo object from db where it has some filename.
+     *
+     * @param filename Name of file
+     */
+    public CompletableFuture<Photo> getPhotoByFilename(String filename) {
+        return supplyAsync(() -> ebeanServer.find(Photo.class)
+                .where()
+                .eq("filename", filename)
+                .findOneOrEmpty()
+                .orElse(null),
+            executionContext);
+
+    }
+
+    /**
+     * Get photo object from db where it has some filename.
+     *
+     * @param filename Name of file
+     */
+    public CompletableFuture<Boolean> deletePhotoByFilename(String filename) {
+        System.out.println(filename);
+        return supplyAsync(() -> {
+            Photo photo = ebeanServer.find(Photo.class)
+                .where()
+                .eq("filename", filename)
+                .findOne();
+            if(photo != null) {
+                photo.delete();
+                return true;
+            } else {
+                return false;
+            }
+        });
     }
 
     /**

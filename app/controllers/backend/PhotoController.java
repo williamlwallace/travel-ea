@@ -28,6 +28,7 @@ import models.User;
 import org.joda.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
+import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -79,7 +80,58 @@ public class PhotoController extends TEABackController {
 
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long id) {
-        return null;
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
+
+        // Check if user is authorized to perform this action
+        if(!id.equals(currentUserId) && !user.admin) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+        // Get json parameters
+        final String photoLocation = request.body().asJson().asText().substring(
+            request.body().asJson().asText().lastIndexOf('/') + 1);
+
+        // Get current profile photo, if any exists
+        return photoRepository.getUserProfilePicture(id).thenComposeAsync(photo -> {
+            // If we are going back to no profile picture
+            if(photoLocation.equals("")) {
+                photo.isPublic = false;
+                photo.isProfile = false;
+                photo.filename = photo.filename.replaceFirst("../user_content/", "");
+                photo.thumbnailFilename = photo.thumbnailFilename.replaceFirst("../user_content/", "");
+                return photoRepository.updatePhoto(photo).thenApplyAsync(returnValue -> ok(Json.toJson(photo.filename)));
+            } else {
+                Photo currentProfile = new Photo();
+                String returnData = "";
+
+                if(photo == null) {
+                    currentProfile.isProfile = true;
+                    currentProfile.userId = id;
+                    currentProfile.uploaded = LocalDateTime.now();
+                } else {
+                    currentProfile = photo;
+                    returnData = photo.filename;
+                }
+
+                // Now update profile picture filename (and add it if necessary)
+                currentProfile.filename = savePath + PHOTO_DIRECTORY + photoLocation;
+                currentProfile.thumbnailFilename = savePath + PHOTO_DIRECTORY + "thumbnails/" + photoLocation;
+                currentProfile.isPublic = true;
+                final String finalisedReturnData = returnData;
+                final Photo finalisedPhoto = currentProfile;
+                // Delete the copy of the photo
+                return photoRepository.deletePhotoByFilename(savePath + PHOTO_DIRECTORY + photoLocation).thenComposeAsync(deleted -> {
+                    if (photo == null) {
+                        return photoRepository.addPhoto(finalisedPhoto)
+                            .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
+                    } else {
+                        return photoRepository.updatePhoto(finalisedPhoto)
+                            .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -221,13 +273,16 @@ public class PhotoController extends TEABackController {
         // Collect all keys from the list to upload
         List<Photo> photosToAdd = photos.stream().map(Pair::getKey).collect(Collectors.toList());
 
+        // If this photo is going to be added as profile picture, return the name of it
         if (userToRemoveProfilePhoto > 0) {
-            return photoRepository.clearProfilePhoto(userToRemoveProfilePhoto)
-                .thenApplyAsync(fileNamesPair -> {
-                    photoRepository.addPhotos(photosToAdd);
-                    // If no existing profile picture was overwritten
-                    return created(Json.toJson(photosToAdd.get(0).filename.substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1)));
-                });
+            // Do not allow profile-ness of a photo to be set here, the makePhotoProfile endpoint
+            // must be used for this. This is to allow undoing of adding a profile photo
+            for(Photo photo : photosToAdd) {
+                photo.isProfile = false;
+            }
+            photoRepository.addPhotos(photosToAdd);
+            // Return filename of photo that was just added
+            return CompletableFuture.supplyAsync(() -> created(Json.toJson(photosToAdd.get(0).filename.substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1))));
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 photoRepository.addPhotos(photosToAdd);
