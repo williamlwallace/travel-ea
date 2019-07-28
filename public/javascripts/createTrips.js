@@ -65,7 +65,7 @@ function addDestClick(button, tableAPI, cellId) {
 
     addDestinationToTrip(id, name, district, type, latitude, longitude,
         countryId);
-    document.getElementById("createTripButton").style.display = "";
+    $("#createTripButton").css("display", "");
 }
 
 /**
