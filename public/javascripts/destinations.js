@@ -12,11 +12,11 @@ function onPageLoad(userId) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
-    }
+    };
     table = new EATable('dtDestination', tableModal, destinationGetURL,
         populateDestinations, (json) => {
             document.getElementById("otherError").innerHTML = json;
-        })
+        });
     populateMarkers(userId);
 }
 
@@ -54,6 +54,7 @@ function addDestination(url, redirect, userId) {
                 toast("Destination could not be created!",
                     "The destination already exists.", "danger", 5000);
                 $('#createDestinationModal').modal('hide');
+                resetDestinationModal();
             } else {
                 showErrors(json);
             }
@@ -62,6 +63,7 @@ function addDestination(url, redirect, userId) {
                 "The new destination will be added to the table.",
                 "success");
             $('#createDestinationModal').modal('hide');
+            resetDestinationModal();
 
             // Add row to table
             const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
@@ -104,11 +106,19 @@ function addDestination(url, redirect, userId) {
 }
 
 /**
+ * Clears all fields and error labels in the create destination modal form
+ */
+function resetDestinationModal() {
+    document.getElementById("addDestinationForm").reset();
+    hideErrors("addDestinationForm");
+}
+
+/**
  * Insert destination data into table
  * @param {Object} json Json object containing destination data
  */
 function populateDestinations(json) {
-    const rows = []
+    const rows = [];
     for (const dest in json) {
         const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
             json[dest].id).url;
@@ -117,13 +127,20 @@ function populateDestinations(json) {
         const district = json[dest].district;
         const latitude = json[dest].latitude;
         const longitude = json[dest].longitude;
-        const country = json[dest].country.name;
-
-        rows.push(
-            [name, type, district, latitude, longitude, country,
-                destination]);
+        let country = json[dest].country.name;
+        const row = checkCountryValidity(json[dest].country.name, json[dest].country.id)
+        .then(result => {
+            if(result === false) {
+                country = json[dest].country.name + ' (invalid)';
+            }
+            return [name, type, district, latitude, longitude, country,
+                destination]
+        });
+        rows.push(row);
     }
-    return rows;
+    return Promise.all(rows).then(finishedRows => {
+        return finishedRows
+    });
 }
 
 // Maps marker list
@@ -239,4 +256,12 @@ function initMap() {
  */
 $('#dtDestination').on('click', 'tbody tr', function () {
     window.location = this.dataset.href;
+});
+
+/**
+ * Create destination modal form cancel button click handler.
+ */
+$('#CreateDestinationCancelButton').click(function() {
+    $('#createDestinationModal').modal('hide');
+    resetDestinationModal();
 });

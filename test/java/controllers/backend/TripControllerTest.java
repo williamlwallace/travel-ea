@@ -663,14 +663,25 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void deleteTrip() {
+        // Create request to delete trip
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
             .uri("/api/trip/1/delete");
 
-        // Get result and check it was successful
+        // Send request and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+
+        // Create get request to check trip no longer exists
+        Http.RequestBuilder checkDeletedRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/1");
+
+        // Send request and check trip wasn't found
+        Result checkDeletedResult = route(fakeApp, checkDeletedRequest);
+        assertEquals(NOT_FOUND, checkDeletedResult.status());
     }
 
     @Test

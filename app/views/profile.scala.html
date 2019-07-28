@@ -26,7 +26,7 @@
     <div class="title-frame" id="title-frame">
         <div class="title-bg" style="background-image: url(@routes.Assets.at("images/profile-bg.jpg"))">
             <div class="title-text-wrap">
-                <p id="summary_name" class="title-text">@profile.firstName @profile.lastName</p>
+                <p id="summary_name" class="title-text"></p>
             </div>
         </div>
     </div>
@@ -41,24 +41,12 @@
                     @if(canModify) {onclick='showProfilePictureGallery()'}
                     >
                     <div class="profile-details">
-                        @if(canModify) {<p class="heading">Email <span class="user-info">@user.username</span></p>}
-                        <p class="heading">Age <span id="summary_age" class="user-info">@profile.calculateAge()</span></p>
-                        <p class="heading">Gender <span id="summary_gender" class="user-info">@profile.gender</span></p>
-                        <p class="heading">Nationalities <span id="summary_nationalities" class="user-info">@profile.nationalities.toString.substring(1, profile.nationalities.toString.length - 1)</span></p>
-                        <p class="heading">Traveller Types <span id="summary_travellerTypes" class="user-info">@profile.travellerTypes.toString.substring(1, profile.travellerTypes.toString.length - 1)</span></p>
-                        @if(!profile.passports.isEmpty) {
-                            <p class="heading">Passports
-                                <span id="summary_passports" class="user-info">
-                                @profile.passports.toString.substring(1, profile.passports.toString.length - 1)
-                                </span>
-                            </p>
-                        } else {
-                        <p class="heading">Passports
-                            <span id="summary_passports" class="user-info">
-                            None
-                            </span>
-                        </p>
-                        }
+                        @if(canModify) {<p class="heading">Email <span id="summary_email" class="user-info"></span></p>}
+                        <p class="heading">Age <span id="summary_age" class="user-info"></span></p>
+                        <p class="heading">Gender <span id="summary_gender" class="user-info"></span></p>
+                        <p class="heading">Nationalities <span id="summary_nationalities" class="user-info"></span></p>
+                        <p class="heading">Traveller Types <span id="summary_travellerTypes" class="user-info"></span></p>
+                        <p class="heading">Passports <span id="summary_passports" class="user-info"></span></p>
 
                         @if(canModify) {
                             <a data-toggle="modal" data-target="#editProfileModal">
@@ -293,6 +281,7 @@
 <script type="text/javascript">
     setPermissions("@loggedUser.id", "@user.id");
     onPageLoad(@user.id, @canModify);
+    fillProfileData(@user.id, "@user.username");
     getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");

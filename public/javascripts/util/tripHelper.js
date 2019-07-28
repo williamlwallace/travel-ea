@@ -22,23 +22,26 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
         return;
     }
 
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            // On successful update
-            if (response.status === 200) {
-                if (currentPrivacyImgSrc === publicImageSrc) {
-                    document.getElementById("privacy-img").setAttribute("src", privateImageSrc);
-                    document.getElementById("privacy-img").setAttribute("title", "Private");
-                }
-                else {
-                    document.getElementById("privacy-img").setAttribute("src", publicImageSrc);
-                    document.getElementById("privacy-img").setAttribute("title", "Public");
-                }
+    const URL = tripRouter.controllers.backend.TripController.updateTripPrivacy().url;
+    const handler = function(status, json) {
+        if (status === 200) {
+            currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
+            if (currentPrivacyImgSrc === publicImageSrc) {
+                document.getElementById("privacy-img").setAttribute("src",
+                    privateImageSrc);
+                document.getElementById("privacy-img").setAttribute("title",
+                    "Private");
+            } else {
+                document.getElementById("privacy-img").setAttribute("src",
+                    publicImageSrc);
+                document.getElementById("privacy-img").setAttribute("title",
+                    "Public");
             }
-        });
-    });
+        }
+    };
+
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, tripData);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
