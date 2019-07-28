@@ -32,9 +32,10 @@ function populate(json) {
         const longitude = destination.longitude;
         let country = destination.country.name;
         const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-        const row = checkCountryValidity(destination.country.name, destination.country.id)
+        const row = checkCountryValidity(destination.country.name,
+            destination.country.id)
         .then(result => {
-            if(result === false) {
+            if (result === false) {
                 country = destination.country.name + ' (invalid)';
             }
             return [name, type, district, latitude, longitude,
@@ -65,7 +66,17 @@ function addDestClick(button, tableAPI, cellId) {
 
     addDestinationToTrip(id, name, district, type, latitude, longitude,
         countryId);
-    $("#createTripButton").css("display", "");
+}
+
+/**
+ * Hides Create trip button if trip is empty
+ */
+function checkTripListEmpty() {
+    if ($("#list").children().length > 1) {
+        $("#createTripButton").css("display", "");
+    } else if ($("#list").children().length <= 1) {
+        $("#createTripButton").css("display", "none");
+    }
 }
 
 /**
@@ -96,7 +107,7 @@ function addDestination(url, redirect, userId) {
     data.country = {"id": data.countryId};
 
     //Create response handler
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             if (json === "Duplicate destination") {
                 toast("Destination could not be created!",
@@ -132,12 +143,10 @@ function addDestination(url, redirect, userId) {
                     break;
                 }
             }
-
             table.add(
                 [name, type, district, latitude, longitude, country,
                     destination]);
             populateMarkers(userId);
-
         }
     }.bind({userId, data});
     const inverseHandler = (status, json) => {
@@ -262,7 +271,8 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
             '<h4 class="card-title">' + name + '</h4>\n' +
-            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId + ')"></div>\n' +
+            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId
+            + ')"></div>\n' +
             '<div id="left">\n' +
             '<p class="card-text" id="card-text">' +
             '<b>Type: </b> ' + type + '<br/>' +
@@ -295,6 +305,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '</div>\n' +
             '</div>'
         );
+        checkTripListEmpty();
     });
 }
 
@@ -304,8 +315,8 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
  */
 function removeDestinationFromTrip() {
     let cardId = $('#removeDestinationFromTripModal').attr("destId");
-    console.log("cardId: " + cardId);
     $('#' + cardId).remove();
+    checkTripListEmpty();
 }
 
 /**
@@ -316,8 +327,7 @@ function toggleTripPrivacy() {
 
     if (currentPrivacy === "Make Public") {
         document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
-    }
-    else if (currentPrivacy === "Make Private") {
+    } else if (currentPrivacy === "Make Private") {
         document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
     }
 }
@@ -348,7 +358,7 @@ function createTrip(uri, redirect, userId) {
 
     // Setting up undo/redo
     const URL = tripRouter.controllers.backend.TripController.insertTrip().url;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             $("#createTripButton").prop('disabled', false);
             showTripErrors(json);
@@ -389,16 +399,14 @@ function listItemToTripData(listItem, index) {
     try {
         json["arrivalTime"] = formatDateTime(DTInputs[0].value,
             DTInputs[1].value);
-    }
-    catch {
+    } catch {
         json["arrivalTime"] = null;
     }
 
     try {
         json["departureTime"] = formatDateTime(DTInputs[2].value,
             DTInputs[3].value);
-    }
-    catch {
+    } catch {
         json["departureTime"] = null;
     }
 
@@ -414,11 +422,9 @@ function listItemToTripData(listItem, index) {
 function formatDateTime(date, time) {
     if (date.length === 10 && time.length === 5) {
         return date + "T" + time + ":00.000";
-    }
-    else if (date.length === 10) {
+    } else if (date.length === 10) {
         return date + "T" + "00:00:00.000";
-    }
-    else {
+    } else {
         return null;
     }
 }
@@ -477,7 +483,6 @@ function updateTrip(uri, redirect, tripId, userId) {
  */
 function setDestinationToRemove(cardId) {
     let destTripModal = $('#removeDestinationFromTripModal');
-    console.log("remove trip button pressed with id: " + cardId);
     destTripModal.attr("destId", cardId);
     destTripModal.modal('show');
 }

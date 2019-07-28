@@ -142,7 +142,7 @@
                     </div>
                     <div class="modal-footer d-flex justify-content-center">
                         <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
                     </div>
                 </div>
             </div>
@@ -199,6 +199,9 @@
                             </button>
                         </div>
                         <div class="container">
+                            <div style="text-align:center">
+                                <button id="createDestinationButton" class="btn btn-secondary" data-toggle="modal" data-dismiss="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create new destination</button>
+                            </div>
                             <form>
                                 <div class="destTable"><br>
                                     <table id="destTable" class="table table-hover">
@@ -219,8 +222,8 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="modal-footer d-flex justify-content-center" style="display: block;" >
-                            <button id="createDestinationButton" data-toggle="modal" data-dismiss="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Don't see your destination? Click here to make one.</button>
+                        <div class="modal-footer d-flex justify-content-center" style="display: block;">
+                            <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
