@@ -12,11 +12,11 @@ function onPageLoad(userId) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
-    }
+    };
     table = new EATable('dtDestination', tableModal, destinationGetURL,
         populateDestinations, (json) => {
             document.getElementById("otherError").innerHTML = json;
-        })
+        });
     populateMarkers(userId);
 }
 
