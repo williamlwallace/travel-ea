@@ -32,9 +32,10 @@ function populate(json) {
         const longitude = destination.longitude;
         let country = destination.country.name;
         const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-        const row = checkCountryValidity(destination.country.name, destination.country.id)
+        const row = checkCountryValidity(destination.country.name,
+            destination.country.id)
         .then(result => {
-            if(result === false) {
+            if (result === false) {
                 country = destination.country.name + ' (invalid)';
             }
             return [name, type, district, latitude, longitude,
@@ -95,7 +96,7 @@ function addDestination(url, redirect, userId) {
     data.country = {"id": data.countryId};
 
     //Create response handler
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             if (json === "Duplicate destination") {
                 toast("Destination could not be created!",
@@ -261,7 +262,8 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
             '<h4 class="card-title">' + name + '</h4>\n' +
-            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId + ')"></div>\n' +
+            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId
+            + ')"></div>\n' +
             '<div id="left">\n' +
             '<p class="card-text" id="card-text">' +
             '<b>Type: </b> ' + type + '<br/>' +
@@ -347,7 +349,7 @@ function createTrip(uri, redirect, userId) {
 
     // Setting up undo/redo
     const URL = tripRouter.controllers.backend.TripController.insertTrip().url;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             $("#createTripButton").prop('disabled', false);
             showTripErrors(json);
@@ -447,25 +449,25 @@ function updateTrip(uri, redirect, tripId, userId) {
     };
 
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
     // Value of 1 for public, 0 for private
     tripData["isPublic"] = tripPrivacy === "Make Private";
 
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status === 400) {
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
-            } else {
-                document.getElementById(
-                    "destinationError").innerHTML = "Error(s): "
-                    + Object.values(json).join(", ");
-            }
-        });
-    });
+    const handler = function (status, json) {
+        if (status === 400) {
+            $("#createTripButton").prop('disabled', false);
+            showTripErrors(json);
+        } else if (status === 200) {
+            window.location.href = redirect;
+        } else {
+            document.getElementById(
+                "destinationError").innerHTML = "Error(s): "
+                + Object.values(json).join(", ");
+        }
+    }.bind({redirect});
+
+    const reqData = new ReqData(requestTypes["UPDATE"], uri, handler, tripData);
+
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
