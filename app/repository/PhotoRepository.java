@@ -8,9 +8,11 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.DestinationPhoto;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
@@ -199,6 +201,41 @@ public class PhotoRepository {
     }
 
     /**
+     * Get photo object from db where it has some filename.
+     *
+     * @param filename Name of file
+     */
+    public CompletableFuture<Photo> getPhotoByFilename(String filename) {
+        return supplyAsync(() -> ebeanServer.find(Photo.class)
+                .where()
+                .eq("filename", filename)
+                .findOneOrEmpty()
+                .orElse(null),
+            executionContext);
+
+    }
+
+    /**
+     * Get photo object from db where it has some filename.
+     *
+     * @param filename Name of file
+     */
+    public CompletableFuture<Boolean> deletePhotoByFilename(String filename) {
+        return supplyAsync(() -> {
+            Photo photo = ebeanServer.find(Photo.class)
+                .where()
+                .eq("filename", filename)
+                .findOne();
+            if(photo != null) {
+                photo.delete();
+                return true;
+            } else {
+                return false;
+            }
+        });
+    }
+
+    /**
      * Update photo row in database.
      *
      * @param photo photo object to update
@@ -211,4 +248,13 @@ public class PhotoRepository {
             executionContext);
     }
 
+    public CompletableFuture<DestinationPhoto> getDeletedDestPhoto(Long photoId, Long destId) {
+        return supplyAsync(() -> ebeanServer.find(DestinationPhoto.class)
+            .setIncludeSoftDeletes()
+            .where()
+            .eq("photo_id", photoId)
+            .eq("destination_id", destId)
+            .findOneOrEmpty()
+            .orElse(null), executionContext);
+    };
 }

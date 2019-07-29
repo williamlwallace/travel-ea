@@ -20,11 +20,14 @@
     </head>
 
     <body>
-        <div class="container">
-            <span class="section-title">My Hunts</span>
+        <div class="text-center">
             <a class="button-secondary" id="add-treasure-hunt-button" >
-                <span class="profile-button" style="float: right; padding-left:10px;">Create New Hunt</span>
+                <button class="btn btn-primary">Create Treasure Hunt</button>
             </a>
+        </div><br>
+        <div class="container">
+            <h4 class="modal-title w-100 font-weight-bold">My Treasure Hunts</h4><br>
+
             @* My treasure hunts table table *@
             <div>
                 <table id="myTreasure" class="table table-hover table-bordered" cellspacing="0" width="100%">
@@ -32,8 +35,8 @@
                         <tr>
                             <th class="th-sm">Riddle</th>
                             <th class="th-sm">Answer</th>
-                            <th class="th-sm">Start Date</th>
-                            <th class="th-sm">End Date</th>
+                            <th class="th-sm" id="myTHStartDate" title="">Start Date</th>
+                            <th class="th-sm" id="myTHEndDate" title="">End Date</th>
                             <th class="th-sm">Update</th>
                             <th class="th-sm">Delete</th>
                         </tr>
@@ -42,21 +45,22 @@
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div><br><br>
 
         <div class="container">
-            <span class="section-title">All Hunts</span>
+            <h4 class="modal-title w-100 font-weight-bold">All Treasure Hunts</h4><br>
+
             @* All treasure hunts table *@
             <div>
                 <table id="allTreasure" class="table table-hover table-bordered" cellspacing="0" width="100%">
                     <thead>
                         <tr>
                             <th class="th-sm">Riddle</th>
-                            <th class="th-sm">Start Date</th>
-                            <th class="th-sm">End Date</th>
+                            <th class="th-sm" id="allTHStartDate" title="">Start Date</th>
+                            <th class="th-sm" id="allTHEndDate" title="">End Date</th>
                             @if(user.admin) {
-                                <th class="th-sm">Admin update</th>
-                                <th class="th-sm">Admin delete</th>
+                                <th class="th-sm">Update</th>
+                                <th class="th-sm">Delete</th>
                             }
 
                         </tr>
