@@ -103,7 +103,7 @@ GET           /api/treasurehunt/:id                  controllers.backend.Treasur
 
 PUT           /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.updateTreasureHunt(request:Request, id:Long)
 
-DELETE        /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+PUT           /api/treasurehunt/:id/delete           controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page

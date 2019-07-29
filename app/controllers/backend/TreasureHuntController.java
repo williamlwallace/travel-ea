@@ -125,12 +125,13 @@ public class TreasureHuntController extends TEABackController {
     public CompletableFuture<Result> deleteTreasureHunt(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
 
-        return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
+        return treasureHuntRepository.getDeletedTreasureHunt(id).thenComposeAsync(treasureHunt -> {
             // Check 404 condition where given ID does not exist
             if (treasureHunt == null) {
                 return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(
                     "No treasure hunt with given ID found")));
             }
+            System.out.println(treasureHunt.riddle);
 
             // Check user owns treasure hunt (or is an admin), otherwise return 403 FORBIDDEN
             if (!(user.admin || treasureHunt.user.id.equals(user.id))) {
@@ -138,9 +139,13 @@ public class TreasureHuntController extends TEABackController {
                     "You do not have permission to delete that treasure hunt")));
             }
 
-            // Delete the treasure hunt and return ok message if all other checks pass
-            return treasureHuntRepository.deleteTreasureHunt(id).thenApplyAsync(rows ->
-                ok(Json.toJson("Successfully delete treasure hunt with ID: " + id))
+            // Update treasure hunt deleted status and update database
+            treasureHunt.deleted = !treasureHunt.deleted;
+
+            System.out.println(treasureHunt.deleted);
+
+            return treasureHuntRepository.updateTreasureHunt(treasureHunt).thenApplyAsync(rows ->
+                ok(Json.toJson(treasureHunt.id))
             );
         });
     }
@@ -197,6 +202,9 @@ public class TreasureHuntController extends TEABackController {
         User loggedInUser = request.attrs().get(ActionState.USER);
         return treasureHuntRepository.getAllUserTreasureHunts(userId)
             .thenApplyAsync(hunts -> {
+                for (TreasureHunt th : hunts) {
+                    System.out.println(th.riddle + " HI");
+                }
                 if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
                     try {
                         return ok(sanitizeJson(Json.toJson(hunts)));

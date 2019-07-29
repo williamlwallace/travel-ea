@@ -143,28 +143,49 @@ function formatDateForInput(date) {
  * @param {Boolean} deletingOther - checking whether updating own hunt or another
  */
 function deleteTreasureHunt(id, userId, deletingOther) {
-    _delete(
-        treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
-            id).url)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                toast("Treasure hunt could not be deleted",
-                    "There was an error in deleting the treasure hunt.",
-                    "danger", 5000);
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            toast("Treasure hunt could not be deleted", json, "danger", 5000);
+        } else {
+            console.log(deletingOther);
+            if (deletingOther) {
+                populateAllTreasureHunts(userId);
             } else {
-                if (deletingOther) {
-                    populateAllTreasureHunts(userId);
-                } else {
-                    populateMyTreasureHunts(userId);
-                }
-                toast("Treasure hunt deleted",
-                    "The treasure hunt was successfully deleted.",
-                    "success");
+                console.log(userId);
+                populateMyTreasureHunts(userId);
             }
-        })
-    })
+            toast("Treasure hunt deleted",
+                "The treasure hunt was successfully deleted.",
+                "success");
+        }
+    };
+
+    const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
+    undoRedo.sendAndAppend(reqData);
+
+    // _delete(
+    //     treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
+    //         id).url)
+    // .then(response => {
+    //     response.json()
+    //     .then(json => {
+    //         if (response.status !== 200) {
+    //             toast("Treasure hunt could not be deleted",
+    //                 "There was an error in deleting the treasure hunt.",
+    //                 "danger", 5000);
+    //         } else {
+    //             if (deletingOther) {
+    //                 populateAllTreasureHunts(userId);
+    //             } else {
+    //                 populateMyTreasureHunts(userId);
+    //             }
+    //             toast("Treasure hunt deleted",
+    //                 "The treasure hunt was successfully deleted.",
+    //                 "success");
+    //         }
+    //     })
+    // })
 }
 
 /**
@@ -173,6 +194,7 @@ function deleteTreasureHunt(id, userId, deletingOther) {
  * @param {Number} userId - ID of user to retrieve destinations for
  */
 function populateMyTreasureHunts(userId) {
+    console.log("CALLED");
     $("#myTreasure").DataTable().clear();
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllUserTreasureHunts(
         userId).url)
@@ -302,8 +324,6 @@ function addTreasureHunt(url, redirect, userId) {
     data.user = {
         id: userId
     };
-
-    console.log(data);
 
     data.destination = {
         id: parseInt(data.destinationId)
