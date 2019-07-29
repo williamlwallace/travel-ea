@@ -13,7 +13,7 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "DestinationPhoto")
-public class DestinationPhoto extends Model {
+public class DestinationPhoto extends BaseModel {
 
     @Id
     public Long guid;

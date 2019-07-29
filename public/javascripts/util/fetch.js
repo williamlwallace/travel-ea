@@ -74,3 +74,16 @@ function _delete(uri) {
         method: "DELETE"
     })
 }
+
+//export for testing only
+//this will only be imported if run by node
+if (typeof module !== 'undefined' && module.exports) {
+    var fetch = require('node-fetch');
+    try {
+        module.exports = {
+            put,
+            post,
+            _delete
+        };
+    } catch (e) {}
+};

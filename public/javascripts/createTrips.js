@@ -454,25 +454,25 @@ function updateTrip(uri, redirect, tripId, userId) {
     };
 
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
     // Value of 1 for public, 0 for private
     tripData["isPublic"] = tripPrivacy === "Make Private";
 
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status === 400) {
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
-            } else {
-                document.getElementById(
-                    "destinationError").innerHTML = "Error(s): "
-                    + Object.values(json).join(", ");
-            }
-        });
-    });
+    const handler = function (status, json) {
+        if (status === 400) {
+            $("#createTripButton").prop('disabled', false);
+            showTripErrors(json);
+        } else if (status === 200) {
+            window.location.href = redirect;
+        } else {
+            document.getElementById(
+                "destinationError").innerHTML = "Error(s): "
+                + Object.values(json).join(", ");
+        }
+    }.bind({redirect});
+
+    const reqData = new ReqData(requestTypes["UPDATE"], uri, handler, tripData);
+
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**

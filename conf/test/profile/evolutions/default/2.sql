@@ -12,10 +12,9 @@ INSERT INTO TravellerTypeDefinition (description) VALUES ('Test TravellerType 1'
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker');
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Test TravellerType 3');
 
--- Insert countries for testing
-INSERT INTO CountryDefinition (name) VALUES ('Test Country 1');
-INSERT INTO CountryDefinition (name) VALUES ('France');
-INSERT INTO CountryDefinition (name) VALUES ('Test Country 3');
+-- Add countries
+INSERT INTO CountryDefinition (id, name) VALUES
+(1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
 
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
