@@ -8,10 +8,9 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 
 /**
  * A class that models the TreasureHunt database table.
@@ -41,10 +40,10 @@ public class TreasureHunt extends Model {
     public String riddle;
 
     @Constraints.Required
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    public LocalDateTime startDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    public LocalDate startDate;
 
     @Constraints.Required
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    public LocalDateTime endDate;
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    public LocalDate endDate;
 }
