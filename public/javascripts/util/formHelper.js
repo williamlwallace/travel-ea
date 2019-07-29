@@ -202,7 +202,7 @@ function arrayToCountryString(countries, dataName, URL) {
                     return dict[item.id] + " (invalid), ";
                 }
             });
-        }
+        };
         countries.forEach(item => {
             promises.push(validatorHandler(dict, item))
         });

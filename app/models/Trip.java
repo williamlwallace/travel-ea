@@ -51,24 +51,6 @@ public class Trip extends BaseModel implements Comparable<Trip> {
     }
 
     /**
-     * Retrieves the first date in a trip and converts to a string format.
-     *
-     * @return The first date found in a string format, or null
-     */
-    public String findFirstTripDate() {
-        LocalDateTime firstDate = findFirstTripDateAsDate();
-
-        if (firstDate != null) {
-            String year = firstDate.toString().substring(0, 4);
-            String month = firstDate.toString().substring(5, 7);
-            String day = firstDate.toString().substring(8, 10);
-            return day + "-" + month + "-" + year;
-        }
-
-        return null;
-    }
-
-    /**
      * Comparator which allows for trips to be compared and sorted by date. Will sort by recent
      * first, with nulls last.
      *

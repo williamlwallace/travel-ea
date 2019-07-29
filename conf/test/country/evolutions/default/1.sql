@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS Profile
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
   );
 
+-- Create the country definition table, which is static and defines all possible countries
 CREATE TABLE IF NOT EXISTS CountryDefinition
   (
     id                INT NOT NULL,
@@ -98,6 +99,7 @@ CREATE TABLE IF NOT EXISTS Destination
     longitude         DOUBLE NOT NULL,
     country_id        INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
@@ -135,6 +137,7 @@ CREATE TABLE IF NOT EXISTS Trip
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -176,6 +179,7 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     guid                  INT NOT NULL AUTO_INCREMENT,
     photo_id              INT NOT NULL,
     destination_id        INT NOT NULL,
+    deleted               BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),
@@ -183,8 +187,23 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     UNIQUE(photo_id, destination_id)
   );
 
+-- Create treasure hunt table, which stores the riddle and dates or a treasure hunt about a destination
+CREATE TABLE IF NOT EXISTS TreasureHunt
+  (
+    id                    INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
+    destination_id        INT NOT NULL,
+    riddle                VARCHAR(1024) NOT NULL,
+    start_date            DATE NOT NULL,
+    end_date              DATE NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (id)
+  );
+
 
 -- !Downs
+DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
