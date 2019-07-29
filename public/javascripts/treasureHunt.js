@@ -11,6 +11,10 @@ function onTreasureHuntPageLoad(userId, admin) {
     populateMyTreasureHunts(userId);
     populateAllTreasureHunts(userId);
     fillDestinationDropDown();
+
+    $('#add-treasure-hunt-button').click(function () {
+        $("#createTreasureHuntModal").modal("show");
+    });
 }
 
 /**
@@ -324,7 +328,3 @@ function addTreasureHunt(url, redirect, userId) {
         });
     });
 }
-
-$('#add-treasure-hunt-button').click(function () {
-    $("#createTreasureHuntModal").modal("show");
-});
