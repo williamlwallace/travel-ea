@@ -67,7 +67,7 @@ function deleteDestination(destinationId, redirect) {
         }
     }
     const URL = destinationRouter.controllers.backend.DestinationController.deleteDestination(
-            destinationId).url;
+        destinationId).url;
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
@@ -164,7 +164,7 @@ function editDestination(destinationId) {
                     const URL = destinationRouter.controllers.backend.DestinationController.editDestination(
                         destinationId).url;
                     const body = destination;
-                    const handler = function(status, data) {
+                    const handler = function (status, data) {
                         if (status !== 200) {
                             if (data === "Duplicate destination") {
                                 toast("Destination could not be edited!",
@@ -174,8 +174,9 @@ function editDestination(destinationId) {
                                 $('#editDestinationModal').modal('hide');
                             } else {
                                 toast("Not Updated",
-                                "There was an error updating the destination details:" + data,
-                                "danger");
+                                    "There was an error updating the destination details:"
+                                    + data,
+                                    "danger");
                             }
                         } else if (status === 200) {
                             populateDestinationDetails(this.destinationId);
@@ -185,7 +186,8 @@ function editDestination(destinationId) {
                                 'success');
                         }
                     }.bind({destinationId});
-                    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, body);
+                    const reqData = new ReqData(requestTypes['UPDATE'], URL,
+                        handler, body);
                     undoRedo.sendAndAppend(reqData);
                 });
             }
@@ -321,71 +323,39 @@ function sendUserIdAndFillGallery(userId, destinationId) {
 function toggleLinked(guid, newLinked, destinationId) {
     const label = document.getElementById(guid + "linked");
     const data = {};
-        if (!newLinked) {
-            const URL = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
-            const handler = function(status, json) {
-                if (status === 200) {
-                    label.innerHTML = "Not-Linked";
-                    label.setAttribute("src",
-                        "/assets/images/location-unlinked.png");
-                    label.setAttribute("onClick",
-                        "toggleLinked(" + guid + "," + !newLinked + ")");
-                    toast("Photo Unlinked",
-                        "Photo has been successfully removed from this destination",
-                        "success")
-                }
+    const URL = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(
+        destinationId, guid).url;
+    const handler = function (status, json) {
+        if (status === 200) {
+            if (!this.newLinked) {
+                label.innerHTML = "Not-Linked";
+                label.setAttribute("src",
+                    "/assets/images/location-unlinked.png");
+                label.setAttribute("onClick",
+                    "toggleLinked(" + guid + "," + !this.newLinked + ")");
+                toast("Photo Unlinked",
+                    "Photo has been successfully removed from this destination",
+                    "success");
+            } else {
+                label.innerHTML = "Linked";
+                label.setAttribute("src",
+                    "/assets/images/location-linked.png");
+                label.setAttribute("onClick",
+                    "toggleLinked(" + guid + "," + !this.newLinked + ")");
+                toast("Photo Linked",
+                    "Photo Successfully linked to this destination, success");
             }
-            const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
-            undoRedo.sendAndAppend(reqData);
-        } else {
-            const URL = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
-            const handler = function(status, json) {
-                if (status === 200) {
-                    label.innerHTML = "Linked";
-                    label.setAttribute("src", "/assets/images/location-linked.png");
-                    label.setAttribute("onClick",
-                        "toggleLinked(" + guid + "," + !newLinked + ")");
-                    toast("Photo Linked",
-                        "Photo Successfully linked to this destination, success");
-                }
-            }
-            const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler, data);
-            undoRedo.sendAndAppend(reqData);
-    }
+            getUserId().then(id => {
+                sendUserIdAndFillGallery(id, destinationId);
+            });
 
-    // if (!newLinked) {
-    //     const url = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(
-    //         destinationId, guid).url;
-    //     _delete(url)
-    //     .then(res => {
-    //         if (res.status === 200) {
-    //             label.innerHTML = "Not-Linked";
-    //             label.setAttribute("src",
-    //                 "/assets/images/location-unlinked.png");
-    //             label.setAttribute("onClick",
-    //                 "toggleLinked(" + guid + "," + !newLinked + ")");
-    //             toast("Photo Unlinked",
-    //                 "Photo has been successfully removed from this destination",
-    //                 "success")
-    //         }
-    //     })
-    // } else {
-    //     const url = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(
-    //         destinationId, guid).url;
-    //     put(url, data)
-    //     .then(res => {
-    //         if (res.status === 200) {
-    //             label.innerHTML = "Linked";
-    //             label.setAttribute("src", "/assets/images/location-linked.png");
-    //             label.setAttribute("onClick",
-    //                 "toggleLinked(" + guid + "," + !newLinked + ")");
-    //             toast("Photo Linked",
-    //                 "Photo Successfully linked to this destination, success");
-    //         }
-    //     })
-    // }
+            this.newLinked = !this.newLinked;
+        }
+    }.bind({newLinked});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler, data);
+    undoRedo.sendAndAppend(reqData);
+
     $("#linkPhotoToDestinationModal").modal('hide');
-    window.location.href = '/destinations/' + destinationId;
 }
 
 /**
