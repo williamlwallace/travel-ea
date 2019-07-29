@@ -303,8 +303,6 @@ function addTreasureHunt(url, redirect, userId) {
         id: userId
     };
 
-    console.log(data);
-
     data.destination = {
         id: parseInt(data.destinationId)
     };
