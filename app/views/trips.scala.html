@@ -1,130 +1,46 @@
 @import play.mvc.Http.Request
 @import helper._
 
-@(user: models.User, tripList: Seq[models.Trip])
+@(user: models.User)
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes()" type="text/javascript"></script>
 }
 
 @layouts.imageHeader("Trips", user, "images/trips-bg.jpg", scripts){
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/profile.css")">
 
-    <head>
-        @* Imports MBBootstrap Datatables CSS. *@
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/datatables.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/profile.css")">
-    </head>
+    <div class="container">
+        <div class="text-center">
+            <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
+        </div><br>
 
-    <body>
-        <div class="container">
-            <div class="text-center">
-                <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
-            </div><br>
-
-            @if(tripList.isEmpty) {
-                <div id="content" class="text-center">There are no trips! Click the create new trip button to create one</div>
-
-            } else {
-                <div>
-                    <label id="tripError"></label>
-                    <table id="dtTrips" class="table-bordered table table-hover" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th class="th-sm">Start Destination</th>
-                                <th class="th-sm">End Destination</th>
-                                <th class="th-sm">Trip Length</th>
-                                <th class="th-sm">Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tripData" class="tripTable">
-                        @for(t <- tripList) {
-                            <tr id="@t.id" class="clickable-row" data-toggle="modal" data-target="#modal-@t.id">
-                                <td>@t.tripDataList(0).destination.name</td>
-
-                                @if(t.tripDataList.length >= 2) {
-                                    <td>@t.tripDataList(t.tripDataList.length - 1).destination.name</td>
-                                } else {
-                                    <td>-</td>
-                                }
-
-                                <td>@t.tripDataList.length</td>
-
-                                @if(t.findFirstTripDate() != null) {
-                                    <td>@t.findFirstTripDate()</td>
-                                } else {
-                                    <td>No Date</td>
-                                }
-
-                                <div class="modal fade" id="modal-@t.id" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header text-center">
-                                                <div class="dropdown">
-                                                    @if(t.isPublic) {
-                                                        <input id="privacyImg@t.id" alt="Public" class="privacy-image" type="image" title="Public" src="@routes.Assets.at("images/public.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
-                                                    } else {
-                                                        <input id="privacyImg@t.id" alt="Private" class="privacy-image" type="image" title="Private" src="@routes.Assets.at("images/private.png")" onclick="updateTripPrivacy('@controllers.backend.routes.TripController.updateTripPrivacy()', '@routes.Assets.at("images/public.png")', '@routes.Assets.at("images/private.png")', @t.id)">
-                                                    }
-                                                </div>
-                                                <h4 class="modal-title w-100 font-weight-bold">Trip Details</h4>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div><br>
-
-                                            <div class="text-center">
-                                                <img src="@routes.Assets.at("images/plane-takeoff.png")" style="opacity: 0.4" alt="plane-takeoff">
-                                            </div>
-                                            <section id="timeline">
-                                            @for(dest <- t.tripDataList) {
-                                                <article>
-
-                                                    <div class="inner">
-                                                        @if(dest.arrivalTime != null) {
-                                                            <span class="date">
-                                                                <span class="day">@dest.arrivalTime.getDayOfMonth()</span>
-                                                                <span class="month">@dest.arrivalTime.getMonth().toString().substring(0,3)</span>
-                                                                <span class="year">@dest.arrivalTime.getYear()</span>
-                                                            </span>
-                                                        }
-                                                        <h2>
-                                                            @dest.destination.name<br>
-                                                            @dest.destination.country
-                                                        </h2>
-                                                        <p>
-                                                            @if(dest.arrivalTime != null) {
-                                                                Arrival: @if(dest.arrivalTime.getHour() >= 12) {@dest.arrivalTime.minusHours(12).getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} PM} else{@dest.arrivalTime.getHour():@if(dest.arrivalTime.getMinute() == 0) {00} else {@dest.arrivalTime.getMinute()} AM}<br>
-                                                            }
-                                                            @if(dest.departureTime != null) {
-                                                                Departure: @if(dest.departureTime.getHour() >= 12) {@dest.departureTime.minusHours(12).getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} PM} else{@dest.departureTime.getHour():@if(dest.departureTime.getMinute() == 0) {00} else {@dest.departureTime.getMinute()} AM}
-                                                                @dest.departureTime.getDayOfMonth() @dest.departureTime.getMonth() @dest.departureTime.getYear()
-                                                            }
-                                                        </p>
-                                                    </div>
-
-
-                                                </article>
-                                            }
-                                            </section>
-                                            <div class="text-center">
-                                                <img src="@routes.Assets.at("images/plane-landing.png")" style="opacity: 0.4" alt="plane-takeoff">
-                                            </div><br>
-
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-popup" data-dismiss="modal">Close</button>
-                                                <a href="/trips/edit/@t.id"><button id="editTrip" type="button" class="btn btn-popup" >Edit Trip</button></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-            </div>
+        @* The Trips Table *@
+        <div>
+            <table id="tripTable" class="table table-hover table-bordered" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th class="th-sm">Start Destination</th>
+                        <th class="th-sm">End Destination</th>
+                        <th class="th-sm">Trip Length</th>
+                        <th class="th-sm">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
-    </body>
+
+    </div>
+
+    @* Trip details modal *@
+    @modules.tripModal()
 }
+
+<script type="text/javascript">
+    onPageLoad(@user.id);
+</script>

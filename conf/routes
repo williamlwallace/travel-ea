@@ -3,9 +3,7 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-POST          /api/admin/grant/:id                   controllers.backend.AdminController.grantAdmin(request:Request, id:Long)
-
-POST          /api/admin/revoke/:id                  controllers.backend.AdminController.revokeAdmin(request:Request, id:Long)
+PUT           /api/user/:id/admin                   controllers.backend.AdminController.toggleAdmin(request:Request, id:Long)
 
 GET           /api/user/setid                        controllers.backend.UserController.setId(request:Request)
 
@@ -13,9 +11,9 @@ GET           /api/user/search                       controllers.backend.UserCon
 
 GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
-DELETE        /api/user/:id                          controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
+PUT           /api/user/:id/delete                   controllers.backend.UserController.deleteOtherUser(request:Request, id:Long)
 
-DELETE        /api/user                              controllers.backend.UserController.deleteUser(request:Request)
+PUT           /api/user/delete                       controllers.backend.UserController.deleteUser(request:Request)
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
@@ -39,13 +37,19 @@ GET           /api/profile/getTravellerTypes/        controllers.backend.Profile
 
 # admin version PUT     /api/profile/:id                   controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-GET           /api/destination/getCountries          controllers.backend.DestinationController.getAllCountries()
+GET           /api/country/getCountries              controllers.backend.CountryController.getAllCountries()
+
+GET           /api/country/getCountry/:id            controllers.backend.CountryController.getCountryById(id: Long)
+
+POST          /api/country                           controllers.backend.CountryController.addCountry(request:Request)
+
+GET           /api/destination/getAllPublic          controllers.backend.DestinationController.getAllPublicDestinations()
 
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
 GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
-DELETE        /api/destination/:id                   controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
+PUT           /api/destination/:id/delete            controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
 
@@ -77,17 +81,29 @@ GET           /api/trip                              controllers.backend.TripCon
 
 GET           /api/trip/:id                          controllers.backend.TripController.getTrip(request:Request, id:Long)
 
-DELETE        /api/trip/:id                          controllers.backend.TripController.deleteTrip(id:Long)
+PUT           /api/trip/:id/delete                   controllers.backend.TripController.deleteTrip(request:Request, id:Long)
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-PATCH         /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
+PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
 
 GET           /api/photo/:id                         controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
 DELETE        /api/photo/:id                         controllers.backend.PhotoController.deletePhoto(id:Long)
 
 GET           /api/photo/:id/profile                 controllers.backend.PhotoController.getProfilePicture(id:Long)
+
+POST          /api/treasurehunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
+
+GET           /api/treasurehunt                      controllers.backend.TreasureHuntController.getAllTreasureHunts(request:Request)
+
+GET           /api/user/:id/treasurehunt             controllers.backend.TreasureHuntController.getAllUserTreasureHunts(request:Request, id:Long)
+
+GET           /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.getTreasureHuntById(request:Request, id:Long)
+
+PUT           /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.updateTreasureHunt(request:Request, id:Long)
+
+DELETE        /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
@@ -126,6 +142,9 @@ GET           /profile/:id           controllers.frontend.ProfileController.inde
 # Admin page
 GET           /admin                 controllers.frontend.AdminController.index(request: Request)
 
+# Treasure Hunt page
+GET           /treasureHunts         controllers.frontend.TreasureHuntController.index(request: Request)
+
 
 #~~~~~~~~ Assets ~~~~~~~~~
 # Map static resources from the /public folder to the /assets URL path
@@ -140,6 +159,10 @@ GET     /assets/routers/photo         controllers.backend.PhotoController.photoR
 GET     /assets/routers/profile       controllers.backend.ProfileController.profileRoutes(request: Request)
 
 GET     /assets/routers/destination   controllers.backend.DestinationController.destinationRoutes(request: Request)
+
+GET     /assets/routers/country       controllers.backend.CountryController.countryRoutes(request: Request)
+
+GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

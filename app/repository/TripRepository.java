@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityNotFoundException;
-import javax.inject.Singleton;
 import models.Trip;
 import models.TripData;
 import play.db.ebean.EbeanConfig;
@@ -37,6 +36,7 @@ public class TripRepository {
      */
     public CompletableFuture<Long> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
+            newTrip.deleted = false;
             ebeanServer.insert(newTrip);
             return newTrip.id;
         }, executionContext);
@@ -60,18 +60,6 @@ public class TripRepository {
     }
 
     /**
-     * Deletes trip from database.
-     *
-     * @param trip Trip object to be deleted
-     * @return True if trip object deleted, false if object not found
-     */
-    public CompletableFuture<Boolean> deleteTrip(Trip trip) {
-        return supplyAsync(() ->
-                ebeanServer.delete(trip),
-            executionContext);
-    }
-
-    /**
      * Deletes trip from database by id.
      *
      * @param id ID of trip object to be deleted
@@ -85,7 +73,7 @@ public class TripRepository {
                 .delete();
             return ebeanServer.find(Trip.class)
                 .where()
-                .eq("id", id)
+                .idEq(id)
                 .delete();
         }, executionContext);
     }
@@ -164,5 +152,20 @@ public class TripRepository {
                     .findOneOrEmpty()
                     .orElse(null)
             , executionContext);
+    }
+
+    /**
+     * Returns a single trip as specified by its ID including delete trips
+     *
+     * @param tripId ID of trip to return
+     * @return Trip having given id, null if no such trip found
+     */
+    public CompletableFuture<Trip> getDeletedTrip(Long tripId) {
+        return supplyAsync(() -> ebeanServer.find(Trip.class)
+            .setIncludeSoftDeletes()
+            .where()
+            .idEq(tripId)
+            .findOneOrEmpty()
+            .orElse(null), executionContext);
     }
 }

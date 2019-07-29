@@ -64,7 +64,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Iterates through destinations and creates tripData objects based on data inserted in evolutions
         for (int i = 0; i < destinations.length; i++) {
             Destination dest = new Destination();
-            dest.id = Long.valueOf(destinations[i]);
+            dest.id = (long) destinations[i];
             dest.country = countryDefinition;
 
             TripData tripData = new TripData();
@@ -99,12 +99,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void createTrip() {
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -121,12 +120,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void createTripNoDest() {
-        boolean isPublic = false;
         int[] destinations = new int[] {};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -143,12 +141,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void createTripSameDestTwiceAdjacent() {
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 1};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -165,12 +162,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void createTripOneDest() {
-        boolean isPublic = false;
         int[] destinations = new int[] {1};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -188,12 +184,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     @Test
     public void updateTrip() throws IOException {
         // Creates trip object
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {null, null};
         String[] departureTimes = new String[] {null, null};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -220,8 +215,6 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         JsonNode json = new ObjectMapper().readValue(Helpers.contentAsString(getResult), JsonNode.class);
         Trip retrieved = new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {});
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         for (int i = 0; i < retrieved.tripDataList.size(); i++) {
             TripData tripData = trip.tripDataList.get(i);
 
@@ -233,12 +226,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void updateTripDatesAndTimes() throws IOException {
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
         String[] departureTimes = new String[] {"2018-05-13 09:00:00", "2018-05-27 23:15:00"};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -279,13 +271,12 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     }
 
     @Test
-    public void updateTripInvalidDatesAndTimes() throws IOException {
-        boolean isPublic = false;
+    public void updateTripInvalidDatesAndTimes() {
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
         String[] departureTimes = new String[] {"2018-05-13 13:26:00", "2018-05-27 23:15:00"};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -303,12 +294,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     @Test
     public void updateTripOrder() throws IOException {
         // Create a new trip with details
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {null, null};
         String[] departureTimes = new String[] {null, null};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -327,7 +317,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Create new trip with modified destination order, set tripId to created trip ID
         destinations = new int[] {2, 1};
 
-        Trip tripToUpdate = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip tripToUpdate = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
         node = Json.toJson(tripToUpdate);
 
@@ -366,12 +356,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     @Test
     public void updateTripInvalidOrder() throws IOException {
         // Create a new trip with details
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2, 1, 3};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -390,7 +379,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Create new trip with modified destination order, set tripId to created trip ID
         destinations = new int[] {2, 1, 1, 3};
 
-        Trip tripToUpdate = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip tripToUpdate = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
         node = Json.toJson(tripToUpdate);
 
@@ -408,12 +397,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     @Test
     public void updateTripInvalidId() {
         // Create trip object
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trip.id = 100L;    // Set ID to value which doesn't exist
         JsonNode node = Json.toJson(trip);
 
@@ -425,7 +413,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        assertEquals(NOT_FOUND, result.status());
     }
 
     @Test
@@ -446,12 +434,11 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         assertTrue(getDest.isPublic);
 
         // Create new trip by user 3 using destination 4
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2, 4};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trip.userId = 3L;
         JsonNode node = Json.toJson(trip);
 
@@ -543,9 +530,9 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     public void getAllUserTripsHasNoTrips() throws IOException {
         // Deletes trip added in evolutions
         Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri("/api/trip/1/delete");
 
         Result deleteResult = route(fakeApp, deleteRequest);
         assertEquals(OK, deleteResult.status());
@@ -568,26 +555,25 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     public void sortTripsByDateIsNewestToOldest() throws IOException {
         List<Trip> trips = new ArrayList<>();
 
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {"2019-03-25 00:00:00"};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-04-01 00:00:00"};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-03-29 00:00:00", "2019-10-10 00:00:00"};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         // Insert trips into database
@@ -610,12 +596,12 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         for (int i = 0; i < trips.size() - 1; i++) {
             // If both not null, check index i date is after index i+1 date
-            if (trips.get(i).findFirstTripDate() != null && trips.get(i+1).findFirstTripDate() != null) {
-                assertTrue(trips.get(i).findFirstTripDate().compareTo(trips.get(i).findFirstTripDate()) <= 0);
+            if (trips.get(i).findFirstTripDateAsDate() != null && trips.get(i+1).findFirstTripDateAsDate() != null) {
+                assertTrue(trips.get(i).findFirstTripDateAsDate().compareTo(trips.get(i).findFirstTripDateAsDate()) <= 0);
             }
             // Else ensure index i+1 date is null, if this is not null then index i will be null and it will not be ordered correctly
             else {
-                assertNull(trips.get(i+1).findFirstTripDate());
+                assertNull(trips.get(i+1).findFirstTripDateAsDate());
             }
         }
     }
@@ -624,26 +610,25 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     public void sortTripsByDateIsNullLast() throws IOException {
         List<Trip> trips = new ArrayList<>();
 
-        boolean isPublic = false;
         int[] destinations = new int[] {1, 2};
         String[] arrivalTimes = new String[] {};
         String[] departureTimes = new String[] {};
 
-        Trip trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {"2019-04-01 00:00:00"};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         destinations = new int[] {1, 2};
         arrivalTimes = new String[] {};
         departureTimes = new String[] {};
 
-        trip = createTestTripObject(isPublic, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
         trips.add(trip);
 
         // Insert trips into database
@@ -666,26 +651,37 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         for (int i = 0; i < trips.size() - 1; i++) {
             // If both not null, check index i date is after index i+1 date
-            if (trips.get(i).findFirstTripDate() != null && trips.get(i+1).findFirstTripDate() != null) {
-                assertTrue(trips.get(i).findFirstTripDate().compareTo(trips.get(i).findFirstTripDate()) <= 0);
+            if (trips.get(i).findFirstTripDateAsDate() != null && trips.get(i+1).findFirstTripDateAsDate() != null) {
+                assertTrue(trips.get(i).findFirstTripDateAsDate().compareTo(trips.get(i).findFirstTripDateAsDate()) <= 0);
             }
             // Else ensure index i+1 date is null, if this is not null then index i will be null and it will not be ordered correctly
             else {
-                assertNull(trips.get(i+1).findFirstTripDate());
+                assertNull(trips.get(i+1).findFirstTripDateAsDate());
             }
         }
     }
 
     @Test
     public void deleteTrip() {
+        // Create request to delete trip
         Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(DELETE)
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/1/delete");
+
+        // Send request and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Create get request to check trip no longer exists
+        Http.RequestBuilder checkDeletedRequest = Helpers.fakeRequest()
+            .method(GET)
             .cookie(adminAuthCookie)
             .uri("/api/trip/1");
 
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        // Send request and check trip wasn't found
+        Result checkDeletedResult = route(fakeApp, checkDeletedRequest);
+        assertEquals(NOT_FOUND, checkDeletedResult.status());
     }
 
     @Test

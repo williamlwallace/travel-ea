@@ -56,7 +56,8 @@
                         @user.username
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="@controllers.frontend.routes.ProfileController.index(user.id)">Profile</a>
+                            <a class="dropdown-item" href="@controllers.frontend.routes.ProfileController.index(user.id)">Your Profile</a>
+                            <a class="dropdown-item" href="@controllers.frontend.routes.TreasureHuntController.index()">Treasure Hunts</a>
                             <div class="dropdown-divider"></div>
                             <button class="dropdown-item" onclick=
                             'logout("@controllers.backend.routes.UserController.logout()",
@@ -85,10 +86,12 @@
         <script src="@routes.Assets.at("javascripts/util/cookie.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/formHelper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/userHelper.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/util/privacyHelper.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/util/tripHelper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/galleryHelper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/tableHelper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/travellerTypeHelper.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/util/countryHelper.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/util/undoRedo.js")" type="text/javascript"></script>
 
 
         @* Imports MBBootstrap Datatables JS. *@

@@ -51,7 +51,7 @@ aria-hidden="true">
                 </div>
             </form>
             <div class="modal-footer d-flex justify-content-center">
-                <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#createDestinationModal">
+                <button class="btn btn-popup waves-effect waves-light" id="CreateDestinationCancelButton">
                     Cancel<em class="fas fa-paper-plane-o ml-1"></em>
                 </button>
                 <button class="btn btn-popup" onclick=
@@ -67,3 +67,5 @@ aria-hidden="true">
 </div>
 
 <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
+<script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+

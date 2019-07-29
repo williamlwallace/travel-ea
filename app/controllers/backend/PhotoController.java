@@ -395,12 +395,13 @@ public class PhotoController extends TEABackController {
         JsonNode data = request.body().asJson();
         Boolean isPublic = data.get("isPublic").asBoolean();
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
+            Photo existingPhoto = photo;
             if (photo != null) {
                 photo.isPublic = isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
-            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(rows)));
+            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
         });
     }
 

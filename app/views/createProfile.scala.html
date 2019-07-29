@@ -2,6 +2,7 @@
 
     @scripts = {
         <script src="@routes.Assets.at("javascripts/createProfile.js")" type="text/javascript"></script>
+        <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
     }
 
     @layouts.imageHeader("Profile", user, "images/profile-bg.jpg", scripts) {
@@ -45,7 +46,6 @@
                                 <br>
                                 <div class="control-group">
                                     <pre for="dateOfBirth" class="control-label">Date of Birth</pre>
-                                        <!-- TODO restrict birth date to before today -->
                                     <input type="date" name="dateOfBirth" class="form-control validate">
                                     <label id="dateOfBirthError" class="error-messages"></label>
                                 </div>
@@ -97,6 +97,6 @@
     }
 
 <script type="text/javascript">
-    getAndFillDD("@controllers.backend.routes.DestinationController.getAllCountries()", ["nationalities", "passports"], "name");
+    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
 </script>

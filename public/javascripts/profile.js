@@ -2,6 +2,52 @@
 $('#gender').picker();
 
 /**
+ * The JavaScript method to fill the initial profile data
+ * @param {Number} userId the id of the user who's profile to receive
+ * @param {String} email the email of the logged in user, which may or may not be displayed
+ */
+function fillProfileData(userId, email) {
+    if (document.getElementById("summary_email")) {
+        document.getElementById("summary_email").innerText = email;
+    }
+    get(profileRouter.controllers.backend.ProfileController.getProfile(userId).url)
+    .then(response => {
+        response.json()
+        .then(profile => {
+            if (response.status !== 200) {
+                showErrors(profile);
+            } else {
+                document.getElementById(
+                    "summary_name").innerText = profile.firstName + ' '
+                    + profile.lastName;
+                document.getElementById(
+                    "summary_age").innerHTML = calc_age(
+                        Date.parse(profile.dateOfBirth));
+                document.getElementById(
+                    "summary_gender").innerText = profile.gender;
+                arrayToCountryString(profile.nationalities, 'name',
+                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                .then(out => {
+                    document.getElementById("summary_nationalities").innerHTML = out;
+                });
+                arrayToCountryString(profile.passports, 'name',
+                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                .then(out => {
+                    // If passports were cleared, update html text to None: Fix for Issue #36
+                    document.getElementById("summary_passports").innerHTML = out === ""
+                        ? "None" : out;
+                });
+                arrayToString(profile.travellerTypes, 'description',
+                    profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+                .then(out => {
+                    document.getElementById("summary_travellerTypes").innerHTML = out;
+                });
+            }
+        })
+    })
+}
+
+/**
  * The JavaScript function to process a client updating there profile
  * @param uri The route/uri to send the request to
  * @param redirect The page to redirect to if no errors are found
@@ -14,26 +60,32 @@ function updateProfile(uri, redirect) {
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
     data.travellerTypes = JSONFromDropDowns("travellerTypes");
-    // Post json data to given uri
-    put(uri, data)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json, "updateProfileForm");
-            } else {
-                updateProfileData(data);
-                $("#editProfileModal").modal('hide');
-                toast("Profile Updated!",
-                    "The updated information will be displayed on your profile.",
-                    "success");
-            }
-        })
+
+    addNonExistingCountries(data.nationalities).then(nationalityResult => {
+        addNonExistingCountries(data.passports).then(passportResult => {
+            // Post json data to given uri
+            put(uri, data)
+            .then(response => {
+                // Read response from server, which will be a json object
+                response.json()
+                .then(json => {
+                    if (response.status !== 200) {
+                        showErrors(json, "updateProfileForm");
+                    } else {
+                        updateProfileData(data);
+                        $("#editProfileModal").modal('hide');
+                        toast("Profile Updated!",
+                            "The updated information will be displayed on your profile.",
+                            "success");
+                    }
+                })
+            });
+        });
     });
 }
 
@@ -48,13 +100,14 @@ function updateProfileData(data) {
     document.getElementById("summary_age").innerHTML = calc_age(
         Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
+
     arrayToString(data.nationalities, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
         document.getElementById("summary_nationalities").innerHTML = out;
     });
     arrayToString(data.passports, 'name',
-        destinationRouter.controllers.backend.DestinationController.getAllCountries().url)
+        countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
         // If passports were cleared, update html text to None: Fix for Issue #36
         document.getElementById("summary_passports").innerHTML = out === ""
@@ -69,7 +122,7 @@ function updateProfileData(data) {
 
 /**
  * The javascript method to populate the select boxes on the edit profile scene
- * @param url the route/url to send the request to to get the profile data
+ * @param uri the route/url to send the request to to get the profile data
  */
 function populateProfileData(uri) {
     get(uri)
