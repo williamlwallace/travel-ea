@@ -144,7 +144,7 @@ describe('I can undo and redo sent actions', () => {
             await undoRedo.undo();
             throw "No error" //this doesnt make sense
         } catch (e) {
-            expect(e).toEqual('No undos');
+            expect(e).toEqual('No undo\'s');
         }
     });
 });
