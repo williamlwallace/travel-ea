@@ -105,6 +105,8 @@ PUT           /api/treasurehunt/:id                  controllers.backend.Treasur
 
 DELETE        /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
+GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
