@@ -196,9 +196,9 @@ function arrayToCountryString(countries, dataName, URL) {
             return checkCountryValidity(dict[item.id], item.id)
             .then( valid  => {
                 if (valid) {
-                    return dict[item.id] + ", ";
+                    return dict[item.id];
                 } else {
-                    return dict[item.id] + " (invalid), ";
+                    return dict[item.id] + " (invalid)";
                 }
             });
         }
@@ -207,9 +207,8 @@ function arrayToCountryString(countries, dataName, URL) {
         });
         return Promise.all(promises)
         .then((result) => {
-            const out = result.join(', ');
-            //remove extra separator
-            return out.slice(0, out.length - 2);
+            result = result.filter((country) => { return (country && country !== '') });
+            return result.join(', ');
         });
     });
 }
