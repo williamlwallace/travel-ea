@@ -10,7 +10,7 @@
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDCyC_ON0GgSmJIfPlL7oke5PZgbR8TLbg"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key="></script>
 }
 
 @layouts.main("Destination", loggedUser, scripts){
@@ -28,7 +28,7 @@
 
     <body style="margin:auto">
         <div class="row destination" id="startchange">
-            <div class="col-12 col-md-3">
+            <div class="col-12 col-md-4">
                 @* Destination Details *@
                 <div id="destination-summary">
                     <div class="destination-details">
@@ -44,28 +44,22 @@
                         <p class="heading">Latitude <span id="summary_latitude" class="destination-info"></span></p>
                         <p class="heading">Longitude <span id="summary_longitude" class="destination-info"></span></p>
                         <p class="heading" id="heading_traveller_types">Traveller Types <span id="summary_traveller_types" class="destination-info"></span></p>
+                        <p class="heading"></p>
                         <a data-toggle="modal" data-target="#travellerTypeModal">
-                            <span class="destination-button" style="float: left;" onclick='fillTravellerTypeInfo();'>
-                                @if(canModify) {
-                                    Edit Traveller Types
-                                } else {
-                                    Suggest Traveller Types
-                                }
-                            </span>
+                            <span class="destination-button" style="float: left; padding-top: 20px;" onclick='fillTravellerTypeInfo();'>@if(canModify) {Edit Traveller Types} else {Suggest Traveller Types}</span>
                         </a>
                         @if(canModify) {
-                            <p class="heading"></p>
                             <a data-toggle="modal" data-target="#editDestinationModal" onclick="populateEditDestination(@destinationId)">
-                                <span class="destination-button" style="float: left; padding-top: 15px; padding-bottom: 0px;">Edit Destination</span>
+                                <span class="destination-button" style="float: left; clear: left">Edit Destination</span>
                             </a>
                             <a data-toggle="modal" data-target="#deleteDestinationModal">
-                                <span class="destination-button" style="float: left; padding-top: 10px; color: red; clear: left">Delete Destination</span>
+                                <span class="destination-button" style="float: left; color: red; clear: left">Delete Destination</span>
                             </a>
                         }
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-9">
+            <div class="col-12 col-md-8">
                 @* Body Content *@
                 <div class="destination-main">
                     <div>

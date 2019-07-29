@@ -12,11 +12,11 @@ function onPageLoad(userId) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
         }
-    }
+    };
     table = new EATable('dtDestination', tableModal, destinationGetURL,
         populateDestinations, (json) => {
             document.getElementById("otherError").innerHTML = json;
-        })
+        });
     populateMarkers(userId);
 }
 
@@ -54,6 +54,7 @@ function addDestination(url, redirect, userId) {
                 toast("Destination could not be created!",
                     "The destination already exists.", "danger", 5000);
                 $('#createDestinationModal').modal('hide');
+                resetDestinationModal();
             } else {
                 showErrors(json);
             }
@@ -62,6 +63,7 @@ function addDestination(url, redirect, userId) {
                 "The new destination will be added to the table.",
                 "success");
             $('#createDestinationModal').modal('hide');
+            resetDestinationModal();
 
             // Add row to table
             const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
@@ -101,6 +103,14 @@ function addDestination(url, redirect, userId) {
         const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
         undoRedo.sendAndAppend(reqData, inverseHandler);
     });
+}
+
+/**
+ * Clears all fields and error labels in the create destination modal form
+ */
+function resetDestinationModal() {
+    document.getElementById("addDestinationForm").reset();
+    hideErrors("addDestinationForm");
 }
 
 /**
@@ -246,4 +256,12 @@ function initMap() {
  */
 $('#dtDestination').on('click', 'tbody tr', function () {
     window.location = this.dataset.href;
+});
+
+/**
+ * Create destination modal form cancel button click handler.
+ */
+$('#CreateDestinationCancelButton').click(function() {
+    $('#createDestinationModal').modal('hide');
+    resetDestinationModal();
 });
