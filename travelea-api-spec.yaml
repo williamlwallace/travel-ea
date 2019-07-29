@@ -1265,6 +1265,49 @@ paths:
         '404':
           description: No profile picture found for user
 
+    put:
+      tags:
+      - Photos
+      summary: Marks a file as the profile picture of some profile
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to update profile photo of
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              description: The name of the file to set as the new profile picture
+              example: 1559173695694_profilepic.jpg
+      responses:
+        '200':
+          description: 'Successfully updated profile photo'
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The filename of the original photo before change
+                example: 1559173695694_profilepic.jpg
+        '401':
+          description: User not authenticated
+        '403':
+          description: User not allowed to perform this operation, likely if trying to change another's profile picture and not an admin
+        '404':
+          description: No such user id found
+
 
   '/photo':
     post:
