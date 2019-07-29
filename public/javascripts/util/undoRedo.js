@@ -196,11 +196,12 @@ const undoRedo = new UndoRedo();
 
 //Add custom key shortcuts
 document.onkeydown = (e) => {
-    const key = e.which || e.keyCode;
-    if (e.ctrlKey && key == 90) {
+    //Need to keep depreciated symbols for older browsers
+    const key = e.which || e.keyCode || e.key;
+    if (e.ctrlKey && key === 90) {
         //ctrl + z
         undoRedo.undo();
-    } else if (e.ctrlKey && key == 89) {
+    } else if (e.ctrlKey && key === 89) {
         //ctrl + y
         undoRedo.redo();
     }
@@ -210,7 +211,8 @@ document.onkeydown = (e) => {
 //this will only be imported if run by node
 if (typeof module !== 'undefined' && module.exports) {
     var {put, post, _delete} = require('./fetch');
-    var toast = () => {};
+    var toast = () => {
+    };
     try {
         module.exports = {
             ReqStack,
@@ -219,5 +221,6 @@ if (typeof module !== 'undefined' && module.exports) {
             ReqData,
             requestTypes
         };
-    } catch (e) {}
+    } catch (e) {
+    }
 }
