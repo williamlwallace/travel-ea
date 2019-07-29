@@ -203,17 +203,19 @@ $(document).ready(function () {
 /**
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
- * @param {string} url the url to post image to
  */
-function uploadProfilePicture(url, toggleProfileURL) {
+function uploadProfilePicture(userId) {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         let formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
 
+        const photoPostURL = photoRouter.controllers.backend.PhotoController.upload().url;
+        const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(userId).url;
+
         // Send request and handle response
-        postMultipart(url, formData).then(response => {
+        postMultipart(photoPostURL, formData).then(response => {
             // Read response from server, which will be a json object
             response.json().then(data => {
                 if (response.status === 201) {
@@ -223,14 +225,14 @@ function uploadProfilePicture(url, toggleProfileURL) {
                     const handler = (status, json) => {
                         if(status === 200) {
                             getProfilePicture(profilePictureControllerUrl);
-                            toast("Profile Picture Updated!",
-                                "This will be displayed on your profile.", "success");
+                            toast("Changes saved!",
+                                "Profile picture changes saved successfully.", "success");
                         } else {
                             toast("Error",
                                 "Unable to update profile picture", "danger");
                         }
                     };
-                    const requestData = new ReqData(requestTypes["UPDATE"], toggleProfileURL, handler, photoFilename);
+                    const requestData = new ReqData(requestTypes["UPDATE"], profilePicUpdateURL, handler, photoFilename);
                     undoRedo.sendAndAppend(requestData);
 
                 }

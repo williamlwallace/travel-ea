@@ -266,7 +266,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-popup mr-auto" data-dismiss="modal" data-toggle="modal" href="#changeProfilePictureModal">Back</button>
-                        <button onclick='uploadProfilePicture("@controllers.backend.routes.PhotoController.upload()", "@controllers.backend.routes.PhotoController.makePhotoProfile(user.id)")'
+                        <button onclick='uploadProfilePicture("@user.id")'
                                 type="button" class="btn btn-primary">Confirm</button>
                     </div>
                 </div>

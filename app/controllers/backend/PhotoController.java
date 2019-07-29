@@ -89,8 +89,8 @@ public class PhotoController extends TEABackController {
         }
 
         // Get json parameters
-        final String photoLocation = request.body().asJson().asText().substring(
-            request.body().asJson().asText().lastIndexOf('/') + 1);
+        String bodyText = request.body().asJson().asText();
+        final String photoLocation = bodyText.substring(bodyText.lastIndexOf('/') + 1);
 
         // Get current profile photo, if any exists
         return photoRepository.getUserProfilePicture(id).thenComposeAsync(photo -> {
@@ -565,6 +565,7 @@ public class PhotoController extends TEABackController {
     public Result photoRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.PhotoController.upload(),
                 controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy(),
                 controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
                 controllers.backend.routes.javascript.PhotoController.linkPhotoToDest(),
