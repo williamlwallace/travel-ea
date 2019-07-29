@@ -338,7 +338,7 @@ function toggleLinked(guid, newLinked, destinationId) {
             const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
             undoRedo.sendAndAppend(reqData);
         } else {
-            const URL = photoRouter.controllers.backend.PhotoController.linkPhotoToDest(destinationId, guid).url;
+            const URL = photoRouter.controllers.backend.PhotoController.deleteLinkPhotoToDest(destinationId, guid).url;
             const handler = function(status, json) {
                 if (status === 200) {
                     label.innerHTML = "Linked";
