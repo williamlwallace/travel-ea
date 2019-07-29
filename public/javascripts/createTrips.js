@@ -69,6 +69,17 @@ function addDestClick(button, tableAPI, cellId) {
 }
 
 /**
+ * Hides Create trip button if trip is empty
+ */
+function checkTripListEmpty() {
+    if ($("#list").children().length > 1) {
+        $("#createTripButton").css("display", "");
+    } else if ($("#list").children().length <= 1) {
+        $("#createTripButton").css("display", "none");
+    }
+}
+
+/**
  * Add destination to database
  * @param {string} url - API URI to add destination
  * @param {string} redirect - URI of redirect page
@@ -132,12 +143,10 @@ function addDestination(url, redirect, userId) {
                     break;
                 }
             }
-
             table.add(
                 [name, type, district, latitude, longitude, country,
                     destination]);
             populateMarkers(userId);
-
         }
     }.bind({userId, data});
     const inverseHandler = (status, json) => {
@@ -296,6 +305,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '</div>\n' +
             '</div>'
         );
+        checkTripListEmpty();
     });
 }
 
@@ -305,8 +315,8 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
  */
 function removeDestinationFromTrip() {
     let cardId = $('#removeDestinationFromTripModal').attr("destId");
-    console.log("cardId: " + cardId);
     $('#' + cardId).remove();
+    checkTripListEmpty();
 }
 
 /**
@@ -317,8 +327,7 @@ function toggleTripPrivacy() {
 
     if (currentPrivacy === "Make Public") {
         document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
-    }
-    else if (currentPrivacy === "Make Private") {
+    } else if (currentPrivacy === "Make Private") {
         document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
     }
 }
@@ -390,16 +399,14 @@ function listItemToTripData(listItem, index) {
     try {
         json["arrivalTime"] = formatDateTime(DTInputs[0].value,
             DTInputs[1].value);
-    }
-    catch {
+    } catch {
         json["arrivalTime"] = null;
     }
 
     try {
         json["departureTime"] = formatDateTime(DTInputs[2].value,
             DTInputs[3].value);
-    }
-    catch {
+    } catch {
         json["departureTime"] = null;
     }
 
@@ -415,11 +422,9 @@ function listItemToTripData(listItem, index) {
 function formatDateTime(date, time) {
     if (date.length === 10 && time.length === 5) {
         return date + "T" + time + ":00.000";
-    }
-    else if (date.length === 10) {
+    } else if (date.length === 10) {
         return date + "T" + "00:00:00.000";
-    }
-    else {
+    } else {
         return null;
     }
 }
@@ -478,7 +483,6 @@ function updateTrip(uri, redirect, tripId, userId) {
  */
 function setDestinationToRemove(cardId) {
     let destTripModal = $('#removeDestinationFromTripModal');
-    console.log("remove trip button pressed with id: " + cardId);
     destTripModal.attr("destId", cardId);
     destTripModal.modal('show');
 }
