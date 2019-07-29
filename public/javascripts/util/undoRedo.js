@@ -58,8 +58,17 @@ class ReqStack {
      * pops an object of the top of the stack.
      */
     pop() {
-        //Maybe we will do stuff here?
+        // Maybe we will do stuff here
         return this.stack.pop();
+    }
+
+    /**
+     * Returns true if the stack is empty, false otherwise
+     *
+     * @returns {boolean} true if the stack is empty, false otherwise
+     */
+    isEmpty() {
+        return this.stack.length === 0;
     }
 }
 
@@ -80,16 +89,17 @@ class UndoRedo {
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
     sendAndAppend(reqData, inverseHandler = null) {
-        return this.resAndInverse(reqData, inverseHandler)
-        .then(({status, json, inverseData}) => {
-            reqData.handler(status, json);
-            if (status !== 201 && status !== 200) {
-                //Handler should take care of this case
-                return;
-            }
-            const undoRedoReq = new UndoRedoReq(inverseData, reqData);
-            this.undoStack.push(undoRedoReq);
-        });
+        return this.resAndInverse(reqData, inverseHandler).then(
+            ({status, json, inverseData}) => {
+                reqData.handler(status, json);
+                if (status !== 201 && status !== 200) {
+                    // Handler should take care of this case
+                    return;
+                }
+                const undoRedoReq = new UndoRedoReq(inverseData, reqData);
+                this.undoStack.push(undoRedoReq);
+                this.updateButtons();
+            });
     }
 
     /**
@@ -99,6 +109,7 @@ class UndoRedo {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
             toast('Undo', 'Nothing to undo!', 'danger');
+            this.updateButtons();
             throw "No undo's";
         }
 
@@ -112,6 +123,7 @@ class UndoRedo {
                 this.redoStack.push(
                     new UndoRedoReq(undoRedoReq.undoReq, inverseData));
                 toast('Undo', 'Undo successful', 'success');
+                this.updateButtons();
             });
 
     }
@@ -123,6 +135,7 @@ class UndoRedo {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) {
             toast('Redo', 'Nothing to redo!', 'danger');
+            this.updateButtons();
             throw "No redos";
         }
 
@@ -136,8 +149,31 @@ class UndoRedo {
                 this.undoStack.push(
                     new UndoRedoReq(inverseData, undoRedoReq.redoReq));
                 toast('Redo', 'Redo successful', 'success');
+                this.updateButtons();
             });
     }
+
+    /**
+     * Updates the undo and redo buttons in the nav bar to either disabled if there
+     * are no undos or redos on the stack or not disabled if the opposite.
+     */
+    updateButtons() {
+        const undoButton = document.getElementById("undoButton");
+        const redoButton = document.getElementById("redoButton");
+
+        if(this.undoStack.isEmpty()) {
+            undoButton.setAttribute("disabled", "true");
+        } else {
+            undoButton.removeAttribute("disabled");
+        }
+
+        if(this.redoStack.isEmpty()) {
+            redoButton.setAttribute("disabled", "true");
+        } else {
+            redoButton.removeAttribute("disabled");
+        }
+    }
+
 
     /**
      * Generates a response by calling the appropriate fetch method and creates and
@@ -195,11 +231,12 @@ const undoRedo = new UndoRedo();
 
 //Add custom key shortcuts
 document.onkeydown = (e) => {
-    const key = e.which || e.keyCode;
-    if (e.ctrlKey && key == 90) {
+    //Need to keep depreciated symbols for older browsers
+    const key = e.which || e.keyCode || e.key;
+    if (e.ctrlKey && key === 90) {
         //ctrl + z
         undoRedo.undo();
-    } else if (e.ctrlKey && key == 89) {
+    } else if (e.ctrlKey && key === 89) {
         //ctrl + y
         undoRedo.redo();
     }
@@ -209,7 +246,8 @@ document.onkeydown = (e) => {
 //this will only be imported if run by node
 if (typeof module !== 'undefined' && module.exports) {
     var {put, post, _delete} = require('./fetch');
-    var toast = () => {};
+    var toast = () => {
+    };
     try {
         module.exports = {
             ReqStack,
@@ -218,5 +256,24 @@ if (typeof module !== 'undefined' && module.exports) {
             ReqData,
             requestTypes
         };
-    } catch (e) {}
+    } catch (e) {
+    }
 }
+
+/**
+ * The undo button calls the undo function
+ */
+$('#undoButton').click(function() {
+    if(!$('#undoButton').attr('disabled')) {
+        undoRedo.undo();
+    }
+});
+
+/**
+ * The redo button calls the redo function
+ */
+$('#redoButton').click(function() {
+    if(!$('#redoButton').attr('disabled')) {
+        undoRedo.redo();
+    }
+});

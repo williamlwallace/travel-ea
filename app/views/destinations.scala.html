@@ -3,7 +3,7 @@
 @scripts = {
     <script src="@routes.Assets.at("javascripts/destinations.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDCyC_ON0GgSmJIfPlL7oke5PZgbR8TLbg"></script>
+    <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
 }
 

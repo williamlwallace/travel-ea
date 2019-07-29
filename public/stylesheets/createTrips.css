@@ -38,6 +38,10 @@
     background-color: #FFFFFF !important
 }
 
+.card:hover {
+    border-color: #000000;
+}
+
 /*
  * card block contains the details of the card
  */
@@ -59,7 +63,14 @@
  * the arrival/dest times from the
  * destination info in destination cards
  */
-#left { float:left }
+#left {
+    float:left;
+    width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+}
 #right { float:right }
 
 /*
@@ -84,7 +95,6 @@
 }
 
 #removeTrip {
-    /*background:url(../images/closeCross.png) no-repeat;*/
     cursor:pointer;
     width: 20px;
     height: 20px;
@@ -96,4 +106,16 @@
     margin-right: 10px;
     border: 0;
     background: transparent url(../images/closeCross.png) no-repeat center top;
+}
+
+#removeTrip:hover {
+    opacity: 0.5;
+}
+
+#arrivalDate, #arrivalTime, #departureDate, #departureTime {
+    width: 175px;
+}
+
+#createDestinationButton {
+    margin-top: 10px;
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -58,11 +59,18 @@ public class ProfilePhotoTestSteps {
                 play.libs.Files.singletonTemporaryFileCreator(),
                 fakeApp.asScala().materializer()
             );
-
         Result result = route(fakeApp, request);
-
         Assert.assertEquals(201, result.status());
 
+        // Create a request to set the newly uploaded photo to be the profile
+        String filename = new ObjectMapper().readValue(Helpers.contentAsString(result), String.class);
+
+        Http.RequestBuilder updateRequest = Helpers.fakeRequest().uri("/api/photo/1/profile")
+            .method("PUT")
+            .cookie(authCookie)
+            .bodyJson(Json.toJson("/public/storage/photos/" + filename));
+        Result updateResult = route(fakeApp, updateRequest);
+        Assert.assertEquals(200, updateResult.status());
     }
 
     @Then("A thumbnail is created")
