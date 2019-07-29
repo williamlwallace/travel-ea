@@ -8,11 +8,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
 import models.User;
 import play.libs.Json;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -30,12 +33,14 @@ public class DestinationController extends TEABackController {
     private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
+    private final WSClient ws;
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
+        this.ws = ws;
     }
 
     /**
@@ -157,10 +162,12 @@ public class DestinationController extends TEABackController {
             if (destination == null) {
                 return CompletableFuture.supplyAsync(() -> notFound("No such destination found"));
             } else if (destination.user.id.equals(user.id) || user.admin) {
-                destination.deleted = !destination.deleted; 
+                destination.deleted = !destination.deleted;
                 return destinationRepository.updateDestination(destination)
-                .thenApplyAsync(upId -> ok(
-                    Json.toJson("Successfully toggled destination deletion of destination with id: " + upId)));
+                    .thenApplyAsync(upId -> ok(
+                        Json.toJson(
+                            "Successfully toggled destination deletion of destination with id: "
+                                + upId)));
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden("Forbidden"));
             }
@@ -225,7 +232,8 @@ public class DestinationController extends TEABackController {
      * fails, 403 if the user cannot edit the destination and 200 if successful
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId, Long travellerTypeId) {
+    public CompletableFuture<Result> addTravellerType(Http.Request request, Long destId,
+        Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -287,7 +295,8 @@ public class DestinationController extends TEABackController {
      * fails, 403 if the user cannot edit the destination and 200 if successful
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> removeTravellerType(Http.Request request, Long destId, Long travellerTypeId) {
+    public CompletableFuture<Result> removeTravellerType(Http.Request request, Long destId,
+        Long travellerTypeId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -368,16 +377,19 @@ public class DestinationController extends TEABackController {
 
     /**
      * Gets all destinations that are strictly public, regardless of which user is requesting them
-     * @return 200 code with public destination array on success, otherwise 500 if sanitization error
+     *
+     * @return 200 code with public destination array on success, otherwise 500 if sanitization
+     * error
      */
     public CompletableFuture<Result> getAllPublicDestinations() {
-        return destinationRepository.getAllPublicDestinations().thenApplyAsync(publicDestinations -> {
-            try {
-                return ok(sanitizeJson(Json.toJson(publicDestinations)));
-            } catch (IOException e) {
-                return internalServerError(Json.toJson(SANITIZATION_ERROR));
-            }
-        });
+        return destinationRepository.getAllPublicDestinations()
+            .thenApplyAsync(publicDestinations -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(publicDestinations)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
@@ -454,9 +466,25 @@ public class DestinationController extends TEABackController {
      * @param filter The sort order (either asc or desc)
      * @return OK with paged list of destinations
      */
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order, String filter) {
+    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order,
+        String filter) {
         return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
             .thenApplyAsync(destinations -> ok());
+    }
+
+    /**
+     * Gets the google api key
+     *
+     * @return an ok message with the google api key
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletionStage<Result> googleMapsHelper() {
+        String apiKey = ""; //put the key here when we get it
+        WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
+        request.addQueryParameter("key", apiKey);
+
+        return request.execute()
+            .thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
     }
 
     /**
@@ -468,10 +496,12 @@ public class DestinationController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
-                controllers.backend.routes.javascript.DestinationController.getAllPublicDestinations(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getAllPublicDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
-                controllers.frontend.routes.javascript.DestinationController.detailedDestinationIndex(),
+                controllers.frontend.routes.javascript.DestinationController
+                    .detailedDestinationIndex(),
                 controllers.backend.routes.javascript.DestinationController.editDestination(),
                 controllers.backend.routes.javascript.DestinationController.makeDestinationPublic(),
                 controllers.backend.routes.javascript.DestinationController.addTravellerType(),
