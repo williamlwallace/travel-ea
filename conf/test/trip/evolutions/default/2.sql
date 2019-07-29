@@ -7,9 +7,9 @@ INSERT INTO User (username, password, salt, admin) VALUES ('tester2@gmail.com', 
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
 
--- Insert countries for testing
-INSERT INTO CountryDefinition (name) VALUES ('France');
-INSERT INTO CountryDefinition (name) VALUES ('New Zealand');
+-- Add countries
+INSERT INTO CountryDefinition (id, name) VALUES
+(1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
 
 -- Create 2 test destinations for trips
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 10.0, 20.0, 1, 1);
