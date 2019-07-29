@@ -70,7 +70,6 @@ function updateProfile(uri, redirect) {
         addNonExistingCountries(data.passports).then(passportResult => {
             // Post json data to given uri
             const handler = function(status, json) {
-                console.log(json);
                 if (status !== 200) {
                     showErrors(json, "updateProfileForm");
                 } else {
@@ -99,8 +98,6 @@ function updateProfileData(data) {
     document.getElementById("summary_age").innerHTML = calc_age(
         Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
-    console.log(data.nationalities);
-    console.log(data.firstName);
     arrayToString(data.nationalities, 'name',
         countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
