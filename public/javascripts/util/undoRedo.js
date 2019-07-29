@@ -58,7 +58,7 @@ class ReqStack {
      * pops an object of the top of the stack.
      */
     pop() {
-        //Maybe we will do stuff here
+        // Maybe we will do stuff here
         return this.stack.pop();
     }
 
@@ -89,11 +89,11 @@ class UndoRedo {
      * @param {Object} inverseHandler the function to pass the response through when executing the reverse action
      */
     sendAndAppend(reqData, inverseHandler = null) {
-        this.resAndInverse(reqData, inverseHandler).then(
+        return this.resAndInverse(reqData, inverseHandler).then(
             ({status, json, inverseData}) => {
                 reqData.handler(status, json);
                 if (status !== 201 && status !== 200) {
-                    //Handler should take care of this case
+                    // Handler should take care of this case
                     return;
                 }
                 const undoRedoReq = new UndoRedoReq(inverseData, reqData);
@@ -113,7 +113,7 @@ class UndoRedo {
             throw "No undo's";
         }
 
-        this.resAndInverse(undoRedoReq.undoReq).then(
+        return this.resAndInverse(undoRedoReq.undoReq).then(
             ({status, json, inverseData}) => {
                 undoRedoReq.undoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
@@ -139,7 +139,7 @@ class UndoRedo {
             throw "No redos";
         }
 
-        this.resAndInverse(undoRedoReq.redoReq).then(
+        return this.resAndInverse(undoRedoReq.redoReq).then(
             ({status, json, inverseData}) => {
                 undoRedoReq.redoReq.handler(status, json);
                 if (status !== 201 && status !== 200) {
@@ -231,15 +231,34 @@ const undoRedo = new UndoRedo();
 
 //Add custom key shortcuts
 document.onkeydown = (e) => {
-    const key = e.which || e.keyCode;
-    if (e.ctrlKey && key == 90) {
+    //Need to keep depreciated symbols for older browsers
+    const key = e.which || e.keyCode || e.key;
+    if (e.ctrlKey && key === 90) {
         //ctrl + z
         undoRedo.undo();
-    } else if (e.ctrlKey && key == 89) {
+    } else if (e.ctrlKey && key === 89) {
         //ctrl + y
         undoRedo.redo();
     }
 };
+
+//Code for testing only
+//this will only be imported if run by node
+if (typeof module !== 'undefined' && module.exports) {
+    var {put, post, _delete} = require('./fetch');
+    var toast = () => {
+    };
+    try {
+        module.exports = {
+            ReqStack,
+            UndoRedo,
+            UndoRedoReq,
+            ReqData,
+            requestTypes
+        };
+    } catch (e) {
+    }
+}
 
 /**
  * The undo button calls the undo function

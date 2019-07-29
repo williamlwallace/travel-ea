@@ -3,13 +3,10 @@ package controllers.backend;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import javax.inject.Singleton;
 import models.CountryDefinition;
 import models.Destination;
 import models.TreasureHunt;
@@ -167,8 +164,8 @@ public abstract class ControllersTest extends WithApplication {
             treasureHunt.id = rs.getLong("id");
             treasureHunt.user = new User();
             treasureHunt.user.id = rs.getLong("user_id");
-            treasureHunt.endDate = rs.getString("end_date");
-            treasureHunt.startDate = rs.getString("start_date");
+            treasureHunt.endDate = (rs.getTimestamp("end_date") == null) ? null : rs.getTimestamp("end_date").toLocalDateTime().toLocalDate();
+            treasureHunt.startDate = (rs.getTimestamp("start_date") == null) ? null : rs.getTimestamp("start_date").toLocalDateTime().toLocalDate();
             treasureHunt.riddle = rs.getString("riddle");
             treasureHuntCollection.add(treasureHunt);
         }

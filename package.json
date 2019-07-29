@@ -1,0 +1,23 @@
+{
+  "name": "team-400",
+  "version": "1.0.0",
+  "description": "## Using TravelEA",
+  "main": "index.js",
+  "directories": {
+    "doc": "doc",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest ./test/public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@eng-git.canterbury.ac.nz:seng302-2019/team-400.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "jest": "^24.8.0",
+    "node-fetch": "^2.6.0"
+  }
+}

@@ -32,9 +32,10 @@ function populate(json) {
         const longitude = destination.longitude;
         let country = destination.country.name;
         const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-        const row = checkCountryValidity(destination.country.name, destination.country.id)
+        const row = checkCountryValidity(destination.country.name,
+            destination.country.id)
         .then(result => {
-            if(result === false) {
+            if (result === false) {
                 country = destination.country.name + ' (invalid)';
             }
             return [name, type, district, latitude, longitude,
@@ -68,10 +69,20 @@ function addDestClick(button, tableAPI, cellId) {
 }
 
 /**
+ * Hides Create trip button if trip is empty
+ */
+function checkTripListEmpty() {
+    if ($("#list").children().length > 1) {
+        $("#createTripButton").css("display", "");
+    } else if ($("#list").children().length <= 1) {
+        $("#createTripButton").css("display", "none");
+    }
+}
+
+/**
  * Add destination to database
  * @param {string} url - API URI to add destination
  * @param {string} redirect - URI of redirect page
- * @param {Number} userId - The id of the current user
  */
 function addDestination(url, redirect, userId) {
     // Read data from destination form
@@ -95,30 +106,68 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    //Create response handler
+    const handler = function (status, json) {
+        if (status !== 200) {
+            if (json === "Duplicate destination") {
+                toast("Destination could not be created!",
+                    "The destination already exists.", "danger", 5000);
+                $('#createDestinationModal').modal('hide');
+                resetDestinationModal();
+            } else {
+                showErrors(json);
+            }
+        } else {
+            toast("Destination Created!",
+                "The new destination will be added to the table.",
+                "success");
+            $('#createDestinationModal').modal('hide');
+            resetDestinationModal();
+
+            // Add row to table
+            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                json).url;
+            const name = data.name;
+            const type = data.destType;
+            const district = data.district;
+            const latitude = data.latitude;
+            const longitude = data.longitude;
+            let country = data.country.id;
+
+            // Set country name
+            let countries = document.getElementById(
+                "countryDropDown").getElementsByTagName("option");
+            for (let i = 0; i < countries.length; i++) {
+                if (parseInt(countries[i].value) === data.country.id) {
+                    country = countries[i].innerText;
+                    break;
+                }
+            }
+            table.add(
+                [name, type, district, latitude, longitude, country,
+                    destination]);
+            populateMarkers(userId);
+        }
+    }.bind({userId, data});
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            table.populateTable();
+            populateMarkers(userId);
+        }
+    };
     // Post json data to given url
     addNonExistingCountries([data.country]).then(result => {
-        // Post json data to given url
-        post(url, data)
-        .then(response => {
-
-            // Read response from server, which will be a json object
-            response.json()
-            .then(json => {
-                if (response.status !== 200) {
-                    showErrors(json);
-                } else {
-                    toast("Destination Created!",
-                        "The new destination will be added to the table.",
-                        "success");
-                    $('#createDestinationModal').modal('hide');
-
-                    // Add row to table
-                    data.id = json;
-                    addRow(data);
-                }
-            });
-        });
+        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
+        undoRedo.sendAndAppend(reqData, inverseHandler);
     });
+}
+
+/**
+ * Clears all fields and error labels in the create destination modal form
+ */
+function resetDestinationModal() {
+    document.getElementById("addDestinationForm").reset();
+    hideErrors("addDestinationForm");
 }
 
 /**
@@ -222,24 +271,8 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card-block px-2">\n' +
             '<div id="topCardBlock">\n' +
             '<h4 class="card-title">' + name + '</h4>\n' +
-            '<button id="removeTrip" type="button" data-toggle="modal" data-target="#removeTripModal" target="_blank" rel="nofollow noopener"></button>\n' +
-            '<div class="modal fade" id="removeTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">\n' +
-            '<div class="modal-dialog modal-dialog-centered" role="document">\n' +
-            '<div class="modal-content text-center">\n' +
-            '<div class="modal-header text-center">\n' +
-            '<h4 class="modal-title w-100 font-weight-bold">Delete destination</h4>\n' +
-            '</div>\n' +
-            '<div class="modal-body">\n' +
-            '<p>Are you sure you wish to delete this destination?</p>\n' +
-            '</div>\n' +
-            '<div class="modal-footer d-flex justify-content-center">\n' +
-            '<button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>\n' +
-            '<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip('
-            + cardId + ')">Confirm</button>\n' +
-            '</div>\n' +
-            '</div>\n' +
-            '</div>\n' +
-            '</div>\n' +
+            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId
+            + ')"></div>\n' +
             '<div id="left">\n' +
             '<p class="card-text" id="card-text">' +
             '<b>Type: </b> ' + type + '<br/>' +
@@ -272,6 +305,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '</div>\n' +
             '</div>'
         );
+        checkTripListEmpty();
     });
 }
 
@@ -279,24 +313,21 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
  * Removes card with given id
  * @param {Number} cardId - Id of card
  */
-function removeDestinationFromTrip(cardId) {
-    let destinations = Array.of(document.getElementById("list").children)[0];
-
-    for (let i = 0; i < destinations.length; i++) {
-        if (parseInt(destinations[i].getAttribute("id")) === cardId) {
-            destinations[i].parentNode.removeChild(destinations[i]);
-            break;
-        }
-    }
+function removeDestinationFromTrip() {
+    let cardId = $('#removeDestinationFromTripModal').attr("destId");
+    $('#' + cardId).remove();
+    checkTripListEmpty();
 }
 
+/**
+ * Toggles the change destination button text between make public and make private.
+ */
 function toggleTripPrivacy() {
     let currentPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
 
     if (currentPrivacy === "Make Public") {
         document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
-    }
-    else if (currentPrivacy === "Make Private") {
+    } else if (currentPrivacy === "Make Private") {
         document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
     }
 }
@@ -327,7 +358,7 @@ function createTrip(uri, redirect, userId) {
 
     // Setting up undo/redo
     const URL = tripRouter.controllers.backend.TripController.insertTrip().url;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             $("#createTripButton").prop('disabled', false);
             showTripErrors(json);
@@ -368,16 +399,14 @@ function listItemToTripData(listItem, index) {
     try {
         json["arrivalTime"] = formatDateTime(DTInputs[0].value,
             DTInputs[1].value);
-    }
-    catch {
+    } catch {
         json["arrivalTime"] = null;
     }
 
     try {
         json["departureTime"] = formatDateTime(DTInputs[2].value,
             DTInputs[3].value);
-    }
-    catch {
+    } catch {
         json["departureTime"] = null;
     }
 
@@ -393,11 +422,9 @@ function listItemToTripData(listItem, index) {
 function formatDateTime(date, time) {
     if (date.length === 10 && time.length === 5) {
         return date + "T" + time + ":00.000";
-    }
-    else if (date.length === 10) {
+    } else if (date.length === 10) {
         return date + "T" + "00:00:00.000";
-    }
-    else {
+    } else {
         return null;
     }
 }
@@ -427,23 +454,46 @@ function updateTrip(uri, redirect, tripId, userId) {
     };
 
     let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
     // Value of 1 for public, 0 for private
     tripData["isPublic"] = tripPrivacy === "Make Private";
 
-    put(uri, tripData).then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(json => {
-            if (response.status === 400) {
-                showTripErrors(json);
-            } else if (response.status === 200) {
-                window.location.href = redirect;
-            } else {
-                document.getElementById(
-                    "destinationError").innerHTML = "Error(s): "
-                    + Object.values(json).join(", ");
-            }
-        });
-    });
+    const handler = function (status, json) {
+        if (status === 400) {
+            $("#createTripButton").prop('disabled', false);
+            showTripErrors(json);
+        } else if (status === 200) {
+            window.location.href = redirect;
+        } else {
+            document.getElementById(
+                "destinationError").innerHTML = "Error(s): "
+                + Object.values(json).join(", ");
+        }
+    }.bind({redirect});
+
+    const reqData = new ReqData(requestTypes["UPDATE"], uri, handler, tripData);
+
+    undoRedo.sendAndAppend(reqData);
 }
+
+/**
+ * Sets the destination that will be removed from the trip when the remove
+ * destination action in the modal is confirmed.
+ *
+ * @param cardId the id of the destination card to be removed.
+ */
+function setDestinationToRemove(cardId) {
+    let destTripModal = $('#removeDestinationFromTripModal');
+    destTripModal.attr("destId", cardId);
+    destTripModal.modal('show');
+}
+
+/**
+ * Create destination modal form cancel button click handler.
+ */
+$('#CreateDestinationCancelButton').click(function () {
+    $('#createDestinationModal').modal('hide');
+    resetDestinationModal();
+});
+
+
+

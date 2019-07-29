@@ -166,7 +166,7 @@ function createTimeline(trip) {
                     </span>\n`
                 }
                 timeline += `<h2>
-                ${dest.destination.name}<br>
+                <a href=` + destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(dest.destination.id).url + `>${dest.destination.name}</a><br>
                 ${dest.destination.country.name}
                 </h2>
                 <p>\n`

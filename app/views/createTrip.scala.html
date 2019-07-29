@@ -17,8 +17,6 @@
         <div style="padding-bottom: 60px;">
                 <!-- Buttons to add/create destination and trip -->
             <div style="float: left;">
-                <button class="btn btn-secondary" data-toggle="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create Destination</button>
-                @*<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createDestinationModal">Create Destination</button>*@
                 <button type="submit" class="btn btn-secondary" data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
@@ -31,12 +29,12 @@
                 }
 
                 @if(trip.tripDataList.length == 0) {
-                    <button class="btn btn-primary" id="createTripButton" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()",
+                    <button class="btn btn-primary" id="createTripButton" style="display: none;" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()",
                             "@controllers.frontend.routes.TripController.tripIndex()", @ownerId)'>Create Trip</button>
                 } else{
                     <button class="btn btn-primary" onclick='updateTrip("@controllers.backend.routes.TripController.updateTrip()",
                             "@controllers.frontend.routes.TripController.tripIndex()", @trip.id, @ownerId)'>Update Trip</button>
-                    <a href="javascript:history.back()"><button class="btn btn-primary">Cancel</button></a>
+                    <a href="javascript:history.back()"><button class="btn btn-danger">Cancel</button></a>
                 }
             </div>
         </div>
@@ -81,26 +79,10 @@
                                 <div class="card-block px-2">
                                     <div id="topCardBlock">
                                         <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
-                                        <button id="removeTrip" type="button" data-toggle="modal" data-target="#removeTripModal" target="_blank" rel="nofollow noopener"></button>
-                                        <div class="modal fade" id="removeTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered" role="document">
-                                                <div class="modal-content text-center">
-                                                    <div class="modal-header text-center">
-                                                        <h4 class="modal-title w-100 font-weight-bold">Delete destination</h4>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p>Are you sure you wish to delete this destination?</p>
-                                                    </div>
-                                                    <div class="modal-footer d-flex justify-content-center">
-                                                        <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="removeDestinationFromTrip(@i)">Confirm</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <div id="removeTrip" onclick="setDestinationToRemove(@i)"></div>
                                     </div>
                                     <div id="left">
-                                        <p class="card-text" id="card-text">
+                                        <p id="destinationDetails" class="card-text" id="card-text">
                                             <strong>Type: </strong>
                                             @trip.tripDataList(i).destination.destType
                                             <br/>
@@ -137,7 +119,6 @@
                                         <div class="text-center">
                                             <label id="destinationError"></label><br/>
                                         </div>
-                                            <!-- Provides extra visual weight and identifies the primary action in a set of buttons -->
                                     </div>
                                 </div>
                             </div>
@@ -149,6 +130,23 @@
             </body>
         </html>
 
+        <!-- Remove Destination From Trip Modal -->
+        <div class="modal fade" id="removeDestinationFromTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content text-center">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Remove Destination</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you wish to remove this destination from the trip?</p>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center">
+                        <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Create destination form -->
         <div class="container">
@@ -201,6 +199,9 @@
                             </button>
                         </div>
                         <div class="container">
+                            <div style="text-align:center">
+                                <button id="createDestinationButton" class="btn btn-secondary" data-toggle="modal" data-dismiss="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create new destination</button>
+                            </div>
                             <form>
                                 <div class="destTable"><br>
                                     <table id="destTable" class="table table-hover">
@@ -221,8 +222,8 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-popup waves-effect waves-light" type="button" data-toggle="modal" data-target="#modalAddForm">Close</button>
+                        <div class="modal-footer d-flex justify-content-center" style="display: block;">
+                            <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>

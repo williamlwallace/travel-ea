@@ -8,7 +8,6 @@ import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
-import static play.mvc.Http.Status.FORBIDDEN;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.mvc.Http.Status.OK;
@@ -19,12 +18,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import javax.xml.bind.SchemaOutputResolver;
 import models.Destination;
 import models.TreasureHunt;
 import models.User;
@@ -263,7 +261,6 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         ).size());
     }
 
-
     @Test
     public void createValidTreasureHunt() {
         // Create necessary objects for treasure hunt
@@ -281,8 +278,8 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Set other required information for a valid treasure hunt
         treasureHunt.riddle = "Init";
-        treasureHunt.startDate = "2019-05-29";
-        treasureHunt.endDate = "2019-07-30";
+        treasureHunt.startDate = LocalDate.of(2019, 5, 29);
+        treasureHunt.endDate = LocalDate.of(2019, 7, 30);
 
         // Convert treasure hunt object to Json
         JsonNode treasureHuntJson = Json.toJson(treasureHunt);
@@ -297,6 +294,41 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void createTreasureHuntWithInvalidDates() {
+        // Create necessary objects for treasure hunt
+        TreasureHunt treasureHunt = new TreasureHunt();
+        User user = new User();
+        Destination destination = new Destination();
+
+        // Set user and destination ID's
+        user.id = 2L;
+        destination.id = 1L;
+
+        // Assign user and destination information to treasure hunt
+        treasureHunt.user = user;
+        treasureHunt.destination = destination;
+
+        // Set other required information for a valid treasure hunt
+        treasureHunt.riddle = "Init";
+        treasureHunt.startDate = LocalDate.of(2019, 7, 29);
+        treasureHunt.endDate = LocalDate.of(2019, 5, 30);
+
+        // Convert treasure hunt object to Json
+        JsonNode treasureHuntJson = Json.toJson(treasureHunt);
+
+        // Build HTTP request for creating treasure hunt
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .bodyJson(treasureHuntJson)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/treasurehunt");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
     }
 
     @Test
