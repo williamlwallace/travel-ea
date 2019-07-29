@@ -26,7 +26,7 @@ public class TreasureHuntValidator extends Validator {
     public ErrorResponse validateTreasureHunt(boolean isUpdating) throws IOException {
         if((!isUpdating) && (this.required("user", "User") && this.form.get("user").get("id").asText("")
             .equals(""))) {
-            this.required("userId", "UserId");
+            this.required("userId", "User ID");
         }
 
         if (this.required("destination", "Destination") && this.form.get("destination").get("id")
@@ -41,10 +41,11 @@ public class TreasureHuntValidator extends Validator {
             TreasureHunt treasureHunt = mapper
                 .readValue(mapper.treeAsTokens(this.form), new TypeReference<TreasureHunt>() {
                 });
-            // TODO: Implement here
+
+            if (treasureHunt.startDate.isAfter(treasureHunt.endDate)) {
+                this.getErrorResponse().map("The end date cannot be before the start date.", "endDate");
+            }
         }
-
-
 
         return this.getErrorResponse();
     }
