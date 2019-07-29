@@ -167,22 +167,20 @@ public class ProfileController extends TEABackController {
         } else {
             return profileRepository.findID(userId)
                 .thenComposeAsync(profile -> {
+                    final Profile oldProfile = profile.copy();
                     if (profile == null) {
-                        return null;
+                        errorResponse.map("Profile for that user not found", ERR_OTHER);
+                        return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
                     } else {
                         Profile updatedProfile = Json.fromJson(data, Profile.class);
                         updatedProfile.userId = userId;
 
-                        return profileRepository.updateProfile(updatedProfile);
+                        return profileRepository.updateProfile(updatedProfile)
+                            .thenApplyAsync(updatedUserId -> {
+                                return ok(Json.toJson(oldProfile));
+                            });
                     }
-                }).thenApplyAsync(updatedUserId -> {
-                    if (updatedUserId == null) {
-                        errorResponse.map("Profile for that user not found", ERR_OTHER);
-                        return badRequest(errorResponse.toJson());
-                    } else {
-                        return ok(Json.toJson(updatedUserId));
-                    }
-                });
+                });     
         }
     }
 

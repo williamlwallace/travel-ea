@@ -303,7 +303,6 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
  */
 function removeDestinationFromTrip() {
     let cardId = $('#removeDestinationFromTripModal').attr("destId");
-    console.log("cardId: " + cardId);
     $('#' + cardId).remove();
 }
 
@@ -476,7 +475,6 @@ function updateTrip(uri, redirect, tripId, userId) {
  */
 function setDestinationToRemove(cardId) {
     let destTripModal = $('#removeDestinationFromTripModal');
-    console.log("remove trip button pressed with id: " + cardId);
     destTripModal.attr("destId", cardId);
     destTripModal.modal('show');
 }

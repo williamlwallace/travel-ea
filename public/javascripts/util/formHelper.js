@@ -196,7 +196,6 @@ function arrayToCountryString(countries, dataName, URL) {
             return checkCountryValidity(dict[item.id], item.id)
             .then( valid  => {
                 if (valid) {
-                    console.log(item.id);
                     return dict[item.id] + ", ";
                 } else {
                     return dict[item.id] + " (invalid), ";
@@ -206,21 +205,11 @@ function arrayToCountryString(countries, dataName, URL) {
         countries.forEach(item => {
             promises.push(validatorHandler(dict, item))
         });
-        console.log(promises);
-        Promise.all(promises)
+        return Promise.all(promises)
         .then((result) => {
-            result.forEach(item => {
-                console.log(item[1].resolve());
-                if (item[1] === true) {
-                    out += dict[item[0].id] + ", ";
-                } else {
-                    out += dict[item[0].id] + " (invalid), ";
-                }
-            });
+            const out = result.join(', ');
             //remove extra separator
-            out = out.slice(0, out.length - 2);
-            console.log(out);
-            return out
+            return out.slice(0, out.length - 2);
         });
     });
 }

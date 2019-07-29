@@ -69,22 +69,21 @@ function updateProfile(uri, redirect) {
     addNonExistingCountries(data.nationalities).then(nationalityResult => {
         addNonExistingCountries(data.passports).then(passportResult => {
             // Post json data to given uri
-            put(uri, data)
-            .then(response => {
-                // Read response from server, which will be a json object
-                response.json()
-                .then(json => {
-                    if (response.status !== 200) {
-                        showErrors(json, "updateProfileForm");
-                    } else {
-                        updateProfileData(data);
-                        $("#editProfileModal").modal('hide');
-                        toast("Profile Updated!",
-                            "The updated information will be displayed on your profile.",
-                            "success");
-                    }
-                })
-            });
+            const handler = function(status, json) {
+                console.log(json);
+                if (status !== 200) {
+                    showErrors(json, "updateProfileForm");
+                } else {
+                    updateProfileData(this.data);
+                    $("#editProfileModal").modal('hide');
+                    toast("Profile Updated!",
+                        "The updated information will be displayed on your profile.",
+                        "success");
+                }
+                this.data = json;
+            }.bind({data});
+            const reqData = new ReqData(requestTypes['UPDATE'], uri, handler, data);
+            undoRedo.sendAndAppend(reqData);
         });
     });
 }
@@ -100,7 +99,8 @@ function updateProfileData(data) {
     document.getElementById("summary_age").innerHTML = calc_age(
         Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
-
+    console.log(data.nationalities);
+    console.log(data.firstName);
     arrayToString(data.nationalities, 'name',
         countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {

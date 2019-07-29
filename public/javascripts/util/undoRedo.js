@@ -89,7 +89,6 @@ class UndoRedo {
             }
             const undoRedoReq = new UndoRedoReq(inverseData, reqData);
             this.undoStack.push(undoRedoReq);
-
         });
     }
 
