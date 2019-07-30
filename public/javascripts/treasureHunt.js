@@ -33,9 +33,8 @@ function setTimeZone() {
 /**
  * Updates the treasure hunt with given ID, and force table to reload
  * @param {Number} id - ID of the treasure hunt
- * @param {Number} userId - ID of the logged in user
  */
-function updateTreasureHunt(id, userId) {
+function updateTreasureHunt(id) {
     const formData = new FormData(
         document.getElementById("updateTreasureHuntForm"));
 
@@ -50,29 +49,23 @@ function updateTreasureHunt(id, userId) {
 
     delete data.destinationId;
 
-    put(treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
-        id).url, data)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById(
-                    "otherError").innerHTML = json;
-                toast("Treasure hunt could not be updated",
-                    "There was an error in updating the treasure hunt",
-                    "danger", 5000);
-
-            } else {
-                document.getElementById("updateTreasureHuntForm").reset();
-                populateTreasureHunts();
-                toast("Treasure hunt successfully updated",
-                    "Your treasure hunt has been updated",
-                    "success");
-
-                $("#updateTreasureHuntModal").modal("hide");
-            }
-        })
-    });
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
+        id).url;
+    const handler = function (status, json) {
+        if (status !== 200) {
+            document.getElementById("otherError").innerHTML = json;
+            toast("Treasure hunt could not be updated", json, "danger", 5000);
+        } else {
+            document.getElementById("updateTreasureHuntForm").reset();
+            populateTreasureHunts();
+            toast("Treasure hunt successfully updated",
+                "Your treasure hunt has been updated",
+                "success");
+            $("#updateTreasureHuntModal").modal("hide");
+        }
+    };
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
@@ -100,13 +93,10 @@ function populateUpdateTreasureHunt(id) {
                     treasureHunt.destination.id);
                 document.getElementById("updateStartDate").value = startDate;
                 document.getElementById("updateEndDate").value = endDate;
-
-                getUserId().then(userId => {
-                    document.getElementById(
-                        "updateTreasureHunt").onclick = function () {
-                        updateTreasureHunt(id, userId)
-                    }
-                });
+                document.getElementById(
+                    "updateTreasureHunt").onclick = function () {
+                    updateTreasureHunt(id)
+                }
             }
         })
     })
@@ -131,8 +121,9 @@ function formatDateForInput(date) {
  * @param {Number} id - ID of the treasure hunt
  */
 function deleteTreasureHunt(id) {
-    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
-    const handler = function(status, json) {
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
+        id).url;
+    const handler = function (status, json) {
         if (status !== 200) {
             toast("Treasure hunt could not be deleted", json, "danger", 5000);
         } else {
@@ -153,7 +144,8 @@ function deleteTreasureHunt(id) {
  */
 function populateTreasureHunts() {
     getUserId().then(userId => {
-        get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(userId).url)
+        get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
+            userId).url)
         .then(response => {
             response.json().then(json => {
                 const myTreasureHunts = [];
