@@ -9,61 +9,52 @@
 
 @layouts.imageHeader("People", user, "images/people-bg1.jpg", scripts){
 
+    @* Importing People CSS *@
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/people.css")">
+
     @* Filter *@
     <div>
         <button id="filterButton" class="btn btn-secondary" style="float:right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()" >Filter</button>
     </div>
     <div>
-        <div class="collapse" id="collapseExample" style="padding-bottom: 15px">
+        <div class="collapse" id="collapseExample">
             <div class="card card-body">
-            <div>Nationality
-                <em class="fas prefix grey-text"></em>
-                <label data-error="wrong" data-success="right" for="form34"></label>
-            </div>
-            <div>
-                <select id="nationalities" class="form-control" data-style="form-control selectpicker">
-                    <option value="">Select Nationalities</option>
-                </select>
-            </div>
-            <br/>
-            <div>Gender
-                <em class="fas prefix grey-text"></em>
-            </div>
-            <div>
-                <select id="gender" class="form-control" data-style="form-control selectpicker">
-                    <option value="">Select</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                </select>
-            </div>
-            <br/>
-            <div>Age Range
-                <em class="fas prefix grey-text"></em>
-                <div class="input-group">
-                    <input id="minAge" type="number" class="form-control validate" placeholder="Minimum"/>
-                    <span class="input-group-addon pr-3 pl-3"> - </span>
-                    <input id="maxAge" type="number" class="form-control validate" placeholder="Maximum"/>
-                    <label data-error="wrong" data-success="right"></label>
+                <div id="filterItemDiv">
+                    <label for="gender">Gender</label>
+                    <select id="gender" class="form-control" data-style="form-control selectpicker">
+                        <option value="">Select</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
-            </div>
-            <br/>
-            <div>Type of Traveller
-                <em class="fas prefix grey-text"></em>
-                <label data-error="wrong" data-success="right"></label>
-            </div>
-            <div>
-                <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
-                    <option value="">Select Traveller Type</option>
-                </select>
-            </div>
-            <div class="text-center" style="padding-top: 10px">
-                <div style="float:left">
-                    <button class="btn btn-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                <div id="filterItemDiv">
+                    <label for="ageRange">Age Range</label>
+                    <div id="ageRange" class="input-group">
+                        <input id="minAge" type="number" class="form-control validate" placeholder="Minimum"/>
+                        <span class="input-group-addon pr-3 pl-3"> - </span>
+                        <input id="maxAge" type="number" class="form-control validate" placeholder="Maximum"/>
+                        <label data-error="wrong" data-success="right"></label>
+                    </div>
                 </div>
-                <div style="float:right">
-                    <button class="btn btn-outline-dark" onclick='clearFilter()'>Clear</button>
-                    <button class="btn btn-primary"  onclick='filterPeopleTable()'>Apply</button>
+                <div id="filterItemDiv">
+                    <label for="nationalities">Nationality</label>
+                    <select id="nationalities" class="form-control" data-style="form-control selectpicker">
+                        <option value="">Select Nationality</option>
+                    </select>
+                    <label for="travellerTypes">Type of Traveller</label>
+                    <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
+                        <option value="">Select Traveller Type</option>
+                    </select>
+                </div>
+                <div class="text-center" style="padding-top: 10px">
+                    <div style="float:left">
+                        <button class="btn btn-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                    </div>
+                    <div style="float:right">
+                        <button class="btn btn-outline-dark" onclick='clearFilter()'>Clear</button>
+                        <button class="btn btn-primary"  onclick='filterPeopleTable()'>Apply</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,23 +77,6 @@
             </tbody>
         </table>
     </div>
-
-    @* Filter Popup Module Form *@
-    <div class="modal fade" id="peopleFilterModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
-    aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header text-center">
-                    <h4 class="modal-title w-100 font-weight-bold">Search People</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
 }
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@

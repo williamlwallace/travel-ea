@@ -28,11 +28,10 @@ $(document).ready(function () {
 /**
  * Adds a person's information to the given table
  *
- * @param {Object} table Table to populate
- * @param {Object} josn json of people
+ * @param {Object} json of people
  */
 function populate(json) {
-    const rows = []
+    const rows = [];
     for (const person of json) {
         const profile = profileRouter.controllers.frontend.ProfileController.index(
             person.userId).url;
