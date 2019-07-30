@@ -343,19 +343,20 @@ function togglePrivacy(guid, newPrivacy) {
                 "Privacy has not been changed",
                 "error");
         } else if (status === 200) {
-            label.innerHTML = newPrivacy ? "Public" : "Private";
-            if (newPrivacy) {
+            label.innerHTML = this.newPrivacy ? "Public" : "Private";
+            if (this.newPrivacy) {
                 label.setAttribute("src", "/assets/images/public.png");
             } else {
                 label.setAttribute("src", "/assets/images/private.png");
             }
             label.setAttribute("onClick",
-                "togglePrivacy(" + guid + "," + !newPrivacy + ")");
+                "togglePrivacy(" + guid + "," + !this.newPrivacy + ")");
             toast("Picture privacy changed!",
-                "The photo is now " + (newPrivacy ? "Public" : "Private"),
+                "The photo is now " + (this.newPrivacy ? "Public" : "Private"),
                 "success");
+            this.newPrivacy = !this.newPrivacy;
         }
-    };
+    }.bind({newPrivacy});
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
     undoRedo.sendAndAppend(reqData);
 }
