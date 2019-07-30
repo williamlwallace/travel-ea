@@ -128,17 +128,14 @@ function populateProfileData(uri) {
         return response.json()
     })
     .then(json => {
-        // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
-        for (let i = 0; i < json.nationalities.length; i++) {
-            // iterates through the list of nationalities and adds them to the dropdown via their id
-            $('#nationalities').picker('set', json.nationalities[i].id);
+        const pickMapper = function(id, item) {
+            $(`#${id}`).picker('set', item.id);
         }
-        for (let i = 0; i < json.passports.length; i++) {
-            $('#passports').picker('set', json.passports[i].id);
-        }
-        for (let i = 0; i < json.travellerTypes.length; i++) {
-            $('#travellerTypes').picker('set', json.travellerTypes[i].id);
-        }
+        //Maps the json data into the pickers
+        json.nationalities.map(pickMapper.bind(null,'nationalities'));
+        json.passports.map(pickMapper.bind(null,'passports'));
+        json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
+
         $('#gender').picker('set', json.gender);
     });
 }

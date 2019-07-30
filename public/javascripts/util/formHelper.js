@@ -82,7 +82,7 @@ function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
  */
 function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
     sort = false) {
-    getHardData(URI, dataKey, capitalise, idKey)
+    return getHardData(URI, dataKey, capitalise, idKey)
     .then(dict => {
         // Now fill the selects
         dropdowns.forEach(element => {
