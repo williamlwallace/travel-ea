@@ -15,3 +15,47 @@ a.marker-link:hover {
 a.black-nav {
     color: black !important;
 }
+
+.destination {
+    padding-top: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.createButton {
+    position: absolute;
+    right: 0px;
+    top: 50%;
+    z-index: 2;
+    margin-right: 25px;
+    cursor: pointer;
+    background-color: #ffffff;
+}
+
+#mainSection {
+    padding: 16px;
+}
+
+.hideCreateDestinationPopOut {
+    width: 0px;
+    display: none;
+}
+
+.showCreateDestinationPopOut {
+    width: 100%;
+    display: Inline;
+}
+
+#createDestinationPopOut {
+    margin-top: 65px;
+}
+
+.col-md-9 {
+    flex-shrink: 1;
+    transition: all 400ms ease;
+}
+
+.col-md-12 {
+    flex-grow: 1;
+    transition: all 400ms ease;
+}
