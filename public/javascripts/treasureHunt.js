@@ -194,8 +194,8 @@ function populateMyTreasureHunts(treasureHunts) {
             treasureHunts[hunt].endDate).toLocaleDateString();
         let huntId = treasureHunts[hunt].id;
 
-        let updateButton = `<button type="button" class="btn btn-popup" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
-        let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
+                    let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                    let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
 
         myHuntTable.row.add(
             [riddle, destination, startDate, endDate, function () {
@@ -233,7 +233,7 @@ function populateAllTreasureHunts(treasureHunts) {
             let formattedStartDate = startDate.toLocaleDateString();
             let formattedEndDate = endDate.toLocaleDateString();
             if (isUserAdmin()) {
-                let updateButton = `<button type="button" class="btn btn-popup" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
                 let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
                 allHuntTable.row.add(
                     [riddle, formattedStartDate,
