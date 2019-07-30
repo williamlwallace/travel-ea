@@ -8,9 +8,15 @@ function onTreasureHuntPageLoad() {
 
     $('#createTreasureHuntButton').click(function () {
         hideErrors("treasureHuntForm");
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const today = year + '-' + month + '-' + day;
         $('#treasureHuntForm')[0].reset();
         $("#treasureHuntModalTitle").html("Create Treasure Hunt");
         $("#treasureHuntModal").modal("show");
+        $('#updateStartDate').val(today);
         $("#treasureHuntModalBtn").unbind("click");
         $("#treasureHuntModalBtn").bind("click", function () {
             getUserId().then(userId => {
@@ -25,7 +31,7 @@ function onTreasureHuntPageLoad() {
  * Retrieves the time zone of the user and sets title attribute of start date and end date columns on both tables
  */
 function setTimeZone() {
-    let offset = new Date().getTimezoneOffset() / 60;
+    const offset = new Date().getTimezoneOffset() / 60;
     let offsetString;
 
     if (offset < 0) {
@@ -108,8 +114,8 @@ function populateUpdateTreasureHunt(id) {
                 showErrors(treasureHunt);
             } else {
                 hideErrors("treasureHuntForm");
-                let startDate = formatDateForInput(treasureHunt.startDate);
-                let endDate = formatDateForInput(treasureHunt.endDate);
+                const startDate = formatDateForInput(treasureHunt.startDate);
+                const endDate = formatDateForInput(treasureHunt.endDate);
 
                 document.getElementById(
                     "updateRiddle").value = treasureHunt.riddle;
@@ -128,10 +134,10 @@ function populateUpdateTreasureHunt(id) {
  * @returns {string} String date in format of yyyy-mm-dd
  */
 function formatDateForInput(date) {
-    let dateList = date.toString().split(",");
-    let day = dateList[2].padStart(2, "0");
-    let month = dateList[1].padStart(2, "0");
-    let year = dateList[0].padStart(4, "0");
+    const dateList = date.toString().split(",");
+    const day = dateList[2].padStart(2, "0");
+    const month = dateList[1].padStart(2, "0");
+    const year = dateList[0].padStart(4, "0");
 
     return year + "-" + month + "-" + day;
 }
@@ -198,16 +204,16 @@ function populateMyTreasureHunts(treasureHunts) {
     myHuntTable.clear();
     myHuntTable.draw();
     for (let hunt in treasureHunts) {
-        let riddle = treasureHunts[hunt].riddle;
-        let destination = treasureHunts[hunt].destination.name;
-        let startDate = new Date(
+        const riddle = treasureHunts[hunt].riddle;
+        const destination = treasureHunts[hunt].destination.name;
+        const startDate = new Date(
             treasureHunts[hunt].startDate).toLocaleDateString();
-        let endDate = new Date(
+        const endDate = new Date(
             treasureHunts[hunt].endDate).toLocaleDateString();
-        let huntId = treasureHunts[hunt].id;
+        const huntId = treasureHunts[hunt].id;
 
-        let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
-        let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
+        const updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+        const buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
 
         myHuntTable.row.add(
             [riddle, destination, startDate, endDate, function () {
@@ -235,20 +241,21 @@ function populateAllTreasureHunts(treasureHunts) {
     allHuntTable.draw();
 
     for (let hunt in treasureHunts) {
-        let riddle = treasureHunts[hunt].riddle;
-        let startDate = new Date(treasureHunts[hunt].startDate);
-        let endDate = new Date(treasureHunts[hunt].endDate);
-        let huntId = treasureHunts[hunt].id;
+        const riddle = treasureHunts[hunt].riddle;
+        const answer = treasureHunts[hunt].destination.name;
+        const startDate = new Date(treasureHunts[hunt].startDate);
+        const endDate = new Date(treasureHunts[hunt].endDate);
+        const huntId = treasureHunts[hunt].id;
 
         if ((todayDate >= startDate) && (todayDate
             <= endDate)) {
-            let formattedStartDate = startDate.toLocaleDateString();
-            let formattedEndDate = endDate.toLocaleDateString();
+            const formattedStartDate = startDate.toLocaleDateString();
+            const formattedEndDate = endDate.toLocaleDateString();
             if (isUserAdmin()) {
-                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
-                let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
+                const updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                const buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
                 allHuntTable.row.add(
-                    [riddle, formattedStartDate,
+                    [riddle, answer, formattedStartDate,
                         formattedEndDate, function () {
                         return updateButton
                     }, function () {
