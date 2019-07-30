@@ -23,14 +23,20 @@
             <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
             <div style="float: right;">
                 @if(trip.tripDataList.length == 0 || !trip.isPublic) {
-                    <button class="btn btn-secondary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Public</button>
+                    <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
+                        <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>
+                        <label class="custom-control-label" id="tripPrivacy" for="tripPrivacyStatus">Private</label>
+                    </div>
                 } else {
-                    <button class="btn btn-secondary" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>Make Private</button>
+                    <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
+                        <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()' checked>
+                        <label class="custom-control-label" id="tripPrivacy" for="tripPrivacyStatus">Public</label>
+                    </div>
                 }
 
                 @if(trip.tripDataList.length == 0) {
-                    <button class="btn btn-primary" id="createTripButton" style="display: none;" onclick='createTrip("@controllers.backend.routes.TripController.insertTrip()",
-                            "@controllers.frontend.routes.TripController.tripIndex()", @ownerId)'>Create Trip</button>
+                    <button class="btn btn-primary" id="createTripButton" style="display: none;" onclick='createTrip(
+                        "@controllers.frontend.routes.TripController.tripIndex()", @ownerId)'>Create Trip</button>
                 } else{
                     <button class="btn btn-primary" onclick='updateTrip("@controllers.backend.routes.TripController.updateTrip()",
                             "@controllers.frontend.routes.TripController.tripIndex()", @trip.id, @ownerId)'>Update Trip</button>

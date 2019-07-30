@@ -1,7 +1,6 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.ebean.Model;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.CascadeType;
