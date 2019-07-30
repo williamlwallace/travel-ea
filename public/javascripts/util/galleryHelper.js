@@ -333,16 +333,14 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
  */
 function togglePrivacy(guid, newPrivacy) {
     const label = document.getElementById(guid + "privacy");
-    const data = {
-        "isPublic": newPrivacy
-    };
+
     const URL = photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(guid).url;
     const handler = function(status, json) {
         if (status !== 200) {
             toast("Failed to change privacy",
                 "Privacy has not been changed",
                 "error");
-        } else if (status === 200) {
+        } else {
             label.innerHTML = this.newPrivacy ? "Public" : "Private";
             if (this.newPrivacy) {
                 label.setAttribute("src", "/assets/images/public.png");
@@ -357,6 +355,6 @@ function togglePrivacy(guid, newPrivacy) {
             this.newPrivacy = !this.newPrivacy;
         }
     }.bind({newPrivacy});
-    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
