@@ -7,6 +7,7 @@ INSERT INTO User (username, password, salt, admin) VALUES ('tester2@gmail.com', 
 
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'No', 'Smith', '1999-11-05', 'Female');
 
 -- Add countries
 INSERT INTO CountryDefinition (id, name) VALUES
@@ -31,8 +32,11 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 2, 1,'2019-04-22 13:59:00', '2019-04-23 08:00:00');
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 2,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
 
+INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
+
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM TravellerTypeDefinition;
 DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM Destination;

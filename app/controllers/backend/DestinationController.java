@@ -50,7 +50,7 @@ public class DestinationController extends TEABackController {
      * @param request Request containing destination json object as body
      * @return Ok with id of destination on success, badRequest otherwise
      */
-    //@With({Everyone.class, Authenticator.class})
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
@@ -66,7 +66,6 @@ public class DestinationController extends TEABackController {
 
         // Checks if user logged in is not allowed to create dest for userId
         if (!user.admin && !user.id.equals(newDestination.user.id)) {
-            System.out.println("Yeet");
             return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
                 "You do not have permission to create a destination for someone else")));
         }
