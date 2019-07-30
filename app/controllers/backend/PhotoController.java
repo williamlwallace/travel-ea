@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
+import controllers.backend.routes.javascript;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -27,6 +28,7 @@ import models.User;
 import org.joda.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
+import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -74,6 +76,62 @@ public class PhotoController extends TEABackController {
     public Result getPhotoFromPath(String filePath) {
         File file = new File(filePath);
         return ok(file, true);
+    }
+
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
+
+        // Check if user is authorized to perform this action
+        if(!id.equals(currentUserId) && !user.admin) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+        // Get json parameters
+        String bodyText = request.body().asJson().asText();
+        final String photoLocation = bodyText.substring(bodyText.lastIndexOf('/') + 1);
+
+        // Get current profile photo, if any exists
+        return photoRepository.getUserProfilePicture(id).thenComposeAsync(photo -> {
+            // If we are going back to no profile picture
+            if(photoLocation.equals("")) {
+                photo.isPublic = false;
+                photo.isProfile = false;
+                photo.filename = photo.filename.replaceFirst("../user_content/", "");
+                photo.thumbnailFilename = photo.thumbnailFilename.replaceFirst("../user_content/", "");
+                return photoRepository.updatePhoto(photo).thenApplyAsync(returnValue -> ok(Json.toJson(photo.filename)));
+            } else {
+                Photo currentProfile = new Photo();
+                String returnData = "";
+
+                if(photo == null) {
+                    currentProfile.isProfile = true;
+                    currentProfile.userId = id;
+                    currentProfile.uploaded = LocalDateTime.now();
+                } else {
+                    currentProfile = photo;
+                    returnData = photo.filename;
+                }
+
+                // Now update profile picture filename (and add it if necessary)
+                currentProfile.filename = savePath + PHOTO_DIRECTORY + photoLocation;
+                currentProfile.thumbnailFilename = savePath + PHOTO_DIRECTORY + "thumbnails/" + photoLocation;
+                currentProfile.isPublic = true;
+                final String finalisedReturnData = returnData;
+                final Photo finalisedPhoto = currentProfile;
+                // Delete the copy of the photo
+                return photoRepository.deletePhotoByFilename(savePath + PHOTO_DIRECTORY + photoLocation).thenComposeAsync(deleted -> {
+                    if (photo == null) {
+                        return photoRepository.addPhoto(finalisedPhoto)
+                            .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
+                    } else {
+                        return photoRepository.updatePhoto(finalisedPhoto)
+                            .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
+                    }
+                });
+            }
+        });
     }
 
     /**
@@ -215,28 +273,16 @@ public class PhotoController extends TEABackController {
         // Collect all keys from the list to upload
         List<Photo> photosToAdd = photos.stream().map(Pair::getKey).collect(Collectors.toList());
 
+        // If this photo is going to be added as profile picture, return the name of it
         if (userToRemoveProfilePhoto > 0) {
-            return photoRepository.clearProfilePhoto(userToRemoveProfilePhoto)
-                .thenApplyAsync(fileNamesPair -> {
-                    if (fileNamesPair != null) {
-                        File thumbFile = new File(fileNamesPair.getKey());
-                        File mainFile = new File(fileNamesPair.getValue());
-                        // Mark the files for deletion
-                        if (!thumbFile.delete()) {
-                            // If file fails to delete immediately,
-                            // mark file for deletion when VM shuts down
-                            thumbFile.deleteOnExit();
-                        }
-                        if (!mainFile.delete()) {
-                            // If file fails to delete immediately,
-                            // mark file for deletion when VM shuts down
-                            mainFile.deleteOnExit();
-                        }
-                    }
-                    photoRepository.addPhotos(photosToAdd);
-                    return created(Json.toJson("File(s) uploaded successfully"));
-
-                });
+            // Do not allow profile-ness of a photo to be set here, the makePhotoProfile endpoint
+            // must be used for this. This is to allow undoing of adding a profile photo
+            for(Photo photo : photosToAdd) {
+                photo.isProfile = false;
+            }
+            photoRepository.addPhotos(photosToAdd);
+            // Return filename of photo that was just added
+            return CompletableFuture.supplyAsync(() -> created(Json.toJson(photosToAdd.get(0).filename.substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1))));
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 photoRepository.addPhotos(photosToAdd);
@@ -521,10 +567,12 @@ public class PhotoController extends TEABackController {
     public Result photoRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("photoRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.PhotoController.upload(),
                 controllers.backend.routes.javascript.PhotoController.togglePhotoPrivacy(),
                 controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
                 controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
-                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos()
+                controllers.backend.routes.javascript.PhotoController.getDestinationPhotos(),
+                controllers.backend.routes.javascript.PhotoController.makePhotoProfile()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

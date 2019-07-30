@@ -1,7 +1,6 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.ebean.Model;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -45,24 +44,6 @@ public class Trip extends BaseModel implements Comparable<Trip> {
             } else if (tripData.departureTime != null) {
                 return tripData.departureTime;
             }
-        }
-
-        return null;
-    }
-
-    /**
-     * Retrieves the first date in a trip and converts to a string format.
-     *
-     * @return The first date found in a string format, or null
-     */
-    public String findFirstTripDate() {
-        LocalDateTime firstDate = findFirstTripDateAsDate();
-
-        if (firstDate != null) {
-            String year = firstDate.toString().substring(0, 4);
-            String month = firstDate.toString().substring(5, 7);
-            String day = firstDate.toString().substring(8, 10);
-            return day + "-" + month + "-" + year;
         }
 
         return null;

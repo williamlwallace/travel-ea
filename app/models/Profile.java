@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.ArrayList;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -71,5 +72,25 @@ public class Profile extends Model {
         LocalDate birthDate = LocalDate
             .parse(dateOfBirth, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         return Period.between(birthDate, LocalDate.now()).getYears();
+    }
+
+    /**
+     * Creates a copy not refrenced
+     *
+     * @return copy of class Profile
+     */
+    public Profile copy() {
+        Profile copy = new Profile();
+        copy.userId = this.userId;
+        copy.firstName = this.firstName;
+        copy.lastName = this.lastName;
+        copy.middleName = this.middleName;
+        copy.dateOfBirth = this.dateOfBirth;
+        copy.creationDate = this.creationDate;
+        copy.gender = this.gender;
+        copy.travellerTypes = new ArrayList<TravellerTypeDefinition>(this.travellerTypes);
+        copy.nationalities = new ArrayList<CountryDefinition>(this.nationalities);
+        copy.passports = new ArrayList<CountryDefinition>(this.passports);
+        return copy;
     }
 }

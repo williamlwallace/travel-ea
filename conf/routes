@@ -91,17 +91,17 @@ DELETE        /api/photo/:id                         controllers.backend.PhotoCo
 
 GET           /api/photo/:id/profile                 controllers.backend.PhotoController.getProfilePicture(id:Long)
 
+PUT           /api/photo/:id/profile                 controllers.backend.PhotoController.makePhotoProfile(request:Request, id:Long)
+
 POST          /api/treasurehunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
 
 GET           /api/treasurehunt                      controllers.backend.TreasureHuntController.getAllTreasureHunts(request:Request)
-
-GET           /api/user/:id/treasurehunt             controllers.backend.TreasureHuntController.getAllUserTreasureHunts(request:Request, id:Long)
 
 GET           /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.getTreasureHuntById(request:Request, id:Long)
 
 PUT           /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.updateTreasureHunt(request:Request, id:Long)
 
-DELETE        /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+PUT           /api/treasurehunt/:id/delete           controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
 

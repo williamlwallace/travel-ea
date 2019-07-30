@@ -1,37 +1,47 @@
-let isAdmin;
-
 /**
  * Sets up the two treasure hunt tables, calls methods to fill the data
- * @param {Number} userId - Id of logged in user
- * @param {Boolean} admin - Whether or not the logged in user is an admin
  */
-function onTreasureHuntPageLoad(userId, admin) {
-    isAdmin = admin;
-    let myTreasureHuntTable = $("#myTreasure").DataTable();
-    let allTreasureHuntTable = $("#allTreasure").DataTable();
-    populateMyTreasureHunts(myTreasureHuntTable, userId);
-    populateAllTreasureHunts(allTreasureHuntTable, userId);
-
+function onTreasureHuntPageLoad() {
+    setTimeZone();
+    populateTreasureHunts();
     fillDestinationDropDown();
+
+    $('#add-treasure-hunt-button').click(function () {
+        $("#createTreasureHuntModal").modal("show");
+    });
+}
+
+/**
+ * Retrieves the time zone of the user and sets title attribute of start date and end date columns on both tables
+ */
+function setTimeZone() {
+    let offset = new Date().getTimezoneOffset() / 60;
+    let offsetString;
+
+    if (offset < 0) {
+        offsetString = "Timezone (UTC" + offset + ")";
+    } else {
+        offsetString = "Timezone (UTC+" + offset + ")";
+    }
+
+    $("#myTHStartDate").attr("title", offsetString);
+    $("#myTHEndDate").attr("title", offsetString);
+    $("#allTHStartDate").attr("title", offsetString);
+    $("#allTHEndDate").attr("title", offsetString);
 }
 
 /**
  * Updates the treasure hunt with given ID, and force table to reload
  * @param {Number} id - ID of the treasure hunt
  * @param {Number} userId - ID of the logged in user
- * @param {Boolean} deletingOther - checking whether updating own hunt or another
  */
 function updateTreasureHunt(id, userId) {
-
-    let myTreasureHuntTable = $("#myTreasure").DataTable();
-    let allTreasureHuntTable = $("#allTreasure").DataTable();
-
     const formData = new FormData(
         document.getElementById("updateTreasureHuntForm"));
+
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
+        ...memo, [pair[0]]: pair[1],
     }), {});
 
     data.destination = {
@@ -53,11 +63,8 @@ function updateTreasureHunt(id, userId) {
                     "danger", 5000);
 
             } else {
-                populateAllTreasureHunts(allTreasureHuntTable, userId);
-                allTreasureHuntTable.draw();
-                populateMyTreasureHunts(myTreasureHuntTable, userId);
-                myTreasureHuntTable.draw();
-
+                document.getElementById("updateTreasureHuntForm").reset();
+                populateTreasureHunts();
                 toast("Treasure hunt successfully updated",
                     "Your treasure hunt has been updated",
                     "success");
@@ -74,7 +81,6 @@ function updateTreasureHunt(id, userId) {
  * @param {Number} id - the ID of the treasure hunt
  */
 function populateUpdateTreasureHunt(id) {
-
     fillDestinationDropDown();
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(
         id).url)
@@ -85,14 +91,15 @@ function populateUpdateTreasureHunt(id) {
                 showErrors(treasureHunt);
             } else {
                 hideErrors("updateTreasureHuntForm");
+                let startDate = formatDateForInput(treasureHunt.startDate);
+                let endDate = formatDateForInput(treasureHunt.endDate);
+
                 document.getElementById(
                     "updateRiddle").value = treasureHunt.riddle;
-                document.getElementById(
-                    "updateStartDate").value = treasureHunt.startDate;
                 $('#updateDestinationDropDown').picker('set',
                     treasureHunt.destination.id);
-                document.getElementById(
-                    "updateEndDate").value = treasureHunt.endDate;
+                document.getElementById("updateStartDate").value = startDate;
+                document.getElementById("updateEndDate").value = endDate;
 
                 getUserId().then(userId => {
                     document.getElementById(
@@ -106,125 +113,143 @@ function populateUpdateTreasureHunt(id) {
 }
 
 /**
- * Deletes the treasure hunt with given ID, and forced table to reload
- * @param {Number} id - ID of the treasure hunt
- * @param {Number} userId - ID of the logged in user
- * @param {Boolean} deletingOther - checking whether updating own hunt or another
+ * Formats a date in yyyy,m,d format to populate a date input field
+ * @param date - Date to be formatted
+ * @returns {string} String date in format of yyyy-mm-dd
  */
-function deleteTreasureHunt(id, userId, deletingOther) {
+function formatDateForInput(date) {
+    let dateList = date.toString().split(",");
+    let day = dateList[2].padStart(2, "0");
+    let month = dateList[1].padStart(2, "0");
+    let year = dateList[0];
 
-    let myTreasureHuntTable = $("#myTreasure").DataTable();
-    let allTreasureHuntTable = $("#allTreasure").DataTable();
-
-    _delete(
-        treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
-            id).url)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("otherError").innerHTML = json;
-            } else {
-                if (deletingOther) {
-                    populateAllTreasureHunts(allTreasureHuntTable, userId);
-                    allTreasureHuntTable.draw();
-                } else {
-                    populateMyTreasureHunts(myTreasureHuntTable, userId);
-                    myTreasureHuntTable.draw();
-                }
-            }
-        })
-    })
+    return year + "-" + month + "-" + day;
 }
 
 /**
- * Insert treasure hunts of a particular user into table
- * @param {Object} table - data table object
- * @param {Number} userId - ID of user to retrieve destinations for
+ * Deletes the treasure hunt with given ID, and forced table to reload
+ * @param {Number} id - ID of the treasure hunt
  */
-function populateMyTreasureHunts(table, userId) {
-    table.clear();
-    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllUserTreasureHunts(
-        userId).url)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("otherError").innerHTML = json;
+function deleteTreasureHunt(id) {
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
+    let initialDelete = true;
+    const handler = function(status, json) {
+        if (initialDelete) {
+            if (status !== 200) {
+                toast("Treasure hunt could not be deleted", json, "danger",
+                    5000);
             } else {
-                for (let hunt in json) {
-                    let riddle = json[hunt].riddle;
-                    let destination = json[hunt].destination.name;
-                    let startDate = json[hunt].startDate;
-                    let endDate = json[hunt].endDate;
-                    let huntId = json[hunt].id;
+                toast("Treasure hunt deleted",
+                    "The treasure hunt was successfully deleted.",
+                    "success");
+            }
+            initialDelete = false;
+        }
+        populateTreasureHunts();
+    };
+
+    const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
+    undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Retrieves and sorts all treasure hunts depending if the logged in user owns them.
+ * Calls populating methods passing in sorted treasure hunts.
+ */
+function populateTreasureHunts() {
+    getUserId().then(userId => {
+        get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(userId).url)
+        .then(response => {
+            response.json().then(json => {
+                const myTreasureHunts = [];
+                const otherTreasureHunts = [];
+                for (const hunt in json) {
+                    if (json[hunt].user.id === parseInt(userId)) {
+                        myTreasureHunts.push(json[hunt]);
+                    } else {
+                        otherTreasureHunts.push(json[hunt]);
+                    }
+                }
+                populateMyTreasureHunts(myTreasureHunts);
+                populateAllTreasureHunts(otherTreasureHunts);
+            })
+        })
+    });
+}
+
+/**
+ * Inserts a users treasure hunts into my treasure hunts table
+ * @param {array} treasureHunts - Treasure hunts to insert
+ */
+function populateMyTreasureHunts(treasureHunts) {
+    const myHuntTable = $("#myTreasure").DataTable();
+    myHuntTable.clear();
+    myHuntTable.draw();
+    for (let hunt in treasureHunts) {
+        let riddle = treasureHunts[hunt].riddle;
+        let destination = treasureHunts[hunt].destination.name;
+        let startDate = new Date(
+            treasureHunts[hunt].startDate).toLocaleDateString();
+        let endDate = new Date(
+            treasureHunts[hunt].endDate).toLocaleDateString();
+        let huntId = treasureHunts[hunt].id;
 
                     let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
                     let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
 
-                    table.row.add(
-                        [riddle, destination, startDate, endDate, function () {
-                            return updateButton
-                        }, function () {
-                            return buttonHtml
-                        }]).draw(false);
+        myHuntTable.row.add(
+            [riddle, destination, startDate, endDate, function () {
+                return updateButton
+            }, function () {
+                return buttonHtml
+            }]).draw(false);
 
-                }
-            }
-        })
-    })
+    }
 }
 
 /**
- * Insert all treasure hunts NOT including those of the current user
- * @param {Object} table - data table object
- * @param {Number} userId - ID of current user, who hunts are excluded
+ * Inserts all treasure hunts NOT including those of the current user into the allHuntTable
+ * @param {Array} treasureHunts - Treasure hunts to insert into table
  */
-function populateAllTreasureHunts(table, userId) {
+function populateAllTreasureHunts(treasureHunts) {
+    const allHuntTable = $("#allTreasure").DataTable();
 
     const today = new Date();
-    const date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-'
+        + today.getDate();
     const todayDate = new Date(date);
 
-    table.clear();
-    get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
-        userId).url)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("otherError").innerHTML = json;
-            } else {
-                for (let hunt in json) {
-                    if (json[hunt].user.id !== userId) {
-                        let riddle = json[hunt].riddle;
-                        let startDate = json[hunt].startDate;
-                        let endDate = json[hunt].endDate;
-                        let huntId = json[hunt].id;
-                        let startDateCompare = new Date(startDate);
-                        let endDateCompare = new Date(endDate);
+    allHuntTable.clear();
+    allHuntTable.draw();
 
-                        if((todayDate >= startDateCompare) && (todayDate < endDateCompare)) {
-                            if (isAdmin) {
-                                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Admin Update</button>`;
-                                let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, true)">Admin Delete</button>`
-                                table.row.add(
-                                    [riddle, startDate, endDate, function () {
-                                        return updateButton
-                                    }, function () {
-                                        return buttonHtml
-                                    }]).draw(false);
-                            } else {
-                                table.row.add(
-                                    [riddle, startDate, endDate]).draw(
-                                    false);
-                            }
-                        }
-                    }
-                }
+    for (let hunt in treasureHunts) {
+        let riddle = treasureHunts[hunt].riddle;
+        let startDate = new Date(treasureHunts[hunt].startDate);
+        let endDate = new Date(treasureHunts[hunt].endDate);
+        let huntId = treasureHunts[hunt].id;
+
+        if ((todayDate >= startDate) && (todayDate
+            <= endDate)) {
+            let formattedStartDate = startDate.toLocaleDateString();
+            let formattedEndDate = endDate.toLocaleDateString();
+            if (isUserAdmin()) {
+                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
+                allHuntTable.row.add(
+                    [riddle, formattedStartDate,
+                        formattedEndDate, function () {
+                        return updateButton
+                    }, function () {
+                        return buttonHtml
+                    }]).draw(false);
+            } else {
+                allHuntTable.row.add(
+                    [riddle, formattedStartDate,
+                        formattedEndDate]).draw(
+                    false);
             }
-        })
-    })
+        }
+    }
 }
 
 /**
@@ -250,7 +275,7 @@ function fillDestinationDropDown() {
  * Function creates the treasure hunt from information entered in the form
  * @param {string} url - API URL to add a Treasure Hunt
  * @param {string} redirect - URL of redirect page
- * @param {Long} userId - the id of the user adding the hunt
+ * @param {Number} userId - the id of the user adding the hunt
  */
 function addTreasureHunt(url, redirect, userId) {
     const formData = new FormData(
@@ -261,14 +286,15 @@ function addTreasureHunt(url, redirect, userId) {
         [pair[0]]: pair[1],
     }), {});
 
-    data.destinationId = parseInt(data.destinationId);
     data.user = {
         id: userId
     };
 
     data.destination = {
-        id: data.destinationId
+        id: parseInt(data.destinationId)
     };
+
+    delete data.destinationId;
 
     post(url, data)
     .then(response => {
@@ -277,19 +303,14 @@ function addTreasureHunt(url, redirect, userId) {
             if (response.status !== 200) {
                 showErrors(json);
             } else {
+                document.getElementById("addTreasureHuntForm").reset();
                 toast("Riddle Created!",
                     "The new riddle will be added to the table.",
                     "success");
                 $("#createTreasureHuntModal").modal("hide");
 
-                let myTreasureHuntTable = $("#myTreasure").DataTable();
-                populateMyTreasureHunts(myTreasureHuntTable, userId);
-                myTreasureHuntTable.draw();
+                populateTreasureHunts();
             }
         });
     });
 }
-
-$('#add-treasure-hunt-button').click(function () {
-    $("#createTreasureHuntModal").modal("show");
-});
