@@ -91,12 +91,12 @@ public class TreasureHuntController extends TEABackController {
         return treasureHuntRepository.getTreasureHuntById(id).thenComposeAsync(treasureHunt -> {
             // Check if treasure hunt with given ID exists
             if (treasureHunt == null) {
-                return CompletableFuture.supplyAsync(Results::notFound);
+                return CompletableFuture.supplyAsync(() -> notFound("This treasure hunt does not exist"));
             }
 
             // Check if user is authorized to update treasure hunt
             if (!(user.admin || treasureHunt.user.id.equals(user.id))) {
-                return CompletableFuture.supplyAsync(Results::forbidden);
+                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to update this treasure hunt"));
             }
 
             // Assemble TreasureHunt
@@ -107,7 +107,7 @@ public class TreasureHuntController extends TEABackController {
             return treasureHuntRepository.updateTreasureHunt(updatedTreasureHunt)
                 .thenApplyAsync(rows -> {
                     try {
-                        return ok(sanitizeJson(Json.toJson("Successfully updated treasure hunt")));
+                        return ok(sanitizeJson(Json.toJson(treasureHunt)));
                     } catch (IOException e) {
                         return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
