@@ -60,12 +60,18 @@ public class PhotoController extends TEABackController {
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
-        PhotoRepository photoRepository, play.Environment environment) {
+        PhotoRepository photoRepository) {
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
 
-        savePath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir"))
-            + PUBLIC_DIRECTORY;
+        // Create photo directories if none exist
+        String directoryName = System.getProperty("user.dir");
+        File directory = new File(directoryName + "/public/storage/photos/test/thumbnails");
+        if(!directory.exists()) directory.mkdirs();
+        File directory2 = new File(directoryName + "/public/storage/photos/thumbnails");
+        if(!directory2.exists()) directory2.mkdirs();
+
+        savePath = directoryName + PUBLIC_DIRECTORY;
     }
 
     /**
