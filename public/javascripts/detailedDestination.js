@@ -323,7 +323,7 @@ function closeEdit() {
 }
 
 /**
- * Closes all data related to editing a destination
+ * Opens all data related to editing a destination
  */
 function openEdit() {
     creativeMode = true;
@@ -532,7 +532,7 @@ $('#latitudeDeat').on('input', () => {
 });
 
 /**
- * The longitude field listener. Enforces -90 < longitude < 90
+ * The longitude field listener. Enforces -180 < longitude < 180
  * Moves the marker on the map when the longitude changes
  */
 $('#longitudeDeat').on('input', () => {
