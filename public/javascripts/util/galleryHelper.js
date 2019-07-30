@@ -355,7 +355,6 @@ function togglePrivacy(guid, newPrivacy) {
             this.newPrivacy = !this.newPrivacy;
         }
     }.bind({newPrivacy});
-    console.log("asd");
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }

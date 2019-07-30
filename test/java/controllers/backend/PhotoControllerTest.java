@@ -164,7 +164,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void PhotoToDestLinkingNoPhoto() {
         //create request with no body
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/2")
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/3")
             .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
@@ -197,7 +197,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void deletePhotoToDestNoPhoto() {
         //create request with no body
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/2")
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/3")
             .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
