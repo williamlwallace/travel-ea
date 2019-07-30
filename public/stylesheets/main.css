@@ -324,3 +324,30 @@ pre {
     background-color: #ce7638;
     color: #fffaf1;
 }
+
+.undo-redo {
+    padding: 6px;
+    margin-bottom: auto;
+    margin-top: auto;
+    width: 25px;
+    cursor: pointer;
+    color: rgba(255,255,255, 0.9) !important;
+
+}
+
+.undo-redo:hover {
+    color: rgba(255,255,255, 1) !important;
+
+}
+
+.undo-redo:active {
+    color: #007bff !important;
+
+}
+
+.undo-redo:disabled,
+.undo-redo[disabled]{
+    cursor: auto;
+    color: rgba(255,255,255, 0.4) !important;
+}
+

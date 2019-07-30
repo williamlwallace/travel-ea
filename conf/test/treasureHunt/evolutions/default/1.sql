@@ -1,5 +1,5 @@
--- AUTHOR: Matthew Minish, William Wallace, Ollie Sharplin, what about me?
--- MODIFIED: 9/7/2019 2.00PM
+-- AUTHOR: Matthew Minish, William Wallace, what about me?
+-- MODIFIED: 14/3/2019 2.00PM
 
 -- !Ups
 
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS Profile
 -- Create the country definition table, which is static and defines all possible countries
 CREATE TABLE IF NOT EXISTS CountryDefinition
   (
-    id                INT NOT NULL AUTO_INCREMENT,
+    id                INT NOT NULL,
     name              VARCHAR(64) NOT NULL,
     PRIMARY KEY (id),
     INDEX name_index (name)
@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS Trip
     id                INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -178,6 +179,7 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     guid                  INT NOT NULL AUTO_INCREMENT,
     photo_id              INT NOT NULL,
     destination_id        INT NOT NULL,
+    deleted               BOOLEAN NOT NULL DEFAULT false,
     FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (guid),

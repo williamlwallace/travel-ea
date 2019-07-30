@@ -158,17 +158,6 @@ public class PhotoControllerTest extends ControllersTest {
     }
 
     @Test
-    public void PhotoToDestLinkingDuplicate() {
-        //create request with no body
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
-            .method("PUT")
-            .cookie(adminAuthCookie);
-        //put and check response
-        Result result = route(fakeApp, request);
-        assertEquals(400, result.status());
-    }
-
-    @Test
     public void PhotoToDestLinkingNoPhoto() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/2")
@@ -194,7 +183,7 @@ public class PhotoControllerTest extends ControllersTest {
     public void deletePhotoToDestLink() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/1")
-            .method("DELETE")
+            .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
         Result result = route(fakeApp, request);
@@ -205,7 +194,7 @@ public class PhotoControllerTest extends ControllersTest {
     public void deletePhotoToDestNoPhoto() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/2")
-            .method("DELETE")
+            .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
         Result result = route(fakeApp, request);
@@ -216,7 +205,7 @@ public class PhotoControllerTest extends ControllersTest {
     public void deletePhotoToDestNoDestination() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/3/photo/1")
-            .method("DELETE")
+            .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
         Result result = route(fakeApp, request);

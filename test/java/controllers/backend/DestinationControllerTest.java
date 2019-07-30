@@ -47,6 +47,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     private static final String MAKE_PUBLIC_URL = "/api/destination/makePublic/";
     private static final String DEST_TRAV_TYPE_URL = "/travellertype/";
     private static final String DEST_TRAV_TYPE_REJECT = "/reject";
+    private static final String MAPS_URL = "/api/maps";
 
     /**
      * Runs trips before each test These trips are found in conf/test/(whatever), and should contain
@@ -687,5 +688,18 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void googleMapsHelper() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri(MAPS_URL);
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        assertEquals("Optional[text/javascript]", result.contentType().toString());
     }
 }
