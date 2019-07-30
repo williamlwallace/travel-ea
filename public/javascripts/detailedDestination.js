@@ -1,10 +1,13 @@
+let creativeMode = false;
+let marker;
+
 /**
  * Function to get the relevant destination and fill the HTML
  *
  * @param {number} destinationId  of the destination to display
  */
 function populateDestinationDetails(destinationId) {
-    get(destinationRouter.controllers.backend.DestinationController.getDestination(
+    return get(destinationRouter.controllers.backend.DestinationController.getDestination(
         destinationId).url)
     .then(response => {
         // Read response from server, which will be a json object
@@ -186,11 +189,14 @@ function editDestination(destinationId) {
                                     "danger");
                             }
                         } else if (status === 200) {
-                            populateDestinationDetails(this.destinationId);
-                            $('#editDestinationModal').modal('hide');
-                            toast("Destination Updated",
-                                "Updated Details are now showing",
-                                'success');
+                            populateDestinationDetails(this.destinationId)
+                            .then(() => {
+                                $('#editDestinationModal').modal('hide');
+                                toast("Destination Updated",
+                                    "Updated Details are now showing",
+                                    'success');
+                                closeEdit();
+                            });
                         }
                     }.bind({destinationId});
                     const reqData = new ReqData(requestTypes['UPDATE'], URL,
@@ -217,6 +223,7 @@ function populateEditDestination(destinationId) {
             if (response.status !== 200) {
                 showErrors(destination);
             } else {
+                openEdit();
                 hideErrors("editDestinationForm");
                 document.getElementById("name").value = destination.name;
                 document.getElementById(
@@ -224,9 +231,9 @@ function populateEditDestination(destinationId) {
                 document.getElementById(
                     "district").value = destination.district;
                 document.getElementById(
-                    "latitude").value = destination.latitude;
+                    "latitudeDeat").value = destination.latitude;
                 document.getElementById(
-                    "longitude").value = destination.longitude;
+                    "longitudeDeat").value = destination.longitude;
                 //fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
             }
@@ -301,6 +308,34 @@ $("#upload-gallery-image-button").click(function () {
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
             USERID).url, "link-gallery", "link-selection", DESTINATIONID);
 });
+
+/**
+ * Closes all data related to editing a destination
+ */
+function closeEdit() {
+    creativeMode = false;
+    $('#destDeets').css('display', 'inline');
+    $('#destEdit').css('display', 'none');
+    $("#summary_name").animate({"opacity": "1"}, 700);
+    const latlng = new google.maps.LatLng(parseFloat($('#summary_latitude').html()), parseFloat($('#summary_longitude').html()));
+    marker.setPosition(latlng);
+    map.panTo(latlng);
+}
+
+/**
+ * Closes all data related to editing a destination
+ */
+function openEdit() {
+    creativeMode = true;
+    $('#destDeets').css('display', 'none');
+    $('#destEdit').css('display', 'inline');
+    $("#summary_name").animate({"opacity": "0"}, 700);
+}
+
+/**
+ * Cancel edit button on click listener
+ */
+$("#cancelEditButton").click(closeEdit);
 
 /**
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
@@ -445,7 +480,7 @@ function initMap(destinationId) {
                 };
 
                 // New map
-                let map = new google.maps.Map(document.getElementById('map'),
+                map = new google.maps.Map(document.getElementById('map'),
                     options);
 
                 //Setting public and private marker images, resized
@@ -458,7 +493,7 @@ function initMap(destinationId) {
                     scaledSize: new google.maps.Size(30, 30)
                 };
 
-                let marker = new google.maps.Marker({
+                marker = new google.maps.Marker({
                     position: {
                         lat: destination.latitude,
                         lng: destination.longitude
@@ -472,7 +507,38 @@ function initMap(destinationId) {
                 // Add marker
                 marker.setMap(map);
 
+                google.maps.event.addListener(map, 'click', function(event) {
+                    if (!creativeMode) return;
+                    marker.setPosition(event.latLng);
+
+                    $('#latitudeDeat').val(event.latLng.lat);
+                    $('#longitudeDeat').val(event.latLng.lng);
+                });
             }
         })
     })
 }
+
+/**
+ * The latitude field listener. Enforces -90 < latitude < 90
+ * Moves the marker on the map when the latitude changes
+ */
+$('#latitudeDeat').on('input', () => {
+    if ($('#latitudeDeat').val() > 90) $('#latitudeDeat').val('90');
+    if ($('#latitudeDeat').val() < -90) $('#latitudeDeat').val('-90');
+
+    const latlng = new google.maps.LatLng(parseFloat($('#latitudeDeat').val()), marker.getPosition().lng());
+    marker.setPosition(latlng);
+});
+
+/**
+ * The longitude field listener. Enforces -90 < longitude < 90
+ * Moves the marker on the map when the longitude changes
+ */
+$('#longitudeDeat').on('input', () => {
+    if ($('#longitudeDeat').val() > 180) $('#longitudeDeat').val('180');
+    if ($('#longitudeDeat').val() < -180) $('#longitudeDeat').val('-180');
+
+    const latlng = new google.maps.LatLng(marker.getPosition().lat(), parseFloat($('#longitudeDeat').val()));
+    marker.setPosition(latlng);
+});

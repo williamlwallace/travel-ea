@@ -24,12 +24,21 @@ div.destination {
     top: 4rem;
 }
 
+#destEdit {
+    display: none;
+}
+
+#hideDestDeets {
+    display: none;
+}
+
 /**
  * The destination details on the left
  */
 div.destination-details {
     padding-top: 10px;
     padding-left: 5px;
+    padding-bottom: 10px;
     overflow:auto;
 }
 
