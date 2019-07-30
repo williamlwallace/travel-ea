@@ -1308,6 +1308,37 @@ paths:
         '404':
           description: No such user id found
 
+  '/photo/privacy/{id}':
+    put:
+      tags:
+      - Photos
+      summary: Toggles the privacy of a photo
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the photo being toggled
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully toggled privacy of photo'
+        '401':
+          description: User not authenticated
+        '403':
+          description: User not allowed to perform this operation, not the owner of the photo
+        '404':
+          description: No such photo id found
+
 
   '/photo':
     post:
@@ -1487,18 +1518,18 @@ paths:
 
     get:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Get all Treasure hunts"
       description: "If the user is authorised gets all treasure hunts"
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: All treasure hunts
@@ -1514,25 +1545,25 @@ paths:
   '/treasurehunt/{id}':
     get:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Get a treasure hunts with the given id from the database"
       description: Retrieves the treasure hunt with the id from the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The treasure hunt ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The treasure hunt ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: ""
@@ -1549,10 +1580,51 @@ paths:
         '404':
           description: No treasure hunt found
 
+    put:
+      tags:
+      - Treasure Hunts
+      summary: "Updates a treasure hunt in the database"
+      description: |
+        Updates the treasure hunt with the given ID in the database
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the treasure hunt to update
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        $ref: '#/components/requestBodies/postTreasureHunt'
+      responses:
+        '200':
+          description: Successfully updated treasure hunt
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+                example: 1
+
+        '401':
+          description: Unauthenticated
+        '403':
+          description: You do not have permission to update that treasure hunt
+        '404':
+          description: No such treasure hunt found with that ID
+
   '/treasurehunt/{id}/delete':
     put:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Soft deletes a treasure hunt from the database"
       description: |
         Toggles the soft delete of a treasure hunt in the database, the logged in user must be
@@ -1589,6 +1661,7 @@ paths:
           description: You do not have permission to delete that treasure hunt
         '404':
           description: No such treasure hunt found with that ID
+
 
   '/maps':
     get:
@@ -1706,6 +1779,8 @@ components:
                 format: date
                 description: Date when treasure hunt ends
       description: Treasure hunt object to insert into database.
+
+
 
   schemas:
     User:
@@ -1960,11 +2035,11 @@ components:
     TreasureHunt:
       type: object
       required:
-        - user
-        - destination
-        - riddle
-        - startDate
-        - endDate
+      - user
+      - destination
+      - riddle
+      - startDate
+      - endDate
       properties:
         id:
           type: integer
