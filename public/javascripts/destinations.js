@@ -346,7 +346,7 @@ $('#modalCancelButton').click(function() {
 });
 
 /**
- * Thank the lord and saviour
+ * On click listener for the create destinations cancel button
  */
 $('#CreateDestinationCancelButton').click(function() {
     resetDestinationModal();
