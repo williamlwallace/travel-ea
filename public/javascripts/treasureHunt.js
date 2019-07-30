@@ -51,18 +51,22 @@ function updateTreasureHunt(id) {
 
     const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
         id).url;
+    let initialUpdate = true;
     const handler = function (status, json) {
-        if (status !== 200) {
-            document.getElementById("otherError").innerHTML = json;
-            toast("Treasure hunt could not be updated", json, "danger", 5000);
-        } else {
-            document.getElementById("updateTreasureHuntForm").reset();
-            populateTreasureHunts();
-            toast("Treasure hunt successfully updated",
-                "Your treasure hunt has been updated",
-                "success");
-            $("#updateTreasureHuntModal").modal("hide");
+        if (initialUpdate) {
+            if (status !== 200) {
+                document.getElementById("otherError").innerHTML = json;
+                toast("Treasure hunt could not be updated", json, "danger", 5000);
+            } else {
+                document.getElementById("updateTreasureHuntForm").reset();
+                toast("Treasure hunt successfully updated",
+                    "Your treasure hunt has been updated",
+                    "success");
+                $("#updateTreasureHuntModal").modal("hide");
+            }
+            initialUpdate = false;
         }
+        populateTreasureHunts();
     };
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
     undoRedo.sendAndAppend(reqData);
