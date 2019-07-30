@@ -1,6 +1,7 @@
 -- !Ups
 -- Create test users
 INSERT INTO User (username, password, salt, admin) VALUES ('dave@gmail.com', 'kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=', 'L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=', 1);
+INSERT INTO User (username, password, salt, admin) VALUES ('bob@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
 INSERT INTO User (username, password, salt, admin) VALUES ('tester1@gmail.com', 'password', 'salt', 1);
 INSERT INTO User (username, password, salt, admin) VALUES ('tester2@gmail.com', 'password', 'salt', 1);
 
