@@ -351,7 +351,7 @@ function createTrip(uri, redirect, userId) {
         "tripDataList": tripDataList
     };
 
-    let tripPrivacy = document.getElementById("tripPrivacy").innerHTML;
+    const tripPrivacy = $('#tripPrivacy').html();
     tripData["isPublic"] = tripPrivacy === "Public";
 
     // Setting up undo/redo
@@ -451,7 +451,7 @@ function updateTrip(uri, redirect, tripId, userId) {
         "tripDataList": tripDataList
     };
 
-    let tripPrivacy = document.getElementById("tripPrivacy").innerHTML;
+    const tripPrivacy = $('#tripPrivacy').html();
     tripData["isPublic"] = tripPrivacy === "Public";
 
     const handler = function (status, json) {

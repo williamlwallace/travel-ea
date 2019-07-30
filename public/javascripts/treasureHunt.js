@@ -159,7 +159,7 @@ function populateMyTreasureHunts(table, userId) {
                     let endDate = json[hunt].endDate;
                     let huntId = json[hunt].id;
 
-                    let updateButton = `<button type="button" class="btn btn-popup" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                    let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
                     let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
 
                     table.row.add(
@@ -206,7 +206,7 @@ function populateAllTreasureHunts(table, userId) {
 
                         if((todayDate >= startDateCompare) && (todayDate < endDateCompare)) {
                             if (isAdmin) {
-                                let updateButton = `<button type="button" class="btn btn-popup" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Admin Update</button>`;
+                                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Admin Update</button>`;
                                 let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, true)">Admin Delete</button>`
                                 table.row.add(
                                     [riddle, startDate, endDate, function () {
