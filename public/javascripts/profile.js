@@ -69,22 +69,20 @@ function updateProfile(uri, redirect) {
     addNonExistingCountries(data.nationalities).then(nationalityResult => {
         addNonExistingCountries(data.passports).then(passportResult => {
             // Post json data to given uri
-            put(uri, data)
-            .then(response => {
-                // Read response from server, which will be a json object
-                response.json()
-                .then(json => {
-                    if (response.status !== 200) {
-                        showErrors(json, "updateProfileForm");
-                    } else {
-                        updateProfileData(data);
-                        $("#editProfileModal").modal('hide');
-                        toast("Profile Updated!",
-                            "The updated information will be displayed on your profile.",
-                            "success");
-                    }
-                })
-            });
+            const handler = function(status, json) {
+                if (status !== 200) {
+                    showErrors(json, "updateProfileForm");
+                } else {
+                    updateProfileData(this.data);
+                    $("#editProfileModal").modal('hide');
+                    toast("Profile Updated!",
+                        "The updated information will be displayed on your profile.",
+                        "success");
+                }
+                this.data = json;
+            }.bind({data});
+            const reqData = new ReqData(requestTypes['UPDATE'], uri, handler, data);
+            undoRedo.sendAndAppend(reqData);
         });
     });
 }
@@ -100,7 +98,6 @@ function updateProfileData(data) {
     document.getElementById("summary_age").innerHTML = calc_age(
         Date.parse(data.dateOfBirth));
     //When the promises resolve, fill array data into appropriate fields
-
     arrayToString(data.nationalities, 'name',
         countryRouter.controllers.backend.CountryController.getAllCountries().url)
     .then(out => {
@@ -131,17 +128,14 @@ function populateProfileData(uri) {
         return response.json()
     })
     .then(json => {
-        // Done this way because otherwise the json obbject is formatted really weirdly and you cant access stuff
-        for (let i = 0; i < json.nationalities.length; i++) {
-            // iterates through the list of nationalities and adds them to the dropdown via their id
-            $('#nationalities').picker('set', json.nationalities[i].id);
+        const pickMapper = function(id, item) {
+            $(`#${id}`).picker('set', item.id);
         }
-        for (let i = 0; i < json.passports.length; i++) {
-            $('#passports').picker('set', json.passports[i].id);
-        }
-        for (let i = 0; i < json.travellerTypes.length; i++) {
-            $('#travellerTypes').picker('set', json.travellerTypes[i].id);
-        }
+        //Maps the json data into the pickers
+        json.nationalities.map(pickMapper.bind(null,'nationalities'));
+        json.passports.map(pickMapper.bind(null,'passports'));
+        json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
+
         $('#gender').picker('set', json.gender);
     });
 }
@@ -203,24 +197,38 @@ $(document).ready(function () {
 /**
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
- * @param {string} url the url to post image to
  */
-function uploadProfilePicture(url) {
+function uploadProfilePicture(userId) {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         let formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
 
+        const photoPostURL = photoRouter.controllers.backend.PhotoController.upload().url;
+        const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(userId).url;
+
         // Send request and handle response
-        postMultipart(url, formData).then(response => {
+        postMultipart(photoPostURL, formData).then(response => {
             // Read response from server, which will be a json object
             response.json().then(data => {
                 if (response.status === 201) {
-                    //Sets the profile picture to the new image
-                    getProfilePicture(profilePictureControllerUrl);
-                    toast("Profile Picture Updated!",
-                        "This will be displayed on your profile.", "success");
+                    const photoFilename = "/public/storage/photos/" + data;
+
+                    // Create reversible request to update profile photo to this new photo
+                    const handler = (status, json) => {
+                        if(status === 200) {
+                            getProfilePicture(profilePictureControllerUrl);
+                            toast("Changes saved!",
+                                "Profile picture changes saved successfully.", "success");
+                        } else {
+                            toast("Error",
+                                "Unable to update profile picture", "danger");
+                        }
+                    };
+                    const requestData = new ReqData(requestTypes["UPDATE"], profilePicUpdateURL, handler, photoFilename);
+                    undoRedo.sendAndAppend(requestData);
+
                 }
             });
         });
@@ -302,6 +310,8 @@ function getProfilePicture(url) {
             response.json().then(data => {
                 $("#ProfilePicture").attr("src", data.filename);
             });
+        } else if (response.status === 404) {
+            $("#ProfilePicture").attr("src", "/assets/images/default-profile-picture.jpg");
         }
     });
 }

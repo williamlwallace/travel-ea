@@ -266,7 +266,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-popup mr-auto" data-dismiss="modal" data-toggle="modal" href="#changeProfilePictureModal">Back</button>
-                        <button onclick='uploadProfilePicture("@controllers.backend.routes.PhotoController.upload()")'
+                        <button onclick='uploadProfilePicture("@user.id")'
                                 type="button" class="btn btn-primary">Confirm</button>
                     </div>
                 </div>
@@ -283,8 +283,10 @@
     onPageLoad(@user.id, @canModify);
     fillProfileData(@user.id, "@user.username");
     getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
-    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
-    populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     getProfilePicture("@controllers.backend.routes.PhotoController.getProfilePicture(user.id)");
+    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
+        populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
+    });
+        
 </script>

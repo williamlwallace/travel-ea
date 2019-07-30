@@ -234,7 +234,8 @@ public class TripController extends TEABackController {
             if (trip == null) {
                 return CompletableFuture.supplyAsync(() -> notFound("No such trip exists"));
             } else if (!user.admin && !user.id.equals(trip.userId)) {
-                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to delete a trip for someone else"));
+                return CompletableFuture.supplyAsync(() -> forbidden(
+                    "You do not have permission to delete a trip for someone else"));
             } else {
                 // Toggle deleted boolean and update
                 trip.deleted = !trip.deleted;
@@ -355,6 +356,7 @@ public class TripController extends TEABackController {
                 controllers.backend.routes.javascript.TripController.getAllTrips(),
                 controllers.backend.routes.javascript.TripController.getTrip(),
                 controllers.backend.routes.javascript.TripController.updateTripPrivacy(),
+                controllers.backend.routes.javascript.TripController.updateTrip(),
                 controllers.backend.routes.javascript.TripController.insertTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
