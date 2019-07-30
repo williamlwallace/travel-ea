@@ -8,6 +8,67 @@
 }
 
 @layouts.imageHeader("People", user, "images/people-bg1.jpg", scripts){
+
+    @* Filter *@
+    <div>
+        <button id="filterButton" class="btn btn-secondary" style="float:right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()" >Filter</button>
+    </div>
+    <div>
+        <div class="collapse" id="collapseExample" style="padding-bottom: 15px">
+            <div class="card card-body">
+            <div>Nationality
+                <em class="fas prefix grey-text"></em>
+                <label data-error="wrong" data-success="right" for="form34"></label>
+            </div>
+            <div>
+                <select id="nationalities" class="form-control" data-style="form-control selectpicker">
+                    <option value="">Select Nationalities</option>
+                </select>
+            </div>
+            <br/>
+            <div>Gender
+                <em class="fas prefix grey-text"></em>
+            </div>
+            <div>
+                <select id="gender" class="form-control" data-style="form-control selectpicker">
+                    <option value="">Select</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <br/>
+            <div>Age Range
+                <em class="fas prefix grey-text"></em>
+                <div class="input-group">
+                    <input id="minAge" type="number" class="form-control validate" placeholder="Minimum"/>
+                    <span class="input-group-addon pr-3 pl-3"> - </span>
+                    <input id="maxAge" type="number" class="form-control validate" placeholder="Maximum"/>
+                    <label data-error="wrong" data-success="right"></label>
+                </div>
+            </div>
+            <br/>
+            <div>Type of Traveller
+                <em class="fas prefix grey-text"></em>
+                <label data-error="wrong" data-success="right"></label>
+            </div>
+            <div>
+                <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
+                    <option value="">Select Traveller Type</option>
+                </select>
+            </div>
+            <div class="text-center" style="padding-top: 10px">
+                <div style="float:left">
+                    <button class="btn btn-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                </div>
+                <div style="float:right">
+                    <button class="btn btn-outline-dark" onclick='clearFilter()'>Clear</button>
+                    <button class="btn btn-primary"  onclick='filterPeopleTable()'>Apply</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @* The people table *@
     <div>
         <table id="dtPeople" class="table table-hover table-bordered" cellspacing="0" width="100%">
@@ -37,54 +98,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body mx-3">
-                    <div>Nationality
-                        <em class="fas prefix grey-text"></em>
-                        <label data-error="wrong" data-success="right" for="form34"></label>
-                    </div>
-                    <div>
-                        <select id="nationalities" class="form-control" data-style="form-control selectpicker">
-                            <option value="">Select Nationalities</option>
-                        </select>
-                    </div>
-                    <br/>
-                    <div>Gender
-                        <em class="fas prefix grey-text"></em>
-                    </div>
-                    <div>
-                        <select id="gender" class="form-control" data-style="form-control selectpicker">
-                            <option value="">Select</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    <br/>
-                    <div>Age Range
-                        <em class="fas prefix grey-text"></em>
-                        <div class="input-group">
-                            <input id="minAge" type="number" class="form-control validate" placeholder="Minimum"/>
-                            <span class="input-group-addon pr-3 pl-3"> - </span>
-                            <input id="maxAge" type="number" class="form-control validate" placeholder="Maximum"/>
-                            <label data-error="wrong" data-success="right"></label>
-                        </div>
-                    </div>
-                    <br/>
-                    <div>Type of Traveller
-                        <em class="fas prefix grey-text"></em>
-                        <label data-error="wrong" data-success="right"></label>
-                    </div>
-                    <div>
-                        <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
-                            <option value="">Select Traveller Type</option>
-                        </select>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-center">
-                        <button class="btn btn-popup waves-effect waves-light" data-toggle="modal" data-target="#peopleFilterModal">
-                            Cancel<em class="fas fa-paper-plane-o ml-1"></em></button>
-                        <button class="btn btn-popup waves-effect waves-light" onclick='searchParams()'>Apply<em class="fas fa-paper-plane-o ml-1"></em></button>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>

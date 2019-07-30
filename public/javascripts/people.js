@@ -16,29 +16,8 @@ $(document).ready(function () {
         createdRow: function (row, data, dataIndex) {
             $(row).attr('data-href', data[data.length - 1]);
             $(row).addClass("clickable-row");
-        },
-        dom: "<'row'<'col-sm-12 col-md-2'l><'col-sm-12 col-md-9'bf><'col-sm-12 col-md-1'B>>"
-            +
-            "<'row'<'col-sm-12'tr>>" +
-            "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
-        buttons: [
-            {
-                text: 'Filter',
-                action: function (e, dt, node, config) {
-                    $('#peopleFilterModal').modal('toggle');
-                }
-            },
-            {
-                text: 'Clear Filter',
-                action: function (e, dt, node, config) {
-                    $('#gender').val('');
-                    $('#minAge').val(null);
-                    $('#maxAge').val(null);
-                    table.populateTable();
-                }
-            }
-        ]
-    }
+        }
+    };
     const getURL = profileRouter.controllers.backend.ProfileController.searchProfilesJson().url;
     table = new EATable('dtPeople', tableModal, getURL, populate, showErrors);
     table.initRowClicks(function() {
@@ -94,7 +73,7 @@ function getNationalityAndTravellerStrings(people) {
 /**
  * Filters the table with filtered results
  */
-function searchParams() {
+function filterPeopleTable() {
     let nationalityId = document.getElementById(
         'nationalities').options[document.getElementById(
         'nationalities').selectedIndex].value;
@@ -107,6 +86,25 @@ function searchParams() {
     let url = profileRouter.controllers.backend.ProfileController.searchProfilesJson(
         nationalityId, gender, minAge, maxAge, travellerTypeId).url;
 
-    table.populateTable(url)
-    $('#peopleFilterModal').modal('toggle');
+    table.populateTable(url);
+}
+
+/**
+ * Clears the filter and repopulates the table
+ */
+function clearFilter() {
+    $('#gender').val('');
+    $('#minAge').val(null);
+    $('#maxAge').val(null);
+    $(document.getElementById('nationalities')).picker('set', "");
+    $(document.getElementById('travellerTypes')).picker('set', "");
+    table.populateTable();
+}
+
+/**
+ * Toggles the filter button between being visible and invisible
+ */
+function toggleFilterButton() {
+    const toggled = $('#filterButton').css("display") === "block";
+    $('#filterButton').css("display", toggled ? "none" : "block");
 }
