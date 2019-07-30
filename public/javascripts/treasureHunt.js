@@ -195,7 +195,7 @@ function populateMyTreasureHunts(treasureHunts) {
         let huntId = treasureHunts[hunt].id;
 
                     let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
-                    let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
+                    let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
 
         myHuntTable.row.add(
             [riddle, destination, startDate, endDate, function () {

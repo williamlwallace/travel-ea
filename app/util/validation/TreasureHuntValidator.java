@@ -36,7 +36,10 @@ public class TreasureHuntValidator extends Validator {
 
         this.required("riddle", "Riddle");
 
-        if (this.required("startDate", "Start date") && this.required("endDate", "End date")) {
+        boolean validStartDate = this.required("startDate", "Start date");
+        boolean validEndDate = this.required("endDate", "End date");
+
+        if (validEndDate && validStartDate) {
             ObjectMapper mapper = new ObjectMapper();
             TreasureHunt treasureHunt = mapper
                 .readValue(mapper.treeAsTokens(this.form), new TypeReference<TreasureHunt>() {
