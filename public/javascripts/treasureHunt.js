@@ -273,11 +273,9 @@ function fillDestinationDropDown() {
 
 /**
  * Function creates the treasure hunt from information entered in the form
- * @param {string} url - API URL to add a Treasure Hunt
- * @param {string} redirect - URL of redirect page
  * @param {Number} userId - the id of the user adding the hunt
  */
-function addTreasureHunt(url, redirect, userId) {
+function addTreasureHunt(userId) {
     const formData = new FormData(
         document.getElementById("addTreasureHuntForm"));
 
@@ -296,21 +294,24 @@ function addTreasureHunt(url, redirect, userId) {
 
     delete data.destinationId;
 
-    post(url, data)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                showErrors(json);
-            } else {
-                document.getElementById("addTreasureHuntForm").reset();
-                toast("Riddle Created!",
-                    "The new riddle will be added to the table.",
-                    "success");
-                $("#createTreasureHuntModal").modal("hide");
-
-                populateTreasureHunts();
-            }
-        });
-    });
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.insertTreasureHunt().url;
+    const handler = function(status, json) {
+        if (status !== 200) {
+            showErrors(json);
+        } else {
+            document.getElementById("addTreasureHuntForm").reset();
+            toast("Riddle Created!",
+                "The new riddle will be added to the table.",
+                "success");
+            $("#createTreasureHuntModal").modal("hide");
+            populateTreasureHunts();
+        }
+    };
+    const inverseHandler = (status, json) => {
+        if (status === 200) {
+            populateTreasureHunts();
+        }
+    };
+    const reqData = new ReqData(requestTypes["CREATE"], URL, handler, data);
+    undoRedo.sendAndAppend(reqData, inverseHandler);
 }
