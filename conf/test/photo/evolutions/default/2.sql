@@ -1,7 +1,8 @@
 -- !Ups
 
--- Insert a country for testing
-INSERT INTO CountryDefinition (name) VALUES ('Test Country');
+-- Add countries
+INSERT INTO CountryDefinition (id, name) VALUES
+(1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
 
 -- Create test users
 INSERT INTO User (username, password, salt) VALUES ('tester1@gmail.com', 'password', 'salt');

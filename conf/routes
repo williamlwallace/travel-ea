@@ -57,9 +57,7 @@ GET           /api/destination/:id                   controllers.backend.Destina
 
 PUT           /api/destination/:id                   controllers.backend.DestinationController.editDestination(request:Request, id:Long)
 
-PUT           /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.linkPhotoToDest(request:Request, destId:Long, photoId:Long)
-
-DELETE        /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
+PUT           /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
 
 GET           /api/destination/:destId/photo         controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
@@ -104,6 +102,8 @@ GET           /api/treasurehunt/:id                  controllers.backend.Treasur
 PUT           /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.updateTreasureHunt(request:Request, id:Long)
 
 DELETE        /api/treasurehunt/:id                  controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
+
+GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
 
 # ~~~~~~frontend~~~~~~~
 # Start page

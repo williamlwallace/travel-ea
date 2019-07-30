@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.DestinationPhoto;
 import models.Photo;
 import play.db.ebean.EbeanConfig;
 import play.mvc.Result;
@@ -211,4 +212,13 @@ public class PhotoRepository {
             executionContext);
     }
 
+    public CompletableFuture<DestinationPhoto> getDeletedDestPhoto(Long photoId, Long destId) {
+        return supplyAsync(() -> ebeanServer.find(DestinationPhoto.class)
+            .setIncludeSoftDeletes()
+            .where()
+            .eq("photo_id", photoId)
+            .eq("destination_id", destId)
+            .findOneOrEmpty()
+            .orElse(null), executionContext);
+    };
 }

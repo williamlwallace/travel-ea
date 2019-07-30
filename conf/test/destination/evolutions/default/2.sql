@@ -1,7 +1,10 @@
 -- !Ups
 
--- Insert a country for testing
-INSERT INTO CountryDefinition (name) VALUES ('Test Country');
+-- Add countries
+INSERT INTO CountryDefinition (id, name) VALUES
+(1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
+
+INSERT INTO CountryDefinition (id, name) VALUES (496, 'Mongolia');
 
 --Add traveller types for testing
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Test TravellerType 1');
