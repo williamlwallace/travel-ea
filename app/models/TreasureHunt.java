@@ -1,6 +1,5 @@
 package models;
 
-import io.ebean.Model;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -17,7 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
  */
 @Table(name = "TreasureHunt")
 @Entity
-public class TreasureHunt extends Model {
+public class TreasureHunt extends BaseModel {
 
     @Id
     public Long id;
