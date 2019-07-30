@@ -75,7 +75,8 @@ public class TreasureHuntController extends TEABackController {
      * @return 200 on successful update, 404 if no treasure hunt found, 403 if unauthorized
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> updateTreasureHunt(Http.Request request, Long id) throws IOException {
+    public CompletableFuture<Result> updateTreasureHunt(Http.Request request, Long id)
+        throws IOException {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
 
@@ -131,7 +132,6 @@ public class TreasureHuntController extends TEABackController {
                 return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(
                     "No treasure hunt with given ID found")));
             }
-            System.out.println(treasureHunt.riddle);
 
             // Check user owns treasure hunt (or is an admin), otherwise return 403 FORBIDDEN
             if (!(user.admin || treasureHunt.user.id.equals(user.id))) {
@@ -141,8 +141,6 @@ public class TreasureHuntController extends TEABackController {
 
             // Update treasure hunt deleted status and update database
             treasureHunt.deleted = !treasureHunt.deleted;
-
-            System.out.println(treasureHunt.deleted);
 
             return treasureHuntRepository.updateTreasureHunt(treasureHunt).thenApplyAsync(rows ->
                 ok(Json.toJson(treasureHunt.id))
@@ -154,14 +152,17 @@ public class TreasureHuntController extends TEABackController {
      * Gets a treasure hunt with a given id. Returns a json with treasure hunt object.
      *
      * @param request Http request containing user cookie
-     * @param getId ID of wanted treasure hunt
+     * @param id ID of wanted treasure hunt
      * @return OK with a treasure hunt, notFound if treasure hunt does not exist
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getTreasureHuntById(Http.Request request, Long getId) {
-        return treasureHuntRepository.getTreasureHuntById(getId).thenApplyAsync(treasureHunt -> {
+    public CompletableFuture<Result> getTreasureHuntById(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        return treasureHuntRepository.getTreasureHuntById(id).thenApplyAsync(treasureHunt -> {
             if (treasureHunt == null) {
-                return notFound(Json.toJson(getId));
+                return notFound("No treasure hunt found with matching ID");
+            } else if (!(user.admin || user.id.equals(treasureHunt.user.id))) {
+                return forbidden("You do not have permission to retrieve this treasure hunt");
             } else {
                 try {
                     return ok(sanitizeJson(Json.toJson(treasureHunt)));
@@ -173,48 +174,20 @@ public class TreasureHuntController extends TEABackController {
     }
 
     /**
-     * Gets all treasure hunts in database
+     * Gets all treasure hunts
      *
      * @param request the HTTP request
      * @return JSON object with list of treasure hunts
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTreasureHunts(Http.Request request) {
-        return treasureHuntRepository.getAllTreasureHunts()
-            .thenApplyAsync(hunts -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(hunts)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
-    }
-
-    /**
-     * Attempts to get all user trips for a given userID.
-     *
-     * @param request the HTTP request
-     * @param userId the userID to retrieve trips for
-     * @return JSON object with list if trips that a user has
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserTreasureHunts(Http.Request request, Long userId) {
-        User loggedInUser = request.attrs().get(ActionState.USER);
-        return treasureHuntRepository.getAllUserTreasureHunts(userId)
-            .thenApplyAsync(hunts -> {
-                for (TreasureHunt th : hunts) {
-                    System.out.println(th.riddle + " HI");
-                }
-                if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(hunts)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                } else {
-                    return forbidden();
-                }
-            });
+        return treasureHuntRepository.getAllTreasureHunts().thenApplyAsync(hunts -> {
+            try {
+                return ok(sanitizeJson(Json.toJson(hunts)));
+            } catch (IOException e) {
+                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+            }
+        });
     }
 
     /**
@@ -228,7 +201,6 @@ public class TreasureHuntController extends TEABackController {
                 controllers.backend.routes.javascript.TreasureHuntController.insertTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.getTreasureHuntById(),
                 controllers.backend.routes.javascript.TreasureHuntController.getAllTreasureHunts(),
-                controllers.backend.routes.javascript.TreasureHuntController.getAllUserTreasureHunts(),
                 controllers.backend.routes.javascript.TreasureHuntController.updateTreasureHunt(),
                 controllers.backend.routes.javascript.TreasureHuntController.deleteTreasureHunt()
 

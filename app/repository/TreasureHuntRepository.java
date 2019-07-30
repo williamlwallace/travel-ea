@@ -88,21 +88,6 @@ public class TreasureHuntRepository {
     }
 
     /**
-     * Retrieves all TreasureHunt objects related to a given userId.
-     *
-     * @param userID User to find all hunts for
-     * @return List if TreasureHunt objects with the specified user ID
-     */
-    public CompletableFuture<List<TreasureHunt>> getAllUserTreasureHunts(Long userID) {
-        return supplyAsync(() ->
-            ebeanServer.find(TreasureHunt.class)
-            .where()
-            .eq("user_id", userID)
-            .findList()
-        , executionContext);
-    }
-
-    /**
      * Retrieves a treasure hunt object from the database even if it is soft deleted
      *
      * @param id ID of treasure hunt to retrieve

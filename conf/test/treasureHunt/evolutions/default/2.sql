@@ -15,8 +15,8 @@ INSERT INTO CountryDefinition (name) VALUES ('Test Country');
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 0);
 
 -- Add sample treasure hunts, one the logged in user, the other not
-INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date) VALUES (1, 'Your own Riddle', 1, '2019-05-29', '2019-07-12');
-INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date) VALUES (2, 'A public Riddle', 1, '2019-05-29', '2019-07-12');
+INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date, deleted) VALUES (1, 'Your own Riddle', 1, '2019-05-29', '2019-07-12', false);
+INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date, deleted) VALUES (2, 'A public Riddle', 1, '2019-05-29', '2019-07-12', false);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
