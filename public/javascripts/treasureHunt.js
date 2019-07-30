@@ -51,9 +51,9 @@ function updateTreasureHunt(id) {
 
     const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
         id).url;
-    let initialUpdate = true;
+    const initialUpdate = true;
     const handler = function (status, json) {
-        if (initialUpdate) {
+        if (this.initialUpdate) {
             if (status !== 200) {
                 document.getElementById("otherError").innerHTML = json;
                 toast("Treasure hunt could not be updated", json, "danger", 5000);
@@ -64,10 +64,10 @@ function updateTreasureHunt(id) {
                     "success");
                 $("#updateTreasureHuntModal").modal("hide");
             }
-            initialUpdate = false;
+            this.initialUpdate = false;
         }
         populateTreasureHunts();
-    };
+    }.bind({initialUpdate});
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
     undoRedo.sendAndAppend(reqData);
 }
