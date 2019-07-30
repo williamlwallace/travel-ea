@@ -36,6 +36,7 @@ public class TreasureHuntRepository {
      */
     public CompletableFuture<Long> addTreasureHunt(TreasureHunt treasureHunt) {
         return supplyAsync(() -> {
+            treasureHunt.deleted = false;
             ebeanServer.insert(treasureHunt);
             return treasureHunt.id;
         }, executionContext);
@@ -75,20 +76,6 @@ public class TreasureHuntRepository {
     }
 
     /**
-     * Deletes the TreasureHunt object with the specified ID from the database.
-     *
-     * @param id ID of object to delete
-     * @return Number of objects deleted
-     */
-    public CompletableFuture<Integer> deleteTreasureHunt(Long id) {
-        return supplyAsync(() -> ebeanServer.find(TreasureHunt.class)
-                .where()
-                .eq("id", id)
-                .delete(),
-            executionContext);
-    }
-
-    /**
      * Retrieves all TreasureHunt objects from the database.
      *
      * @return List of TreasureHunt objects
@@ -101,17 +88,17 @@ public class TreasureHuntRepository {
     }
 
     /**
-     * Retrieves all TreasureHunt objects related to a given userId.
+     * Retrieves a treasure hunt object from the database even if it is soft deleted
      *
-     * @param userID User to find all hunts for
-     * @return List if TreasureHunt objects with the specified user ID
+     * @param id ID of treasure hunt to retrieve
+     * @return Treasure hunt object found or null
      */
-    public CompletableFuture<List<TreasureHunt>> getAllUserTreasureHunts(long userID) {
-        return supplyAsync(() ->
-            ebeanServer.find(TreasureHunt.class)
+    public CompletableFuture<TreasureHunt> getDeletedTreasureHunt(Long id) {
+        return supplyAsync(() -> ebeanServer.find(TreasureHunt.class)
+            .setIncludeSoftDeletes()
             .where()
-            .eq("user_id", userID)
-            .findList()
-        , executionContext);
+            .idEq(id)
+            .findOneOrEmpty()
+            .orElse(null), executionContext);
     }
 }

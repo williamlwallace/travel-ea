@@ -1308,6 +1308,37 @@ paths:
         '404':
           description: No such user id found
 
+  '/photo/privacy/{id}':
+    put:
+      tags:
+      - Photos
+      summary: Toggles the privacy of a photo
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the photo being toggled
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully toggled privacy of photo'
+        '401':
+          description: User not authenticated
+        '403':
+          description: User not allowed to perform this operation, not the owner of the photo
+        '404':
+          description: No such photo id found
+
 
   '/photo':
     post:
@@ -1457,7 +1488,7 @@ paths:
         404:
           description: Photo Not Found
 
-  '/treasureHunt':
+  '/treasurehunt':
     post:
       tags:
       - Treasure Hunts
@@ -1485,19 +1516,45 @@ paths:
         '403':
           description: You do not have permission to create a treasure hunt for someone else
 
-  '/treasureHunt/{id}':
     get:
       tags:
       - Treasure Hunts
-      summary: "Get all Treasure hunts for a certain user id"
-      description: "If the user is authorised get all treasure hunts created by the given id, including the answer"
+      summary: "Get all Treasure hunts"
+      description: "If the user is authorised gets all treasure hunts"
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: All treasure hunts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TreasureHunt'
+        '401':
+          description: Unauthorized
+
+  '/treasurehunt/{id}':
+    get:
+      tags:
+      - Treasure Hunts
+      summary: "Get a treasure hunts with the given id from the database"
+      description: Retrieves the treasure hunt with the id from the database
       security:
       - UserToken: []
       parameters:
       - in: path
         name: id
         required: true
-        description: The user ID
+        description: The treasure hunt ID
         schema:
           type: integer
           minimum: 1
@@ -1509,7 +1566,7 @@ paths:
           type: string
       responses:
         '200':
-          description: All treasure hunts of user (may be empty list)
+          description: ""
           content:
             application/json:
               schema:
@@ -1518,15 +1575,60 @@ paths:
                   $ref: '#/components/schemas/TreasureHunt'
         '401':
           description: Unauthorized
+        '403':
+          description: You do not have permission to create a treasure hunt for someone else
         '404':
-          description: User not found
+          description: No treasure hunt found
 
-    delete:
+    put:
       tags:
       - Treasure Hunts
-      summary: "Deletes a treasure hunt from the database"
+      summary: "Updates a treasure hunt in the database"
       description: |
-        Deletes a treasure hunt from the database, the treasure hunt must either be owned by the user or the user must be an admin
+        Updates the treasure hunt with the given ID in the database
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the treasure hunt to update
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        $ref: '#/components/requestBodies/postTreasureHunt'
+      responses:
+        '200':
+          description: Successfully updated treasure hunt
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+                example: 1
+
+        '401':
+          description: Unauthenticated
+        '403':
+          description: You do not have permission to update that treasure hunt
+        '404':
+          description: No such treasure hunt found with that ID
+
+  '/treasurehunt/{id}/delete':
+    put:
+      tags:
+      - Treasure Hunts
+      summary: "Soft deletes a treasure hunt from the database"
+      description: |
+        Toggles the soft delete of a treasure hunt in the database, the logged in user must be
+        the owner of the treasure hunt or an admin
       security:
       - UserToken: []
       parameters:
@@ -1546,12 +1648,20 @@ paths:
       responses:
         '200':
           description: Successfully deleted treasure hunt
+          content:
+            application/json:
+              schema:
+                type: integer
+                minimum: 1
+                example: 1
+
         '401':
           description: Unauthenticated
         '403':
           description: You do not have permission to delete that treasure hunt
         '404':
           description: No such treasure hunt found with that ID
+
 
   '/maps':
     get:
@@ -1669,6 +1779,8 @@ components:
                 format: date
                 description: Date when treasure hunt ends
       description: Treasure hunt object to insert into database.
+
+
 
   schemas:
     User:
@@ -1920,17 +2032,12 @@ components:
           format: ISO date-time
           example: '2019-04-01T23:26:00.000'
 
-    BinaryImageFile:
-      type: string
-      format: binary
-      description: The raw content of the JPEG or PNG image file.
-      example: Raw content of JPEG or PNG image file
-
     TreasureHunt:
       type: object
       required:
-      - userId
-      - destinationId
+      - user
+      - destination
+      - riddle
       - startDate
       - endDate
       properties:
@@ -1951,6 +2058,8 @@ components:
           minimum: 1
           format: int64
           description: References the id of an existing destination
+        riddle:
+          type: string
         startDate:
           type: string
           format: date yyyy/mm/dd
@@ -1959,3 +2068,11 @@ components:
           type: string
           format: date yyyy/mm/dd
           example: '2019-07-12'
+
+    BinaryImageFile:
+      type: string
+      format: binary
+      description: The raw content of the JPEG or PNG image file.
+      example: Raw content of JPEG or PNG image file
+
+

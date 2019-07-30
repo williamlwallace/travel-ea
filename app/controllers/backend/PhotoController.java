@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
 import models.User;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Action;
@@ -60,12 +60,18 @@ public class PhotoController extends TEABackController {
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
-        PhotoRepository photoRepository, play.Environment environment) {
+        PhotoRepository photoRepository) {
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
 
-        savePath = ((environment.isProd()) ? "/home/sengstudent" : System.getProperty("user.dir"))
-            + PUBLIC_DIRECTORY;
+        // Create photo directories if none exist
+        String directoryName = System.getProperty("user.dir");
+        File directory = new File(directoryName + "/public/storage/photos/test/thumbnails");
+        if(!directory.exists()) directory.mkdirs();
+        File directory2 = new File(directoryName + "/public/storage/photos/thumbnails");
+        if(!directory2.exists()) directory2.mkdirs();
+
+        savePath = directoryName + PUBLIC_DIRECTORY;
     }
 
     /**
@@ -84,7 +90,7 @@ public class PhotoController extends TEABackController {
         Long currentUserId = user.id;
 
         // Check if user is authorized to perform this action
-        if(!id.equals(currentUserId) && !user.admin) {
+        if (!id.equals(currentUserId) && !user.admin) {
             return CompletableFuture.supplyAsync(Results::forbidden);
         }
 
@@ -95,17 +101,19 @@ public class PhotoController extends TEABackController {
         // Get current profile photo, if any exists
         return photoRepository.getUserProfilePicture(id).thenComposeAsync(photo -> {
             // If we are going back to no profile picture
-            if(photoLocation.equals("")) {
+            if (photoLocation.equals("")) {
                 photo.isPublic = false;
                 photo.isProfile = false;
                 photo.filename = photo.filename.replaceFirst("../user_content/", "");
-                photo.thumbnailFilename = photo.thumbnailFilename.replaceFirst("../user_content/", "");
-                return photoRepository.updatePhoto(photo).thenApplyAsync(returnValue -> ok(Json.toJson(photo.filename)));
+                photo.thumbnailFilename = photo.thumbnailFilename
+                    .replaceFirst("../user_content/", "");
+                return photoRepository.updatePhoto(photo)
+                    .thenApplyAsync(returnValue -> ok(Json.toJson(photo.filename)));
             } else {
                 Photo currentProfile = new Photo();
                 String returnData = "";
 
-                if(photo == null) {
+                if (photo == null) {
                     currentProfile.isProfile = true;
                     currentProfile.userId = id;
                     currentProfile.uploaded = LocalDateTime.now();
@@ -116,20 +124,23 @@ public class PhotoController extends TEABackController {
 
                 // Now update profile picture filename (and add it if necessary)
                 currentProfile.filename = savePath + PHOTO_DIRECTORY + photoLocation;
-                currentProfile.thumbnailFilename = savePath + PHOTO_DIRECTORY + "thumbnails/" + photoLocation;
+                currentProfile.thumbnailFilename =
+                    savePath + PHOTO_DIRECTORY + "thumbnails/" + photoLocation;
                 currentProfile.isPublic = true;
                 final String finalisedReturnData = returnData;
                 final Photo finalisedPhoto = currentProfile;
                 // Delete the copy of the photo
-                return photoRepository.deletePhotoByFilename(savePath + PHOTO_DIRECTORY + photoLocation).thenComposeAsync(deleted -> {
-                    if (photo == null) {
-                        return photoRepository.addPhoto(finalisedPhoto)
-                            .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
-                    } else {
-                        return photoRepository.updatePhoto(finalisedPhoto)
-                            .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
-                    }
-                });
+                return photoRepository
+                    .deletePhotoByFilename(savePath + PHOTO_DIRECTORY + photoLocation)
+                    .thenComposeAsync(deleted -> {
+                        if (photo == null) {
+                            return photoRepository.addPhoto(finalisedPhoto)
+                                .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
+                        } else {
+                            return photoRepository.updatePhoto(finalisedPhoto)
+                                .thenApplyAsync(newId -> ok(Json.toJson(finalisedReturnData)));
+                        }
+                    });
             }
         });
     }
@@ -144,7 +155,6 @@ public class PhotoController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
         Long currentUserId = request.attrs().get(ActionState.USER).id;
-
         // Checks if the photos belong to the user getting them
         if (currentUserId.equals(id)) {
             // get public and private photos
@@ -277,12 +287,14 @@ public class PhotoController extends TEABackController {
         if (userToRemoveProfilePhoto > 0) {
             // Do not allow profile-ness of a photo to be set here, the makePhotoProfile endpoint
             // must be used for this. This is to allow undoing of adding a profile photo
-            for(Photo photo : photosToAdd) {
+            for (Photo photo : photosToAdd) {
                 photo.isProfile = false;
             }
             photoRepository.addPhotos(photosToAdd);
             // Return filename of photo that was just added
-            return CompletableFuture.supplyAsync(() -> created(Json.toJson(photosToAdd.get(0).filename.substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1))));
+            return CompletableFuture.supplyAsync(() -> created(Json.toJson(
+                photosToAdd.get(0).filename
+                    .substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1))));
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 photoRepository.addPhotos(photosToAdd);
@@ -438,16 +450,15 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
-        JsonNode data = request.body().asJson();
-        Boolean isPublic = data.get("isPublic").asBoolean();
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
             Photo existingPhoto = photo;
             if (photo != null) {
-                photo.isPublic = isPublic;
+                photo.isPublic = !photo.isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
-            return photoRepository.updatePhoto(photo).thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
+            return photoRepository.updatePhoto(photo)
+                .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
         });
     }
 
@@ -468,49 +479,47 @@ public class PhotoController extends TEABackController {
                 System.out.println(Json.toJson(deletedPhoto));
                 return destinationRepository.getDestination(destId)
                     .thenComposeAsync(destination -> {
-                    return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
-                        if (deletedPhoto == null) {
-                            if (destination != null) {
-                                if (!destination.isPublic && !destination.user.id
-                                    .equals(userId)) {
-                                    //forbidden if destination is private and user does not own destination
-                                    return CompletableFuture.supplyAsync(Results::forbidden);
+                        return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+                            if (deletedPhoto == null) {
+                                if (destination != null) {
+                                    if (!destination.isPublic && !destination.user.id
+                                        .equals(userId)) {
+                                        //forbidden if destination is private and user does not own destination
+                                        return CompletableFuture.supplyAsync(Results::forbidden);
+                                    }
+                                    if (destination.isPublic && !destination.user.id
+                                        .equals(userId)) {
+                                        //Set destination owner to admin if photo is added from diffrent user
+                                        destinationRepository
+                                            .changeDestinationOwner(destId, MASTER_ADMIN_ID)
+                                            .thenApplyAsync(rows -> rows); //set to master admin
+                                    }
+                                    if (destination.isLinked(photoId)) {
+                                        //if photo is already linked return badrequest
+                                        return CompletableFuture.supplyAsync(Results::badRequest);
+                                    }
+                                    if (photo == null) {
+                                        return CompletableFuture.supplyAsync(Results::notFound);
+                                    }
+                                    destination.destinationPhotos.add(photo);
+                                    return destinationRepository.updateDestination(destination)
+                                        .thenApplyAsync(
+                                            dest -> ok(Json.toJson("Succesfully Updated")));
                                 }
-                                if (destination.isPublic && !destination.user.id
-                                    .equals(userId)) {
-                                    //Set destination owner to admin if photo is added from diffrent user
-                                    destinationRepository
-                                        .changeDestinationOwner(destId, MASTER_ADMIN_ID)
-                                        .thenApplyAsync(rows -> rows); //set to master admin
-                                }
-                                if (destination.isLinked(photoId)) {
-                                    //if photo is already linked return badrequest
-                                    return CompletableFuture.supplyAsync(Results::badRequest);
-                                }
+                                return CompletableFuture.supplyAsync(Results::notFound);
+                            } else {
                                 if (photo == null) {
                                     return CompletableFuture.supplyAsync(Results::notFound);
                                 }
-                                destination.destinationPhotos.add(photo);
-                                return destinationRepository.updateDestination(destination)
-                                    .thenApplyAsync(
-                                        dest -> ok(Json.toJson("Succesfully Updated")));
+                                if (!photo.removeDestination(destId)) {
+                                    return CompletableFuture.supplyAsync(Results::notFound);
+                                }
                             }
-                            return CompletableFuture.supplyAsync(Results::notFound);
-                        } else {
-                            System.out.println("yot");
-                            if (photo == null) {
-                                return CompletableFuture.supplyAsync(Results::notFound);
-                            }
-                            if (!photo.removeDestination(destId)) {
-                                return CompletableFuture.supplyAsync(Results::notFound);
-                            }
-
-                        }
-                        deletedPhoto.deleted = !deletedPhoto.deleted;
-                        return photoRepository.updatePhoto(photo)
-                            .thenApplyAsync(rows -> ok(Json.toJson(deletedPhoto.guid)));
+                            deletedPhoto.deleted = !deletedPhoto.deleted;
+                            return photoRepository.updatePhoto(photo)
+                                .thenApplyAsync(rows -> ok(Json.toJson(deletedPhoto.guid)));
+                        });
                     });
-                });
             });
     }
 
