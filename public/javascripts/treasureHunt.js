@@ -8,9 +8,15 @@ function onTreasureHuntPageLoad() {
 
     $('#createTreasureHuntButton').click(function () {
         hideErrors("treasureHuntForm");
+        const date = new Date();
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const today = year + '-' + month + '-' + day;
         $('#treasureHuntForm')[0].reset();
         $("#treasureHuntModalTitle").html("Create Treasure Hunt");
         $("#treasureHuntModal").modal("show");
+        $('#updateStartDate').val(today);
         $("#treasureHuntModalBtn").unbind("click");
         $("#treasureHuntModalBtn").bind("click", function () {
             getUserId().then(userId => {
@@ -236,6 +242,7 @@ function populateAllTreasureHunts(treasureHunts) {
 
     for (let hunt in treasureHunts) {
         let riddle = treasureHunts[hunt].riddle;
+        let answer = treasureHunts[hunt].destination.name;
         let startDate = new Date(treasureHunts[hunt].startDate);
         let endDate = new Date(treasureHunts[hunt].endDate);
         let huntId = treasureHunts[hunt].id;
@@ -248,7 +255,7 @@ function populateAllTreasureHunts(treasureHunts) {
                 let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
                 let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
                 allHuntTable.row.add(
-                    [riddle, formattedStartDate,
+                    [riddle, answer, formattedStartDate,
                         formattedEndDate, function () {
                         return updateButton
                     }, function () {

@@ -54,6 +54,9 @@
                     <thead>
                         <tr>
                             <th class="th-sm">Riddle</th>
+                            @if(user.admin) {
+                                <th class="th-sm">Answer</th>
+                            }
                             <th class="th-sm" id="allTHStartDate" title="">Start Date</th>
                             <th class="th-sm" id="allTHEndDate" title="">End Date</th>
                             @if(user.admin) {
