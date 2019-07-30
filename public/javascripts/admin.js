@@ -63,14 +63,21 @@ function deleteUser(button, tableAPI, id) {
  */
 function toggleAdmin(button, tableAPI, id) {
     const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
+    const initialToggle = true;
     const handler = function(status, json) {
-        if (status !== 200) {
-            document.getElementById('adminError').innerHTML = json;
-        } else {
-            const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
-            this.button.innerHTML = innerHTML;
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not toggle admin privileges", json, "danger",
+                    5000);
+            } else {
+                toast("Success", "Admin privileges toggled", "success");
+            }
+            this.initialToggle = false;
         }
-    }.bind({button});
+        if (status === 200) {
+            this.button.innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
+        }
+    }.bind({button, initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
