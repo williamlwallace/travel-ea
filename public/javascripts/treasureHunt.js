@@ -6,10 +6,20 @@ function onTreasureHuntPageLoad() {
     populateTreasureHunts();
     fillDestinationDropDown();
 
-    $('#add-treasure-hunt-button').click(function () {
-        $("#createTreasureHuntModal").modal("show");
+    $('#createTreasureHuntButton').click(function () {
+        hideErrors("treasureHuntForm");
+        $('#treasureHuntForm')[0].reset();
+        $("#treasureHuntModalTitle").html("Create Treasure Hunt");
+        $("#treasureHuntModal").modal("show");
+        $("#treasureHuntModalBtn").unbind("click");
+        $("#treasureHuntModalBtn").bind("click", function () {
+            getUserId().then(userId => {
+                addTreasureHunt(userId);
+            });
+        });
+        $("#treasureHuntModalBtn").text('Create');
     });
-}
+};
 
 /**
  * Retrieves the time zone of the user and sets title attribute of start date and end date columns on both tables
@@ -36,7 +46,7 @@ function setTimeZone() {
  */
 function updateTreasureHunt(id) {
     const formData = new FormData(
-        document.getElementById("updateTreasureHuntForm"));
+        document.getElementById("treasureHuntForm"));
 
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
@@ -55,14 +65,14 @@ function updateTreasureHunt(id) {
     const handler = function (status, json) {
         if (this.initialUpdate) {
             if (status !== 200) {
-                document.getElementById("otherError").innerHTML = json;
-                toast("Treasure hunt could not be updated", json, "danger", 5000);
+                hideErrors("treasureHuntForm");
+                showErrors(json);
             } else {
-                document.getElementById("updateTreasureHuntForm").reset();
+                document.getElementById("treasureHuntForm").reset();
                 toast("Treasure hunt successfully updated",
                     "Your treasure hunt has been updated",
                     "success");
-                $("#updateTreasureHuntModal").modal("hide");
+                $("#treasureHuntModal").modal("hide");
             }
             this.initialUpdate = false;
         }
@@ -79,6 +89,16 @@ function updateTreasureHunt(id) {
  */
 function populateUpdateTreasureHunt(id) {
     fillDestinationDropDown();
+    hideErrors("treasureHuntForm");
+    $('#treasureHuntForm')[0].reset();
+    getUserId().then(userId => {
+        $("#treasureHuntModalBtn").unbind("click");
+        $("#treasureHuntModalBtn").bind("click", function() {
+            updateTreasureHunt(id);
+        });
+        $("#treasureHuntModalBtn").text("Update");
+        $("#treasureHuntModalTitle").html("Update Treasure Hunt");
+    });
     get(treasureHuntRouter.controllers.backend.TreasureHuntController.getTreasureHuntById(
         id).url)
     .then(response => {
@@ -87,20 +107,16 @@ function populateUpdateTreasureHunt(id) {
             if (response.status !== 200) {
                 showErrors(treasureHunt);
             } else {
-                hideErrors("updateTreasureHuntForm");
+                hideErrors("treasureHuntForm");
                 let startDate = formatDateForInput(treasureHunt.startDate);
                 let endDate = formatDateForInput(treasureHunt.endDate);
 
                 document.getElementById(
                     "updateRiddle").value = treasureHunt.riddle;
-                $('#updateDestinationDropDown').picker('set',
+                $('#destinationDropDown').picker('set',
                     treasureHunt.destination.id);
                 document.getElementById("updateStartDate").value = startDate;
                 document.getElementById("updateEndDate").value = endDate;
-                document.getElementById(
-                    "updateTreasureHunt").onclick = function () {
-                    updateTreasureHunt(id)
-                }
             }
         })
     })
@@ -115,11 +131,12 @@ function formatDateForInput(date) {
     let dateList = date.toString().split(",");
     let day = dateList[2].padStart(2, "0");
     let month = dateList[1].padStart(2, "0");
-    let year = dateList[0];
+    let year = dateList[0].padStart(4, "0");
 
     return year + "-" + month + "-" + day;
 }
 
+/**
 /**
  * Deletes the treasure hunt with given ID, and forced table to reload
  * @param {Number} id - ID of the treasure hunt
@@ -189,8 +206,8 @@ function populateMyTreasureHunts(treasureHunts) {
             treasureHunts[hunt].endDate).toLocaleDateString();
         let huntId = treasureHunts[hunt].id;
 
-                    let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
-                    let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
+        let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+        let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
 
         myHuntTable.row.add(
             [riddle, destination, startDate, endDate, function () {
@@ -228,7 +245,7 @@ function populateAllTreasureHunts(treasureHunts) {
             let formattedStartDate = startDate.toLocaleDateString();
             let formattedEndDate = endDate.toLocaleDateString();
             if (isUserAdmin()) {
-                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#treasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
                 let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
                 allHuntTable.row.add(
                     [riddle, formattedStartDate,
@@ -261,7 +278,6 @@ function fillDestinationDropDown() {
                 destinationDict[destination['id']] = destination['name'];
             });
             fillDropDown("destinationDropDown", destinationDict);
-            fillDropDown("updateDestinationDropDown", destinationDict);
         });
     });
 }
@@ -272,7 +288,7 @@ function fillDestinationDropDown() {
  */
 function addTreasureHunt(userId) {
     const formData = new FormData(
-        document.getElementById("addTreasureHuntForm"));
+        document.getElementById("treasureHuntForm"));
 
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -292,13 +308,14 @@ function addTreasureHunt(userId) {
     const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.insertTreasureHunt().url;
     const handler = function(status, json) {
         if (status !== 200) {
+            hideErrors("treasureHuntForm");
             showErrors(json);
         } else {
-            document.getElementById("addTreasureHuntForm").reset();
+            document.getElementById("treasureHuntForm").reset();
             toast("Riddle Created!",
                 "The new riddle will be added to the table.",
                 "success");
-            $("#createTreasureHuntModal").modal("hide");
+            $("#treasureHuntModal").modal("hide");
             populateTreasureHunts();
         }
     };
