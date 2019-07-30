@@ -132,15 +132,20 @@ function formatDateForInput(date) {
  */
 function deleteTreasureHunt(id) {
     const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
+    let initialDelete = true;
     const handler = function(status, json) {
-        if (status !== 200) {
-            toast("Treasure hunt could not be deleted", json, "danger", 5000);
-        } else {
-            populateTreasureHunts();
-            toast("Treasure hunt deleted",
-                "The treasure hunt was successfully deleted.",
-                "success");
+        if (initialDelete) {
+            if (status !== 200) {
+                toast("Treasure hunt could not be deleted", json, "danger",
+                    5000);
+            } else {
+                toast("Treasure hunt deleted",
+                    "The treasure hunt was successfully deleted.",
+                    "success");
+            }
+            initialDelete = false;
         }
+        populateTreasureHunts();
     };
 
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
