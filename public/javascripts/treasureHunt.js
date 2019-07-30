@@ -125,17 +125,21 @@ function formatDateForInput(date) {
  * @param {Number} id - ID of the treasure hunt
  */
 function deleteTreasureHunt(id) {
-    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
-        id).url;
-    const handler = function (status, json) {
-        if (status !== 200) {
-            toast("Treasure hunt could not be deleted", json, "danger", 5000);
-        } else {
-            populateTreasureHunts();
-            toast("Treasure hunt deleted",
-                "The treasure hunt was successfully deleted.",
-                "success");
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
+    let initialDelete = true;
+    const handler = function(status, json) {
+        if (initialDelete) {
+            if (status !== 200) {
+                toast("Treasure hunt could not be deleted", json, "danger",
+                    5000);
+            } else {
+                toast("Treasure hunt deleted",
+                    "The treasure hunt was successfully deleted.",
+                    "success");
+            }
+            initialDelete = false;
         }
+        populateTreasureHunts();
     };
 
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
@@ -185,8 +189,8 @@ function populateMyTreasureHunts(treasureHunts) {
             treasureHunts[hunt].endDate).toLocaleDateString();
         let huntId = treasureHunts[hunt].id;
 
-        let updateButton = `<button type="button" class="btn btn-popup" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
-        let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
+                    let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                    let buttonHtml = `<button type="button" class="btn btn-danger" onclick="deleteTreasureHunt(${huntId}, ${userId}, false)">Delete</button>`;
 
         myHuntTable.row.add(
             [riddle, destination, startDate, endDate, function () {
@@ -224,7 +228,7 @@ function populateAllTreasureHunts(treasureHunts) {
             let formattedStartDate = startDate.toLocaleDateString();
             let formattedEndDate = endDate.toLocaleDateString();
             if (isUserAdmin()) {
-                let updateButton = `<button type="button" class="btn btn-popup" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
+                let updateButton = `<button type="button" class="btn btn-secondary" onclick='$("#updateTreasureHuntModal").modal("show"); populateUpdateTreasureHunt(${huntId})'>Update</button>`;
                 let buttonHtml = `<button type="button"  class="btn btn-danger" onclick="deleteTreasureHunt(${huntId})">Delete</button>`;
                 allHuntTable.row.add(
                     [riddle, formattedStartDate,
