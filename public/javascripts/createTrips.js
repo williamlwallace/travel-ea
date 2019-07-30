@@ -332,11 +332,10 @@ function toggleTripPrivacy() {
 
 /**
  * Creates trip and posts to API
- * @param {string} uri - API URI to add trip
  * @param {string} redirect - URI to redirect page
  * @param {Number} userId - the id of the current user
  */
-function createTrip(uri, redirect, userId) {
+function createTrip(redirect, userId) {
     // Building request body
     $("#createTripButton").prop('disabled', true);
     let listItemArray = Array.of(document.getElementById("list").children);

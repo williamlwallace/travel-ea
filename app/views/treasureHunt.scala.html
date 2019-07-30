@@ -110,12 +110,7 @@
                         <button class="btn btn-secondary waves-effect waves-light" data-toggle="modal" data-target="#treasureHuntModal">
                             Cancel<em class="fas fa-paper-plane-o ml-1"></em>
                         </button>
-                        <button id="treasureHuntBtn" class="btn btn-primary" onclick=
-                        'addTreasureHunt(
-                                "@controllers.backend.routes.TreasureHuntController.insertTreasureHunt()",
-                                "@controllers.frontend.routes.ApplicationController.home()", @user.id)'>
-                            Create
-                        </button>
+                        <button class="btn btn-primary" onclick= 'addTreasureHunt(@user.id)'>Create</button>
                         <label id="otherError"></label>
                     </div>
                 </div>
