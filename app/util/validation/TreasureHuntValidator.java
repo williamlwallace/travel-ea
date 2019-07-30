@@ -53,7 +53,7 @@ public class TreasureHuntValidator extends Validator {
                     this.getErrorResponse().map("The end date cannot be before the start date.", "endDate");
                 }
             } catch (IOException ex) {
-                this.getErrorResponse().map("Invalid dates", "endDate");
+                this.getErrorResponse().map("The start and/or end dates are too far in the future.", "endDate");
             }
         }
 
