@@ -43,9 +43,8 @@ function setTimeZone() {
 /**
  * Updates the treasure hunt with given ID, and force table to reload
  * @param {Number} id - ID of the treasure hunt
- * @param {Number} userId - ID of the logged in user
  */
-function updateTreasureHunt(id, userId) {
+function updateTreasureHunt(id) {
     const formData = new FormData(
         document.getElementById("treasureHuntForm"));
 
@@ -60,25 +59,27 @@ function updateTreasureHunt(id, userId) {
 
     delete data.destinationId;
 
-    put(treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
-        id).url, data)
-    .then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.updateTreasureHunt(
+        id).url;
+    const initialUpdate = true;
+    const handler = function (status, json) {
+        if (this.initialUpdate) {
+            if (status !== 200) {
                 hideErrors("treasureHuntForm");
                 showErrors(json);
             } else {
                 document.getElementById("treasureHuntForm").reset();
-                populateTreasureHunts();
                 toast("Treasure hunt successfully updated",
                     "Your treasure hunt has been updated",
                     "success");
-
                 $("#treasureHuntModal").modal("hide");
             }
-        })
-    });
+            this.initialUpdate = false;
+        }
+        populateTreasureHunts();
+    }.bind({initialUpdate});
+    const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, data);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
@@ -93,7 +94,7 @@ function populateUpdateTreasureHunt(id) {
     getUserId().then(userId => {
         $("#treasureHuntModalBtn").unbind("click");
         $("#treasureHuntModalBtn").bind("click", function() {
-            updateTreasureHunt(id, userId);
+            updateTreasureHunt(id);
         });
         $("#treasureHuntModalBtn").text("Update");
         $("#treasureHuntModalTitle").html("Update Treasure Hunt");
@@ -142,9 +143,9 @@ function formatDateForInput(date) {
  */
 function deleteTreasureHunt(id) {
     const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
-    let initialDelete = true;
+    const initialDelete = true;
     const handler = function(status, json) {
-        if (initialDelete) {
+        if (this.initialDelete) {
             if (status !== 200) {
                 toast("Treasure hunt could not be deleted", json, "danger",
                     5000);
@@ -153,10 +154,10 @@ function deleteTreasureHunt(id) {
                     "The treasure hunt was successfully deleted.",
                     "success");
             }
-            initialDelete = false;
+            this.initialDelete = false;
         }
         populateTreasureHunts();
-    };
+    }.bind({initialDelete});
 
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
@@ -168,7 +169,8 @@ function deleteTreasureHunt(id) {
  */
 function populateTreasureHunts() {
     getUserId().then(userId => {
-        get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(userId).url)
+        get(treasureHuntRouter.controllers.backend.TreasureHuntController.getAllTreasureHunts(
+            userId).url)
         .then(response => {
             response.json().then(json => {
                 const myTreasureHunts = [];
