@@ -267,8 +267,8 @@ public class TreasureHuntControllerTest extends controllers.backend.ControllersT
 
         // Set other required information for a valid treasure hunt
         treasureHunt.riddle = "Init";
-        treasureHunt.startDate = LocalDate.of(2019, 5, 29);
-        treasureHunt.endDate = LocalDate.of(2019, 7, 30);
+        treasureHunt.startDate = LocalDate.of(2031, 5, 29);
+        treasureHunt.endDate = LocalDate.of(2031, 7, 30);
 
         // Convert treasure hunt object to Json
         JsonNode treasureHuntJson = Json.toJson(treasureHunt);
