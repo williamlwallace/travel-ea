@@ -6,9 +6,16 @@ function onTreasureHuntPageLoad() {
     populateTreasureHunts();
     fillDestinationDropDown();
 
-    $('#add-treasure-hunt-button').click(function () {
-        $("#createTreasureHuntModal").modal("show");
-    });
+    $('#createTreasureHuntButton').click(function () {
+        $("#treasureHuntModalTitle").html("Create Treasure Hunt");
+        $("#treasureHuntModal").modal("show");
+        $("#treasureHuntBtn").click(function () {
+            addTreasureHunt(
+                "@controllers.backend.routes.TreasureHuntController.insertTreasureHunt()",
+                "@controllers.frontend.routes.ApplicationController.home()", @user.id)
+
+        })
+            });
 }
 
 /**
@@ -56,12 +63,7 @@ function updateTreasureHunt(id, userId) {
         response.json()
         .then(json => {
             if (response.status !== 200) {
-                document.getElementById(
-                    "otherError").innerHTML = json;
-                toast("Treasure hunt could not be updated",
-                    "There was an error in updating the treasure hunt",
-                    "danger", 5000);
-
+                showErrors(json);
             } else {
                 document.getElementById("updateTreasureHuntForm").reset();
                 populateTreasureHunts();
@@ -279,7 +281,7 @@ function fillDestinationDropDown() {
  */
 function addTreasureHunt(url, redirect, userId) {
     const formData = new FormData(
-        document.getElementById("addTreasureHuntForm"));
+        document.getElementById("treasureHuntForm"));
 
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
@@ -303,11 +305,11 @@ function addTreasureHunt(url, redirect, userId) {
             if (response.status !== 200) {
                 showErrors(json);
             } else {
-                document.getElementById("addTreasureHuntForm").reset();
+                document.getElementById("treasureHuntForm").reset();
                 toast("Riddle Created!",
                     "The new riddle will be added to the table.",
                     "success");
-                $("#createTreasureHuntModal").modal("hide");
+                $("#treasureHuntModal").modal("hide");
 
                 populateTreasureHunts();
             }
