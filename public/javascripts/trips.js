@@ -203,21 +203,21 @@ function createTimeline(trip) {
  */
 function deleteTrip(tripId, userId) {
     const URL = tripRouter.controllers.backend.TripController.deleteTrip(tripId).url;
-    let initialDelete = true;
+    const initialDelete = true;
     const handler = function(status, json) {
-        if (initialDelete) {
+        if (this.initialDelete) {
             if (status !== 200) {
                 toast("Failed to delete trip", json, "danger");
             } else if (initialDelete) {
                 toast("Success", "Trip deleted!", "success");
             }
-            initialDelete = false;
+            this.initialDelete = false;
         }
 
         const getTripURL = tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url;
         tripTable.populateTable(getTripURL);
         $('#trip-modal').modal('hide');
-    };
+    }.bind({initialDelete});
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
