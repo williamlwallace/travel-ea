@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.time.LocalDate;
 import models.TreasureHunt;
 
 /**
@@ -44,6 +45,10 @@ public class TreasureHuntValidator extends Validator {
             TreasureHunt treasureHunt = mapper
                 .readValue(mapper.treeAsTokens(this.form), new TypeReference<TreasureHunt>() {
                 });
+
+            if (LocalDate.now().isAfter(treasureHunt.startDate)) {
+                this.getErrorResponse().map("The start date cannot be before today's date.", "startDate");
+            }
 
             if (treasureHunt.startDate.isAfter(treasureHunt.endDate)) {
                 this.getErrorResponse().map("The end date cannot be before the start date.", "endDate");
