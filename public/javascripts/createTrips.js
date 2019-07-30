@@ -320,25 +320,22 @@ function removeDestinationFromTrip() {
 }
 
 /**
- * Toggles the change destination button text between make public and make private.
+ * Toggles the privacy toggle button text between public and private.
  */
 function toggleTripPrivacy() {
-    let currentPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-
-    if (currentPrivacy === "Make Public") {
-        document.getElementById("tripPrivacyStatus").innerHTML = "Make Private";
-    } else if (currentPrivacy === "Make Private") {
-        document.getElementById("tripPrivacyStatus").innerHTML = "Make Public";
+    if ($('#tripPrivacyStatus').is(':checked')) {
+        $('#tripPrivacyStatus').siblings('label').html('Public');
+    } else {
+        $('#tripPrivacyStatus').siblings('label').html('Private');
     }
 }
 
 /**
  * Creates trip and posts to API
- * @param {string} uri - API URI to add trip
  * @param {string} redirect - URI to redirect page
  * @param {Number} userId - the id of the current user
  */
-function createTrip(uri, redirect, userId) {
+function createTrip(redirect, userId) {
     // Building request body
     $("#createTripButton").prop('disabled', true);
     let listItemArray = Array.of(document.getElementById("list").children);
@@ -353,8 +350,8 @@ function createTrip(uri, redirect, userId) {
         "tripDataList": tripDataList
     };
 
-    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-    tripData["isPublic"] = tripPrivacy === "Make Private";
+    const tripPrivacy = $('#tripPrivacy').html();
+    tripData["isPublic"] = tripPrivacy === "Public";
 
     // Setting up undo/redo
     const URL = tripRouter.controllers.backend.TripController.insertTrip().url;
@@ -453,9 +450,8 @@ function updateTrip(uri, redirect, tripId, userId) {
         "tripDataList": tripDataList
     };
 
-    let tripPrivacy = document.getElementById("tripPrivacyStatus").innerHTML;
-    // Value of 1 for public, 0 for private
-    tripData["isPublic"] = tripPrivacy === "Make Private";
+    const tripPrivacy = $('#tripPrivacy').html();
+    tripData["isPublic"] = tripPrivacy === "Public";
 
     const handler = function (status, json) {
         if (status === 400) {
