@@ -40,7 +40,7 @@ public class TreasureHuntController extends TEABackController {
      * or bad request
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> insertTreasureHunt(Http.Request request) throws IOException {
+    public CompletableFuture<Result> insertTreasureHunt(Http.Request request) {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
@@ -75,8 +75,7 @@ public class TreasureHuntController extends TEABackController {
      * @return 200 on successful update, 404 if no treasure hunt found, 403 if unauthorized
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> updateTreasureHunt(Http.Request request, Long id)
-        throws IOException {
+    public CompletableFuture<Result> updateTreasureHunt(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
 

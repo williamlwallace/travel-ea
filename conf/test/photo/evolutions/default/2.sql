@@ -12,6 +12,7 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 
 -- Add photo
 INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
 
 -- Insert a destination
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1);

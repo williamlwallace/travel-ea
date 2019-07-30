@@ -1,4 +1,7 @@
 let table;
+let activeInfoWindow;
+let newMarker;
+let map;
 
 /**
  * Initializes destination table and calls method to populate
@@ -89,6 +92,9 @@ function addDestination(url, redirect, userId) {
                 [name, type, district, latitude, longitude, country,
                     destination]);
             populateMarkers(userId);
+            //remove temp marker
+            newMarker = undefined;
+            toggleDestinationForm.bind({toggled:true})();
 
         }
     }.bind({userId, data});
@@ -208,6 +214,22 @@ function populateMarkers(userId) {
 }
 
 /**
+ * Like places a marker on the map and like its like gnarly.
+ * @param location
+ * @param icon
+ * @returns {google.maps.Marker}
+ */
+function placeMarker(location, icon) {
+    const marker = new google.maps.Marker({
+        position: location,
+        map: map
+    });
+
+    marker.setIcon(icon);
+    return marker
+}
+
+/**
  * Initialises google maps on destination page and dynamically adds destination markers
  */
 function initMap() {
@@ -217,22 +239,14 @@ function initMap() {
         center: {lat: 2.0, lng: 2.0}
     };
     // New map
-    let map = new google.maps.Map(document.getElementById('map'), options);
+    map = new google.maps.Map(document.getElementById('map'), options);
 
     /**
      * Inserts marker on map
      * @param {JSON} props contain destination coords, destination information, and styling
      */
     function addMarker(props) {
-        let marker = new google.maps.Marker({
-            position: props.coords,
-            map: map
-        });
-        // Check for customicon
-        if (props.iconImage) {
-            // Set icon image
-            marker.setIcon(props.iconImage);
-        }
+        const marker = placeMarker(props.coords, props.iconImage);
         // Check content
         if (props.content) {
             let infoWindow = new google.maps.InfoWindow({
@@ -240,7 +254,9 @@ function initMap() {
             });
             // if content exists then make a info window
             marker.addListener('click', function () {
+                if (activeInfoWindow) activeInfoWindow.close();
                 infoWindow.open(map, marker);
+                activeInfoWindow = infoWindow;
             });
         }
     }
@@ -248,6 +264,69 @@ function initMap() {
     // Loop through markers list and add them to the map
     for (let i = 0; i < markers.length; i++) {
         addMarker(markers[i]);
+    }
+
+    google.maps.event.addListener(map, 'click', function(event) {
+        if (newMarker) {
+            newMarker.setPosition(event.latLng);
+        } else {
+            newMarker = placeMarker(event.latLng);
+        }
+        $('#latitude').val(event.latLng.lat);
+        $('#longitude').val(event.latLng.lng);
+
+        toggleDestinationForm.bind({toggled:false})();
+    });
+}
+
+/**
+ * The latitude field listener. Enforces -90 < latitude < 90
+ * Moves the marker on the map when the latitude changes
+ */
+$('#latitude').on('input', () => {
+    if ($('#latitude').val() > 90) $('#latitude').val('90');
+    if ($('#latitude').val() < -90) $('#latitude').val('-90');
+
+    const latlng = new google.maps.LatLng(parseFloat($('#latitude').val()), newMarker ? newMarker.getPosition().lng() : 0);
+    if (newMarker) {
+        newMarker.setPosition(latlng);
+    } else {
+        newMarker = placeMarker(latlng);
+    }
+
+});
+
+/**
+ * The longitude field listener. Enforces -90 < longitude < 90
+ * Moves the marker on the map when the longitude changes
+ */
+$('#longitude').on('input', () => {
+    if ($('#longitude').val() > 180) $('#longitude').val('180');
+    if ($('#longitude').val() < -180) $('#longitude').val('-180');
+
+    const latlng = new google.maps.LatLng(newMarker ? newMarker.getPosition().lat() : 0, parseFloat($('#longitude').val()));
+    if (newMarker) {
+        newMarker.setPosition(latlng);
+    } else {
+        newMarker = placeMarker(latlng);
+    }
+});
+
+/**
+ * Opens and closes the create new destination form.
+ */
+function toggleDestinationForm() {
+    this.toggled = this.toggled || false;
+    if (this.toggled) {
+        $("#mainSection").attr('class', 'col-md-12');
+        $("#createDestinationPopOut").attr('class', 'col-md-0 hideCreateDestinationPopOut');
+        $("#arrow").attr('class', "fas fa-1x fa-arrow-left");
+        this.toggled = false;
+    } else {
+        $("#mainSection").attr('class', 'col-md-9');
+        $("#createDestinationPopOut").attr('class', 'col-md-3 showCreateDestinationPopOut');
+        $("#arrow").attr('class', "fas fa-1x fa-arrow-right");
+        this.toggled = true;
     }
 }
 
@@ -261,7 +340,25 @@ $('#dtDestination').on('click', 'tbody tr', function () {
 /**
  * Create destination modal form cancel button click handler.
  */
-$('#CreateDestinationCancelButton').click(function() {
+$('#modalCancelButton').click(function() {
     $('#createDestinationModal').modal('hide');
     resetDestinationModal();
+});
+
+/**
+ * On click listener for the create destinations cancel button
+ */
+$('#CreateDestinationCancelButton').click(function() {
+    resetDestinationModal();
+    newMarker.setMap(null);
+    newMarker = undefined;
+});
+
+/**
+ * Destination button on click
+ */
+$('#createNewDestinationButton').click(function() {
+    getUserId().then(userId =>
+        addDestination(destinationRouter.controllers.backend.DestinationController.addNewDestination().url, "/", userId)
+    );
 });

@@ -15,7 +15,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 /**
  * A class that models the Photo database table.
