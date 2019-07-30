@@ -263,7 +263,6 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
 
         // Get result and check it failed
         Result result = route(fakeApp, request);
-        System.out.println("Test");
         assertEquals(BAD_REQUEST, result.status());
     }
 

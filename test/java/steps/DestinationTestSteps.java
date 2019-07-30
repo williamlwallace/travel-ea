@@ -14,21 +14,16 @@ import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 import static steps.GenericTestSteps.nonAdminAuthCookie;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
-import models.TravellerTypeDefinition;
-import models.Trip;
-import models.TripData;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
@@ -66,82 +61,6 @@ public class DestinationTestSteps {
         // Get id of destination
         assertSame(5L, new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class));
-
-        //Create a (private) trip using this destination
-        Trip trip = new Trip();
-        trip.userId = 2L;
-        trip.isPublic = false;
-        List<TripData> tripData = new ArrayList<>();
-
-        TripData tripData1 = new TripData();
-        tripData1.trip = trip;
-        tripData1.position = 1L;
-        tripData1.destination = destination;
-
-        Http.RequestBuilder destRequest = Helpers.fakeRequest()
-            .method(GET)
-            .cookie(adminAuthCookie)
-            .uri("/api/destination/1");
-
-        Result destResult = route(fakeApp, destRequest);
-        assertEquals(OK, destResult.status());
-
-        Destination destination2 = new ObjectMapper()
-            .readValue(Helpers.contentAsString(destResult), Destination.class);
-
-        System.out.println(destination2.id + " " + destination2.name);
-
-        TripData tripData2 = new TripData();
-        tripData2.trip = trip;
-        tripData2.position = 2L;
-        tripData2.destination = destination2;
-
-        tripData.add(tripData1);
-        tripData.add(tripData2);
-
-        trip.tripDataList = tripData;
-
-
-        Http.RequestBuilder tripRequest = Helpers.fakeRequest()
-            .method(POST)
-            .cookie(nonAdminAuthCookie)
-            .bodyJson(Json.toJson(trip))
-            .uri("/api/trip");
-
-        Result tripResult = route(fakeApp, tripRequest);
-        assertEquals(OK, tripResult.status());
-
-//        //Add a traveller type
-//        Http.RequestBuilder requestTraveller = Helpers.fakeRequest()
-//            .method(PUT)
-//            .bodyJson(Json.toJson(destination))
-//            .cookie(nonAdminAuthCookie)
-//            .uri("/api/destination/5/travellertype/1/add");
-//
-//        Result resultTraveller = route(fakeApp, requestTraveller);
-//        assertEquals(OK, resultTraveller.status());
-//
-//        //Check it was added correctly
-//        Http.RequestBuilder requestCheck = Helpers.fakeRequest()
-//            .method(GET)
-//            .cookie(nonAdminAuthCookie)
-//            .uri("/api/destination/" + 5);
-//
-//        Result resultCheck = route(fakeApp, requestCheck);
-//
-//        assertEquals(OK, resultCheck.status());
-//        Destination destinationCheck = new ObjectMapper()
-//            .readValue(Helpers.contentAsString(resultCheck), Destination.class);
-//
-//        boolean found = false;
-//        for (TravellerTypeDefinition travellerType : destinationCheck.travellerTypes) {
-//            if (travellerType.id == 1L) {
-//                found = true;
-//                break;
-//            }
-//        }
-//        assertTrue(found);
-
     }
 
     @When("I make my destination public")
@@ -246,30 +165,4 @@ public class DestinationTestSteps {
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
     }
-
-    @Then("Any private information on my merged destination remains private")
-    public void any_private_information_on_my_merged_destination_remains_private()
-        throws IOException {
-        //Check it was added correctly
-        Http.RequestBuilder requestCheck = Helpers.fakeRequest()
-            .method(GET)
-            .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/" + 6);
-
-        Result resultCheck = route(fakeApp, requestCheck);
-
-        assertEquals(OK, resultCheck.status());
-        Destination destinationCheck = new ObjectMapper()
-            .readValue(Helpers.contentAsString(resultCheck), Destination.class);
-
-        boolean found = false;
-        for (TravellerTypeDefinition travellerType : destinationCheck.travellerTypes) {
-            if (travellerType.id == 1L) {
-                found = true;
-                break;
-            }
-        }
-        assertTrue(found);
-    }
-
 }

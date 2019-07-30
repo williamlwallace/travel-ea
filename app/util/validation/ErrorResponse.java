@@ -38,7 +38,6 @@ public class ErrorResponse {
      * @return json object
      */
     public JsonNode toJson() {
-        System.out.println(this.inputErrors);
         return Json.toJson(this.inputErrors);
     }
 }
