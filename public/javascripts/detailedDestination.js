@@ -4,8 +4,9 @@
  * @param {number} destinationId  of the destination to display
  */
 function populateDestinationDetails(destinationId) {
-    return get(destinationRouter.controllers.backend.DestinationController.getDestination(
-        destinationId).url)
+    return get(
+        destinationRouter.controllers.backend.DestinationController.getDestination(
+            destinationId).url)
     .then(response => {
         // Read response from server, which will be a json object
         return response.json()
@@ -23,11 +24,13 @@ function populateDestinationDetails(destinationId) {
                     "summary_district").innerText = destination.district;
                 document.getElementById(
                     "summary_country").innerText = destination.country.name;
-                checkCountryValidity(destination.country.name, destination.country.id)
-                .then(result =>  {
+                checkCountryValidity(destination.country.name,
+                    destination.country.id)
+                .then(result => {
                     if (result === false) {
                         document.getElementById(
-                            "summary_country").innerText = destination.country.name + ' (invalid)';
+                            "summary_country").innerText = destination.country.name
+                            + ' (invalid)';
                     }
                 });
                 document.getElementById(
@@ -246,17 +249,7 @@ function updateTravellerTypes(destId) {
     let select = document.getElementById("travellerTypesSelect");
     let selected = select.options[select.selectedIndex];
 
-    if (selected.text.includes("Add")) {
-        addTravellerType(destId, selected.value)
-        .then(() => {
-            populateDestinationDetails(destId);
-        });
-    } else {
-        deleteTravellerType(destId, selected.value)
-        .then(() => {
-            populateDestinationDetails(destId);
-        });
-    }
+    toggleTravellerType(destId, selected.value, false);
 }
 
 /**
@@ -313,9 +306,9 @@ function closeEdit() {
     $('#destDeets').css('display', 'inline');
     $('#destEdit').css('display', 'none');
     $("#summary_name").animate({"opacity": "1"}, 700);
+
     map.setNewMarker($('#summary_latitude').html(), $('#summary_longitude').html());
     map.panToNewMarker();
-    
 }
 
 /**
@@ -500,8 +493,12 @@ function initMap(destinationId) {
  * Moves the marker on the map when the latitude changes
  */
 $('#latitudeDeat').on('input', () => {
-    if ($('#latitudeDeat').val() > 90) $('#latitudeDeat').val('90');
-    if ($('#latitudeDeat').val() < -90) $('#latitudeDeat').val('-90');
+    if ($('#latitudeDeat').val() > 90) {
+        $('#latitudeDeat').val('90');
+    }
+    if ($('#latitudeDeat').val() < -90) {
+        $('#latitudeDeat').val('-90');
+    }
 
     map.setNewMarker($('#latitudeDeat').val(), null);
 });
@@ -511,8 +508,13 @@ $('#latitudeDeat').on('input', () => {
  * Moves the marker on the map when the longitude changes
  */
 $('#longitudeDeat').on('input', () => {
-    if ($('#longitudeDeat').val() > 180) $('#longitudeDeat').val('180');
-    if ($('#longitudeDeat').val() < -180) $('#longitudeDeat').val('-180');
+    if ($('#longitudeDeat').val() > 180) {
+        $('#longitudeDeat').val('180');
+    }
+    if ($('#longitudeDeat').val() < -180) {
+        $('#longitudeDeat').val('-180');
+    }
 
     map.setNewMarker(null, $('#longitudeDeat').val());
+
 });

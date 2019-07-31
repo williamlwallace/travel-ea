@@ -114,7 +114,7 @@ public class Destination extends BaseModel {
     }
 
     /**
-     * Checks if traveller type is linked to destination.
+     * Checks if traveller type is pending to be linked or unlinked from a destination
      *
      * @param travellerTypeId id of destination of id
      * @return True if dest is linked to photo
@@ -131,7 +131,18 @@ public class Destination extends BaseModel {
     }
 
     /**
-     * Removes given destination from photo
+     * Adds request to link/unlink traveller type to a destination
+     *
+     * @param travellerTypeId The id of the traveller type to add
+     */
+    public void addPendingTravellerType(Long travellerTypeId) {
+        TravellerTypeDefinition travellerTypeDefinition = new TravellerTypeDefinition();
+        travellerTypeDefinition.id = travellerTypeId;
+        this.travellerTypesPending.add(travellerTypeDefinition);
+    }
+
+    /**
+     * Removes request to link/unlink traveller type to a destination
      *
      * @param travellerTypeId The id of the traveller type to remove
      * @return true if the traveller type was removed, false if not
