@@ -147,8 +147,8 @@ function populateDestinations(json) {
         const name = json[dest].name;
         const type = json[dest].destType;
         const district = json[dest].district;
-        const latitude = json[dest].latitude;
-        const longitude = json[dest].longitude;
+        const latitude = json[dest].latitude.toFixed(2);
+        const longitude = json[dest].longitude.toFixed(2);
         let country = json[dest].country.name;
         const row = checkCountryValidity(json[dest].country.name,
             json[dest].country.id)

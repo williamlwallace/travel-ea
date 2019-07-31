@@ -158,9 +158,9 @@ class DestinationMap {
                                 + '<br>'
                                 + '<b>District:</b> ' + json[dest].district
                                 + '<br>'
-                                + '<b>Latitude:</b> ' + json[dest].latitude
+                                + '<b>Latitude:</b> ' + json[dest].latitude.toFixed(2)
                                 + '<br>'
-                                + '<b>Longitude:</b> ' + json[dest].longitude
+                                + '<b>Longitude:</b> ' + json[dest].longitude.toFixed(2)
                                 + '<br>'
                                 + '<b>Country:</b> ' + json[dest].country.name
                                 + '</p>'

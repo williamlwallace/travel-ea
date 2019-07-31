@@ -34,9 +34,9 @@ function populateDestinationDetails(destinationId) {
                     }
                 });
                 document.getElementById(
-                    "summary_latitude").innerText = destination.latitude;
+                    "summary_latitude").innerText = destination.latitude.toFixed(2);
                 document.getElementById(
-                    "summary_longitude").innerText = destination.longitude;
+                    "summary_longitude").innerText = destination.longitude.toFixed(2);
 
                 if (destination.travellerTypes.length > 0) {
                     let travellerTypes = "";
