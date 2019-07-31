@@ -138,23 +138,26 @@ function createTimeline(trip) {
                 "<a id=\"edit-href\" href=\"\"><button id=\"editTrip\" type=\"button\" class=\"btn btn-primary\">Edit Trip</button></a>");
             $("#edit-button-wrapper").append(editButton);
             $('#edit-href').attr("href",
-                tripRouter.controllers.frontend.TripController.editTrip(trip.id).url);
+                tripRouter.controllers.frontend.TripController.editTrip(
+                    trip.id).url);
 
             $("#deleteTrip").remove();
             const deleteButton = $(
                 "<button id=\"deleteTrip\" type=\"button\" class=\"btn btn-danger\">Delete Trip</button>");
             $("#delete-button-wrapper").append(deleteButton);
-            $("#deleteTrip").click(function() {
+            $("#deleteTrip").click(function () {
                 deleteTrip(trip.id, trip.userId);
             });
         }
 
         const promises = [];
         for (let dest of trip.tripDataList) {
-            promises.push(checkCountryValidity(dest.destination.country.name, dest.destination.country.id)
+            promises.push(checkCountryValidity(dest.destination.country.name,
+                dest.destination.country.id)
             .then(valid => {
-                if(!valid) {
-                    dest.destination.country.name = dest.destination.country.name + ' (invalid)'
+                if (!valid) {
+                    dest.destination.country.name = dest.destination.country.name
+                        + ' (invalid)'
                 }
                 let timeline = `<article>
                     <div class="inner">\n`
@@ -166,7 +169,9 @@ function createTimeline(trip) {
                     </span>\n`
                 }
                 timeline += `<h2>
-                <a href=` + destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(dest.destination.id).url + `>${dest.destination.name}</a><br>
+                <a href=`
+                    + destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                        dest.destination.id).url + `>${dest.destination.name}</a><br>
                 ${dest.destination.country.name}
                 </h2>
                 <p>\n`
@@ -202,9 +207,10 @@ function createTimeline(trip) {
  * @param {Number} userId ID of owner of trip to refresh trips for
  */
 function deleteTrip(tripId, userId) {
-    const URL = tripRouter.controllers.backend.TripController.deleteTrip(tripId).url;
+    const URL = tripRouter.controllers.backend.TripController.deleteTrip(
+        tripId).url;
     const initialDelete = true;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (this.initialDelete) {
             if (status !== 200) {
                 toast("Failed to delete trip", json, "danger");
@@ -214,7 +220,8 @@ function deleteTrip(tripId, userId) {
             this.initialDelete = false;
         }
 
-        const getTripURL = tripRouter.controllers.backend.TripController.getAllUserTrips(userId).url;
+        const getTripURL = tripRouter.controllers.backend.TripController.getAllUserTrips(
+            userId).url;
         tripTable.populateTable(getTripURL);
         $('#trip-modal').modal('hide');
     }.bind({initialDelete});

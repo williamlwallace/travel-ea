@@ -334,8 +334,9 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
 function togglePrivacy(guid, newPrivacy) {
     const label = document.getElementById(guid + "privacy");
 
-    const URL = photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(guid).url;
-    const handler = function(status, json) {
+    const URL = photoRouter.controllers.backend.PhotoController.togglePhotoPrivacy(
+        guid).url;
+    const handler = function (status, json) {
         if (status !== 200) {
             toast("Failed to change privacy",
                 "Privacy has not been changed",
