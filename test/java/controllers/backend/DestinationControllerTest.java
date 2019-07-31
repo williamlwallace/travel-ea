@@ -650,14 +650,14 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void rejectTravellerTypeNotFound() {
+    public void rejectTravellerTypeWhichDoesNotExist() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
             .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "3" + DEST_TRAV_TYPE_REJECT);
 
         Result result = route(fakeApp, request);
-        assertEquals(NOT_FOUND, result.status());
+        assertEquals(OK, result.status());
     }
 
     @Test
