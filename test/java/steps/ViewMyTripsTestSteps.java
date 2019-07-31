@@ -4,11 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.OK;
-import static play.test.Helpers.DELETE;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
-import static steps.GenericTestSteps.authCookie;
+import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 import static steps.GenericTestSteps.userId;
 
@@ -50,7 +49,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
     public void i_have_no_trips() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/user/trips/" + userId);
 
         Result result = route(fakeApp, request);
@@ -60,7 +59,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         for (int i = 0; i < trips.size(); i++) {
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
                 .method(PUT)
-                .cookie(authCookie)
+                .cookie(adminAuthCookie)
                 .uri("/api/trip/" + trips.get(i).get("id") + "/delete");
 
             Result deleteResult = route(fakeApp, deleteRequest);
@@ -68,7 +67,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
 
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/user/trips/" + userId);
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
@@ -114,7 +113,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
             .bodyJson(node)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/trip");
 
         // Get result and check it was successful
@@ -127,7 +126,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to get trips
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/user/trips/" + userId);
 
         // Get result and check it was successful
@@ -140,7 +139,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to view trips
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/user/trips/" + userId);
 
         // Deserialize result to list of trips
@@ -155,7 +154,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to view trips
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/user/trips/" + userId);
 
         // Deserialize result to list of trips
@@ -170,7 +169,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to view trips
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/user/trips/" + userId);
 
         // Deserialize result to list of trips

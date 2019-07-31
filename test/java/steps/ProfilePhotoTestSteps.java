@@ -3,7 +3,7 @@ package steps;
 import static org.apache.commons.io.FileUtils.getFile;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.route;
-import static steps.GenericTestSteps.authCookie;
+import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 
 import akka.stream.javadsl.FileIO;
@@ -15,7 +15,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +52,7 @@ public class ProfilePhotoTestSteps {
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
             .method("POST")
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .bodyMultipart(
                 partsList,
                 play.libs.Files.singletonTemporaryFileCreator(),
@@ -63,11 +62,12 @@ public class ProfilePhotoTestSteps {
         Assert.assertEquals(201, result.status());
 
         // Create a request to set the newly uploaded photo to be the profile
-        String filename = new ObjectMapper().readValue(Helpers.contentAsString(result), String.class);
+        String filename = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
 
         Http.RequestBuilder updateRequest = Helpers.fakeRequest().uri("/api/photo/1/profile")
             .method("PUT")
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .bodyJson(Json.toJson("/public/storage/photos/" + filename));
         Result updateResult = route(fakeApp, updateRequest);
         Assert.assertEquals(200, updateResult.status());
@@ -77,7 +77,7 @@ public class ProfilePhotoTestSteps {
     public void a_thumbnail_is_created() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);
@@ -94,7 +94,7 @@ public class ProfilePhotoTestSteps {
     public void it_is_returned_as_my_profile_picture() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/photo/1/profile");
 
         Result result = route(fakeApp, request);

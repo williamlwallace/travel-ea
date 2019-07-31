@@ -1,6 +1,7 @@
 const MASTER_ADMIN_ID = 1;
 let travellerTypeRequestTable;
 let usersTable;
+let tripsTable;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
@@ -18,7 +19,7 @@ $(document).ready(function () {
     };
     //create tables
     usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
-    const tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips, errorRes);
+    tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips, errorRes);
     travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
     //set table click callbacks callbacks
     usersTable.initButtonClicks({
@@ -63,14 +64,21 @@ function deleteUser(button, tableAPI, id) {
  */
 function toggleAdmin(button, tableAPI, id) {
     const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
+    const initialToggle = true;
     const handler = function(status, json) {
-        if (status !== 200) {
-            document.getElementById('adminError').innerHTML = json;
-        } else {
-            const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
-            this.button.innerHTML = innerHTML;
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not toggle admin privileges", json, "danger",
+                    5000);
+            } else {
+                toast("Success", "Admin privileges toggled", "success");
+            }
+            this.initialToggle = false;
         }
-    }.bind({button});
+        if (status === 200) {
+            this.button.innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
+        }
+    }.bind({button, initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
@@ -152,25 +160,29 @@ function populateTravellerTypeRequests(json) {
  * @param {Number} id - user id
  */
 function deleteTrip(button, tableAPI, id) {
-    _delete(tripRouter.controllers.backend.TripController.deleteTrip(id).url)
-    .then(response => {
-        //need access to response status, so cant return promise
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("adminError").innerHTML = json;
+    const URL = tripRouter.controllers.backend.TripController.deleteTrip(id).url;
+    const initialToggle = true;
+    const handler = function(status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not delete trip", json, "danger", 5000);
             } else {
-                tableAPI.row($(button).parents('tr')).remove().draw(false);
+                toast("Success", "Trip deleted", "success");
             }
-        });
-    });
+            this.initialToggle = false;
+        }
+        if (status === 200) {
+            tripsTable.populateTable();
+        }
+    }.bind({initialToggle});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
  * User creation for admins
  *
- * @param {string} uri - api sign up uri
- * @param redirect the uri to redirect to
+ * @param {string} URL - api sign up uri
  */
 function createUser(URL) {
     const formData = new FormData(document.getElementById("signupForm"));
@@ -186,7 +198,7 @@ function createUser(URL) {
             usersTable.populateTable();
             $('#createUser').modal('hide');
         }
-    }
+    };
     
     const reqData = new ReqData(requestTypes['CREATE'], URL, handler, data);
     //Handler can be used for inverse aswell

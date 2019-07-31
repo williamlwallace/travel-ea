@@ -1,0 +1,39 @@
+#filterItemDiv {
+    padding: 10px;
+    display: inline-block;
+    width:250px;
+    height:90px;
+}
+
+#filterButton {
+    float: right;
+}
+
+#collapseExample {
+    padding-bottom: 15px;
+}
+
+#card-body {
+    display: inline-block;
+    width: -webkit-fill-available;
+}
+
+#gender {
+    width: 150px;
+}
+
+#ageRange {
+    width: 200px;
+}
+
+#buttonDiv {
+    padding-top: 10px;
+}
+
+#closeButton {
+    float: left;
+}
+
+#applyButton {
+    float: right;
+}
