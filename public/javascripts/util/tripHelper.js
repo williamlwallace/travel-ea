@@ -23,6 +23,7 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
     }
 
     const URL = tripRouter.controllers.backend.TripController.updateTripPrivacy().url;
+    const initialToggle = true;
     const handler = function(status, json) {
         if (status === 200) {
             currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
@@ -37,8 +38,12 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
                 document.getElementById("privacy-img").setAttribute("title",
                     "Public");
             }
+            if (this.initialToggle) {
+                toast("Success", "Trip privacy updated", "success");
+                this.initialToggle = false;
+            }
         }
-    };
+    }.bind({initialToggle});
 
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler, tripData);
     undoRedo.sendAndAppend(reqData);

@@ -1,11 +1,13 @@
 -- !Ups
 -- Create test users
 INSERT INTO User (username, password, salt, admin) VALUES ('dave@gmail.com', 'kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=', 'L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=', 1);
+INSERT INTO User (username, password, salt, admin) VALUES ('bob@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
 INSERT INTO User (username, password, salt, admin) VALUES ('tester1@gmail.com', 'password', 'salt', 1);
 INSERT INTO User (username, password, salt, admin) VALUES ('tester2@gmail.com', 'password', 'salt', 1);
 
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'No', 'Smith', '1999-11-05', 'Female');
 
 -- Add countries
 INSERT INTO CountryDefinition (id, name) VALUES
@@ -30,8 +32,11 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 2, 1,'2019-04-22 13:59:00', '2019-04-23 08:00:00');
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 2,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
 
+INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
+
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM TravellerTypeDefinition;
 DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM Destination;

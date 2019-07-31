@@ -1,14 +1,18 @@
 const MASTER_ADMIN_ID = 1;
 let travellerTypeRequestTable;
 let usersTable;
+let tripsTable;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
-    const errorRes = json => { document.getElementById('adminError').innerHTML = json; };
+    const errorRes = json => {
+        document.getElementById('adminError').innerHTML = json;
+    };
     //set table population urls
     const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url;
     const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
-    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(MASTER_ADMIN_ID).url;
+    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+        MASTER_ADMIN_ID).url;
 
     const ttTableModal = {
         createdRow: function (row, data) {
@@ -17,9 +21,12 @@ $(document).ready(function () {
         }
     };
     //create tables
-    usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers, errorRes);
-    const tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips, errorRes);
-    travellerTypeRequestTable = new EATable('dtTravellerTypeModifications', ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
+    usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers,
+        errorRes);
+    tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips,
+        errorRes);
+    travellerTypeRequestTable = new EATable('dtTravellerTypeModifications',
+        ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
     //set table click callbacks callbacks
     usersTable.initButtonClicks({
         2: toggleAdmin,
@@ -49,7 +56,8 @@ function deleteUser(button, tableAPI, id) {
             usersTable.populateTable();
         }
     };
-    const URL = userRouter.controllers.backend.UserController.deleteOtherUser(id).url;
+    const URL = userRouter.controllers.backend.UserController.deleteOtherUser(
+        id).url;
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
@@ -62,15 +70,24 @@ function deleteUser(button, tableAPI, id) {
  * @param {Number} id - user id
  */
 function toggleAdmin(button, tableAPI, id) {
-    const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(id).url;
-    const handler = function(status, json) {
-        if (status !== 200) {
-            document.getElementById('adminError').innerHTML = json;
-        } else {
-            const innerHTML = button.innerHTML.trim().startsWith('Revoke') ? 'Grant admin' : 'Revoke admin';
-            this.button.innerHTML = innerHTML;
+    const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(
+        id).url;
+    const initialToggle = true;
+    const handler = function (status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not toggle admin privileges", json, "danger",
+                    5000);
+            } else {
+                toast("Success", "Admin privileges toggled", "success");
+            }
+            this.initialToggle = false;
         }
-    }.bind({button});
+        if (status === 200) {
+            this.button.innerHTML = button.innerHTML.trim().startsWith('Revoke')
+                ? 'Grant admin' : 'Revoke admin';
+        }
+    }.bind({button, initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
@@ -129,7 +146,7 @@ function populateTrips(json) {
  * Populates the traveller type requests table
  */
 function populateTravellerTypeRequests(json) {
-   const rows = [];
+    const rows = [];
     for (const dest in json) {
         const destId = json[dest].id;
         const destName = json[dest].name;
@@ -141,7 +158,7 @@ function populateTravellerTypeRequests(json) {
             rows.push([destId, destName, modification, username, ttId])
         }
     }
-    return rows   
+    return rows
 }
 
 /**
@@ -152,25 +169,30 @@ function populateTravellerTypeRequests(json) {
  * @param {Number} id - user id
  */
 function deleteTrip(button, tableAPI, id) {
-    _delete(tripRouter.controllers.backend.TripController.deleteTrip(id).url)
-    .then(response => {
-        //need access to response status, so cant return promise
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                document.getElementById("adminError").innerHTML = json;
+    const URL = tripRouter.controllers.backend.TripController.deleteTrip(
+        id).url;
+    const initialToggle = true;
+    const handler = function (status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not delete trip", json, "danger", 5000);
             } else {
-                tableAPI.row($(button).parents('tr')).remove().draw(false);
+                toast("Success", "Trip deleted", "success");
             }
-        });
-    });
+            this.initialToggle = false;
+        }
+        if (status === 200) {
+            tripsTable.populateTable();
+        }
+    }.bind({initialToggle});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
  * User creation for admins
  *
- * @param {string} uri - api sign up uri
- * @param redirect the uri to redirect to
+ * @param {string} URL - api sign up uri
  */
 function createUser(URL) {
     const formData = new FormData(document.getElementById("signupForm"));
@@ -180,14 +202,15 @@ function createUser(URL) {
     }), {});
     const handler = (status, json) => {
         if (status !== 200) {
-            document.getElementById("adminError").innerHTML = JSON.stringify(json);
-            toast('User error', JSON.stringify(json),'danger');
+            document.getElementById("adminError").innerHTML = JSON.stringify(
+                json);
+            toast('User error', JSON.stringify(json), 'danger');
         } else {
             usersTable.populateTable();
             $('#createUser').modal('hide');
         }
-    }
-    
+    };
+
     const reqData = new ReqData(requestTypes['CREATE'], URL, handler, data);
     //Handler can be used for inverse aswell
     undoRedo.sendAndAppend(reqData);
@@ -279,22 +302,7 @@ function showTTSuggestion(destId, ttId) {
                 acceptButton.setAttribute("data-toggle", "modal");
                 acceptButton.setAttribute("data-target", "#modal-destModify");
                 acceptButton.addEventListener('click', function () {
-                    if (document.getElementById("requestType").innerText
-                        === "Remove:") {
-                        deleteTravellerType(destId, ttId)
-                        .then(status => {
-                            if (status === 200) {
-                                removeRow(destId, ttId);
-                            }
-                        });
-                    } else {
-                        addTravellerType(destId, ttId)
-                        .then(status => {
-                            if (status === 200) {
-                                removeRow(destId, ttId);
-                            }
-                        });
-                    }
+                    toggleTravellerType(destId, ttId, true);
                 });
 
                 document.getElementById("ttRequestButtons").appendChild(
@@ -308,34 +316,28 @@ function showTTSuggestion(destId, ttId) {
 }
 
 /**
- * Removes the requested change from the traveller type request table.
- *
- * @param {Number} destId The destination of the request to remove
- * @param {Number} ttId The traveler type id of the request to remove
- */
-function removeRow(destId, ttId) {
-    const element = document.getElementById(destId + "," + ttId);
-    travellerTypeRequestTable.remove(element);
-}
-
-/**
- * Rejects a request made to add or remove a traveller type to a destination.
+ * Toggles the deletion of a request made to add or remove a traveller type to a destination.
  *
  * @param {Number} destId The destination id
  * @param {Number} ttId The traveller type id to add/remove
  */
 function rejectTravellerTypeRequest(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.rejectTravellerType(
-        destId, ttId).url, {})
-    .then(response => {
-        response.json()
-        .then(data => {
-            if (response.status !== 200) {
-                toast("Could not reject request", data, "danger", 5000);
+    const URL = destinationRouter.controllers.backend.DestinationController.toggleRejectTravellerType(
+        destId, ttId).url;
+    const initialToggle = true;
+    const handler = function (status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not reject request", json, "danger", 5000);
             } else {
-                toast("Request successfully rejected", data, "success");
-                removeRow(destId, ttId);
+                toast("Success", json, "success");
             }
-        })
-    })
+            this.initialToggle = false;
+        }
+        if (status === 200) {
+            travellerTypeRequestTable.populateTable();
+        }
+    }.bind({initialToggle});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }

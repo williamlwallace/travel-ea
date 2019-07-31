@@ -17,6 +17,7 @@ import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
+import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
@@ -30,7 +31,8 @@ public class GenericTestSteps extends WithApplication {
 
     protected static Application fakeApp;
     static Database db;
-    static Http.Cookie authCookie;
+    static Http.Cookie adminAuthCookie;
+    static Http.Cookie nonAdminAuthCookie;
 
     static Long userId = 1L;
 
@@ -44,8 +46,11 @@ public class GenericTestSteps extends WithApplication {
         settings.put("db.default.driver", "org.h2.Driver");
         settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
 
-        authCookie = Http.Cookie.builder("JWT-Auth",
+        adminAuthCookie = Cookie.builder("JWT-Auth",
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
+            .withPath("/").build();
+        nonAdminAuthCookie = Cookie.builder("JWT-Auth",
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6Mn0.sGyO22MrNoNrH928NpSK8PJXmE88_DhivVWgCl3faJ4")
             .withPath("/").build();
 
         // Create a fake app that we can query just like we would if it was running
