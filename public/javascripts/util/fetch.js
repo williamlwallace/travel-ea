@@ -85,5 +85,7 @@ if (typeof module !== 'undefined' && module.exports) {
             post,
             _delete
         };
-    } catch (e) {}
-};
+    } catch (e) {
+    }
+}
+;

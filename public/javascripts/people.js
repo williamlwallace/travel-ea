@@ -20,7 +20,7 @@ $(document).ready(function () {
     };
     const getURL = profileRouter.controllers.backend.ProfileController.searchProfilesJson().url;
     table = new EATable('dtPeople', tableModal, getURL, populate, showErrors);
-    table.initRowClicks(function() {
+    table.initRowClicks(function () {
         window.location = this.dataset.href;
     });
 });
@@ -40,11 +40,11 @@ function populate(json) {
         const gender = person.gender;
         const age = calc_age(Date.parse(person.dateOfBirth));
         const row = getNationalityAndTravellerStrings(person)
-            .then(natAndTravArray => {
-                return [firstName, lastName, gender, age,
-                    natAndTravArray[0], natAndTravArray[1],
-                    profile]
-            });
+        .then(natAndTravArray => {
+            return [firstName, lastName, gender, age,
+                natAndTravArray[0], natAndTravArray[1],
+                profile]
+        });
         rows.push(row)
 
     }

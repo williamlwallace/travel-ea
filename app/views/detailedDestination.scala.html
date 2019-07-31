@@ -11,6 +11,7 @@
     <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()"></script>
 }
 
 @layouts.main("Destination", loggedUser, scripts){
@@ -242,9 +243,9 @@
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
+        initMap(@destinationId);
         sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         populateDestinationDetails(@destinationId);
-        initMap(@destinationId);
-        src="@controllers.backend.routes.DestinationController.destinationRoutes()"
+        
 </script>
