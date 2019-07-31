@@ -230,7 +230,7 @@ function populateEditDestination(destinationId) {
                 document.getElementById(
                     "district").value = destination.district;
                 document.getElementById(
-                    "latitudeDeat").value = destination.latitude.toFixed;
+                    "latitudeDeat").value = destination.latitude;
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
                 //fills country picker
