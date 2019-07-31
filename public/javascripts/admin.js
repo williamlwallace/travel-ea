@@ -316,34 +316,28 @@ function showTTSuggestion(destId, ttId) {
 }
 
 /**
- * Removes the requested change from the traveller type request table.
- *
- * @param {Number} destId The destination of the request to remove
- * @param {Number} ttId The traveler type id of the request to remove
- */
-function removeRow(destId, ttId) {
-    const element = document.getElementById(destId + "," + ttId);
-    travellerTypeRequestTable.remove(element);
-}
-
-/**
- * Rejects a request made to add or remove a traveller type to a destination.
+ * Toggles the deletion of a request made to add or remove a traveller type to a destination.
  *
  * @param {Number} destId The destination id
  * @param {Number} ttId The traveller type id to add/remove
  */
 function rejectTravellerTypeRequest(destId, ttId) {
-    put(destinationRouter.controllers.backend.DestinationController.rejectTravellerType(
-        destId, ttId).url, {})
-    .then(response => {
-        response.json()
-        .then(data => {
-            if (response.status !== 200) {
-                toast("Could not reject request", data, "danger", 5000);
+    const URL = destinationRouter.controllers.backend.DestinationController.toggleRejectTravellerType(
+        destId, ttId).url;
+    const initialToggle = true;
+    const handler = function (status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not reject request", json, "danger", 5000);
             } else {
-                toast("Request successfully rejected", data, "success");
-                removeRow(destId, ttId);
+                toast("Success", json, "success");
             }
-        })
-    })
+            this.initialToggle = false;
+        }
+        if (status === 200) {
+            travellerTypeRequestTable.populateTable();
+        }
+    }.bind({initialToggle});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
 }

@@ -306,31 +306,43 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Rejects and removes a pending traveller type change.
+     * Toggles a request for a traveller type to be linked/unlinked from a destination.
      *
      * @param request The request
      * @param destId The id of the destination
      * @param travellerTypeId The id of the traveller type
-     * @return 400 is the request is bad, 404 if the pending change isnt found, 500 if sanitization
-     * fails, 403 if the user cannot edit the destination and 200 if successful
+     * @return ok is traveller type request toggled, forbidden if user not admin, not found if
+     * destination or traveller type does not exist
      */
     @With({Admin.class, Authenticator.class})
-    public CompletableFuture<Result> rejectTravellerType(Http.Request request, Long destId,
+    public CompletableFuture<Result> toggleRejectTravellerType(Http.Request request, Long destId,
         Long travellerTypeId) {
+        User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(dest -> {
             if (dest == null) {
-                return CompletableFuture
-                    .supplyAsync(() -> notFound(Json.toJson("Destination not found")));
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
             }
-            if (dest.isPendingTravellerType(travellerTypeId)) {
-                dest.removePendingTravellerType(travellerTypeId);
-            } else {
-                return CompletableFuture.supplyAsync(
-                    () -> notFound(Json.toJson("No traveller type modification request found")));
-            }
-            return destinationRepository.updateDestination(dest)
-                .thenApplyAsync(
-                    rows -> ok(Json.toJson("Successfully rejected traveller type modification")));
+
+            return travellerTypeDefinitionRepository.getTravellerTypeDefinitionById(travellerTypeId)
+                .thenComposeAsync(travellerType -> {
+                    if (travellerType == null) {
+                        return CompletableFuture.supplyAsync(() -> notFound(
+                            Json.toJson("Traveller Type with provided ID not found")));
+                    } else if (!user.admin) {
+                        return CompletableFuture.supplyAsync(() -> forbidden(
+                            Json.toJson("You do not have permission to reject this request")));
+                    } else {
+                        if (dest.isPendingTravellerType(travellerTypeId)) {
+                            dest.removePendingTravellerType(travellerTypeId);
+                        } else {
+                            dest.addPendingTravellerType(travellerTypeId);
+                        }
+
+                        return destinationRepository.updateDestination(dest).thenApplyAsync(
+                            rows -> ok(
+                                Json.toJson("Successfully rejected traveller type modification")));
+                    }
+                });
         });
     }
 
@@ -465,7 +477,8 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController.makeDestinationPublic(),
                 controllers.backend.routes.javascript.DestinationController
                     .toggleDestinationTravellerType(),
-                controllers.backend.routes.javascript.DestinationController.rejectTravellerType(),
+                controllers.backend.routes.javascript.DestinationController
+                    .toggleRejectTravellerType(),
                 controllers.backend.routes.javascript.DestinationController.addNewDestination()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
