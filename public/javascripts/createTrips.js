@@ -28,8 +28,8 @@ function populate(json) {
         const name = destination.name;
         const type = destination.destType;
         const district = destination.district;
-        const latitude = destination.latitude;
-        const longitude = destination.longitude;
+        const latitude = destination.latitude.toFixed(2);
+        const longitude = destination.longitude.toFixed(2);
         let country = destination.country.name;
         const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
         const row = checkCountryValidity(destination.country.name,
@@ -277,8 +277,8 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<p class="card-text" id="card-text">' +
             '<b>Type: </b> ' + type + '<br/>' +
             '<b>District: </b> ' + district + '<br/>' +
-            '<b>Latitude: </b>' + latitude + '<br/>' +
-            '<b>Longitude: </b>' + longitude + '<br/>' +
+            '<b>Latitude: </b>' + parseFloat(latitude).toFixed(2) + '<br/>' +
+            '<b>Longitude: </b>' + parseFloat(longitude).toFixed(2) + '<br/>' +
             '<b>Country: </b>' + countryName +
             '</p>\n' +
             '</div>' +

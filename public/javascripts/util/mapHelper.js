@@ -152,8 +152,8 @@ class DestinationMap {
                                 + '"height="20" style="margin-bottom:13px">'
                                 + '<p><b>Type:</b> ' + json[dest].destType + '<br>'
                                 + '<b>District:</b> ' + json[dest].district + '<br>'
-                                + '<b>Latitude:</b> ' + json[dest].latitude + '<br>'
-                                + '<b>Longitude:</b> ' + json[dest].longitude
+                                + '<b>Latitude:</b> ' + json[dest].latitude.toFixed(2) + '<br>'
+                                + '<b>Longitude:</b> ' + json[dest].longitude.toFixed(2)
                                 + '<br>'
                                 + '<b>Country:</b> ' + json[dest].country.name
                                 + '</p>'
