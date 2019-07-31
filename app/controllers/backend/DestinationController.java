@@ -404,7 +404,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // If user is admin or requesting for their own destinations
-        if (user.admin) {
+        if ((user.admin && user.id == userId)) {
             return destinationRepository.getAllDestinationsAdmin()
                 .thenApplyAsync(allDestinations -> {
                     try {
