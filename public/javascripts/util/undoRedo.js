@@ -161,19 +161,18 @@ class UndoRedo {
         const undoButton = document.getElementById("undoButton");
         const redoButton = document.getElementById("redoButton");
 
-        if(this.undoStack.isEmpty()) {
+        if (this.undoStack.isEmpty()) {
             undoButton.setAttribute("disabled", "true");
         } else {
             undoButton.removeAttribute("disabled");
         }
 
-        if(this.redoStack.isEmpty()) {
+        if (this.redoStack.isEmpty()) {
             redoButton.setAttribute("disabled", "true");
         } else {
             redoButton.removeAttribute("disabled");
         }
     }
-
 
     /**
      * Generates a response by calling the appropriate fetch method and creates and
@@ -263,8 +262,8 @@ if (typeof module !== 'undefined' && module.exports) {
 /**
  * The undo button calls the undo function
  */
-$('#undoButton').click(function() {
-    if(!$('#undoButton').attr('disabled')) {
+$('#undoButton').click(function () {
+    if (!$('#undoButton').attr('disabled')) {
         undoRedo.undo();
     }
 });
@@ -272,8 +271,8 @@ $('#undoButton').click(function() {
 /**
  * The redo button calls the redo function
  */
-$('#redoButton').click(function() {
-    if(!$('#redoButton').attr('disabled')) {
+$('#redoButton').click(function () {
+    if (!$('#redoButton').attr('disabled')) {
         undoRedo.redo();
     }
 });

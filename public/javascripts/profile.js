@@ -10,7 +10,8 @@ function fillProfileData(userId, email) {
     if (document.getElementById("summary_email")) {
         document.getElementById("summary_email").innerText = email;
     }
-    get(profileRouter.controllers.backend.ProfileController.getProfile(userId).url)
+    get(profileRouter.controllers.backend.ProfileController.getProfile(
+        userId).url)
     .then(response => {
         response.json()
         .then(profile => {
@@ -22,25 +23,28 @@ function fillProfileData(userId, email) {
                     + profile.lastName;
                 document.getElementById(
                     "summary_age").innerHTML = calc_age(
-                        Date.parse(profile.dateOfBirth));
+                    Date.parse(profile.dateOfBirth));
                 document.getElementById(
                     "summary_gender").innerText = profile.gender;
                 arrayToCountryString(profile.nationalities, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
-                    document.getElementById("summary_nationalities").innerHTML = out;
+                    document.getElementById(
+                        "summary_nationalities").innerHTML = out;
                 });
                 arrayToCountryString(profile.passports, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
                     // If passports were cleared, update html text to None: Fix for Issue #36
-                    document.getElementById("summary_passports").innerHTML = out === ""
+                    document.getElementById("summary_passports").innerHTML = out
+                    === ""
                         ? "None" : out;
                 });
                 arrayToString(profile.travellerTypes, 'description',
                     profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
                 .then(out => {
-                    document.getElementById("summary_travellerTypes").innerHTML = out;
+                    document.getElementById(
+                        "summary_travellerTypes").innerHTML = out;
                 });
             }
         })
@@ -69,7 +73,7 @@ function updateProfile(uri, redirect) {
     addNonExistingCountries(data.nationalities).then(nationalityResult => {
         addNonExistingCountries(data.passports).then(passportResult => {
             // Post json data to given uri
-            const handler = function(status, json) {
+            const handler = function (status, json) {
                 if (status !== 200) {
                     showErrors(json, "updateProfileForm");
                 } else {
@@ -81,7 +85,8 @@ function updateProfile(uri, redirect) {
                 }
                 this.data = json;
             }.bind({data});
-            const reqData = new ReqData(requestTypes['UPDATE'], uri, handler, data);
+            const reqData = new ReqData(requestTypes['UPDATE'], uri, handler,
+                data);
             undoRedo.sendAndAppend(reqData);
         });
     });
@@ -128,12 +133,12 @@ function populateProfileData(uri) {
         return response.json()
     })
     .then(json => {
-        const pickMapper = function(id, item) {
+        const pickMapper = function (id, item) {
             $(`#${id}`).picker('set', item.id);
         }
         //Maps the json data into the pickers
-        json.nationalities.map(pickMapper.bind(null,'nationalities'));
-        json.passports.map(pickMapper.bind(null,'passports'));
+        json.nationalities.map(pickMapper.bind(null, 'nationalities'));
+        json.passports.map(pickMapper.bind(null, 'passports'));
         json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
 
         $('#gender').picker('set', json.gender);
@@ -206,7 +211,8 @@ function uploadProfilePicture(userId) {
         formData.append("file", blob, "profilepic.jpg");
 
         const photoPostURL = photoRouter.controllers.backend.PhotoController.upload().url;
-        const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(userId).url;
+        const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(
+            userId).url;
 
         // Send request and handle response
         postMultipart(photoPostURL, formData).then(response => {
@@ -217,16 +223,18 @@ function uploadProfilePicture(userId) {
 
                     // Create reversible request to update profile photo to this new photo
                     const handler = (status, json) => {
-                        if(status === 200) {
+                        if (status === 200) {
                             getProfilePicture(profilePictureControllerUrl);
                             toast("Changes saved!",
-                                "Profile picture changes saved successfully.", "success");
+                                "Profile picture changes saved successfully.",
+                                "success");
                         } else {
                             toast("Error",
                                 "Unable to update profile picture", "danger");
                         }
                     };
-                    const requestData = new ReqData(requestTypes["UPDATE"], profilePicUpdateURL, handler, photoFilename);
+                    const requestData = new ReqData(requestTypes["UPDATE"],
+                        profilePicUpdateURL, handler, photoFilename);
                     undoRedo.sendAndAppend(requestData);
 
                 }
@@ -311,7 +319,8 @@ function getProfilePicture(url) {
                 $("#ProfilePicture").attr("src", data.filename);
             });
         } else if (response.status === 404) {
-            $("#ProfilePicture").attr("src", "/assets/images/default-profile-picture.jpg");
+            $("#ProfilePicture").attr("src",
+                "/assets/images/default-profile-picture.jpg");
         }
     });
 }
