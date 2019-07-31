@@ -790,13 +790,13 @@ paths:
         '401':
           description: Unauthorized
 
-  '/destination/{destId}/travellertype/{travellerTypeId/add':
+  '/destination/{destId}/travellertype/{travellerTypeId/toggle':
     put:
       tags:
         - Destinations
-      summary: Creates a link between travellertype and a destination
+      summary: Toggles a link between travellertype and a destination
       description: |
-        Creates entry in join table for Destination and travellertype
+        Creates/removes entry in join table for Destination and travellertype
       security:
         - UserToken: []
       parameters:
@@ -822,57 +822,13 @@ paths:
             minimum: 1
       responses:
         '200':
-          description: Successfully added destination-traveller type link
-        '400':
-          description: Link already exists
-        '404':
-          description: Destination or traveller type with provided ID not found
-        '403':
-          description: Forbidden, user does not have permission to edit this destination
+          description: Successfully toggled or request to toggle destination-traveller type link
         '401':
           description: Unauthorized
-
-  '/destination/{destId}/travellertype/{travellerTypeId/remove':
-    put:
-      tags:
-        - Destinations
-      summary: Removes a link between travellertype and a destination
-      description: |
-        Removes entry in join table for Destination and travellertype
-      security:
-        - UserToken: []
-      parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: destId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: travellerTypeId
-          required: true
-          description: The travellerType ID
-          schema:
-            type: integer
-            minimum: 1
-      responses:
-        '200':
-          description: Successfully removed destination-traveller type link
-        '400':
-          description: Link doesn't exist
-        '404':
-          description: Destination or traveller type with provided ID not found
         '403':
           description: Forbidden, user does not have permission to edit this destination
-        '401':
-          description: Unauthorized
+        '404':
+          description: Destination or traveller type with provided ID not found
 
   '/destination/{destId}/travellertype/{travellerTypeId}/reject':
     put:

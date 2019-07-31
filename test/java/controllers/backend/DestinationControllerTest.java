@@ -534,39 +534,36 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void addTravellerTypeOwner() {
+    public void addTravellerTypeOwner() throws IOException {
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1/add");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully added traveller type to destination", json.textValue());
     }
 
     @Test
-    public void addTravellerTypeNotOwner() {
+    public void addTravellerTypeNotOwner() throws IOException {
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1/add");
+            .uri(DEST_URL_SLASH + "3" + DEST_TRAV_TYPE_URL + "1/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
-    }
 
-    @Test
-    public void addTravellerTypeDuplicate() {
-
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(PUT)
-            .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/add");
-
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully requested to add traveller type to destination",
+            json.textValue());
     }
 
     @Test
@@ -574,7 +571,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -588,7 +585,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "3/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "3/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -603,7 +600,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "100/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "100/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
@@ -617,7 +614,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "100" + DEST_TRAV_TYPE_URL + "1/remove");
+            .uri(DEST_URL_SLASH + "100" + DEST_TRAV_TYPE_URL + "1/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
@@ -627,26 +624,11 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void removeTravellerTypeDestDoesntHave() throws IOException {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(PUT)
-            .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "2/remove");
-
-        Result result = route(fakeApp, request);
-        assertEquals(BAD_REQUEST, result.status());
-        JsonNode json = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals("Destination doesn't have that traveller type", json.textValue());
-    }
-
-
-    @Test
     public void removeTravellerTypesAlreadyRequested() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/remove");
+            .uri(DEST_URL_SLASH + "1" + DEST_TRAV_TYPE_URL + "1/toggle");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -655,7 +637,6 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals("Successfully requested to remove traveller type from destination",
             json.textValue());
     }
-
 
     @Test
     public void rejectTravellerType() {

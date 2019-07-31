@@ -7,8 +7,9 @@ let marker;
  * @param {number} destinationId  of the destination to display
  */
 function populateDestinationDetails(destinationId) {
-    return get(destinationRouter.controllers.backend.DestinationController.getDestination(
-        destinationId).url)
+    return get(
+        destinationRouter.controllers.backend.DestinationController.getDestination(
+            destinationId).url)
     .then(response => {
         // Read response from server, which will be a json object
         response.json()
@@ -26,11 +27,13 @@ function populateDestinationDetails(destinationId) {
                     "summary_district").innerText = destination.district;
                 document.getElementById(
                     "summary_country").innerText = destination.country.name;
-                checkCountryValidity(destination.country.name, destination.country.id)
-                .then(result =>  {
+                checkCountryValidity(destination.country.name,
+                    destination.country.id)
+                .then(result => {
                     if (result === false) {
                         document.getElementById(
-                            "summary_country").innerText = destination.country.name + ' (invalid)';
+                            "summary_country").innerText = destination.country.name
+                            + ' (invalid)';
                     }
                 });
                 document.getElementById(
@@ -250,17 +253,7 @@ function updateTravellerTypes(destId) {
     let select = document.getElementById("travellerTypesSelect");
     let selected = select.options[select.selectedIndex];
 
-    if (selected.text.includes("Add")) {
-        addTravellerType(destId, selected.value)
-        .then(() => {
-            populateDestinationDetails(destId);
-        });
-    } else {
-        deleteTravellerType(destId, selected.value)
-        .then(() => {
-            populateDestinationDetails(destId);
-        });
-    }
+    toggleTravellerType(destId, selected.value, false);
 }
 
 /**
@@ -317,7 +310,9 @@ function closeEdit() {
     $('#destDeets').css('display', 'inline');
     $('#destEdit').css('display', 'none');
     $("#summary_name").animate({"opacity": "1"}, 700);
-    const latlng = new google.maps.LatLng(parseFloat($('#summary_latitude').html()), parseFloat($('#summary_longitude').html()));
+    const latlng = new google.maps.LatLng(
+        parseFloat($('#summary_latitude').html()),
+        parseFloat($('#summary_longitude').html()));
     marker.setPosition(latlng);
     map.panTo(latlng);
 }
@@ -507,8 +502,10 @@ function initMap(destinationId) {
                 // Add marker
                 marker.setMap(map);
 
-                google.maps.event.addListener(map, 'click', function(event) {
-                    if (!creativeMode) return;
+                google.maps.event.addListener(map, 'click', function (event) {
+                    if (!creativeMode) {
+                        return;
+                    }
                     marker.setPosition(event.latLng);
 
                     $('#latitudeDeat').val(event.latLng.lat);
@@ -524,10 +521,15 @@ function initMap(destinationId) {
  * Moves the marker on the map when the latitude changes
  */
 $('#latitudeDeat').on('input', () => {
-    if ($('#latitudeDeat').val() > 90) $('#latitudeDeat').val('90');
-    if ($('#latitudeDeat').val() < -90) $('#latitudeDeat').val('-90');
+    if ($('#latitudeDeat').val() > 90) {
+        $('#latitudeDeat').val('90');
+    }
+    if ($('#latitudeDeat').val() < -90) {
+        $('#latitudeDeat').val('-90');
+    }
 
-    const latlng = new google.maps.LatLng(parseFloat($('#latitudeDeat').val()), marker.getPosition().lng());
+    const latlng = new google.maps.LatLng(parseFloat($('#latitudeDeat').val()),
+        marker.getPosition().lng());
     marker.setPosition(latlng);
 });
 
@@ -536,9 +538,14 @@ $('#latitudeDeat').on('input', () => {
  * Moves the marker on the map when the longitude changes
  */
 $('#longitudeDeat').on('input', () => {
-    if ($('#longitudeDeat').val() > 180) $('#longitudeDeat').val('180');
-    if ($('#longitudeDeat').val() < -180) $('#longitudeDeat').val('-180');
+    if ($('#longitudeDeat').val() > 180) {
+        $('#longitudeDeat').val('180');
+    }
+    if ($('#longitudeDeat').val() < -180) {
+        $('#longitudeDeat').val('-180');
+    }
 
-    const latlng = new google.maps.LatLng(marker.getPosition().lat(), parseFloat($('#longitudeDeat').val()));
+    const latlng = new google.maps.LatLng(marker.getPosition().lat(),
+        parseFloat($('#longitudeDeat').val()));
     marker.setPosition(latlng);
 });
