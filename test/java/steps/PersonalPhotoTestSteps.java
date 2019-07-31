@@ -6,7 +6,7 @@ import static play.test.Helpers.GET;
 import static play.test.Helpers.OK;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
-import static steps.GenericTestSteps.authCookie;
+import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 
 import akka.stream.javadsl.FileIO;
@@ -19,7 +19,6 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +34,7 @@ public class PersonalPhotoTestSteps {
     public void i_have_no_photos() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/photo/1");
 
         Result result = route(fakeApp, request);
@@ -45,7 +44,7 @@ public class PersonalPhotoTestSteps {
         for (int i = 0; i < photos.size(); i++) {
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
                 .method(DELETE)
-                .cookie(authCookie)
+                .cookie(adminAuthCookie)
                 .uri("/api/photo/" + photos.get(i).get("guid"));
 
             Result deleteResult = route(fakeApp, deleteRequest);
@@ -54,7 +53,7 @@ public class PersonalPhotoTestSteps {
 
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/photo/1");
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
@@ -89,7 +88,7 @@ public class PersonalPhotoTestSteps {
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
             .method(POST)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .bodyMultipart(
                 partsList,
                 play.libs.Files.singletonTemporaryFileCreator(),
@@ -110,7 +109,7 @@ public class PersonalPhotoTestSteps {
     public void the_number_of_photos_i_have_will_be(int int1) throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/photo/1");
 
         Result result = route(fakeApp, request);
@@ -126,7 +125,7 @@ public class PersonalPhotoTestSteps {
     public void i_can_view_all_my_photos() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(authCookie)
+            .cookie(adminAuthCookie)
             .uri("/api/photo/1");
 
         Result result = route(fakeApp, request);

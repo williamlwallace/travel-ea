@@ -16,4 +16,3 @@ Feature: Story 13
     And I have created a private destination
     When A public destination is created which is the same as my private destination
     Then My private destination is automatically merged with the public one
-    And Any private information on my merged destination remains private
