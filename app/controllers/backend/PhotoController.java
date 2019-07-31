@@ -476,7 +476,6 @@ public class PhotoController extends TEABackController {
         Long userId = request.attrs().get(ActionState.USER).id;
         return photoRepository.getDeletedDestPhoto(photoId, destId)
             .thenComposeAsync(deletedPhoto -> {
-                System.out.println(Json.toJson(deletedPhoto));
                 return destinationRepository.getDestination(destId)
                     .thenComposeAsync(destination -> {
                         return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
