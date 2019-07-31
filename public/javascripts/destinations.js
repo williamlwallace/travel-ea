@@ -1,6 +1,5 @@
 let table;
 let activeInfoWindow;
-let newMarker;
 let map;
 let toggled;
 
