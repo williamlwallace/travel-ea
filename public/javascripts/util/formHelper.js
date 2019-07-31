@@ -194,7 +194,7 @@ function arrayToCountryString(countries, dataName, URL) {
         let promises = [];
         const validatorHandler = function (dict, item) {
             return checkCountryValidity(dict[item.id], item.id)
-            .then( valid  => {
+            .then(valid => {
                 if (valid) {
                     return dict[item.id];
                 } else {
@@ -207,7 +207,9 @@ function arrayToCountryString(countries, dataName, URL) {
         });
         return Promise.all(promises)
         .then((result) => {
-            result = result.filter((country) => { return (country && country !== '') });
+            result = result.filter((country) => {
+                return (country && country !== '')
+            });
             return result.join(', ');
         });
     });

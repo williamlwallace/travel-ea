@@ -22,12 +22,12 @@ function onPageLoad(userId) {
         });
     const options = {
         zoom: 1.8,
-        center: {lat: 2, lng:2}
+        center: {lat: 2, lng: 2}
     };
     map = new DestinationMap(options, true, userId);
     map.populateMarkers().then(() => map.addDestinations());
 
-    google.maps.event.addListener(map.map, 'click', function(event) {
+    google.maps.event.addListener(map.map, 'click', function (event) {
         if (this.newMarker) {
             this.newMarker.setPosition(event.latLng);
         } else {
@@ -38,7 +38,7 @@ function onPageLoad(userId) {
         toggled = false;
         toggleDestinationForm();
     }.bind(map));
-    
+
 }
 
 /**
@@ -69,7 +69,7 @@ function addDestination(url, redirect, userId) {
     data.country = {"id": data.countryId};
 
     //Create response handler
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             if (json === "Duplicate destination") {
                 toast("Destination could not be created!",
@@ -114,7 +114,7 @@ function addDestination(url, redirect, userId) {
 
         }
     }.bind({userId, data, map});
-    const inverseHandler = function(status, json) {
+    const inverseHandler = function (status, json) {
         if (status === 200) {
             table.populateTable();
             map.populateMarkers();
@@ -150,9 +150,10 @@ function populateDestinations(json) {
         const latitude = json[dest].latitude;
         const longitude = json[dest].longitude;
         let country = json[dest].country.name;
-        const row = checkCountryValidity(json[dest].country.name, json[dest].country.id)
+        const row = checkCountryValidity(json[dest].country.name,
+            json[dest].country.id)
         .then(result => {
-            if(result === false) {
+            if (result === false) {
                 country = json[dest].country.name + ' (invalid)';
             }
             return [name, type, district, latitude, longitude, country,
@@ -170,8 +171,12 @@ function populateDestinations(json) {
  * Moves the marker on the map when the latitude changes
  */
 $('#latitude').on('input', () => {
-    if ($('#latitude').val() > 90) $('#latitude').val('90');
-    if ($('#latitude').val() < -90) $('#latitude').val('-90');
+    if ($('#latitude').val() > 90) {
+        $('#latitude').val('90');
+    }
+    if ($('#latitude').val() < -90) {
+        $('#latitude').val('-90');
+    }
 
     map.setNewMarker($('#latitude').val(), null);
 });
@@ -181,8 +186,12 @@ $('#latitude').on('input', () => {
  * Moves the marker on the map when the longitude changes
  */
 $('#longitude').on('input', () => {
-    if ($('#longitude').val() > 180) $('#longitude').val('180');
-    if ($('#longitude').val() < -180) $('#longitude').val('-180');
+    if ($('#longitude').val() > 180) {
+        $('#longitude').val('180');
+    }
+    if ($('#longitude').val() < -180) {
+        $('#longitude').val('-180');
+    }
 
     map.setNewMarker(null, $('#longitude').val());
 });
@@ -194,12 +203,14 @@ function toggleDestinationForm() {
     toggled = toggled || false;
     if (toggled) {
         $("#mainSection").attr('class', 'col-md-12');
-        $("#createDestinationPopOut").attr('class', 'col-md-0 hideCreateDestinationPopOut');
+        $("#createDestinationPopOut").attr('class',
+            'col-md-0 hideCreateDestinationPopOut');
         $("#arrow").attr('class', "fas fa-1x fa-arrow-left");
         toggled = false;
     } else {
         $("#mainSection").attr('class', 'col-md-9');
-        $("#createDestinationPopOut").attr('class', 'col-md-3 showCreateDestinationPopOut');
+        $("#createDestinationPopOut").attr('class',
+            'col-md-3 showCreateDestinationPopOut');
         $("#arrow").attr('class', "fas fa-1x fa-arrow-right");
         toggled = true;
     }
@@ -215,7 +226,7 @@ $('#dtDestination').on('click', 'tbody tr', function () {
 /**
  * On click listener for the create destinations cancel button
  */
-$('#CreateDestinationCancelButton').click(function() {
+$('#CreateDestinationCancelButton').click(function () {
     resetDestinationModal();
     map.removeNewMarker();
 });
@@ -223,8 +234,10 @@ $('#CreateDestinationCancelButton').click(function() {
 /**
  * Destination button on click
  */
-$('#createNewDestinationButton').click(function() {
+$('#createNewDestinationButton').click(function () {
     getUserId().then(userId =>
-        addDestination(destinationRouter.controllers.backend.DestinationController.addNewDestination().url, "/", userId)
+        addDestination(
+            destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
+            "/", userId)
     );
 });
