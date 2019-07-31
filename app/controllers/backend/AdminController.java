@@ -1,9 +1,12 @@
 package controllers.backend;
 
+import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Admin;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.User;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -24,7 +27,7 @@ public class AdminController extends TEABackController {
     }
 
     /**
-     * toggles users admin privileges.
+     * Toggles users admin privileges.
      *
      * @param request Request object
      * @param id Id of user to be granted
@@ -32,14 +35,18 @@ public class AdminController extends TEABackController {
      */
     @With({Admin.class, Authenticator.class})
     public CompletionStage<Result> toggleAdmin(Http.Request request, Long id) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
         // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.findID(id).thenApplyAsync(user -> {
-            if (user != null) {
+        return userRepository.findID(id).thenComposeAsync(user -> {
+            if (user == null) {
+                return CompletableFuture.supplyAsync(() -> notFound("This user does not exist"));
+            } else if (!loggedInUser.admin) {
+                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to toggle this user's admin privileges"));
+            } else {
                 user.admin = !user.admin;
-                userRepository.updateUser(user);
-                return ok(Json.toJson("Successfully toggled users admin privleges"));
+                return userRepository.updateUser(user).thenApplyAsync(userId ->
+                    ok(Json.toJson(userId)));
             }
-            return badRequest(Json.toJson("User not found"));
         });
     }
 

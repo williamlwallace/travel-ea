@@ -3,7 +3,7 @@
 # ~~~~
 
 # ~~~~~backend~~~~~~
-PUT           /api/user/:id/admin                   controllers.backend.AdminController.toggleAdmin(request:Request, id:Long)
+PUT           /api/user/:id/admin                    controllers.backend.AdminController.toggleAdmin(request:Request, id:Long)
 
 GET           /api/user/setid                        controllers.backend.UserController.setId(request:Request)
 
