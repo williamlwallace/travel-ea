@@ -23,10 +23,12 @@ class EATable {
      *
      * @param {String} url the url to make the call to
      */
-    populateTable(url=null) {
+    populateTable(url = null) {
         // Query API endpoint to get all destinations
         this.table.clear().draw();
-        if (!url) url = this.getURL;
+        if (!url) {
+            url = this.getURL;
+        }
 
         get(url)
         .then(response => {
@@ -40,7 +42,7 @@ class EATable {
                             this.table.row.add(row).draw(false);
                         }
                     });
-                    
+
                 }
             });
         })
@@ -63,10 +65,10 @@ class EATable {
     }
 
     /**
-    * Redirect to uri when row is clicked.
-    *
-    * @param {Function} clickFunction on row click callback function
-    */
+     * Redirect to uri when row is clicked.
+     *
+     * @param {Function} clickFunction on row click callback function
+     */
     initRowClicks(clickFunction) {
         this.table.on('click', 'tbody tr', clickFunction);
     }

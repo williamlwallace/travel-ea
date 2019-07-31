@@ -307,7 +307,8 @@ function closeEdit() {
     $('#destEdit').css('display', 'none');
     $("#summary_name").animate({"opacity": "1"}, 700);
 
-    map.setNewMarker($('#summary_latitude').html(), $('#summary_longitude').html());
+    map.setNewMarker($('#summary_latitude').html(),
+        $('#summary_longitude').html());
     map.panToNewMarker();
 }
 
@@ -473,16 +474,20 @@ function initMap(destinationId) {
                 map.setNewMarker(
                     destination.latitude,
                     destination.longitude,
-                    destination.isPublic ? map.markerPublic: map.markerPrivate
+                    destination.isPublic ? map.markerPublic : map.markerPrivate
                 );
 
-                google.maps.event.addListener(map.map, 'click', function(event) {
-                    if (!map.creativeMode) return;
-                    map.setNewMarker(event.latLng.lat(), event.latLng.lng());
+                google.maps.event.addListener(map.map, 'click',
+                    function (event) {
+                        if (!map.creativeMode) {
+                            return;
+                        }
+                        map.setNewMarker(event.latLng.lat(),
+                            event.latLng.lng());
 
-                    $('#latitudeDeat').val(event.latLng.lat);
-                    $('#longitudeDeat').val(event.latLng.lng);
-                });
+                        $('#latitudeDeat').val(event.latLng.lat);
+                        $('#longitudeDeat').val(event.latLng.lng);
+                    });
             }
         })
     })

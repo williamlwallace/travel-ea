@@ -1,7 +1,7 @@
 class DestinationMap {
     /**
-    * Initialises google maps on destination page and dynamically adds destination markers
-    */
+     * Initialises google maps on destination page and dynamically adds destination markers
+     */
     constructor(options, creativeMode, userId) {
         // New map
         this.map = new google.maps.Map(document.getElementById('map'), options);
@@ -21,11 +21,11 @@ class DestinationMap {
     }
 
     /**
-    * Like places a marker on the map and like its like gnarly.
-    * @param location
-    * @param icon
-    * @returns {google.maps.Marker}
-    */
+     * Like places a marker on the map and like its like gnarly.
+     * @param location
+     * @param icon
+     * @returns {google.maps.Marker}
+     */
     placeMarker(location, icon) {
         const marker = new google.maps.Marker({
             position: location,
@@ -71,9 +71,9 @@ class DestinationMap {
     }
 
     /**
-    * Inserts marker on map
-    * @param {JSON} props contain destination coords, destination information, and styling
-    */
+     * Inserts marker on map
+     * @param {JSON} props contain destination coords, destination information, and styling
+     */
     addDestination(props) {
         const marker = this.placeMarker(props.coords, props.iconImage);
         // Check content
@@ -83,7 +83,9 @@ class DestinationMap {
             });
             // if content exists then make a info window
             marker.addListener('click', function () {
-                if (activeInfoWindow) activeInfoWindow.close();
+                if (activeInfoWindow) {
+                    activeInfoWindow.close();
+                }
                 infoWindow.open(map, marker);
                 activeInfoWindow = infoWindow;
             });
@@ -114,13 +116,14 @@ class DestinationMap {
     }
 
     /**
-    * Populates the markers list with props which can be iterated over to dynamically add destination markers
-    */
+     * Populates the markers list with props which can be iterated over to dynamically add destination markers
+     */
     populateMarkers() {
         const destinations = [];
         this.removeDestinations();
-        return get(destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-            this.userId).url)
+        return get(
+            destinationRouter.controllers.backend.DestinationController.getAllDestinations(
+                this.userId).url)
         .then(response => {
             return response.json()
             .then(json => {
@@ -143,23 +146,27 @@ class DestinationMap {
                                 lat: json[dest].latitude,
                                 lng: json[dest].longitude
                             },
-                            iconImage: json[dest].isPublic ? this.markerPublic : this.markerPrivate,
+                            iconImage: json[dest].isPublic ? this.markerPublic
+                                : this.markerPrivate,
                             content: '<a class="marker-link" title="View detailed destination" href="'
                                 + destination + '"><h3 style="display:inline">'
                                 + json[dest].name
                                 + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="'
                                 + privacySrc
                                 + '"height="20" style="margin-bottom:13px">'
-                                + '<p><b>Type:</b> ' + json[dest].destType + '<br>'
-                                + '<b>District:</b> ' + json[dest].district + '<br>'
-                                + '<b>Latitude:</b> ' + json[dest].latitude.toFixed(2) + '<br>'
+                                + '<p><b>Type:</b> ' + json[dest].destType
+                                + '<br>'
+                                + '<b>District:</b> ' + json[dest].district
+                                + '<br>'
+                                + '<b>Latitude:</b> ' + json[dest].latitude.toFixed(2)
+                                + '<br>'
                                 + '<b>Longitude:</b> ' + json[dest].longitude.toFixed(2)
                                 + '<br>'
                                 + '<b>Country:</b> ' + json[dest].country.name
                                 + '</p>'
                         });
                     }
-                this.addDestinations(destinations);
+                    this.addDestinations(destinations);
                 }
             });
         });

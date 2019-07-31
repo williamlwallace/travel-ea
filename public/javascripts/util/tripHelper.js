@@ -6,7 +6,8 @@
  * @param {Number} tripId Id of trip to update
  */
 function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
-    let currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
+    let currentPrivacyImgSrc = document.getElementById(
+        "privacy-img").getAttribute("src");
 
     let tripData = {
         "id": tripId
@@ -24,9 +25,10 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
 
     const URL = tripRouter.controllers.backend.TripController.updateTripPrivacy().url;
     const initialToggle = true;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status === 200) {
-            currentPrivacyImgSrc = document.getElementById("privacy-img").getAttribute("src");
+            currentPrivacyImgSrc = document.getElementById(
+                "privacy-img").getAttribute("src");
             if (currentPrivacyImgSrc === publicImageSrc) {
                 document.getElementById("privacy-img").setAttribute("src",
                     privateImageSrc);
