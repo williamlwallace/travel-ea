@@ -131,6 +131,17 @@ public class Destination extends BaseModel {
     }
 
     /**
+     * Adds request to link/unlink traveller type to a destination
+     *
+     * @param travellerTypeId The id of the traveller type to add
+     */
+    public void addPendingTravellerType(Long travellerTypeId) {
+        TravellerTypeDefinition travellerTypeDefinition = new TravellerTypeDefinition();
+        travellerTypeDefinition.id = travellerTypeId;
+        this.travellerTypesPending.add(travellerTypeDefinition);
+    }
+
+    /**
      * Removes request to link/unlink traveller type to a destination
      *
      * @param travellerTypeId The id of the traveller type to remove
