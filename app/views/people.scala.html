@@ -14,11 +14,12 @@
 
     @* Filter *@
     <div>
-        <button id="filterButton" class="btn btn-secondary" style="float:right" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()" >Filter</button>
+        <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample"
+        aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
     </div>
     <div>
         <div class="collapse" id="collapseExample">
-            <div class="card card-body">
+            <div class="card card-body" id="card-body">
                 <div id="filterItemDiv">
                     <label for="gender">Gender</label>
                     <select id="gender" class="form-control" data-style="form-control selectpicker">
@@ -31,28 +32,30 @@
                 <div id="filterItemDiv">
                     <label for="ageRange">Age Range</label>
                     <div id="ageRange" class="input-group">
-                        <input id="minAge" type="number" class="form-control validate" placeholder="Minimum"/>
+                        <input id="minAge" type="number" class="form-control validate" placeholder="Min"/>
                         <span class="input-group-addon pr-3 pl-3"> - </span>
-                        <input id="maxAge" type="number" class="form-control validate" placeholder="Maximum"/>
+                        <input id="maxAge" type="number" class="form-control validate" placeholder="Max"/>
                         <label data-error="wrong" data-success="right"></label>
                     </div>
                 </div>
                 <div id="filterItemDiv">
-                    <label for="nationalities">Nationality</label>
-                    <select id="nationalities" class="form-control" data-style="form-control selectpicker">
-                        <option value="">Select Nationality</option>
-                    </select>
-                    <label for="travellerTypes">Type of Traveller</label>
-                    <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
-                        <option value="">Select Traveller Type</option>
-                    </select>
+                        <label for="nationalities">Nationality</label>
+                        <select id="nationalities" class="form-control" data-style="form-control selectpicker">
+                            <option value="">Select Nationality</option>
+                        </select>
                 </div>
-                <div class="text-center" style="padding-top: 10px">
-                    <div style="float:left">
-                        <button class="btn btn-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                <div id="filterItemDiv">
+                        <label for="travellerTypes">Type of Traveller</label>
+                        <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
+                            <option value="">Select Traveller Type</option>
+                        </select>
+                </div>
+                <div class="text-center" id="buttonDiv">
+                    <div id="closeButton">
+                        <button class="btn btn-light" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
                     </div>
-                    <div style="float:right">
-                        <button class="btn btn-outline-dark" onclick='clearFilter()'>Clear</button>
+                    <div id="applyButton">
+                        <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
                         <button class="btn btn-primary"  onclick='filterPeopleTable()'>Apply</button>
                     </div>
                 </div>
