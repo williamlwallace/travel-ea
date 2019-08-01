@@ -99,7 +99,7 @@ function populateUpdateTreasureHunt(id) {
     $('#treasureHuntForm')[0].reset();
     getUserId().then(userId => {
         $("#treasureHuntModalBtn").unbind("click");
-        $("#treasureHuntModalBtn").bind("click", function() {
+        $("#treasureHuntModalBtn").bind("click", function () {
             updateTreasureHunt(id);
         });
         $("#treasureHuntModalBtn").text("Update");
@@ -143,14 +143,15 @@ function formatDateForInput(date) {
 }
 
 /**
-/**
+ /**
  * Deletes the treasure hunt with given ID, and forced table to reload
  * @param {Number} id - ID of the treasure hunt
  */
 function deleteTreasureHunt(id) {
-    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(id).url;
+    const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.deleteTreasureHunt(
+        id).url;
     const initialDelete = true;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (this.initialDelete) {
             if (status !== 200) {
                 toast("Treasure hunt could not be deleted", json, "danger",
@@ -313,7 +314,7 @@ function addTreasureHunt(userId) {
     delete data.destinationId;
 
     const URL = treasureHuntRouter.controllers.backend.TreasureHuntController.insertTreasureHunt().url;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (status !== 200) {
             hideErrors("treasureHuntForm");
             showErrors(json);

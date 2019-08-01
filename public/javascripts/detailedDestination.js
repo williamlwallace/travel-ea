@@ -1,6 +1,3 @@
-let creativeMode = false;
-let marker;
-
 /**
  * Function to get the relevant destination and fill the HTML
  *
@@ -12,7 +9,7 @@ function populateDestinationDetails(destinationId) {
             destinationId).url)
     .then(response => {
         // Read response from server, which will be a json object
-        response.json()
+        return response.json()
         .then(destination => {
             if (response.status !== 200) {
                 showErrors(destination);
@@ -37,9 +34,9 @@ function populateDestinationDetails(destinationId) {
                     }
                 });
                 document.getElementById(
-                    "summary_latitude").innerText = destination.latitude;
+                    "summary_latitude").innerText = destination.latitude.toFixed(2);
                 document.getElementById(
-                    "summary_longitude").innerText = destination.longitude;
+                    "summary_longitude").innerText = destination.longitude.toFixed(2);
 
                 if (destination.travellerTypes.length > 0) {
                     let travellerTypes = "";
@@ -194,7 +191,6 @@ function editDestination(destinationId) {
                         } else if (status === 200) {
                             populateDestinationDetails(this.destinationId)
                             .then(() => {
-                                $('#editDestinationModal').modal('hide');
                                 toast("Destination Updated",
                                     "Updated Details are now showing",
                                     'success');
@@ -306,22 +302,21 @@ $("#upload-gallery-image-button").click(function () {
  * Closes all data related to editing a destination
  */
 function closeEdit() {
-    creativeMode = false;
+    map.creativeMode = false;
     $('#destDeets').css('display', 'inline');
     $('#destEdit').css('display', 'none');
     $("#summary_name").animate({"opacity": "1"}, 700);
-    const latlng = new google.maps.LatLng(
-        parseFloat($('#summary_latitude').html()),
-        parseFloat($('#summary_longitude').html()));
-    marker.setPosition(latlng);
-    map.panTo(latlng);
+
+    map.setNewMarker($('#summary_latitude').html(),
+        $('#summary_longitude').html());
+    map.panToNewMarker();
 }
 
 /**
  * Opens all data related to editing a destination
  */
 function openEdit() {
-    creativeMode = true;
+    map.creativeMode = true;
     $('#destDeets').css('display', 'none');
     $('#destEdit').css('display', 'inline');
     $("#summary_name").animate({"opacity": "0"}, 700);
@@ -411,7 +406,7 @@ function initMap(destinationId) {
                 showErrors(destination);
             } else {
                 // Initial map options
-                let options = {
+                const options = {
                     zoom: 4,
                     center: {
                         lat: destination.latitude - 2,
@@ -474,43 +469,25 @@ function initMap(destinationId) {
                         }, {}, {}, {}]
                 };
 
-                // New map
-                map = new google.maps.Map(document.getElementById('map'),
-                    options);
+                map = new DestinationMap(options, false);
 
-                //Setting public and private marker images, resized
-                const markerPublic = {
-                    url: 'https://image.flaticon.com/icons/svg/149/149060.svg',
-                    scaledSize: new google.maps.Size(30, 30)
-                };
-                const markerPrivate = {
-                    url: 'https://image.flaticon.com/icons/svg/139/139012.svg',
-                    scaledSize: new google.maps.Size(30, 30)
-                };
+                map.setNewMarker(
+                    destination.latitude,
+                    destination.longitude,
+                    destination.isPublic ? map.markerPublic : map.markerPrivate
+                );
 
-                marker = new google.maps.Marker({
-                    position: {
-                        lat: destination.latitude,
-                        lng: destination.longitude
-                    },
-                    map: map
-                });
+                google.maps.event.addListener(map.map, 'click',
+                    function (event) {
+                        if (!map.creativeMode) {
+                            return;
+                        }
+                        map.setNewMarker(event.latLng.lat(),
+                            event.latLng.lng());
 
-                marker.setIcon(destination.isPublic ? markerPublic
-                    : markerPrivate);
-
-                // Add marker
-                marker.setMap(map);
-
-                google.maps.event.addListener(map, 'click', function (event) {
-                    if (!creativeMode) {
-                        return;
-                    }
-                    marker.setPosition(event.latLng);
-
-                    $('#latitudeDeat').val(event.latLng.lat);
-                    $('#longitudeDeat').val(event.latLng.lng);
-                });
+                        $('#latitudeDeat').val(event.latLng.lat);
+                        $('#longitudeDeat').val(event.latLng.lng);
+                    });
             }
         })
     })
@@ -528,9 +505,7 @@ $('#latitudeDeat').on('input', () => {
         $('#latitudeDeat').val('-90');
     }
 
-    const latlng = new google.maps.LatLng(parseFloat($('#latitudeDeat').val()),
-        marker.getPosition().lng());
-    marker.setPosition(latlng);
+    map.setNewMarker($('#latitudeDeat').val(), null);
 });
 
 /**
@@ -545,7 +520,6 @@ $('#longitudeDeat').on('input', () => {
         $('#longitudeDeat').val('-180');
     }
 
-    const latlng = new google.maps.LatLng(marker.getPosition().lat(),
-        parseFloat($('#longitudeDeat').val()));
-    marker.setPosition(latlng);
+    map.setNewMarker(null, $('#longitudeDeat').val());
+
 });
