@@ -216,46 +216,6 @@ function arrayToCountryString(countries, dataName, URL) {
 }
 
 /**
- * Turns an array of country ids into a string
- * If the country is invalid, adds (invalid) to the string
- * @param {object} countries array of countries
- * @param {string} dataName column name
- * @param {string} URL Address to retrieve
- */
-function arrayToCountryString(countries, dataName, URL) {
-    return getHardData(URL, dataName)
-    .then(dict => {
-        let promises = [];
-        const validatorHandler = function (dict, item) {
-            return checkCountryValidity(dict[item.id], item.id)
-            .then( valid  => {
-                if (valid) {
-                    console.log(item.id);
-                    return dict[item.id] + ", ";
-                } else {
-                    return dict[item.id] + " (invalid), ";
-                }
-            });
-        }
-        countries.forEach(item => {
-            promises.push(validatorHandler(dict, item))
-        });
-        return Promise.all(promises)
-        .then(result => {
-            let out = "";
-            result.map(country => {
-                console.log(country);
-                out += country;
-            });
-            //remove extra separator
-            out = out.slice(0, out.length - 2);
-            console.log(out);
-            return out
-        });
-    });
-}
-
-/**
  * Adds a toast to the bottom right of the screen. This toast will display for 2 seconds by default.
  * @param {string} title A string of the toast title
  * @param {string} message a string of the inner message of the toast
