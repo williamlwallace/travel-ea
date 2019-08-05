@@ -212,7 +212,7 @@ INSERT INTO User(username, password, salt) VALUES ('testUser@email.com', '51i2xJ
 INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=');
 
 -- Add sample data for TravellerTypeDefinitions
-INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
+INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Luxury'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 
 -- Add sample Profile
 INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES
