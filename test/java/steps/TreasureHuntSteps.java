@@ -44,8 +44,8 @@ public class TreasureHuntSteps extends WithApplication {
         treasureHunt.user = user;
         treasureHunt.destination = destination;
 
-        treasureHunt.startDate = LocalDate.of(2019, 07, 31);
-        treasureHunt.endDate = LocalDate.of(2020, 07, 31);
+        treasureHunt.startDate = LocalDate.of(2039, 07, 31);
+        treasureHunt.endDate = LocalDate.of(2040, 07, 31);
         treasureHunt.riddle = "This is a riddle";
 
         JsonNode node =  Json.toJson(treasureHunt);
@@ -129,8 +129,8 @@ public class TreasureHuntSteps extends WithApplication {
         treasureHunt.user = user;
         treasureHunt.destination = destination;
 
-        treasureHunt.startDate = LocalDate.of(2019, 07, 31);
-        treasureHunt.endDate = LocalDate.of(2020, 07, 31);
+        treasureHunt.startDate = LocalDate.of(2039, 07, 31);
+        treasureHunt.endDate = LocalDate.of(2040, 07, 31);
         treasureHunt.riddle = "An admins riddle";
 
         JsonNode node =  Json.toJson(treasureHunt);
