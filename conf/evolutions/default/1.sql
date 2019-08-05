@@ -202,6 +202,14 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     PRIMARY KEY (id)
   );
 
+-- Create tags table, which stores the name of the tag
+CREATE TABLE IF NOT EXISTS Tag
+  (
+    id                    INT NOT NULL AUTO_INCREMENT,
+    name                  VARCHAR(64),
+    PRIMARY KEY (id)
+  );
+
 -- Add countries
 INSERT INTO CountryDefinition (id, name) VALUES
 (643, 'Russian Federation'),(246, 'Finland'),(398, 'Kazakhstan'),(496, 'Mongolia');
@@ -316,7 +324,11 @@ INSERT INTO Trip (user_id) VALUES (1);
 -- Add sample tripData for the sample trip
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
+-- Add sample tags
+INSERT INTO Tag (name) VALUES ("NZ"), ("sports"), ("music");
+
 -- !Downs
+DROP TABLE Tag;
 DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;

@@ -202,8 +202,17 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     PRIMARY KEY (id)
   );
 
+-- Create tags table, which stores the name of the tag
+CREATE TABLE IF NOT EXISTS Tag
+  (
+    id                    INT NOT NULL AUTO_INCREMENT,
+    name                  VARCHAR(64),
+    PRIMARY KEY (id)
+  );
+
 
 -- !Downs
+DROP TABLE Tag;
 DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
