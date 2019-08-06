@@ -1,5 +1,12 @@
 Feature: P2-MVP1 Photo captions
 
+  Scenario: Uploading a photo and not setting a caption
+
+    Given I am logged in
+    And viewing my profile
+    When I upload a valid photo
+    Then when I view the photo, it will have the caption ''
+
   Scenario: Setting a caption on a photo
 
     Given I am logged in
