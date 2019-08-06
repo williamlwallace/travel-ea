@@ -51,6 +51,13 @@ public class Photo extends Model {
 
     public List<Destination> destinationPhotos;
 
+    @ManyToMany
+    @JoinTable(
+        name = "PhotoTag",
+        joinColumns = @JoinColumn(name = "photo_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    public List<Tag> tags;
+
     /**
      * Removes given destination from photo.
      */

@@ -92,6 +92,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
         return supplyAsync(() -> {
+
             ebeanServer.update(destination);
             return destination;
         }, executionContext);

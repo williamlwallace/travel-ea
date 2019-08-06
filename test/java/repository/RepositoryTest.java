@@ -12,7 +12,6 @@ import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.test.Helpers;
 import play.test.WithApplication;
-import repository.DestinationRepository;
 
 
 public abstract class RepositoryTest extends WithApplication {

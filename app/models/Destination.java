@@ -78,12 +78,12 @@ public class Destination extends BaseModel {
         inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypesPending;
 
-    @ManyToMany(mappedBy = "destinations")
+    @ManyToMany
     @JoinTable(
         name = "DestinationTag",
-        joinColumns = @JoinColumn(name = "id", referencedColumnName = "destination_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "guid"))
-    public List<Tag> destinationTags;
+        joinColumns = @JoinColumn(name = "destination_id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    public List<Tag> tags;
 
     /**
      * Checks if photo is linked to destination.

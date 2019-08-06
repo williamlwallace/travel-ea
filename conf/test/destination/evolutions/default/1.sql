@@ -1,6 +1,3 @@
--- AUTHOR: Matthew Minish, William Wallace, what about me?
--- MODIFIED: 14/3/2019 2.00PM
-
 -- !Ups
 
 -- Create User table
@@ -91,9 +88,9 @@ CREATE TABLE IF NOT EXISTS TravellerType
 CREATE TABLE IF NOT EXISTS Destination
   (
     id                INT NOT NULL AUTO_INCREMENT,
-    user_id           INT NOT NULL, -- The owner of the destination, moved to master admin when public
+    user_id           INT NOT NULL,
     name              VARCHAR(128) NOT NULL,
-    type              VARCHAR(128) NOT NULL, -- We may want to make a separate table which stores these
+    type              VARCHAR(128) NOT NULL,
     district          VARCHAR(128) NOT NULL,
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
@@ -207,11 +204,56 @@ CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
     name                  VARCHAR(64),
+    deleted               BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (id)
   );
 
+CREATE TABLE IF NOT EXISTS DestinationTag
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    tag_id                INT NOT NULL,
+    destination_id        INT NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
+CREATE TABLE IF NOT EXISTS TripTag
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    tag_id                INT NOT NULL,
+    trip_id               INT NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
+CREATE TABLE IF NOT EXISTS PhotoTag
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    tag_id                INT NOT NULL,
+    photo_id              INT NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
+CREATE TABLE IF NOT EXISTS UsedTag
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    tag_id                INT NOT NULL,
+    user_id               INT NOT NULL,
+    used                  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
 
 -- !Downs
+DROP TABLE UsedTag;
+DROP TABLE PhotoTag;
+DROP TABLE TripTag;
+DROP TABLE DestinationTag;
 DROP TABLE Tag;
 DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;

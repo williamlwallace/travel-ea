@@ -114,13 +114,23 @@ INSERT INTO Trip (user_id) VALUES (1);
 -- Add sample tripData for the sample trip
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
 
+-- Add sample photos
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
+
 -- Add sample tags
-INSERT INTO Tag (name) VALUES ("NZ"), ("sports"), ("music");
-INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1);
+INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
+INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (1, 1);
+INSERT INTO TripTag (tag_id, trip_id) VALUES (3, 1);
+-- INSERT INTO PhotoTag (tag_id, photo_id) VALUES (1, 1);
+INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1), (2, 2);
 
 -- !Downs
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
+DELETE FROM Photo;
 DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM DestinationTravellerType;
