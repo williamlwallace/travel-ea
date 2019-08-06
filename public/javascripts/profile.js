@@ -219,7 +219,11 @@ function uploadProfilePicture(userId) {
             // Read response from server, which will be a json object
             response.json().then(data => {
                 if (response.status === 201) {
-                    const photoFilename = "/public/storage/photos/" + data;
+                    const photoFilename = data["filename"];
+                    const photoId = data["guid"];
+
+                    $("#ProfilePicture").attr("src", photoFilename);
+
 
                     // Create reversible request to update profile photo to this new photo
                     const handler = (status, json) => {
@@ -234,7 +238,7 @@ function uploadProfilePicture(userId) {
                         }
                     };
                     const requestData = new ReqData(requestTypes["UPDATE"],
-                        profilePicUpdateURL, handler, photoFilename);
+                        profilePicUpdateURL, handler, photoId);
                     undoRedo.sendAndAppend(requestData);
 
                 }
@@ -307,16 +311,19 @@ function uploadNewPhoto() {
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
  * the profile picture path to it.
- *
- * @param url the backend PhotoController url
  */
-function getProfilePicture(url) {
-    profilePictureControllerUrl = url;
-    get(profilePictureControllerUrl).then(response => {
+function getProfilePicture() {
+    const profileId = window.location.href.split("/").pop();
+    get(profileRouter.controllers.backend.ProfileController.getProfile(profileId).url).then(response => {
         // Read response from server, which will be a json object
         if (response.status === 200) {
             response.json().then(data => {
-                $("#ProfilePicture").attr("src", data.filename);
+                if(data.profilePhoto === null) {
+                    $("#ProfilePicture").attr("src",
+                        "/assets/images/default-profile-picture.jpg");
+                } else {
+                    $("#ProfilePicture").attr("src", "../user_content/" + data.profilePhoto.filename);
+                }
             });
         } else if (response.status === 404) {
             $("#ProfilePicture").attr("src",

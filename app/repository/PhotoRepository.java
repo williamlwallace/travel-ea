@@ -1,6 +1,7 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 
 import com.google.common.collect.Iterables;
@@ -26,7 +27,6 @@ public class PhotoRepository {
 
     public static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
-    private static final String IS_PROFILE = "is_profile";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
@@ -50,30 +50,6 @@ public class PhotoRepository {
     }
 
     /**
-     * Clears any existing profile photo for a user, and returns filenames of old files.
-     *
-     * @param userID user ID to clear profile photo of
-     * @return OK if successfully cleared existing profile pic, notFound if none found
-     */
-    public CompletableFuture<Pair<String, String>> clearProfilePhoto(long userID) {
-        return supplyAsync(() -> {
-            Pair<String, String> returnPair;
-            Photo profilePhoto = ebeanServer.find(Photo.class)
-                .where()
-                .eq(USER_ID, userID)
-                .eq(IS_PROFILE, true)
-                .findOneOrEmpty().orElse(null);
-            if (profilePhoto == null) {
-                return null;
-            } else {
-                returnPair = new Pair<>(profilePhoto.filename, profilePhoto.thumbnailFilename);
-                ebeanServer.delete(profilePhoto);
-                return returnPair;
-            }
-        });
-    }
-
-    /**
      * Finds all photos in database related to the given user ID.
      *
      * @param userID User to find all photos for
@@ -84,7 +60,7 @@ public class PhotoRepository {
                 List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
-                    .eq(IS_PROFILE, false)
+                    .eq("used_for_profile", false)
                     .findList();
                 return appendAssetsUrl(photos);
             },
@@ -102,35 +78,12 @@ public class PhotoRepository {
                 List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
+                    .eq("used_for_profile", false)
                     .eq("is_public", true)
-                    .eq(IS_PROFILE, false)
                     .findList();
                 return appendAssetsUrl(photos);
             },
             executionContext);
-    }
-
-    /**
-     * Finds the profile picture in the database for the given user ID.
-     *
-     * @param userID User to find profile picture for
-     * @return a photo
-     */
-    public CompletableFuture<Photo> getUserProfilePicture(Long userID) {
-        return supplyAsync(() -> {
-            Photo photo = ebeanServer.find(Photo.class)
-                .where()
-                .eq(USER_ID, userID)
-                .eq(IS_PROFILE, true)
-                .findOneOrEmpty().orElse(null);
-
-            if (photo != null) {
-                photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
-                photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
-            }
-
-            return photo;
-        }, executionContext);
     }
 
     /**
@@ -139,16 +92,6 @@ public class PhotoRepository {
      * @param photos A list of photos to upload
      */
     public void addPhotos(Collection<Photo> photos) {
-        if (photos.size() == 1) {
-            Photo pictureToUpload = Iterables.get(photos, 0);
-            if (pictureToUpload.isProfile) {
-                ebeanServer.find(Photo.class)
-                    .where()
-                    .eq(USER_ID, pictureToUpload.userId)
-                    .eq(IS_PROFILE, true)
-                    .delete();
-            }
-        }
         ebeanServer.insertAll(photos);
     }
 

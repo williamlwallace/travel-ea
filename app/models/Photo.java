@@ -14,6 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -37,10 +39,10 @@ public class Photo extends Model {
 
     public Boolean isPublic;
 
+    public Boolean usedForProfile;
+
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime uploaded;
-
-    public Boolean isProfile;
 
     @ManyToMany(mappedBy = "destinationPhotos")
     @JsonBackReference("photo-reference")
@@ -50,6 +52,14 @@ public class Photo extends Model {
         inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
 
     public List<Destination> destinationPhotos;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "profilePhoto")
+    public List<Profile> profilePicProfiles;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "coverPhoto")
+    public List<Profile> coverPicProfiles;
 
     /**
      * Removes given destination from photo.

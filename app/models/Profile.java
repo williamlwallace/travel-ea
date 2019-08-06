@@ -13,6 +13,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -62,6 +65,12 @@ public class Profile extends Model {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "country_id", referencedColumnName = "id"))
     public List<CountryDefinition> passports;
+
+    @ManyToOne
+    public Photo profilePhoto;
+
+    @ManyToOne
+    public Photo coverPhoto;
 
     /**
      * Calculates age based on the birth date.
