@@ -1980,6 +1980,9 @@ components:
           type: string
           format: url
           example: '/assets/storage/photos/1556841259327_thumbnail_my_image.jpg'
+        caption:
+          type: string
+          example: 'A picture of the Eiffel tower, taken from Berlin with a really big camera lens'
         isPublic:
           type: boolean
           description: 'Boolean stating whether or not this photo is publicly accesible'

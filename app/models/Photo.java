@@ -37,6 +37,8 @@ public class Photo extends Model {
 
     public String thumbnailFilename;
 
+    public String caption;
+
     public Boolean isPublic;
 
     public Boolean usedForProfile;

@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS Photo
     user_id               INT NOT NULL,
     filename              VARCHAR(256) NOT NULL,
     thumbnail_filename    VARCHAR(256) NOT NULL,
+    caption               VARCHAR(MAX),
     is_public             BOOLEAN NOT NULL,
     uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
     used_for_profile      BOOLEAN NOT NULL,
