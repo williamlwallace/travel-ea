@@ -33,7 +33,7 @@ public class DestinationValidator extends Validator {
         // Checks destination has an owner with an ID
         if (this.required("user", "User") && this.form.get("user").get("id").asText("")
             .equals("")) {
-            this.required("userId", "UserId");    // Yes I'm a bad person
+            this.getErrorResponse().map("User ID required", "userId");
         }
 
         // Check that the destination type is present, is text, and not empty
@@ -60,6 +60,9 @@ public class DestinationValidator extends Validator {
             this.maxDoubleValue(LONGITUDE, 180);
             this.minDoubleValue(LONGITUDE, -180);
         }
+
+        // Checks the destination has tags
+        this.required("tags", "Tags");
 
         return this.getErrorResponse();
     }
