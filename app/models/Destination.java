@@ -2,7 +2,6 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.ebean.Model;
 import java.util.Iterator;
 import java.util.List;
 import javax.persistence.Column;
