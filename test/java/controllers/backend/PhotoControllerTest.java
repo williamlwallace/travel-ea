@@ -96,10 +96,6 @@ public class PhotoControllerTest extends ControllersTest {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(201, result.status());
-
-        // Check a success message was sent
-        String message = Helpers.contentAsString(result);
-        assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
     @Test
@@ -144,10 +140,6 @@ public class PhotoControllerTest extends ControllersTest {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(201, result.status());
-
-        // Check a success message was sent
-        String message = Helpers.contentAsString(result);
-        assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
     @Test

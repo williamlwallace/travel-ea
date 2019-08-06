@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import models.Photo;
+import models.Profile;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
@@ -62,13 +64,13 @@ public class ProfilePhotoTestSteps {
         Assert.assertEquals(201, result.status());
 
         // Create a request to set the newly uploaded photo to be the profile
-        String filename = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), String.class);
+        Photo returnedPhoto = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Photo.class);
 
         Http.RequestBuilder updateRequest = Helpers.fakeRequest().uri("/api/photo/1/profile")
             .method("PUT")
             .cookie(adminAuthCookie)
-            .bodyJson(Json.toJson("/public/storage/photos/" + filename));
+            .bodyJson(Json.toJson(returnedPhoto.guid));
         Result updateResult = route(fakeApp, updateRequest);
         Assert.assertEquals(200, updateResult.status());
     }
@@ -78,16 +80,15 @@ public class ProfilePhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/photo/1/profile");
+            .uri("/api/profile/1");
 
         Result result = route(fakeApp, request);
         Assert.assertEquals(200, result.status());
-        JsonNode photo = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
-        String thumbnail = photo.get("thumbnailFilename").toString();
-        Assert.assertTrue(thumbnail.contains("favicon.png"));
-        Assert.assertTrue(thumbnail.contains("thumbnails"));
-
+        Profile profile = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Profile.class);
+        String filename = profile.profilePhoto.thumbnailFilename;
+        Assert.assertTrue(filename.contains("favicon.png"));
+        Assert.assertTrue(filename.contains("thumbnails"));
     }
 
     @Then("It is returned as my profile picture")
@@ -95,13 +96,13 @@ public class ProfilePhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/photo/1/profile");
+            .uri("/api/profile/1");
 
         Result result = route(fakeApp, request);
         Assert.assertEquals(200, result.status());
-        JsonNode photo = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
-        String filename = photo.get("filename").toString();
+        Profile profile = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Profile.class);
+        String filename = profile.profilePhoto.filename;
         Assert.assertTrue(filename.contains("favicon.png"));
 
     }

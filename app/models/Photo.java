@@ -53,11 +53,11 @@ public class Photo extends Model {
 
     public List<Destination> destinationPhotos;
 
-    @JsonBackReference
+    @JsonBackReference("profilePhotoReference")
     @OneToMany(mappedBy = "profilePhoto")
     public List<Profile> profilePicProfiles;
 
-    @JsonBackReference
+    @JsonBackReference("coverPhotoReference")
     @OneToMany(mappedBy = "coverPhoto")
     public List<Profile> coverPicProfiles;
 
