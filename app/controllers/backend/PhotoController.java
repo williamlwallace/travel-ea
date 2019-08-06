@@ -112,6 +112,36 @@ public class PhotoController extends TEABackController {
     }
 
     /**
+     * Sets the cover photo for a user with a given user id.
+     *
+     * @param request the HTTP request
+     * @param id the id of the user who is having their cover photo changed
+     * @return the if of the original cover photo before it was changed (possibly null)
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> setCoverPhoto(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
+
+        // Check if user is authorized to perform this action
+        if (!id.equals(currentUserId) && !user.admin) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+        // Get json parameters
+        Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
+
+        // Update cover photo, and get the prior photo id
+        try{
+            return profileRepository.updateCoverPhotoAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
+                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
+            );
+        } catch (NullPointerException e) {
+            return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
+        }
+    }
+
+    /**
      * Returns all photos belonging to a user. Only returns public photos if it is not the owner of
      * the photos getting them
      *
@@ -131,16 +161,6 @@ public class PhotoController extends TEABackController {
             return photoRepository.getAllPublicUserPhotos(id)
                 .thenApplyAsync(photos -> ok(Json.toJson(photos)));
         }
-    }
-
-    /**
-     * Gets the profile picture of user with given id.
-     *
-     * @param id ID of user to get profile photo of
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getProfilePicture(Long id) {
-        return null;
     }
 
     /**
@@ -532,7 +552,8 @@ public class PhotoController extends TEABackController {
                 controllers.backend.routes.javascript.PhotoController.getAllUserPhotos(),
                 controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
                 controllers.backend.routes.javascript.PhotoController.getDestinationPhotos(),
-                controllers.backend.routes.javascript.PhotoController.makePhotoProfile()
+                controllers.backend.routes.javascript.PhotoController.makePhotoProfile(),
+                controllers.backend.routes.javascript.PhotoController.setCoverPhoto()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

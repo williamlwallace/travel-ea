@@ -153,4 +153,41 @@ public class ProfileRepository {
             return returnId;
         });
     }
+
+    /**
+     * Updates the profile cover photo of some user's profile, and returns the id that WAS being used
+     *
+     * @param userId ID of user to update cover photo of
+     * @param newId New id of photo to set as cover photo
+     * @return The id of the photo (possibly null) that was previously used
+     */
+    public CompletableFuture<Long> updateCoverPhotoAndReturnExistingId(Long userId, Long newId) throws NullPointerException {
+        return supplyAsync(() -> {
+            // Find existing profile
+            Profile found = ebeanServer.find(Profile.class)
+                .where()
+                .eq("user_id", userId)
+                .findOne();
+            if(found == null) {
+                throw new NullPointerException("No such profile");
+            }
+
+            Photo foundPhoto = ebeanServer.find(Photo.class)
+                .where()
+                .eq("guid", newId)
+                .findOne();
+            if(foundPhoto != null) {
+                // Update object and return
+                foundPhoto.isPublic = true;
+                ebeanServer.update(foundPhoto);
+            }
+
+            // Keep track of existing ID, and update profile photo to new id
+            Long returnId = (found.coverPhoto != null) ? found.coverPhoto.guid : null;
+            found.coverPhoto = new Photo();
+            found.coverPhoto.guid = newId;
+            ebeanServer.update(found);
+            return returnId;
+        });
+    }
 }

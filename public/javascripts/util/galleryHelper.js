@@ -171,7 +171,7 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction
  * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
  * @param {Long} destinationId the id of the destination to link the photos to
- * @param {function} clickFunction the function that will be called when a photo is clicked.
+ * @param {function} clickFunction the function that will be called when a photo is clicked
  * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,

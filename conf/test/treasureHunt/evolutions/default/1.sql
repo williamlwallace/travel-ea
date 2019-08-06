@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS Profile
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_photo_guid) REFERENCES Photo(guid),
-    FOREIGN KEY (cover_photo_guid) REFERENCES Photo(guid)
+    FOREIGN KEY (cover_photo_guid) REFERENCES Photo(guid) ON DELETE SET NULL
   );
 
 -- Create the country definition table, which is static and defines all possible countries
@@ -206,10 +206,10 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     PRIMARY KEY (id)
   );
 
-
 -- !Downs
 DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;
+DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
 DROP TABLE DestinationTravellerTypePending;
 DROP TABLE TravellerType;
@@ -221,5 +221,4 @@ DROP TABLE Destination;
 DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
-DROP TABLE Photo;
 DROP TABLE User;

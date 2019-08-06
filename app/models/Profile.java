@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.CascadeType;
 import play.data.validation.Constraints;
 
 /**
@@ -69,7 +70,7 @@ public class Profile extends Model {
     @ManyToOne
     public Photo profilePhoto;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     public Photo coverPhoto;
 
     /**

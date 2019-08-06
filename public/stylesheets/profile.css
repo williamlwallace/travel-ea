@@ -324,8 +324,11 @@ section#timeline a {
     position: absolute;
     right: 0;
     color: grey !important;
-    padding: 10px;
     cursor: pointer;
+    background-color: white;
+    margin: 2px;
+    padding: 5px;
+    border-radius: 5px;
 }
 .edit-button:hover {
     color: #000000 !important;

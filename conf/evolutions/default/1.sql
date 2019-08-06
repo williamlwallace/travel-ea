@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS Profile
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_photo_guid) REFERENCES Photo(guid),
-    FOREIGN KEY (cover_photo_guid) REFERENCES Photo(guid)
+    FOREIGN KEY (cover_photo_guid) REFERENCES Photo(guid) ON DELETE SET NULL
   );
 
 -- Create the country definition table, which is static and defines all possible countries

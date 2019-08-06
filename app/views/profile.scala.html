@@ -24,7 +24,7 @@
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
-        <div class="title-bg" style="background-image: url(@routes.Assets.at("images/profile-bg.jpg"))">
+        <div id="CoverPhoto" class="title-bg">
             <div class="title-text-wrap">
                 <p id="summary_name" class="title-text"></p>
             </div>
@@ -298,12 +298,13 @@
 }
 
 <script type="text/javascript">
+    setUserId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
     onPageLoad(@user.id, @canModify);
-    fillProfileData(@user.id, "@user.username");
-    getPictures("@controllers.backend.routes.PhotoController.getAllUserPhotos(user.id)");
+    fillProfileData("@user.username");
+    getPictures();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
-    getProfilePicture("@controllers.backend.routes.PhotoController.getProfilePicture(user.id)");
+    getProfileAndCoverPicture();
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
         populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     });
