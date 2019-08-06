@@ -89,6 +89,37 @@ public class PhotoController extends TEABackController {
     }
 
     @With({Everyone.class, Authenticator.class})
+    public CompletableFuture setPhotoCaption(Http.Request request, Long photoId) {
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
+
+        // Check if body correctly deserializes to a json string, otherwise throw 400
+        String newCaption;
+        try {
+            newCaption = Json.fromJson(request.body().asJson(), String.class);
+        } catch (Exception e) {
+            return CompletableFuture.supplyAsync(Results::badRequest);
+        }
+
+        // Get the photo to have caption updated
+        return photoRepository.getPhotoById(photoId).thenApplyAsync(photo -> {
+            // Check if photo exists and then if user is authorized to perform this action
+            if(photo == null) {
+                return notFound();
+            } else if (!photo.userId.equals(currentUserId) && !user.admin) {
+                return forbidden();
+            }
+
+            // Store the old caption, update to new caption and save
+            String oldCaption = photo.caption;
+            photo.caption = newCaption;
+            photoRepository.updatePhoto(photo);
+
+            return ok(Json.toJson(oldCaption));
+        });
+    }
+
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
         Long currentUserId = user.id;
@@ -553,7 +584,8 @@ public class PhotoController extends TEABackController {
                 controllers.backend.routes.javascript.PhotoController.deleteLinkPhotoToDest(),
                 controllers.backend.routes.javascript.PhotoController.getDestinationPhotos(),
                 controllers.backend.routes.javascript.PhotoController.makePhotoProfile(),
-                controllers.backend.routes.javascript.PhotoController.setCoverPhoto()
+                controllers.backend.routes.javascript.PhotoController.setCoverPhoto(),
+                controllers.backend.routes.javascript.PhotoController.setPhotoCaption()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
