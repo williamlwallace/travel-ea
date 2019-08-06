@@ -3,9 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import controllers.backend.routes.javascript;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -28,7 +26,6 @@ import models.User;
 import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
-import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -221,19 +218,24 @@ public class PhotoController extends TEABackController {
         HashSet<String> publicPhotoFileNames = new HashSet<>(Arrays.asList(
             formKeys.getOrDefault("publicPhotoFileNames", new String[]{""})[0].split(",")));
 
+        String[] photoCaptions = (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
+
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
         ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>>
             photos = new ArrayList<>();
 
         // Iterate through all files in the request
+        int position = 0;
         for (Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()) {
             if (file != null) {
                 try {
+                    String caption = (position >= photoCaptions.length) ? "" : photoCaptions[position];
+                    position += 1;
                     // Store file with photo in list to be added later
                     photos.add(new Pair<>(
                         readFileToPhoto(file, publicPhotoFileNames,
-                            request.attrs().get(ActionState.USER).id, isTest), file));
+                            request.attrs().get(ActionState.USER).id, isTest, caption), file));
                 } catch (IOException e) {
                     // If an invalid file type given, return bad request
                     // with error message generated in exception
@@ -322,7 +324,7 @@ public class PhotoController extends TEABackController {
      */
     private Photo readFileToPhoto(Http.MultipartFormData.FilePart<Files.TemporaryFile> file,
         HashSet<String> publicPhotoFileNames, long userId,
-        boolean isTest) throws IOException {
+        boolean isTest, String caption) throws IOException {
         // Get the filename, file size and content-type of the file
         String fileName = System.currentTimeMillis() + "_" + file.getFilename();
 
@@ -342,6 +344,7 @@ public class PhotoController extends TEABackController {
         photo.uploaded = LocalDateTime.now();
         photo.userId = userId;
         photo.usedForProfile = false;
+        photo.caption = caption;
 
         // Return the created photo object
         return photo;

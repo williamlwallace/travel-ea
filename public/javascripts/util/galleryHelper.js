@@ -9,9 +9,12 @@
 function uploadNewGalleryPhoto(url, galleryId, pageId) {
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
+    // const arrayOfCaptions = document.getElementById(
+    //     'uploaded-photos-captions');            // this element does not exist atm, but i think its what will happen?!
     let formData = new FormData();
     for (let i = 0; i < selectedPhotos.length; i++) {
-        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
+        formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
+        // formData.append('caption', arrayOfCaptions[i]) // and then this is where your send it in. Works with the backend.
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {
