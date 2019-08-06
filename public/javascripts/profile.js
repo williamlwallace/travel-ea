@@ -295,6 +295,9 @@ function deletePhoto(route) {
                     "The photo will no longer be displayed in the gallery.",
                     "success");
                 getProfileAndCoverPicture();
+                undoRedo.undoStack.clear();
+                undoRedo.redoStack.clear();
+                undoRedo.updateButtons();
             }
         });
     });

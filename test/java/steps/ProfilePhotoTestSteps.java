@@ -75,6 +75,16 @@ public class ProfilePhotoTestSteps {
         Assert.assertEquals(200, updateResult.status());
     }
 
+    @When("I set it as my cover photo")
+    public void I_set_it_as_my_cover_photo() throws IOException {
+        Http.RequestBuilder updateRequest = Helpers.fakeRequest().uri("/api/photo/1/cover")
+            .method("PUT")
+            .cookie(adminAuthCookie)
+            .bodyJson(Json.toJson(1));
+        Result updateResult = route(fakeApp, updateRequest);
+        Assert.assertEquals(200, updateResult.status());
+    }
+
     @Then("A thumbnail is created")
     public void a_thumbnail_is_created() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -105,5 +115,20 @@ public class ProfilePhotoTestSteps {
         String filename = profile.profilePhoto.filename;
         Assert.assertTrue(filename.contains("favicon.png"));
 
+    }
+
+    @Then("It is returned as my cover photo")
+    public void it_is_returned_as_my_cover_photo() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/profile/1");
+
+        Result result = route(fakeApp, request);
+        Assert.assertEquals(200, result.status());
+        Profile profile = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Profile.class);
+        String filename = profile.coverPhoto.filename;
+        Assert.assertTrue(filename.contains("testPhoto"));
     }
 }

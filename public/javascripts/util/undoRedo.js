@@ -70,6 +70,14 @@ class ReqStack {
     isEmpty() {
         return this.stack.length === 0;
     }
+
+    /**
+     * Clears the stack
+     */
+    clear() {
+        this.stack = [];
+    }
+
 }
 
 /**

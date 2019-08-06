@@ -115,10 +115,10 @@
                         <img alt=" " id="deleteMe" src='@routes.Assets.at("images/thumbnails/boats.jpg")' align="middle">
                     </div>
                     <div class="modal-footer d-flex justify-content-center">
-                        <button class="btn btn-popup" id="remove-all" data-dismiss="modal">
+                        <button class="btn btn-secondary" id="remove-all" data-dismiss="modal">
                             Cancel<em class="fas fa-paper-plane-o ml-1"></em>
                         </button>
-                        <button class="btn btn-popup" id="submit-all" onclick=
+                        <button class="btn btn-danger" id="submit-all" onclick=
                         'deletePhoto("@controllers.backend.routes.PhotoController.deletePhoto(1)")'>
                                 Delete
                         </button>
