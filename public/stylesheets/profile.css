@@ -114,7 +114,6 @@ img.profile-picture {
     border: none !important;
     background-color: rgba(0, 0, 0, 0) !important;
     padding: 2%;
-    cursor: pointer;
 }
 
 /**
@@ -316,4 +315,18 @@ section#timeline article:nth-child(n) div.inner h2:after {
 section#timeline a {
     color: #FFFFFF;
     font-size: larger;
+}
+
+/**
+ * Edit Button
+ */
+.edit-button {
+    position: absolute;
+    right: 0;
+    color: grey !important;
+    padding: 10px;
+    cursor: pointer;
+}
+.edit-button:hover {
+    color: #000000 !important;
 }
