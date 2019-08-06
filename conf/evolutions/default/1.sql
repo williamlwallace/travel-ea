@@ -204,7 +204,6 @@ CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
     name                  VARCHAR(64),
-    deleted               BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (id)
   );
 
@@ -234,16 +233,17 @@ CREATE TABLE IF NOT EXISTS TripTag
 
 -- Specifies the PhotoTag table, this is only done in the SQL so we can populate it in the evolutions
 -- This does not need a corresponding Model, as we don't need the class
--- CREATE TABLE IF NOT EXISTS PhotoTag
---   (
---     guid                  INT NOT NULL AUTO_INCREMENT,
---     tag_id                INT NOT NULL,
---     photo_id              INT NOT NULL,
---     FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
---     FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
---     PRIMARY KEY (guid)
---   );
+CREATE TABLE IF NOT EXISTS PhotoTag
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    tag_id                INT NOT NULL,
+    photo_id              INT NOT NULL,
+    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
 
+-- Specifies the UsedTag table
 CREATE TABLE IF NOT EXISTS UsedTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,

@@ -10,13 +10,13 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
 
     @Before
     public void runEvolutions() {
-        applyEvolutions("");
+        applyEvolutions("test/destination/");
     }
 
     @Test
     public void getDestination() {
         Destination destination = destinationRepository.getDestination(1L).join();
 
-        assertEquals("Russia", destination.tags.get(0).name);
+        assertEquals("sports", destination.tags.get(0).name);
     }
 }

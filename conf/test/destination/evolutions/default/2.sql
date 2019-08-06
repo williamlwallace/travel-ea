@@ -51,7 +51,7 @@ INSERT INTO DestinationTravellerTypePending(dest_id, traveller_type_definition_i
 -- Insert a trip that uses destinations that will be merged
 INSERT INTO Trip (user_id) VALUES (2);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES
-  (1, 0, 4, null, null), (1, 1, 5, null, null), (1, 2, 2, null, null)
+  (1, 0, 4, null, null), (1, 1, 5, null, null), (1, 2, 2, null, null);
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('NZ'), ('sports'), ('music');
