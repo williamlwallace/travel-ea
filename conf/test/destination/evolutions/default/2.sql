@@ -36,6 +36,10 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Public dest one', 'Monument', 'Paris', 48.8583, 2.2945, 1, 1);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Public dest two', 'Monument', 'Paris', 48.8586, 2.2947, 1, 1);
 
+-- Deleted destination
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public, deleted) VALUES (1, 'Deleted dest one', 'Oops', 'Oh no', 0, 0, 1, 1, true);
+
+
 -- Add photo
 INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
 

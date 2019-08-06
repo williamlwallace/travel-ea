@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import play.Application;
 import play.db.Database;
@@ -18,7 +19,6 @@ public abstract class RepositoryTest extends WithApplication {
 
     static Application fakeApp;
     static Connection connection;
-    static DestinationRepository destinationRepository;
     private static Database db;
 
     /**
@@ -38,8 +38,6 @@ public abstract class RepositoryTest extends WithApplication {
             connection.close();
         }
         connection = db.getConnection();
-
-        destinationRepository = fakeApp.injector().instanceOf(DestinationRepository.class);
 
         Helpers.start(fakeApp);
     }
@@ -71,5 +69,8 @@ public abstract class RepositoryTest extends WithApplication {
     public void cleanupEvolutions() {
         Evolutions.cleanupEvolutions(db);
     }
+
+    @Before
+    public abstract void instantiateRepository();
 }
 
