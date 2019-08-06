@@ -88,9 +88,9 @@ CREATE TABLE IF NOT EXISTS TravellerType
 CREATE TABLE IF NOT EXISTS Destination
   (
     id                INT NOT NULL AUTO_INCREMENT,
-    user_id           INT NOT NULL, -- The owner of the destination, moved to master admin when public
+    user_id           INT NOT NULL,
     name              VARCHAR(128) NOT NULL,
-    type              VARCHAR(128) NOT NULL, -- We may want to make a separate table which stores these
+    type              VARCHAR(128) NOT NULL,
     district          VARCHAR(128) NOT NULL,
     latitude          DOUBLE NOT NULL,
     longitude         DOUBLE NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS TripTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
     tag_id                INT NOT NULL,
-    trip_id        INT NOT NULL,
+    trip_id               INT NOT NULL,
     FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
     PRIMARY KEY (guid)
@@ -232,7 +232,7 @@ CREATE TABLE IF NOT EXISTS PhotoTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
     tag_id                INT NOT NULL,
-    photo_id        INT NOT NULL,
+    photo_id              INT NOT NULL,
     FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (guid)

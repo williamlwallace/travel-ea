@@ -116,8 +116,10 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ("NZ"), ("sports"), ("music");
+INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1);
 
 -- !Downs
+DELETE FROM DestinationTag;
 DELETE FROM Tag;
 DELETE FROM TripData;
 DELETE FROM Trip;
