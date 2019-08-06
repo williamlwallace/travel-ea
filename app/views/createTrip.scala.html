@@ -20,6 +20,11 @@
                 <button type="submit" class="btn btn-secondary" data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
+            <!-- Input to add tags -->
+            <div id="tripTagsInput">
+                <input id="tripTags" type="text" data-role="tagsinput"/>
+            </div>
+
             <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
             <div style="float: right;">
                 @if(trip.tripDataList.length == 0 || !trip.isPublic) {
