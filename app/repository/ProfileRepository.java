@@ -125,19 +125,6 @@ public class ProfileRepository {
      */
     public CompletableFuture<Long> updateProfilePictureAndReturnExistingId(Long userId, Long newId) throws NullPointerException {
         return supplyAsync(() -> {
-            Photo foundPhoto = ebeanServer.find(Photo.class)
-                .where()
-                .eq("guid", newId)
-                .findOne();
-            if(foundPhoto == null) {
-                throw new NullPointerException("No such photo");
-            }
-
-            // Update object and return
-            foundPhoto.usedForProfile = true;
-            foundPhoto.isPublic = true;
-            ebeanServer.update(foundPhoto);
-
             // Find existing profile
             Profile found = ebeanServer.find(Profile.class)
                 .where()
@@ -145,6 +132,17 @@ public class ProfileRepository {
                 .findOne();
             if(found == null) {
                 throw new NullPointerException("No such profile");
+            }
+
+            Photo foundPhoto = ebeanServer.find(Photo.class)
+                .where()
+                .eq("guid", newId)
+                .findOne();
+            if(foundPhoto != null) {
+                // Update object and return
+                foundPhoto.usedForProfile = true;
+                foundPhoto.isPublic = true;
+                ebeanServer.update(foundPhoto);
             }
 
             // Keep track of existing ID, and update profile photo to new id
