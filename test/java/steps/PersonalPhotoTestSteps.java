@@ -130,5 +130,4 @@ public class PersonalPhotoTestSteps {
 
         Assert.assertTrue(photos.size() > 0);
     }
-
 }

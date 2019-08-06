@@ -89,7 +89,7 @@ public class PhotoController extends TEABackController {
     }
 
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture setPhotoCaption(Http.Request request, Long photoId) {
+    public CompletableFuture<Result> setPhotoCaption(Http.Request request, Long photoId) {
         User user = request.attrs().get(ActionState.USER);
         Long currentUserId = user.id;
 
