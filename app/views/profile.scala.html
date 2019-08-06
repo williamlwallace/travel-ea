@@ -29,17 +29,20 @@
                 <p id="summary_name" class="title-text"></p>
             </div>
         </div>
+        @if(canModify) {
+            <a id="editCoverPhotoButton" class="edit-button" style="bottom:0;" title="Edit Cover Photo"><i class="fas fa-pen fa-1x"></i></a>
+        }
     </div>
 
     <body style="margin:auto">
         <div class="row profile" id="startchange">
             <div class="col-12 col-md-3">
-                @* Profile Detail *@
+                @* Profile Details *@
                 <div id="profile-summary">
-                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture"
-                    class="img-thumbnail profile-picture"
-                    @if(canModify) {onclick='showProfilePictureGallery()'}
-                    >
+                    @if(canModify) {
+                        <a id="editProfilePictureButton" class="edit-button" style="top:0;"title="Edit Profile Picture" onClick="showProfilePictureGallery()"><i class="fas fa-pen fa-1x"></i></a>
+                    }
+                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture" class="img-thumbnail profile-picture">
                     <div class="profile-details">
                         @if(canModify) {<p class="heading">Email <span id="summary_email" class="user-info"></span></p>}
                         <p class="heading">Age <span id="summary_age" class="user-info"></span></p>
@@ -243,6 +246,22 @@
                         <div id="profile-gallery" class="text-center">You don't have any photos yet, add some by clicking on the add photo button.</div>
                         <div id="page-selection-profile-picture"></div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        @*Gallery modal for selecting a cover photo, false as we want no titles and no add photo button*@
+        <div class="modal fade" id="editCoverPhotoModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content">
+                    <div class="modal-header text-center">
+                        <h4 class="modal-title w-100 font-weight-bold">Change Cover Photo</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    @* all images gallery *@
+                    @modules.gallery(false, false, "cover-photo-gallery", "current-page")
                 </div>
             </div>
         </div>

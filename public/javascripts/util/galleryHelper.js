@@ -136,15 +136,46 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
 }
 
 /**
+ * Function to populate gallery with current users photos.
+ * Takes a selectionFunction that will be set to each photos on click.
+ *
+ * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
+ * @param {string} galleryId the id of the gallery to add the photo to
+ * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {function} selectionFunction, the function that will be called when a photo is clicked on
+ */
+function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction) {
+    // Run a get request to fetch all users photos
+    get(getPhotosUrl)
+    // Get the response of the request
+    .then(response => {
+        // Convert the response to json
+        response.json().then(data => {
+            // "data" should now be a list of photo models for the given user
+            // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+            usersPhotos = [];
+            for (let i = 0; i < data.length; i++) {
+                data[i]["canSelect"] = true;
+                usersPhotos[i] = data[i];
+            }
+            let galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
+            addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
+        });
+    });
+}
+
+
+/**
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
  * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {function} clickFunction the function that will be called when a photo is clicked.
  * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
-    destinationId = null) {
+    destinationId = null, clickFunction = null) {
     let galleryObjects = [];
     let numPages = Math.ceil(usersPhotos.length / 6);
     for (let page = 0; page < numPages; page++) {
@@ -187,6 +218,10 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
                 }
 
                 photo.href = filename;
+            }
+            if (clickFunction) {
+                photo.addEventListener("click", clickFunction);
+                photo.style.cursor = "pointer";
             }
             if (withLinkButton) {
                 const linkButton = createLinkButton(isLinked, guid,

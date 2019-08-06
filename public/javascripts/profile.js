@@ -353,9 +353,33 @@ function showProfilePictureGallery() {
 }
 
 /**
+ * Sets the users cover photo given a specific photoID
+ * @Param {Long} photoID the id of the photo to set as the cover photo
+ * @Param {Long} userID the id of the user whos cover photo should change
+ */
+function setCoverPhoto(photoID, userID) {
+    console.log("PhotoID: " + photoID);
+    //TODO:Set cover photo here with endpoint
+    //TODO:Close modal and send toasts
+}
+
+/**
  * allows the upload image button to act as an input field by clicking on the upload image file field
  * For a normal photo
  */
 $("#upload-gallery-image-button").click(function () {
     $("#upload-gallery-image-file").click();
+});
+
+/**
+ * The editCoverPhotoButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#editCoverPhotoButton").click(function () {
+    $("#editCoverPhotoModal").modal('show');
+    const userID = window.location.href.split("/").pop();
+    fillSelectionGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            userID).url, "cover-photo-gallery", "current-page", function(){setCoverPhoto(this.getAttribute("data-id"), userID)});
 });
