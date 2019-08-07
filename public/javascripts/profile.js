@@ -380,8 +380,8 @@ function showProfilePictureGallery() {
 
 /**
  * Sets the users cover photo given a specific photoID
- * @Param {Long} photoId the id of the photo to set as the cover photo
- * @Param {Long} userId the id of the user whos cover photo should change
+ * @Param {Number} photoId the id of the photo to set as the cover photo
+ * @Param {Number} userId the id of the user whos cover photo should change
  */
 function setCoverPhoto(photoId) {
     const coverPicUpdateURL = photoRouter.controllers.backend.PhotoController.setCoverPhoto(
