@@ -2,26 +2,23 @@
  * Takes the users selected photos and  creates a form from them
  * Sends this form to  the appropriate url
  */
-$('#upload-img').on('click', function() {
-    const url = photoRouter.controllers.backend.PhotoController.upload().url
-    //Get the the required ids from data tags in the button eleemnt
+$('#upload-img').on('click', function () {
+    const url = photoRouter.controllers.backend.PhotoController.upload().url;
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
-
-    const caption = $('#caption input').val(); //This will be used when backend is merged in
+    let caption = $('#caption input').val();
 
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
-    // const arrayOfCaptions = document.getElementById(
-    //     'uploaded-photos-captions');            // this element does not exist atm, but i think its what will happen?!
     let formData = new FormData();
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
-        // formData.append('caption', arrayOfCaptions[i]) // and then this is where your send it in. Works with the backend.
+        formData.append('caption', caption);
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {
         // Read response from server, which will be a json object
+        console.log(formData);
         response.json().then(data => {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl, galleryId, pageId);
@@ -43,7 +40,6 @@ let usersPhotos = [];
  * @param {string} pageId the id of the pagination that the gallery is in
  */
 function fillGallery(getPhotosUrl, galleryId, pageId) {
-    console.log(galleryId);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -67,9 +63,9 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * Function to populate gallery with current users photos with link destination functionality
  *
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
- * @param {string} galleryId the id of the gallery to add the photo to
- * @param {string} pageId the id of the pagination that the gallery is in
- * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {String} galleryId the id of the gallery to add the photo to
+ * @param {String} pageId the id of the pagination that the gallery is in
+ * @param {Number} destinationId the id of the destination to link the photos to
  */
 function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
     // Run a get request to fetch all users photos
@@ -106,11 +102,11 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
  * Function to populate gallery with current photos from a certain destination
  * sets a isOwn variable
  *
- * @param {string} getDestinationPhotosUrl the url from where destination photos are retrieved from
- * @param {string} getUserPhotosUrl the url where all users photos are from
- * @param {string} galleryId the id of the gallery to add the photo to
- * @param {string} pageId the id of the pagination that the gallery is in
- * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {String} getDestinationPhotosUrl the url from where destination photos are retrieved from
+ * @param {String} getUserPhotosUrl the url where all users photos are from
+ * @param {String} galleryId the id of the gallery to add the photo to
+ * @param {String} pageId the id of the pagination that the gallery is in
+ * @param {Number} destinationId the id of the destination to link the photos to
  */
 function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
     galleryId, pageId, destinationId) {
@@ -151,7 +147,8 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
  * @param {string} pageId the id of the pagination that the gallery is in
  * @param {function} selectionFunction, the function that will be called when a photo is clicked on
  */
-function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction) {
+function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
+    selectionFunction) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -165,19 +162,19 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction
                 data[i]["canSelect"] = true;
                 usersPhotos[i] = data[i];
             }
-            let galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
+            let galleryObjects = createGalleryObjects(false, false, null,
+                selectionFunction);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
 }
-
 
 /**
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
- * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {Number} destinationId the id of the destination to link the photos to
  * @param {function} clickFunction the function that will be called when a photo is clicked
  * @returns {Array} the array of photo gallery objects
  */
@@ -207,6 +204,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
             // 6 * page + position finds the correct photo index in the dictionary
             const filename = usersPhotos[(6 * page + position)]["filename"];
             const guid = usersPhotos[(6 * page + position)]["guid"];
+            const caption = usersPhotos[(6 * page + position)]["caption"];
             const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
             const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
             const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
@@ -217,11 +215,15 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
                     // Create toggle button
                     const toggleButton = createToggleButton(isPublic, guid);
                     tile.appendChild(toggleButton);
+
                 }
                 if (canDelete === true) {
                     // Create delete button
-                    const deleteButton = createDeleteButton();
-                    tile.appendChild(deleteButton);
+                    // const deleteButton = createDeleteButton();
+                    // tile.appendChild(deleteButton);
+                    const editCaptionButton = createEditButton();
+                    tile.appendChild(editCaptionButton)
+
                 }
 
                 photo.href = filename;
@@ -236,6 +238,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
                 tile.appendChild(linkButton)
             }
             photo.setAttribute("data-id", guid);
+            photo.setAttribute("data-caption", caption);
             photo.setAttribute("data-filename", filename);
             // thumbnail
             let thumbnail = usersPhotos[(6 * page
@@ -259,9 +262,9 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
 }
 
 /**
- * Helper function to greate the button on the photo that toggles privacy
- * @param {boolean} isPublic current state of the photo
- * @param {Long} guid the id of the photo on which to create a toggle button
+ * Helper function to create the button on the photo that toggles privacy
+ * @param {Boolean} isPublic current state of the photo
+ * @param {Number} guid the id of the photo on which to create a toggle button
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
 function createToggleButton(isPublic, guid) {
@@ -288,8 +291,8 @@ function createToggleButton(isPublic, guid) {
 /**
  * Helper function to create the button on the photo that links a photo to a destination
  * @param {boolean} isLinked current state of the photo re being linked to a destination
- * @param {Long} guid the id of the photo on which to create a link button
- * @param {Long} destinationId the id of the destination the button will link to
+ * @param {Number} guid the id of the photo on which to create a link button
+ * @param {Number} destinationId the id of the destination the button will link to
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
 function createLinkButton(isLinked, guid, destinationId) {
@@ -314,14 +317,17 @@ function createLinkButton(isLinked, guid, destinationId) {
 }
 
 /**
- * Creates the delete button for photos in gallery
+ * Creates the edit button for photos in gallery
  * @returns {HTMLElement}
  */
-function createDeleteButton() {
-    let deleteButton = document.createElement("span");
-    deleteButton.setAttribute("class", "close");
-    deleteButton.innerHTML = "&times;";
-    return deleteButton;
+function createEditButton() {
+    const editCaptionButton = document.createElement("span");
+    const editCaptionIcon = document.createElement("i");
+    editCaptionButton.setAttribute("id", "editCaption");
+    editCaptionButton.setAttribute("class", "close");
+    editCaptionIcon.setAttribute("class", "fas fa-pen fa-1x");
+    editCaptionButton.appendChild(editCaptionIcon);
+    return editCaptionButton;
 }
 
 /**
@@ -345,22 +351,30 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         }).on("page", function (event, num) {
             currentPage = num;
             $(galleryId).html(galleryObjects[currentPage - 1]);
-            baguetteBox.run('.tz-gallery');
+            baguetteBox.run('.tz-gallery', {
+                captions: function (element) {
+                    return $(element).attr('data-caption');
+                }
+            });
             $('.img-wrap .close').on('click', function () {
                 let guid = $(this).closest('.img-wrap').find('a').data("id");
                 let filename = $(this).closest('.img-wrap').find('a').data(
                     "filename");
-                removePhoto(guid, filename);
+                populateEditPhoto(guid, filename);
             });
         });
         // set first page
         $(galleryId).html(galleryObjects[currentPage - 1]);
-        baguetteBox.run('.tz-gallery');
+        baguetteBox.run('.tz-gallery', {
+            captions: function (element) {
+                return $(element).attr('data-caption');
+            }
+        });
         $('.img-wrap .close').on('click', function () {
             let guid = $(this).closest('.img-wrap').find('a').data("id");
             let filename = $(this).closest('.img-wrap').find('a').data(
                 "filename");
-            removePhoto(guid, filename);
+            populateEditPhoto(guid, filename);
         });
     } else {
         $(galleryId).html("There are no photos!");
@@ -370,7 +384,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
 /**
  * Function that updates the privacy state of a photo
  *
- * @param {Long} guid of photo to update
+ * @param {Number} guid of photo to update
  * @param {boolean} newPrivacy
  */
 function togglePrivacy(guid, newPrivacy) {
@@ -402,16 +416,24 @@ function togglePrivacy(guid, newPrivacy) {
     undoRedo.sendAndAppend(reqData);
 }
 
+/**
+ * Sets the photo in the upload photo modal to the selected photo from file
+ * browser
+ */
 $('#upload-gallery-image-file').on('change', function handleImage(e) {
     const reader = new FileReader();
     reader.onload = function (event) {
-        
-        $('.image-body img').attr('src',event.target.result);
+
+        $('.image-body img').attr('src', event.target.result);
         $('.image-body').css('display', 'block');
         $('.uploader').css('display', 'none');
-    }
+    };
     reader.readAsDataURL(e.target.files[0]);
 });
 
-
-
+/**
+ * Opens edit photo modal when clicking on edit icon in photo thumbnail
+ */
+$('#editCaption').on('click', function () {
+    $('#upload-modal').show()
+});

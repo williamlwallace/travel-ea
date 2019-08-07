@@ -140,7 +140,6 @@ public class PhotoRepository {
                 .findOneOrEmpty()
                 .orElse(null),
             executionContext);
-
     }
 
     /**

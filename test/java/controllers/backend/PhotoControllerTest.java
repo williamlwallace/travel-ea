@@ -219,7 +219,7 @@ public class PhotoControllerTest extends ControllersTest {
         assertEquals(200, toggleResult.status());
 
         // Get the photo that we toggled
-        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/photo/1")
+        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/user/1/photo")
             .method("GET")
             .cookie(adminAuthCookie);
         Result photoResult = route(fakeApp, photoRequest);
@@ -244,7 +244,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void getPhoto() throws IOException {
         // Get photo
-        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/photo/1")
+        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/user/1/photo")
             .method("GET")
             .cookie(adminAuthCookie);
         Result photoResult = route(fakeApp, photoRequest);
@@ -253,6 +253,42 @@ public class PhotoControllerTest extends ControllersTest {
         List<Photo> photos = Arrays
             .asList(new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
         assertEquals(1, photos.size());
+    }
+
+    @Test
+    public void getByPhotoId() throws IOException{
+        // Get photo
+        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/photo/1")
+            .method("GET")
+            .cookie(adminAuthCookie);
+        Result photoResult = route(fakeApp, photoRequest);
+        assertEquals(200, photoResult.status());
+
+        Photo testPhoto = new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo.class);
+        assertEquals("./public/storage/photos/test/test.jpeg", testPhoto.filename );
+    }
+
+    @Test
+    public void getByPhotoIdNoPhoto() {
+        // Get photo
+        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/photo/9")
+            .method("GET")
+            .cookie(adminAuthCookie);
+        Result photoResult = route(fakeApp, photoRequest);
+        assertEquals(404, photoResult.status());
+    }
+
+    @Test
+    public void getCaptionByPhotoId() throws IOException{
+        // Get photo
+        Http.RequestBuilder photoRequest = Helpers.fakeRequest().uri("/api/photo/1")
+            .method("GET")
+            .cookie(adminAuthCookie);
+        Result photoResult = route(fakeApp, photoRequest);
+        assertEquals(200, photoResult.status());
+
+        Photo testPhoto = new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo.class);
+        assertEquals("test caption", testPhoto.caption );
     }
 
 }

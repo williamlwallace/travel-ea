@@ -68,9 +68,13 @@ public class PhotoController extends TEABackController {
         // Create photo directories if none exist
         String directoryName = System.getProperty("user.dir");
         File directory = new File(directoryName + "/public/storage/photos/test/thumbnails");
-        if(!directory.exists()) directory.mkdirs();
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
         File directory2 = new File(directoryName + "/public/storage/photos/thumbnails");
-        if(!directory2.exists()) directory2.mkdirs();
+        if (!directory2.exists()) {
+            directory2.mkdirs();
+        }
 
         savePath = directoryName + PUBLIC_DIRECTORY;
     }
@@ -101,7 +105,7 @@ public class PhotoController extends TEABackController {
         // Get the photo to have caption updated
         return photoRepository.getPhotoById(photoId).thenApplyAsync(photo -> {
             // Check if photo exists and then if user is authorized to perform this action
-            if(photo == null) {
+            if (photo == null) {
                 return notFound();
             } else if (!photo.userId.equals(currentUserId) && !user.admin) {
                 return forbidden();
@@ -130,12 +134,15 @@ public class PhotoController extends TEABackController {
         Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
 
         // Update profile photo, and get the prior photo id
-        try{
-            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
-                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
-            );
+        try {
+            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId)
+                .thenApplyAsync(returnedId ->
+                    returnedId != null ? ok(Json.toJson(returnedId))
+                        : ok(Json.newObject().nullNode())
+                );
         } catch (NullPointerException e) {
-            return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
+            return CompletableFuture
+                .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
         }
     }
 
@@ -160,12 +167,15 @@ public class PhotoController extends TEABackController {
         Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
 
         // Update cover photo, and get the prior photo id
-        try{
-            return profileRepository.updateCoverPhotoAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
-                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
-            );
+        try {
+            return profileRepository.updateCoverPhotoAndReturnExistingId(id, newPhotoId)
+                .thenApplyAsync(returnedId ->
+                    returnedId != null ? ok(Json.toJson(returnedId))
+                        : ok(Json.newObject().nullNode())
+                );
         } catch (NullPointerException e) {
-            return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
+            return CompletableFuture
+                .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
         }
     }
 
@@ -218,7 +228,8 @@ public class PhotoController extends TEABackController {
         HashSet<String> publicPhotoFileNames = new HashSet<>(Arrays.asList(
             formKeys.getOrDefault("publicPhotoFileNames", new String[]{""})[0].split(",")));
 
-        String[] photoCaptions = (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
+        String[] photoCaptions =
+            (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
 
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
@@ -230,7 +241,8 @@ public class PhotoController extends TEABackController {
         for (Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()) {
             if (file != null) {
                 try {
-                    String caption = (position >= photoCaptions.length) ? "" : photoCaptions[position];
+                    String caption =
+                        (position >= photoCaptions.length) ? "" : photoCaptions[position];
                     position += 1;
                     // Store file with photo in list to be added later
                     photos.add(new Pair<>(
@@ -298,7 +310,8 @@ public class PhotoController extends TEABackController {
         if (useProfileThumbnailSize) {
             photoRepository.addPhotos(photosToAdd);
             // Return filename of photo that was just added
-            photosToAdd.get(0).thumbnailFilename = "../user_content/" + photosToAdd.get(0).thumbnailFilename;
+            photosToAdd.get(0).thumbnailFilename =
+                "../user_content/" + photosToAdd.get(0).thumbnailFilename;
             photosToAdd.get(0).filename = "../user_content/" + photosToAdd.get(0).filename;
             return CompletableFuture.supplyAsync(() -> created(Json.toJson(photosToAdd.get(0))));
         } else {
@@ -449,6 +462,28 @@ public class PhotoController extends TEABackController {
     }
 
     /**
+     * Gets photo by photo guid
+     *
+     * @param request Request to read cookie data from
+     * @param photoId guid of photo to get
+     * @return Photo
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getPhotoById(Http.Request request, Long photoId) {
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
+        return photoRepository.getPhotoById(photoId).thenApplyAsync(photo -> {
+            // Check if photo exists and then if user is authorized to perform this action
+            if (photo == null) {
+                return notFound();
+            } else if (!photo.userId.equals(currentUserId) && !user.admin) {
+                return forbidden();
+            }
+            return ok(Json.toJson(photo));
+        });
+    }
+
+    /**
      * Toggles the privacy of a photo.
      *
      * @param request Request to read cookie data from
@@ -588,7 +623,8 @@ public class PhotoController extends TEABackController {
                 controllers.backend.routes.javascript.PhotoController.getDestinationPhotos(),
                 controllers.backend.routes.javascript.PhotoController.makePhotoProfile(),
                 controllers.backend.routes.javascript.PhotoController.setCoverPhoto(),
-                controllers.backend.routes.javascript.PhotoController.setPhotoCaption()
+                controllers.backend.routes.javascript.PhotoController.setPhotoCaption(),
+                controllers.backend.routes.javascript.PhotoController.getPhotoById()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

@@ -275,21 +275,74 @@ cropGallery.on('click', 'img', function () {
     $('#cropProfilePictureModal').modal('show');
 });
 
-function removePhoto(guid, filename) {
-    $('#deletePhotoModal').modal('show');
-    document.getElementById("deleteMe").setAttribute("src", filename);
-    document.getElementById("deleteMe").setAttribute("name", guid);
+/**
+ * Populates the edit photo modal
+ *
+ * @param {Number} guid - the id of the photo
+ * @param {String} filename - the filename of the photo
+ */
+function populateEditPhoto(guid, filename) {
+    $('#modal-photo').attr('src', "");
+    $('#modal-photo').attr('src', filename);
+    $('#modal-photo').attr("name", guid);
+    $('#update-caption input').val("");
+    $('#edit-modal').modal('show');
+    get(photoRouter.controllers.backend.PhotoController.getPhotoById(guid).url)
+    .then(response => {
+        response.json()
+        .then(photo => {
+            if (response.status !== 200) {
+                toast("Error in retrieving photo data",
+                    "Could not retrive photo"
+                    + "data properly", "danger", 5000);
+            } else {
+                const caption = photo.caption;
+                $('#update-caption input').val(caption);
+            }
+        })
+    });
+    $('#update-img').unbind('click');
+    $('#update-img').bind('click', function () {
+        updatePhotoCaption(guid);
+    });
 }
 
+/**
+ * Updates the caption of a photo
+ *
+ * @param {Number} guid - the id of the photo
+ */
+function updatePhotoCaption(guid) {
+    let caption = $('#update-caption input').val();
+    const url = photoRouter.controllers.backend.PhotoController.setPhotoCaption(
+        guid).url;
+    const handler = (status, json) => {
+        if (status !== 200) {
+            $('#errorLabel').html("Error! Could not update caption");
+        } else {
+            $('[data-id="' + guid + '"]').attr("data-caption", caption);
+            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+            toast("Caption updated!", "The photo caption has been updated",
+                "success");
+        }
+    };
+    const reqData = new ReqData(requestTypes["UPDATE"], url, handler, caption);
+    undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Deletes a photo
+ * @param route
+ */
 function deletePhoto(route) {
-    let guid = document.getElementById("deleteMe").name;
+    let guid = document.getElementById("modal-photo").name;
     let deleteUrl = route.substring(0, route.length - 1) + guid;
 
     _delete(deleteUrl)
     .then(response => {
         response.json().then(data => {
             if (response.status === 200) {
-                $('#deletePhotoModal').modal('hide');
+                $('#edit-modal').modal('hide');
                 fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
                 toast("Picture deleted!",
                     "The photo will no longer be displayed in the gallery.",
@@ -302,13 +355,6 @@ function deletePhoto(route) {
         });
     });
 }
-
-/**
- * allows the upload image button to act as an input field by clicking on the upload image file field
- */
-$("#upload-image-button").click(function () {
-    $("#upload-image-file").click();
-});
 
 /**
  * Takes the users selected photo file and creates a url object out of it. This is then passed to cropper.
@@ -329,24 +375,28 @@ function uploadNewPhoto() {
  */
 function getProfileAndCoverPicture() {
     const profileId = window.location.href.split("/").pop();
-    get(profileRouter.controllers.backend.ProfileController.getProfile(profileId).url).then(response => {
+    get(profileRouter.controllers.backend.ProfileController.getProfile(
+        profileId).url).then(response => {
         // Read response from server, which will be a json object
         if (response.status === 200) {
             response.json().then(data => {
-                if(data.profilePhoto === null) {
+                if (data.profilePhoto === null) {
                     $("#ProfilePicture").attr("src",
                         "/assets/images/default-profile-picture.jpg");
                 } else {
                     getPictures();
-                    $("#ProfilePicture").attr("src", "../user_content/" + data.profilePhoto.filename);
+                    $("#ProfilePicture").attr("src",
+                        "../user_content/" + data.profilePhoto.filename);
                 }
 
-                if(data.coverPhoto === null) {
+                if (data.coverPhoto === null) {
                     $("#CoverPhoto").css("background-image",
                         "url(/assets/images/profile-bg.jpg)");
                 } else {
                     getPictures();
-                    $("#CoverPhoto").css("background-image", "url(../user_content/" + data.coverPhoto.filename + ")");
+                    $("#CoverPhoto").css("background-image",
+                        "url(../user_content/" + data.coverPhoto.filename
+                        + ")");
                 }
             });
         } else if (response.status === 404) {
@@ -364,8 +414,9 @@ function getProfileAndCoverPicture() {
  * @param url the backend PhotoController url
  */
 function getPictures() {
-    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        userId).url, 'main-gallery', 'page-selection');
+    fillGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            userId).url, 'main-gallery', 'page-selection');
 }
 
 /**
@@ -405,7 +456,6 @@ function setCoverPhoto(photoId) {
         coverPicUpdateURL, handler, photoId);
     undoRedo.sendAndAppend(requestData);
 
-
 }
 
 /**
@@ -413,7 +463,7 @@ function setCoverPhoto(photoId) {
  * For a normal photo
  */
 $("#upload-gallery-image-button").click(function () {
-    $("#upload-gallery-image-file").click();
+    $('#caption input').val("");
 });
 
 /**
@@ -425,5 +475,7 @@ $("#editCoverPhotoButton").click(function () {
     $("#editCoverPhotoModal").modal('show');
     fillSelectionGallery(
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            userId).url, "cover-photo-gallery", "current-page", function(){setCoverPhoto(this.getAttribute("data-id"))});
+            userId).url, "cover-photo-gallery", "current-page", function () {
+            setCoverPhoto(this.getAttribute("data-id"))
+        });
 });

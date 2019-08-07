@@ -35,7 +35,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/photo/1");
+            .uri("/api/user/1/photo");
 
         Result result = route(fakeApp, request);
         JsonNode photos = new ObjectMapper()
@@ -54,7 +54,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/photo/1");
+            .uri("/api/user/1/photo");
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
         JsonNode checkEmptyPhotos = new ObjectMapper()
@@ -106,7 +106,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/photo/1");
+            .uri("/api/user/1/photo");
 
         Result result = route(fakeApp, request);
         Assert.assertEquals(OK, result.status());
@@ -122,7 +122,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/photo/1");
+            .uri("/api/user/1/photo");
 
         Result result = route(fakeApp, request);
         JsonNode photos = new ObjectMapper()

@@ -46,7 +46,7 @@ public class PhotoCaptionsTestSteps {
     @Then("when I view the photo, it will have the caption {string}")
     public void when_I_view_the_photo_it_will_have_the_caption(String string) throws IOException {
         // Create a request, with only the single part to add
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo/1")
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/user/1/photo")
             .method(GET)
             .cookie(adminAuthCookie);
 

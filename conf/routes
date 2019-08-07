@@ -83,7 +83,9 @@ POST          /api/photo                             controllers.backend.PhotoCo
 
 PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
 
-GET           /api/photo/:id                         controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
+GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
+
+GET           /api/photo/:photoId                    controllers.backend.PhotoController.getPhotoById(request:Request, photoId:Long)
 
 DELETE        /api/photo/:id                         controllers.backend.PhotoController.deletePhoto(id:Long)
 
