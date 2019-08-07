@@ -72,7 +72,8 @@ public class PhotoControllerTest extends ControllersTest {
         for (Pair<String, String> pair : Arrays.asList(
             new Pair<>("isTest", "true"),
             new Pair<>("profilePhotoName", "favicon.png"),
-            new Pair<>("publicPhotoFileNames", "")
+            new Pair<>("publicPhotoFileNames", ""),
+            new Pair<>("caption", "Hello")
         )) {
             partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
         }
