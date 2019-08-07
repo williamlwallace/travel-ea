@@ -120,7 +120,6 @@ pre {
  */
 .title-frame {
     background-color: #818182;
-    pointer-events: none;
     text-align: center;
     height: 30vh;
     max-height: 70rem;
@@ -143,6 +142,7 @@ pre {
     color: #FFFFFF;
     font-size: 7rem;
     opacity: 1;
+    text-shadow: 2px 2px 7px #0000008a;
 }
 
 .title-text-wrap {
@@ -162,6 +162,7 @@ pre {
     bottom: 0;
     width: auto;
     z-index: 10;
+    pointer-events: none;
 }
 
 .selectpicker {

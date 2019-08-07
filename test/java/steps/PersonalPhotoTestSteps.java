@@ -99,10 +99,6 @@ public class PersonalPhotoTestSteps {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         Assert.assertEquals(201, result.status());
-
-        // Check a success message was sent
-        String message = Helpers.contentAsString(result);
-        Assert.assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
     @Then("the number of photos i can view will be {int}")
@@ -134,5 +130,4 @@ public class PersonalPhotoTestSteps {
 
         Assert.assertTrue(photos.size() > 0);
     }
-
 }

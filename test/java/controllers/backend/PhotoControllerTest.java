@@ -72,7 +72,8 @@ public class PhotoControllerTest extends ControllersTest {
         for (Pair<String, String> pair : Arrays.asList(
             new Pair<>("isTest", "true"),
             new Pair<>("profilePhotoName", "favicon.png"),
-            new Pair<>("publicPhotoFileNames", "")
+            new Pair<>("publicPhotoFileNames", ""),
+            new Pair<>("caption", "Hello")
         )) {
             partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
         }
@@ -96,10 +97,6 @@ public class PhotoControllerTest extends ControllersTest {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(201, result.status());
-
-        // Check a success message was sent
-        String message = Helpers.contentAsString(result);
-        assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
     @Test
@@ -144,10 +141,6 @@ public class PhotoControllerTest extends ControllersTest {
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(201, result.status());
-
-        // Check a success message was sent
-        String message = Helpers.contentAsString(result);
-        assertEquals("\"File(s) uploaded successfully\"", message);
     }
 
     @Test

@@ -1,12 +1,25 @@
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
+let userId = -1;
+let getAllPhotosUrl;
+
+/**
+ * Sets the userId as a global variable. Also sets the getAllPhotosUrl
+ * @param userID the userId to set
+ */
+function setUserId(userID) {
+    userId = userID;
+    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        userId).url;
+}
+
 /**
  * The JavaScript method to fill the initial profile data
  * @param {Number} userId the id of the user who's profile to receive
  * @param {String} email the email of the logged in user, which may or may not be displayed
  */
-function fillProfileData(userId, email) {
+function fillProfileData(email) {
     if (document.getElementById("summary_email")) {
         document.getElementById("summary_email").innerText = email;
     }
@@ -153,7 +166,6 @@ let profilePictureToCrop = document.getElementById('image');
 let profilePictureSize = 350;
 let cropper;
 
-let getAllPhotosUrl;
 let profilePictureControllerUrl;
 let canEdit;
 let canDelete;
@@ -203,7 +215,7 @@ $(document).ready(function () {
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
-function uploadProfilePicture(userId) {
+function uploadProfilePicture() {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
         let formData = new FormData();
@@ -219,12 +231,15 @@ function uploadProfilePicture(userId) {
             // Read response from server, which will be a json object
             response.json().then(data => {
                 if (response.status === 201) {
-                    const photoFilename = "/public/storage/photos/" + data;
+                    const photoFilename = data["filename"];
+                    const photoId = data["guid"];
+
+                    $("#ProfilePicture").attr("src", photoFilename);
 
                     // Create reversible request to update profile photo to this new photo
                     const handler = (status, json) => {
                         if (status === 200) {
-                            getProfilePicture(profilePictureControllerUrl);
+                            getProfileAndCoverPicture();
                             toast("Changes saved!",
                                 "Profile picture changes saved successfully.",
                                 "success");
@@ -234,7 +249,7 @@ function uploadProfilePicture(userId) {
                         }
                     };
                     const requestData = new ReqData(requestTypes["UPDATE"],
-                        profilePicUpdateURL, handler, photoFilename);
+                        profilePicUpdateURL, handler, photoId);
                     undoRedo.sendAndAppend(requestData);
 
                 }
@@ -279,6 +294,10 @@ function deletePhoto(route) {
                 toast("Picture deleted!",
                     "The photo will no longer be displayed in the gallery.",
                     "success");
+                getProfileAndCoverPicture();
+                undoRedo.undoStack.clear();
+                undoRedo.redoStack.clear();
+                undoRedo.updateButtons();
             }
         });
     });
@@ -306,21 +325,35 @@ function uploadNewPhoto() {
 
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
- * the profile picture path to it.
- *
- * @param url the backend PhotoController url
+ * the profile picture and cover photo path to it.
  */
-function getProfilePicture(url) {
-    profilePictureControllerUrl = url;
-    get(profilePictureControllerUrl).then(response => {
+function getProfileAndCoverPicture() {
+    const profileId = window.location.href.split("/").pop();
+    get(profileRouter.controllers.backend.ProfileController.getProfile(profileId).url).then(response => {
         // Read response from server, which will be a json object
         if (response.status === 200) {
             response.json().then(data => {
-                $("#ProfilePicture").attr("src", data.filename);
+                if(data.profilePhoto === null) {
+                    $("#ProfilePicture").attr("src",
+                        "/assets/images/default-profile-picture.jpg");
+                } else {
+                    getPictures();
+                    $("#ProfilePicture").attr("src", "../user_content/" + data.profilePhoto.filename);
+                }
+
+                if(data.coverPhoto === null) {
+                    $("#CoverPhoto").css("background-image",
+                        "url(/assets/images/profile-bg.jpg)");
+                } else {
+                    getPictures();
+                    $("#CoverPhoto").css("background-image", "url(../user_content/" + data.coverPhoto.filename + ")");
+                }
             });
         } else if (response.status === 404) {
             $("#ProfilePicture").attr("src",
                 "/assets/images/default-profile-picture.jpg");
+            $("#CoverPhoto").css("background-image",
+                "/assets/images/profile-bg.jpg");
         }
     });
 }
@@ -330,9 +363,9 @@ function getProfilePicture(url) {
  *
  * @param url the backend PhotoController url
  */
-function getPictures(url) {
-    getAllPhotosUrl = url;
-    fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+function getPictures() {
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        userId).url, 'main-gallery', 'page-selection');
 }
 
 /**
@@ -346,9 +379,51 @@ function showProfilePictureGallery() {
 }
 
 /**
+ * Sets the users cover photo given a specific photoID
+ * @Param {Long} photoId the id of the photo to set as the cover photo
+ * @Param {Long} userId the id of the user whos cover photo should change
+ */
+function setCoverPhoto(photoId) {
+    const coverPicUpdateURL = photoRouter.controllers.backend.PhotoController.setCoverPhoto(
+        userId).url;
+
+    // Create reversible request to update profile photo to this new photo
+    const handler = (status, json) => {
+        if (status === 200) {
+            getProfileAndCoverPicture();
+            $("#editCoverPhotoModal").modal('hide');
+            toast("Changes saved!",
+                "Cover photo changes saved successfully.",
+                "success");
+        } else {
+            toast("Error",
+                "Unable to update cover photo", "danger");
+        }
+    };
+
+    const requestData = new ReqData(requestTypes["UPDATE"],
+        coverPicUpdateURL, handler, photoId);
+    undoRedo.sendAndAppend(requestData);
+
+
+}
+
+/**
  * allows the upload image button to act as an input field by clicking on the upload image file field
  * For a normal photo
  */
-// $("#upload-gallery-image-button").click(function () {
-//     $("#upload-gallery-image-file").click();
-// });
+$("#upload-gallery-image-button").click(function () {
+    $("#upload-gallery-image-file").click();
+});
+
+/**
+ * The editCoverPhotoButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#editCoverPhotoButton").click(function () {
+    $("#editCoverPhotoModal").modal('show');
+    fillSelectionGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            userId).url, "cover-photo-gallery", "current-page", function(){setCoverPhoto(this.getAttribute("data-id"))});
+});
