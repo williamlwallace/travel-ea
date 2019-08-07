@@ -57,6 +57,60 @@ function populateDestinationDetails(destinationId) {
                         "summary_traveller_types").innerText = "";
                 }
 
+                // TODO: Remove this when tags backend implemented
+                destination.tags = [
+                    {
+                        id: 1,
+                        name: "Test"
+                    },
+                    {
+                        id: 2,
+                        name: "NZ"
+                    },
+                    {
+                        id: 2,
+                        name: "Russia"
+                    },
+                    {
+                        id: 2,
+                        name: "More tags"
+                    },
+                    {
+                        id: 2,
+                        name: "There are a lot of tags on here now"
+                    },
+                    {
+                        id: 2,
+                        name: "1234556"
+                    },
+                    {
+                        id: 2,
+                        name: "Cool place"
+                    },
+                    {
+                        id: 2,
+                        name: "hah area 51"
+                    }
+                ];
+
+                if (destination.tags.length > 0) {
+                    document.getElementById("heading_tags").style.display = "block";
+                    let tags = "";
+                    for (const tag in destination.tags) {
+                        tags += "'" + destination.tags[tag].name + "', "
+                    }
+                    document.getElementById("summary_tags").innerText = tags.substring(0, tags.length-2);
+                } else {
+                    document.getElementById("heading_tags").style.display = "none";
+                    document.getElementById("summary_tags").innerText = "";
+                }
+
+                let tags = "";
+                for (const tag in destination.tags) {
+                    tags += "'" + destination.tags[tag].name + "', "
+                }
+                document.getElementById("summary_tags").innerText = tags.substring(0, Math.max(0, tags.length-2));
+
                 createPrivacyButton(destination.isPublic);
             }
         })
@@ -159,6 +213,7 @@ function editDestination(destinationId) {
                         [pair[0]]: pair[1],
                     }), {});
 
+                // Builds destination object out of form data
                 // Convert lat and long to double values, and id to int
                 destination.latitude = parseFloat(data.latitude);
                 destination.longitude = parseFloat(data.longitude);
@@ -169,6 +224,8 @@ function editDestination(destinationId) {
                 destination.destType = data.destType;
                 destination.name = data.name;
                 destination.district = data.district;
+                destination.tags = $("#destinationTags").tagsinput('items');
+
                 addNonExistingCountries([destination.country]).then(result => {
                     // Post json data to given uri
                     const URL = destinationRouter.controllers.backend.DestinationController.editDestination(
@@ -233,8 +290,24 @@ function populateEditDestination(destinationId) {
                     "latitudeDeat").value = destination.latitude;
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
-                //fills country picker
+                // Fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
+
+                // TODO: Remove this when tags implemented
+                destination.tags = [
+                    {
+                        id: 1,
+                        name: "Test"
+                    },
+                    {
+                        id: 2,
+                        name: "NZ"
+                    }
+                ];
+                // Fills tags
+                for (const tag in destination.tags) {
+                    $('#destinationTags').tagsinput('add', destination.tags[tag].name);
+                }
             }
         })
     })
