@@ -21,15 +21,17 @@
 }
 
 #tags li{
+    font-family: "Liberation Mono";
     border: 1px solid #007bff;
     background-color: #5283B7;
     color: #fff;
     border-radius: 4px;
-    padding: 1px;
-    margin: 7px 4px 0px 0px;
+    padding: 2px 2px 1px 1px;
+    margin: 8px 3px 0px 3px;
     font-size: 12px;
     max-height: 25px;
     padding-left: 2px;
+    padding-top: 
 }
 
 .spacer {
@@ -38,8 +40,7 @@
     display: inline-block;
 }
 
-.close-icon
-{
+.close-icon {
     display:inline-block;
     box-sizing:border-box;
     margin: -17px 2px 0px 4px;
@@ -57,12 +58,45 @@
 }
 
 .tagsInput {
-    margin-left: -109px;
-    display: inline-block;
+    padding-left: 4px;
+    margin-top: 3px;
+    font-size: 14px;
+    width:109px;
     border: none;
+    font-family: "Liberation Mono";
     outline:none !important;
     outline-width: 0 !important;
     box-shadow: none !important;
     -moz-box-shadow: none;
     -webkit-box-shadow: none;
+}
+
+.inputCont {
+    position: relative;
+    width: 109px;
+    margin-left: -109px;
+    display: inline-block;
+}
+
+.inputCont p {
+    position: absolute;
+    overflow: auto;
+    z-index: 100;
+    left:14px;
+    top: 6px;
+    font-size: 12px;
+    font-family: "Liberation Mono";
+    font-weight: 400;
+    padding: 5px;
+    padding-left:0;
+}
+
+.inputCont mark {
+    padding: 5px;
+    padding-left:0;
+    margin-left:0;
+    background-color: #5283B7;
+    color: white;
+    height: 24px;
+    border-radius: 4px;
 }
