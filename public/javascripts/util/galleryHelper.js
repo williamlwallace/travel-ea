@@ -158,7 +158,7 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction
                 data[i]["canSelect"] = true;
                 usersPhotos[i] = data[i];
             }
-            let galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
+            const galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
