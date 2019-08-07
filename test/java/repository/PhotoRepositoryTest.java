@@ -161,8 +161,6 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         Photo deletedPhoto = photoRepository.deletePhoto(1L).join();
 
         assertNotNull(deletedPhoto);
-
-        assertNull(photoRepository.getPhotoById(1L).join());
     }
 
     @Test
@@ -206,7 +204,6 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     public void deletePhotoByFilename() {
         assertTrue(photoRepository.deletePhotoByFilename("./public/storage/photos/test/test3.jpeg")
             .join());
-        assertNull(photoRepository.getPhotoById(3L).join());
     }
 
     @Test
