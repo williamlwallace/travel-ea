@@ -28,6 +28,10 @@ public class Tag extends Model {
 
     @JsonBackReference("DestinationTagReference")
     @ManyToMany(mappedBy = "tags") //The tags variable/list in the Destination Model
+    @JoinTable(
+        name = "DestinationTag",
+        joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
     public List<Destination> destinations;
 
     @ManyToMany(mappedBy = "tags")
@@ -36,16 +40,15 @@ public class Tag extends Model {
         name = "PhotoTag",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
-
     public List<Photo> photos;
 
     @JsonBackReference("TripsTagReference")
     @ManyToMany(mappedBy = "tags")
+    @JoinTable(
+        name = "TripTag",
+        joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"))
     public List<Trip> trips;
-
-//    @JsonBackReference("UsedTagReference")
-//    @ManyToMany(mappedBy = "usedTags")
-//    public List<User> users;
 
     @ManyToMany(mappedBy = "usedTags")
     @JsonBackReference("UsedTagReference")

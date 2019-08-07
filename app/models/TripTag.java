@@ -9,20 +9,20 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that stores information regarding tags and what photos are tagged with them.
+ * A class that stores information regarding tags and what trips are tagged with them.
  *
  * This class is here for clarity, it can be deleted due to our bridging method
  */
 @Entity
-@Table(name = "PhotoTag")
-public class PhotoTag extends Model {
+@Table(name = "TripTag")
+public class TripTag extends Model {
 
     @Id
     public Long guid;
 
     @Constraints.Required
-    @Column(name = "photo_id")
-    public Long photoId;
+    @Column(name = "trip_id")
+    public Long tripId;
 
     @ManyToOne
     @Constraints.Required
