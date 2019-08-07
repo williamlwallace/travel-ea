@@ -43,8 +43,7 @@ start-server-dev:
     - setupDev
     - startDev
   only:
-    - master-dev@seng302-2019/team-400
-    - fix-dest-privacy-from-profile-hotfix@seng302-2019/team-400
+    - IGNOREDmaster-dev@seng302-2019/team-400
 
 start-server-prod:
   stage: deploy
@@ -58,7 +57,7 @@ start-server-prod:
   - setupProd
   - startProd
   only:
-    - master@seng302-2019/team-400
+    - IGNOREDmaster@seng302-2019/team-400
 
 
 Update-sonar:
@@ -66,5 +65,5 @@ Update-sonar:
   script:
     - sbt compile && sbt checkstyle && sonar-scanner
   only:
-    - master@seng302-2019/team-400
-    - master-dev@seng302-2019/team-400
+    - IGNOREDmaster@seng302-2019/team-400
+    - IGNOREDmaster-dev@seng302-2019/team-400
