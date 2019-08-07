@@ -55,7 +55,7 @@ public class Photo extends Model {
     @JoinTable(
         name = "PhotoTag",
         joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> tags;
 
     /**
