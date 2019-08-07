@@ -8,6 +8,8 @@ $('#upload-img').on('click', function() {
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
 
+    const caption = $('#caption input').val(); //This will be used when backend is merged in
+
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
     let formData = new FormData();
