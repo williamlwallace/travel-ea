@@ -1,12 +1,13 @@
 /**
  * Takes the users selected photos and  creates a form from them
  * Sends this form to  the appropriate url
- *
- * @param {string} url the appropriate  photo backend controller
- * @param {string} galleryId the id of the gallery to add the photo to
- * @param {string} pageId the id of the pagination that the gallery is in
  */
-function uploadNewGalleryPhoto(url, galleryId, pageId) {
+$('#upload-img').on('click', function() {
+    const url = photoRouter.controllers.backend.PhotoController.upload().url
+    //Get the the required ids from data tags in the button eleemnt
+    const galleryId = $(this).data('gallery-id');
+    const pageId = $(this).data('page-id');
+
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
     let formData = new FormData();
@@ -25,7 +26,7 @@ function uploadNewGalleryPhoto(url, galleryId, pageId) {
             }
         })
     })
-}
+});
 
 let usersPhotos = [];
 
@@ -37,6 +38,7 @@ let usersPhotos = [];
  * @param {string} pageId the id of the pagination that the gallery is in
  */
 function fillGallery(getPhotosUrl, galleryId, pageId) {
+    console.log(galleryId);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -359,3 +361,17 @@ function togglePrivacy(guid, newPrivacy) {
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
+
+$('#upload-gallery-image-file').on('change', function handleImage(e) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        
+        $('.image-body img').attr('src',event.target.result);
+        $('.image-body').css('display', 'block');
+        $('.uploader').css('display', 'none');
+    }
+    reader.readAsDataURL(e.target.files[0]);
+});
+
+
+

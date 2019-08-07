@@ -349,6 +349,6 @@ function showProfilePictureGallery() {
  * allows the upload image button to act as an input field by clicking on the upload image file field
  * For a normal photo
  */
-$("#upload-gallery-image-button").click(function () {
-    $("#upload-gallery-image-file").click();
-});
+// $("#upload-gallery-image-button").click(function () {
+//     $("#upload-gallery-image-file").click();
+// });
