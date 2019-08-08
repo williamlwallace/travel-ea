@@ -17,6 +17,7 @@ public class TagRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+
     @Inject
     public TagRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
@@ -24,7 +25,7 @@ public class TagRepository {
     }
 
     /**
-     * Adds all the new tags (tags without an id) in the list to the database
+     * Adds all the new tags in the list to the database
      *
      * @param tags The list of tags to add, can include existing tags, they will be ignored
      * @return The list of inserted tags
@@ -33,7 +34,9 @@ public class TagRepository {
         return supplyAsync(() -> {
             List<Tag> tagsToAdd = new ArrayList<>();
             for (Tag tag : tags) {
-                if (tag.id == null) {
+                if (tag.id == null &&
+                    ebeanServer.find(Tag.class).where().eq("name", tag.name).findOneOrEmpty()
+                        .orElse(null) == null) {
                     tagsToAdd.add(tag);
                 }
             }

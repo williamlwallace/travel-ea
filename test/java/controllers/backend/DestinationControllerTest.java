@@ -1,6 +1,7 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
@@ -29,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Tag;
 import models.TripData;
 import models.User;
 import org.junit.Assert;
@@ -200,9 +202,20 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void editDestination() throws IOException {
         Destination destination = getDestination(4);
         assertNotNull(destination);
+        assertNotEquals("Definitely Not Blitzcrank", destination.name);
+        System.out.println(destination.name);
+        for (Tag tag : destination.tags) {
+            System.out.println(tag.id + " " + tag.name);
+        }
+        assertEquals(1, destination.tags.size());
+        assertEquals("sports", destination.tags.get(0).name);
 
         destination.name = "Definitely Not Blitzcrank";
         destination.district = "Summoners Rift";
+
+        Tag newTag = new Tag();
+        newTag.name = "New Tag";
+        destination.tags.add(newTag);
 
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
@@ -219,6 +232,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         assertEquals("Definitely Not Blitzcrank", updatedDestination.name);
         assertEquals("Summoners Rift", updatedDestination.district);
+        assertEquals(2, destination.tags.size());
+        assertEquals("sports", destination.tags.get(0).name);
+        assertEquals("New Tag", destination.tags.get(1).name);
         assertEquals(destination, updatedDestination);
     }
 
