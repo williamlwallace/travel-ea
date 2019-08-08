@@ -289,5 +289,5 @@
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
         populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     });
-        
+    fillTagSuggestions(@user.id);
 </script>

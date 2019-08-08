@@ -6,8 +6,8 @@ $('#tagsInput').on('keyup', keyUp);
 
 
 /**
-    * Key down handler
-    */
+* Key down handler
+*/
 function keyDown(e) {
     //Need to keep depreciated symbols for older browsers
     const key = e.which || e.keyCode || e.key;
@@ -56,8 +56,8 @@ function keyDown(e) {
 };
 
 /**
-    * keyup handler
-    */
+* keyup handler
+*/
 function keyUp(e) {
     const tag = $('#tags input').val();
     if (tag.replace('"', "") === "") {
@@ -70,10 +70,10 @@ function keyUp(e) {
 };
 
 /**
-    * searchs suggested tags for matches and returns closest match
-    * 
-    * @param {String} string string to match 
-    */
+* searchs suggested tags for matches and returns closest match
+* 
+* @param {String} string string to match 
+*/
 function searchTags(string) {
     for (const tag of tagPickerSuggestions) {
         const lowerTag = tag.toLowerCase().replace(/['"]+/g, '');
@@ -88,19 +88,31 @@ function searchTags(string) {
 }
 
 /**
-    * Deletes tag assuming tag element gets binded to function
-    */
+* Deletes tag assuming tag element gets binded to function
+*/
 function deleteTag() {
     $(this).parent().remove();
 };
 
 /**
-    * returns a list of all selected tags
-    */
+* returns a list of all selected tags
+*/
 function getTags() {
     const tags = [];
     for (const li of $('#tags ul li')) {
         tags.push(li.innerText.replace(/['"]+/g, ''));
     }
     return tags.slice(0, -1);
+}
+
+function fillTagSuggestions(userId) {
+    const url = userRouter.controllers.backend.UserController.getUser(userId).url;
+    get(url)
+    .then((res) => {
+        res.json()
+        .then((json) => {
+            console.log(json)
+            tagPickerSuggestions = json.usedTags.map((tag) => tag.name); 
+        });
+    })
 }
