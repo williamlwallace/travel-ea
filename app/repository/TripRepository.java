@@ -32,7 +32,7 @@ public class TripRepository {
      * Inserts new trip into database.
      *
      * @param newTrip Trip object to be added
-     * @return Ok on success
+     * @return the id of the inserted trip
      */
     public CompletableFuture<Long> insertTrip(Trip newTrip) {
         return supplyAsync(() -> {
@@ -46,7 +46,7 @@ public class TripRepository {
      * Updates a trip.
      *
      * @param trip the updated trip
-     * @return true on successful update or false on fail
+     * @return true on successful update or false if the trip is not found in the database
      */
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
         return supplyAsync(() -> {
@@ -63,7 +63,7 @@ public class TripRepository {
      * Deletes trip from database by id.
      *
      * @param id ID of trip object to be deleted
-     * @return True if trip object deleted, false if object not found
+     * @return the number of deleted rows
      */
     public CompletableFuture<Integer> deleteTrip(Long id) {
         return supplyAsync(() -> {

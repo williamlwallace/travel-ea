@@ -51,11 +51,11 @@ public class Photo extends Model {
 
     public List<Destination> destinationPhotos;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "photos")
     @JoinTable(
         name = "PhotoTag",
-        joinColumns = @JoinColumn(name = "photo_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> tags;
 
     /**

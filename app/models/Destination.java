@@ -78,11 +78,11 @@ public class Destination extends BaseModel {
         inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypesPending;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "destinations")
     @JoinTable(
         name = "DestinationTag",
-        joinColumns = @JoinColumn(name = "destination_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+        joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> tags;
 
     /**

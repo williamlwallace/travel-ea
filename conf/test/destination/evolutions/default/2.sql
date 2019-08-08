@@ -36,6 +36,10 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Public dest one', 'Monument', 'Paris', 48.8583, 2.2945, 1, 1);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Public dest two', 'Monument', 'Paris', 48.8586, 2.2947, 1, 1);
 
+-- Deleted destination
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public, deleted) VALUES (1, 'Deleted dest one', 'Oops', 'Oh no', 0, 0, 1, 1, true);
+
+
 -- Add photo
 INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
 
@@ -51,7 +55,7 @@ INSERT INTO DestinationTravellerTypePending(dest_id, traveller_type_definition_i
 -- Insert a trip that uses destinations that will be merged
 INSERT INTO Trip (user_id) VALUES (2);
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES
-  (1, 0, 4, null, null), (1, 1, 5, null, null), (1, 2, 2, null, null)
+  (1, 0, 4, null, null), (1, 1, 5, null, null), (1, 2, 2, null, null);
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('NZ'), ('sports'), ('music');

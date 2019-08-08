@@ -42,11 +42,11 @@ public class User extends BaseModel {
 
     public Boolean admin = false;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "users")
     @JoinTable(
         name = "UsedTag",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> usedTags;
 
 }

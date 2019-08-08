@@ -35,11 +35,11 @@ public class Trip extends BaseModel implements Comparable<Trip> {
     @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "trips")
     @JoinTable(
         name = "TripTag",
-        joinColumns = @JoinColumn(name = "trip_id"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id"))
+        joinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> tags;
 
     /**

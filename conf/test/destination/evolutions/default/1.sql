@@ -204,10 +204,11 @@ CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
     name                  VARCHAR(64),
-    deleted               BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (id)
   );
 
+-- Specifies the DestinationTag table, this is only done in the SQL so we can populate it in the evolutions
+-- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS DestinationTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -218,6 +219,8 @@ CREATE TABLE IF NOT EXISTS DestinationTag
     PRIMARY KEY (guid)
   );
 
+-- Specifies the TripTag table, this is only done in the SQL so we can populate it in the evolutions
+-- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS TripTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -228,6 +231,8 @@ CREATE TABLE IF NOT EXISTS TripTag
     PRIMARY KEY (guid)
   );
 
+-- Specifies the PhotoTag table, this is only done in the SQL so we can populate it in the evolutions
+-- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS PhotoTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -238,12 +243,13 @@ CREATE TABLE IF NOT EXISTS PhotoTag
     PRIMARY KEY (guid)
   );
 
+-- Specifies the UsedTag table
 CREATE TABLE IF NOT EXISTS UsedTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
     tag_id                INT NOT NULL,
     user_id               INT NOT NULL,
-    used                  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    time_used             DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (guid)

@@ -121,7 +121,7 @@ INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile)
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (1, 1);
 INSERT INTO TripTag (tag_id, trip_id) VALUES (3, 1);
--- INSERT INTO PhotoTag (tag_id, photo_id) VALUES (1, 1);
+INSERT INTO PhotoTag (tag_id, photo_id) VALUES (1, 1);
 INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1), (2, 2);
 
 -- !Downs
