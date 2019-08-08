@@ -212,7 +212,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void togglePhotoPrivacy() throws IOException{
         // Toggle privacy
-        Http.RequestBuilder toggleRequest = Helpers.fakeRequest().uri("/api/photo/privacy/2")
+        Http.RequestBuilder toggleRequest = Helpers.fakeRequest().uri("/api/photo/2/privacy")
             .method("PUT")
             .cookie(adminAuthCookie);
         Result toggleResult = route(fakeApp, toggleRequest);
@@ -234,7 +234,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void togglePhotoPrivacyNoPhoto() {
         // Toggle privacy
-        Http.RequestBuilder toggleRequest = Helpers.fakeRequest().uri("/api/photo/privacy/5")
+        Http.RequestBuilder toggleRequest = Helpers.fakeRequest().uri("/api/photo/5/privacy")
             .method("PUT")
             .cookie(adminAuthCookie);
         Result result = route(fakeApp, toggleRequest);

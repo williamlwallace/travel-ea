@@ -1175,7 +1175,7 @@ paths:
         '404':
           description: User not found
 
-  '/photo/{id}/profile':
+  '/photo/{photoId}/profile':
     put:
       tags:
       - Photos
@@ -1219,7 +1219,7 @@ paths:
         '404':
           description: No such user id found
 
-  '/photo/{id}/cover':
+  '/photo/{photoId}/cover':
     put:
       tags:
       - Photos
@@ -1263,7 +1263,7 @@ paths:
         '404':
           description: No such user id found
 
-  '/photo/privacy/{id}':
+  '/photo/{photoId}/privacy':
     put:
       tags:
       - Photos
@@ -1343,7 +1343,7 @@ paths:
         '401':
           description: Unauthorized
 
-  '/photo/{id}':
+  '/user/{id}/photo/':
     get:
       tags:
       - Photos
@@ -1389,6 +1389,41 @@ paths:
                 items:
                   $ref: '#/components/schemas/Photo'
 
+  '/photo/{photoId}':
+    get:
+      tags:
+      - Photos
+      summary: 'Gets photo by its unique id'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: photoId
+        required: true
+        description: The ID of the photo to retrieve
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved photo with given ID'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Photo not found'
+
     delete:
       tags:
       - Photos
@@ -1404,7 +1439,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The ID of photo to be deleted
         schema:

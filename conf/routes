@@ -81,19 +81,19 @@ PUT           /api/trip/:id/delete                   controllers.backend.TripCon
 
 POST          /api/photo                             controllers.backend.PhotoController.upload(request: Request)
 
-PUT           /api/photo/privacy/:id                 controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, id:Long)
+PUT           /api/photo/:photoId/privacy            controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, photoId:Long)
 
 GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
 GET           /api/photo/:photoId                    controllers.backend.PhotoController.getPhotoById(request:Request, photoId:Long)
 
-DELETE        /api/photo/:id                         controllers.backend.PhotoController.deletePhoto(id:Long)
+DELETE        /api/photo/:photoId                    controllers.backend.PhotoController.deletePhoto(photoId:Long)
 
-PUT           /api/photo/:id/profile                 controllers.backend.PhotoController.makePhotoProfile(request:Request, id:Long)
+PUT           /api/photo/:photoId/profile            controllers.backend.PhotoController.makePhotoProfile(request:Request, photoId:Long)
 
 PUT           /api/photo/:photoId/setCaption         controllers.backend.PhotoController.setPhotoCaption(request:Request, photoId:Long)
 
-PUT           /api/photo/:id/cover                   controllers.backend.PhotoController.setCoverPhoto(request:Request, id:Long)
+PUT           /api/photo/:photoId/cover              controllers.backend.PhotoController.setCoverPhoto(request:Request, photoId:Long)
 
 POST          /api/treasurehunt                      controllers.backend.TreasureHuntController.insertTreasureHunt(request:Request)
 
