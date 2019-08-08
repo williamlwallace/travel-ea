@@ -71,6 +71,9 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    data.tags = getTags();
+
+    console.log(data)
     //Create response handler
     const handler = function (status, json) {
         if (status !== 200) {
