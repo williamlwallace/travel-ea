@@ -31,6 +31,10 @@ code {
 /**
  * Navbar drop down menu
  */
+.navbar-collapse {
+    text-shadow: rgba(0, 0, 0, 0.6) 1px 1px 5px;
+}
+
 .nav-link, .dropdown-style {
     color: rgba(255,255,255, 0.9) !important;
 }
