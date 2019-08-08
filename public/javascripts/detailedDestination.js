@@ -224,7 +224,14 @@ function editDestination(destinationId) {
                 destination.destType = data.destType;
                 destination.name = data.name;
                 destination.district = data.district;
-                destination.tags = $("#destinationTags").tagsinput('items');
+
+                // Add tags to destination
+                const tags = getTags();
+                destination.tags = tags.map((tag) => {
+                    return {
+                        name: tag
+                    }
+                });
 
                 addNonExistingCountries([destination.country]).then(result => {
                     // Post json data to given uri
