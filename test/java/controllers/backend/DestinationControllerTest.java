@@ -105,6 +105,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Long.valueOf(1), dest.id);
         assertEquals(2, dest.travellerTypes.size());
         assertEquals(2, dest.travellerTypesPending.size());
+        assertEquals("sports", dest.tags.get(0).name);
+
     }
 
     @Test
@@ -372,7 +374,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         // Get id of destination, check it is 5
         Long idOfDestination = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class);
-        assertEquals(Long.valueOf(11), idOfDestination);
+        assertEquals(Long.valueOf(12), idOfDestination);
     }
 
     @Test

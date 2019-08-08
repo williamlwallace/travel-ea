@@ -27,13 +27,13 @@ import repository.DestinationRepository;
 public abstract class ControllersTest extends WithApplication {
 
     static Application fakeApp;
-    private static Database db;
     static Connection connection;
     // Belongs to admin, userID = 1
     static Cookie adminAuthCookie;
     // Belongs to non-admin, userID = 2
     static Cookie nonAdminAuthCookie;
     static DestinationRepository destinationRepository;
+    private static Database db;
 
     /**
      * Configures system to use dest database, and starts a fake app
@@ -48,7 +48,9 @@ public abstract class ControllersTest extends WithApplication {
         // Create a fake app that we can query just like we would if it was running
         fakeApp = Helpers.fakeApplication(settings);
         db = fakeApp.injector().instanceOf(Database.class);
-        if(connection != null) connection.close();
+        if (connection != null) {
+            connection.close();
+        }
         connection = db.getConnection();
         adminAuthCookie = Cookie.builder("JWT-Auth",
             "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
@@ -93,7 +95,8 @@ public abstract class ControllersTest extends WithApplication {
     /**
      * Converts a result set from a query for rows from destination table into java collection
      *
-     * Note: Does not join full objects where foreign keys are given, but rather just creates such an object with foreign key ID set
+     * Note: Does not join full objects where foreign keys are given, but rather just creates such
+     * an object with foreign key ID set
      *
      * @param rs Result set
      * @return Collection of destinations read from result set
@@ -122,21 +125,24 @@ public abstract class ControllersTest extends WithApplication {
     /**
      * Converts a result set from a query for rows from TripData table into java collection
      *
-     * Note: Does not join full objects where foreign keys are given, but rather just creates such an object with foreign key ID set
+     * Note: Does not join full objects where foreign keys are given, but rather just creates such
+     * an object with foreign key ID set
      *
      * @param rs Result set
      * @return Collection of trip data read from result set
      */
     Collection<TripData> tripDataFromResultSet(ResultSet rs) throws SQLException {
         Collection<TripData> tripDataCollection = new ArrayList<>();
-        while(rs.next()) {
+        while (rs.next()) {
             TripData tripData = new TripData();
 
             tripData.trip = new Trip();
             tripData.trip.id = rs.getLong("trip_id");
             tripData.guid = rs.getLong("guid");
-            tripData.arrivalTime = (rs.getTimestamp("arrival_time") == null) ? null : rs.getTimestamp("arrival_time").toLocalDateTime();
-            tripData.departureTime = (rs.getTimestamp("departure_time") == null) ? null : rs.getTimestamp("departure_time").toLocalDateTime();
+            tripData.arrivalTime = (rs.getTimestamp("arrival_time") == null) ? null
+                : rs.getTimestamp("arrival_time").toLocalDateTime();
+            tripData.departureTime = (rs.getTimestamp("departure_time") == null) ? null
+                : rs.getTimestamp("departure_time").toLocalDateTime();
             tripData.position = rs.getLong("position");
             tripData.destination = new Destination();
             tripData.destination.id = rs.getLong("destination_id");
@@ -149,14 +155,15 @@ public abstract class ControllersTest extends WithApplication {
     /**
      * Converts a result set from a query for rows from TreasureHunt table into java collection
      *
-     * Note: Does not join full objects where foreign keys are given, but rather just creates such an object with foreign key ID set
+     * Note: Does not join full objects where foreign keys are given, but rather just creates such
+     * an object with foreign key ID set
      *
      * @param rs Result set
      * @return Collection of treasure hunts read from result set
      */
     Collection<TreasureHunt> treasureHuntsFromResultSet(ResultSet rs) throws SQLException {
         Collection<TreasureHunt> treasureHuntCollection = new ArrayList<>();
-        while(rs.next()) {
+        while (rs.next()) {
             TreasureHunt treasureHunt = new TreasureHunt();
 
             treasureHunt.destination = new Destination();
@@ -164,8 +171,10 @@ public abstract class ControllersTest extends WithApplication {
             treasureHunt.id = rs.getLong("id");
             treasureHunt.user = new User();
             treasureHunt.user.id = rs.getLong("user_id");
-            treasureHunt.endDate = (rs.getTimestamp("end_date") == null) ? null : rs.getTimestamp("end_date").toLocalDateTime().toLocalDate();
-            treasureHunt.startDate = (rs.getTimestamp("start_date") == null) ? null : rs.getTimestamp("start_date").toLocalDateTime().toLocalDate();
+            treasureHunt.endDate = (rs.getTimestamp("end_date") == null) ? null
+                : rs.getTimestamp("end_date").toLocalDateTime().toLocalDate();
+            treasureHunt.startDate = (rs.getTimestamp("start_date") == null) ? null
+                : rs.getTimestamp("start_date").toLocalDateTime().toLocalDate();
             treasureHunt.riddle = rs.getString("riddle");
             treasureHuntCollection.add(treasureHunt);
         }

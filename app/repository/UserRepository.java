@@ -29,10 +29,11 @@ public class UserRepository {
     }
 
     /**
-     * Return a paged list of user.
+     * Return a paged list of users not including provided user id.
      *
      * @param order Sort order (either or asc or desc)
      * @param filter Filter applied on the name column
+     * @param userId The user to exclude from the results, normally used for the logged in user
      */
     public CompletableFuture<List<User>> search(String order, String filter, Long userId) {
         return supplyAsync(() ->
@@ -62,14 +63,15 @@ public class UserRepository {
     }
 
     /**
-     * Gets the user with some id from the database, or null if no such user exists.
+     * Gets the deleted user with some id from the database, or null if no such user exists.
      *
      * @param id Unique ID of user to retrieve
      * @return User object with given ID, or null if none found
      */
     public CompletableFuture<User> findDeletedID(Long id) {
         return supplyAsync(() ->
-                ebeanServer.find(User.class).setIncludeSoftDeletes()
+                ebeanServer.find(User.class)
+                    .setIncludeSoftDeletes()
                     .where()
                     .idEq(id)
                     .findOneOrEmpty()
@@ -120,7 +122,7 @@ public class UserRepository {
      * remove a user from db.
      *
      * @param id uid of user
-     * @return Ok result object in a completableFuture
+     * @return the number of rows that were deleted
      */
     public CompletableFuture<Integer> deleteUser(Long id) {
         return supplyAsync(() ->
