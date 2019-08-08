@@ -9,11 +9,9 @@ import static play.test.Helpers.route;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +20,6 @@ import models.Photo;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -103,7 +100,7 @@ public class PhotoControllerTest extends ControllersTest {
     }
 
     @Test
-    public void testMultipleFileUpload() throws IOException {
+    public void testMultipleFileUpload() {
         // Load a file from the public images to upload
         File file1 = getFile("./public/images/favicon.png");
         File file2 = getFile("./public/images/travelEA.png");
@@ -164,7 +161,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void PhotoToDestLinkingNoPhoto() {
         //create request with no body
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/3")
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/4")
             .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
@@ -197,7 +194,7 @@ public class PhotoControllerTest extends ControllersTest {
     @Test
     public void deletePhotoToDestNoPhoto() {
         //create request with no body
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/3")
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/photo/4")
             .method("PUT")
             .cookie(adminAuthCookie);
         //put and check response
@@ -217,7 +214,7 @@ public class PhotoControllerTest extends ControllersTest {
     }
 
     @Test
-    public void togglePhotoPrivacy() throws IOException{
+    public void togglePhotoPrivacy() throws IOException {
         // Toggle privacy
         Http.RequestBuilder toggleRequest = Helpers.fakeRequest().uri("/api/photo/privacy/2")
             .method("PUT")
@@ -233,8 +230,9 @@ public class PhotoControllerTest extends ControllersTest {
         assertEquals(200, photoResult.status());
 
         List<Photo> photos = Arrays
-            .asList(new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
-        assertEquals(1, photos.size());
+            .asList(
+                new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
+        assertEquals(2, photos.size());
         assertEquals(true, photos.get(0).isPublic);
     }
 
@@ -258,8 +256,9 @@ public class PhotoControllerTest extends ControllersTest {
         assertEquals(200, photoResult.status());
 
         List<Photo> photos = Arrays
-            .asList(new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
-        assertEquals(1, photos.size());
+            .asList(
+                new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
+        assertEquals(2, photos.size());
     }
 
 }

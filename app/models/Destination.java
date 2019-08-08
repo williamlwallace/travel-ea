@@ -2,7 +2,6 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import io.ebean.Model;
 import java.util.Iterator;
 import java.util.List;
 import javax.persistence.Column;
@@ -78,6 +77,13 @@ public class Destination extends BaseModel {
         joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypesPending;
+
+    @ManyToMany(mappedBy = "destinations")
+    @JoinTable(
+        name = "DestinationTag",
+        joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
+    public List<Tag> tags;
 
     /**
      * Checks if photo is linked to destination.

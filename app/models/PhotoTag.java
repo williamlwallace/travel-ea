@@ -1,5 +1,6 @@
 package models;
 
+import io.ebean.Model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,11 +9,13 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class to link destinations and photos.
+ * A class that stores information regarding tags and what photos are tagged with them.
+ *
+ * This class is here for clarity, it can be deleted due to our bridging method
  */
 @Entity
-@Table(name = "DestinationPhoto")
-public class DestinationPhoto extends BaseModel {
+@Table(name = "PhotoTag")
+public class PhotoTag extends Model {
 
     @Id
     public Long guid;
@@ -23,6 +26,5 @@ public class DestinationPhoto extends BaseModel {
 
     @ManyToOne
     @Constraints.Required
-    public Destination destination;
-
+    public Tag tag;
 }

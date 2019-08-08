@@ -59,6 +59,9 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         User user = users.get(0);
         assertEquals(Long.valueOf(2), user.id);
         assertEquals("bob@gmail.com", user.username);
+        assertEquals(1, user.usedTags.size());
+        assertEquals((Long) 2L, user.usedTags.get(0).id);
+        assertEquals("sports", user.usedTags.get(0).name);
     }
 
     @Test
@@ -81,7 +84,7 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         // Check a success message was sent
         String message = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), String.class);
-        assertEquals("3", message);
+        assertEquals("4", message);
     }
 
     @Test
