@@ -98,7 +98,7 @@ class UndoRedo {
                 }
                 const undoRedoReq = new UndoRedoReq(inverseData, reqData);
                 this.undoStack.push(undoRedoReq);
-                this.updateButtons();
+                updateUndoRedoButtons();
             });
     }
 
@@ -109,7 +109,7 @@ class UndoRedo {
         const undoRedoReq = this.undoStack.pop();
         if (!undoRedoReq) {
             toast('Undo', 'Nothing to undo!', 'danger');
-            this.updateButtons();
+            updateUndoRedoButtons();
             throw "No undo's";
         }
 
@@ -123,7 +123,7 @@ class UndoRedo {
                 this.redoStack.push(
                     new UndoRedoReq(undoRedoReq.undoReq, inverseData));
                 toast('Undo', 'Undo successful', 'success');
-                this.updateButtons();
+                updateUndoRedoButtons();
             });
 
     }
@@ -135,7 +135,7 @@ class UndoRedo {
         const undoRedoReq = this.redoStack.pop();
         if (!undoRedoReq) {
             toast('Redo', 'Nothing to redo!', 'danger');
-            this.updateButtons();
+            updateUndoRedoButtons();
             throw "No redos";
         }
 
@@ -149,29 +149,8 @@ class UndoRedo {
                 this.undoStack.push(
                     new UndoRedoReq(inverseData, undoRedoReq.redoReq));
                 toast('Redo', 'Redo successful', 'success');
-                this.updateButtons();
+                updateUndoRedoButtons();
             });
-    }
-
-    /**
-     * Updates the undo and redo buttons in the nav bar to either disabled if there
-     * are no undos or redos on the stack or not disabled if the opposite.
-     */
-    updateButtons() {
-        const undoButton = document.getElementById("undoButton");
-        const redoButton = document.getElementById("redoButton");
-
-        if (this.undoStack.isEmpty()) {
-            undoButton.setAttribute("disabled", "true");
-        } else {
-            undoButton.removeAttribute("disabled");
-        }
-
-        if (this.redoStack.isEmpty()) {
-            redoButton.setAttribute("disabled", "true");
-        } else {
-            redoButton.removeAttribute("disabled");
-        }
     }
 
     /**
@@ -244,10 +223,13 @@ document.onkeydown = (e) => {
 //Code for testing only
 //this will only be imported if run by node
 if (typeof module !== 'undefined' && module.exports) {
+    try {
     var {put, post, _delete} = require('./fetch');
+    //Create duud dependencies
     var toast = () => {
     };
-    try {
+    var updateUndoRedoButtons = () => {
+    };
         module.exports = {
             ReqStack,
             UndoRedo,
@@ -258,21 +240,3 @@ if (typeof module !== 'undefined' && module.exports) {
     } catch (e) {
     }
 }
-
-/**
- * The undo button calls the undo function
- */
-$('#undoButton').click(function () {
-    if (!$('#undoButton').attr('disabled')) {
-        undoRedo.undo();
-    }
-});
-
-/**
- * The redo button calls the redo function
- */
-$('#redoButton').click(function () {
-    if (!$('#redoButton').attr('disabled')) {
-        undoRedo.redo();
-    }
-});

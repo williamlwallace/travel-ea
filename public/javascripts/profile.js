@@ -1,6 +1,8 @@
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
+
+
 /**
  * The JavaScript method to fill the initial profile data
  * @param {Number} userId the id of the user who's profile to receive
@@ -349,6 +351,6 @@ function showProfilePictureGallery() {
  * allows the upload image button to act as an input field by clicking on the upload image file field
  * For a normal photo
  */
-$("#upload-gallery-image-button").click(function () {
-    $("#upload-gallery-image-file").click();
-});
+// $("#upload-gallery-image-button").click(function () {
+//     $("#upload-gallery-image-file").click();
+// });

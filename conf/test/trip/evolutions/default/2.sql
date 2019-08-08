@@ -21,7 +21,8 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 
 -- Create 2 Trips for testing
 INSERT INTO Trip (user_id) VALUES (1);
-INSERT INTO Trip (user_id) VALUES (2);
+INSERT INTO Trip (user_id, is_public) VALUES (2, 1);
+INSERT INTO Trip (user_id, deleted) VALUES (2, 1);
 
 -- Add destinations to the Trips
 -- Trip 1
@@ -34,8 +35,13 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 
+-- Add sample tags
+INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
+INSERT INTO TripTag (tag_id, trip_id) VALUES (3, 1), (2, 2);
+
 -- !Downs
--- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM TripTag;
+DELETE FROM Tag;
 DELETE FROM TravellerTypeDefinition;
 DELETE FROM TripData;
 DELETE FROM Trip;

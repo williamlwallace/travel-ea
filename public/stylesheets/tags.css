@@ -1,0 +1,102 @@
+#tags {
+    margin: 0px 30px 20px 30px;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    padding-left: 3px;
+}
+
+#tags ul{
+    display: flex;
+    list-style-type: none;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin: 0px;
+    padding: 0px;
+    max-width: 100%;
+    padding-bottom:10px;
+}
+
+#tags::-webkit-scrollbar {
+    z-index: 100;
+}
+
+#tags li{
+    font-family: "Liberation Mono";
+    border: 1px solid #007bff;
+    background-color: #5283B7;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 2px 1px 1px;
+    margin: 8px 3px 0px 3px;
+    font-size: 12px;
+    max-height: 25px;
+    padding-left: 2px;
+    padding-top: 3px;
+}
+
+.spacer {
+    visibility: hidden;
+    width: 108px;
+    display: inline-block;
+}
+
+.close-icon {
+    display:inline-block;
+    box-sizing:border-box;
+    margin: -17px 2px 0px 4px;
+    padding:0px;
+
+    width:14px;
+    height:14px;
+    border-width:3px;
+    border-style: solid;
+    border-color: #fff;
+    border-radius:100%;
+    background: -webkit-linear-gradient(-45deg, transparent 0%, transparent 43%, #5283B7 43%, #5283B7 59%,transparent 59%, transparent 100%), -webkit-linear-gradient(45deg, transparent 0%, transparent 43%, #5283B7 43%, #5283B7 59%,transparent 59%, transparent 100%);
+    background-color: #fff;
+    transition: all 0.3s ease;
+}
+
+.tagsInput {
+    padding-left: 4px;
+    margin-top: 3px;
+    font-size: 14px;
+    width:109px;
+    border: none;
+    font-family: "Liberation Mono";
+    outline:none !important;
+    outline-width: 0 !important;
+    box-shadow: none !important;
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+.inputCont {
+    position: relative;
+    width: 109px;
+    margin-left: -109px;
+    display: inline-block;
+}
+
+.inputCont p {
+    position: absolute;
+    overflow: auto;
+    z-index: 100;
+    left:14px;
+    top: 6px;
+    font-size: 12px;
+    font-family: "Liberation Mono";
+    font-weight: 400;
+    padding: 5px;
+    padding-left:0;
+}
+
+.inputCont mark {
+    padding: 5px;
+    padding-left:0;
+    margin-left:0;
+    background-color: #5283B7;
+    color: white;
+    height: 24px;
+    border-radius: 4px;
+}

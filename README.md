@@ -1,5 +1,15 @@
 # TravelEA - SENG302 Team Proffat
 
+### Team members: 
+- Campbell Mercer-Butcher `(cme68)`
+- Claudia Field `(crf49)`
+- Harrison Cook `(hgc25)`
+- Matthew Minish `(mhm76)`
+- Max Andrew `(mla138)`
+- Ollie Sharplin `(osh17)`
+- Ryan Chen `(rch141)`
+- William Wallace `(wwa52)`
+
 ## Using TravelEA
 
 ### Online
@@ -22,29 +32,7 @@
 - You should now be viewing the TravelEA website
 - Login or sign up to use TravelEA
 
-## Basic Project Structure
- - `app/` Your application source
- - `doc/` User and design documentation
- - `doc/examples/` Demo example files for use with your application
-## Documentation
-
-
-### Play
-
-Play documentation is here:
-
-[https://playframework.com/documentation/latest/Home](https://playframework.com/documentation/latest/Home)
-
-### EBean
-
-EBean is a Java ORM library that uses SQL:
-
-[https://www.playframework.com/documentation/latest/JavaEbean](https://www.playframework.com/documentation/latest/JavaEbean)
-
-and the documentation can be found here:
-
-[https://ebean-orm.github.io/](https://ebean-orm.github.io/)
-
-### Forms
-
-Please see <https://playframework.com/documentation/latest/JavaForms>
+## Admin credentials
+To log on as the main administrator for TravelEA, use the following credentials:
+- Username: 'admin@travelea.co.nz'
+- Password: 'admin'
