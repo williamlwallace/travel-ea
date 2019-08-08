@@ -70,21 +70,6 @@ public class DestinationRepository {
     }
 
     /**
-     * Deletes multiple destinations from database.
-     *
-     * @param ids Unique destination IDs of destinations to be deleted
-     * @return The number of rows deleted
-     */
-    public CompletableFuture<Integer> deleteDestinations(Collection<Long> ids) {
-        return supplyAsync(() ->
-                ebeanServer.find(Destination.class)
-                    .where()
-                    .idIn(ids)
-                    .delete()
-            , executionContext);
-    }
-
-    /**
      * Updates a destination.
      *
      * @param destination The destination object to update, with the updated parameters
@@ -92,6 +77,7 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
         return supplyAsync(() -> {
+
             ebeanServer.update(destination);
             return destination;
         }, executionContext);
@@ -102,6 +88,7 @@ public class DestinationRepository {
      *
      * @param destinationId id of destination to update
      * @param newUserId id to set user to
+     * @return The number of rows that were updated
      */
     public CompletableFuture<Integer> changeDestinationOwner(Long destinationId, Long newUserId) {
         return supplyAsync(() ->
@@ -119,8 +106,6 @@ public class DestinationRepository {
      * public
      *
      * @param destinationId ID of destination to make public
-     * @return Result of call, ok if good, badRequest if already public, not found if no such
-     * destination ID found
      */
     public void setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
@@ -253,7 +238,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets a single includeding deleted destination given the destination ID.
+     * Gets a single including deleted destination given the destination ID.
      *
      * @param id Unique destination ID of the requested destination
      * @return A single destination with the requested ID, or null if none was found
