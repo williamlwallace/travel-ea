@@ -18,7 +18,6 @@ $('#upload-img').on('click', function () {
     // Send request and handle response
     postMultipart(url, formData).then(response => {
         // Read response from server, which will be a json object
-        console.log(formData);
         response.json().then(data => {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl, galleryId, pageId);
