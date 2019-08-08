@@ -89,6 +89,12 @@ public class PhotoController extends TEABackController {
         return ok(file, true);
     }
 
+    /**
+     * Sets a photo caption
+     * @param request
+     * @param photoId
+     * @return
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> setPhotoCaption(Http.Request request, Long photoId) {
         User user = request.attrs().get(ActionState.USER);
