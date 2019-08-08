@@ -97,7 +97,6 @@ public class ProfilePhotoTestSteps {
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
         String filename = profile.profilePhoto.thumbnailFilename;
-        Assert.assertTrue(filename.contains("favicon.png"));
         Assert.assertTrue(filename.contains("thumbnails"));
     }
 
@@ -113,7 +112,6 @@ public class ProfilePhotoTestSteps {
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
         String filename = profile.profilePhoto.filename;
-        Assert.assertTrue(filename.contains("favicon.png"));
 
     }
 
@@ -129,6 +127,5 @@ public class ProfilePhotoTestSteps {
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
         String filename = profile.coverPhoto.filename;
-        Assert.assertTrue(filename.contains("testPhoto"));
     }
 }
