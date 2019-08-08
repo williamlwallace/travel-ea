@@ -53,7 +53,7 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
                 data[i]["isOwned"] = true;
                 usersPhotos[i] = data[i];
             }
-            let galleryObjects = createGalleryObjects(true);
+            const galleryObjects = createGalleryObjects(true);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
@@ -88,7 +88,7 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
                         }
                         usersPhotos[i] = data[i];
                     }
-                    let galleryObjects = createGalleryObjects(false, true,
+                    const galleryObjects = createGalleryObjects(false, true,
                         destinationId);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
@@ -129,7 +129,7 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
                         }
                         usersPhotos[i] = destinationPhotos[i];
                     }
-                    let galleryObjects = createGalleryObjects(true);
+                    const galleryObjects = createGalleryObjects(true);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
                 })
@@ -162,8 +162,7 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
                 data[i]["canSelect"] = true;
                 usersPhotos[i] = data[i];
             }
-            let galleryObjects = createGalleryObjects(false, false, null,
-                selectionFunction);
+            const galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });

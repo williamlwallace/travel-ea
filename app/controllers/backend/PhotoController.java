@@ -134,12 +134,10 @@ public class PhotoController extends TEABackController {
         Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
 
         // Update profile photo, and get the prior photo id
-        try {
-            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId)
-                .thenApplyAsync(returnedId ->
-                    returnedId != null ? ok(Json.toJson(returnedId))
-                        : ok(Json.newObject().nullNode())
-                );
+        try{
+            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
+                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
+            );
         } catch (NullPointerException e) {
             return CompletableFuture
                 .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
@@ -339,7 +337,9 @@ public class PhotoController extends TEABackController {
         HashSet<String> publicPhotoFileNames, long userId,
         boolean isTest, String caption) throws IOException {
         // Get the filename, file size and content-type of the file
-        String fileName = System.currentTimeMillis() + "_" + file.getFilename();
+        int randomNumber = (int)(Math.random() * 496148154 + 1);
+        String[] filenameParts = file.getFilename().split("\\.");
+        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[filenameParts.length - 1];
 
         String contentType = file.getContentType();
         if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {

@@ -1,17 +1,17 @@
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
-let userId = -1;
+let profileId = -1;
 let getAllPhotosUrl;
 
 /**
- * Sets the userId as a global variable. Also sets the getAllPhotosUrl
- * @param userID the userId to set
+ * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
+ * @param profileId the profileId to set
  */
-function setUserId(userID) {
-    userId = userID;
+function setprofileId(profileID) {
+    profileId = profileID;
     getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        userId).url;
+        profileId).url;
 }
 
 /**
@@ -24,7 +24,7 @@ function fillProfileData(email) {
         document.getElementById("summary_email").innerText = email;
     }
     get(profileRouter.controllers.backend.ProfileController.getProfile(
-        userId).url)
+        profileId).url)
     .then(response => {
         response.json()
         .then(profile => {
@@ -224,7 +224,7 @@ function uploadProfilePicture() {
 
         const photoPostURL = photoRouter.controllers.backend.PhotoController.upload().url;
         const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(
-            userId).url;
+            profileId).url;
 
         // Send request and handle response
         postMultipart(photoPostURL, formData).then(response => {
@@ -414,9 +414,8 @@ function getProfileAndCoverPicture() {
  * @param url the backend PhotoController url
  */
 function getPictures() {
-    fillGallery(
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            userId).url, 'main-gallery', 'page-selection');
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url, 'main-gallery', 'page-selection');
 }
 
 /**
@@ -431,12 +430,12 @@ function showProfilePictureGallery() {
 
 /**
  * Sets the users cover photo given a specific photoID
- * @Param {Long} photoId the id of the photo to set as the cover photo
- * @Param {Long} userId the id of the user whos cover photo should change
+ * @Param {Number} photoId the id of the photo to set as the cover photo
+ * @Param {Number} profileId the id of the user whos cover photo should change
  */
 function setCoverPhoto(photoId) {
     const coverPicUpdateURL = photoRouter.controllers.backend.PhotoController.setCoverPhoto(
-        userId).url;
+        profileId).url;
 
     // Create reversible request to update profile photo to this new photo
     const handler = (status, json) => {
@@ -478,7 +477,5 @@ $("#editCoverPhotoButton").click(function () {
     $("#editCoverPhotoModal").modal('show');
     fillSelectionGallery(
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            userId).url, "cover-photo-gallery", "current-page", function () {
-            setCoverPhoto(this.getAttribute("data-id"))
-        });
+            profileId).url, "cover-photo-gallery", "current-page", function(){setCoverPhoto(this.getAttribute("data-id"))});
 });
