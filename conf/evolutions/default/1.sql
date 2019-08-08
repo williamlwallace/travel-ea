@@ -249,7 +249,7 @@ CREATE TABLE IF NOT EXISTS UsedTag
     guid                  INT NOT NULL AUTO_INCREMENT,
     tag_id                INT NOT NULL,
     user_id               INT NOT NULL,
-    used                  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    time_used             DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (tag_id)  REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (guid)

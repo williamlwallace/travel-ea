@@ -1,6 +1,9 @@
 package models;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -21,6 +24,10 @@ public class UsedTag extends Model {
     @Constraints.Required
     @Column(name = "user_id")
     public Long userId;
+
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @Column(name = "time_used")
+    public LocalDateTime timeUsed;
 
     @ManyToOne
     @Constraints.Required
