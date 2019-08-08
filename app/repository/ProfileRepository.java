@@ -1,14 +1,10 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static play.mvc.Results.notFound;
-import static play.mvc.Results.ok;
-
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;

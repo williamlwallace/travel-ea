@@ -1,10 +1,6 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static play.mvc.Results.notFound;
-import static play.mvc.Results.ok;
-
-import com.google.common.collect.Iterables;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.Collection;
