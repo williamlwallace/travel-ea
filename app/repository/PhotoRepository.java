@@ -60,7 +60,7 @@ public class PhotoRepository {
             Photo profilePhoto = ebeanServer.find(Photo.class)
                 .where()
                 .eq(USER_ID, userID)
-                .eq(IS_PROFILE, true)
+                .eq("used_for_profile", true)
                 .findOneOrEmpty().orElse(null);
             if (profilePhoto == null) {
                 return null;
@@ -121,7 +121,7 @@ public class PhotoRepository {
             Photo photo = ebeanServer.find(Photo.class)
                 .where()
                 .eq(USER_ID, userID)
-                .eq(IS_PROFILE, true)
+                .eq("used_for_profile", true)
                 .findOneOrEmpty().orElse(null);
 
             if (photo != null) {
