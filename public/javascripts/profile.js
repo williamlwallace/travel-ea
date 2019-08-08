@@ -414,8 +414,9 @@ function getProfileAndCoverPicture() {
  * @param url the backend PhotoController url
  */
 function getPictures() {
-    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        profileId).url, 'main-gallery', 'page-selection');
+    fillGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, 'main-gallery', 'page-selection');
 }
 
 /**
@@ -477,5 +478,7 @@ $("#editCoverPhotoButton").click(function () {
     $("#editCoverPhotoModal").modal('show');
     fillSelectionGallery(
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            profileId).url, "cover-photo-gallery", "current-page", function(){setCoverPhoto(this.getAttribute("data-id"))});
+            profileId).url, "cover-photo-gallery", "current-page", function () {
+            setCoverPhoto(this.getAttribute("data-id"))
+        });
 });
