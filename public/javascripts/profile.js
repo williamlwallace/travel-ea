@@ -1,8 +1,7 @@
 /* Display gender drop down the same as the others */
 $('#gender').picker();
 
-/* Instantiat the tags picker with test data */
-tagPickerSuggestions = ["New Zealand", "gangstersParadise", "Yoshi Island"];
+
 
 /**
  * The JavaScript method to fill the initial profile data

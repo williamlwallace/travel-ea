@@ -40,7 +40,6 @@ let usersPhotos = [];
  * @param {string} pageId the id of the pagination that the gallery is in
  */
 function fillGallery(getPhotosUrl, galleryId, pageId) {
-    console.log(galleryId);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
