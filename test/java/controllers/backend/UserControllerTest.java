@@ -60,8 +60,8 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         assertEquals(Long.valueOf(2), user.id);
         assertEquals("bob@gmail.com", user.username);
         assertEquals(1, user.usedTags.size());
-        assertEquals((Long) 2L, user.usedTags.get(0).id);
-        assertEquals("sports", user.usedTags.get(0).name);
+        assertEquals((Long) 2L, user.usedTags.get(0).tag.id);
+        assertEquals("sports", user.usedTags.get(0).tag.name);
     }
 
     @Test

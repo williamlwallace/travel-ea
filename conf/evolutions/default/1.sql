@@ -208,7 +208,6 @@ CREATE TABLE IF NOT EXISTS Tag
   );
 
 -- Specifies the DestinationTag table, this is only done in the SQL so we can populate it in the evolutions
--- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS DestinationTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -220,7 +219,6 @@ CREATE TABLE IF NOT EXISTS DestinationTag
   );
 
 -- Specifies the TripTag table, this is only done in the SQL so we can populate it in the evolutions
--- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS TripTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -232,7 +230,6 @@ CREATE TABLE IF NOT EXISTS TripTag
   );
 
 -- Specifies the PhotoTag table, this is only done in the SQL so we can populate it in the evolutions
--- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS PhotoTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,

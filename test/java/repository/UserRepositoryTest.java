@@ -7,7 +7,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.CompletionException;
+import models.Destination;
 import models.Tag;
+import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +38,8 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertTrue(user.admin);
         assertEquals("dave@gmail.com", user.username);
         assertEquals(3, user.usedTags.size());
-        assertEquals((Long) 2L, user.usedTags.get(1).id);
-        assertEquals("#TravelEA", user.usedTags.get(2).name);
+        assertEquals((Long) 2L, user.usedTags.get(1).tag.id);
+        assertEquals("#TravelEA", user.usedTags.get(0).tag.name);
     }
 
     @Test
@@ -92,7 +94,17 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 
         Tag tag = new Tag();
         tag.id = 1L;
-        user.usedTags.add(tag);
+
+        UsedTag usedTag = new UsedTag();
+        usedTag.tag = tag;
+        usedTag.user = user;
+
+        tag.usedTags.add(usedTag);
+        user.usedTags.add(usedTag);
+
+        for (UsedTag yeet : user.usedTags) {
+            System.out.println(yeet.tag.id + " " + yeet.tag.name);
+        }
 
         assertEquals((Long) 2L, userRepository.updateUser(user).join());
 
@@ -101,14 +113,14 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertEquals("New username", updatedUser.username);
         assertEquals("Sick", updatedUser.password);
         assertEquals(2, updatedUser.usedTags.size());
-        assertEquals("Russia", updatedUser.usedTags.get(0).name);
+        assertEquals("Russia", updatedUser.usedTags.get(0).tag.name);
     }
 
     @Test(expected = CompletionException.class)
     public void updateUserInvalidReferencedId() {
         User user = userRepository.findID(2L).join();
         assertNotNull(user);
-        user.usedTags.get(0).id = 99999L;
+        user.usedTags.get(0).tag.id = 99999L;
 
         userRepository.updateUser(user).join();
     }
@@ -123,7 +135,11 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 
         Tag tag = new Tag();
         tag.id = 3L;
-        user.usedTags.add(tag);
+        UsedTag usedTag = new UsedTag();
+        usedTag.tag = tag;
+        usedTag.user = user;
+
+        user.usedTags.add(usedTag);
 
         userRepository.insertUser(user).join();
 
@@ -131,11 +147,11 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertNotNull(insertedUser);
         assertEquals("test@email.com", insertedUser.username);
         assertEquals(1, insertedUser.usedTags.size());
-        assertEquals((Long) 3L, insertedUser.usedTags.get(0).id);
-        assertEquals("#TravelEA", insertedUser.usedTags.get(0).name);
+        assertEquals((Long) 3L, insertedUser.usedTags.get(0).tag.id);
+        assertEquals("#TravelEA", insertedUser.usedTags.get(0).tag.name);
     }
 
-    @Test(expected = CompletionException.class)
+    @Test
     public void insertUserInvalidReferencedId() {
         assertNull(userRepository.findID(4L).join());
         User user = new User();
@@ -145,7 +161,11 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 
         Tag tag = new Tag();
         tag.id = 99999L;
-        user.usedTags.add(tag);
+
+        UsedTag usedTag = new UsedTag();
+        usedTag.tag = tag;
+        usedTag.user = user;
+        user.usedTags.add(usedTag);
 
         userRepository.insertUser(user).join();
     }
@@ -164,5 +184,31 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         int rowsDeleted = userRepository.deleteUser(99999L).join();
         assertEquals(0, rowsDeleted);
     }
+
+//    @Test
+//    public void updateUserTags() {
+//        User originalUser = userRepository.findID(3L).join();
+//
+//        assertEquals(0, originalUser.usedTags.size());
+//
+//        Destination originalDestination = new Destination();
+//        Tag originalTag = new Tag();
+//        originalTag.id = 1L;
+//        originalDestination.tags.add(originalTag);
+//
+//        Destination newDestination = new Destination();
+//        Tag newTag = new Tag();
+//        newTag.id = 2L;
+//        newDestination.tags.add(originalTag);
+//        newDestination.tags.add(newTag);
+//
+//        originalUser.updateUserTags(originalDestination, newDestination);
+//        userRepository.updateUser(originalUser);
+//
+//        User updatedUser = userRepository.findID(3L).join();
+//        assertEquals(1, updatedUser.usedTags.size());
+//        assertEquals((Long) 2L, updatedUser.usedTags.get(0).id);
+//
+//    }
 
 }

@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.collect.Iterables;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.DestinationPhoto;
 import models.Photo;
+import models.Tag;
 import play.db.ebean.EbeanConfig;
 import util.objects.Pair;
 
@@ -26,11 +28,14 @@ public class PhotoRepository {
     private static final String IS_PROFILE = "is_profile";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+    private final TagRepository tagRepository;
 
     @Inject
-    public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+    public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
+        TagRepository tagRepository) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+        this.tagRepository = tagRepository;
     }
 
     /**
@@ -40,7 +45,7 @@ public class PhotoRepository {
      * @return Ok on success
      */
     public CompletableFuture<Long> addPhoto(Photo photo) {
-        return supplyAsync(() -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(addedTags -> {
             ebeanServer.insert(photo);
             return photo.guid;
         }, executionContext);
@@ -148,7 +153,17 @@ public class PhotoRepository {
                     .delete();
             }
         }
-        ebeanServer.insertAll(photos);
+        List<CompletableFuture<List<Tag>>> futures = new ArrayList<>();
+        for (Photo photo : photos) {
+            futures.add(tagRepository.addTags(photo.tags));
+        }
+
+        CompletableFuture<Void> allFutures = CompletableFuture
+            .allOf(futures.toArray(new CompletableFuture[0]));
+        allFutures.thenApply(v -> {
+            ebeanServer.insertAll(photos);
+            return null;
+        });
     }
 
     /**
@@ -229,7 +244,7 @@ public class PhotoRepository {
      * @return the updated photo's guid
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
-        return supplyAsync(() -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(addedTags -> {
                 ebeanServer.update(photo);
                 return photo.guid;
             },

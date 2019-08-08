@@ -21,11 +21,15 @@ public class TripRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+    private final TagRepository tagRepository;
+
 
     @Inject
-    public TripRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+    public TripRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
+        TagRepository tagRepository) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+        this.tagRepository = tagRepository;
     }
 
     /**
@@ -35,7 +39,7 @@ public class TripRepository {
      * @return the id of the inserted trip
      */
     public CompletableFuture<Long> insertTrip(Trip newTrip) {
-        return supplyAsync(() -> {
+        return tagRepository.addTags(newTrip.tags).thenApplyAsync(addedTags -> {
             newTrip.deleted = false;
             ebeanServer.insert(newTrip);
             return newTrip.id;
@@ -49,7 +53,7 @@ public class TripRepository {
      * @return true on successful update or false if the trip is not found in the database
      */
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
-        return supplyAsync(() -> {
+        return tagRepository.addTags(trip.tags).thenApplyAsync(addedTags -> {
             try {
                 ebeanServer.update(trip);
                 return true;

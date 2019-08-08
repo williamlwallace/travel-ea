@@ -23,7 +23,7 @@ import javax.persistence.Table;
 @Table(name = "Photo")
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Photo extends Model {
+public class Photo extends Model implements Taggable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -57,6 +57,15 @@ public class Photo extends Model {
         joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> tags;
+
+    /**
+     * Returns the list of tags associated with the object
+     *
+     * @return a list of Tags
+     */
+    public List<Tag> getTagsList() {
+        return tags;
+    }
 
     /**
      * Removes given destination from photo.

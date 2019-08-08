@@ -21,11 +21,14 @@ public class UserRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+    private final TagRepository tagRepository;
 
     @Inject
-    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
+        TagRepository tagRepository) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+        this.tagRepository = tagRepository;
     }
 
     /**
@@ -119,7 +122,7 @@ public class UserRepository {
     }
 
     /**
-     * remove a user from db.
+     * Remove a user from db.
      *
      * @param id uid of user
      * @return the number of rows that were deleted

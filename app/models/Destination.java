@@ -21,7 +21,7 @@ import play.data.validation.Constraints;
 @Entity
 @Table(name = "Destination")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Destination extends BaseModel {
+public class Destination extends BaseModel implements Taggable {
 
     @Id
     @Constraints.Required
@@ -84,6 +84,15 @@ public class Destination extends BaseModel {
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public List<Tag> tags;
+
+    /**
+     * Returns the list of tags associated with the object
+     *
+     * @return a list of Tags
+     */
+    public List<Tag> getTagsList() {
+        return tags;
+    }
 
     /**
      * Checks if photo is linked to destination.
