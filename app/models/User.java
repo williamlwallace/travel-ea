@@ -75,13 +75,11 @@ public class User extends BaseModel {
 
         newTagIds.removeAll(oldTagIds);
 
-//        for (Tag tag : usedTags) {
-//            if (newTagIds.contains(tag.id)) {
-//
-//            }
-//        }
-
-
+        for (UsedTag usedTag : usedTags) {
+            if (newTagIds.contains(usedTag.tag.id)) {
+                usedTag.timeUsed = LocalDateTime.now();
+            }
+        }
     }
 
     /**

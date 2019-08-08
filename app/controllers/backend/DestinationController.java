@@ -197,6 +197,7 @@ public class DestinationController extends TEABackController {
                         .supplyAsync(() -> badRequest(validatorResult.toJson()));
                 }
                 Destination editedDestination = Json.fromJson(data, Destination.class);
+                System.out.println("Edited Destination: " + editedDestination.user.id);
                 //check if destination already exists
                 List<Destination> destinations = destinationRepository
                     .getSimilarDestinations(editedDestination);

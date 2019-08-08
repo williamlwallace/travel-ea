@@ -41,8 +41,6 @@ public class TagRepository {
             ebeanServer.insertAll(tagsToAdd);
             return tagsToAdd;
         }, executionContext);
-
-
     }
 
     public enum TagType {
