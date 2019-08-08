@@ -16,7 +16,7 @@ function setUserId(userID) {
 
 /**
  * The JavaScript method to fill the initial profile data
- * @param {Number} userId the id of the user who's profile to receive
+ *
  * @param {String} email the email of the logged in user, which may or may not be displayed
  */
 function fillProfileData(email) {
@@ -464,6 +464,9 @@ function setCoverPhoto(photoId) {
  */
 $("#upload-gallery-image-button").click(function () {
     $('#caption input').val("");
+    $('.image-body img').attr('src', '');
+    $('.image-body').css('display', 'none');
+    $('.uploader').css('display', 'block');
 });
 
 /**
