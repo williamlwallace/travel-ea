@@ -93,23 +93,18 @@ function populateDestinationDetails(destinationId) {
                     }
                 ];
 
+                const tagHolder = $("#summary_tags");
+                tagHolder.empty();
+
                 if (destination.tags.length > 0) {
                     document.getElementById("heading_tags").style.display = "block";
-                    let tags = "";
-                    for (const tag in destination.tags) {
-                        tags += "'" + destination.tags[tag].name + "', "
+                    for (const tag of destination.tags) {
+                        const singleTag = $("<li>").text(tag.name);
+                        tagHolder.append(singleTag);
                     }
-                    document.getElementById("summary_tags").innerText = tags.substring(0, tags.length-2);
                 } else {
                     document.getElementById("heading_tags").style.display = "none";
-                    document.getElementById("summary_tags").innerText = "";
                 }
-
-                let tags = "";
-                for (const tag in destination.tags) {
-                    tags += "'" + destination.tags[tag].name + "', "
-                }
-                document.getElementById("summary_tags").innerText = tags.substring(0, Math.max(0, tags.length-2));
 
                 createPrivacyButton(destination.isPublic);
             }
