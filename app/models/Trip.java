@@ -7,6 +7,9 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -31,6 +34,13 @@ public class Trip extends BaseModel implements Comparable<Trip> {
 
     @OneToMany(cascade = CascadeType.ALL)
     public List<TripData> tripDataList;
+
+    @ManyToMany(mappedBy = "trips")
+    @JoinTable(
+        name = "TripTag",
+        joinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
+    public List<Tag> tags;
 
     /**
      * Finds the first date in a trip.

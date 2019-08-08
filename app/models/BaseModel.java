@@ -1,10 +1,8 @@
 package models;
 
-import io.ebean.Model;
-import javax.persistence.Entity;
-import io.ebean.annotation.SoftDelete;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.ebean.Model;
+import io.ebean.annotation.SoftDelete;
 import javax.persistence.MappedSuperclass;
 
 /**
@@ -12,6 +10,7 @@ import javax.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 public class BaseModel extends Model {
+
     @JsonIgnore
     @SoftDelete
     public Boolean deleted = false;
