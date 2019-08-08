@@ -38,7 +38,10 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
         assertEquals(Long.valueOf(1), destination.id);
         assertEquals(2, destination.travellerTypes.size());
         assertEquals(2, destination.travellerTypesPending.size());
-        assertEquals("sports", destination.tags.get(0).name);
+
+        Tag testTag = new Tag("sports", 2L);
+        assertEquals(1, destination.tags.size());
+        assertTrue(destination.tags.contains(testTag));
 
         return true;
     }
@@ -239,8 +242,7 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
         Destination destination = destinationRepository.getDestination(1L).join();
         assertNotNull(destination);
 
-        Tag newTag = new Tag();
-        newTag.name = "New Tag";
+        Tag newTag = new Tag("New Tag");
 
         destination.tags.add(newTag);
 

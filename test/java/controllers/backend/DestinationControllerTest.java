@@ -107,8 +107,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Long.valueOf(1), dest.id);
         assertEquals(2, dest.travellerTypes.size());
         assertEquals(2, dest.travellerTypesPending.size());
-        assertEquals("sports", dest.tags.get(0).name);
-
+        assertEquals(1, dest.tags.size());
     }
 
     @Test
@@ -203,18 +202,13 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Destination destination = getDestination(4);
         assertNotNull(destination);
         assertNotEquals("Definitely Not Blitzcrank", destination.name);
-        System.out.println(destination.name);
-        for (Tag tag : destination.tags) {
-            System.out.println(tag.id + " " + tag.name);
-        }
         assertEquals(1, destination.tags.size());
-        assertEquals("sports", destination.tags.get(0).name);
+        assertTrue(destination.tags.contains(new Tag("sports")));
 
         destination.name = "Definitely Not Blitzcrank";
         destination.district = "Summoners Rift";
 
-        Tag newTag = new Tag();
-        newTag.name = "New Tag";
+        Tag newTag = new Tag("New Tag");
         destination.tags.add(newTag);
 
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
@@ -232,9 +226,9 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         assertEquals("Definitely Not Blitzcrank", updatedDestination.name);
         assertEquals("Summoners Rift", updatedDestination.district);
-        assertEquals(2, destination.tags.size());
-        assertEquals("sports", destination.tags.get(0).name);
-        assertEquals("New Tag", destination.tags.get(1).name);
+        assertEquals(2, updatedDestination.tags.size());
+        assertTrue(destination.tags.contains(new Tag("sports")));
+        assertTrue(destination.tags.contains(newTag));
         assertEquals(destination, updatedDestination);
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -83,14 +84,14 @@ public class Destination extends BaseModel implements Taggable {
         name = "DestinationTag",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    public List<Tag> tags;
+    public Set<Tag> tags;
 
     /**
      * Returns the list of tags associated with the object
      *
      * @return a list of Tags
      */
-    public List<Tag> getTagsList() {
+    public Set<Tag> getTagsList() {
         return tags;
     }
 

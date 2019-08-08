@@ -8,6 +8,7 @@ import io.ebean.EbeanServer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -142,7 +143,7 @@ public class PhotoRepository {
      *
      * @param photos A list of photos to upload
      */
-    public void addPhotos(Collection<Photo> photos) {
+    public CompletableFuture<Object> addPhotos(Collection<Photo> photos) {
         if (photos.size() == 1) {
             Photo pictureToUpload = Iterables.get(photos, 0);
             if (pictureToUpload.isProfile) {
@@ -153,17 +154,18 @@ public class PhotoRepository {
                     .delete();
             }
         }
-        List<CompletableFuture<List<Tag>>> futures = new ArrayList<>();
+        List<CompletableFuture<Set<Tag>>> futures = new ArrayList<>();
         for (Photo photo : photos) {
             futures.add(tagRepository.addTags(photo.tags));
         }
 
         CompletableFuture<Void> allFutures = CompletableFuture
             .allOf(futures.toArray(new CompletableFuture[0]));
-        allFutures.thenApply(v -> {
+
+        return allFutures.thenApplyAsync(v -> supplyAsync(() -> {
             ebeanServer.insertAll(photos);
             return null;
-        });
+        })).thenApplyAsync(result -> null);
     }
 
     /**

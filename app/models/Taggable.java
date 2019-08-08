@@ -1,7 +1,8 @@
 package models;
 
-import java.util.List;
+import java.util.Set;
 
 public interface Taggable {
-    public List<Tag> getTagsList();
+
+    public Set<Tag> getTagsList();
 }

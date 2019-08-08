@@ -8,6 +8,7 @@ import io.ebean.Model;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -56,14 +57,14 @@ public class Photo extends Model implements Taggable {
         name = "PhotoTag",
         joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    public List<Tag> tags;
+    public Set<Tag> tags;
 
     /**
      * Returns the list of tags associated with the object
      *
      * @return a list of Tags
      */
-    public List<Tag> getTagsList() {
+    public Set<Tag> getTagsList() {
         return tags;
     }
 

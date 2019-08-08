@@ -54,7 +54,7 @@ public class User extends BaseModel {
 //    public List<Tag> usedTags;
 
     @OneToMany(mappedBy = "user")
-    public List<UsedTag> usedTags;
+    public Set<UsedTag> usedTags;
 
 
 

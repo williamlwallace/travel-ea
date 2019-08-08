@@ -4,8 +4,8 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,9 +30,9 @@ public class TagRepository {
      * @param tags The list of tags to add, can include existing tags, they will be ignored
      * @return The list of inserted tags
      */
-    public CompletableFuture<List<Tag>> addTags(List<Tag> tags) {
+    public CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
         return supplyAsync(() -> {
-            List<Tag> tagsToAdd = new ArrayList<>();
+            Set<Tag> tagsToAdd = new HashSet<>();
             for (Tag tag : tags) {
                 if (tag.id == null &&
                     ebeanServer.find(Tag.class).where().eq("name", tag.name).findOneOrEmpty()
