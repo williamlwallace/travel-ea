@@ -41,7 +41,7 @@ function keyDown(e) {
         $('#tags ul').scrollLeft(5000);
 
     // else if key is delete
-    } else if (key === 8 && tag === "") {
+    } else if (key === 8 && natTag === "") {
         const spacer = $("<li></li>").text("fillerfillerfil").attr('class', 'spacer');
         //Remove spacer, remove last tag, append spacer
         $('li').remove('.spacer');
@@ -50,7 +50,7 @@ function keyDown(e) {
     // if the key is space and the strin is empty do nothing
     // or if the key is a speach mark and there is already two speach marks do nothing
     // of if the speach count is greater or equal to two do nothing
-    } else if ((key === 32 && tag === "") || speachCount >= 2) {
+    } else if ((key === 32 && tag === "") || (natTag !== "" && key === 222 && speachCount === 0) || speachCount >= 2) {
         e.preventDefault();
     }
 };
