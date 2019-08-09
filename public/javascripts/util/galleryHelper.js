@@ -7,7 +7,7 @@ $('#upload-img').on('click', function () {
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
     let caption = $('#caption input').val();
-    const tags = getTags().map(tag => {
+    const tags = tagPicker.getTags().map(tag => {
         return { name: tag }
     });
 
