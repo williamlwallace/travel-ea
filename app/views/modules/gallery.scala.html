@@ -14,8 +14,6 @@ can add an intermediate modal as is the case in detailed destinations *@
             <a class="button-secondary" id="upload-gallery-image-button" data-toggle="modal" href="#upload-modal" >
                 <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
             </a>
-            <!-- <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()", "@galleryId", "@pageId")'
-            accept="image/jpeg, image/png"  multiple/> -->
         }
     </p>
 </div>
@@ -26,7 +24,6 @@ can add an intermediate modal as is the case in detailed destinations *@
 
 
 @* Upload modal *@
-
 <div class="modal fade" id="upload-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -41,7 +38,7 @@ can add an intermediate modal as is the case in detailed destinations *@
 
             <input id="upload-gallery-image-file" type="file" accept="image/jpeg, image/png"/>
 
-            <div class="image-body">
+            <div class="image-body text-center">
                 <img src=""/>
             </div>
 
@@ -54,6 +51,39 @@ can add an intermediate modal as is the case in detailed destinations *@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                 <button id="upload-img" type="button" class="btn btn-primary" data-dismiss="modal" data-page-id="@pageId" data-gallery-id="@galleryId">Upload</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit photo modal -->
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Edit Photo
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body text-center" >
+                <img id="modal-photo"/>
+            </div>
+
+            <div id="update-caption" class="text-center">
+                <input type="text" class="form-control" placeholder="Caption"/>
+                <label id="errorLabel" class="error-messages"></label>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal" onclick=
+                'deletePhoto("@controllers.backend.routes.PhotoController.deletePhoto(1)")'>Delete Photo</button>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                <button id="update-img" type="button" class="btn btn-primary" data-dismiss="modal">Update</button>
             </div>
         </div>
     </div>
