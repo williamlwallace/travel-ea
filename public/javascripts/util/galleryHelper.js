@@ -10,6 +10,8 @@ $('#upload-img').on('click', function() {
 
     const caption = $('#caption input').val(); //This will be used when backend is merged in
 
+    const tags = getTags().map(tag => {tag});
+
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
     let formData = new FormData();
