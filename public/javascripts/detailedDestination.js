@@ -306,10 +306,8 @@ function populateEditDestination(destinationId) {
                         name: "NZ"
                     }
                 ];
-                // Fills tags
-                for (const tag in destination.tags) {
-                    $('#destinationTags').tagsinput('add', destination.tags[tag].name);
-                }
+                // Fills tag input field
+                populateTags(destination.tags);
             }
         })
     })
