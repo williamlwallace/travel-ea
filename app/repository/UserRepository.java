@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.Taggable;
+import models.UsedTag;
 import models.User;
 import play.db.ebean.EbeanConfig;
 
@@ -102,6 +104,7 @@ public class UserRepository {
      */
     public CompletableFuture<Long> updateUser(User updatedUser) {
         return supplyAsync(() -> {
+            ebeanServer.saveAll(updatedUser.usedTags);
             ebeanServer.update(updatedUser);
             return updatedUser.id;
         }, executionContext);
@@ -117,6 +120,7 @@ public class UserRepository {
         return supplyAsync(() -> {
             newUser.creationDate = LocalDateTime.now();
             ebeanServer.insert(newUser);
+            ebeanServer.saveAll(newUser.usedTags);
             return newUser;
         }, executionContext);
     }
@@ -132,4 +136,9 @@ public class UserRepository {
                 ebeanServer.delete(User.class, id)
             , executionContext);
     }
+
+    public void updateUsedTags(Taggable taggableObject) {
+
+    }
+
 }

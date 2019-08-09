@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,15 +69,13 @@ public class User extends BaseModel {
      * @param newObject The new tagged object after this user's changes
      */
     public void updateUserTags(Taggable oldObject, Taggable newObject) {
-        Set<Long> oldTagIds = oldObject.getTagsList().stream().map(tag -> tag.id)
-            .collect(Collectors.toSet());
-        Set<Long> newTagIds = newObject.getTagsList().stream().map(tag -> tag.id)
-            .collect(Collectors.toSet());
+        Set<Tag> oldTags = oldObject.getTagsList();
+        Set<Tag> newTags = new HashSet<>(newObject.getTagsList());
 
-        newTagIds.removeAll(oldTagIds);
+        newTags.removeAll(oldTags);
 
         for (UsedTag usedTag : usedTags) {
-            if (newTagIds.contains(usedTag.tag.id)) {
+            if (newTags.contains(usedTag.tag)) {
                 usedTag.timeUsed = LocalDateTime.now();
             }
         }
@@ -90,6 +89,12 @@ public class User extends BaseModel {
      * @param object The tagged object
      */
     public void updateUserTags(Taggable object) {
+        Set<Tag> tags = object.getTagsList();
 
+        for (UsedTag usedTag : usedTags) {
+            if (tags.contains(usedTag.tag)) {
+                usedTag.timeUsed = LocalDateTime.now();
+            }
+        }
     }
 }

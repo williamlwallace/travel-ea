@@ -6,13 +6,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.concurrent.CompletionException;
-import models.Destination;
 import models.Tag;
 import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Results;
 
 public class UserRepositoryTest extends repository.RepositoryTest {
 
@@ -101,8 +105,7 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 
         tag.usedTags.add(usedTag);
         user.usedTags.add(usedTag);
-
-
+        usedTag.timeUsed = LocalDateTime.now();
 
         assertEquals((Long) 2L, userRepository.updateUser(user).join());
 
@@ -111,22 +114,36 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertEquals("New username", updatedUser.username);
         assertEquals("Sick", updatedUser.password);
 
-        for (UsedTag yeet : updatedUser.usedTags) {
-            System.out.println(yeet.tag.id + " " + yeet.tag.name);
-        }
         assertEquals(2, updatedUser.usedTags.size());
         //TODO
 //        assertEquals("Russia", updatedUser.usedTags.get(0).tag.name);
     }
 
-    @Test(expected = CompletionException.class)
-    public void updateUserInvalidReferencedId() {
+    @Test
+    public void updateUserInvalidReferencedId() throws SQLException {
         User user = userRepository.findID(2L).join();
         assertNotNull(user);
-        //TODO
-//        user.usedTags.get(0).tag.id = 99999L;
+
+        for (UsedTag usedTag : user.usedTags) {
+            usedTag.tag.id = 99999L;
+        }
 
         userRepository.updateUser(user).join();
+
+        PreparedStatement statement = connection
+            .prepareStatement("SELECT * FROM UsedTag WHERE user_id = 2;");
+
+        ResultSet resultSet = statement.executeQuery();
+
+        boolean invalidTagFound = false;
+
+        while (resultSet.next()) {
+            if (resultSet.getInt("tag_id") == 99999) {
+                invalidTagFound = true;
+            }
+        }
+
+        assertFalse(invalidTagFound);
     }
 
     @Test
@@ -155,7 +172,7 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 //        assertEquals("#TravelEA", insertedUser.usedTags.get(0).tag.name);
     }
 
-    @Test
+    @Test(expected = CompletionException.class)
     public void insertUserInvalidReferencedId() {
         assertNull(userRepository.findID(4L).join());
         User user = new User();

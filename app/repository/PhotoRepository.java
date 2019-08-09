@@ -162,6 +162,9 @@ public class PhotoRepository {
         CompletableFuture<Void> allFutures = CompletableFuture
             .allOf(futures.toArray(new CompletableFuture[0]));
 
+        //This ensures that the method can be called and the actions executed without calling
+        //ThenApply/Async but also whilst allowing the tests to wait for completion before
+        //Continuing execution
         return allFutures.thenApplyAsync(v -> supplyAsync(() -> {
             ebeanServer.insertAll(photos);
             return null;
