@@ -105,6 +105,11 @@ function getTags() {
     return tags.slice(0, -1);
 }
 
+/**
+ * gets the recently used tags of a user and adds them to suggestions
+ * 
+ * @param {Number} userId 
+ */
 function fillTagSuggestions(userId) {
     const url = userRouter.controllers.backend.UserController.getUser(userId).url;
     get(url)

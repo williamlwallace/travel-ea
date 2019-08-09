@@ -21,9 +21,8 @@ $('#redoButton').click(function () {
     * are no undos or redos on the stack or not disabled if the opposite.
     */
 function updateUndoRedoButtons() {
-    console.log('yes');
     if (undoRedo.undoStack.isEmpty()) {
-        $('undoButton').attr("disabled", "true");
+        $('#undoButton').attr("disabled", "true");
     } else {
         $('#undoButton').removeAttr("disabled");
     }
