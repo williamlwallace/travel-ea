@@ -155,6 +155,7 @@ function populateProfileData(uri) {
         json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
 
         $('#gender').picker('set', json.gender);
+        tagsPickerTags = json.tags;
     });
 }
 

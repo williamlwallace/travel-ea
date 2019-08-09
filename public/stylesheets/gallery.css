@@ -1,7 +1,7 @@
 #upload-gallery-image-file {
     position:absolute;
     width:100%;
-    height: calc(100% - 190px);
+    height: calc(100% - 260px);
     top: 50px;
     left: 0px;
     z-index:2;

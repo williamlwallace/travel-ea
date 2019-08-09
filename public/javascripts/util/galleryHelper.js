@@ -8,6 +8,8 @@ $('#upload-img').on('click', function () {
     const pageId = $(this).data('page-id');
     let caption = $('#caption input').val();
 
+    const tags = getTags().map(tag => {tag});
+
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
     let formData = new FormData();
