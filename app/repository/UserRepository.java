@@ -10,7 +10,6 @@ import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Taggable;
-import models.UsedTag;
 import models.User;
 import play.db.ebean.EbeanConfig;
 
@@ -137,8 +136,34 @@ public class UserRepository {
             , executionContext);
     }
 
-    public void updateUsedTags(Taggable taggableObject) {
-
+    /**
+     * Updates this users tags, updating the date of the tag or inserting a new tag. Then calls
+     * ebean to commit the changes to the database Compares the original object to the new object to
+     * find newly added tags.
+     *
+     * Use this method signature when the user is updating the object.
+     *
+     * @param oldTaggableObject The original tagged object before this user's changes
+     * @param newTaggableObject The new tagged object after this user's changes
+     */
+    public void updateUsedTags(User user, Taggable oldTaggableObject, Taggable newTaggableObject) {
+        user.updateUserTags(oldTaggableObject, newTaggableObject);
+        ebeanServer.saveAll(user.usedTags);
     }
+
+    /**
+     * Updates this users tags, updating the date of the tag or inserting a new tag. Then calls
+     * ebean to commit the changes to the database Compares the original object to the new object to
+     * find newly added tags.
+     *
+     * Use this method signature when the user is inserting/adding the object.
+     *
+     * @param taggableObject The original tagged object before this user's changes
+     */
+    public void updateUsedTags(User user, Taggable taggableObject) {
+        user.updateUserTags(taggableObject);
+        ebeanServer.saveAll(user.usedTags);
+    }
+
 
 }
