@@ -6,8 +6,8 @@ $('#tagsInput').on('keyup', keyUp);
 
 
 /**
-    * Key down handler
-    */
+* Key down handler
+*/
 function keyDown(e) {
     //Need to keep depreciated symbols for older browsers
     const key = e.which || e.keyCode || e.key;
@@ -41,7 +41,7 @@ function keyDown(e) {
         $('#tags ul').scrollLeft(5000);
 
     // else if key is delete
-    } else if (key === 8 && tag === "") {
+    } else if (key === 8 && natTag === "") {
         const spacer = $("<li></li>").text("fillerfillerfil").attr('class', 'spacer');
         //Remove spacer, remove last tag, append spacer
         $('li').remove('.spacer');
@@ -50,14 +50,14 @@ function keyDown(e) {
     // if the key is space and the strin is empty do nothing
     // or if the key is a speach mark and there is already two speach marks do nothing
     // of if the speach count is greater or equal to two do nothing
-    } else if ((key === 32 && tag === "") || speachCount >= 2) {
+    } else if ((key === 32 && tag === "") || (natTag !== "" && key === 222 && speachCount === 0) || speachCount >= 2) {
         e.preventDefault();
     }
 };
 
 /**
-    * keyup handler
-    */
+* keyup handler
+*/
 function keyUp(e) {
     const tag = $('#tags input').val();
     if (tag.replace('"', "") === "") {
@@ -70,10 +70,10 @@ function keyUp(e) {
 };
 
 /**
-    * searchs suggested tags for matches and returns closest match
-    * 
-    * @param {String} string string to match 
-    */
+* searchs suggested tags for matches and returns closest match
+* 
+* @param {String} string string to match 
+*/
 function searchTags(string) {
     for (const tag of tagPickerSuggestions) {
         const lowerTag = tag.toLowerCase().replace(/['"]+/g, '');
@@ -88,19 +88,36 @@ function searchTags(string) {
 }
 
 /**
-    * Deletes tag assuming tag element gets binded to function
-    */
+* Deletes tag assuming tag element gets binded to function
+*/
 function deleteTag() {
     $(this).parent().remove();
 };
 
 /**
-    * returns a list of all selected tags
-    */
+* returns a list of all selected tags
+*/
 function getTags() {
     const tags = [];
     for (const li of $('#tags ul li')) {
         tags.push(li.innerText.replace(/['"]+/g, ''));
     }
     return tags.slice(0, -1);
+}
+
+/**
+ * gets the recently used tags of a user and adds them to suggestions
+ * 
+ * @param {Number} userId 
+ */
+function fillTagSuggestions(userId) {
+    const url = userRouter.controllers.backend.UserController.getUser(userId).url;
+    get(url)
+    .then((res) => {
+        res.json()
+        .then((json) => {
+            console.log(json)
+            tagPickerSuggestions = json.usedTags.map((tag) => tag.name); 
+        });
+    })
 }
