@@ -20,9 +20,8 @@
                 <button type="submit" class="btn btn-secondary" data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
             </div>
 
-            <!-- Input to add tags -->
-            <div id="tripTagsInput">
-                <input id="tripTags" type="text" data-role="tagsinput"/>
+            <div id="tagInput" style="float: left">
+                @modules.tagInput()
             </div>
 
             <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
