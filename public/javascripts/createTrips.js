@@ -345,9 +345,12 @@ function createTrip(redirect, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
+    const tripTagObjects = getTags().map((tag) => {return {name:tag}});
+
     let tripData = {
         "userId": userId,
-        "tripDataList": tripDataList
+        "tripDataList": tripDataList,
+        "tripsTags": tripTagObjects
     };
 
     const tripPrivacy = $('#tripPrivacy').html();
