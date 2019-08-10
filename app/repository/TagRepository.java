@@ -40,7 +40,6 @@ public class TagRepository {
                     tagsToAdd.add(tag);
                 }
             }
-
             ebeanServer.insertAll(tagsToAdd);
             return tagsToAdd;
         }, executionContext);

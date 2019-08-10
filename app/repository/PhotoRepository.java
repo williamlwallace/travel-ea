@@ -140,32 +140,8 @@ public class PhotoRepository {
      *
      * @param photos A list of photos to upload
      */
-    public CompletableFuture<Object> addPhotos(Collection<Photo> photos) {
-        if (photos.size() == 1) {
-            Photo pictureToUpload = Iterables.get(photos, 0);
-            if (pictureToUpload.isProfile) {
-                ebeanServer.find(Photo.class)
-                    .where()
-                    .eq(USER_ID, pictureToUpload.userId)
-                    .eq(IS_PROFILE, true)
-                    .delete();
-            }
-        }
-        List<CompletableFuture<Set<Tag>>> futures = new ArrayList<>();
-        for (Photo photo : photos) {
-            futures.add(tagRepository.addTags(photo.tags));
-        }
-
-        CompletableFuture<Void> allFutures = CompletableFuture
-            .allOf(futures.toArray(new CompletableFuture[0]));
-
-        //This ensures that the method can be called and the actions executed without calling
-        //ThenApply/Async but also whilst allowing the tests to wait for completion before
-        //Continuing execution
-        return allFutures.thenApplyAsync(v -> supplyAsync(() -> {
-            ebeanServer.insertAll(photos);
-            return null;
-        })).thenApplyAsync(result -> null);
+    public void addPhotos(Collection<Photo> photos) {
+        ebeanServer.insertAll(photos);
     }
 
     /**
