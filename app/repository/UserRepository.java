@@ -164,6 +164,4 @@ public class UserRepository {
         user.updateUserTags(taggableObject);
         ebeanServer.saveAll(user.usedTags);
     }
-
-
 }

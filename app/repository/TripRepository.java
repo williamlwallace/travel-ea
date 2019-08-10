@@ -35,14 +35,15 @@ public class TripRepository {
     /**
      * Inserts new trip into database.
      *
-     * @param newTrip Trip object to be added
+     * @param trip Trip object to be added
      * @return the id of the inserted trip
      */
-    public CompletableFuture<Long> insertTrip(Trip newTrip) {
-        return tagRepository.addTags(newTrip.tags).thenApplyAsync(addedTags -> {
-            newTrip.deleted = false;
-            ebeanServer.insert(newTrip);
-            return newTrip.id;
+    public CompletableFuture<Long> insertTrip(Trip trip) {
+        return tagRepository.addTags(trip.tags).thenApplyAsync(allTags -> {
+            trip.tags = allTags;
+            trip.deleted = false;
+            ebeanServer.insert(trip);
+            return trip.id;
         }, executionContext);
     }
 
@@ -53,7 +54,8 @@ public class TripRepository {
      * @return true on successful update or false if the trip is not found in the database
      */
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
-        return tagRepository.addTags(trip.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(trip.tags).thenApplyAsync(allTags -> {
+            trip.tags = allTags;
             try {
                 ebeanServer.update(trip);
                 return true;

@@ -43,7 +43,8 @@ public class PhotoRepository {
      * @return Ok on success
      */
     public CompletableFuture<Long> addPhoto(Photo photo) {
-        return tagRepository.addTags(photo.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
+            photo.tags = allTags;
             ebeanServer.insert(photo);
             return photo.guid;
         }, executionContext);
@@ -221,7 +222,8 @@ public class PhotoRepository {
      * @return the updated photo's guid
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
-        return tagRepository.addTags(photo.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
+            photo.tags = allTags;
                 ebeanServer.update(photo);
                 return photo.guid;
             },
