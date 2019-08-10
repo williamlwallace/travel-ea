@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -32,7 +35,7 @@ public class Tag extends Model {
         name = "DestinationTag",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
-    public List<Destination> destinations;
+    public Set<Destination> destinations;
 
     @ManyToMany(mappedBy = "tags")
     @JsonBackReference("PhotoTagReference")
@@ -40,7 +43,7 @@ public class Tag extends Model {
         name = "PhotoTag",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
-    public List<Photo> photos;
+    public Set<Photo> photos;
 
     @JsonBackReference("TripsTagReference")
     @ManyToMany(mappedBy = "tags")
@@ -48,14 +51,60 @@ public class Tag extends Model {
         name = "TripTag",
         joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"))
-    public List<Trip> trips;
+    public Set<Trip> trips;
 
-    @ManyToMany(mappedBy = "usedTags")
-    @JsonBackReference("UsedTagReference")
-    @JoinTable(
-        name = "UsedTag",
-        joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    public List<User> users;
+    @OneToMany(mappedBy = "tag")
+    public Set<UsedTag> usedTags;
 
+//    @ManyToMany(mappedBy = "usedTags")
+//    @JsonBackReference("UsedTagReference")
+//    @JoinTable(
+//        name = "UsedTag",
+//        joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
+//        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+//    public List<User> users;
+
+    /**
+     * Constructor, this is mainly for ease and conciseness of testing
+     *
+     * I have made it so you must instantiate a Tag with a name, this is because the hashCode method
+     * hashes based only on name
+     */
+    public Tag(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Constructor, this is mainly for ease and conciseness of testing
+     *
+     * I have made it so you must instantiate a Tag with a name, this is because the hashCode method
+     * hashes based only on name
+     */
+    public Tag(String name, Long id) {
+        this.name = name;
+        this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Tag)) {
+            return false;
+        }
+
+        Tag tag = (Tag) o;
+        if (name == null || tag.name == null) {
+            return Objects.equals(id, tag.id);
+        } else {
+            return Objects.equals(name, tag.name);
+        }
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(name);
+    }
 }
