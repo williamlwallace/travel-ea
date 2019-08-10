@@ -50,7 +50,8 @@ public class DestinationRepository {
      * @return A CompletableFuture with the new destination's id
      */
     public CompletableFuture<Long> addDestination(Destination destination) {
-        return tagRepository.addTags(destination.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(destination.tags).thenApplyAsync(allTags -> {
+            destination.tags = allTags;
             destination.deleted = false;
             ebeanServer.insert(destination);
             return destination.id;
@@ -79,7 +80,8 @@ public class DestinationRepository {
      * @return The updated destination
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
-        return tagRepository.addTags(destination.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(destination.tags).thenApplyAsync(allTags -> {
+            destination.tags = allTags;
             ebeanServer.update(destination);
             return destination;
         }, executionContext);

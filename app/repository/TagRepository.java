@@ -7,6 +7,7 @@ import io.ebean.EbeanServer;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Tag;
@@ -32,17 +33,36 @@ public class TagRepository {
      */
     public CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
         return supplyAsync(() -> {
+            Set<String> tagNames = tags.stream().map(Tag -> Tag.name).collect(Collectors.toSet());
+            Set<Tag> existingTags = ebeanServer.find(Tag.class)
+                .where()
+                .in("name", tagNames)
+                .findSet();
+
             Set<Tag> tagsToAdd = new HashSet<>();
             for (Tag tag : tags) {
-                if (tag.id == null &&
-                    ebeanServer.find(Tag.class).where().eq("name", tag.name).findOneOrEmpty()
-                        .orElse(null) == null) {
+                if (!existingTags.stream().filter(o -> o.name.equals(tag.name)).findFirst().isPresent()) {
                     tagsToAdd.add(tag);
                 }
             }
 
             ebeanServer.insertAll(tagsToAdd);
-            return tagsToAdd;
+            existingTags.addAll(tagsToAdd);
+            return existingTags;
+
+//            Set<Tag> tagsToAdd = new HashSet<>();
+//            for (Tag tag : tags) {
+//                if (tag.id == null &&
+//                    ebeanServer.find(Tag.class)
+//                        .where().eq("name", tag.name)
+//                        .findOneOrEmpty()
+//                        .orElse(null) == null) {
+//                    tagsToAdd.add(tag);
+//                }
+//            }
+//
+//            ebeanServer.insertAll(tagsToAdd);
+//            return tagsToAdd;
         }, executionContext);
     }
 
