@@ -1,4 +1,5 @@
-tagPickerSuggestions = [];
+
+let tagPickerSuggestions = [];
 let suggestion = "";
 $('#tagsInput').on('keydown', keyDown);
 $('#tagsInput').on('keyup', keyUp);
@@ -29,7 +30,7 @@ function keyDown(e) {
             $('#backText').html(suggestion);
         }
     // If key is delete
-    } else if (key === 8 && tag === "") {
+    } else if (key === 8 && natTag === "") {
         const spacer = $("<li></li>").text("fillerfillerfil").attr('class', 'spacer');
         //Remove spacer, remove last tag, append spacer
         $('li').remove('.spacer');
@@ -38,7 +39,7 @@ function keyDown(e) {
     // if the key is space and the string is empty do nothing
     // or if the key is a speech mark and there is already two speech marks do nothing
     // of if the speech count is greater or equal to two do nothing
-    } else if ((key === 32 && tag === "") || speechCount >= 2) {
+    } else if ((key === 32 && tag === "") || (natTag !== "" && key === 222 && speechCount === 0) || speechCount >= 2) {
         e.preventDefault();
     }
 }
@@ -124,4 +125,20 @@ function getTags() {
         tags.push(li.innerText.replace(/['"]+/g, ''));
     }
     return tags.slice(0, -1);
+}
+
+/**
+ * gets the recently used tags of a user and adds them to suggestions
+ *
+ * @param {Number} userId
+ */
+function fillTagSuggestions(userId) {
+    const url = userRouter.controllers.backend.UserController.getUser(userId).url;
+    get(url)
+    .then((res) => {
+        res.json()
+        .then((json) => {
+            tagPickerSuggestions = json.usedTags.map((tag) => tag.name);
+        });
+    })
 }
