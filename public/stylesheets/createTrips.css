@@ -120,12 +120,7 @@
     margin-top: 10px;
 }
 
-.bootstrap-tagsinput {
-    line-height: 20px;
+#tagInput {
     margin-left: 10px;
-}
-
-.label {
-    font-size: 90%;
-    font-weight: normal;
+    width: 300px;
 }
