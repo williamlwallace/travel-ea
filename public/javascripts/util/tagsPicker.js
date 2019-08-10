@@ -1,4 +1,3 @@
-
 let tagPickerSuggestions = [];
 let suggestion = "";
 $('#tagsInput').on('keydown', keyDown);
