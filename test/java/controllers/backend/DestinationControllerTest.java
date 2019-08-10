@@ -25,7 +25,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
@@ -370,6 +372,10 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         user.id = 1L;
         node.set("user", Json.toJson(user));
 
+        Set<Tag> tags = new HashSet<>();
+        tags.add(new Tag("New Tag"));
+        node.set("tags", Json.toJson(tags));
+
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
@@ -421,6 +427,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
         expectedMessages.put("country", "Country field must be present");
         expectedMessages.put("user", "User field must be present");
+        expectedMessages.put("tags", "Tags field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {

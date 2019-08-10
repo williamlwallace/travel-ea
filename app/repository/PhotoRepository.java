@@ -140,9 +140,13 @@ public class PhotoRepository {
      * Adds photos into the database. Will replace the users profile picture if needed.
      *
      * @param photos A list of photos to upload
+     * @return The collection of photos now containing ID's
      */
-    public void addPhotos(Collection<Photo> photos) {
-        ebeanServer.insertAll(photos);
+    public CompletableFuture<Collection<Photo>> addPhotos(Collection<Photo> photos) {
+        return supplyAsync(() -> {
+            ebeanServer.insertAll(photos);
+            return photos;
+        }, executionContext);
     }
 
     /**

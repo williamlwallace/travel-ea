@@ -89,8 +89,6 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
 
             return null;
         });
-
-
     }
 
     @Test
