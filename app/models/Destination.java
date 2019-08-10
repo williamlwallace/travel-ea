@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -21,7 +22,7 @@ import play.data.validation.Constraints;
 @Entity
 @Table(name = "Destination")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Destination extends BaseModel {
+public class Destination extends BaseModel implements Taggable {
 
     @Id
     @Constraints.Required
@@ -83,7 +84,16 @@ public class Destination extends BaseModel {
         name = "DestinationTag",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    public List<Tag> tags;
+    public Set<Tag> tags;
+
+    /**
+     * Returns the list of tags associated with the object
+     *
+     * @return a list of Tags
+     */
+    public Set<Tag> getTagsList() {
+        return tags;
+    }
 
     /**
      * Checks if photo is linked to destination.

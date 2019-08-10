@@ -59,7 +59,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('NZ'), ('sports'), ('music');
-INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1);
+INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (2, 4);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )

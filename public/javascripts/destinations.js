@@ -39,6 +39,9 @@ function onPageLoad(userId) {
         toggleDestinationForm();
     }.bind(map));
 
+    $('#destinationTags').tagsinput({
+        trimValue: true
+    });
 }
 
 /**
@@ -137,6 +140,7 @@ function addDestination(url, redirect, userId) {
  */
 function resetDestinationModal() {
     document.getElementById("addDestinationForm").reset();
+    $('#destinationTags').tagsinput('removeAll');
     hideErrors("addDestinationForm");
 }
 
