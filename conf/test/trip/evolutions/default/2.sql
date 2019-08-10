@@ -38,6 +38,7 @@ INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Funct
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO TripTag (tag_id, trip_id) VALUES (3, 1), (2, 2);
+INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1);
 
 -- !Downs
 DELETE FROM TripTag;
