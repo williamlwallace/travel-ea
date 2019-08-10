@@ -57,42 +57,7 @@ function populateDestinationDetails(destinationId) {
                         "summary_traveller_types").innerText = "";
                 }
 
-                // TODO: Remove this when tags backend implemented
-                destination.tags = [
-                    {
-                        id: 1,
-                        name: "Test"
-                    },
-                    {
-                        id: 2,
-                        name: "NZ"
-                    },
-                    {
-                        id: 2,
-                        name: "Russia"
-                    },
-                    {
-                        id: 2,
-                        name: "More tags"
-                    },
-                    {
-                        id: 2,
-                        name: "There are a lot of tags on here now"
-                    },
-                    {
-                        id: 2,
-                        name: "1234556"
-                    },
-                    {
-                        id: 2,
-                        name: "Cool place"
-                    },
-                    {
-                        id: 2,
-                        name: "hah area 51"
-                    }
-                ];
-
+                // Populates tags
                 const tagHolder = $("#summary_tags");
                 tagHolder.empty();
 
@@ -220,6 +185,8 @@ function editDestination(destinationId) {
                 destination.name = data.name;
                 destination.district = data.district;
 
+                delete destination.tagsList;
+
                 // Add tags to destination
                 const tags = getTags();
                 destination.tags = tags.map((tag) => {
@@ -294,18 +261,6 @@ function populateEditDestination(destinationId) {
                     "longitudeDeat").value = destination.longitude;
                 // Fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
-
-                // TODO: Remove this when tags implemented
-                destination.tags = [
-                    {
-                        id: 1,
-                        name: "Test"
-                    },
-                    {
-                        id: 2,
-                        name: "NZ"
-                    }
-                ];
                 // Fills tag input field
                 populateTags(destination.tags);
             }

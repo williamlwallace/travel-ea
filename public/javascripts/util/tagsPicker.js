@@ -82,9 +82,10 @@ function insertTag(tagName) {
 
 /**
  * Populates tag input with a list of tags
- * @param tags
+ * @param tags - List of tags to insert into input field
  */
 function populateTags(tags) {
+    clearTags();
     for (const tag of tags) {
         insertTag(tag.name);
     }
@@ -116,14 +117,24 @@ function deleteTag() {
 }
 
 /**
-* returns a list of all selected tags
+* Returns a list of all selected tags excluding empty strings and the filler
 */
 function getTags() {
     const tags = [];
-    for (const li of $('#tags ul li')) {
-        tags.push(li.innerText.replace(/['"]+/g, ''));
+    for (let tag of $('#tags ul li')) {
+        tag = tag.innerText.replace(/['"]+/g, '');
+        if (tag !== "" && tag !== "fillerfillerfil") {
+            tags.push(tag);
+        }
     }
-    return tags.slice(0, -1);
+    return tags;
+}
+
+/**
+ * Clears all tags from the input field
+ */
+function clearTags() {
+    $("#tags ul").empty();
 }
 
 /**
