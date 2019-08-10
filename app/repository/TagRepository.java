@@ -31,46 +31,36 @@ public class TagRepository {
      * @param tags The list of tags to add, can include existing tags, they will be ignored
      * @return The list of inserted tags
      */
-    public CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
+    CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
         return supplyAsync(() -> {
-            Set<String> tagNames = tags.stream().map(Tag -> Tag.name).collect(Collectors.toSet());
+            // Finds a set of tags already in the database which have matching names
+            Set<String> tagNames = tags.stream().map(tag -> tag.name).collect(Collectors.toSet());
             Set<Tag> existingTags = ebeanServer.find(Tag.class)
                 .where()
                 .in("name", tagNames)
                 .findSet();
 
+            // Creates a set of tags which need to be inserted into the database
             Set<Tag> tagsToAdd = new HashSet<>();
             for (Tag tag : tags) {
-                if (!existingTags.stream().filter(o -> o.name.equals(tag.name)).findFirst().isPresent()) {
+                if (existingTags.stream().noneMatch(obj -> obj.name.equals(tag.name))) {
                     tagsToAdd.add(tag);
                 }
             }
 
+            // Inserts new tags into database and adds the new tag objects with ID's to the set of existing tags
             ebeanServer.insertAll(tagsToAdd);
             existingTags.addAll(tagsToAdd);
             return existingTags;
-
-//            Set<Tag> tagsToAdd = new HashSet<>();
-//            for (Tag tag : tags) {
-//                if (tag.id == null &&
-//                    ebeanServer.find(Tag.class)
-//                        .where().eq("name", tag.name)
-//                        .findOneOrEmpty()
-//                        .orElse(null) == null) {
-//                    tagsToAdd.add(tag);
-//                }
-//            }
-//
-//            ebeanServer.insertAll(tagsToAdd);
-//            return tagsToAdd;
         }, executionContext);
     }
 
+    /**
+     * Enum of types of tags
+     */
     public enum TagType {
         DESTINATION_TAG,
         PHOTO_TAG,
         TRIP_TAG
     }
-
-
 }

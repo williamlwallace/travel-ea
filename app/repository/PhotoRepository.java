@@ -46,7 +46,8 @@ public class PhotoRepository {
      * @return Ok on success
      */
     public CompletableFuture<Long> addPhoto(Photo photo) {
-        return tagRepository.addTags(photo.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
+            photo.tags = allTags;
             ebeanServer.insert(photo);
             return photo.guid;
         }, executionContext);
@@ -156,7 +157,7 @@ public class PhotoRepository {
         }
         List<CompletableFuture<Set<Tag>>> futures = new ArrayList<>();
         for (Photo photo : photos) {
-            futures.add(tagRepository.addTags(photo.tags));
+            futures.add(tagRepository.addTags(photo.tags));  // TODO: This will not assign the tags properly to the photo
         }
 
         CompletableFuture<Void> allFutures = CompletableFuture
@@ -249,7 +250,8 @@ public class PhotoRepository {
      * @return the updated photo's guid
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
-        return tagRepository.addTags(photo.tags).thenApplyAsync(addedTags -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
+            photo.tags = allTags;
                 ebeanServer.update(photo);
                 return photo.guid;
             },
