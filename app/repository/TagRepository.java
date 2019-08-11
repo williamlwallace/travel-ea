@@ -32,15 +32,15 @@ public class TagRepository {
      * @param name Name of tag to search for
      * @return Collection of tags
      */
-    public CompletableFuture<Collection<?>> searchTags(TagType tagType, String name, int pageNum, int pageSize) {
+    public CompletableFuture<PagedList<?>> searchTags(TagType tagType, String name, int pageNum, int pageSize) {
         return supplyAsync(() ->
             ebeanServer.find(tagType.getClassType())
                 .fetch("tag")
                 .where()
-                .eq("tag.name", name)
+                .ieq("tag.name", name)
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
-                .findList()
+                .findPagedList()
             );
     }
 
@@ -64,6 +64,14 @@ public class TagRepository {
             );
     }
 
+    /**
+     * Gets all tags used by a user
+     *
+     * @param userId Id of user to receive tags for
+     * @param pageNum The page to receive
+     * @param pageSize Number of entries on a page
+     * @return Pair where thee firrst item (data) is the used tags and the second is the total number of pages
+     */
     public CompletableFuture<PagedList<?>> getRecentUserTags(long userId, int pageNum, int pageSize) {
         return supplyAsync(() ->
             ebeanServer.find(UsedTag.class)

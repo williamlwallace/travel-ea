@@ -27,16 +27,31 @@ public class TagController extends TEABackController {
      * @param name
      * @return
      */
-    public CompletableFuture<Result> getTags(Http.Request request, Integer pageNum, Integer pageSize) {
-        return tagRepository.searchTags(TagType.DESTINATION_TAG, pageNum, pageSize).thenApplyAsync(tags ->
-        {
-            try {
-                return ok(new ObjectMapper().writeValueAsString(new PagePair<Collection<?>, Integer>(tags.getList(), tags.getTotalPageCount())));
-            } catch (JsonProcessingException e) {
-                return badRequest();
-            }
-        });
+    public CompletableFuture<Result> getTags(Http.Request request, String name, Integer pageNum, Integer pageSize) {
 
+        if (name != null) {
+            return tagRepository.searchTags(TagType.DESTINATION_TAG, name, pageNum, pageSize).thenApplyAsync(tags ->
+            {
+                try {
+                    return ok(new ObjectMapper().writeValueAsString(new PagePair<Collection<?>, Integer>(tags.getList(), tags.getTotalPageCount())));
+                } catch (JsonProcessingException e) {
+                    return badRequest();
+                }
+            });
+        } else {
+
+            return tagRepository.searchTags(TagType.DESTINATION_TAG, pageNum, pageSize)
+                .thenApplyAsync(tags ->
+                {
+                    try {
+                        return ok(new ObjectMapper().writeValueAsString(
+                            new PagePair<Collection<?>, Integer>(tags.getList(),
+                                tags.getTotalPageCount())));
+                    } catch (JsonProcessingException e) {
+                        return badRequest();
+                    }
+                });
+        }
     }
 
     /**
