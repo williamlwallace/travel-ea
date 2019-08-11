@@ -116,7 +116,6 @@ function fillTagSuggestions(userId) {
     .then((res) => {
         res.json()
         .then((json) => {
-            console.log(json)
             tagPickerSuggestions = json.usedTags.map((tag) => tag.name); 
         });
     })
