@@ -1,9 +1,9 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Entity;
@@ -23,6 +23,7 @@ import play.data.validation.Constraints;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Tag extends Model {
 
+    @JsonIgnore
     @Id
     public Long id;
 
@@ -53,16 +54,9 @@ public class Tag extends Model {
         inverseJoinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"))
     public Set<Trip> trips;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "tag")
     public Set<UsedTag> usedTags;
-
-//    @ManyToMany(mappedBy = "usedTags")
-//    @JsonBackReference("UsedTagReference")
-//    @JoinTable(
-//        name = "UsedTag",
-//        joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
-//        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-//    public List<User> users;
 
     /**
      * Constructor, this is mainly for ease and conciseness of testing

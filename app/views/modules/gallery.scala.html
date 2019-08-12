@@ -47,7 +47,7 @@ can add an intermediate modal as is the case in detailed destinations *@
             </div>
 
             <div style="margin: 0px 30px 0px 30px;">
-                @modules.tagInput()
+                @modules.tagPicker("upload-picker")
             </div>
 
             <div class="modal-footer">
@@ -81,6 +81,8 @@ can add an intermediate modal as is the case in detailed destinations *@
                 <label id="errorLabel" class="error-messages"></label>
             </div>
 
+            @modules.tagPicker("edit-picker")
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal" onclick=
                 'deletePhoto("@controllers.backend.routes.PhotoController.deletePhoto(1)")'>Delete Photo</button>
@@ -90,5 +92,3 @@ can add an intermediate modal as is the case in detailed destinations *@
         </div>
     </div>
 </div>
-
-

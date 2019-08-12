@@ -1,11 +1,11 @@
-#tags {
-    margin: 0px 0px 20px 0px;
+.tags {
+    margin: 0px 30px 20px 30px;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     padding-left: 3px;
 }
 
-#tags ul{
+.tags ul{
     display: flex;
     list-style-type: none;
     overflow-x: auto;
@@ -16,19 +16,18 @@
     padding-bottom:10px;
 }
 
-#tags::-webkit-scrollbar {
-    z-index: 100;
-}
-
 .tags li{
     font-family: "Liberation Mono";
     border: 1px solid #007bff;
     background-color: #5283B7;
     color: #fff;
     border-radius: 4px;
-    padding: 3px 3px 1px 1px;
+    padding: 2px 2px 1px 1px;
     margin: 8px 3px 0px 3px;
     font-size: 12px;
+    max-height: 25px;
+    padding-left: 2px;
+    padding-top: 3px;
     line-height: 16px;
 }
 
