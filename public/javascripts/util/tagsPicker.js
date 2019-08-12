@@ -1,3 +1,6 @@
+/**
+ * Class which allows for tags to be inserted and retrieved from an input field
+ */
 class TagPicker {
 
     constructor(userId, id) {
@@ -123,7 +126,7 @@ class TagPicker {
     };
 
     /**
-    * returns a list of all selected tags
+    * Returns a list of all selected tags
     */
     getTags() {
         const tags = [];
@@ -134,7 +137,7 @@ class TagPicker {
     }
 
     /**
-     * gets the recently used tags of a user and adds them to suggestions
+     * Gets the recently used tags of a user and adds them to suggestions
      * 
      * @param {Number} userId 
      */
@@ -149,6 +152,9 @@ class TagPicker {
         })
     }
 
+    /**
+     * Clears the tags from the input field and resets spacer
+     */
     clearTags() {
         this.list.empty();
         this.list.append(this.spacer);

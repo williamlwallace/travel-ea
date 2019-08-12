@@ -309,6 +309,7 @@
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
         populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     });
-    uploadTagPicker = new TagPicker(@user.id, "upload-picker");
-    editTagPicker = new TagPicker(@user.id, "edit-picker");
+
+    const uploadTagPicker = new TagPicker(@user.id, "upload-picker");
+    const editTagPicker = new TagPicker(@user.id, "edit-picker");
 </script>
