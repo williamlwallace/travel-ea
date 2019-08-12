@@ -1,25 +1,16 @@
 package repository;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletionException;
-import models.Photo;
 import models.Tag;
 import org.junit.Before;
 import org.junit.Test;
-import scala.reflect.internal.Trees.New;
-import util.objects.Pair;
 
 public class TagRepositoryTest extends repository.RepositoryTest {
 
@@ -77,7 +68,6 @@ public class TagRepositoryTest extends repository.RepositoryTest {
         boolean dontFound = false;
         boolean existFound = false;
 
-
         while (checkSet.next()) {
             if (checkSet.getString("name").equals("These")) {
                 theseFound = true;
@@ -120,7 +110,6 @@ public class TagRepositoryTest extends repository.RepositoryTest {
         int checkCount = 0;
         boolean newFound = false;
         boolean tagFound = false;
-
 
         while (checkSet.next()) {
             if (checkSet.getString("name").equals("New")) {
@@ -192,7 +181,7 @@ public class TagRepositoryTest extends repository.RepositoryTest {
 
         int count = 0;
 
-        while(resultSet.next()) {
+        while (resultSet.next()) {
             assertEquals("#TravelEA", resultSet.getString("name"));
             assertEquals(3, resultSet.getInt("id"));
             count++;

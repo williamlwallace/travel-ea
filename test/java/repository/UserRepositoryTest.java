@@ -16,7 +16,6 @@ import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
-import play.mvc.Results;
 
 public class UserRepositoryTest extends repository.RepositoryTest {
 
