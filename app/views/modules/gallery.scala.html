@@ -28,9 +28,9 @@ can add an intermediate modal as is the case in detailed destinations *@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
 
-            <div class="modal-header text-center">
+            <h5 class="modal-header text-center modal-title">
                 Photo Upload
-            </div><br>
+            </h5><br>
 
             <div class="text-center uploader" onclick="$('#upload-gallery-image-file').click()">
                 Click here or drag your image to upload
@@ -46,7 +46,9 @@ can add an intermediate modal as is the case in detailed destinations *@
                 <input type="text" class="form-control" placeholder="Caption"/>
             </div>
 
-            @modules.tagPicker("upload-picker")
+            <div style="margin: 0px 30px 0px 30px;">
+                @modules.tagPicker("upload-picker")
+            </div>
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
