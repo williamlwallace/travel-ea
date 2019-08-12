@@ -228,10 +228,10 @@ public class PhotoRepository {
     public CompletableFuture<Long> updatePhoto(Photo photo) {
         return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
             photo.tags = allTags;
-                ebeanServer.update(photo);
-                return photo.guid;
-            },
-            executionContext);
+            ebeanServer.update(photo);
+            return photo.guid;
+        },
+        executionContext);
     }
 
     /**
