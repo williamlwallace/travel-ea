@@ -1,5 +1,6 @@
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -48,6 +49,7 @@ public class Trip extends BaseModel implements Comparable<Trip>, Taggable {
      *
      * @return a list of Tags
      */
+    @JsonIgnore
     public Set<Tag> getTagsList() {
         return tags;
     }

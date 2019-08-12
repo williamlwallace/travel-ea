@@ -21,7 +21,9 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.TagRepository;
 import repository.TravellerTypeDefinitionRepository;
+import repository.UserRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -34,13 +36,19 @@ public class DestinationController extends TEABackController {
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
     private final WSClient ws;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
+        TagRepository tagRepository, UserRepository userRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
         this.ws = ws;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -80,14 +88,17 @@ public class DestinationController extends TEABackController {
             }
         }
 
-        return destinationRepository.addDestination(newDestination)
-            .thenApplyAsync(id -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(id)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+        return tagRepository.addTags(newDestination.tags).thenComposeAsync(existingTags -> {
+            userRepository.updateUsedTags(user, newDestination);
+            return destinationRepository.addDestination(newDestination)
+                .thenApplyAsync(id -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(id)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        });
     }
 
     /**
@@ -208,13 +219,17 @@ public class DestinationController extends TEABackController {
                             .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
                     }
                 }
-                return destinationRepository.updateDestination(editedDestination)
-                    .thenApplyAsync(updatedDestination -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(destination)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
+                return tagRepository.addTags(editedDestination.tags)
+                    .thenComposeAsync(existingTags -> {
+                        userRepository.updateUsedTags(user, destination, editedDestination);
+                        return destinationRepository.updateDestination(editedDestination)
+                            .thenApplyAsync(updatedDestination -> {
+                                try {
+                                    return ok(sanitizeJson(Json.toJson(destination)));
+                                } catch (IOException e) {
+                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                                }
+                            });
                     });
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden(

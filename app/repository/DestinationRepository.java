@@ -32,15 +32,12 @@ public class DestinationRepository {
     private static final int NAME_SIMILARITY_THRESHOLD = 10;
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
-    private final TagRepository tagRepository;
 
     @Inject
     public DestinationRepository(EbeanConfig ebeanConfig,
-        DatabaseExecutionContext executionContext,
-        TagRepository tagRepository) {
+        DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
-        this.tagRepository = tagRepository;
     }
 
     /**
@@ -50,8 +47,7 @@ public class DestinationRepository {
      * @return A CompletableFuture with the new destination's id
      */
     public CompletableFuture<Long> addDestination(Destination destination) {
-        return tagRepository.addTags(destination.tags).thenApplyAsync(allTags -> {
-            destination.tags = allTags;
+        return supplyAsync(() -> {
             destination.deleted = false;
             ebeanServer.insert(destination);
             return destination.id;
@@ -80,8 +76,7 @@ public class DestinationRepository {
      * @return The updated destination
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
-        return tagRepository.addTags(destination.tags).thenApplyAsync(allTags -> {
-            destination.tags = allTags;
+        return supplyAsync(() -> {
             ebeanServer.update(destination);
             return destination;
         }, executionContext);
