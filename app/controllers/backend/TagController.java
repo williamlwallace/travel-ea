@@ -1,6 +1,7 @@
 package controllers.backend;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
@@ -21,16 +22,21 @@ public class TagController extends TEABackController {
     }
 
     /**
-     * TEST METHOD ONLY, NEEDS TO BE FIXED OR REMOVED
+     * Controller method to get all tags of a certain type, optional name parameter to search by name.
+     * Name search is case insensitive
      * 
-     * @param request
-     * @param name
-     * @return
+     * @param request HTTP request, needs to contain the tag type under tagType in  a JSON
+     * @param name Optional sting by which to search for a name
+     * @return Ok with a paginated list of tags as well as the total page count
      */
     public CompletableFuture<Result> getTags(Http.Request request, String name, Integer pageNum, Integer pageSize) {
 
+        JsonNode data = request.body().asJson();
+        ObjectMapper objectMapper = new ObjectMapper();
+        TagType tagType = objectMapper.convertValue(data.get("tagType"), TagType.class);
+
         if (name != null) {
-            return tagRepository.searchTags(TagType.DESTINATION_TAG, name, pageNum, pageSize).thenApplyAsync(tags ->
+            return tagRepository.searchTags(tagType, name, pageNum, pageSize).thenApplyAsync(tags ->
             {
                 try {
                     return ok(new ObjectMapper().writeValueAsString(new PagePair<Collection<?>, Integer>(tags.getList(), tags.getTotalPageCount())));
@@ -39,8 +45,7 @@ public class TagController extends TEABackController {
                 }
             });
         } else {
-
-            return tagRepository.searchTags(TagType.DESTINATION_TAG, pageNum, pageSize)
+            return tagRepository.searchTags(tagType, pageNum, pageSize)
                 .thenApplyAsync(tags ->
                 {
                     try {
