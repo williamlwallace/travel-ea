@@ -350,7 +350,7 @@ function createTrip(redirect, userId) {
     let tripData = {
         "userId": userId,
         "tripDataList": tripDataList,
-        "tripsTags": tripTagObjects
+        "tags":tripTagObjects
     };
 
     const tripPrivacy = $('#tripPrivacy').html();
@@ -444,13 +444,16 @@ function updateTrip(uri, redirect, tripId, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
+    const tripTagObjects = getTags().map((tag) => {return {name:tag}});
+
     let tripData = {
         "id": tripId,
         "userId": userId,
         "trip": {
             "id": tripId
         },
-        "tripDataList": tripDataList
+        "tripDataList": tripDataList,
+        "tags": tripTagObjects
     };
 
     const tripPrivacy = $('#tripPrivacy').html();

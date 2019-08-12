@@ -8,14 +8,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import models.TripData;
 
-public class TripValidator {
+public class TripValidator extends Validator{
 
     private final JsonNode form;
-    private ErrorResponse response;
 
     public TripValidator(JsonNode form) {
+        super(form,  new ErrorResponse());
         this.form = form;
-        response = new ErrorResponse();
     }
 
     /**
@@ -27,13 +26,12 @@ public class TripValidator {
 
         // Validation for trip as a whole
         if (isUpdating) {
-            this.required("id");
+            this.required("id", "Trip Id");
         }
-
-        this.required("userId");
-
+        this.required("userId", "User Id");
         // Validation for trip privacy
-        this.required("isPublic");
+        this.required("isPublic", "Privacy");
+        this.requiredTags("tags", "Tags");
 
         // Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
@@ -44,7 +42,7 @@ public class TripValidator {
                 });
 
         if (tripDataCollection.size() < 2) {
-            this.response.map("A trip must contain at least 2 destinations.", "trip");
+            this.getErrorResponse().map("A trip must contain at least 2 destinations.", "trip");
         }
 
         Long lastDestinationID = 0L;
@@ -85,11 +83,11 @@ public class TripValidator {
 
             // If any errors were added to string, add this to error response map
             if (!errorString.equals("")) {
-                this.response.map(errorString, trip.position.toString());
+                this.getErrorResponse().map(errorString, trip.position.toString());
             }
         }
 
-        return this.response;
+        return this.getErrorResponse();
     }
 
     /**
@@ -99,12 +97,12 @@ public class TripValidator {
      */
     public ErrorResponse validateTripPrivacyUpdate() {
         // Validation for trip as a whole
-        this.required("id");
+        this.required("id", "Id");
 
         // Validation for trip privacy
-        this.required("isPublic");
+        this.required("isPublic", "Privacy");
 
-        return this.response;
+        return this.getErrorResponse();
     }
 
     /**
@@ -147,19 +145,5 @@ public class TripValidator {
         }
 
         return "";
-    }
-
-    /**
-     * Checks field is not empty.
-     *
-     * @param field json field name
-     * @return Boolean whether validation succeeds
-     */
-    protected Boolean required(String field) {
-        if (this.form.get(field).asText("").equals("")) {
-            this.response.map(String.format("%s required", field), field);
-            return false;
-        }
-        return true;
     }
 }
