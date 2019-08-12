@@ -3,13 +3,16 @@ package repository;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.DestinationPhoto;
 import models.Photo;
+import models.Tag;
 import play.db.ebean.EbeanConfig;
 import util.objects.Pair;
 
@@ -23,11 +26,14 @@ public class PhotoRepository {
     private static final String USER_ID = "user_id";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+    private final TagRepository tagRepository;
 
     @Inject
-    public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+    public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
+        TagRepository tagRepository) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+        this.tagRepository = tagRepository;
     }
 
     /**
@@ -37,7 +43,8 @@ public class PhotoRepository {
      * @return Ok on success
      */
     public CompletableFuture<Long> addPhoto(Photo photo) {
-        return supplyAsync(() -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
+            photo.tags = allTags;
             ebeanServer.insert(photo);
             return photo.guid;
         }, executionContext);
@@ -133,9 +140,13 @@ public class PhotoRepository {
      * Adds photos into the database. Will replace the users profile picture if needed.
      *
      * @param photos A list of photos to upload
+     * @return The collection of photos now containing ID's
      */
-    public void addPhotos(Collection<Photo> photos) {
-        ebeanServer.insertAll(photos);
+    public CompletableFuture<Collection<Photo>> addPhotos(Collection<Photo> photos) {
+        return supplyAsync(() -> {
+            ebeanServer.insertAll(photos);
+            return photos;
+        }, executionContext);
     }
 
     /**
@@ -215,7 +226,8 @@ public class PhotoRepository {
      * @return the updated photo's guid
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
-        return supplyAsync(() -> {
+        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
+            photo.tags = allTags;
                 ebeanServer.update(photo);
                 return photo.guid;
             },

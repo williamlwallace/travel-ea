@@ -69,7 +69,8 @@ public class DestinationController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
                 "You do not have permission to create a destination for someone else")));
         }
-        //check if destination already exists
+
+        // Checks if similar destination already exists
         List<Destination> destinations = destinationRepository
             .getSimilarDestinations(newDestination);
         for (Destination destination : destinations) {
@@ -78,6 +79,7 @@ public class DestinationController extends TEABackController {
                     .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
             }
         }
+
         return destinationRepository.addDestination(newDestination)
             .thenApplyAsync(id -> {
                 try {

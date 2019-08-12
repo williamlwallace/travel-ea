@@ -40,13 +40,14 @@
                             }
                         </div>
                         <div class="destDeets" id="destDeets">
-                            <p class="heading">Type <span id="summary_type" class="destination-info"></span></p>
-                            <p class="heading">District <span id="summary_district" class="destination-info"></span></p>
-                            <p class="heading">Country <span id="summary_country" class="destination-info"></span></p>
-                            <p class="heading">Latitude <span id="summary_latitude" class="destination-info"></span></p>
-                            <p class="heading">Longitude <span id="summary_longitude" class="destination-info"></span></p>
-                            <p class="heading" id="heading_traveller_types">Traveller Types <span id="summary_traveller_types" class="destination-info"></span></p>
-                            <p class="heading"></p>
+                            <p class="heading">Type: <span id="summary_type" class="destination-info"></span></p>
+                            <p class="heading">District: <span id="summary_district" class="destination-info"></span></p>
+                            <p class="heading">Country: <span id="summary_country" class="destination-info"></span></p>
+                            <p class="heading">Latitude: <span id="summary_latitude" class="destination-info"></span></p>
+                            <p class="heading">Longitude: <span id="summary_longitude" class="destination-info"></span></p>
+                            <p class="heading" id="heading_traveller_types">Traveller Types: <span id="summary_traveller_types" class="destination-info"></span></p>
+                            <p class="heading" id="heading_tags">Tags: </p>
+                            @modules.tagDisplay()
 
                             <a data-toggle="modal" data-target="#travellerTypeModal">
                                 <span class="destination-button" style="float: left; padding-top: 20px;" onclick='fillTravellerTypeInfo();'>@if(canModify) {Edit Traveller Types} else {Suggest Traveller Types}</span>
@@ -100,6 +101,8 @@
                                         </select>
                                         <label id="countryError" class="error-messages"></label>
                                     </div>
+
+                                    @modules.tagInput()
                                 </div>
                             </form>
                             <div>

@@ -435,5 +435,5 @@ $('#upload-gallery-image-file').on('change', function handleImage(e) {
  * Opens edit photo modal when clicking on edit icon in photo thumbnail
  */
 $('#editCaption').on('click', function () {
-    $('#upload-modal').show()
+    $('#upload-modal').show();
 });

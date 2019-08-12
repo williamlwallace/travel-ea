@@ -1,5 +1,5 @@
 #tags {
-    margin: 0px 30px 20px 30px;
+    margin: 0px 0px 20px 0px;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     padding-left: 3px;
@@ -20,18 +20,37 @@
     z-index: 100;
 }
 
-#tags li{
+.tags li{
     font-family: "Liberation Mono";
     border: 1px solid #007bff;
     background-color: #5283B7;
     color: #fff;
     border-radius: 4px;
-    padding: 2px 2px 1px 1px;
+    padding: 3px 3px 1px 1px;
     margin: 8px 3px 0px 3px;
     font-size: 12px;
-    max-height: 25px;
-    padding-left: 2px;
-    padding-top: 3px;
+    line-height: 16px;
+}
+
+.tags-display {
+    margin: 0px;
+    padding: 0px;
+    max-width: 100%;
+    padding-bottom: 10px;
+}
+
+.tags-display li {
+    padding: 3px 5px 1px 5px;
+    margin: 2px
+}
+
+.tags-display ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    list-style-type: none;
+    flex-wrap: wrap;
+    padding-left: 0px;
 }
 
 .spacer {

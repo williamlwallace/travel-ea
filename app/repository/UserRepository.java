@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.Taggable;
 import models.User;
 import play.db.ebean.EbeanConfig;
 
@@ -21,11 +22,14 @@ public class UserRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+    private final TagRepository tagRepository;
 
     @Inject
-    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
+    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
+        TagRepository tagRepository) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+        this.tagRepository = tagRepository;
     }
 
     /**
@@ -99,6 +103,7 @@ public class UserRepository {
      */
     public CompletableFuture<Long> updateUser(User updatedUser) {
         return supplyAsync(() -> {
+            ebeanServer.saveAll(updatedUser.usedTags);
             ebeanServer.update(updatedUser);
             return updatedUser.id;
         }, executionContext);
@@ -114,12 +119,13 @@ public class UserRepository {
         return supplyAsync(() -> {
             newUser.creationDate = LocalDateTime.now();
             ebeanServer.insert(newUser);
+            ebeanServer.saveAll(newUser.usedTags);
             return newUser;
         }, executionContext);
     }
 
     /**
-     * remove a user from db.
+     * Remove a user from db.
      *
      * @param id uid of user
      * @return the number of rows that were deleted
@@ -128,5 +134,34 @@ public class UserRepository {
         return supplyAsync(() ->
                 ebeanServer.delete(User.class, id)
             , executionContext);
+    }
+
+    /**
+     * Updates this users tags, updating the date of the tag or inserting a new tag. Then calls
+     * ebean to commit the changes to the database Compares the original object to the new object to
+     * find newly added tags.
+     *
+     * Use this method signature when the user is updating the object.
+     *
+     * @param oldTaggableObject The original tagged object before this user's changes
+     * @param newTaggableObject The new tagged object after this user's changes
+     */
+    public void updateUsedTags(User user, Taggable oldTaggableObject, Taggable newTaggableObject) {
+        user.updateUserTags(oldTaggableObject, newTaggableObject);
+        ebeanServer.saveAll(user.usedTags);
+    }
+
+    /**
+     * Updates this users tags, updating the date of the tag or inserting a new tag. Then calls
+     * ebean to commit the changes to the database Compares the original object to the new object to
+     * find newly added tags.
+     *
+     * Use this method signature when the user is inserting/adding the object.
+     *
+     * @param taggableObject The original tagged object before this user's changes
+     */
+    public void updateUsedTags(User user, Taggable taggableObject) {
+        user.updateUserTags(taggableObject);
+        ebeanServer.saveAll(user.usedTags);
     }
 }

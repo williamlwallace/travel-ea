@@ -208,8 +208,9 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
 CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
-    name                  VARCHAR(64),
-    PRIMARY KEY (id)
+    name                  VARCHAR(64) UNIQUE NOT NULL,
+    PRIMARY KEY (id),
+    INDEX tag_name_index (name)
   );
 
 -- Specifies the DestinationTag table, this is only done in the SQL so we can populate it in the evolutions
