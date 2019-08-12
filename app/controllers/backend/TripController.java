@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -169,8 +170,7 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
-        trip.tags = new ArrayList<>(
-            Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
+        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -275,8 +275,7 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
-        trip.tags = new ArrayList<>(
-            Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
+        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
