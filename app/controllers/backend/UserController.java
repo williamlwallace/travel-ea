@@ -325,7 +325,8 @@ public class UserController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
-                controllers.backend.routes.javascript.UserController.userSearch()
+                controllers.backend.routes.javascript.UserController.userSearch(),
+                controllers.backend.routes.javascript.UserController.getUser()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

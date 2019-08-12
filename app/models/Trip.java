@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,7 +21,7 @@ import play.data.validation.Constraints;
 @Entity
 @Table(name = "Trip")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Trip extends BaseModel implements Comparable<Trip> {
+public class Trip extends BaseModel implements Comparable<Trip>, Taggable {
 
     @Id
     public Long id;
@@ -40,7 +41,16 @@ public class Trip extends BaseModel implements Comparable<Trip> {
         name = "TripTag",
         joinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    public List<Tag> tags;
+    public Set<Tag> tags;
+
+    /**
+     * Returns the list of tags associated with the object
+     *
+     * @return a list of Tags
+     */
+    public Set<Tag> getTagsList() {
+        return tags;
+    }
 
     /**
      * Finds the first date in a trip.

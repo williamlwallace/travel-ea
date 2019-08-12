@@ -1,3 +1,6 @@
+-- AUTHOR: Matthew Minish, William Wallace, Ollie Sharplin, what about me?
+-- MODIFIED: 9/7/2019 2.00PM
+
 -- !Ups
 
 -- Create User table
@@ -14,18 +17,37 @@ CREATE TABLE IF NOT EXISTS User
     UNIQUE (username)
   );
 
+-- Create Photo table, which stores the filenames and details for all photos
+CREATE TABLE IF NOT EXISTS Photo
+  (
+    guid                  INT NOT NULL AUTO_INCREMENT,
+    user_id               INT NOT NULL,
+    filename              VARCHAR(256) NOT NULL,
+    thumbnail_filename    VARCHAR(256) NOT NULL,
+    caption               VARCHAR(256) NOT NULL DEFAULT '',
+    is_public             BOOLEAN NOT NULL,
+    uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
+    used_for_profile      BOOLEAN NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
 -- Create Profile table
 CREATE TABLE IF NOT EXISTS Profile
   (
-    user_id           INT NOT NULL AUTO_INCREMENT,
-    first_name        VARCHAR(64) NOT NULL,
-    middle_name       VARCHAR(64),
-    last_name         VARCHAR(64) NOT NULL,
-    date_of_birth     DATE,
-    gender            VARCHAR(32),
-    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_id             INT NOT NULL AUTO_INCREMENT,
+    first_name          VARCHAR(64) NOT NULL,
+    middle_name         VARCHAR(64),
+    last_name           VARCHAR(64) NOT NULL,
+    date_of_birth       DATE,
+    gender              VARCHAR(32),
+    creation_date       DATETIME DEFAULT CURRENT_TIMESTAMP,
+    profile_photo_guid  INT,
+    cover_photo_guid    INT,
     PRIMARY KEY (user_id),
-    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (profile_photo_guid) REFERENCES Photo(guid),
+    FOREIGN KEY (cover_photo_guid) REFERENCES Photo(guid) ON DELETE SET NULL
   );
 
 -- Create the country definition table, which is static and defines all possible countries
@@ -156,20 +178,6 @@ CREATE TABLE IF NOT EXISTS TripData
     INDEX destination_id_index (destination_id)
   );
 
--- Create Photo table, which stores the filenames and details for all photos
-CREATE TABLE IF NOT EXISTS Photo
-  (
-    guid                  INT NOT NULL AUTO_INCREMENT,
-    user_id               INT NOT NULL,
-    filename              VARCHAR(256) NOT NULL,
-    thumbnail_filename    VARCHAR(256) NOT NULL,
-    is_public             BOOLEAN NOT NULL,
-    uploaded              DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_profile            BOOLEAN NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
-    PRIMARY KEY (guid)
-  );
-
     -- Create DestinationPhotos table, which specifies the photos of a Destinations
 CREATE TABLE IF NOT EXISTS DestinationPhoto
   (
@@ -203,8 +211,9 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
 CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
-    name                  VARCHAR(64),
-    PRIMARY KEY (id)
+    name                  VARCHAR(64) UNIQUE NOT NULL,
+    PRIMARY KEY (id),
+    INDEX tag_name_index (name)
   );
 
 -- Specifies the DestinationTag table, this is only done in the SQL so we can populate it in the evolutions

@@ -6,18 +6,29 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.PagedList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Enums.TagType;
 import models.UsedTag;
+import models.Tag;
 import play.db.ebean.EbeanConfig;
 import util.objects.Pair;
 
 @Singleton
 public class TagRepository {
 
+    public enum TagType {
+        DESTINATION_TAG,
+        PHOTO_TAG,
+        TRIP_TAG
+    }
+
     private final EbeanServer ebeanServer;
+    private final DatabaseExecutionContext executionContext;
 
     @Inject
     public TagRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
@@ -44,6 +55,35 @@ public class TagRepository {
             );
     }
 
+    /**
+     * Adds all the new tags in the list to the database
+     *
+     * @param tags The list of tags to add, can include existing tags, they will be ignored
+     * @return The list of inserted tags
+     */
+    CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
+        return supplyAsync(() -> {
+            // Finds a set of tags already in the database which have matching names
+            Set<String> tagNames = tags.stream().map(tag -> tag.name).collect(Collectors.toSet());
+            Set<Tag> existingTags = ebeanServer.find(Tag.class)
+                .where()
+                .in("name", tagNames)
+                .findSet();
+
+            // Creates a set of tags which need to be inserted into the database
+            Set<Tag> tagsToAdd = new HashSet<>();
+            for (Tag tag : tags) {
+                if (existingTags.stream().noneMatch(obj -> obj.name.equals(tag.name))) {
+                    tagsToAdd.add(tag);
+                }
+            }
+
+            // Inserts new tags into database and adds the new tag objects with ID's to the set of existing tags
+            ebeanServer.insertAll(tagsToAdd);
+            existingTags.addAll(tagsToAdd);
+            return existingTags;
+        }, executionContext);
+    }
     /**
      * Returns a collection of tags (the type of the tag is dependant on tagType given)
      * Only tags where name exactly matches search criteria are returned

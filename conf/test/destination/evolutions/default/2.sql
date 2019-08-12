@@ -41,7 +41,7 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 
 
 -- Add photo
-INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
 
 -- Add photo-destination link that can be merged
 INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
@@ -59,7 +59,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('NZ'), ('sports'), ('music');
-INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1);
+INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (2, 4);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )

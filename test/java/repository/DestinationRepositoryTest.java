@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 import models.CountryDefinition;
 import models.Destination;
+import models.Tag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +38,10 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
         assertEquals(Long.valueOf(1), destination.id);
         assertEquals(2, destination.travellerTypes.size());
         assertEquals(2, destination.travellerTypesPending.size());
-        assertEquals("sports", destination.tags.get(0).name);
+
+        Tag testTag = new Tag("sports", 2L);
+        assertEquals(1, destination.tags.size());
+        assertTrue(destination.tags.contains(testTag));
 
         return true;
     }
@@ -231,5 +235,22 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
             .getSimilarDestinations(destination);
 
         assertEquals(3, similarDestinations.size());
+    }
+
+    @Test
+    public void updateDestinationNewTag() {
+        Destination destination = destinationRepository.getDestination(1L).join();
+        assertNotNull(destination);
+
+        Tag newTag = new Tag("New Tag");
+
+        destination.tags.add(newTag);
+
+        destinationRepository.updateDestination(destination);
+
+        Destination updatedDestination = destinationRepository.getDestination(1L).join();
+        for (Tag tag : updatedDestination.tags) {
+            System.out.println(tag.id + " " + tag.name);
+        }
     }
 }
