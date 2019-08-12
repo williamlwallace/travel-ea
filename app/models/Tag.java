@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.ebean.Model;
 import java.util.List;
@@ -24,6 +25,7 @@ import play.data.validation.Constraints;
 public class Tag extends Model {
 
     @Id
+    @JsonIgnore
     public Long id;
 
     @Constraints.Required
@@ -54,6 +56,7 @@ public class Tag extends Model {
     public Set<Trip> trips;
 
     @OneToMany(mappedBy = "tag")
+    @JsonIgnore
     public Set<UsedTag> usedTags;
 
 //    @ManyToMany(mappedBy = "usedTags")

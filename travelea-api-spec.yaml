@@ -1190,7 +1190,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update profile photo of
         schema:
@@ -1234,7 +1234,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update cover photo of
         schema:
@@ -1278,7 +1278,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The ID of the photo being toggled
         schema:
@@ -1343,7 +1343,7 @@ paths:
         '401':
           description: Unauthorized
 
-  '/user/{id}/photo/':
+  '/user/{id}/photo':
     get:
       tags:
       - Photos
@@ -1388,6 +1388,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Photo'
+
+  '/user/{id}/phototags':
+    get:
+      tags:
+      - Photos
+      summary: 'Get all tags belonging to a users photos'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to retrieve photos of
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved all tags for a users photos'
+        '401':
+          description: 'Unauthorized'
+
+
 
   '/photo/{photoId}':
     get:

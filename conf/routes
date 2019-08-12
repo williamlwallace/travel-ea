@@ -85,6 +85,8 @@ PUT           /api/photo/:photoId/privacy            controllers.backend.PhotoCo
 
 GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
+GET           /api/user/:id/phototags                controllers.backend.TagController.getAllUserPhotoTags(request:Request, id:Long)
+
 GET           /api/photo/:photoId                    controllers.backend.PhotoController.getPhotoById(request:Request, photoId:Long)
 
 DELETE        /api/photo/:photoId                    controllers.backend.PhotoController.deletePhoto(photoId:Long)
