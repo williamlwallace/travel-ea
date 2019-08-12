@@ -4,15 +4,18 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.Tag;
 import models.Trip;
 import models.TripData;
 import models.User;
@@ -166,6 +169,8 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+        trip.tags = new ArrayList<>(
+            Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -270,6 +275,8 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+        trip.tags = new ArrayList<>(
+            Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
