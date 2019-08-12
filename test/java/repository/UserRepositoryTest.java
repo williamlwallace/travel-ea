@@ -6,16 +6,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import io.ebean.DataIntegrityException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletionException;
+import models.Destination;
 import models.Tag;
 import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Results;
 
 public class UserRepositoryTest extends repository.RepositoryTest {
 
@@ -30,6 +34,27 @@ public class UserRepositoryTest extends repository.RepositoryTest {
     @Before
     public void instantiateRepository() {
         userRepository = fakeApp.injector().instanceOf(UserRepository.class);
+    }
+
+    private ResultSet getTagsForUserFromDatabase(long id) throws SQLException {
+        PreparedStatement statement = connection
+            .prepareStatement("SELECT * FROM UsedTag WHERE user_id = ?;");
+
+        statement.setLong(1, id);
+
+        return statement.executeQuery();
+    }
+
+    private int countUsedTagsForUser(long id) throws SQLException {
+        ResultSet resultSet = getTagsForUserFromDatabase(id);
+
+        int count = 0;
+
+        while(resultSet.next()) {
+            count++;
+        }
+
+        return count;
     }
 
     @Test
@@ -204,30 +229,177 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertEquals(0, rowsDeleted);
     }
 
-//    @Test
-//    public void updateUserTags() {
-//        User originalUser = userRepository.findID(3L).join();
-//
-//        assertEquals(0, originalUser.usedTags.size());
-//
-//        Destination originalDestination = new Destination();
-//        Tag originalTag = new Tag();
-//        originalTag.id = 1L;
-//        originalDestination.tags.add(originalTag);
-//
-//        Destination newDestination = new Destination();
-//        Tag newTag = new Tag();
-//        newTag.id = 2L;
-//        newDestination.tags.add(originalTag);
-//        newDestination.tags.add(newTag);
-//
-//        originalUser.updateUserTags(originalDestination, newDestination);
-//        userRepository.updateUser(originalUser);
-//
-//        User updatedUser = userRepository.findID(3L).join();
-//        assertEquals(1, updatedUser.usedTags.size());
-//        assertEquals((Long) 2L, updatedUser.usedTags.get(0).id);
-//
-//    }
+    @Test
+    public void updateUserTags() throws SQLException {
+        User originalUser = userRepository.findID(2L).join();
+
+        assertNotNull(originalUser);
+        assertEquals(1, originalUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+
+        Destination originalDestination = new Destination();
+        Tag originalTag = new Tag("Russia");
+        originalDestination.tags.add(originalTag);
+
+        Destination newDestination = new Destination();
+        Tag newTag = new Tag("#TravelEA");
+        newDestination.tags.add(originalTag);
+        newDestination.tags.add(newTag);
+
+        userRepository.updateUsedTags(originalUser, originalDestination, newDestination);
+
+        User updatedUser = userRepository.findID(2L).join();
+        assertEquals(2, updatedUser.usedTags.size());
+
+        boolean found = false;
+
+        for (UsedTag usedTag : updatedUser.usedTags) {
+            if (usedTag.tag.equals(newTag)) {
+                found = true;
+            }
+        }
+
+        assertTrue(found);
+
+        assertEquals(2, countUsedTagsForUser(2L));
+    }
+
+    @Test
+    public void updateUserTagsNoChanges() throws SQLException {
+        User originalUser = userRepository.findID(2L).join();
+
+        assertNotNull(originalUser);
+        assertEquals(1, originalUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+
+        Destination originalDestination = new Destination();
+        Tag originalTag = new Tag("Russia");
+        originalDestination.tags.add(originalTag);
+
+        userRepository.updateUsedTags(originalUser, originalDestination, originalDestination);
+
+        User updatedUser = userRepository.findID(2L).join();
+        assertEquals(1, updatedUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+    }
+
+    @Test
+    public void updateUserTagsNoNewTags() throws SQLException {
+        User originalUser = userRepository.findID(2L).join();
+
+        assertNotNull(originalUser);
+        assertEquals(1, originalUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+
+        ResultSet originalResultSet = getTagsForUserFromDatabase(2L);
+        originalResultSet.next();
+        Timestamp originalTimestamp = originalResultSet.getTimestamp("time_used");
+
+        Destination originalDestination = new Destination();
+        Tag originalTag = new Tag("Russia");
+        originalDestination.tags.add(originalTag);
+
+        Destination newDestination = new Destination();
+        Tag newTag = new Tag("sports");
+        newDestination.tags.add(originalTag);
+        newDestination.tags.add(newTag);
+
+        userRepository.updateUsedTags(originalUser, originalDestination, newDestination);
+
+        User updatedUser = userRepository.findID(2L).join();
+        assertEquals(1, updatedUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+        ResultSet updatedResultSet = getTagsForUserFromDatabase(2L);
+        updatedResultSet.next();
+        Timestamp updatedTimeStamp = updatedResultSet.getTimestamp("time_used");
+
+        assertTrue(updatedTimeStamp.after(originalTimestamp));
+    }
+
+    @Test
+    public void updateUserTagsNoInput() throws SQLException {
+        User originalUser = userRepository.findID(2L).join();
+
+        assertNotNull(originalUser);
+        assertEquals(1, originalUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+
+        ResultSet originalResultSet = getTagsForUserFromDatabase(2L);
+        originalResultSet.next();
+        Timestamp originalTimestamp = originalResultSet.getTimestamp("time_used");
+
+        Destination originalDestination = new Destination();
+        Destination newDestination = new Destination();
+
+        userRepository.updateUsedTags(originalUser, originalDestination, newDestination);
+
+        User updatedUser = userRepository.findID(2L).join();
+        assertEquals(1, updatedUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+        ResultSet updatedResultSet = getTagsForUserFromDatabase(2L);
+        updatedResultSet.next();
+        Timestamp updatedTimeStamp = updatedResultSet.getTimestamp("time_used");
+
+        assertTrue(updatedTimeStamp.equals(originalTimestamp));
+    }
+
+    @Test(expected = DataIntegrityException.class)
+    public void updateUserTagsTagDoesNotExist() throws SQLException {
+        User originalUser = userRepository.findID(2L).join();
+
+        assertNotNull(originalUser);
+        assertEquals(1, originalUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+
+        Destination originalDestination = new Destination();
+        Tag originalTag = new Tag("Russia");
+        originalDestination.tags.add(originalTag);
+
+        Destination newDestination = new Destination();
+        Tag newTag = new Tag("blah");
+        newDestination.tags.add(originalTag);
+        newDestination.tags.add(newTag);
+
+        userRepository.updateUsedTags(originalUser, originalDestination, newDestination);
+    }
+
+    @Test public void updateUserTagsNewTaggable() throws SQLException {
+        User originalUser = userRepository.findID(2L).join();
+
+        assertNotNull(originalUser);
+        assertEquals(1, originalUser.usedTags.size());
+
+        assertEquals(1, countUsedTagsForUser(2L));
+
+        ResultSet originalResultSet = getTagsForUserFromDatabase(2L);
+        originalResultSet.next();
+        Timestamp originalTimestamp = originalResultSet.getTimestamp("time_used");
+
+
+        Destination newDestination = new Destination();
+        Tag newTag = new Tag("sports");
+        newDestination.tags.add(new Tag("Russia"));
+        newDestination.tags.add(newTag);
+
+        userRepository.updateUsedTags(originalUser, newDestination);
+
+        User updatedUser = userRepository.findID(2L).join();
+        assertEquals(2, updatedUser.usedTags.size());
+
+        assertEquals(2, countUsedTagsForUser(2L));
+        ResultSet updatedResultSet = getTagsForUserFromDatabase(2L);
+        updatedResultSet.next();
+        Timestamp updatedTimeStamp = updatedResultSet.getTimestamp("time_used");
+
+        assertTrue(updatedTimeStamp.after(originalTimestamp));
+    }
 
 }

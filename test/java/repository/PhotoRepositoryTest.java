@@ -114,9 +114,6 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
             photos.get(0).filename); // With default assets path added on
         assertEquals(1, photos.get(0).tags.size());
         assertTrue(photos.get(0).tags.contains(new Tag("Russia")));
-        //TODO
-//        assertEquals((Long) 1L, photos.get(0).tags.get(0).id);
-//        assertEquals("Russia", photos.get(0).tags.get(0).name);
     }
 
     @Test
@@ -196,9 +193,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         assertEquals("./public/storage/photos/test/test2.jpeg", photo.filename);
         assertEquals("./public/storage/photos/test/thumbnails/test2.jpeg", photo.thumbnailFilename);
         assertEquals(1, photo.tags.size());
-        //TODO
-//        assertEquals((Long) 1L, photo.tags.get(0).id);
-//        assertEquals("Russia", photo.tags.get(0).name);
+        assertTrue(photo.tags.contains(new Tag("Russia")));
     }
 
     @Test
