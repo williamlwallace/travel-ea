@@ -16,6 +16,7 @@ $('#upload-img').on('click', function () {
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
+        formData.append('tags', JSON.stringify([{name:'Germany'}]));
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {
