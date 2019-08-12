@@ -3,6 +3,11 @@
  */
 class TagPicker {
 
+    /**
+     * Class constructor, binds key up  and key down methods for when a keyboard key is pressed
+     * @param {Number} userId - ID of logged in user for suggesting tags
+     * @param {String} id - ID for instance of class to define differences per page
+     */
     constructor(userId, id) {
         this.tagPickerSuggestions = [];
         this.suggestion = "";
@@ -10,7 +15,8 @@ class TagPicker {
         this.list = $(`#${this.id} ul`);
         this.input = $(`#${this.id} input`);
         this.overlay = $(`#${this.id} p`);
-        this.spacer = $("<li></li>").text("fillerfillerfil").attr('class', 'spacer');
+        this.spacer = $("<li></li>").text("fillerfillerfil").attr('class',
+            'spacer');
 
         this.input.bind({
             keydown: this.keyDown.bind(this),
@@ -20,8 +26,8 @@ class TagPicker {
     }
 
     /**
-    * Key down handler
-    */
+     * Key down handler
+     */
     keyDown(e) {
         //Need to keep depreciated symbols for older browsers
         const key = e.which || e.keyCode || e.key;
@@ -30,7 +36,7 @@ class TagPicker {
         const speachCount = natTag.length - tag.length;
 
         //If key is tab or enter or space
-        if((key === 13 || key === 9 || key === 32) && tag !== "") {
+        if ((key === 13 || key === 9 || key === 32) && tag !== "") {
             if ((key === 13 || key === 32) && speachCount !== 1) {
                 e.preventDefault();
                 this.insertTag(tag);
@@ -42,24 +48,25 @@ class TagPicker {
             }
             this.suggestion = "";
             this.overlay.html(this.suggestion);
-        // else if key is delete
+            // else if key is delete
         } else if (key === 8 && natTag === "") {
             //Remove spacer, remove last tag, append spacer
             $(`#${this.id} li`).remove('.spacer');
             $(`#${this.id} ul li:last-child`).remove();
             this.list.append(this.spacer);
 
-        // if the key is space and the strin is empty do nothing
-        // or if the key is a speach mark and there is already two speach marks do nothing
-        // of if the speach count is greater or equal to two (and key isnt delete) do nothing
-        } else if ((key === 32 && tag === "") || (natTag !== "" && key === 222 && speachCount === 0) || (speachCount >= 2 && key != 8)) {
+            // if the key is space and the strin is empty do nothing
+            // or if the key is a speach mark and there is already two speach marks do nothing
+            // of if the speach count is greater or equal to two (and key isnt delete) do nothing
+        } else if ((key === 32 && tag === "") || (natTag !== "" && key === 222
+            && speachCount === 0) || (speachCount >= 2 && key !== 8)) {
             e.preventDefault();
         }
     };
 
     /**
-    * keyup handler
-    */
+     * Keyup handler
+     */
     keyUp(e) {
         const tag = this.input.val();
         if (tag.replace('"', "") === "") {
@@ -73,10 +80,11 @@ class TagPicker {
 
     /**
      * Inserts a tag with given name into the tag input field
-     * @param tagName - Name of tag to be inserted
+     * @param {String} tagName - Name of tag to be inserted
      */
     insertTag(tagName) {
-        const closeBtn = $("<button></button>").attr('class', 'close-icon').click(this.deleteTag);
+        const closeBtn = $("<button></button>").attr('class',
+            'close-icon').click(this.deleteTag);
         const tagEl = $("<li></li>").text(tagName);
         tagEl.append(closeBtn);
         //Remove spacer, append new tag, append spacer
@@ -90,7 +98,7 @@ class TagPicker {
 
     /**
      * Populates tag input with a list of tags
-     * @param tags - List of tags to insert into input field
+     * @param {Array} tags - List of tags to insert into input field
      */
     populateTags(tags) {
         this.clearTags();
@@ -100,17 +108,18 @@ class TagPicker {
     }
 
     /**
-    * searchs suggested tags for matches and returns closest match
-    * 
-    * @param {String} string string to match 
-    */
+     * Searches suggested tags for matches and returns closest match
+     * @param {String} string - String to search for in suggestions
+     */
     searchTags(string) {
         for (const tag of this.tagPickerSuggestions) {
             const lowerTag = tag.toLowerCase().replace(/['"]+/g, '');
             const lowerString = string.toLowerCase().replace(/['"]+/g, '');
             if (lowerTag.startsWith(lowerString) && lowerString !== lowerTag) {
                 this.suggestion = tag;
-                return `${'&nbsp'.repeat(string.length - 1)}<mark>${tag.slice(string.replace(/['"]+/g, '').length)}</mark>`.replace(' ', '&nbsp');
+                return `${'&nbsp'.repeat(string.length - 1)}<mark>${tag.slice(
+                    string.replace(/['"]+/g, '').length)}</mark>`.replace(' ',
+                    '&nbsp');
             }
         }
         this.suggestion = "";
@@ -118,15 +127,15 @@ class TagPicker {
     }
 
     /**
-    * Deletes tag assuming tag element gets binded to function
-    */
+     * Deletes tag assuming tag element is bound to function
+     */
     deleteTag() {
         $(this).parent().remove();
     };
 
     /**
-    * Returns a list of all selected tags
-    */
+     * Returns a list of all selected tags
+     */
     getTags() {
         const tags = [];
         for (const li of $(`#${this.id} ul li`)) {
@@ -137,16 +146,17 @@ class TagPicker {
 
     /**
      * Gets the recently used tags of a user and adds them to suggestions
-     * 
-     * @param {Number} userId 
+     * @param {Number} userId - ID of logged in user for filling tag suggestions
      */
     fillTagSuggestions(userId) {
-        const url = userRouter.controllers.backend.UserController.getUser(userId).url;
+        const url = userRouter.controllers.backend.UserController.getUser(
+            userId).url;
         get(url)
         .then((res) => {
             res.json()
             .then((json) => {
-                this.tagPickerSuggestions = json.usedTags.map((tag) => tag.name); 
+                this.tagPickerSuggestions = json.usedTags.map(
+                    (tag) => tag.name);
             });
         })
     }

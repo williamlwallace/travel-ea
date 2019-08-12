@@ -3,10 +3,12 @@
  */
 class TagDisplay {
 
+    /**
+     * Class constructor, initialises ID of class instance
+     * @param {Number} id - Unique ID to create difference between instances of class, used by different pages
+     */
     constructor(id) {
         this.id = id;
-        this.list = $(`#${this.id} ul`);
-        this.overlay = $(`#${this.id} p`);
     }
 
     /**
