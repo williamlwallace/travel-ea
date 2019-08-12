@@ -29,7 +29,7 @@ public class TagRepository {
      * Adds all the new tags in the list to the database
      *
      * @param tags The list of tags to add, can include existing tags, they will be ignored
-     * @return The list of inserted tags
+     * @return The list of tags with updated information from ebean
      */
     CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
         return supplyAsync(() -> {
@@ -41,12 +41,8 @@ public class TagRepository {
                 .findSet();
 
             // Creates a set of tags which need to be inserted into the database
-            Set<Tag> tagsToAdd = new HashSet<>();
-            for (Tag tag : tags) {
-                if (existingTags.stream().noneMatch(obj -> obj.name.equals(tag.name))) {
-                    tagsToAdd.add(tag);
-                }
-            }
+            Set<Tag> tagsToAdd = new HashSet<>(tags);
+            tagsToAdd.removeAll(existingTags);
 
             // Inserts new tags into database and adds the new tag objects with ID's to the set of existing tags
             ebeanServer.insertAll(tagsToAdd);
