@@ -158,6 +158,8 @@ public class TripController extends TEABackController {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
+        User user = request.attrs().get(ActionState.USER);
+
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(true);
 
@@ -177,11 +179,21 @@ public class TripController extends TEABackController {
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         // Update trip in db
-        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
-            if (uploaded) {
-                return ok(Json.toJson(trip.id));
+        return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
+            if (oldTrip == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("Trip with provided ID not found")));
             } else {
-                return notFound();
+                return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+                    userRepository.updateUsedTags(user, oldTrip, trip);
+                    return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+                        if (uploaded) {
+                            return ok(Json.toJson(trip.id));
+                        } else {
+                            return notFound();
+                        }
+                    });
+                });
             }
         });
     }

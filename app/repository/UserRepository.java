@@ -102,6 +102,7 @@ public class UserRepository {
      */
     public CompletableFuture<Long> updateUser(User updatedUser) {
         return supplyAsync(() -> {
+            ebeanServer.saveAll(updatedUser.usedTags);
             ebeanServer.update(updatedUser);
             return updatedUser.id;
         }, executionContext);
@@ -117,6 +118,7 @@ public class UserRepository {
         return supplyAsync(() -> {
             newUser.creationDate = LocalDateTime.now();
             ebeanServer.insert(newUser);
+            ebeanServer.saveAll(newUser.usedTags);
             return newUser;
         }, executionContext);
     }

@@ -208,7 +208,6 @@ public class DestinationController extends TEABackController {
                         .supplyAsync(() -> badRequest(validatorResult.toJson()));
                 }
                 Destination editedDestination = Json.fromJson(data, Destination.class);
-                System.out.println("Edited Destination: " + editedDestination.user.id);
                 //check if destination already exists
                 List<Destination> destinations = destinationRepository
                     .getSimilarDestinations(editedDestination);
@@ -218,13 +217,17 @@ public class DestinationController extends TEABackController {
                             .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
                     }
                 }
-                return destinationRepository.updateDestination(editedDestination)
-                    .thenApplyAsync(updatedDestination -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(destination)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
+                return tagRepository.addTags(editedDestination.tags)
+                    .thenComposeAsync(existingTags -> {
+                        userRepository.updateUsedTags(user, destination, editedDestination);
+                        return destinationRepository.updateDestination(editedDestination)
+                            .thenApplyAsync(updatedDestination -> {
+                                try {
+                                    return ok(sanitizeJson(Json.toJson(destination)));
+                                } catch (IOException e) {
+                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                                }
+                            });
                     });
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden(
