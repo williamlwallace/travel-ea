@@ -10,6 +10,13 @@ junit:
   script:
     - sbt test
 
+# Need to fix on server to have this
+# jest:
+#   stage: test
+#   script:
+#     - npm install
+#     - npm test
+
 recent-artifacts:
   stage: deploy
   script:

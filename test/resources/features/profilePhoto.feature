@@ -19,3 +19,12 @@ Feature: Story 12: Profile pictures
     When I upload a valid photo
     And I set it as my profile photo
     Then It is returned as my profile picture
+
+  Scenario: Display cover photo (AC1)
+    Given I am logged in
+    And viewing my profile
+    When I upload a valid photo
+    And I set it as my cover photo
+    Then It is returned as my cover photo
+
+

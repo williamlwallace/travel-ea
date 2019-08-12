@@ -109,11 +109,14 @@ public class DestinationRepository {
     public void setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
             .where()
-            .eq("id", destinationId).findOneOrEmpty().orElse(null);
+            .eq("id", destinationId)
+            .findOneOrEmpty()
+            .orElse(null);
 
-        // Otherwise set to public, update it, and return ok
-        destination.isPublic = true;
-        ebeanServer.update(destination);
+        if (destination != null) {
+            destination.isPublic = true;
+            ebeanServer.update(destination);
+        }
     }
 
     /**
