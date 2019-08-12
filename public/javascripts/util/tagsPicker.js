@@ -106,7 +106,6 @@ class TagPicker {
     */
     searchTags(string) {
         for (const tag of this.tagPickerSuggestions) {
-            console.log(tag);
             const lowerTag = tag.toLowerCase().replace(/['"]+/g, '');
             const lowerString = string.toLowerCase().replace(/['"]+/g, '');
             if (lowerTag.startsWith(lowerString) && lowerString !== lowerTag) {
