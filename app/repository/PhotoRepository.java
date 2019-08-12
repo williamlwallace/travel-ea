@@ -1,6 +1,7 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ public class PhotoRepository {
 
     private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
+    private static final String USED_FOR_PROFILE = "used_for_profile";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
     private final TagRepository tagRepository;
@@ -65,7 +67,7 @@ public class PhotoRepository {
             Photo profilePhoto = ebeanServer.find(Photo.class)
                 .where()
                 .eq(USER_ID, userID)
-                .eq("used_for_profile", true)
+                .eq(USED_FOR_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
             if (profilePhoto == null) {
                 return null;
@@ -88,7 +90,7 @@ public class PhotoRepository {
                 List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
-                    .eq("used_for_profile", false)
+                    .eq(USED_FOR_PROFILE, false)
                     .findList();
                 return appendAssetsUrl(photos);
             },
@@ -106,7 +108,7 @@ public class PhotoRepository {
                 List<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
-                    .eq("used_for_profile", false)
+                    .eq(USED_FOR_PROFILE, false)
                     .eq("is_public", true)
                     .findList();
                 return appendAssetsUrl(photos);
@@ -126,7 +128,7 @@ public class PhotoRepository {
             Photo photo = ebeanServer.find(Photo.class)
                 .where()
                 .eq(USER_ID, userID)
-                .eq("used_for_profile", true)
+                .eq(USED_FOR_PROFILE, true)
                 .findOneOrEmpty().orElse(null);
 
             if (photo != null) {
@@ -144,10 +146,10 @@ public class PhotoRepository {
      * @param photos A list of photos to upload
      * @return The collection of photos now containing ID's
      */
-    public CompletableFuture<Collection<Photo>> addPhotos(Collection<Photo> photos, User user) {
+    public CompletableFuture<Object> addPhotos(Collection<Photo> photos, User user) {
         List<CompletableFuture<Set<Tag>>> futures = new ArrayList<>();
         for (Photo photo : photos) {
-            user.updateUserTags(photo);
+            userRepository.updateUsedTags(user, photo);
             futures.add(tagRepository.addTags(photo.tags));
         }
 
@@ -160,7 +162,7 @@ public class PhotoRepository {
         return allFutures.thenApplyAsync(v -> supplyAsync(() -> {
             ebeanServer.insertAll(photos);
             return photos;
-        }, executionContext);
+        }, executionContext));
     }
 
     /**

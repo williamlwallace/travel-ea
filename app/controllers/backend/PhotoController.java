@@ -33,8 +33,6 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
-import repository.TagRepository;
-import repository.UserRepository;
 import repository.ProfileRepository;
 import util.objects.Pair;
 import util.validation.ErrorResponse;
@@ -53,8 +51,6 @@ public class PhotoController extends TEABackController {
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
     private final String savePath;
-    private final TagRepository tagRepository;
-    private final UserRepository userRepository;
     // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
     private ProfileRepository profileRepository;
@@ -63,12 +59,10 @@ public class PhotoController extends TEABackController {
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
-        PhotoRepository photoRepository, TagRepository tagRepository,
-        UserRepository userRepository, ProfileRepository profileRepository) {
+        PhotoRepository photoRepository,
+        ProfileRepository profileRepository) {
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
-        this.tagRepository = tagRepository;
-        this.userRepository = userRepository;
         this.profileRepository = profileRepository;
 
         // Create photo directories if none exist
@@ -97,9 +91,6 @@ public class PhotoController extends TEABackController {
 
     /**
      * Sets a photo caption
-     * @param request
-     * @param photoId
-     * @return
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> setPhotoCaption(Http.Request request, Long photoId) {
@@ -146,10 +137,12 @@ public class PhotoController extends TEABackController {
         Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
 
         // Update profile photo, and get the prior photo id
-        try{
-            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
-                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
-            );
+        try {
+            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId)
+                .thenApplyAsync(returnedId ->
+                    returnedId != null ? ok(Json.toJson(returnedId))
+                        : ok(Json.newObject().nullNode())
+                );
         } catch (NullPointerException e) {
             return CompletableFuture
                 .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
@@ -339,7 +332,6 @@ public class PhotoController extends TEABackController {
      * Reads a file part from the multipart form and returns a Photo object to add to the database.
      *
      * @param file File part from form
-     * @param profilePhotoFilename Name (if any) of photo to be set as profile picture
      * @param publicPhotoFileNames Names (if any) of photos to be set to public, defaults to private
      * if referenced here
      * @param userId ID of user who is uploading the files
@@ -352,9 +344,10 @@ public class PhotoController extends TEABackController {
         HashSet<String> publicPhotoFileNames, long userId,
         boolean isTest, String caption) throws IOException {
         // Get the filename, file size and content-type of the file
-        int randomNumber = (int)(Math.random() * 496148154 + 1);
+        int randomNumber = (int) (Math.random() * 496148154 + 1);
         String[] filenameParts = file.getFilename().split("\\.");
-        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[filenameParts.length - 1];
+        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[
+            filenameParts.length - 1];
 
         String contentType = file.getContentType();
         if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
