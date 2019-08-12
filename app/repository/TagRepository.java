@@ -21,18 +21,13 @@ import util.objects.Pair;
 @Singleton
 public class TagRepository {
 
-    public enum TagType {
-        DESTINATION_TAG,
-        PHOTO_TAG,
-        TRIP_TAG
-    }
-
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
     @Inject
     public TagRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
+        this.executionContext = executionContext;
     }
 
     /**

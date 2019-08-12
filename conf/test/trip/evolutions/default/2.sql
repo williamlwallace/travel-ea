@@ -36,7 +36,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 
 -- Add sample photos
-INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, is_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
