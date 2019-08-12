@@ -262,7 +262,7 @@ function populateEditDestination(destinationId) {
                 // Fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
                 // Fills tag input field
-                populateTags(destination.tags);
+                tagPicker.populateTags(destination.tags);
             }
         })
     })

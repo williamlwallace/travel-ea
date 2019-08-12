@@ -28,28 +28,17 @@ class TagPicker {
 
         //If key is tab or enter or space
         if((key === 13 || key === 9 || key === 32) && tag !== "") {
-            const closeBtn = $("<button></button>").attr('class', 'close-icon').click(this.deleteTag);
-            let tagEl;
             if ((key === 13 || key === 32) && speachCount !== 1) {
                 e.preventDefault();
-                tagEl = $("<li></li>").text(tag);
-            } else if (key === 9 && this.suggestion != "") {
+                this.insertTag(tag);
+            } else if (key === 9 && this.suggestion !== "") {
                 e.preventDefault();
-                tagEl = $("<li></li>").text(this.suggestion);
+                this.insertTag(this.suggestion);
             } else {
                 return;
             }
             this.suggestion = "";
             this.overlay.html(this.suggestion);
-            tagEl.append(closeBtn);
-            //Remove spacer, append new tag, append spacer
-            $(`#${this.id} li`).remove('.spacer');
-            this.list.append(tagEl);
-            this.list.append(this.spacer);
-            //clear input
-            this.input.val("");
-            this.list.scrollLeft(5000);
-
         // else if key is delete
         } else if (key === 8 && natTag === "") {
             //Remove spacer, remove last tag, append spacer
@@ -71,7 +60,7 @@ class TagPicker {
     keyUp(e) {
         const tag = this.input.val();
         if (tag.replace('"', "") === "") {
-            this.suggestion = ""
+            this.suggestion = "";
             this.overlay.html(this.suggestion);
         } else {
             const sugTag = this.searchTags(tag);
@@ -80,12 +69,41 @@ class TagPicker {
     };
 
     /**
+     * Inserts a tag with given name into the tag input field
+     * @param tagName - Name of tag to be inserted
+     */
+    insertTag(tagName) {
+        const closeBtn = $("<button></button>").attr('class', 'close-icon').click(this.deleteTag);
+        const tagEl = $("<li></li>").text(tagName);
+        tagEl.append(closeBtn);
+        //Remove spacer, append new tag, append spacer
+        $(`#${this.id} li`).remove('.spacer');
+        this.list.append(tagEl);
+        this.list.append(this.spacer);
+        //clear input
+        this.input.val("");
+        this.list.scrollLeft(5000);
+    }
+
+    /**
+     * Populates tag input with a list of tags
+     * @param tags - List of tags to insert into input field
+     */
+    populateTags(tags) {
+        this.clearTags();
+        for (const tag of tags) {
+            this.insertTag(tag.name);
+        }
+    }
+
+    /**
     * searchs suggested tags for matches and returns closest match
     * 
     * @param {String} string string to match 
     */
     searchTags(string) {
         for (const tag of this.tagPickerSuggestions) {
+            console.log(tag);
             const lowerTag = tag.toLowerCase().replace(/['"]+/g, '');
             const lowerString = string.toLowerCase().replace(/['"]+/g, '');
             if (lowerTag.startsWith(lowerString) && lowerString !== lowerTag) {
@@ -126,7 +144,6 @@ class TagPicker {
         .then((res) => {
             res.json()
             .then((json) => {
-                console.log(json)
                 this.tagPickerSuggestions = json.usedTags.map((tag) => tag.name); 
             });
         })

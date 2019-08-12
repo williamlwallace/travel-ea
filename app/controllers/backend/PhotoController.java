@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
@@ -238,10 +239,10 @@ public class PhotoController extends TEABackController {
         String[] photoCaptions =
             (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
         
-        List<Tag> photoTags;
+        Set<Tag> photoTags;
         try {
             final String tagString = formKeys.getOrDefault("tags", new String[]{"[]"})[0];
-            photoTags = new ArrayList<>(Arrays.asList(
+            photoTags = new HashSet<>(Arrays.asList(
                 Json.fromJson(new ObjectMapper().readTree(tagString), Tag[].class)));
         } catch (IOException e) {
             return CompletableFuture
@@ -355,7 +356,7 @@ public class PhotoController extends TEABackController {
      */
     private Photo readFileToPhoto(Http.MultipartFormData.FilePart<Files.TemporaryFile> file,
         HashSet<String> publicPhotoFileNames, long userId,
-        boolean isTest, String caption, List<Tag> tags) throws IOException {
+        boolean isTest, String caption, Set<Tag> tags) throws IOException {
         // Get the filename, file size and content-type of the file
         int randomNumber = (int)(Math.random() * 496148154 + 1);
         String[] filenameParts = file.getFilename().split("\\.");

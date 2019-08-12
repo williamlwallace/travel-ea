@@ -12,6 +12,7 @@
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
 @layouts.main("Destination", loggedUser, scripts){
@@ -102,7 +103,7 @@
                                         <label id="countryError" class="error-messages"></label>
                                     </div>
 
-                                    @modules.tagInput()
+                                    @modules.tagPicker("detailed-destination-tag")
                                 </div>
                             </form>
                             <div>
@@ -247,5 +248,5 @@
         sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         populateDestinationDetails(@destinationId);
-        
+        const tagPicker = new TagPicker(@loggedUser.id, "detailed-destination-tag");
 </script>
