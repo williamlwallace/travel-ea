@@ -19,7 +19,6 @@ import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
-import play.mvc.Results;
 
 public class UserRepositoryTest extends repository.RepositoryTest {
 
@@ -50,7 +49,7 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 
         int count = 0;
 
-        while(resultSet.next()) {
+        while (resultSet.next()) {
             count++;
         }
 
@@ -66,9 +65,15 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertTrue(user.admin);
         assertEquals("dave@gmail.com", user.username);
         assertEquals(3, user.usedTags.size());
-        //TODO
-//        assertEquals((Long) 2L, user.usedTags.get(1).tag.id);
-//        assertEquals("#TravelEA", user.usedTags.get(0).tag.name);
+        boolean found = false;
+
+        for (UsedTag usedTag : user.usedTags) {
+            if (usedTag.tag.name.equals("#TravelEA")) {
+                found = true;
+            }
+        }
+
+        assertTrue(found);
     }
 
     @Test
@@ -139,8 +144,15 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertEquals("Sick", updatedUser.password);
 
         assertEquals(2, updatedUser.usedTags.size());
-        //TODO
-//        assertEquals("Russia", updatedUser.usedTags.get(0).tag.name);
+        boolean found = false;
+
+        for (UsedTag usedTag1 : updatedUser.usedTags) {
+            if (usedTag1.tag.name.equals("Russia")) {
+                found = true;
+            }
+        }
+
+        assertTrue(found);
     }
 
     @Test
@@ -191,9 +203,15 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         assertNotNull(insertedUser);
         assertEquals("test@email.com", insertedUser.username);
         assertEquals(1, insertedUser.usedTags.size());
-        //TODO
-//        assertEquals((Long) 3L, insertedUser.usedTags.get(0).tag.id);
-//        assertEquals("#TravelEA", insertedUser.usedTags.get(0).tag.name);
+
+        boolean found = false;
+        for (UsedTag usedTag1 : insertedUser.usedTags) {
+            if (usedTag1.tag.name.equals("#TravelEA") && usedTag1.tag.id == 3L) {
+                found = true;
+            }
+        }
+
+        assertTrue(found);
     }
 
     @Test(expected = CompletionException.class)
@@ -371,7 +389,8 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         userRepository.updateUsedTags(originalUser, originalDestination, newDestination);
     }
 
-    @Test public void updateUserTagsNewTaggable() throws SQLException {
+    @Test
+    public void updateUserTagsNewTaggable() throws SQLException {
         User originalUser = userRepository.findID(2L).join();
 
         assertNotNull(originalUser);
@@ -382,7 +401,6 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         ResultSet originalResultSet = getTagsForUserFromDatabase(2L);
         originalResultSet.next();
         Timestamp originalTimestamp = originalResultSet.getTimestamp("time_used");
-
 
         Destination newDestination = new Destination();
         Tag newTag = new Tag("sports");

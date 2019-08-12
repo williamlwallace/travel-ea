@@ -24,14 +24,11 @@ public class UserRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
-    private final TagRepository tagRepository;
 
     @Inject
-    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
-        TagRepository tagRepository) {
+    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
-        this.tagRepository = tagRepository;
     }
 
     /**
