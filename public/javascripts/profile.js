@@ -155,7 +155,6 @@ function populateProfileData(uri) {
         json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
 
         $('#gender').picker('set', json.gender);
-        tagsPickerTags = json.tags;
     });
 }
 
@@ -304,7 +303,7 @@ function populateEditPhoto(guid, filename) {
     });
     $('#update-img').unbind('click');
     $('#update-img').bind('click', function () {
-        updatePhotoCaption(guid);
+        updatePhotoCaptionAndTags(guid);
     });
 }
 
@@ -313,8 +312,11 @@ function populateEditPhoto(guid, filename) {
  *
  * @param {Number} guid - the id of the photo
  */
-function updatePhotoCaption(guid) {
-    let caption = $('#update-caption input').val();
+function updatePhotoCaptionAndTags(guid) {
+    const caption = $('#update-caption input').val();
+    const tags = editTagPicker.getTags().map(tag => {
+        return {name: tag}
+    });
     const url = photoRouter.controllers.backend.PhotoController.setPhotoCaption(
         guid).url;
     const handler = (status, json) => {
@@ -468,6 +470,7 @@ $("#upload-gallery-image-button").click(function () {
     $('.image-body img').attr('src', '');
     $('.image-body').css('display', 'none');
     $('.uploader').css('display', 'block');
+    uploadTagPicker.clearTags();
 });
 
 /**
