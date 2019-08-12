@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletionException;
 import models.Photo;
 import models.Tag;
+import models.User;
 import org.junit.Before;
 import org.junit.Test;
 import util.objects.Pair;
@@ -18,6 +19,7 @@ import util.objects.Pair;
 public class PhotoRepositoryTest extends repository.RepositoryTest {
 
     private static PhotoRepository photoRepository;
+    private static UserRepository userRepository;
 
 
     @Before
@@ -28,6 +30,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     @Before
     public void instantiateRepository() {
         photoRepository = fakeApp.injector().instanceOf(PhotoRepository.class);
+        userRepository = fakeApp.injector().instanceOf(UserRepository.class);
     }
 
     private Photo createPhoto() {
@@ -70,6 +73,8 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         List<Photo> photosOriginal = photoRepository.getAllUserPhotos(1L).join();
         assertEquals(2, photosOriginal.size());
 
+        User user = userRepository.findID(1L).join();
+
         Photo photo1 = createPhoto();
         Photo photo2 = createPhoto();
         Photo photo3 = createPhoto();
@@ -79,7 +84,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         newPhotos.add(photo2);
         newPhotos.add(photo3);
 
-        photoRepository.addPhotos(newPhotos).thenApplyAsync(result -> {
+        photoRepository.addPhotos(newPhotos, user).thenApplyAsync(result -> {
             List<Photo> photosNew = photoRepository.getAllUserPhotos(1L).join();
 
             assertEquals(5, photosNew.size());

@@ -31,7 +31,7 @@ public class TagRepository {
      * @param tags The list of tags to add, can include existing tags, they will be ignored
      * @return The list of tags with updated information from ebean
      */
-    CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
+    public CompletableFuture<Set<Tag>> addTags(Set<Tag> tags) {
         return supplyAsync(() -> {
             // Finds a set of tags already in the database which have matching names
             Set<String> tagNames = tags.stream().map(tag -> tag.name).collect(Collectors.toSet());

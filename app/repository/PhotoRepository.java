@@ -15,6 +15,7 @@ import javax.inject.Singleton;
 import models.DestinationPhoto;
 import models.Photo;
 import models.Tag;
+import models.User;
 import play.db.ebean.EbeanConfig;
 import util.objects.Pair;
 
@@ -30,13 +31,15 @@ public class PhotoRepository {
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
     private final TagRepository tagRepository;
+    private final UserRepository userRepository;
 
     @Inject
     public PhotoRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext,
-        TagRepository tagRepository) {
+        TagRepository tagRepository, UserRepository userRepository) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
         this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -46,8 +49,7 @@ public class PhotoRepository {
      * @return Ok on success
      */
     public CompletableFuture<Long> addPhoto(Photo photo) {
-        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
-            photo.tags = allTags;
+        return supplyAsync(() -> {
             ebeanServer.insert(photo);
             return photo.guid;
         }, executionContext);
@@ -144,7 +146,7 @@ public class PhotoRepository {
      *
      * @param photos A list of photos to upload
      */
-    public CompletableFuture<Object> addPhotos(Collection<Photo> photos) {
+    public CompletableFuture<Object> addPhotos(Collection<Photo> photos, User user) {
         if (photos.size() == 1) {
             Photo pictureToUpload = Iterables.get(photos, 0);
             if (pictureToUpload.isProfile) {
@@ -157,7 +159,8 @@ public class PhotoRepository {
         }
         List<CompletableFuture<Set<Tag>>> futures = new ArrayList<>();
         for (Photo photo : photos) {
-            futures.add(tagRepository.addTags(photo.tags));  // TODO: This will not assign the tags properly to the photo
+            user.updateUserTags(photo);
+            futures.add(tagRepository.addTags(photo.tags));
         }
 
         CompletableFuture<Void> allFutures = CompletableFuture
@@ -250,8 +253,7 @@ public class PhotoRepository {
      * @return the updated photo's guid
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
-        return tagRepository.addTags(photo.tags).thenApplyAsync(allTags -> {
-            photo.tags = allTags;
+        return supplyAsync(() -> {
                 ebeanServer.update(photo);
                 return photo.guid;
             },

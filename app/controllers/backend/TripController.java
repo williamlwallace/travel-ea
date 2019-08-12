@@ -22,7 +22,9 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.TagRepository;
 import repository.TripRepository;
+import repository.UserRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
@@ -34,13 +36,17 @@ public class TripController extends TEABackController {
     private static final String IS_PUBLIC = "isPublic";
     private final TripRepository tripRepository;
     private final DestinationRepository destinationRepository;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository,
-        DestinationRepository destinationRepository) {
+    public TripController(TripRepository tripRepository, TagRepository tagRepository,
+        DestinationRepository destinationRepository, UserRepository userRepository) {
 
         this.tripRepository = tripRepository;
         this.destinationRepository = destinationRepository;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -256,6 +262,7 @@ public class TripController extends TEABackController {
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
+        User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
@@ -273,9 +280,12 @@ public class TripController extends TEABackController {
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
+        return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+            userRepository.updateUsedTags(user, trip);
+            return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
+                ok(Json.toJson(tripId)));
+        });
 
-        return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
-            ok(Json.toJson(tripId)));
     }
 
     /**

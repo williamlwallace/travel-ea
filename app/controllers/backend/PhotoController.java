@@ -3,9 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
-import controllers.backend.routes.javascript;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -13,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,10 +24,8 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
 import models.User;
-import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
-import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -36,6 +33,8 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
+import repository.TagRepository;
+import repository.UserRepository;
 import util.objects.Pair;
 import util.validation.ErrorResponse;
 
@@ -53,6 +52,8 @@ public class PhotoController extends TEABackController {
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
     private final String savePath;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
     // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
     private DestinationRepository destinationRepository;
@@ -60,16 +61,23 @@ public class PhotoController extends TEABackController {
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
-        PhotoRepository photoRepository) {
+        PhotoRepository photoRepository, TagRepository tagRepository,
+        UserRepository userRepository) {
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
 
         // Create photo directories if none exist
         String directoryName = System.getProperty("user.dir");
         File directory = new File(directoryName + "/public/storage/photos/test/thumbnails");
-        if(!directory.exists()) directory.mkdirs();
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
         File directory2 = new File(directoryName + "/public/storage/photos/thumbnails");
-        if(!directory2.exists()) directory2.mkdirs();
+        if (!directory2.exists()) {
+            directory2.mkdirs();
+        }
 
         savePath = directoryName + PUBLIC_DIRECTORY;
     }
@@ -196,6 +204,8 @@ public class PhotoController extends TEABackController {
         // multipart form data collection of temporary files
         Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
 
+        User user = request.attrs().get(ActionState.USER);
+
         // Get all basic string keys in multipart form
         Map<String, String[]> formKeys = body.asFormUrlEncoded();
 
@@ -241,7 +251,7 @@ public class PhotoController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
         } else {
             try {
-                return saveMultiplePhotos(photos);
+                return saveMultiplePhotos(photos, user);
             } catch (IOException e) {
                 return CompletableFuture.supplyAsync(() -> internalServerError(
                     Json.toJson("Unkown number of photos failed to save")));
@@ -255,7 +265,8 @@ public class PhotoController extends TEABackController {
      * @param photos Collection of pairs of Photo and HTTP multipart form data file parts
      */
     private CompletableFuture<Result> saveMultiplePhotos(
-        Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos)
+        Collection<Pair<Photo, Http.MultipartFormData.FilePart
+            <Files.TemporaryFile>>> photos, User user)
         throws IOException {
         // Add all the photos we found to the database
         long userToRemoveProfilePhoto = -1;
@@ -281,7 +292,8 @@ public class PhotoController extends TEABackController {
 
         }
         // Collect all keys from the list to upload
-        List<Photo> photosToAdd = photos.stream().map(Pair::getKey).collect(Collectors.toList());
+        List<Photo> photosToAdd = photos.stream().map(Pair::getKey)
+            .collect(Collectors.toList());
 
         // If this photo is going to be added as profile picture, return the name of it
         if (userToRemoveProfilePhoto > 0) {
@@ -290,14 +302,14 @@ public class PhotoController extends TEABackController {
             for (Photo photo : photosToAdd) {
                 photo.isProfile = false;
             }
-            photoRepository.addPhotos(photosToAdd);
+            photoRepository.addPhotos(photosToAdd, user);
             // Return filename of photo that was just added
             return CompletableFuture.supplyAsync(() -> created(Json.toJson(
                 photosToAdd.get(0).filename
                     .substring(photosToAdd.get(0).filename.lastIndexOf('/') + 1))));
         } else {
             return CompletableFuture.supplyAsync(() -> {
-                photoRepository.addPhotos(photosToAdd);
+                photoRepository.addPhotos(photosToAdd, user);
                 return created(Json.toJson("File(s) uploaded successfully"));
             });
         }
@@ -335,7 +347,8 @@ public class PhotoController extends TEABackController {
         photo.isProfile =
             profilePhotoFilename != null && profilePhotoFilename.equals(file.getFilename());
         photo.isPublic = publicPhotoFileNames.contains(file.getFilename()) || photo.isProfile;
-        photo.thumbnailFilename = (savePath + ((isTest) ? TEST_PHOTO_DIRECTORY : PHOTO_DIRECTORY)
+        photo.thumbnailFilename = (savePath + ((isTest) ? TEST_PHOTO_DIRECTORY
+            : PHOTO_DIRECTORY)
             + "thumbnails/" + fileName);
         photo.uploaded = LocalDateTime.now();
         photo.userId = userId;
@@ -376,17 +389,20 @@ public class PhotoController extends TEABackController {
             // Determine which side is proportionally bigger
             boolean fitWidth =
                 fullImage.getWidth() / thumbWidth > fullImage.getHeight() / thumbHeight;
-            double scaleFactor = (fitWidth) ? (double) thumbWidth / (double) fullImage.getWidth()
-                : (double) thumbHeight / (double) fullImage.getHeight();
+            double scaleFactor =
+                (fitWidth) ? (double) thumbWidth / (double) fullImage.getWidth()
+                    : (double) thumbHeight / (double) fullImage.getHeight();
             if (fitWidth) {
                 int newHeight = (int) Math.floor(fullImage.getHeight() * scaleFactor);
                 graphics2D
-                    .drawImage(fullImage, 0, thumbHeight / 2 - newHeight / 2, thumbWidth, newHeight,
+                    .drawImage(fullImage, 0, thumbHeight / 2 - newHeight / 2, thumbWidth,
+                        newHeight,
                         null);
             } else {
                 int newWidth = (int) Math.floor(fullImage.getWidth() * scaleFactor);
                 graphics2D
-                    .drawImage(fullImage, thumbWidth / 2 - newWidth / 2, 0, newWidth, thumbHeight,
+                    .drawImage(fullImage, thumbWidth / 2 - newWidth / 2, 0, newWidth,
+                        thumbHeight,
                         null);
             }
         }
@@ -484,7 +500,8 @@ public class PhotoController extends TEABackController {
                                     if (!destination.isPublic && !destination.user.id
                                         .equals(userId)) {
                                         //forbidden if destination is private and user does not own destination
-                                        return CompletableFuture.supplyAsync(Results::forbidden);
+                                        return CompletableFuture
+                                            .supplyAsync(Results::forbidden);
                                     }
                                     if (destination.isPublic && !destination.user.id
                                         .equals(userId)) {
@@ -495,7 +512,8 @@ public class PhotoController extends TEABackController {
                                     }
                                     if (destination.isLinked(photoId)) {
                                         //if photo is already linked return badrequest
-                                        return CompletableFuture.supplyAsync(Results::badRequest);
+                                        return CompletableFuture
+                                            .supplyAsync(Results::badRequest);
                                     }
                                     if (photo == null) {
                                         return CompletableFuture.supplyAsync(Results::notFound);
