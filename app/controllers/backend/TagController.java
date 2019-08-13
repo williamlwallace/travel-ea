@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-
+/**
+ * Manages tags in the database
+ */
 public class TagController extends TEABackController {
 
     private PhotoRepository photoRepository;
@@ -66,11 +68,9 @@ public class TagController extends TEABackController {
      * @return a set of tags
      */
     private Set<Tag> getTagsFromPhotos(List<Photo> photos) {
-        System.out.println(photos);
         Set<Tag> tagSet = new HashSet<>();
         for (Photo photo : photos) {
             tagSet.addAll(photo.tags);
-            System.out.println(photo.tags);
         }
         return tagSet;
     }
