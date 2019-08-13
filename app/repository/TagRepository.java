@@ -4,12 +4,15 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.enums.TagType;
+import models.UsedTag;
 import models.Tag;
 import play.db.ebean.EbeanConfig;
 
@@ -23,6 +26,26 @@ public class TagRepository {
     public TagRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
         this.executionContext = executionContext;
+    }
+
+    /**
+     * Returns a collection of tags (the type of the tag is dependant on tagType given)
+     * Only tags where name exactly matches search criteria are returned
+     *
+     * @param tagType The kind of tag to search for
+     * @param name Name of tag to search for
+     * @return Paged list of tags that match the search
+     */
+    public CompletableFuture<PagedList<?>> searchTags(TagType tagType, String name, int pageNum, int pageSize) {
+        return supplyAsync(() ->
+            ebeanServer.find(tagType.getClassType())
+                .fetch("tag")
+                .where()
+                .ieq("tag.name", name)
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+            );
     }
 
     /**
@@ -50,13 +73,45 @@ public class TagRepository {
             return existingTags;
         }, executionContext);
     }
+    /**
+     * Returns a collection of tags (the type of the tag is dependant on tagType given)
+     * Only tags where name exactly matches search criteria are returned
+     *
+     * @param tagType The kind of tag to search for
+     * @param pageNum The page to receive
+     * @param pageSize Number of entries on a page
+     * @return Paged list of tags that match the search
+     */
+    public CompletableFuture<PagedList<?>> searchTags(TagType tagType, int pageNum, int pageSize) {
+        return supplyAsync(() ->
+            ebeanServer.find(tagType.getClassType())
+                .fetch("tag")
+                .where()
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+            );
+    }
 
     /**
-     * Enum of types of tags
+     * Gets all tags used by a user
+     *
+     * @param userId Id of user to receive tags for
+     * @param pageNum The page to receive
+     * @param pageSize Number of entries on a page
+     * @return Paged list of tags that match the search
      */
-    public enum TagType {
-        DESTINATION_TAG,
-        PHOTO_TAG,
-        TRIP_TAG
+    public CompletableFuture<PagedList<?>> getRecentUserTags(long userId, int pageNum, int pageSize) {
+        return supplyAsync(() ->
+            ebeanServer.find(UsedTag.class)
+                .where()
+                .eq("user_id", userId)
+                .orderBy()
+                .desc("timeUsed")
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
+            );
     }
+
 }
