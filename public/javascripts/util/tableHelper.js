@@ -12,6 +12,13 @@ class EATable {
     constructor(id, tableModal, getURL, populate, error) {
         this.id = id;
         this.getURL = getURL;
+        // Override some of the tableModal settings for server-side pagination
+        tableModal.processing = true;
+        tableModal.serverSide = true;
+        tableModal.ajax = {
+            url: getURL,
+            type: 'GET'
+        };
         this.table = ($(`#${id}`).DataTable(tableModal));
         this.populate = populate;
         this.error = error;
