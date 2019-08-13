@@ -30,18 +30,17 @@ public class TagController extends TEABackController {
 
     private final TagRepository tagRepository;
     private PhotoRepository photoRepository;
-    private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private PhotoController photoController;
 
 
     @Inject
     public TagController(TagRepository tagRepository, PhotoRepository photoRepository,
-        ProfileRepository profileRepository,
-        DestinationRepository destinationRepository) {
+        DestinationRepository destinationRepository, PhotoController photoController) {
         this.tagRepository = tagRepository;
         this.photoRepository = photoRepository;
-        this.profileRepository = profileRepository;
         this.destinationRepository = destinationRepository;
+        this.photoController = photoController;
 
     }
 
@@ -139,5 +138,20 @@ public class TagController extends TEABackController {
         return tagSet;
     }
 
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinationPhotoTags(Http.Request request, Long destinationId) {
+        User user = request.attrs().get(ActionState.USER);
 
+        return destinationRepository.getDestination(destinationId).thenApplyAsync(destination -> {
+            if (destination == null) {
+                return notFound(Json.toJson(destinationId));
+            } else if (!destination.isPublic && !destination.user.id.equals(user.id)
+                && !user.admin) {
+                return forbidden();
+            } else {
+                List<Photo> photos = photoController.filterPhotos(destination.destinationPhotos, user.id);
+                return ok(Json.toJson(getTagsFromPhotos(photos)));
+            }
+        });
+    }
 }
