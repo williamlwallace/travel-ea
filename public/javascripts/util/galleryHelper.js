@@ -10,9 +10,7 @@ $('#upload-img').on('click', function () {
     const tags = uploadTagPicker.getTags().map(tag => {
         return { name: tag }
     });
-
-    console.log(uploadTagPicker.getTags());
-
+    
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
     let formData = new FormData();
