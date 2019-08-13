@@ -154,10 +154,12 @@ public class PhotoController extends TEABackController {
         Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
 
         // Update profile photo, and get the prior photo id
-        try{
-            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
-                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
-            );
+        try {
+            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId)
+                .thenApplyAsync(returnedId ->
+                    returnedId != null ? ok(Json.toJson(returnedId))
+                        : ok(Json.newObject().nullNode())
+                );
         } catch (NullPointerException e) {
             return CompletableFuture
                 .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
@@ -231,6 +233,8 @@ public class PhotoController extends TEABackController {
         // multipart form data collection of temporary files
         Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
 
+        User user = request.attrs().get(ActionState.USER);
+
         // Get all basic string keys in multipart form
         Map<String, String[]> formKeys = body.asFormUrlEncoded();
 
@@ -248,7 +252,7 @@ public class PhotoController extends TEABackController {
 
         String[] photoCaptions =
             (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
-        
+
         Set<Tag> photoTags;
         try {
             final String tagString = formKeys.getOrDefault("tags", new String[]{"[]"})[0];
@@ -294,7 +298,7 @@ public class PhotoController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
         } else {
             try {
-                return saveMultiplePhotos(photos, profilePhotoFilename != null);
+                return saveMultiplePhotos(photos, user, profilePhotoFilename != null);
             } catch (IOException e) {
                 return CompletableFuture.supplyAsync(() -> internalServerError(
                     Json.toJson("Unkown number of photos failed to save")));
@@ -309,7 +313,7 @@ public class PhotoController extends TEABackController {
      */
     private CompletableFuture<Result> saveMultiplePhotos(
         Collection<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>> photos,
-        Boolean useProfileThumbnailSize)
+        User user, Boolean useProfileThumbnailSize)
         throws IOException {
         // Add all the photos we found to the database
         int thumbWidth = THUMB_WIDTH;
@@ -333,11 +337,12 @@ public class PhotoController extends TEABackController {
 
         }
         // Collect all keys from the list to upload
-        List<Photo> photosToAdd = photos.stream().map(Pair::getKey).collect(Collectors.toList());
+        List<Photo> photosToAdd = photos.stream().map(Pair::getKey)
+            .collect(Collectors.toList());
 
         // If this photo is going to be added as profile picture, return the name of it
         if (useProfileThumbnailSize) {
-            photoRepository.addPhotos(photosToAdd);
+            photoRepository.addPhotos(photosToAdd, user);
             // Return filename of photo that was just added
             photosToAdd.get(0).thumbnailFilename =
                 "../user_content/" + photosToAdd.get(0).thumbnailFilename;
@@ -345,7 +350,7 @@ public class PhotoController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> created(Json.toJson(photosToAdd.get(0))));
         } else {
             return CompletableFuture.supplyAsync(() -> {
-                photoRepository.addPhotos(photosToAdd);
+                photoRepository.addPhotos(photosToAdd, user);
                 return created(Json.toJson("File(s) uploaded successfully"));
             });
         }
@@ -355,7 +360,6 @@ public class PhotoController extends TEABackController {
      * Reads a file part from the multipart form and returns a Photo object to add to the database.
      *
      * @param file File part from form
-     * @param profilePhotoFilename Name (if any) of photo to be set as profile picture
      * @param publicPhotoFileNames Names (if any) of photos to be set to public, defaults to private
      * if referenced here
      * @param userId ID of user who is uploading the files
@@ -368,9 +372,10 @@ public class PhotoController extends TEABackController {
         HashSet<String> publicPhotoFileNames, long userId,
         boolean isTest, String caption, Set<Tag> tags) throws IOException {
         // Get the filename, file size and content-type of the file
-        int randomNumber = (int)(Math.random() * 496148154 + 1);
+        int randomNumber = (int) (Math.random() * 496148154 + 1);
         String[] filenameParts = file.getFilename().split("\\.");
-        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[filenameParts.length - 1];
+        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[
+            filenameParts.length - 1];
 
         String contentType = file.getContentType();
         if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
@@ -427,17 +432,20 @@ public class PhotoController extends TEABackController {
             // Determine which side is proportionally bigger
             boolean fitWidth =
                 fullImage.getWidth() / thumbWidth > fullImage.getHeight() / thumbHeight;
-            double scaleFactor = (fitWidth) ? (double) thumbWidth / (double) fullImage.getWidth()
-                : (double) thumbHeight / (double) fullImage.getHeight();
+            double scaleFactor =
+                (fitWidth) ? (double) thumbWidth / (double) fullImage.getWidth()
+                    : (double) thumbHeight / (double) fullImage.getHeight();
             if (fitWidth) {
                 int newHeight = (int) Math.floor(fullImage.getHeight() * scaleFactor);
                 graphics2D
-                    .drawImage(fullImage, 0, thumbHeight / 2 - newHeight / 2, thumbWidth, newHeight,
+                    .drawImage(fullImage, 0, thumbHeight / 2 - newHeight / 2, thumbWidth,
+                        newHeight,
                         null);
             } else {
                 int newWidth = (int) Math.floor(fullImage.getWidth() * scaleFactor);
                 graphics2D
-                    .drawImage(fullImage, thumbWidth / 2 - newWidth / 2, 0, newWidth, thumbHeight,
+                    .drawImage(fullImage, thumbWidth / 2 - newWidth / 2, 0, newWidth,
+                        thumbHeight,
                         null);
             }
         }
@@ -557,7 +565,8 @@ public class PhotoController extends TEABackController {
                                     if (!destination.isPublic && !destination.user.id
                                         .equals(userId)) {
                                         //forbidden if destination is private and user does not own destination
-                                        return CompletableFuture.supplyAsync(Results::forbidden);
+                                        return CompletableFuture
+                                            .supplyAsync(Results::forbidden);
                                     }
                                     if (destination.isPublic && !destination.user.id
                                         .equals(userId)) {
@@ -568,7 +577,8 @@ public class PhotoController extends TEABackController {
                                     }
                                     if (destination.isLinked(photoId)) {
                                         //if photo is already linked return badrequest
-                                        return CompletableFuture.supplyAsync(Results::badRequest);
+                                        return CompletableFuture
+                                            .supplyAsync(Results::badRequest);
                                     }
                                     if (photo == null) {
                                         return CompletableFuture.supplyAsync(Results::notFound);

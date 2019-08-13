@@ -8,6 +8,7 @@
     <script src="@routes.Assets.at("javascripts/createTrips.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes" type="text/javascript"></script>
     <script src="@controllers.backend.routes.TripController.tripRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
 @layouts.imageHeader(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, "images/home-bg.jpg", scripts){
@@ -21,7 +22,7 @@
             </div>
 
             <div id="tagInput" style="float: left">
-                @modules.tagInput()
+                @modules.tagPicker("create-trip-tag")
             </div>
 
             <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
@@ -246,4 +247,6 @@
 <script type="text/javascript">
         onPageLoad(@ownerId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+
+        const tagPicker = new TagPicker(@user.id, "create-trip-tag");
 </script>

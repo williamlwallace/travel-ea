@@ -3,17 +3,11 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -47,16 +41,8 @@ public class User extends BaseModel {
 
     public Boolean admin = false;
 
-//    @ManyToMany(mappedBy = "users")
-//    @JoinTable(
-//        name = "UsedTag",
-//        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-//        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-//    public List<Tag> usedTags;
-
     @OneToMany(mappedBy = "user")
     public Set<UsedTag> usedTags;
-
 
 
     /**
@@ -65,19 +51,28 @@ public class User extends BaseModel {
      *
      * Use this method signature when the user is updating the object.
      *
-     * @param oldObject The original tagged object before this user's changes
-     * @param newObject The new tagged object after this user's changes
+     * @param oldTaggable The original tagged object before this user's changes
+     * @param newTaggable The new tagged object after this user's changes
      */
-    public void updateUserTags(Taggable oldObject, Taggable newObject) {
-        Set<Tag> oldTags = oldObject.getTagsList();
-        Set<Tag> newTags = new HashSet<>(newObject.getTagsList());
+    public void updateUserTags(Taggable oldTaggable, Taggable newTaggable) {
+        Set<Tag> oldTags = oldTaggable.getTagsList();
+        Set<Tag> newTags = new HashSet<>(newTaggable.getTagsList());
 
         newTags.removeAll(oldTags);
 
         for (UsedTag usedTag : usedTags) {
             if (newTags.contains(usedTag.tag)) {
                 usedTag.timeUsed = LocalDateTime.now();
+                newTags.remove(usedTag.tag);
             }
+        }
+
+        for (Tag tag : newTags) {
+            UsedTag newUsedTag = new UsedTag();
+            newUsedTag.tag = tag;
+            newUsedTag.user = this;
+
+            usedTags.add(newUsedTag);
         }
     }
 
@@ -86,15 +81,24 @@ public class User extends BaseModel {
      *
      * Use this method signature when a user is creating the object.
      *
-     * @param object The tagged object
+     * @param taggable The tagged object
      */
-    public void updateUserTags(Taggable object) {
-        Set<Tag> tags = object.getTagsList();
+    public void updateUserTags(Taggable taggable) {
+        Set<Tag> tags = taggable.getTagsList();
 
         for (UsedTag usedTag : usedTags) {
             if (tags.contains(usedTag.tag)) {
                 usedTag.timeUsed = LocalDateTime.now();
+                tags.remove(usedTag.tag);
             }
+        }
+
+        for (Tag tag : tags) {
+            UsedTag newUsedTag = new UsedTag();
+            newUsedTag.tag = tag;
+            newUsedTag.user = this;
+
+            usedTags.add(newUsedTag);
         }
     }
 }
