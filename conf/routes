@@ -91,7 +91,7 @@ DELETE        /api/photo/:photoId                    controllers.backend.PhotoCo
 
 PUT           /api/photo/:photoId/profile            controllers.backend.PhotoController.makePhotoProfile(request:Request, photoId:Long)
 
-PUT           /api/photo/:photoId/setCaption         controllers.backend.PhotoController.setPhotoCaption(request:Request, photoId:Long)
+PUT           /api/photo/:photoId                    controllers.backend.PhotoController.updatePhotoDetails(request:Request, photoId:Long)
 
 PUT           /api/photo/:photoId/cover              controllers.backend.PhotoController.setCoverPhoto(request:Request, photoId:Long)
 
