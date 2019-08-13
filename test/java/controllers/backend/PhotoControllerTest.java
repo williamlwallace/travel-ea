@@ -70,7 +70,9 @@ public class PhotoControllerTest extends ControllersTest {
             new Pair<>("isTest", "true"),
             new Pair<>("profilePhotoName", "favicon.png"),
             new Pair<>("publicPhotoFileNames", ""),
-            new Pair<>("caption", "Hello")
+            new Pair<>("caption", "Hello"),
+            new Pair<>("tags", "[{\"name\":\"Germany\"}]")
+
         )) {
             partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
         }
@@ -109,7 +111,8 @@ public class PhotoControllerTest extends ControllersTest {
         for (Pair<String, String> pair : Arrays.asList(
             new Pair<>("isTest", "true"),
             new Pair<>("profilePhotoName", "favicon.png"),
-            new Pair<>("publicPhotoFileNames", "travelEA.png")
+            new Pair<>("publicPhotoFileNames", "travelEA.png"),
+            new Pair<>("tags", "[{\"name\":\"Germany\"}]")
         )) {
             partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
         }

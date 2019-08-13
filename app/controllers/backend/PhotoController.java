@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
@@ -38,6 +40,7 @@ import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
 import repository.ProfileRepository;
+import repository.TagRepository;
 import util.objects.Pair;
 import util.validation.ErrorResponse;
 
@@ -59,15 +62,18 @@ public class PhotoController extends TEABackController {
     private PhotoRepository photoRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
+    private TagRepository tagRepository;
 
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
         PhotoRepository photoRepository,
-        ProfileRepository profileRepository) {
+        ProfileRepository profileRepository,
+        TagRepository tagRepository) {
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
         this.profileRepository = profileRepository;
+        this.tagRepository = tagRepository;
 
         // Create photo directories if none exist
         String directoryName = System.getProperty("user.dir");
@@ -240,6 +246,12 @@ public class PhotoController extends TEABackController {
         String[] photoCaptions =
             (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
 
+
+        // Store photos in a list to allow them all to
+        // be uploaded at the end if all are read successfully
+        ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>>
+            photos = new ArrayList<>();
+
         Set<Tag> photoTags;
         try {
             final String tagString = formKeys.getOrDefault("tags", new String[]{"[]"})[0];
@@ -249,48 +261,43 @@ public class PhotoController extends TEABackController {
             return CompletableFuture
                         .supplyAsync(() -> internalServerError());
         }
-
-
-        // Store photos in a list to allow them all to
-        // be uploaded at the end if all are read successfully
-        ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>>
-            photos = new ArrayList<>();
-
-        // Iterate through all files in the request
-        int position = 0;
-        for (Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()) {
-            if (file != null) {
-                try {
-                    String caption =
-                        (position >= photoCaptions.length) ? "" : photoCaptions[position];
-                    position += 1;
-                    // Store file with photo in list to be added later
-                    photos.add(new Pair<>(
-                        readFileToPhoto(file, publicPhotoFileNames,
-                            request.attrs().get(ActionState.USER).id, isTest, caption, photoTags), file));
-                } catch (IOException e) {
-                    // If an invalid file type given, return bad request
-                    // with error message generated in exception
-                    return CompletableFuture
-                        .supplyAsync(() -> badRequest(Json.toJson(e.getMessage())));
+        return tagRepository.addTags(photoTags).thenComposeAsync((tags) -> {
+            // Iterate through all files in the request
+            int position = 0;
+            for (Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()) {
+                if (file != null) {
+                    try {
+                        String caption =
+                            (position >= photoCaptions.length) ? "" : photoCaptions[position];
+                        position += 1;
+                        // Store file with photo in list to be added later
+                        photos.add(new Pair<>(
+                            readFileToPhoto(file, publicPhotoFileNames,
+                                request.attrs().get(ActionState.USER).id, isTest, caption, tags), file));
+                    } catch (IOException e) {
+                        // If an invalid file type given, return bad request
+                        // with error message generated in exception
+                        return CompletableFuture
+                            .supplyAsync(() -> badRequest(Json.toJson(e.getMessage())));
+                    }
+                } else {
+                    // If any uploads fail, return bad request immediately
+                    return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Missing file")));
                 }
-            } else {
-                // If any uploads fail, return bad request immediately
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Missing file")));
             }
-        }
 
-        // If no photos were actually found, and no other error has been thrown, throw it now
-        if (photos.isEmpty()) {
-            return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
-        } else {
-            try {
-                return saveMultiplePhotos(photos, user, profilePhotoFilename != null);
-            } catch (IOException e) {
-                return CompletableFuture.supplyAsync(() -> internalServerError(
-                    Json.toJson("Unkown number of photos failed to save")));
+            // If no photos were actually found, and no other error has been thrown, throw it now
+            if (photos.isEmpty()) {
+                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
+            } else {
+                try {
+                    return saveMultiplePhotos(photos, user, profilePhotoFilename != null);
+                } catch (IOException e) {
+                    return CompletableFuture.supplyAsync(() -> internalServerError(
+                        Json.toJson("Unkown number of photos failed to save")));
+                }
             }
-        }
+        });
     }
 
     /**
@@ -382,8 +389,6 @@ public class PhotoController extends TEABackController {
         photo.usedForProfile = false;
         photo.caption = caption;
         photo.tags = tags;
-
-        // Return the created photo object
         return photo;
     }
 

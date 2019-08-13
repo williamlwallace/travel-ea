@@ -1315,6 +1315,14 @@ paths:
             schema:
               type: object
               properties:
+                tags:
+                  type: array
+                  description: Tags ascociated with photo
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
