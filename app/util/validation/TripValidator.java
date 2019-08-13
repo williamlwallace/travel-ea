@@ -8,6 +8,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import models.TripData;
 
+/**
+ * A class which validates Trip information.
+ */
 public class TripValidator extends Validator{
 
     private final JsonNode form;
