@@ -50,7 +50,7 @@ aria-hidden="true">
                     </div>
                     <br/>
                     <div>
-                        @modules.tagInput()
+                        @modules.tagPicker("create-destination-form-tag")
                     </div>
                 </div>
             </form>
@@ -72,4 +72,7 @@ aria-hidden="true">
 
 <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
 <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+<script>
+    const tagPicker = new TagPicker("create-destination-form-tag");
+</script>
 

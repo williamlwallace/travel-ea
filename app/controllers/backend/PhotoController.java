@@ -3,6 +3,7 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.Color;
@@ -12,7 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
+import java.rmi.ServerError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +21,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ import javax.imageio.ImageIO;
 import models.Photo;
 import models.User;
 import models.Tag;
+import java.time.LocalDateTime;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -243,6 +246,17 @@ public class PhotoController extends TEABackController {
         String[] photoCaptions =
             (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
 
+        Set<Tag> photoTags;
+        try {
+            final String tagString = formKeys.getOrDefault("tags", new String[]{"[]"})[0];
+            photoTags = new HashSet<>(Arrays.asList(
+                Json.fromJson(new ObjectMapper().readTree(tagString), Tag[].class)));
+        } catch (IOException e) {
+            return CompletableFuture
+                        .supplyAsync(() -> internalServerError());
+        }
+
+
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
         ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>>
@@ -360,7 +374,7 @@ public class PhotoController extends TEABackController {
      */
     private Photo readFileToPhoto(Http.MultipartFormData.FilePart<Files.TemporaryFile> file,
         HashSet<String> publicPhotoFileNames, long userId,
-        boolean isTest, String caption, Set<Tag> photoTags) throws IOException {
+        boolean isTest, String caption, Set<Tag> tags) throws IOException {
         // Get the filename, file size and content-type of the file
         int randomNumber = (int) (Math.random() * 496148154 + 1);
         String[] filenameParts = file.getFilename().split("\\.");
@@ -384,8 +398,7 @@ public class PhotoController extends TEABackController {
         photo.userId = userId;
         photo.usedForProfile = false;
         photo.caption = caption;
-        photo.tags = photoTags;
-        
+        photo.tags = tags;
         return photo;
     }
 

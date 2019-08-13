@@ -12,6 +12,7 @@
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
 @layouts.main("Destination", loggedUser, scripts){
@@ -47,7 +48,7 @@
                             <p class="heading">Longitude: <span id="summary_longitude" class="destination-info"></span></p>
                             <p class="heading" id="heading_traveller_types">Traveller Types: <span id="summary_traveller_types" class="destination-info"></span></p>
                             <p class="heading" id="heading_tags">Tags: </p>
-                            @modules.tagDisplay()
+                            @modules.tagDisplay("detailed-destination-tag-display")
 
                             <a data-toggle="modal" data-target="#travellerTypeModal">
                                 <span class="destination-button" style="float: left; padding-top: 20px;" onclick='fillTravellerTypeInfo();'>@if(canModify) {Edit Traveller Types} else {Suggest Traveller Types}</span>
@@ -102,7 +103,7 @@
                                         <label id="countryError" class="error-messages"></label>
                                     </div>
 
-                                    @modules.tagInput()
+                                    @modules.tagPicker("detailed-destination-tag")
                                 </div>
                             </form>
                             <div>
@@ -247,5 +248,7 @@
         sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         populateDestinationDetails(@destinationId);
-        
+
+        const tagPicker = new TagPicker(@loggedUser.id, "detailed-destination-tag");
+        const tagDisplay = new TagDisplay("detailed-destination-tag-display");
 </script>
