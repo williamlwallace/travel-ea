@@ -58,15 +58,9 @@ function populateDestinationDetails(destinationId) {
                 }
 
                 // Populates tags
-                const tagHolder = $("#summary_tags");
-                tagHolder.empty();
-
+                tagDisplay.populateTags(destination.tags);
                 if (destination.tags.length > 0) {
                     document.getElementById("heading_tags").style.display = "block";
-                    for (const tag of destination.tags) {
-                        const singleTag = $("<li>").text(tag.name);
-                        tagHolder.append(singleTag);
-                    }
                 } else {
                     document.getElementById("heading_tags").style.display = "none";
                 }
@@ -185,10 +179,8 @@ function editDestination(destinationId) {
                 destination.name = data.name;
                 destination.district = data.district;
 
-                delete destination.tagsList;
-
                 // Add tags to destination
-                const tags = getTags();
+                const tags = tagPicker.getTags();
                 destination.tags = tags.map((tag) => {
                     return {
                         name: tag
@@ -262,7 +254,7 @@ function populateEditDestination(destinationId) {
                 // Fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
                 // Fills tag input field
-                populateTags(destination.tags);
+                tagPicker.populateTags(destination.tags);
             }
         })
     })

@@ -311,10 +311,9 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
 
 /**
  * Removes card with given id
- * @param {Number} cardId - Id of card
  */
 function removeDestinationFromTrip() {
-    let cardId = $('#removeDestinationFromTripModal').attr("destId");
+    const cardId = $('#removeDestinationFromTripModal').attr("destId");
     $('#' + cardId).remove();
     checkTripListEmpty();
 }
@@ -345,7 +344,11 @@ function createTrip(redirect, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
-    const tripTagObjects = getTags().map((tag) => {return {name:tag}});
+    const tripTagObjects = tagPicker.getTags().map((tag) => {
+        return {
+            name:tag
+        }
+    });
 
     let tripData = {
         "userId": userId,
