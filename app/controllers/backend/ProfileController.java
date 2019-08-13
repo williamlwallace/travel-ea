@@ -4,6 +4,7 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.PagedList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -195,11 +196,12 @@ public class ProfileController extends TEABackController {
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender, int minAge, int maxAge, Long travellerTypeId) {
+    public CompletableFuture<PagedList<Profile>> searchProfiles(Http.Request request, Long nationalityId,
+        String gender, int minAge, int maxAge, Long travellerTypeId, int startIndex, int length) {
         User user = request.attrs().get(ActionState.USER);
-        return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
-            List<Profile> toReturn = new ArrayList<>(profiles);
+        return profileRepository.getAllProfiles(user.id, startIndex, length).thenApplyAsync(profiles -> {
+            // TODO: Apply filtering at repository layer
+            PagedList<Profile> toReturn = new ArrayList<>(profiles);
 
             for (Profile profile : profiles) {
                 if (gender != null && !gender.equals("") && !profile.gender

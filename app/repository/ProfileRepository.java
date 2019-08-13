@@ -3,6 +3,7 @@ package repository;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -95,15 +96,17 @@ public class ProfileRepository {
      *
      * @return A list of all profiles
      */
-    public CompletableFuture<List<Profile>> getAllProfiles(Long userId) {
+    public CompletableFuture<PagedList<Profile>> getAllProfiles(Long userId, int startIndex, int length) {
         return supplyAsync(() -> {
-            ArrayList<Profile> profiles = new ArrayList<>(
+            PagedList<Profile> profiles =
                 ebeanServer.find(Profile.class)
                     .where()
                     .ne("user_id", userId)
-                    .findList());
+                    .setFirstRow(startIndex)
+                    .setMaxRows(length)
+                    .findPagedList();
             // Manually change bean lists to array lists, as this was causing an issue on front end
-            for (Profile profile : profiles) {
+            for (Profile profile : profiles.getList()) {
                 profile.travellerTypes = new ArrayList<>(profile.travellerTypes);
                 profile.nationalities = new ArrayList<>(profile.nationalities);
                 profile.passports = new ArrayList<>(profile.passports);
