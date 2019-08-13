@@ -106,6 +106,9 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    const destinationTags = createDestinationTagPicker.getTags();
+    data.tags = destinationTags.map((tag) => {return {name:tag}});
+
     //Create response handler
     const handler = function (status, json) {
         if (status !== 200) {
@@ -344,7 +347,7 @@ function createTrip(redirect, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
-    const tripTagObjects = tagPicker.getTags().map((tag) => {
+    const tripTagObjects = createTripTagPicker.getTags().map((tag) => {
         return {
             name:tag
         }
