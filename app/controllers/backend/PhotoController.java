@@ -246,16 +246,6 @@ public class PhotoController extends TEABackController {
         String[] photoCaptions =
             (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
 
-        Set<Tag> photoTags;
-        try {
-            final String tagString = formKeys.getOrDefault("tags", new String[]{"[]"})[0];
-            photoTags = new HashSet<>(Arrays.asList(
-                Json.fromJson(new ObjectMapper().readTree(tagString), Tag[].class)));
-        } catch (IOException e) {
-            return CompletableFuture
-                        .supplyAsync(() -> internalServerError());
-        }
-
 
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
