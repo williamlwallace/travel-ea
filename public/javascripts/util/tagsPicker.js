@@ -134,12 +134,15 @@ class TagPicker {
     };
 
     /**
-     * Returns a list of all selected tags
+     * Returns a set of all selected tags
      */
     getTags() {
         const tags = [];
         for (const li of $(`#${this.id} ul li`)) {
-            tags.push(li.innerText.replace(/['"]+/g, ''));
+            const newTag = li.innerText.replace(/['"]+/g, '');
+            if (newTag !== "" && !tags.includes(newTag)) {
+                tags.push(newTag);
+            }
         }
         return tags.slice(0, -1);
     }

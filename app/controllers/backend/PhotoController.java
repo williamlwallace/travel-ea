@@ -40,6 +40,7 @@ import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
 import repository.ProfileRepository;
+import repository.TagRepository;
 import util.objects.Pair;
 import util.validation.ErrorResponse;
 
@@ -53,23 +54,32 @@ public class PhotoController extends TEABackController {
 
     // Constant fields defining the directory of publicly available files
     private static final String PUBLIC_DIRECTORY = "/public";
+
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
     private final String savePath;
+
+    // Caption and tag field name constants
+    private static final String CAPTION = "caption";
+    private static final String TAGS = "tags";
+
     // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
-
+    private TagRepository tagRepository;
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
         PhotoRepository photoRepository,
-        ProfileRepository profileRepository) {
+        ProfileRepository profileRepository,
+        TagRepository tagRepository) {
+
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
         this.profileRepository = profileRepository;
+        this.tagRepository = tagRepository;
 
         // Create photo directories if none exist
         String directoryName = System.getProperty("user.dir");
@@ -96,57 +106,76 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Sets a photo caption
-     * //TODO
-     * @param request
-     * @param photoId
-     * @return
+     * Updates the caption and tags associated with a photo
+     *
+     * @param request HTTP request containing authentication information and request body
+     * @param photoId ID of photo being updated
+     * @return Response status, on ok sends old photo data for use with undo/redo
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updatePhotoDetails(Http.Request request, Long photoId) {
         User user = request.attrs().get(ActionState.USER);
-        Long currentUserId = user.id;
+        JsonNode data = request.body().asJson();
 
-        // Check if body correctly deserializes to a json string, otherwise throw 400
+        // Check if caption or tags field is missing, if so return badRequest
+        if (!data.has(TAGS) || !data.has(CAPTION)) {
+            return CompletableFuture.supplyAsync(Results::badRequest);
+        }
+
+        // Retrieve new photo details from request body, return badRequest if fails
         Photo newPhotoDetails;
         try {
-//            newCaption = Json.fromJson(request.body().asJson(), String.class);
-//            newTags = new HashSet<Tag>(Arrays.asList(mapper.readValue(son.fromJson(request.body().asJson().get("tags"), Person[].class)););
-            newPhotoDetails = Json.fromJson(request.body().asJson(), Photo.class);
+            newPhotoDetails = Json.fromJson(data, Photo.class);
         } catch (Exception e) {
             return CompletableFuture.supplyAsync(Results::badRequest);
         }
 
         // Get the photo to have caption updated
-        return photoRepository.getPhotoById(photoId).thenApplyAsync(photo -> {
+        return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
             // Check if photo exists and then if user is authorized to perform this action
             if (photo == null) {
-                return notFound();
-            } else if (!photo.userId.equals(currentUserId) && !user.admin) {
-                return forbidden();
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("Could not find photo to update"));
+            } else if (!photo.userId.equals(user.id) && !user.admin) {
+                return CompletableFuture.supplyAsync(
+                    () -> forbidden("You do not have permission to update this photo"));
             }
 
-            // Store the old caption, update to new caption and save
-            ObjectNode oldData = Json.newObject();
-            oldData.put("caption", photo.caption);
-            oldData.putArray("tags").addAll(new ObjectMapper().valueToTree(new ArrayList<>(photo.tags)));
+            // Adds new tags and retrieves existing tags
+            return tagRepository.addTags(newPhotoDetails.tags).thenApplyAsync(tags -> {
+                // Stores the old caption and tag data
+                ObjectMapper mapper = new ObjectMapper();
+                ObjectNode oldData = mapper.createObjectNode();
+                oldData.set(CAPTION, Json.toJson(photo.caption));
+                oldData.set(TAGS, Json.toJson(photo.tags));
 
+                // Sets fields with new photo data and updates
+                photo.caption = newPhotoDetails.caption;
+                photo.tags = tags;
+                photoRepository.updatePhoto(photo);
 
-            photo.caption = newPhotoDetails.caption;
-            photo.tags = newPhotoDetails.tags;
-            photoRepository.updatePhoto(photo);
-
-            return ok(oldData);
+                try {
+                    return ok(sanitizeJson(oldData));
+                } catch (IOException ex) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
         });
     }
 
+    /**
+     * Sets a users photo as their profile photo
+     *
+     * @param request Http request containing authentication and ID of new profile photo
+     * @param id ID of user updating the photo
+     * @return Http response, on ok returns ID of old profile photo
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
-        Long currentUserId = user.id;
 
         // Check if user is authorized to perform this action
-        if (!id.equals(currentUserId) && !user.admin) {
+        if (!id.equals(user.id) && !user.admin) {
             return CompletableFuture.supplyAsync(Results::forbidden);
         }
 
@@ -251,18 +280,17 @@ public class PhotoController extends TEABackController {
             formKeys.getOrDefault("publicPhotoFileNames", new String[]{""})[0].split(",")));
 
         String[] photoCaptions =
-            (formKeys.get("caption") == null) ? new String[]{""} : formKeys.get("caption");
+            (formKeys.get(CAPTION) == null) ? new String[]{""} : formKeys.get(CAPTION);
 
         Set<Tag> photoTags;
         try {
-            final String tagString = formKeys.getOrDefault("tags", new String[]{"[]"})[0];
+            final String tagString = formKeys.getOrDefault(TAGS, new String[]{"[]"})[0];
             photoTags = new HashSet<>(Arrays.asList(
                 Json.fromJson(new ObjectMapper().readTree(tagString), Tag[].class)));
         } catch (IOException e) {
             return CompletableFuture
-                        .supplyAsync(() -> internalServerError());
+                .supplyAsync(() -> internalServerError());
         }
-
 
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
@@ -280,7 +308,8 @@ public class PhotoController extends TEABackController {
                     // Store file with photo in list to be added later
                     photos.add(new Pair<>(
                         readFileToPhoto(file, publicPhotoFileNames,
-                            request.attrs().get(ActionState.USER).id, isTest, caption, photoTags), file));
+                            request.attrs().get(ActionState.USER).id, isTest, caption, photoTags),
+                        file));
                 } catch (IOException e) {
                     // If an invalid file type given, return bad request
                     // with error message generated in exception

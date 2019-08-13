@@ -7,8 +7,10 @@ $('#upload-img').on('click', function () {
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
     let caption = $('#caption input').val();
-    const tags = tagPicker.getTags().map(tag => {
-        return { name: tag }
+    const tags = uploadTagPicker.getTags().map(tag => {
+        return {
+            name: tag
+        }
     });
 
     const selectedPhotos = document.getElementById(
@@ -336,7 +338,7 @@ function createEditButton() {
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param {List} galleryObjects a list of photo objects to insert
+ * @param {Array} galleryObjects a list of photo objects to insert
  * @param {string} galleryId the id of the gallery to populate
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
