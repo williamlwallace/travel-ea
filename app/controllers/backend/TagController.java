@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import models.Enums.TagType;
+import models.enums.TagType;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.TagRepository;
@@ -27,7 +27,7 @@ public class TagController extends TEABackController {
      * 
      * @param request HTTP request, needs to contain the tag type under tagType in  a JSON
      * @param name Optional sting by which to search for a name
-     * @return Ok with a paginated list of tags as well as the total page count
+     * @return Ok with a paginated list of tags as well as the total page count or BadRequest
      */
     public CompletableFuture<Result> getTags(Http.Request request, String name, Integer pageNum, Integer pageSize) {
 
@@ -66,7 +66,7 @@ public class TagController extends TEABackController {
      * @param userId ID of the user for whom to recieve the tags
      * @param pageNum page being requested
      * @param pageSize number of tags per page
-     * @return OK with the data as the tags and totalPageCount
+     * @return OK with the data as the tags and totalPageCount or badRequest
      */
     public CompletableFuture<Result> getUserTags(Http.Request request, Long userId, Integer pageNum, Integer pageSize) {
         return tagRepository.getRecentUserTags(userId, pageNum, pageSize).thenApplyAsync(tags ->

@@ -5,18 +5,16 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.PagedList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.Enums.TagType;
+import models.enums.TagType;
 import models.UsedTag;
 import models.Tag;
 import play.db.ebean.EbeanConfig;
-import util.objects.Pair;
 
 @Singleton
 public class TagRepository {
@@ -36,7 +34,7 @@ public class TagRepository {
      *
      * @param tagType The kind of tag to search for
      * @param name Name of tag to search for
-     * @return Collection of tags
+     * @return Paged list of tags that match the search
      */
     public CompletableFuture<PagedList<?>> searchTags(TagType tagType, String name, int pageNum, int pageSize) {
         return supplyAsync(() ->
@@ -84,9 +82,9 @@ public class TagRepository {
      * Only tags where name exactly matches search criteria are returned
      *
      * @param tagType The kind of tag to search for
-     * @param name Name of tag to search for
-     * @param limit The maximum number of results to search for
-     * @return Pair where first item is Tags returned, second item is total number of tags (for paging)
+     * @param pageNum The page to receive
+     * @param pageSize Number of entries on a page
+     * @return Paged list of tags that match the search
      */
     public CompletableFuture<PagedList<?>> searchTags(TagType tagType, int pageNum, int pageSize) {
         return supplyAsync(() ->
@@ -105,7 +103,7 @@ public class TagRepository {
      * @param userId Id of user to receive tags for
      * @param pageNum The page to receive
      * @param pageSize Number of entries on a page
-     * @return Pair where thee firrst item (data) is the used tags and the second is the total number of pages
+     * @return Paged list of tags that match the search
      */
     public CompletableFuture<PagedList<?>> getRecentUserTags(long userId, int pageNum, int pageSize) {
         return supplyAsync(() ->

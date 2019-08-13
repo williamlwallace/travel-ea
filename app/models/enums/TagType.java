@@ -1,9 +1,12 @@
-package models.Enums;
+package models.enums;
 
 import models.DestinationTag;
 import models.PhotoTag;
 import models.TripTag;
 
+/**
+ * This enum contains the different types of tag type, used for searching for as specific tag type
+ */
 public enum TagType {
     DESTINATION_TAG(DestinationTag.class),
     PHOTO_TAG(PhotoTag.class),
