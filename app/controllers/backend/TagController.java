@@ -1,30 +1,54 @@
 package controllers.backend;
 
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+import models.Photo;
+import models.Tag;
+import models.User;
 import models.enums.TagType;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
+import repository.DestinationRepository;
+import repository.PhotoRepository;
+import repository.ProfileRepository;
 import repository.TagRepository;
 import util.objects.PagePair;
 
 public class TagController extends TEABackController {
 
     private final TagRepository tagRepository;
+    private PhotoRepository photoRepository;
+    private ProfileRepository profileRepository;
+    private DestinationRepository destinationRepository;
+
 
     @Inject
-    public TagController(TagRepository tagRepository) {
+    public TagController(TagRepository tagRepository, PhotoRepository photoRepository,
+        ProfileRepository profileRepository,
+        DestinationRepository destinationRepository) {
         this.tagRepository = tagRepository;
+        this.photoRepository = photoRepository;
+        this.profileRepository = profileRepository;
+        this.destinationRepository = destinationRepository;
+
     }
 
     /**
      * Controller method to get all tags of a certain type, optional name parameter to search by name.
      * Name search is case insensitive
-     * 
+     *
      * @param request HTTP request, needs to contain the tag type under tagType in  a JSON
      * @param name Optional sting by which to search for a name
      * @return Ok with a paginated list of tags as well as the total page count or BadRequest
@@ -79,5 +103,41 @@ public class TagController extends TEABackController {
         });
 
     }
+
+    /**
+     * Retrieves all tags associated with a given user's photos. If the user is viewing their own profile or an admin
+     * then retrieve all their private and public photo tags; else, only retrieve their public photo tags
+     *
+     * @param request Request to read cookie data from
+     * @param id ID of the user to retrieve data from
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllUserPhotoTags(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+
+        if (user.id.equals(id) || user.admin) {
+            return photoRepository.getAllUserPhotos(id)
+                .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+        } else {
+            return photoRepository.getAllPublicUserPhotos(id)
+                .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+        }
+    }
+
+    /**
+     * Retrieves all tags from a list of user photos and returns a set of tags. Iterates through a list of photos and
+     * adds each tag set for each photo to the tag set to be returned
+     *
+     * @param photos Array list of photo objects
+     * @return a set of tags
+     */
+    private Set<Tag> getTagsFromPhotos(List<Photo> photos) {
+        Set<Tag> tagSet = new HashSet<>();
+        for (Photo photo : photos) {
+            tagSet.addAll(photo.tags);
+        }
+        return tagSet;
+    }
+
 
 }
