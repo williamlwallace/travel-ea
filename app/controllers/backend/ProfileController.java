@@ -21,6 +21,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.ProfileRepository;
 import repository.TravellerTypeDefinitionRepository;
+import util.objects.PagingResponse;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
 
@@ -196,77 +197,25 @@ public class ProfileController extends TEABackController {
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<PagedList<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender, int minAge, int maxAge, Long travellerTypeId, int startIndex, int length) {
+    public CompletableFuture<Result> searchProfilesJson(Http.Request request,
+        List<Long> nationalityIds,
+        List<Long> travellerTypeIds,
+        List<String> genders,
+        Integer minAge,
+        Integer maxAge,
+        String searchQuery,
+        String sortBy,
+        Integer pageNum,
+        Integer pageSize) {
+
         User user = request.attrs().get(ActionState.USER);
-        return profileRepository.getAllProfiles(user.id, startIndex, length).thenApplyAsync(profiles -> {
-            // TODO: Apply filtering at repository layer
-            PagedList<Profile> toReturn = new ArrayList<>(profiles);
 
-            for (Profile profile : profiles) {
-                if (gender != null && !gender.equals("") && !profile.gender
-                    .equalsIgnoreCase(gender)) {
-                    toReturn.remove(profile);
-                    continue;
-                }
-
-                int age = profile.calculateAge();
-                if (age < minAge || age > maxAge) {
-                    toReturn.remove(profile);
-                    continue;
-                }
-
-                if (nationalityId != 0) {
-                    boolean found = false;
-                    for (CountryDefinition country : profile.nationalities) {
-
-                        if (country.id.equals(nationalityId)) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        toReturn.remove(profile);
-                        continue;
-                    }
-                }
-                if (travellerTypeId != 0) {
-                    boolean found = false;
-                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
-                        if (travellerTypeDefinition.id.equals(travellerTypeId)) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        toReturn.remove(profile);
-                    }
-                }
-
-            }
-
-            return toReturn;
-        });
-    }
-
-    /**
-     * Retrieves all profiles, filters them and returns the result inside a Result object as JSON.
-     *
-     * @param nationalityId nationality request
-     * @param gender gender requested
-     * @param minAge minimum age for filter
-     * @param maxAge maximum age for filter
-     * @param travellerTypeId traveller type requested
-     * @return A ok result containing the JSON of the profiles matching search criteria
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId,
-        String gender,
-        int minAge, int maxAge, Long travellerTypeId) {
-        return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
-            .thenApplyAsync(profiles -> {
+        return profileRepository.getAllProfiles(user.id, nationalityIds, travellerTypeIds, genders, minAge, maxAge, searchQuery, sortBy, pageNum, pageSize).
+            thenApplyAsync(profiles -> {
                 try {
-                    return ok(sanitizeJson(Json.toJson(profiles)));
+                    return ok(sanitizeJson(Json.toJson(new PagingResponse<>(profiles.getList(), 10, 100))));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    return internalServerError(Json.toJson("Failed to serialize response"));
                 }
             });
     }

@@ -3,6 +3,7 @@ package repository;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Expr;
 import io.ebean.PagedList;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,14 +97,39 @@ public class ProfileRepository {
      *
      * @return A list of all profiles
      */
-    public CompletableFuture<PagedList<Profile>> getAllProfiles(Long userId, int startIndex, int length) {
+    public CompletableFuture<PagedList<Profile>> getAllProfiles(Long userId,
+        List<Long> _nationalityIds,
+        List<Long> _travellerTypeIds,
+        List<String> genders,
+        Integer minAge,
+        Integer maxAge,
+        String searchQuery,
+        String sortBy,
+        Integer pageNum,
+        Integer pageSize) {
+
+        // If any lists were null, replace them with empty lists
+        List<Long> nationalityIds = _nationalityIds == null ? new ArrayList<>() : _nationalityIds;
+        List<Long> travellerTypeIds = _travellerTypeIds == null ? new ArrayList<>() : _travellerTypeIds;
+
         return supplyAsync(() -> {
+
             PagedList<Profile> profiles =
                 ebeanServer.find(Profile.class)
+                    .fetch("travellerTypes", "nationalities")
                     .where()
-                    .ne("user_id", userId)
-                    .setFirstRow(startIndex)
-                    .setMaxRows(length)
+//                    .ne("t0.user_id", userId) //Where t0 is the name ebeans generates for the table (if broken, it's probably this.)
+                    // Filter traveller types by given traveller type ids, only if some were given
+                    .or(
+                        Expr.in("travellerTypes.id", travellerTypeIds),
+                        (travellerTypeIds.isEmpty()) ? Expr.raw("true") : Expr.raw("false")
+                    ).endOr()
+                    .or(
+                        Expr.in("nationalities.id", nationalityIds),
+                        (nationalityIds.isEmpty()) ? Expr.raw("true") : Expr.raw("false")
+                    ).endOr()
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
                     .findPagedList();
             // Manually change bean lists to array lists, as this was causing an issue on front end
             for (Profile profile : profiles.getList()) {
