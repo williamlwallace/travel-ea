@@ -20,9 +20,12 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import models.CountryDefinition;
 import models.Destination;
+import models.Tag;
 import models.Trip;
 import models.TripData;
 import org.junit.Before;
@@ -53,7 +56,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
      * @return Trip object created using given data
      */
     private Trip createTestTripObject(boolean isPublic, int[] destinations, String[] arrivalTimes,
-        String[] departureTimes) {
+        String[] departureTimes, Set<Tag> tags) {
         // Sets up datetime formatter and country definition object and empty trip data list
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -92,8 +95,8 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Trip trip = new Trip();
         trip.userId = 1L;
         trip.tripDataList = tripDataObjects;
-
         trip.isPublic = isPublic;
+        trip.tags = tags;
 
         return trip;
     }
@@ -103,8 +106,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -124,8 +129,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -145,8 +152,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 1};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -166,8 +175,14 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
+        Tag tag = new Tag("test tag");
+        Tag tag2 = new Tag("test tag2");
+        tripTags.add(tag);
+        tripTags.add(tag2);
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         JsonNode node = Json.toJson(trip);
 
         // Create request to create a new trip
@@ -188,8 +203,14 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{null, null};
         String[] departureTimes = new String[]{null, null};
+        Set<Tag> tripTags = new HashSet<>();
+        Tag tag = new Tag("test tag");
+        Tag tag2 = new Tag("test tag2");
+        tripTags.add(tag);
+        tripTags.add(tag2);
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -233,8 +254,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
         String[] departureTimes = new String[]{"2018-05-13 09:00:00", "2018-05-27 23:15:00"};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -282,8 +305,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{"2018-05-10 14:10:00", "2018-05-13 13:25:00"};
         String[] departureTimes = new String[]{"2018-05-13 13:26:00", "2018-05-27 23:15:00"};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trip.id = 1L;    // Needs to be set to trip created in evolutions
         JsonNode node = Json.toJson(trip);
 
@@ -304,8 +329,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{null, null};
         String[] departureTimes = new String[]{null, null};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -325,7 +352,8 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Create new trip with modified destination order, set tripId to created trip ID
         destinations = new int[]{2, 1};
 
-        Trip tripToUpdate = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip tripToUpdate = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
         node = Json.toJson(tripToUpdate);
 
@@ -370,8 +398,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2, 1, 3};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         JsonNode node = Json.toJson(trip);
 
         // Create request to insert trip
@@ -391,7 +421,8 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Create new trip with modified destination order, set tripId to created trip ID
         destinations = new int[]{2, 1, 1, 3};
 
-        Trip tripToUpdate = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip tripToUpdate = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         tripToUpdate.id = tripId;    // Needs to be set to trip created in evolutions
         node = Json.toJson(tripToUpdate);
 
@@ -412,8 +443,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trip.id = 100L;    // Set ID to value which doesn't exist
         JsonNode node = Json.toJson(trip);
 
@@ -452,8 +485,10 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2, 4};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trip.userId = 3L;
         JsonNode node = Json.toJson(trip);
 
@@ -576,22 +611,24 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{"2019-03-25 00:00:00"};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trips.add(trip);
 
         destinations = new int[]{1, 2};
         arrivalTimes = new String[]{"2019-04-01 00:00:00"};
         departureTimes = new String[]{};
 
-        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes, tripTags);
         trips.add(trip);
 
         destinations = new int[]{1, 2};
         arrivalTimes = new String[]{"2019-03-29 00:00:00", "2019-10-10 00:00:00"};
         departureTimes = new String[]{};
 
-        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes, tripTags);
         trips.add(trip);
 
         // Insert trips into database
@@ -634,22 +671,24 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         int[] destinations = new int[]{1, 2};
         String[] arrivalTimes = new String[]{};
         String[] departureTimes = new String[]{};
+        Set<Tag> tripTags = new HashSet<>();
 
-        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
         trips.add(trip);
 
         destinations = new int[]{1, 2};
         arrivalTimes = new String[]{"2019-04-01 00:00:00"};
         departureTimes = new String[]{};
 
-        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes, tripTags);
         trips.add(trip);
 
         destinations = new int[]{1, 2};
         arrivalTimes = new String[]{};
         departureTimes = new String[]{};
 
-        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes);
+        trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes, tripTags);
         trips.add(trip);
 
         // Insert trips into database
