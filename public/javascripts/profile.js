@@ -1,5 +1,4 @@
-/* Display gender drop down the same as the others */
-$('#gender').picker();
+
 
 let profileId = -1;
 let getAllPhotosUrl;
@@ -143,19 +142,19 @@ function populateProfileData(uri) {
     get(uri)
     .then(response => {
         // Read response from server, which will be a json object
-        return response.json()
+        return response.json();
     })
     .then(json => {
         const pickMapper = function (id, item) {
-            $(`#${id}`).picker('set', item.id);
-        }
+            $(`#${id}`).selectpicker('val', item.id);
+        };
         //Maps the json data into the pickers
         json.nationalities.map(pickMapper.bind(null, 'nationalities'));
         json.passports.map(pickMapper.bind(null, 'passports'));
         json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
 
-        $('#gender').picker('set', json.gender);
-        tagsPickerTags = json.tags;
+        $('#gender').selectpicker('val', json.gender);
+        //tagsPickerTags = json.tags;
     });
 }
 
