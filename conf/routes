@@ -61,6 +61,8 @@ PUT           /api/destination/:destId/photo/:photoId  controllers.backend.Photo
 
 GET           /api/destination/:destId/photo         controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
+GET           /api/destination/:destId/phototags     controllers.backend.TagController.getAllDestinationPhotoTags(request:Request, destId:Long)
+
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  controllers.backend.DestinationController.toggleDestinationTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)

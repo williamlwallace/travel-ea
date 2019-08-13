@@ -23,7 +23,6 @@ import play.data.validation.Constraints;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Tag extends Model {
 
-    @JsonIgnore
     @Id
     @JsonIgnore
     public Long id;
@@ -55,7 +54,6 @@ public class Tag extends Model {
         inverseJoinColumns = @JoinColumn(name = "trip_id", referencedColumnName = "id"))
     public Set<Trip> trips;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "tag")
     @JsonIgnore
     public Set<UsedTag> usedTags;
