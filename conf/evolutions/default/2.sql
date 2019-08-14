@@ -17,9 +17,9 @@ INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, 
     (1, 'Moffat', 'the', 'Proffat', '1990-01-01', 'Male'),
     (2, 'Kermit', 'the', 'Frog', '1995-07-18', 'Female'),
     (3, 'William', 'the', 'Conqueror', '1969-012-24', 'Other');
-INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3);
+INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3), (2,2), (3,4);
 INSERT INTO Passport (user_id, country_id) VALUES (1,246);
-INSERT INTO Nationality (user_id, country_id) VALUES (1,246), (1,643);
+INSERT INTO Nationality (user_id, country_id) VALUES (1,246), (1,643), (2, 246), (3, 643);
 
 -- Add sample data for destination
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES

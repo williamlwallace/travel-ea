@@ -128,7 +128,8 @@ public class ProfileRepository {
         return supplyAsync(() -> {
             PagedList<Profile> profiles =
                 ebeanServer.find(Profile.class)
-                    .fetch("travellerTypes", "nationalities")
+                    .fetch("travellerTypes")
+                    .fetch("nationalities")
                     .where()
                     .ne("t0.user_id", userId) // Where t0 is the name ebeans generates for the table (if broken, it's probably this.)
                     // Filter traveller types by given traveller type ids, only if some were given
@@ -144,16 +145,16 @@ public class ProfileRepository {
                     // Check that gender is in given list, if one is given
                     .or(
                         Expr.in("gender", gendersNotNull),
-                        (nationalityIds == null) ? SQL_TRUE : SQL_FALSE
+                        (genders == null) ? SQL_TRUE : SQL_FALSE
                     ).endOr()
                     // Only return results which are greater than min age, if one was specified
                     .or(
-                        Expr.ge("date_of_birth", LocalDate.now().minusYears(minAgeNotNull)),
+                        Expr.le("date_of_birth", Timestamp.valueOf(LocalDate.now().minusYears(minAgeNotNull).atStartOfDay())),
                         (minAge == null) ? SQL_TRUE : SQL_FALSE
                     ).endOr()
                     // Only return results which are less than max age, if one was specified
                     .or(
-                        Expr.le("date_of_birth", LocalDate.now().plusYears(maxAgeNotNull)),
+                        Expr.ge("date_of_birth", Timestamp.valueOf(LocalDate.now().minusYears(maxAgeNotNull).atStartOfDay())),
                         (maxAge == null) ? SQL_TRUE : SQL_FALSE
                     ).endOr()
                     // Search where name fits search query
