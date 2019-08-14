@@ -1,5 +1,9 @@
 let table;
 
+$(document).ready(function () {
+    populateCard("Rich Chigga");
+});
+
 /**
  * Capitalise first letter of string
  * @param {String} string - input string to capitalise
