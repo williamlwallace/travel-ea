@@ -144,7 +144,7 @@ class TagPicker {
                 tags.push(newTag);
             }
         }
-        return tags.slice(0, -1);
+        return tags;
     }
 
     /**
