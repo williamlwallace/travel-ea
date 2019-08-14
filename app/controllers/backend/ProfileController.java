@@ -205,15 +205,20 @@ public class ProfileController extends TEABackController {
         Integer maxAge,
         String searchQuery,
         String sortBy,
+        Boolean ascending,
         Integer pageNum,
-        Integer pageSize) {
+        Integer pageSize,
+        Integer requestOrder) {
 
         User user = request.attrs().get(ActionState.USER);
 
-        return profileRepository.getAllProfiles(user.id, nationalityIds, travellerTypeIds, genders, minAge, maxAge, searchQuery, sortBy, pageNum, pageSize).
-            thenApplyAsync(profiles -> {
+        return profileRepository.getAllProfiles(user.id, nationalityIds, travellerTypeIds, genders,
+            minAge, maxAge, searchQuery, sortBy, ascending, pageNum, pageSize)
+            .thenApplyAsync(profiles -> {
                 try {
-                    return ok(sanitizeJson(Json.toJson(new PagingResponse<>(profiles.getList(), 10, 100))));
+                    return ok(sanitizeJson(Json.toJson(
+                        new PagingResponse<>(profiles.getList(), requestOrder, profiles.getTotalPageCount())
+                    )));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson("Failed to serialize response"));
                 }

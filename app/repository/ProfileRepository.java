@@ -4,7 +4,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
+import io.ebean.Expression;
 import io.ebean.PagedList;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -19,6 +22,10 @@ public class ProfileRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+
+    private final Expression SQL_FALSE = Expr.raw("false");
+    private final Expression SQL_TRUE = Expr.raw("true");
+
 
     @Inject
     public ProfileRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
@@ -98,39 +105,68 @@ public class ProfileRepository {
      * @return A list of all profiles
      */
     public CompletableFuture<PagedList<Profile>> getAllProfiles(Long userId,
-        List<Long> _nationalityIds,
-        List<Long> _travellerTypeIds,
-        List<String> genders,
-        Integer minAge,
-        Integer maxAge,
-        String searchQuery,
-        String sortBy,
+        List<Long> nationalityIds, // Possibly null
+        List<Long> travellerTypeIds, // Possibly null
+        List<String> genders, // Possibly null
+        Integer minAge, // Possibly null
+        Integer maxAge, // Possibly null
+        String searchQuery, // Possibly null
+        String sortBy, // Possibly null
+        Boolean ascending,
         Integer pageNum,
         Integer pageSize) {
 
-        // If any lists were null, replace them with empty lists
-        List<Long> nationalityIds = _nationalityIds == null ? new ArrayList<>() : _nationalityIds;
-        List<Long> travellerTypeIds = _travellerTypeIds == null ? new ArrayList<>() : _travellerTypeIds;
+        // Below we make items for each value that we know aren't null, so that EBean won't throw NullPointer,
+        // but we must check against the original parameter when checking if the variable was null initially
+        List<Long> nationalityIdsNotNull = nationalityIds == null ? new ArrayList<>() : nationalityIds;
+        List<Long> travellerTypeIdsNotNull = travellerTypeIds == null ? new ArrayList<>() : travellerTypeIds;
+        List<String> gendersNotNull = genders == null ? new ArrayList<>() : genders;
+        Integer minAgeNotNull = minAge == null ? -1 : minAge;
+        Integer maxAgeNotNull = maxAge == null ? -1 : maxAge;
+        final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery).replaceAll(" ", "").toLowerCase();
 
         return supplyAsync(() -> {
-
             PagedList<Profile> profiles =
                 ebeanServer.find(Profile.class)
                     .fetch("travellerTypes", "nationalities")
                     .where()
-//                    .ne("t0.user_id", userId) //Where t0 is the name ebeans generates for the table (if broken, it's probably this.)
+                    .ne("t0.user_id", userId) // Where t0 is the name ebeans generates for the table (if broken, it's probably this.)
                     // Filter traveller types by given traveller type ids, only if some were given
                     .or(
-                        Expr.in("travellerTypes.id", travellerTypeIds),
-                        (travellerTypeIds.isEmpty()) ? Expr.raw("true") : Expr.raw("false")
+                        Expr.in("travellerTypes.id", travellerTypeIdsNotNull),
+                        (travellerTypeIds == null) ? SQL_TRUE : SQL_FALSE
                     ).endOr()
+                    // Filter nationalities by given traveller type ids, only if some were given
                     .or(
-                        Expr.in("nationalities.id", nationalityIds),
-                        (nationalityIds.isEmpty()) ? Expr.raw("true") : Expr.raw("false")
+                        Expr.in("nationalities.id", nationalityIdsNotNull),
+                        (nationalityIds == null) ? SQL_TRUE : SQL_FALSE
                     ).endOr()
+                    // Check that gender is in given list, if one is given
+                    .or(
+                        Expr.in("gender", gendersNotNull),
+                        (nationalityIds == null) ? SQL_TRUE : SQL_FALSE
+                    ).endOr()
+                    // Only return results which are greater than min age, if one was specified
+                    .or(
+                        Expr.ge("date_of_birth", LocalDate.now().minusYears(minAgeNotNull)),
+                        (minAge == null) ? SQL_TRUE : SQL_FALSE
+                    ).endOr()
+                    // Only return results which are less than max age, if one was specified
+                    .or(
+                        Expr.le("date_of_birth", LocalDate.now().plusYears(maxAgeNotNull)),
+                        (maxAge == null) ? SQL_TRUE : SQL_FALSE
+                    ).endOr()
+                    // Search where name fits search query
+                    .or(
+                        Expr.raw("LOWER(CONCAT(first_name, middle_name, last_name)) LIKE ?", "%" + cleanedSearchQuery + "%"),
+                        Expr.raw("LOWER(CONCAT(first_name, last_name)) LIKE ?", "%" + cleanedSearchQuery + "%")
+                    ).endOr()
+                    // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
+                    .orderBy((sortBy == null ? "creation_date" : sortBy) + " " + (ascending ? "asc" : "desc"))
                     .setFirstRow((pageNum - 1) * pageSize)
                     .setMaxRows(pageSize)
                     .findPagedList();
+
             // Manually change bean lists to array lists, as this was causing an issue on front end
             for (Profile profile : profiles.getList()) {
                 profile.travellerTypes = new ArrayList<>(profile.travellerTypes);

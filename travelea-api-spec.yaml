@@ -1066,6 +1066,12 @@ paths:
           type: string
           example: 'lName'
       - in: query
+        name: ascending
+        description: Whether or not to sort the results in ascending order
+        schema:
+          type: boolean
+          example: true
+      - in: query
         name: pageNum
         description: Number of page to view
         schema:
@@ -1079,6 +1085,13 @@ paths:
           type: integer
           minimum: 1
           example: 20
+      - in: query
+        name: requestOrder
+        description: he order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
 
       responses:
         '200':
@@ -1226,7 +1239,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update profile photo of
         schema:
@@ -1270,7 +1283,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update cover photo of
         schema:
@@ -1314,7 +1327,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The ID of the photo being toggled
         schema:
