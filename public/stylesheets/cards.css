@@ -1,0 +1,36 @@
+#card {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+#inner-card {
+    border: none;
+    background-color: #f1f1f1;
+}
+
+#card-header {
+    background-color: rgba(48, 79, 254, 0.8);
+    font-weight: 900;
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: .30rem
+}
+
+#card-thumbnail-div {
+    background-color: #f1f1f1;
+}
+
+#card-thumbnail {
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    border-radius: .25rem;
+    max-height: 150px;
+    max-width: 150px;
+}
+
+#flag {
+    max-width: 24px;
+}
+
+p {
+    margin: 5px;
+}
