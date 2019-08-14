@@ -21,22 +21,27 @@ function onPageLoad(userId) {
             document.getElementById("otherError").innerHTML = json;
         });
     const options = {
-        zoom: 1.8,
-        center: {lat: 2, lng: 2}
+        zoom: 2.2,
+        center: {lat: 0, lng: 0}
     };
     map = new DestinationMap(options, true, userId);
     map.populateMarkers().then(() => map.addDestinations());
 
     google.maps.event.addListener(map.map, 'click', function (event) {
-        if (this.newMarker) {
-            this.newMarker.setPosition(event.latLng);
-        } else {
-            this.newMarker = this.placeMarker(event.latLng, null);
+        //console.log(this);
+        console.log(map.map);
+        console.log(event);
+        if (true) {
+            if (this.newMarker) {
+                this.newMarker.setPosition(event.latLng);
+            } else {
+                this.newMarker = this.placeMarker(event.latLng, null);
+            }
+            $('#latitude').val(event.latLng.lat);
+            $('#longitude').val(event.latLng.lng);
+            toggled = false;
+            toggleDestinationForm();
         }
-        $('#latitude').val(event.latLng.lat);
-        $('#longitude').val(event.latLng.lng);
-        toggled = false;
-        toggleDestinationForm();
     }.bind(map));
 
 }
