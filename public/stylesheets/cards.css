@@ -8,7 +8,7 @@
 }
 
 #card-header {
-    background-color: rgba(48, 79, 254, 0.8);
+    background-image: linear-gradient(to right, #5283B7, #007bff);
     font-weight: 900;
     color: white;
     font-size: 1.2rem;

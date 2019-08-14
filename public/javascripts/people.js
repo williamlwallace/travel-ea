@@ -1,5 +1,7 @@
 let requestOrder = 0;
 let lastRecievedRequestOrder = -1;
+let pageNum = 1;
+let totalNumberPages = 0;
 
 /**
  * Capitalise first letter of string
@@ -68,14 +70,6 @@ function getSelectedMaxAge() {
 }
 
 /**
- * Get the value of the current page number being viewed
- * @returns {number} The page number being viewed
- */
-function getPageNumber() {
-    return 1;
-}
-
-/**
  * Get the value of the number of results to show per page
  * @returns {number} The number of results shown per page
  */
@@ -100,6 +94,55 @@ function getAscending() {
 }
 
 /**
+ *
+ * @param pageNumber
+ */
+function goToPage(desiredPageNumber) {
+    if(desiredPageNumber > totalNumberPages || desiredPageNumber < 1) {
+      toast("No such page", "The page you have tried to go to does not exist", "danger");
+      return;
+    }
+    pageNum = desiredPageNumber;
+
+    getPeopleResults();
+}
+
+/**
+ * Based on what page you are on, creates the correct pagination bar with up to 5 page buttons
+ */
+function createPaginationBar() {
+    let pageNumbers = [];
+    // Less than 5 pages
+    if(totalNumberPages <= 5) {
+        for(let i = 1; i <= totalNumberPages; i++) {
+            pageNumbers.push(i);
+        }
+    }
+    // In first 3 pages, and more than 5 total
+    else if(totalNumberPages >= 5 && pageNum < 3) {
+        for(let i = 1; i <= 5; i++) {
+            pageNumbers.push(i);
+        }
+    }
+    // In last 3, and more than 5 total
+    else if(totalNumberPages >= 5 && pageNum > totalNumberPages - 2) {
+        for(let i = totalNumberPages - 4; i <= totalNumberPages; i++) {
+            pageNumbers.push(i);
+        }
+    } else {
+        for(let i = pageNum - 2; i <= pageNum + 2; i++) {
+            pageNumbers.push(i);
+        }
+    }
+    $(".pagination").html("");
+    $(".pagination").append("<li class=\"page-item\" onclick='goToPage(" + (pageNum - 1) + ")'><a class=\"page-link\">Previous</a></li>");
+    pageNumbers.forEach((item) => {
+        $(".pagination").append("<li class=\"page-item\" onclick='goToPage(" + item + ")'><a class=\"page-link\">" + item + " </a></li>");
+    });
+    $(".pagination").append("<li class=\"page-item\" onclick='goToPage(" + pageNum + 1 + ")'><a class=\"page-link\">Next</a></li>");
+}
+
+/**
  * Filters the table with filtered results
  */
 function getPeopleResults() {
@@ -115,7 +158,7 @@ function getPeopleResults() {
     if(getSelectedMaxAge() !== "") { url.searchParams.append("maxAge", getSelectedMaxAge()); }
 
     // Append pagination params
-    url.searchParams.append("pageNum", getPageNumber().toString());
+    url.searchParams.append("pageNum", pageNum);
     url.searchParams.append("pageSize", getPageSize().toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
@@ -128,11 +171,13 @@ function getPeopleResults() {
                 toast("Error", "Error fetching people data", "danger")
             } else {
                 if(lastRecievedRequestOrder < json.requestOrder) {
+                    totalNumberPages = json.totalNumberPages;
                     $("#peopleCardsList").html("");
                     lastRecievedRequestOrder = json.requestOrder;
                     json.data.forEach((item) => {
                         createPeopleCard(item);
                     });
+                    createPaginationBar();
                 }
             }
         })
