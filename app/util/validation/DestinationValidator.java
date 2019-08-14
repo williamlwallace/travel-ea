@@ -62,7 +62,7 @@ public class DestinationValidator extends Validator {
         }
 
         // Checks the destination has tags
-        this.required("tags", "Tags");
+        this.requiredTags("tags", "Tags");
 
         return this.getErrorResponse();
     }

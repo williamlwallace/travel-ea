@@ -57,6 +57,14 @@ function populateDestinationDetails(destinationId) {
                         "summary_traveller_types").innerText = "";
                 }
 
+                // Populates tags
+                tagDisplay.populateTags(destination.tags);
+                if (destination.tags.length > 0) {
+                    document.getElementById("heading_tags").style.display = "block";
+                } else {
+                    document.getElementById("heading_tags").style.display = "none";
+                }
+
                 createPrivacyButton(destination.isPublic);
             }
         })
@@ -159,6 +167,7 @@ function editDestination(destinationId) {
                         [pair[0]]: pair[1],
                     }), {});
 
+                // Builds destination object out of form data
                 // Convert lat and long to double values, and id to int
                 destination.latitude = parseFloat(data.latitude);
                 destination.longitude = parseFloat(data.longitude);
@@ -169,6 +178,15 @@ function editDestination(destinationId) {
                 destination.destType = data.destType;
                 destination.name = data.name;
                 destination.district = data.district;
+
+                // Add tags to destination
+                const tags = tagPicker.getTags();
+                destination.tags = tags.map((tag) => {
+                    return {
+                        name: tag
+                    }
+                });
+
                 addNonExistingCountries([destination.country]).then(result => {
                     // Post json data to given uri
                     const URL = destinationRouter.controllers.backend.DestinationController.editDestination(
@@ -233,8 +251,10 @@ function populateEditDestination(destinationId) {
                     "latitudeDeat").value = destination.latitude;
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
-                //fills country picker
+                // Fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
+                // Fills tag input field
+                tagPicker.populateTags(destination.tags);
             }
         })
     })

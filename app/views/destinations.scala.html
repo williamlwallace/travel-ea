@@ -5,6 +5,7 @@
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
 @layouts.main("Destinations", user, scripts){
@@ -107,6 +108,10 @@
                             </select>
                             <label id="countryError" class="error-messages"></label>
                         </div>
+                        <br/>
+                        <div>
+                            @modules.tagPicker("destinations-tag")
+                        </div>
                     </div>
                 </form>
 
@@ -127,4 +132,6 @@
 <script type="text/javascript">
     onPageLoad(@user.id);
     getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+
+    const tagPicker = new TagPicker(@user.id, "destinations-tag");
 </script>

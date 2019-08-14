@@ -22,6 +22,7 @@ public class TripRepository {
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
+
     @Inject
     public TripRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
@@ -31,14 +32,14 @@ public class TripRepository {
     /**
      * Inserts new trip into database.
      *
-     * @param newTrip Trip object to be added
+     * @param trip Trip object to be added
      * @return the id of the inserted trip
      */
-    public CompletableFuture<Long> insertTrip(Trip newTrip) {
+    public CompletableFuture<Long> insertTrip(Trip trip) {
         return supplyAsync(() -> {
-            newTrip.deleted = false;
-            ebeanServer.insert(newTrip);
-            return newTrip.id;
+            trip.deleted = false;
+            ebeanServer.insert(trip);
+            return trip.id;
         }, executionContext);
     }
 
