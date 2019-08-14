@@ -28,20 +28,15 @@ function onPageLoad(userId) {
     map.populateMarkers().then(() => map.addDestinations());
 
     google.maps.event.addListener(map.map, 'click', function (event) {
-        //console.log(this);
-        console.log(map.map);
-        console.log(event);
-        if (true) {
-            if (this.newMarker) {
-                this.newMarker.setPosition(event.latLng);
-            } else {
-                this.newMarker = this.placeMarker(event.latLng, null);
-            }
-            $('#latitude').val(event.latLng.lat);
-            $('#longitude').val(event.latLng.lng);
-            toggled = false;
-            toggleDestinationForm();
+        if (this.newMarker) {
+            this.newMarker.setPosition(event.latLng);
+        } else {
+            this.newMarker = this.placeMarker(event.latLng, null);
         }
+        $('#latitude').val(event.latLng.lat);
+        $('#longitude').val(event.latLng.lng);
+        toggled = false;
+        toggleDestinationForm();
     }.bind(map));
 
 }
