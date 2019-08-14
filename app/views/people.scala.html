@@ -2,7 +2,6 @@
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/people.js")" type="text/javascript"></script>
-    <script src="@routes.Assets.at("javascripts/cards.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
@@ -84,9 +83,36 @@
         </div>
     </div>
 
-    <div class="container">
-    @modules.cards()
-    </div>
+    <template id="personCardTemplate">
+        <div id="card" class="card">
+            <div id="card-header" class="card-header"></div>
+            <div id="inner-card" class="card flex-row">
+                <div id ="card-thumbnail-div" class="card-header border-0">
+                    <img id="card-thumbnail" src="" alt="">
+                </div>
+                <div class="card-body font-weight-bold">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text" id="age">
+                                <i class="fas fa-calendar-alt" style="padding-right: 3px"></i>
+                            </p>
+                            <p class="card-text" id="gender">
+                                <i class="fas fa-venus-mars" style="padding-right: 3px"></i>
+                            </p>
+                            <p class="card-text" id="nationalities">
+                                <i class="fas fa-flag" style="padding-right: 3px"></i>
+                            </p>
+                            <p class="card-text" id="traveller-type">
+                                <i class="fas fa-luggage-cart" style="padding-right: 3px"></i>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <div id="peopleCardsList"></div>
 }
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@

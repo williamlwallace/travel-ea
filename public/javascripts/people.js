@@ -1,3 +1,6 @@
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+
 /**
  * Capitalise first letter of string
  * @param {String} string - input string to capitalise
@@ -27,9 +30,7 @@ function getNationalityAndTravellerStrings(people) {
  * @returns {*[]} Array of nationality ids
  */
 function getSelectedNationalityIds() {
-    return [document.getElementById(
-        'nationalities').options[document.getElementById(
-        'nationalities').selectedIndex].value];
+    return [document.getElementById('nationalities').options[document.getElementById('nationalities').selectedIndex].value];
 }
 
 /**
@@ -118,19 +119,43 @@ function getPeopleResults() {
     url.searchParams.append("pageSize", getPageSize().toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("requestOrder", requestOrder++);
 
-    console.log(url);
     get(url).then(response => {
         response.json()
-        .then(people => {
+        .then(json => {
             if (response.status !== 200) {
                 toast("Error", "Error fetching people data", "danger")
             } else {
-                console.log(people)
+                if(lastRecievedRequestOrder < json.requestOrder) {
+                    $("#peopleCardsList").html("");
+                    lastRecievedRequestOrder = json.requestOrder;
+                    json.data.forEach((item) => {
+                        createPeopleCard(item);
+                    });
+                }
             }
         })
     });
+}
 
+/**
+ * Creates a html people card cloning the template in the people.scala.html
+ *
+ * @param person is Json profile object
+ */
+function createPeopleCard(person) {
+    let template = document.getElementById("personCardTemplate");
+    let clone = template.content.cloneNode(true);
+
+    $(clone).find("#card-header").append(`${person.firstName} ${person.lastName}`);
+    $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
+    $(clone).find("#age").append("Age: " + person.dateOfBirth);
+    $(clone).find("#gender").append("Gender: " + person.gender);
+    $(clone).find("#nationalities").append("Nationalities: " + person.nationalities.name);
+    $(clone).find("#traveller-type").append("Traveller Types: " + person.travellerTypes);
+
+    document.getElementById("peopleCardsList").appendChild(clone);
 }
 
 /**

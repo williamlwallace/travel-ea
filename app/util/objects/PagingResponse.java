@@ -31,5 +31,9 @@ public class PagingResponse<T> {
     public Integer getTotalNumberPages() {
         return totalNumberPages;
     }
+
+    public Integer getRequestOrder() {
+        return requestOrder;
+    }
 }
 
