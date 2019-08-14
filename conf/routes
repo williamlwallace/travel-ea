@@ -107,6 +107,10 @@ PUT           /api/treasurehunt/:id/delete           controllers.backend.Treasur
 
 GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
 
+GET           /api/tag/                              controllers.backend.TagController.getTags(request:Request, name:String ?= null, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
+GET          /api/tag/:id                       controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)
