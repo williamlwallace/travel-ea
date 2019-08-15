@@ -20,6 +20,7 @@ $('#upload-img').on('click', function () {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
         formData.append('tags', JSON.stringify(tags));
+        formData.append("userUploadId", window.location.href.split("/").pop());
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {

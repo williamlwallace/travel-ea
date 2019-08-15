@@ -1327,6 +1327,10 @@ paths:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
                   example: 'true'
+                userUploadId:
+                  type: string
+                  description: 'The id of the user to upload the photo for, note only admins can upload photos for other users'
+                  example: '1'
                 profilePhotoFileName:
                   type: string
                   description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
@@ -1350,6 +1354,8 @@ paths:
           description: Invalid file type given | Missing file | No files given
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden, returned when someone tries to upload a photo for a different user
 
   '/user/{id}/photo':
     get:
