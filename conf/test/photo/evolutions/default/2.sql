@@ -24,6 +24,7 @@ INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
 
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO PhotoTag (tag_id, photo_id) VALUES (1, 2);
+INSERT INTO PhotoTag (tag_id, photo_id) VALUES (2, 2);
 
 -- !Downs
 -- Now delete all rows from tables (DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE)

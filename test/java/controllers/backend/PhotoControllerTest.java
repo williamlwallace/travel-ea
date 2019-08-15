@@ -344,6 +344,78 @@ public class PhotoControllerTest extends ControllersTest {
     }
 
     @Test
+    public void updatePhotoRemoveTags() throws IOException {
+        Set<Tag> tags = new HashSet<>();
+        String newCaption = "A new day";
+
+        Photo updateDetails = new Photo();
+        updateDetails.caption = newCaption;
+        updateDetails.tags = tags;
+
+        // Update photo
+        Http.RequestBuilder updateRequest = Helpers.fakeRequest()
+            .uri("/api/photo/2")
+            .method("PUT")
+            .cookie(adminAuthCookie)
+            .bodyJson(Json.toJson(updateDetails));
+
+        Result updateResult = route(fakeApp, updateRequest);
+        assertEquals(OK, updateResult.status());
+
+        // Check updated details
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .uri("/api/photo/2")
+            .method("GET")
+            .cookie(adminAuthCookie);
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, getResult.status());
+
+        Photo photo = new ObjectMapper().readValue(Helpers.contentAsString(getResult), Photo.class);
+
+        assertEquals(newCaption, photo.caption);
+        assertTrue(photo.tags.isEmpty());
+    }
+
+    @Test
+    public void updatePhotoChangeTags() throws IOException {
+        Tag newTag1 = new Tag("awesome");
+        Tag newTag2 = new Tag("biking");
+        Tag existingTag = new Tag("sports");
+        Set<Tag> tags = new HashSet<>(Arrays.asList(newTag1, newTag2, existingTag));
+        String newCaption = "A new day";
+
+        Photo updateDetails = new Photo();
+        updateDetails.caption = newCaption;
+        updateDetails.tags = tags;
+
+        // Update photo
+        Http.RequestBuilder updateRequest = Helpers.fakeRequest()
+            .uri("/api/photo/2")
+            .method("PUT")
+            .cookie(adminAuthCookie)
+            .bodyJson(Json.toJson(updateDetails));
+
+        Result updateResult = route(fakeApp, updateRequest);
+        assertEquals(OK, updateResult.status());
+
+        // Check updated details
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .uri("/api/photo/2")
+            .method("GET")
+            .cookie(adminAuthCookie);
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, getResult.status());
+
+        Photo photo = new ObjectMapper().readValue(Helpers.contentAsString(getResult), Photo.class);
+
+        assertEquals(newCaption, photo.caption);
+        assertEquals(tags.size(), photo.tags.size());
+        assertTrue(photo.tags.containsAll(tags));
+    }
+
+    @Test
     public void updatePhotoInvalidTags() {
         String newCaption = "A new day";
 

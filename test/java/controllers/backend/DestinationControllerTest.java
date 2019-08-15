@@ -109,7 +109,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Long.valueOf(1), dest.id);
         assertEquals(2, dest.travellerTypes.size());
         assertEquals(2, dest.travellerTypesPending.size());
-        assertEquals(1, dest.tags.size());
+        assertEquals(2, dest.tags.size());
     }
 
     @Test
@@ -232,6 +232,68 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(2, updatedDestination.tags.size());
         assertTrue(updatedDestination.tags.contains(new Tag("sports")));
         assertTrue(updatedDestination.tags.contains(newTag));
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationRemoveTags() throws IOException {
+        int destToEdit = 4;
+        Destination destination = getDestination(destToEdit);
+        assertNotNull(destination);
+        assertNotEquals("Testing removing tags", destination.name);
+        assertEquals(1, destination.tags.size());
+        assertTrue(destination.tags.contains(new Tag("sports")));
+
+        destination.name = "Testing removing tags";
+        destination.tags.clear();    // Removes existing tag
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + destToEdit);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(destToEdit);
+        assertNotNull(updatedDestination);
+
+        assertEquals("Testing removing tags", updatedDestination.name);
+        assertTrue(updatedDestination.tags.isEmpty());
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationChangeTags() throws IOException {
+        int destToEdit = 1;
+        Destination destination = getDestination(destToEdit);
+        assertNotNull(destination);
+        assertNotEquals("Testing changing tags", destination.name);
+        assertEquals(2, destination.tags.size());
+        assertTrue(destination.tags.contains(new Tag("sports")));
+        assertTrue(destination.tags.contains(new Tag("music")));
+
+        destination.name = "Testing changing tags";
+        destination.tags.remove(new Tag("sports"));    // Removes existing tag
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + destToEdit);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(destToEdit);
+        assertNotNull(updatedDestination);
+
+        assertEquals("Testing changing tags", updatedDestination.name);
+        assertEquals(destination.tags.size(), updatedDestination.tags.size());
+        assertTrue(updatedDestination.tags.containsAll(destination.tags));
         assertEquals(destination, updatedDestination);
     }
 
