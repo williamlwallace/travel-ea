@@ -39,8 +39,18 @@
 }
 
 .tags-display li {
-    padding: 3px 5px 1px 5px;
-    margin: 2px
+    font-family: "Liberation Mono";
+    border: 1px solid #007bff;
+    background-color: #5283B7;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 2px 1px 1px;
+    margin: 8px 3px 0px 3px;
+    font-size: 18px;
+    max-height: 25px;
+    padding-left: 2px;
+    padding-top: 3px;
+    line-height: 16px;
 }
 
 .tags-display ul {
