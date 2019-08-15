@@ -2,6 +2,7 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.route;
 
@@ -9,6 +10,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import models.Tag;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
@@ -103,5 +108,31 @@ public class TagControllerTest extends controllers.backend.ControllersTest {
             .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertEquals(3, tags.get("data").size());
     }
-}
 
+    @Test
+    public void getAllUserPhotoTags() throws IOException {
+        //Get tags
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/user/1/phototags")
+                .method("GET")
+                .cookie(adminAuthCookie);
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Tag> tags = Arrays.asList(
+                new ObjectMapper().readValue(Helpers.contentAsString(result), Tag[].class));
+
+        assertEquals(1, tags.size());
+        assertEquals("Russia", tags.get(0).name);
+    }
+
+    @Test
+    public void getAllUserPhotoTagsNoAuth() {
+        //Get tags
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/user/1/phototags")
+                .method("GET");
+
+        Result result = route(fakeApp, request);
+        assertEquals(UNAUTHORIZED, result.status());
+    }
+}
