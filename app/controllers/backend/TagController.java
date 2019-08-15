@@ -1,24 +1,42 @@
 package controllers.backend;
 
+import actions.ActionState;
+import actions.Authenticator;
+import actions.roles.Everyone;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+
+import models.Photo;
+import models.Tag;
+import models.User;
 import models.enums.TagType;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
+import repository.PhotoRepository;
 import repository.TagRepository;
 import util.objects.PagePair;
 
+/**
+ * Manages tags in the database
+ */
 public class TagController extends TEABackController {
 
     private final TagRepository tagRepository;
+    private final PhotoRepository photoRepository;
 
     @Inject
-    public TagController(TagRepository tagRepository) {
+    public TagController(TagRepository tagRepository, PhotoRepository photoRepository) {
         this.tagRepository = tagRepository;
+        this.photoRepository = photoRepository;
     }
 
     /**
@@ -81,27 +99,6 @@ public class TagController extends TEABackController {
     }
 
     /**
-     * Controller method to get all tags a user has used. Paginated and sorted by timeUsed
-     *
-     * @param request Contains the HTTP request info
-     * @param userId ID of the user for whom to recieve the tags
-     * @param pageNum page being requested
-     * @param pageSize number of tags per page
-     * @return OK with the data as the tags and totalPageCount or badRequest
-     */
-    public CompletableFuture<Result> getUserTags(Http.Request request, Long userId, Integer pageNum, Integer pageSize) {
-        return tagRepository.getRecentUserTags(userId, pageNum, pageSize).thenApplyAsync(tags ->
-        {
-            try {
-                return ok(new ObjectMapper().writeValueAsString(new PagePair<Collection<?>, Integer>(tags.getList(), tags.getTotalPageCount())));
-            } catch (JsonProcessingException e) {
-                return badRequest();
-            }
-        });
-
-    }
-
-    /**
      * Retrieves all tags associated with a given user's photos. If the user is viewing their own profile or an admin
      * then retrieve all their private and public photo tags; else, only retrieve their public photo tags
      *
@@ -118,6 +115,8 @@ public class TagController extends TEABackController {
         } else {
             return photoRepository.getAllPublicUserPhotos(id)
                     .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+        }
+    }
 
 
     /**
@@ -128,11 +127,9 @@ public class TagController extends TEABackController {
      * @return a set of tags
      */
     private Set<Tag> getTagsFromPhotos(List<Photo> photos) {
-        System.out.println(photos);
         Set<Tag> tagSet = new HashSet<>();
         for (Photo photo : photos) {
             tagSet.addAll(photo.tags);
-            System.out.println(photo.tags);
         }
         return tagSet;
     }

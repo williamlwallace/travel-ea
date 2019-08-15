@@ -2,6 +2,7 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.route;
 
@@ -9,6 +10,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import models.Tag;
 import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
