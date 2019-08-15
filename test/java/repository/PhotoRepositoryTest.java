@@ -32,7 +32,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
 
     private Photo createPhoto() {
         Photo photo = new Photo();
-        photo.isProfile = false;
+        photo.usedForProfile = false;
         photo.thumbnailFilename = "test/thumbnail";
         photo.userId = 1L;
         photo.isPublic = false;
@@ -145,7 +145,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         assertEquals((Long) 1L, photo.userId);
         assertEquals((Long) 1L, photo.guid);
         assertEquals(0, photo.tags.size());
-        assertEquals(true, photo.isProfile);
+        assertEquals(true, photo.usedForProfile);
         assertEquals(true, photo.isPublic);
     }
 

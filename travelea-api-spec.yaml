@@ -11,30 +11,30 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 
 tags:
-  - name: Admin
-    description: Admin calls
-  - name: Users
-    description: User account calls
-  - name: Profiles
-    description: Profile calls
-  - name: Destinations
-    description: Destination calls
-  - name: Trips
-    description: Trip calls
-  - name: Photos
-    description: Photo calls
-  - name: Treasure Hunts
-    description: Treasure hunt calls
-  - name: Countries
-    description: Country calls
-  - name: Other
-    description: Miscellaneous calls
+- name: Admin
+  description: Admin calls
+- name: Users
+  description: User account calls
+- name: Profiles
+  description: Profile calls
+- name: Destinations
+  description: Destination calls
+- name: Trips
+  description: Trip calls
+- name: Photos
+  description: Photo calls
+- name: Treasure Hunts
+  description: Treasure hunt calls
+- name: Countries
+  description: Country calls
+- name: Other
+  description: Miscellaneous calls
 
 paths:
   '/user':
     post:
       tags:
-        - Users
+      - Users
       summary: Register a new user.
       description: |
         Creates a new user and adds to database
@@ -54,19 +54,19 @@ paths:
   '/user/delete':
     put:
       tags:
-        - Users
+      - Users
       summary: Delete the user logged in.
       description: |
         Toggles deletion of the logged in user from the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: 'Successfully toggled user deleted of user with uid&#58; {userId}'
@@ -80,26 +80,26 @@ paths:
   '/user/{id}/delete':
     put:
       tags:
-        - Users
+      - Users
       summary: Delete the user with specified ID.
       description: |
         Toggles deletion of the user specified by id parameter from the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The user ID to be deleted.
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to be deleted.
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: 'Successfully toggled user deleted of user with uid&#58; {userId}'
@@ -112,24 +112,24 @@ paths:
 
     get:
       tags:
-        - Users
+      - Users
       summary: Gets the user with specified ID
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The user ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Successfully retrieved user
@@ -150,7 +150,7 @@ paths:
   '/login':
     post:
       tags:
-        - Users
+      - Users
       summary: Login to user account.
       description: |
         Provides authentication to user logging in and stores in database.
@@ -170,19 +170,19 @@ paths:
   '/logout':
     post:
       tags:
-        - Users
+      - Users
       summary: Logout of user account.
       description: |
         Removes authentication attached to user from database.
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Success
@@ -192,29 +192,29 @@ paths:
   '/user/search':
     get:
       tags:
-        - Users
+      - Users
       summary: Get list of users which match search criteria
       description: |
         Allows admin to retrieve a list of users which match the search criteria
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Admin authentication cookie.
-          schema:
-            type: string
-        - in: query
-          name: order
-          description: asc or desc
-          schema:
-            type: string
-        - in: query
-          name: filter
-          description: Username search filter
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Admin authentication cookie.
+        schema:
+          type: string
+      - in: query
+        name: order
+        description: asc or desc
+        schema:
+          type: string
+      - in: query
+        name: filter
+        description: Username search filter
+        schema:
+          type: string
       responses:
         '200':
           description: OK
@@ -232,19 +232,19 @@ paths:
   '/user/setId':
     get:
       tags:
-        - Users
+      - Users
       summary: Reset user cookie
       description: |
         Resets the users cookie when user is authenticated but user-id cookie is deleted
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: OK
@@ -262,16 +262,16 @@ paths:
   '/trip/{id}':
     get:
       tags:
-        - Trips
+      - Trips
       summary: Get trip with given ID
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The ID of the trip to retrieve
-          schema:
-            type: integer
-            minimum: 1
+      - in: path
+        name: id
+        required: true
+        description: The ID of the trip to retrieve
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully retrieved trip
@@ -289,24 +289,24 @@ paths:
   '/user/trips/{id}':
     get:
       tags:
-        - Trips
+      - Trips
       summary: Get all trips for user with given user Id
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The user ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authetication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authetication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: All trips of user (may be empty list)
@@ -324,7 +324,7 @@ paths:
   '/trip':
     get:
       tags:
-        - Trips
+      - Trips
       summary: Get all trips
       responses:
         '200':
@@ -338,19 +338,19 @@ paths:
 
     post:
       tags:
-        - Trips
+      - Trips
       summary: Add a new trip
       description: |
         Inserts a new trip into the database, for the currently logged in user
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         $ref: '#/components/requestBodies/postTrip'
       responses:
@@ -363,19 +363,19 @@ paths:
 
     put:
       tags:
-        - Trips
+      - Trips
       summary: Update an existing trip
       description: |
         Updates an existing trip on the database, for the currently logged in user
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         $ref: '#/components/requestBodies/putTrip'
       responses:
@@ -391,17 +391,17 @@ paths:
   '/trip/privacy':
     put:
       tags:
-        - Trips
+      - Trips
       summary: Updates an existing trip's privacy
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         $ref: '#/components/requestBodies/putTrip'
       responses:
@@ -417,24 +417,24 @@ paths:
   '/trip/{id}/delete':
     put:
       tags:
-        - Trips
+      - Trips
       summary: Toggles the soft deletion of a trip with the given ID
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The ID of the trip to delete
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the trip to delete
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Successfully deleted trip
@@ -454,17 +454,17 @@ paths:
   '/country/getCountries':
     get:
       tags:
-        - Countries
+      - Countries
       summary: Get all possible country options
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Successfully retrieved all countries
@@ -478,7 +478,7 @@ paths:
   '/destination/getAllPublic':
     get:
       tags:
-        - Destinations
+      - Destinations
       summary: Get all destinations that are strictly public
       responses:
         '200':
@@ -493,25 +493,25 @@ paths:
   '/country/getCountry/{id}':
     get:
       tags:
-        - Countries
+      - Countries
       summary: Get a country by id
       description: Gets a country by id from the database, usually this is the ISO 3166-1 numeric code for the country
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The user ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully retrieved country
@@ -525,18 +525,18 @@ paths:
   '/country':
     post:
       tags:
-        - Countries
+      - Countries
       summary: Add a new country
       description: Adds a new country to the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -555,25 +555,25 @@ paths:
   '/user/destination/{id}':
     get:
       tags:
-        - Destinations
+      - Destinations
       summary: Get all destinations for given user ID
       description: Gets all public destinations as well as private destinations for request user ID
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The user ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully retrieved all destinations
@@ -587,19 +587,19 @@ paths:
   '/destination':
     post:
       tags:
-        - Destinations
+      - Destinations
       summary: Add a new destination
       description: |
         Inserts a destination into the database, that is owned by the current user
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -616,16 +616,16 @@ paths:
   '/destination/{id}':
     get:
       tags:
-        - Destinations
+      - Destinations
       summary: Get destination with given ID
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The ID of the destination to retrieve
-          schema:
-            type: integer
-            minimum: 1
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to retrieve
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully retrieved destination
@@ -638,26 +638,26 @@ paths:
 
     put:
       tags:
-        - Destinations
+      - Destinations
       summary: Edit an existing destination with given ID.
       description: |
         Updates an existing destination in the database, that is owned by the current user
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
       requestBody:
         content:
           application/json:
@@ -682,24 +682,24 @@ paths:
   '/destination/{id}/delete':
     put:
       tags:
-        - Destinations
+      - Destinations
       summary: Toggles deletion of a destination with given ID
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The ID of the destination to delete
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to delete
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Successfully toggled destination deletion of destination
@@ -713,33 +713,33 @@ paths:
   '/destination/{destId}/photo/{photoId}':
     put:
       tags:
-        - Destinations
+      - Destinations
       summary: Creates a link between photos and a destination
       description: |
         Creates entry in join table for Destination and photo
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: destId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: photoId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: photoId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully added destination
@@ -753,33 +753,33 @@ paths:
           description: Unauthorized
     delete:
       tags:
-        - Destinations
+      - Destinations
       summary: removes a link between photos and a destination
       description: |
         removes entry in join table for Destination and photo
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: destId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: photoId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: photoId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully added destination
@@ -793,33 +793,33 @@ paths:
   '/destination/{destId}/travellertype/{travellerTypeId/toggle':
     put:
       tags:
-        - Destinations
+      - Destinations
       summary: Toggles a link between travellertype and a destination
       description: |
         Creates/removes entry in join table for Destination and travellertype
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: destId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: travellerTypeId
-          required: true
-          description: The travellerType ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: travellerTypeId
+        required: true
+        description: The travellerType ID
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully toggled or request to toggle destination-traveller type link
@@ -833,33 +833,33 @@ paths:
   '/destination/{destId}/travellertype/{travellerTypeId}/reject':
     put:
       tags:
-        - Destinations
+      - Destinations
       summary: Toggles the status of a request to add a traveler type to a destination
       description: |
         Adds/removes a traveler type modification request from a destination
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: destId
-          required: true
-          description: The destination ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: travellerTypeId
-          required: true
-          description: The travellerType ID
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: travellerTypeId
+        required: true
+        description: The travellerType ID
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully rejected destination-traveller type link
@@ -873,31 +873,31 @@ paths:
   '/destination/search':
     get:
       tags:
-        - Destinations
+      - Destinations
       summary: Searches through all destinations based on some criteria
       parameters:
-        - in: query
-          name: p
-          description: Number of page to get
-          schema:
-            type: integer
-            minimum: 0
-        - in: query
-          name: pSize
-          description: Number of results to show per page
-          schema:
-            type: integer
-        - in: query
-          name: filter
-          description: Filter criteria by which to search desinations
-          schema:
-            type: string
-        - in: query
-          name: order
-          description: Whether to sort ascending or descending
-          schema:
-            type: string
-            description: "Either 'asc' or 'desc'"
+      - in: query
+        name: p
+        description: Number of page to get
+        schema:
+          type: integer
+          minimum: 0
+      - in: query
+        name: pSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+      - in: query
+        name: filter
+        description: Filter criteria by which to search desinations
+        schema:
+          type: string
+      - in: query
+        name: order
+        description: Whether to sort ascending or descending
+        schema:
+          type: string
+          description: "Either 'asc' or 'desc'"
       responses:
         '200':
           description: Successfully retrieved (possibly zero) destinations
@@ -905,25 +905,25 @@ paths:
   '/destination/makePublic/{id}':
     put:
       tags:
-        - Destinations
+      - Destinations
       summary: Change a destinations privacy to public (and merge duplicates)
       description: Allows a user to mark one of their destinations as public, this will cause it to become immediately visible to all other users, as well as merging with any sufficiently similar destinations that are currently marked as private in the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The ID of the destination to make public
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to make public
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully made destination public
@@ -939,7 +939,7 @@ paths:
   '/profile/getTravellerTypes/':
     get:
       tags:
-        - Profiles
+      - Profiles
       summary: Get all possible traveller types
       responses:
         '200':
@@ -954,19 +954,19 @@ paths:
   '/profile':
     post:
       tags:
-        - Profiles
-      summary: Add a new profile (NEEDS TO BE MADE FOR LOGGED IN USER ONLY)
+      - Profiles
+      summary: Add a new profile
       description: |
         Inserts a profile for the currently logged in user
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
@@ -986,17 +986,17 @@ paths:
 
     get:
       tags:
-        - Profiles
+      - Profiles
       summary: Get profile of currently logged in user
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Successfully retrieved profile
@@ -1010,40 +1010,40 @@ paths:
   '/profile/search':
     get:
       tags:
-        - Profiles
+      - Profiles
       summary: Searches through all profiles based on some criteria
       parameters:
-        - in: query
-          name: nationalityId
-          description: ID of some nationality to search by
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-        - in: query
-          name: travellerTypeId
-          description: ID of some traveller type to search by
-          schema:
-            type: integer
-            format: int64
-            minimum: 0
-        - in: query
-          name: gender
-          description: A gender to search for
-          schema:
-            type: string
-        - in: query
-          name: minAge
-          description: The minimum age of people for whom to show profiles
-          schema:
-            type: integer
-            minimum: 0
-        - in: query
-          name: maxAge
-          description: The maximum age of people for whom to show profiles
-          schema:
-            type: integer
-            minimum: 0
+      - in: query
+        name: nationalityId
+        description: ID of some nationality to search by
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+      - in: query
+        name: travellerTypeId
+        description: ID of some traveller type to search by
+        schema:
+          type: integer
+          format: int64
+          minimum: 0
+      - in: query
+        name: gender
+        description: A gender to search for
+        schema:
+          type: string
+      - in: query
+        name: minAge
+        description: The minimum age of people for whom to show profiles
+        schema:
+          type: integer
+          minimum: 0
+      - in: query
+        name: maxAge
+        description: The maximum age of people for whom to show profiles
+        schema:
+          type: integer
+          minimum: 0
       responses:
         '200':
           description: Successfully retrieved (possibly zero) profiles
@@ -1051,16 +1051,16 @@ paths:
   '/destination/{id}/photo':
     get:
       tags:
-        - Destinations
+      - Destinations
       summary: Get destination photos
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The ID of the destination to retrieve photos from
-          schema:
-            type: integer
-            minimum: 1
+      - in: path
+        name: id
+        required: true
+        description: The ID of the destination to retrieve photos from
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully retrieved photos
@@ -1080,16 +1080,16 @@ paths:
   '/profile/{userId}':
     get:
       tags:
-        - Profiles
+      - Profiles
       summary: Get profile of user with given ID
       parameters:
-        - in: path
-          name: userId
-          required: true
-          description: The ID of the user for whom to retrieve their profile
-          schema:
-            type: integer
-            minimum: 1
+      - in: path
+        name: userId
+        required: true
+        description: The ID of the user for whom to retrieve their profile
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully retrieved profile
@@ -1101,26 +1101,26 @@ paths:
           description: No profile found
     put:
       tags:
-        - Profiles
+      - Profiles
       summary: Update profile of currently logged in user
       description: |
         Updates the profile of an existing user who is currently logged in
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: userId
-          required: true
-          description: The ID of the user for whom to retrieve their profile
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: userId
+        required: true
+        description: The ID of the user for whom to retrieve their profile
+        schema:
+          type: integer
+          minimum: 1
       requestBody:
         content:
           application/json:
@@ -1141,24 +1141,24 @@ paths:
   '/user/{id}/admin':
     put:
       tags:
-        - Admin
+      - Admin
       summary: Toggles a user's admin privileges
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The user ID to adminify
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to adminify
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: ""
@@ -1175,75 +1175,43 @@ paths:
         '404':
           description: User not found
 
-  '/photo/{id}/profile':
-    get:
-      tags:
-        - Photos
-      summary: Gets the profile picture for a given user ID
-      security:
-        - UserToken: []
-      parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The user ID to retrieve profile photo of
-          schema:
-            type: integer
-            minimum: 1
-      responses:
-        '200':
-          description: 'Successfully retrieved photo for user'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Photo'
-        '404':
-          description: No profile picture found for user
-
+  '/photo/{photoId}/profile':
     put:
       tags:
-        - Photos
+      - Photos
       summary: Marks a file as the profile picture of some profile
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The user ID to update profile photo of
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to update profile photo of
+        schema:
+          type: integer
+          minimum: 1
       requestBody:
         content:
           application/json:
             schema:
-              type: string
-              description: The name of the file to set as the new profile picture
-              example: 1559173695694_profilepic.jpg
+              type: integer
+              description: The id of the photo to set as profile picture
+              example: 12
       responses:
         '200':
           description: 'Successfully updated profile photo'
           content:
             application/json:
               schema:
-                type: string
-                description: The filename of the original photo before change
-                example: 1559173695694_profilepic.jpg
+                type: integer
+                description: The id of the old photo (may be null)
+                example: 12
         '401':
           description: User not authenticated
         '403':
@@ -1251,27 +1219,71 @@ paths:
         '404':
           description: No such user id found
 
-  '/photo/privacy/{id}':
+  '/photo/{photoId}/cover':
     put:
       tags:
-        - Photos
+      - Photos
+      summary: Marks a file as the cover picture of some profile
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to update cover photo of
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: The id of the photo to set as cover picture
+              example: 12
+      responses:
+        '200':
+          description: 'Successfully updated cover photo'
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: The id of the old cover photo (may be null)
+                example: 12
+        '401':
+          description: User not authenticated
+        '403':
+          description: User not allowed to perform this operation, likely if trying to change another's cover picture and not an admin
+        '404':
+          description: No such user id found
+
+  '/photo/{photoId}/privacy':
+    put:
+      tags:
+      - Photos
       summary: Toggles the privacy of a photo
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The ID of the photo being toggled
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the photo being toggled
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: 'Successfully toggled privacy of photo'
@@ -1286,17 +1298,17 @@ paths:
   '/photo':
     post:
       tags:
-        - Photos
+      - Photos
       summary: 'Uploading of any and all files, form parameters specify details'
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         content:
           multipart/form-data:
@@ -1307,6 +1319,10 @@ paths:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
                   example: 'true'
+                userUploadId:
+                  type: string
+                  description: 'The id of the user to upload the photo for, note only admins can upload photos for other users'
+                  example: '1'
                 profilePhotoFileName:
                   type: string
                   description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
@@ -1330,43 +1346,45 @@ paths:
           description: Invalid file type given | Missing file | No files given
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden, returned when someone tries to upload a photo for a different user
 
-  '/photo/{id}':
+  '/user/{id}/photo/':
     get:
       tags:
-        - Photos
+      - Photos
       summary: 'Get all photos belonging to the profile of some user specified by their id'
       description: 'In order to receive any photo information in response the client requesting must be authenticated. If the authentication ID matches the ID to request photos for (i.e a user is requesting their OWN photos) then all photos are returned, public and private. However if the authentication ID does not match the ID to request photos for (i.e a user is requesting the photos of SOMEONE ELSE then only publicly accesible photo information is returned.'
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The user ID to retrieve photos of
-          schema:
-            type: integer
-            minimum: 1
-        - in: path
-          name: page
-          required: true
-          description: 'The page number to return, starts at 0'
-          schema:
-            type: integer
-            minimum: 0
-        - in: path
-          name: count
-          required: true
-          description: 'The number of photos to be returned per page'
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to retrieve photos of
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: page
+        required: true
+        description: 'The page number to return, starts at 0'
+        schema:
+          type: integer
+          minimum: 0
+      - in: path
+        name: count
+        required: true
+        description: 'The number of photos to be returned per page'
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: 'Successfully retrieved (any number of) photos for a user'
@@ -1377,27 +1395,62 @@ paths:
                 items:
                   $ref: '#/components/schemas/Photo'
 
+  '/photo/{photoId}':
+    get:
+      tags:
+      - Photos
+      summary: 'Gets photo by its unique id'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: photoId
+        required: true
+        description: The ID of the photo to retrieve
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved photo with given ID'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Photo not found'
+
     delete:
       tags:
-        - Photos
+      - Photos
       summary: 'Delete photo with given id'
       description: 'If the user is authorized, delete the photo'
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The ID of photo to be deleted
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: photoId
+        required: true
+        description: The ID of photo to be deleted
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully deleted photo
@@ -1411,16 +1464,16 @@ paths:
   '/user_content/{filePath}':
     get:
       tags:
-        - Photos
+      - Photos
       summary: "Gets a photo uploaded by a user"
       description: 'The response type will be either `image/png` or `image/jpeg`, depending on the file type of the image.'
       parameters:
-        - in: path
-          name: filePath
-          required: true
-          description: The file path of the photo to be retrieved
-          schema:
-            type: string
+      - in: path
+        name: filePath
+        required: true
+        description: The file path of the photo to be retrieved
+        schema:
+          type: string
       responses:
         200:
           description: Successfully retrieved photo
@@ -1434,19 +1487,19 @@ paths:
   '/treasurehunt':
     post:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Add a treasure hunt to the database"
       description: |
         Inserts a new treasure hunt into the database, by the currently logged in user.
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       requestBody:
         $ref: '#/components/requestBodies/postTreasureHunt'
       responses:
@@ -1461,18 +1514,18 @@ paths:
 
     get:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Get all Treasure hunts"
       description: "If the user is authorised gets all treasure hunts"
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: All treasure hunts
@@ -1488,25 +1541,25 @@ paths:
   '/treasurehunt/{id}':
     get:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Get a treasure hunts with the given id from the database"
       description: Retrieves the treasure hunt with the id from the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: path
-          name: id
-          required: true
-          description: The treasure hunt ID
-          schema:
-            type: integer
-            minimum: 1
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: path
+        name: id
+        required: true
+        description: The treasure hunt ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: ""
@@ -1525,26 +1578,26 @@ paths:
 
     put:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Updates a treasure hunt in the database"
       description: |
         Updates the treasure hunt with the given ID in the database
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The ID of the treasure hunt to update
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the treasure hunt to update
+        schema:
+          type: integer
+          minimum: 1
       requestBody:
         $ref: '#/components/requestBodies/postTreasureHunt'
       responses:
@@ -1567,27 +1620,27 @@ paths:
   '/treasurehunt/{id}/delete':
     put:
       tags:
-        - Treasure Hunts
+      - Treasure Hunts
       summary: "Soft deletes a treasure hunt from the database"
       description: |
         Toggles the soft delete of a treasure hunt in the database, the logged in user must be
         the owner of the treasure hunt or an admin
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: path
-          name: id
-          required: true
-          description: The ID of the treasure hunt to delete
-          schema:
-            type: integer
-            minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the treasure hunt to delete
+        schema:
+          type: integer
+          minimum: 1
       responses:
         '200':
           description: Successfully deleted treasure hunt
@@ -1609,26 +1662,26 @@ paths:
   '/maps':
     get:
       tags:
-        - Other
+      - Other
       summary: "Gets the script for Google Maps"
       description: |
         Gets the script for Google Maps.
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
       responses:
         '200':
           description: Retrieved successfully
 
 
 servers:
-  - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
+- url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
 components:
   requestBodies:
 
@@ -1638,8 +1691,8 @@ components:
           schema:
             type: object
             required:
-              - username
-              - password
+            - username
+            - password
             properties:
               username:
                 type: string
@@ -1654,8 +1707,8 @@ components:
           schema:
             type: object
             required:
-              - userId
-              - tripDataCollection
+            - userId
+            - tripDataCollection
             properties:
               userId:
                 type: integer
@@ -1674,9 +1727,9 @@ components:
           schema:
             type: object
             required:
-              - userId
-              - tripId
-              - tripDataCollection
+            - userId
+            - tripId
+            - tripDataCollection
             properties:
               userId:
                 type: integer
@@ -1700,10 +1753,10 @@ components:
           schema:
             type: object
             required:
-              - destinationId
-              - riddle
-              - startDate
-              - endDate
+            - destinationId
+            - riddle
+            - startDate
+            - endDate
             properties:
               destinationId:
                 type: integer
@@ -1729,8 +1782,8 @@ components:
     User:
       type: object
       required:
-        - username
-        - password
+      - username
+      - password
       properties:
         id:
           type: integer
@@ -1764,14 +1817,14 @@ components:
     Profile:
       type: object
       required:
-        - userId
-        - firstName
-        - lastName
-        - gender
-        - dateOfBirth
-        - nationalities
-        - passports
-        - travellerTypes
+      - userId
+      - firstName
+      - lastName
+      - gender
+      - dateOfBirth
+      - nationalities
+      - passports
+      - travellerTypes
       properties:
         userId:
           type: integer
@@ -1811,11 +1864,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TravellerTypeDefinition'
+        profilePhoto:
+          $ref: '#/components/schemas/Photo'
+        coverPhoto:
+          $ref: '#/components/schemas/Photo'
 
     CountryDefinition:
       type: object
       required:
-        - id
+      - id
       properties:
         id:
           type: integer
@@ -1828,7 +1885,7 @@ components:
     TravellerTypeDefinition:
       type: object
       required:
-        - id
+      - id
       properties:
         id:
           type: integer
@@ -1841,12 +1898,12 @@ components:
     Destination:
       type: object
       required:
-        - name
-        - type
-        - district
-        - latitude
-        - longitude
-        - country
+      - name
+      - type
+      - district
+      - latitude
+      - longitude
+      - country
       properties:
         id:
           type: integer
@@ -1886,8 +1943,8 @@ components:
     Trip:
       type: object
       required:
-        - userId
-        - tripDataList
+      - userId
+      - tripDataList
       properties:
         id:
           type: integer
@@ -1911,8 +1968,8 @@ components:
     TripData:
       type: object
       required:
-        - position
-        - destination
+      - position
+      - destination
       description: >-
         IMPORTANT NOTE: When specifying the destination this trip data
         corresponds to, only the destination's id field must be filled in.
@@ -1964,12 +2021,15 @@ components:
           type: string
           format: url
           example: '/assets/storage/photos/1556841259327_thumbnail_my_image.jpg'
+        caption:
+          type: string
+          example: 'A picture of the Eiffel tower, taken from Berlin with a really big camera lens'
         isPublic:
           type: boolean
           description: 'Boolean stating whether or not this photo is publicly accesible'
-        isProfile:
+        usedForProfile:
           type: boolean
-          description: 'Boolean stating whether or not this photo is the profile picture of the user'
+          description: 'Boolean stating whether or not this photo is used as either the profile picture or cover picture of some profile'
         uploaded:
           type: string
           format: ISO date-time
@@ -1978,11 +2038,11 @@ components:
     TreasureHunt:
       type: object
       required:
-        - user
-        - destination
-        - riddle
-        - startDate
-        - endDate
+      - user
+      - destination
+      - riddle
+      - startDate
+      - endDate
       properties:
         id:
           type: integer
