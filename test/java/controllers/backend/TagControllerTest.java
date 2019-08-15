@@ -30,7 +30,7 @@ public class TagControllerTest extends controllers.backend.ControllersTest {
      */
     @Before
     public void runEvolutions() {
-        applyEvolutions("test/trip/");
+        applyEvolutions("test/tag/");
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TagControllerTest extends controllers.backend.ControllersTest {
 
         JsonNode tags = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(1, tags.get("data").size());
+        assertEquals(2, tags.get("data").size());
     }
 
     @Test
@@ -113,26 +113,45 @@ public class TagControllerTest extends controllers.backend.ControllersTest {
     public void getAllUserPhotoTags() throws IOException {
         //Get tags
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/user/1/phototags")
-                .method("GET")
-                .cookie(adminAuthCookie);
+            .method("GET")
+            .cookie(adminAuthCookie);
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
         List<Tag> tags = Arrays.asList(
-                new ObjectMapper().readValue(Helpers.contentAsString(result), Tag[].class));
+            new ObjectMapper().readValue(Helpers.contentAsString(result), Tag[].class));
 
-        assertEquals(1, tags.size());
-        assertEquals("Russia", tags.get(0).name);
+        assertEquals(2, tags.size());
+        assertEquals("Russia", tags.get(1).name);
+        assertEquals("sports", tags.get(0).name);
+
     }
 
     @Test
     public void getAllUserPhotoTagsNoAuth() {
         //Get tags
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/user/1/phototags")
-                .method("GET");
+            .method("GET");
 
         Result result = route(fakeApp, request);
         assertEquals(UNAUTHORIZED, result.status());
     }
+
+    @Test
+    public void getAllDestinationPhotoTags() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/2/phototags")
+            .method("GET")
+            .cookie(adminAuthCookie);
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Tag> tags = Arrays.asList(
+            new ObjectMapper().readValue(Helpers.contentAsString(result), Tag[].class));
+
+        assertEquals(1, tags.size());
+        assertEquals("sports", tags.get(0).name);
+    }
 }
+

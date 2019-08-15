@@ -22,6 +22,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import repository.PhotoRepository;
+import repository.DestinationRepository;
 import repository.TagRepository;
 import util.objects.PagePair;
 
@@ -32,17 +33,23 @@ public class TagController extends TEABackController {
 
     private final TagRepository tagRepository;
     private final PhotoRepository photoRepository;
+    private DestinationRepository destinationRepository;
+    private PhotoController photoController;
+
 
     @Inject
-    public TagController(TagRepository tagRepository, PhotoRepository photoRepository) {
+    public TagController(TagRepository tagRepository, PhotoRepository photoRepository,
+        DestinationRepository destinationRepository, PhotoController photoController) {
         this.tagRepository = tagRepository;
         this.photoRepository = photoRepository;
+        this.destinationRepository = destinationRepository;
+        this.photoController = photoController;
     }
 
     /**
      * Controller method to get all tags of a certain type, optional name parameter to search by name.
      * Name search is case insensitive
-     * 
+     *
      * @param request HTTP request, needs to contain the tag type under tagType in  a JSON
      * @param name Optional sting by which to search for a name
      * @return Ok with a paginated list of tags as well as the total page count or BadRequest
@@ -98,6 +105,7 @@ public class TagController extends TEABackController {
 
     }
 
+
     /**
      * Retrieves all tags associated with a given user's photos. If the user is viewing their own profile or an admin
      * then retrieve all their private and public photo tags; else, only retrieve their public photo tags
@@ -118,7 +126,6 @@ public class TagController extends TEABackController {
         }
     }
 
-
     /**
      * Retrieves all tags from a list of user photos and returns a set of tags. Iterates through a list of photos and
      * adds each tag set for each photo to the tag set to be returned
@@ -132,5 +139,22 @@ public class TagController extends TEABackController {
             tagSet.addAll(photo.tags);
         }
         return tagSet;
+    }
+
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinationPhotoTags(Http.Request request, Long destinationId) {
+        User user = request.attrs().get(ActionState.USER);
+
+        return destinationRepository.getDestination(destinationId).thenApplyAsync(destination -> {
+            if (destination == null) {
+                return notFound(Json.toJson(destinationId));
+            } else if (!destination.isPublic && !destination.user.id.equals(user.id)
+                && !user.admin) {
+                return forbidden();
+            } else {
+                List<Photo> photos = photoController.filterPhotos(destination.destinationPhotos, user.id);
+                return ok(Json.toJson(getTagsFromPhotos(photos)));
+            }
+        });
     }
 }

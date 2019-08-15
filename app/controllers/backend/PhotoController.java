@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -15,7 +14,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.rmi.ServerError;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.Photo;
@@ -299,7 +296,7 @@ public class PhotoController extends TEABackController {
             return CompletableFuture
                 .supplyAsync(() -> internalServerError());
         }
-        return tagRepository.addTags(photoTags).thenComposeAsync((tags) -> {
+        return tagRepository.addTags(photoTags).thenComposeAsync(tags -> {
             // Iterate through all files in the request
             int position = 0;
             for (Http.MultipartFormData.FilePart<Files.TemporaryFile> file : body.getFiles()) {
@@ -669,7 +666,7 @@ public class PhotoController extends TEABackController {
      * @param userId Id of authenticated user
      * @return List of filtered photos
      */
-    private List<Photo> filterPhotos(List<Photo> photos, Long userId) {
+    public List<Photo> filterPhotos(List<Photo> photos, Long userId) {
         Iterator<Photo> iter = photos.iterator();
         while (iter.hasNext()) {
             Photo photo = iter.next();
