@@ -5,10 +5,11 @@ class TagDisplay {
 
     /**
      * Class constructor, initialises ID of class instance
-     * @param {Number} id - Unique ID to create difference between instances of class, used by different pages
+     * @param {String} id - Unique ID to create difference between instances of class, used by different pages
      */
     constructor(id) {
         this.id = id;
+        this.list = $(`#${this.id} ul`);
     }
 
     /**
@@ -18,11 +19,11 @@ class TagDisplay {
      */
     populateTags(tags) {
         const tagHolder = $(`#${this.id}`);
-        tagHolder.empty();
+        this.list.empty();
 
         for (const tag of tags) {
             const nextTag = $("<li>").text(tag.name);
-            tagHolder.append(nextTag);
+            this.list.append(nextTag);
         }
     }
 }
