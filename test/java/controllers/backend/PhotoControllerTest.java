@@ -69,7 +69,7 @@ public class PhotoControllerTest extends ControllersTest {
     }
 
     @Test
-    public void testFileUpload() throws IOException {
+    public void testFileUpload() {
         // Load a file from the public images to upload
         File file = getFile("./public/images/favicon.png");
 
