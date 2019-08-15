@@ -166,32 +166,47 @@ public class PhotoController extends TEABackController {
      * Sets a users photo as their profile photo
      *
      * @param request Http request containing authentication and ID of new profile photo
-     * @param id ID of user updating the photo
+     * @param userId ID of user updating the photo
      * @return Http response, on ok returns ID of old profile photo
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long id) {
-        User user = request.attrs().get(ActionState.USER);
+    public CompletableFuture<Result> makePhotoProfile(Http.Request request, Long userId) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
 
-        // Check if user is authorized to perform this action
-        if (!id.equals(user.id) && !user.admin) {
-            return CompletableFuture.supplyAsync(Results::forbidden);
-        }
+        return profileRepository.findID(userId).thenComposeAsync(profile -> {
+            if (profile == null) {
+                return CompletableFuture.supplyAsync(() -> notFound("User does not exist"));
+            }
 
-        // Get json parameters
-        Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
+            // Get photoId from request body
+            Long photoId = Json.fromJson(request.body().asJson(), Long.class);
 
-        // Update profile photo, and get the prior photo id
-        try {
-            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId)
-                .thenApplyAsync(returnedId ->
-                    returnedId != null ? ok(Json.toJson(returnedId))
-                        : ok(Json.newObject().nullNode())
-                );
-        } catch (NullPointerException e) {
-            return CompletableFuture
-                .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
-        }
+            return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+                if (photo == null) {
+                    return CompletableFuture.supplyAsync(() -> notFound("Photo does not exist"));
+                } else if (!photo.userId.equals(loggedInUser.id) && !loggedInUser.admin) {
+                    return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to make this photo a profile picture"));
+                }
+
+                // Store old profile photo ID to send in response
+                Photo oldProfilePhoto = profile.profilePhoto;
+
+                // Update profile photo and return previous profile photo ID
+                profile.profilePhoto = photo;
+
+                return profileRepository.updateProfile(profile).thenApplyAsync(profileId -> {
+                    if (oldProfilePhoto == null) {
+                        return ok(Json.newObject().nullNode());
+                    }
+
+                    try {
+                        return ok(sanitizeJson(Json.toJson(oldProfilePhoto.guid)));
+                    } catch (IOException ex) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+            });
+        });
     }
 
     /**
