@@ -63,9 +63,12 @@ function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
                     dict[data[i][idKey]] = capitalizeFirstLetter(
                         data[i][dataKey]);
                 } else {
+                    
                     dict[data[i][idKey]] = data[i][dataKey];
                 }
             }
+            console.log(dict);
+            
             return dict;
         });
     });
@@ -84,6 +87,7 @@ function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
     sort = false) {
     return getHardData(URI, dataKey, capitalise, idKey)
     .then(dict => {
+        console.log(dict);
         // Now fill the selects
         dropdowns.forEach(element => {
             fillDropDown(element, dict, sort);

@@ -307,7 +307,7 @@
     getPictures();
     getProfileAndCoverPicture();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
-    getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)", ["tagFilter"], "name");
+    getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)", ["tagFilter"], "name", false, "name");
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
         populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     });
