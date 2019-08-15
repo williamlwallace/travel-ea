@@ -71,7 +71,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Updates a destination.L
+     * Updates a destination.
      *
      * @param destination The destination object to update, with the updated parameters
      * @return The updated destination
