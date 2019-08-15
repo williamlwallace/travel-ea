@@ -1,4 +1,4 @@
-import requests, hashlib, random, csv, re, os
+import requests, hashlib, random, csv, re, os, json
 from datetime import date, timedelta
 
 """
@@ -38,7 +38,7 @@ def setup_countries():
             country_insert.append(country_template.format(numeric_code, name))
     
     # Make the last comma a semi-colon instead, with a newline for formatting
-    country_insert[-1] = linescountry_insert[-1][:-2] + ";\n"
+    country_insert[-1] = country_insert[-1][:-2] + ";\n"
     return country_insert, country_dict
 
 
@@ -106,9 +106,9 @@ def generate_traveller_types(num_users, num_existing_users, num_traveller_types)
     traveller_types[-1] = traveller_types[-1][:-2] + ";\n"
     return traveller_types
 
-def generate_users(num_users, num_existing_users):    
+def generate_users(num_users, num_existing_users, photos_filename):    
     """Generates a list of users and a list of profiles to be inserted into the
-    database.
+    database. Also writes a list of photos to be given to random users to a file.
     
     Keyword arguments:
     num_users -- number of users being created by the script
@@ -120,11 +120,12 @@ def generate_users(num_users, num_existing_users):
     """
 
     URL = "https://randomuser.me/api/?results=" + str(num_users)
-    
     r = requests.get(url=URL)
     data = r.json()["results"]
     
     usernames = set() # The usernames (emails) that have been used
+    
+    photos = {}
         
     users = ["INSERT INTO User(username, password, salt, creation_date) VALUES\n"]
     profiles = ["INSERT INTO Profile(user_id, first_name, last_name, date_of_birth, gender, creation_date) VALUES\n"]
@@ -135,7 +136,7 @@ def generate_users(num_users, num_existing_users):
     for i in range(len(data)):
         result = data[i]
         
-        email = result["email"].replusersace("'", "''") # Escape apostrophes
+        email = result["email"].replace("'", "''") # Escape apostrophes
         
         # If the email has been used already, add some random bits to it
         if email in usernames: 
@@ -159,11 +160,22 @@ def generate_users(num_users, num_existing_users):
         date_of_birth = result["dob"]["date"][:10]
         gender = result["gender"].capitalize()
         profiles.append(profile_template.format(user_id, first_name, last_name, date_of_birth, gender, creation_date))
+        
+        photo = result["picture"]["large"]
+        photos.setdefault(photo, []).append(user_id)
     
+    # For each photo, select 5 random users
+    for key in photos:
+        photos[key] = random.choices(photos[key], k=5)
+        
+    with open("photo_urls_and_users.json", 'w', newline='') as file:
+        file.writelines(json.dumps(photos))
+        
     # Make the last commas semi-codes instead, with a newline for formatting    
     users[-1] = users[-1][:-2] + ";\n"
     profiles[-1] = profiles[-1][:-2] + ";\n"
-    return users, profilesusers
+    
+    return users, profiles
 
 def generate_destinations(countries):
     """Generates a list of destinations to be inserted into the database.
@@ -456,7 +468,7 @@ def main():
     country_insert, country_dict = setup_countries()
     
     print("Done\nGenerating users and profiles...")
-    users, profiles = generate_users(num_existing_users, num_users)
+    users, profiles = generate_users(num_users, num_existing_users)
     
     print("Done\nGenerating nationalities and passports...")
     values = generate_nationalities_and_passports(num_users, num_existing_users,
@@ -490,6 +502,7 @@ def main():
     print("Done\nGeneration complete!\nPopulating file...")
     
     filename = "../../conf/evolutions/default/" + evolutions_num + ".sql"
+    photos_filename = "photo_urls_and_users.json"
     
     drops = """DELETE FROM TripTag;
 DELETE FROM DestinationTag;
@@ -505,9 +518,9 @@ DELETE FROM Profile;
 DELETE FROM User;
 DELETE FROM CountryDefinition;"""
     
-    # Wipes existing example data file
+    # Wipes existing example data files
     if os.path.exists(filename):
-        os.remove(filename)    
+        os.remove(filename) 
     
     # Write all the generated data to a SQL file
     with open(filename, "a", newline="") as file:
