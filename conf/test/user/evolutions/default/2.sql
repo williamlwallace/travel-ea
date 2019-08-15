@@ -14,7 +14,24 @@ INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1), (2, 2);
 
 -- !Downs
+-- Now delete all rows from tables (DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE)
 DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
+DELETE FROM DestinationTag;
 DELETE FROM Tag;
+DELETE FROM TreasureHunt;
+DELETE FROM DestinationPhoto;
+DELETE FROM TripData;
+DELETE FROM Trip;
+DELETE FROM DestinationTravellerTypePending;
+DELETE FROM DestinationTravellerType;
+DELETE FROM Destination;
+DELETE FROM TravellerType;
+DELETE FROM TravellerTypeDefinition;
+DELETE FROM Passport;
+DELETE FROM Nationality;
+DELETE FROM CountryDefinition;
 DELETE FROM Profile;
+DELETE FROM Photo;
 DELETE FROM User;
