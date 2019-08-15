@@ -343,7 +343,7 @@ public class PhotoController extends TEABackController {
                 return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
             } else {
                 try {
-                    return saveMultiplePhotos(photos, user, profilePhotoFilename != null);
+                    return saveMultiplePhotos(photos, loggedInUser, profilePhotoFilename != null);
                 } catch (IOException e) {
                     return CompletableFuture.supplyAsync(() -> internalServerError(
                         Json.toJson("Unkown number of photos failed to save")));

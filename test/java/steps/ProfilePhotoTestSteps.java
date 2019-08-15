@@ -1,6 +1,7 @@
 package steps;
 
 import static org.apache.commons.io.FileUtils.getFile;
+import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.route;
 import static steps.GenericTestSteps.adminAuthCookie;
@@ -61,7 +62,7 @@ public class ProfilePhotoTestSteps {
                 fakeApp.asScala().materializer()
             );
         Result result = route(fakeApp, request);
-        Assert.assertEquals(201, result.status());
+        assertEquals(201, result.status());
 
         // Create a request to set the newly uploaded photo to be the profile
         Photo returnedPhoto = new ObjectMapper()
@@ -71,8 +72,9 @@ public class ProfilePhotoTestSteps {
             .method("PUT")
             .cookie(adminAuthCookie)
             .bodyJson(Json.toJson(returnedPhoto.guid));
+
         Result updateResult = route(fakeApp, updateRequest);
-        Assert.assertEquals(200, updateResult.status());
+        assertEquals(200, updateResult.status());
     }
 
     @When("I set it as my cover photo")
@@ -82,7 +84,7 @@ public class ProfilePhotoTestSteps {
             .cookie(adminAuthCookie)
             .bodyJson(Json.toJson(1));
         Result updateResult = route(fakeApp, updateRequest);
-        Assert.assertEquals(200, updateResult.status());
+        assertEquals(200, updateResult.status());
     }
 
     @Then("A thumbnail is created")
@@ -93,7 +95,7 @@ public class ProfilePhotoTestSteps {
             .uri("/api/profile/1");
 
         Result result = route(fakeApp, request);
-        Assert.assertEquals(200, result.status());
+        assertEquals(200, result.status());
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
         String filename = profile.profilePhoto.thumbnailFilename;
@@ -108,7 +110,7 @@ public class ProfilePhotoTestSteps {
             .uri("/api/profile/1");
 
         Result result = route(fakeApp, request);
-        Assert.assertEquals(200, result.status());
+        assertEquals(200, result.status());
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
         String filename = profile.profilePhoto.filename;
@@ -123,7 +125,7 @@ public class ProfilePhotoTestSteps {
             .uri("/api/profile/1");
 
         Result result = route(fakeApp, request);
-        Assert.assertEquals(200, result.status());
+        assertEquals(200, result.status());
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
         String filename = profile.coverPhoto.filename;
