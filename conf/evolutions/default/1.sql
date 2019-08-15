@@ -154,7 +154,9 @@ CREATE TABLE IF NOT EXISTS Trip
     user_id           INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
     deleted           BOOLEAN NOT NULL DEFAULT false,
+    primary_photo_id  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
   );
@@ -168,8 +170,10 @@ CREATE TABLE IF NOT EXISTS TripData
     destination_id    INT NOT NULL,
     arrival_time      DATETIME,
     departure_time    DATETIME,
+    primary_photo_id  INT,
     FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
@@ -188,6 +192,18 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
     INDEX Destination_photo_index (photo_id, destination_id),
     UNIQUE(photo_id, destination_id)
   );
+
+-- Create PendingDestinationPhotos table, which specifies all current requests for a change in primary photos
+CREATE TABLE IF NOT EXISTS PendingDestinationPhoto
+  (
+    id                  INT NOT NULL AUTO_INCREMENT,
+    guid                INT NOT NULL,
+    photo_id            INT NOT NULL,
+    destination_id      INT NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (id)
+);
 
 -- Create treasure hunt table, which stores the riddle and dates or a treasure hunt about a destination
 CREATE TABLE IF NOT EXISTS TreasureHunt
@@ -267,6 +283,7 @@ DROP TABLE TripTag;
 DROP TABLE DestinationTag;
 DROP TABLE Tag;
 DROP TABLE TreasureHunt;
+DROP TABLE PendingDestinationPhoto;
 DROP TABLE DestinationPhoto;
 DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
