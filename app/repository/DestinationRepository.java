@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Destination;
+import models.DestinationTag;
 import models.TripData;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
@@ -70,13 +71,17 @@ public class DestinationRepository {
     }
 
     /**
-     * Updates a destination.
+     * Updates a destination.L
      *
      * @param destination The destination object to update, with the updated parameters
      * @return The updated destination
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
         return supplyAsync(() -> {
+            if (destination.tags.isEmpty()) {
+                ebeanServer.find(DestinationTag.class).where().eq("destination_id", destination.id)
+                    .delete();
+            }
             ebeanServer.update(destination);
             return destination;
         }, executionContext);

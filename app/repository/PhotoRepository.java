@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.DestinationPhoto;
 import models.Photo;
+import models.PhotoTag;
 import models.Tag;
 import models.User;
 import play.db.ebean.EbeanConfig;
@@ -243,6 +244,10 @@ public class PhotoRepository {
      */
     public CompletableFuture<Long> updatePhoto(Photo photo) {
         return supplyAsync(() -> {
+                if (photo.tags.isEmpty()) {
+                    ebeanServer.find(PhotoTag.class).where().eq("photo_id", photo.guid)
+                        .delete();
+                }
                 ebeanServer.update(photo);
                 return photo.guid;
             },
