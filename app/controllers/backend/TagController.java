@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
+
 import models.Photo;
 import models.Tag;
 import models.User;
@@ -20,16 +21,18 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
-import repository.DestinationRepository;
 import repository.PhotoRepository;
-import repository.ProfileRepository;
+import repository.DestinationRepository;
 import repository.TagRepository;
 import util.objects.PagePair;
 
+/**
+ * Manages tags in the database
+ */
 public class TagController extends TEABackController {
 
     private final TagRepository tagRepository;
-    private PhotoRepository photoRepository;
+    private final PhotoRepository photoRepository;
     private DestinationRepository destinationRepository;
     private PhotoController photoController;
 
@@ -41,7 +44,6 @@ public class TagController extends TEABackController {
         this.photoRepository = photoRepository;
         this.destinationRepository = destinationRepository;
         this.photoController = photoController;
-
     }
 
     /**
@@ -103,6 +105,7 @@ public class TagController extends TEABackController {
 
     }
 
+
     /**
      * Retrieves all tags associated with a given user's photos. If the user is viewing their own profile or an admin
      * then retrieve all their private and public photo tags; else, only retrieve their public photo tags
@@ -116,10 +119,10 @@ public class TagController extends TEABackController {
 
         if (user.id.equals(id) || user.admin) {
             return photoRepository.getAllUserPhotos(id)
-                .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+                    .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
         } else {
             return photoRepository.getAllPublicUserPhotos(id)
-                .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+                    .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
         }
     }
 

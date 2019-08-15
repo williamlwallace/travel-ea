@@ -201,7 +201,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
     @Test
     public void editDestination() throws IOException {
-        Destination destination = getDestination(4);
+        int destToEdit = 4;
+        Destination destination = getDestination(destToEdit);
         assertNotNull(destination);
         assertNotEquals("Definitely Not Blitzcrank", destination.name);
         assertEquals(1, destination.tags.size());
@@ -216,21 +217,21 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "7");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + destToEdit);
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
         assertEquals(OK, putResult.status());
 
-        Destination updatedDestination = getDestination(4);
+        Destination updatedDestination = getDestination(destToEdit);
         assertNotNull(updatedDestination);
 
         assertEquals("Definitely Not Blitzcrank", updatedDestination.name);
         assertEquals("Summoners Rift", updatedDestination.district);
         assertEquals(2, updatedDestination.tags.size());
-        assertTrue(destination.tags.contains(new Tag("sports")));
-        assertTrue(destination.tags.contains(newTag));
+        assertTrue(updatedDestination.tags.contains(new Tag("sports")));
+        assertTrue(updatedDestination.tags.contains(newTag));
         assertEquals(destination, updatedDestination);
     }
 

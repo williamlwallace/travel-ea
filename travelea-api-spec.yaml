@@ -2021,6 +2021,10 @@ components:
           example: 2.294694
         country:
           $ref: '#/components/schemas/CountryDefinition'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
 
     Trip:
       type: object
@@ -2169,14 +2173,17 @@ components:
     Tag:
       type: object
       required:
-      - name
+        - name
       properties:
         id:
           type: integer
           minimum: 1
-          example: 1
+          format: int64
+          description: >-
+            Automatically generated when tag is created, should never be assigned manually
         name:
           type: string
+          example: New Zealand
 
     BinaryImageFile:
       type: string

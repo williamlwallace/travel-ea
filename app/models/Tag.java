@@ -24,7 +24,6 @@ import play.data.validation.Constraints;
 public class Tag extends Model {
 
     @Id
-    @JsonIgnore
     public Long id;
 
     @Constraints.Required
@@ -55,7 +54,6 @@ public class Tag extends Model {
     public Set<Trip> trips;
 
     @OneToMany(mappedBy = "tag")
-    @JsonIgnore
     public Set<UsedTag> usedTags;
 
     /**
