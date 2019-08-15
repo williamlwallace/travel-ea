@@ -25,7 +25,6 @@ public class Tag extends Model {
 
     @JsonIgnore
     @Id
-    @JsonIgnore
     public Long id;
 
     @Constraints.Required
@@ -57,7 +56,6 @@ public class Tag extends Model {
 
     @JsonIgnore
     @OneToMany(mappedBy = "tag")
-    @JsonIgnore
     public Set<UsedTag> usedTags;
 
     /**
