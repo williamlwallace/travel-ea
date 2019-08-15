@@ -106,6 +106,9 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    const destinationTags = createDestinationTagPicker.getTags();
+    data.tags = destinationTags.map((tag) => {return {name:tag}});
+
     //Create response handler
     const handler = function (status, json) {
         if (status !== 200) {
@@ -311,10 +314,9 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
 
 /**
  * Removes card with given id
- * @param {Number} cardId - Id of card
  */
 function removeDestinationFromTrip() {
-    let cardId = $('#removeDestinationFromTripModal').attr("destId");
+    const cardId = $('#removeDestinationFromTripModal').attr("destId");
     $('#' + cardId).remove();
     checkTripListEmpty();
 }
@@ -345,12 +347,16 @@ function createTrip(redirect, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
-    const tripTagObjects = getTags().map((tag) => {return {name:tag}});
+    const tripTagObjects = createTripTagPicker.getTags().map((tag) => {
+        return {
+            name:tag
+        }
+    });
 
     let tripData = {
         "userId": userId,
         "tripDataList": tripDataList,
-        "tripsTags": tripTagObjects
+        "tags":tripTagObjects
     };
 
     const tripPrivacy = $('#tripPrivacy').html();
@@ -444,13 +450,16 @@ function updateTrip(uri, redirect, tripId, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
+    const tripTagObjects = getTags().map((tag) => {return {name:tag}});
+
     let tripData = {
         "id": tripId,
         "userId": userId,
         "trip": {
             "id": tripId
         },
-        "tripDataList": tripDataList
+        "tripDataList": tripDataList,
+        "tags": tripTagObjects
     };
 
     const tripPrivacy = $('#tripPrivacy').html();

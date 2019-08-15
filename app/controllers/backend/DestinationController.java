@@ -21,7 +21,9 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.TagRepository;
 import repository.TravellerTypeDefinitionRepository;
+import repository.UserRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -34,13 +36,19 @@ public class DestinationController extends TEABackController {
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
     private final WSClient ws;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
+        TagRepository tagRepository, UserRepository userRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
         this.ws = ws;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -56,7 +64,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking, if error returns bad request
-        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(false);
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
@@ -80,14 +88,18 @@ public class DestinationController extends TEABackController {
             }
         }
 
-        return destinationRepository.addDestination(newDestination)
-            .thenApplyAsync(id -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(id)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+        return tagRepository.addTags(newDestination.tags).thenComposeAsync(existingTags -> {
+            userRepository.updateUsedTags(user, newDestination);
+            newDestination.tags = existingTags;
+            return destinationRepository.addDestination(newDestination)
+                .thenApplyAsync(id -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(id)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        });
     }
 
     /**
@@ -188,7 +200,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> editDestination(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
-        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(true);
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture
@@ -198,23 +210,33 @@ public class DestinationController extends TEABackController {
                     return CompletableFuture
                         .supplyAsync(() -> badRequest(validatorResult.toJson()));
                 }
+
+                // Build destination object and set required fields
                 Destination editedDestination = Json.fromJson(data, Destination.class);
-                //check if destination already exists
+                editedDestination.id = id;
+
+                // Check if destination already exists, if so rejects update
                 List<Destination> destinations = destinationRepository
                     .getSimilarDestinations(editedDestination);
                 for (Destination dest : destinations) {
                     if (dest.user.id.equals(user.id) || dest.isPublic) {
-                        return CompletableFuture
-                            .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                        return CompletableFuture.supplyAsync(() -> badRequest(
+                            Json.toJson("Another destination with these details already exists")));
                     }
                 }
-                return destinationRepository.updateDestination(editedDestination)
-                    .thenApplyAsync(updatedDestination -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(destination)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
+
+                return tagRepository.addTags(editedDestination.tags)
+                    .thenComposeAsync(existingTags -> {
+                        userRepository.updateUsedTags(user, destination, editedDestination);
+                        editedDestination.tags = existingTags;
+                        return destinationRepository.updateDestination(editedDestination)
+                            .thenApplyAsync(updatedDestination -> {
+                                try {
+                                    return ok(sanitizeJson(Json.toJson(destination)));
+                                } catch (IOException e) {
+                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                                }
+                            });
                     });
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden(
@@ -377,7 +399,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // If user is admin or requesting for their own destinations
-        if ((user.admin && user.id == userId)) {
+        if ((user.admin && user.id.equals(userId))) {
             return destinationRepository.getAllDestinationsAdmin()
                 .thenApplyAsync(allDestinations -> {
                     try {

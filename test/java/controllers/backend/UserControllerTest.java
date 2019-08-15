@@ -1,6 +1,7 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.GET;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,9 +62,6 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         assertEquals(Long.valueOf(2), user.id);
         assertEquals("bob@gmail.com", user.username);
         assertEquals(1, user.usedTags.size());
-        //TODO
-//        assertEquals((Long) 2L, user.usedTags.get(0).tag.id);
-//        assertEquals("sports", user.usedTags.get(0).tag.name);
     }
 
     @Test

@@ -91,6 +91,7 @@ public class Destination extends BaseModel implements Taggable {
      *
      * @return a list of Tags
      */
+    @JsonIgnore
     public Set<Tag> getTagsList() {
         return tags;
     }

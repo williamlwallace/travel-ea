@@ -6,14 +6,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import models.Photo;
 import models.Tag;
+import models.User;
 import org.junit.Before;
 import org.junit.Test;
 import util.objects.Pair;
@@ -21,6 +19,7 @@ import util.objects.Pair;
 public class PhotoRepositoryTest extends repository.RepositoryTest {
 
     private static PhotoRepository photoRepository;
+    private static UserRepository userRepository;
 
 
     @Before
@@ -31,6 +30,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     @Before
     public void instantiateRepository() {
         photoRepository = fakeApp.injector().instanceOf(PhotoRepository.class);
+        userRepository = fakeApp.injector().instanceOf(UserRepository.class);
     }
 
     private Photo createPhoto() {
@@ -73,6 +73,8 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         List<Photo> photosOriginal = photoRepository.getAllUserPhotos(1L).join();
         assertEquals(2, photosOriginal.size());
 
+        User user = userRepository.findID(1L).join();
+
         Photo photo1 = createPhoto();
         Photo photo2 = createPhoto();
         Photo photo3 = createPhoto();
@@ -82,7 +84,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         newPhotos.add(photo2);
         newPhotos.add(photo3);
 
-        photoRepository.addPhotos(newPhotos).thenApplyAsync(result -> {
+        photoRepository.addPhotos(newPhotos, user).thenApplyAsync(result -> {
             List<Photo> photosNew = photoRepository.getAllUserPhotos(1L).join();
 
             assertEquals(5, photosNew.size());
@@ -115,9 +117,6 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
             photos.get(0).filename); // With default assets path added on
         assertEquals(1, photos.get(0).tags.size());
         assertTrue(photos.get(0).tags.contains(new Tag("Russia")));
-        //TODO
-//        assertEquals((Long) 1L, photos.get(0).tags.get(0).id);
-//        assertEquals("Russia", photos.get(0).tags.get(0).name);
     }
 
     @Test
@@ -197,9 +196,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         assertEquals("./public/storage/photos/test/test2.jpeg", photo.filename);
         assertEquals("./public/storage/photos/test/thumbnails/test2.jpeg", photo.thumbnailFilename);
         assertEquals(1, photo.tags.size());
-        //TODO
-//        assertEquals((Long) 1L, photo.tags.get(0).id);
-//        assertEquals("Russia", photo.tags.get(0).name);
+        assertTrue(photo.tags.contains(new Tag("Russia")));
     }
 
     @Test

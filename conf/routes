@@ -61,6 +61,8 @@ PUT           /api/destination/:destId/photo/:photoId  controllers.backend.Photo
 
 GET           /api/destination/:destId/photo         controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
+GET           /api/destination/:destId/phototags     controllers.backend.TagController.getAllDestinationPhotoTags(request:Request, destId:Long)
+
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  controllers.backend.DestinationController.toggleDestinationTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
@@ -85,13 +87,15 @@ PUT           /api/photo/:photoId/privacy            controllers.backend.PhotoCo
 
 GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
+GET           /api/user/:id/phototags                controllers.backend.TagController.getAllUserPhotoTags(request:Request, id:Long)
+
 GET           /api/photo/:photoId                    controllers.backend.PhotoController.getPhotoById(request:Request, photoId:Long)
 
 DELETE        /api/photo/:photoId                    controllers.backend.PhotoController.deletePhoto(photoId:Long)
 
 PUT           /api/photo/:photoId/profile            controllers.backend.PhotoController.makePhotoProfile(request:Request, photoId:Long)
 
-PUT           /api/photo/:photoId/setCaption         controllers.backend.PhotoController.setPhotoCaption(request:Request, photoId:Long)
+PUT           /api/photo/:photoId                    controllers.backend.PhotoController.updatePhotoDetails(request:Request, photoId:Long)
 
 PUT           /api/photo/:photoId/cover              controllers.backend.PhotoController.setCoverPhoto(request:Request, photoId:Long)
 
@@ -106,6 +110,10 @@ PUT           /api/treasurehunt/:id                  controllers.backend.Treasur
 PUT           /api/treasurehunt/:id/delete           controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
+
+GET           /api/tag/                              controllers.backend.TagController.getTags(request:Request, name:String ?= null, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
+GET          /api/tag/:id                       controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
 
 # ~~~~~~frontend~~~~~~~
 # Start page

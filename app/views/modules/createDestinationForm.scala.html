@@ -50,7 +50,7 @@ aria-hidden="true">
                     </div>
                     <br/>
                     <div>
-                        @modules.tagInput()
+                        @modules.tagPicker("create-destination-form-tag")
                     </div>
                 </div>
             </form>
@@ -70,6 +70,14 @@ aria-hidden="true">
     </div>
 </div>
 
+<script src="@routes.Assets.at("javascripts/util/tagsPicker.js")" type="text/javascript"></script>
+<script src="@routes.Assets.at("javascripts/createTrips.js")" type="text/javascript"></script>
+<script src="@routes.Assets.at("javascripts/util/fetch.js")" type="text/javascript"></script>
 <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
 <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+<script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
+
+<script type="text/javascript">
+    const createDestinationTagPicker = new TagPicker(@userId, "create-destination-form-tag");
+</script>
 
