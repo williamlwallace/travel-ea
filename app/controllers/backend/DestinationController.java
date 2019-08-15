@@ -229,6 +229,7 @@ public class DestinationController extends TEABackController {
                     .thenComposeAsync(existingTags -> {
                         userRepository.updateUsedTags(user, destination, editedDestination);
                         editedDestination.tags = existingTags;
+                        System.out.println("Controller tag count: " + editedDestination.tags.size());
                         return destinationRepository.updateDestination(editedDestination)
                             .thenApplyAsync(updatedDestination -> {
                                 try {

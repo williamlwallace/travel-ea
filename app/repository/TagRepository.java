@@ -70,6 +70,12 @@ public class TagRepository {
             // Inserts new tags into database and adds the new tag objects with ID's to the set of existing tags
             ebeanServer.insertAll(tagsToAdd);
             existingTags.addAll(tagsToAdd);
+
+            for (Tag tag : existingTags) {
+                System.out.println(tag.name);
+            }
+            System.out.println("Tag Count: " + existingTags.size());
+
             return existingTags;
         }, executionContext);
     }
