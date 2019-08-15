@@ -191,6 +191,7 @@ public class TripController extends TEABackController {
             } else {
                 return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
                     userRepository.updateUsedTags(user, oldTrip, trip);
+                    trip.tags = existingTags;
                     return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
                         if (uploaded) {
                             return ok(Json.toJson(trip.id));

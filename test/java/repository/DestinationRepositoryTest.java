@@ -39,9 +39,11 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
         assertEquals(2, destination.travellerTypes.size());
         assertEquals(2, destination.travellerTypesPending.size());
 
-        Tag testTag = new Tag("sports", 2L);
-        assertEquals(1, destination.tags.size());
+        Tag testTag = new Tag("sports");
+        Tag testTag2 = new Tag("music");
+        assertEquals(2, destination.tags.size());
         assertTrue(destination.tags.contains(testTag));
+        assertTrue(destination.tags.contains(testTag2));
 
         return true;
     }
