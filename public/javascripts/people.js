@@ -184,6 +184,11 @@ function getPeopleResults() {
     });
 }
 
+function createCardFields(card) {
+
+}
+
+
 /**
  * Creates a html people card cloning the template in the people.scala.html
  *
@@ -192,13 +197,28 @@ function getPeopleResults() {
 function createPeopleCard(person) {
     let template = document.getElementById("personCardTemplate");
     let clone = template.content.cloneNode(true);
+    let nationalities = "";
+    let travellerTypes = "";
+
+
 
     $(clone).find("#card-header").append(`${person.firstName} ${person.lastName}`);
     $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
     $(clone).find("#age").append("Age: " + person.dateOfBirth);
     $(clone).find("#gender").append("Gender: " + person.gender);
-    $(clone).find("#nationalities").append("Nationalities: " + person.nationalities.name);
-    $(clone).find("#traveller-type").append("Traveller Types: " + person.travellerTypes);
+    person.nationalities.forEach(item => {
+        nationalities += item.name + ", ";
+    });
+    nationalities = nationalities.slice(0, -2);
+
+    person.travellerTypes.forEach(item => {
+        console.log(item);
+        travellerTypes += item.description + ", ";
+    });
+    travellerTypes = travellerTypes.slice(0, -2);
+
+    $(clone).find("#nationalities").append("Nationalities: " + nationalities);
+    $(clone).find("#traveller-type").append("Traveller Types: " + travellerTypes);
 
     document.getElementById("peopleCardsList").appendChild(clone);
 }
