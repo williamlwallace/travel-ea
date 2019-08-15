@@ -4,12 +4,14 @@ can add an intermediate modal as is the case in detailed destinations *@
 
 @(canModify: Boolean, withTitle: Boolean, galleryId: String, pageId: String, editModal:Boolean)
 
-
 <div class="section-title">
     <p>
         @if(withTitle) {
             <span id="galleryTitle" class="section-title">Your Photos</span>
         }
+        <select id="tagFilter" multiple>
+            <option value="" disabled hidden>Filter</option>
+        </select>
         @if(canModify) {
             <a class="button-secondary" id="upload-gallery-image-button" data-toggle="modal" href="#upload-modal" >
                 <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>

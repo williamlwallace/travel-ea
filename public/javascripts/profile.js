@@ -6,9 +6,9 @@ let getAllPhotosUrl;
 
 /**
  * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
- * @param profileId the profileId to set
+ * @param {Number} profileID the profileId to set
  */
-function setprofileId(profileID) {
+function setProfileId(profileID) {
     profileId = profileID;
     getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
         profileId).url;
@@ -161,12 +161,10 @@ function populateProfileData(uri) {
 /**
  * Variables for selecting and cropping the profile picture.
  */
-let cropGallery = $('#profile-gallery');
-let profilePictureToCrop = document.getElementById('image');
-let profilePictureSize = 350;
+const cropGallery = $('#profile-gallery');
+const profilePictureToCrop = document.getElementById('image');
+const profilePictureSize = 350;
 let cropper;
-
-let profilePictureControllerUrl;
 let canEdit;
 let canDelete;
 
@@ -197,7 +195,7 @@ $(document).ready(function () {
             minContainerHeight: profilePictureSize,
 
             cropmove: function (event) {
-                let data = cropper.getData();
+                const data = cropper.getData();
                 if (data.width < profilePictureSize) {
                     event.preventDefault();
                     data.width = profilePictureSize;
@@ -218,7 +216,7 @@ $(document).ready(function () {
 function uploadProfilePicture() {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
 
@@ -267,7 +265,7 @@ function uploadProfilePicture() {
  */
 cropGallery.on('click', 'img', function () {
     //Get the path for the pictures thumbnail
-    let fullPicturePath = $(this).parent().attr("data-filename");
+    const fullPicturePath = $(this).parent().attr("data-filename");
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -352,8 +350,8 @@ function updatePhotoCaptionAndTags(guid) {
  * @param route
  */
 function deletePhoto(route) {
-    let guid = document.getElementById("modal-photo").name;
-    let deleteUrl = route.substring(0, route.length - 1) + guid;
+    const guid = document.getElementById("modal-photo").name;
+    const deleteUrl = route.substring(0, route.length - 1) + guid;
 
     _delete(deleteUrl)
     .then(response => {
@@ -438,7 +436,7 @@ function getPictures() {
  * Displays the users images in a change profile picture gallery modal
  */
 function showProfilePictureGallery() {
-    let galleryObjects = createGalleryObjects(false);
+    const galleryObjects = createGalleryObjects(false);
     addPhotos(galleryObjects, $("#profile-gallery"),
         $('#page-selection-profile-picture'));
     $('#changeProfilePictureModal').modal('show');

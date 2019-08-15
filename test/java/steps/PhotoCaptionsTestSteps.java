@@ -39,8 +39,6 @@ public class PhotoCaptionsTestSteps {
         json.set("tags", Json.toJson(new Tag[0]));
         json.set("caption", Json.toJson(string));
 
-        System.out.println(json);
-
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo/1")
             .method(PUT)
