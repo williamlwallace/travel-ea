@@ -222,6 +222,7 @@ function uploadProfilePicture() {
         let formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
+        formData.append("userUploadId", profileId.toString());
 
         const photoPostURL = photoRouter.controllers.backend.PhotoController.upload().url;
         const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(
@@ -365,6 +366,7 @@ function uploadNewPhoto() {
     const selectedFile = document.getElementById('upload-image-file').files[0];
     profilePictureToCrop.setAttribute('src',
         window.URL.createObjectURL(selectedFile));
+
     //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
