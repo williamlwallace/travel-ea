@@ -65,7 +65,7 @@
                 <div class="profile-main">
                     <div>
                         @*Call gallery modal, true indicating we want titles*@
-                        @modules.gallery(canModify, true, "main-gallery", "page-selection")
+                        @modules.gallery(canModify, true, "main-gallery", "page-selection", true)
                         @* Trips table Section *@
                         <div class="section-title">
                             <p>
@@ -100,7 +100,7 @@
         </div>
         </div>
 
-        @* Delete Photo Modal *@
+        @* Edit Photo Details Modal *@
         <div class="modal fade" id="deletePhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -263,7 +263,7 @@
                         </button>
                     </div>
                     @* all images gallery *@
-                    @modules.gallery(false, false, "cover-photo-gallery", "current-page")
+                    @modules.gallery(false, false, "cover-photo-gallery", "current-page", false)
                 </div>
             </div>
         </div>

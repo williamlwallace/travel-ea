@@ -24,6 +24,7 @@ public class Validator {
      * Checks field is not empty.
      *
      * @param field json field name
+     * @param name Name of field to be displayed on front end error label (use capitals and spaces)
      * @return Boolean whether validation succeeds
      */
     protected Boolean required(String field, String name) {
@@ -34,6 +35,22 @@ public class Validator {
             } else if (this.form.get(field).isArray() && this.form.get(field).size() > 0) {
                 return true;
             }
+        }
+        this.errorResponse.map(String.format("%s field must be present", name), field);
+        return false;
+    }
+
+    /**
+     * Checks field is not empty for tags fields only, as tags are a set there
+     * must be a check for if size is equal to zero
+     *
+     * @param field json field name
+     * @param name Name of field to be displayed on front end error label (use capitals and spaces)
+     * @return Boolean whether validation succeeds
+     */
+    protected Boolean requiredTags(String field, String name) {
+        if (this.form.has(field) && (this.form.get(field).isArray() && this.form.get(field).size() >= 0)) {
+            return true;
         }
         this.errorResponse.map(String.format("%s field must be present", name), field);
         return false;

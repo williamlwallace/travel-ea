@@ -93,7 +93,7 @@ DELETE        /api/photo/:photoId                    controllers.backend.PhotoCo
 
 PUT           /api/photo/:photoId/profile            controllers.backend.PhotoController.makePhotoProfile(request:Request, photoId:Long)
 
-PUT           /api/photo/:photoId/setCaption         controllers.backend.PhotoController.setPhotoCaption(request:Request, photoId:Long)
+PUT           /api/photo/:photoId                    controllers.backend.PhotoController.updatePhotoDetails(request:Request, photoId:Long)
 
 PUT           /api/photo/:photoId/cover              controllers.backend.PhotoController.setCoverPhoto(request:Request, photoId:Long)
 
@@ -108,6 +108,10 @@ PUT           /api/treasurehunt/:id                  controllers.backend.Treasur
 PUT           /api/treasurehunt/:id/delete           controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
+
+GET           /api/tag/                              controllers.backend.TagController.getTags(request:Request, name:String ?= null, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
+GET          /api/tag/:id                       controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
 
 # ~~~~~~frontend~~~~~~~
 # Start page

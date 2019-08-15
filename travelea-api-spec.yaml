@@ -1315,6 +1315,14 @@ paths:
             schema:
               type: object
               properties:
+                tags:
+                  type: array
+                  description: Tags ascociated with photo
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
@@ -1448,6 +1456,42 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Photo'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Photo not found'
+
+    put:
+      tags:
+      - Photos
+      summary: 'Updates the caption and tags associated with a photo'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: photoId
+        required: true
+        description: The ID of the photo to retrieve
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        $ref: '#/components/requestBodies/putPhotoDetails'
+      responses:
+        '200':
+          description: 'Successfully updated photo details'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePhotoDetails'
+        '400':
+          description: 'Bad Request'
         '403':
           description: 'Forbidden'
         '404':
@@ -1799,6 +1843,21 @@ components:
                 description: Date when treasure hunt ends
       description: Treasure hunt object to insert into database.
 
+    putPhotoDetails:
+      content:
+        application/json:
+          schema:
+            type: object
+            description: ""
+            properties:
+              caption:
+                type: string
+                example: 'A picture of the Eiffel tower, taken from Berlin with a really big camera lens'
+              tags:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+
 
 
   schemas:
@@ -2058,6 +2117,18 @@ components:
           format: ISO date-time
           example: '2019-04-01T23:26:00.000'
 
+    UpdatePhotoDetails:
+      type: object
+      description: ""
+      properties:
+        caption:
+          type: string
+          example: 'A picture of the Eiffel tower, taken from Berlin with a really big camera lens'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+
     TreasureHunt:
       type: object
       required:
@@ -2094,6 +2165,18 @@ components:
           type: string
           format: date yyyy/mm/dd
           example: '2019-07-12'
+
+    Tag:
+      type: object
+      required:
+      - name
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          example: 1
+        name:
+          type: string
 
     BinaryImageFile:
       type: string
