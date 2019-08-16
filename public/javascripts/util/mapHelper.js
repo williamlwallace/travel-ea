@@ -120,8 +120,17 @@ class DestinationMap {
      * Clusters all of the destination markers on the map.
      */
     clusterMarkers() {
-        this.markerCluster = new MarkerClusterer(this.map, this.markers,
+        const markerCluster = new MarkerClusterer(this.map, this.markers,
             {imagePath: '/assets/images/markerClusterer/m'});
+        // add listner to stop marker change on cluster click
+        google.maps.event.addListener(this.map, 'zoom_changed', function() {
+            map.creativeMode = false;
+            setTimeout(() => {
+                map.creativeMode = true;
+            }, 10);
+            // const pos = this.newMarker.getPosition();
+            // console.log(pos.lng());
+        });
     }
 
     /**

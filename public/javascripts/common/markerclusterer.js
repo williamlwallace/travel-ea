@@ -1063,7 +1063,6 @@ ClusterIcon.prototype.triggerClusterClick = function() {
 
   // Trigger the clusterclick event.
   google.maps.event.trigger(markerClusterer.map_, 'clusterclick', this.cluster_);
-
   if (markerClusterer.isZoomOnClick()) {
     // Zoom into the cluster.
     this.map_.fitBounds(this.cluster_.getBounds());
