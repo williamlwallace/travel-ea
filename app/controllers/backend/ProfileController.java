@@ -189,11 +189,17 @@ public class ProfileController extends TEABackController {
     /**
      * Retrieves all profiles, filters them and then returns the filtered list of profiles.
      *
-     * @param nationalityId nationality request
-     * @param gender gender requested
+     * @param nationalityIds nationality request
+     * @param genders gender requested
      * @param minAge minimum age for filter
      * @param maxAge maximum age for filter
-     * @param travellerTypeId traveller type requested
+     * @param travellerTypeIds traveller type requested
+     * @param searchQuery The string to filter names by
+     * @param sortBy What column to sort by
+     * @param ascending Whether or not to sort ascendingly
+     * @param pageNum Number of page we are currently showing
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order that this request has, allows frontend to determine what results to take
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})

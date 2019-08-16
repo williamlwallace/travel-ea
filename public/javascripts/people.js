@@ -94,8 +94,9 @@ function getAscending() {
 }
 
 /**
+ * Changes the page we are viewing (if possible) and reloads data
  *
- * @param pageNumber
+ * @param desiredPageNumber Page number to change to
  */
 function goToPage(desiredPageNumber) {
     if(desiredPageNumber > totalNumberPages || desiredPageNumber < 1) {
@@ -184,23 +185,16 @@ function getPeopleResults() {
     });
 }
 
-function createCardFields(card) {
-
-}
-
-
 /**
  * Creates a html people card cloning the template in the people.scala.html
  *
  * @param person is Json profile object
  */
 function createPeopleCard(person) {
-    let template = document.getElementById("personCardTemplate");
+    let template = $("#personCardTemplate").get(0);
     let clone = template.content.cloneNode(true);
     let nationalities = "";
     let travellerTypes = "";
-
-
 
     $(clone).find("#card-header").append(`${person.firstName} ${person.lastName}`);
     $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
@@ -212,7 +206,6 @@ function createPeopleCard(person) {
     nationalities = nationalities.slice(0, -2);
 
     person.travellerTypes.forEach(item => {
-        console.log(item);
         travellerTypes += item.description + ", ";
     });
     travellerTypes = travellerTypes.slice(0, -2);
@@ -220,7 +213,7 @@ function createPeopleCard(person) {
     $(clone).find("#nationalities").append("Nationalities: " + nationalities);
     $(clone).find("#traveller-type").append("Traveller Types: " + travellerTypes);
 
-    document.getElementById("peopleCardsList").appendChild(clone);
+    $("#peopleCardsList").get(0).appendChild(clone);
 }
 
 /**
