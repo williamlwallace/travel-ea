@@ -128,8 +128,6 @@ class DestinationMap {
             setTimeout(() => {
                 map.creativeMode = true;
             }, 10);
-            // const pos = this.newMarker.getPosition();
-            // console.log(pos.lng());
         });
     }
 
