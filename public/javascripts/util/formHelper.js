@@ -119,15 +119,20 @@ function fillDropDown(dropdownName, dict, sort = false) {
             }
         });
     }
-
+/*
     for (let i in array) {
         let option = document.createElement("OPTION");
         option.innerHTML = array[i].value;
         option.value = array[i].id;
         // Add list element to drop down list
         document.getElementById(dropdownName).appendChild(option);
-    }
-    $('#' + dropdownName).picker();
+    }*/
+
+    $.each(array, function(number, item) {
+        $('#' + dropdownName).append($('<option>').text(item.value).attr('value', item.id));
+    });
+
+    $('#' + dropdownName).selectpicker();
 }
 
 /**
@@ -153,7 +158,7 @@ function insertFieldData(json) {
  */
 function JSONFromDropDowns(dropdown) {
     let data = [];
-    let ids = $.map($(document.getElementById(dropdown)).picker('get'), Number);
+    let ids = $.map($(document.getElementById(dropdown)).selectpicker('val'), Number);
     for (let i = 0; i < ids.length; i++) {
         let dat = {};
         dat.id = ids[i];

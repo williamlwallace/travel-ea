@@ -213,6 +213,8 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> upload(Http.Request request) {
+        User loggedInUser = request.attrs().get(ActionState.USER);
+
         // Get the request body, and turn it into a
         // multipart form data collection of temporary files
         Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
@@ -223,6 +225,23 @@ public class PhotoController extends TEABackController {
         // Store in a boolean whether or not this is a test file
         boolean isTest = Boolean
             .parseBoolean(formKeys.getOrDefault("isTest", new String[]{"false"})[0]);
+
+        // Id of user that photo is being uploaded for, only applicable when admin is uploading
+        Long userIdForUpload;
+        String userUploadVal = formKeys.getOrDefault("userUploadId", new String[]{""})[0];
+        if(!userUploadVal.equals("")) {
+            try {
+                userIdForUpload = Long.parseLong(userUploadVal);
+                // If user is not an admin and uploading for someone else, throw forbidden
+                if(!loggedInUser.admin && !userIdForUpload.equals(loggedInUser.id)) {
+                    return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Non-admin users can only upload photos for themselves.")));
+                }
+            } catch (Exception e) {
+                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Could not parse userUploadId")));
+            }
+        } else { // If no userId specified, upload for themselves
+            userIdForUpload = loggedInUser.id;
+        }
 
         // Keep track of which file should be uploaded as a profile
         String profilePhotoFilename = formKeys
@@ -251,7 +270,7 @@ public class PhotoController extends TEABackController {
                     // Store file with photo in list to be added later
                     photos.add(new Pair<>(
                         readFileToPhoto(file, publicPhotoFileNames,
-                            request.attrs().get(ActionState.USER).id, isTest, caption), file));
+                            userIdForUpload, isTest, caption), file));
                 } catch (IOException e) {
                     // If an invalid file type given, return bad request
                     // with error message generated in exception
