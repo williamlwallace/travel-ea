@@ -389,10 +389,10 @@ public class DestinationController extends TEABackController {
                             return CompletableFuture.supplyAsync(() -> ok(Json.toJson(
                                 "Successfully requested to change destinations primary photo")));
                         } else {
-                            destination.destinationPrimaryPhotoPending.add(photo);
+
+                            destination.addPendingDestinationProfilePhoto(photoId);
                         }
                     }
-
                     return destinationRepository.updateDestination(destination)
                         .thenApplyAsync(rows -> ok(Json.toJson(
                             "Successfully changed destinations primary photo")));

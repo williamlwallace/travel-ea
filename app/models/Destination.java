@@ -84,7 +84,7 @@ public class Destination extends BaseModel {
     @ManyToMany(mappedBy = "destPrimaryPhotoPending")
     @JoinTable(
         name = "PendingDestinationPhoto",
-        joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
+        joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "guid", referencedColumnName = "guid"))
     public List<Photo> destinationPrimaryPhotoPending;
 
@@ -200,6 +200,7 @@ public class Destination extends BaseModel {
     public void addPendingDestinationProfilePhoto(Long photoId) {
         Photo photo = new Photo();
         photo.guid = photoId;
+        System.out.println(photo);
         this.destinationPrimaryPhotoPending.add(photo);
     }
 

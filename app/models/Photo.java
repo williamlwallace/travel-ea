@@ -75,7 +75,7 @@ public class Photo extends Model {
     @JoinTable(
         name = "PendingDestinationPhoto",
         joinColumns = @JoinColumn(name = "guid", referencedColumnName = "guid"),
-        inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
+        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
 
     public List<Destination> destPrimaryPhotoPending;
 
