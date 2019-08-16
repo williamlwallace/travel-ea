@@ -50,6 +50,8 @@ public class PhotoController extends TEABackController {
     // Default dimensions of thumbnail images
     private static final int THUMB_WIDTH = 400;
     private static final int THUMB_HEIGHT = 266;
+    private static final int PROFILE_THUMB_HEIGHT = 150;
+    private static final int PROFILE_THUMB_WIDTH = 150;
     private final String savePath;
     // Repositories to handle DB transactions
     private PhotoRepository photoRepository;
@@ -312,8 +314,8 @@ public class PhotoController extends TEABackController {
             // if photo to add is marked as new profile pic, clear any existing profile pic first
             if (useProfileThumbnailSize) {
                 // Profile picture small thumbnail dimensions
-                thumbWidth = 100;
-                thumbHeight = 100;
+                thumbWidth = PROFILE_THUMB_WIDTH;
+                thumbHeight = PROFILE_THUMB_HEIGHT;
             }
 
             // Buffer the image and use same file creation process as
