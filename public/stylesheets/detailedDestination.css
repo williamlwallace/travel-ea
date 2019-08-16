@@ -15,12 +15,10 @@ div.destination {
  */
 #destination-summary {
     background-color: #FFFFFF;
-    width: 68%;
+    width: 82%;
     height: auto;
     margin-left: auto;
     margin-right: auto;
-    position: -webkit-sticky;
-    position: sticky;
     top: 4rem;
 }
 

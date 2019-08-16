@@ -230,8 +230,8 @@ function clearFilter() {
     $('#gender').val('');
     $('#minAge').val(null);
     $('#maxAge').val(null);
-    $(document.getElementById('nationalities')).picker('set', "");
-    $(document.getElementById('travellerTypes')).picker('set', "");
+    $(document.getElementById('nationalities')).selectpicker('val', "");
+    $(document.getElementById('travellerTypes')).selectpicker('val', "");
     table.populateTable();
 }
 
