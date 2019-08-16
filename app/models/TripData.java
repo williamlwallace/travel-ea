@@ -48,7 +48,7 @@ public class TripData extends Model {
     public LocalDateTime departureTime;
 
     @ManyToOne
-    public Photo primaryPhotoId;
+    public Photo primaryPhoto;
 
     /**
      * Transforms the arrival time to an ISO string an returns it.

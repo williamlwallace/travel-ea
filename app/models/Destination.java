@@ -56,7 +56,7 @@ public class Destination extends BaseModel {
     public CountryDefinition country;
 
     @ManyToOne
-    public Photo primaryPhotoId;
+    public Photo primaryPhoto;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "destinationPhotos")
@@ -209,7 +209,7 @@ public class Destination extends BaseModel {
      * @param photoId The id of the photo to remove
      * @return true if the photo was removed, false if not
      */
-    public Boolean removePendingDestinationPrimarryPhoto(Long photoId) {
+    public Boolean removePendingDestinationPrimaryPhoto(Long photoId) {
         Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
         while (iterator.hasNext()) {
             Photo photo = iterator.next();
