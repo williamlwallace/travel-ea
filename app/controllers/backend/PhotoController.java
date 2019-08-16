@@ -351,11 +351,11 @@ public class PhotoController extends TEABackController {
      * Reads a file part from the multipart form and returns a Photo object to add to the database.
      *
      * @param file File part from form
-     * @param profilePhotoFilename Name (if any) of photo to be set as profile picture
      * @param publicPhotoFileNames Names (if any) of photos to be set to public, defaults to private
      * if referenced here
      * @param userId ID of user who is uploading the files
      * @param isTest Whether or not these photos should be added to test folder of storage
+     * @param caption Caption for photo
      * @return Photo object to be added to database
      * @throws IOException Thrown when an unsupported file type added (i.e not image/jpeg or
      * image/png)

@@ -360,8 +360,8 @@ public class DestinationController extends TEABackController {
      * @return Response result containing success/error message
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> changeDestinationPrimaryPhoto(Http.Request request, Long destId,
-        Long photoId) {
+    public CompletableFuture<Result> changeDestinationPrimaryPhoto(Http.Request request,
+        Long destId, Long photoId) {
         User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -371,31 +371,43 @@ public class DestinationController extends TEABackController {
             return photoRepository.getPhotoById(photoId)
                 .thenComposeAsync(photo -> {
                     if (photo == null) {
-                        return CompletableFuture.supplyAsync(() -> notFound(
-                            Json.toJson("Photo with provided ID not found")));
+                        return CompletableFuture.supplyAsync(
+                            () -> notFound(Json.toJson("Photo with provided ID not found")));
                     }
 
-                    // If user is allowed to change photo
-                    if (destination.user.id.equals(user.id) || user.admin) {
+                    JsonNode oldDestination = Json.toJson(destination);
+
+                    // Currently a photo can only be set/requested to set as the destination primary
+                    // photo by the owner of the photo or an admin. This is because if a user requests
+                    // for someone else's photo to be destination primary photo, admin will probably
+                    // just accept, without the user's agreement. Also if this user then makes their
+                    // photo private again it should no longer be the destination primary photo.
+                    // This adds too many complications so it is better to only allow the owner of the
+                    // photo or an admin to set/request the photo to become destination primary photo.
+
+                    // If user is destination owner and photo owner, or if user is admin, set the photo
+                    if ((destination.user.id.equals(user.id) && photo.userId.equals(user.id))
+                        || user.admin) {
                         destination.primaryPhoto = photo;
-                        if (destination.isPendingPhoto(photoId)) {
+                        if (destination.hasPhotoPending(photoId)) {
                             destination.removePendingDestinationPrimaryPhoto(photoId);
                         }
                     }
-                    // If user must request to change destination primary photo
-                    else {
-                        // Request already exists
-                        if (destination.isPendingPhoto(photoId)) {
-                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(
-                                "Successfully requested to change destinations primary photo")));
+                    // If user is photo owner and wants the photo on the destination, request to set photo
+                    else if (photo.userId.equals(user.id)) {
+                        // If request already exists
+                        if (destination.hasPhotoPending(photoId)) {
+                            return CompletableFuture
+                                .supplyAsync(() -> ok(Json.toJson(oldDestination)));
                         } else {
-
                             destination.addPendingDestinationProfilePhoto(photoId);
                         }
+                    } else {
+                        return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
+                            "You do not have permission to set this photo as the destination primary photo")));
                     }
                     return destinationRepository.updateDestination(destination)
-                        .thenApplyAsync(rows -> ok(Json.toJson(
-                            "Successfully changed destinations primary photo")));
+                        .thenApplyAsync(rows -> ok(Json.toJson(oldDestination)));
                 });
         });
     }

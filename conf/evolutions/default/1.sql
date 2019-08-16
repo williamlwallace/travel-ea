@@ -106,16 +106,16 @@ CREATE TABLE IF NOT EXISTS TravellerType
 -- Create Destination table
 CREATE TABLE IF NOT EXISTS Destination
   (
-    id                INT NOT NULL AUTO_INCREMENT,
-    user_id           INT NOT NULL,
-    name              VARCHAR(128) NOT NULL,
-    type              VARCHAR(128) NOT NULL,
-    district          VARCHAR(128) NOT NULL,
-    latitude          DOUBLE NOT NULL,
-    longitude         DOUBLE NOT NULL,
-    country_id        INT NOT NULL,
-    is_public         BIT NOT NULL DEFAULT 0,
-    deleted           BOOLEAN NOT NULL DEFAULT false,
+    id                  INT NOT NULL AUTO_INCREMENT,
+    user_id             INT NOT NULL,
+    name                VARCHAR(128) NOT NULL,
+    type                VARCHAR(128) NOT NULL,
+    district            VARCHAR(128) NOT NULL,
+    latitude            DOUBLE NOT NULL,
+    longitude           DOUBLE NOT NULL,
+    country_id          INT NOT NULL,
+    is_public           BIT NOT NULL DEFAULT 0,
+    deleted             BOOLEAN NOT NULL DEFAULT false,
     primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
@@ -197,8 +197,8 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 CREATE TABLE IF NOT EXISTS PendingDestinationPhoto
   (
     id                  INT NOT NULL AUTO_INCREMENT,
-    guid_id            INT NOT NULL,
-    dest_id      INT NOT NULL,
+    guid_id             INT NOT NULL,
+    dest_id             INT NOT NULL,
     FOREIGN KEY (guid_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)

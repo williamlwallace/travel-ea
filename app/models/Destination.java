@@ -181,7 +181,7 @@ public class Destination extends BaseModel {
      * @param photoId id of photo
      * @return True if dest is linked to photo
      */
-    public Boolean isPendingPhoto(Long photoId) {
+    public Boolean hasPhotoPending(Long photoId) {
         Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
         while (iterator.hasNext()) {
             Photo photo = iterator.next();
@@ -193,19 +193,18 @@ public class Destination extends BaseModel {
     }
 
     /**
-     * Adds request to set destination primary photo
+     * Adds request to set a primary photo on the destination
      *
      * @param photoId The id of the photo to add
      */
     public void addPendingDestinationProfilePhoto(Long photoId) {
         Photo photo = new Photo();
         photo.guid = photoId;
-        System.out.println(photo);
         this.destinationPrimaryPhotoPending.add(photo);
     }
 
     /**
-     * Removes request to set aa destinations primary photo
+     * Removes request to set a primary photo on the destination
      *
      * @param photoId The id of the photo to remove
      * @return true if the photo was removed, false if not
