@@ -1,5 +1,3 @@
-/* Display gender drop down the same as the others */
-$('#gender').picker();
 /* Automatically display profile form when signing up */
 $('#createProfileForm').modal('show');
 
