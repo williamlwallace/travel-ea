@@ -197,8 +197,8 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 CREATE TABLE IF NOT EXISTS PendingDestinationPhoto
   (
     id                  INT NOT NULL AUTO_INCREMENT,
-    guid_id            INT NOT NULL,
-    dest_id      INT NOT NULL,
+    guid_id             INT NOT NULL,
+    dest_id             INT NOT NULL,
     FOREIGN KEY (guid_id) REFERENCES Photo(guid) ON DELETE CASCADE,
     FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)

@@ -200,12 +200,11 @@ public class Destination extends BaseModel {
     public void addPendingDestinationProfilePhoto(Long photoId) {
         Photo photo = new Photo();
         photo.guid = photoId;
-        System.out.println(photo);
         this.destinationPrimaryPhotoPending.add(photo);
     }
 
     /**
-     * Removes request to set aa destinations primary photo
+     * Removes request to set a destinations primary photo
      *
      * @param photoId The id of the photo to remove
      * @return true if the photo was removed, false if not
