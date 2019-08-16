@@ -47,6 +47,9 @@ public class TripData extends Model {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime departureTime;
 
+    @ManyToOne
+    public Photo primaryPhotoId;
+
     /**
      * Transforms the arrival time to an ISO string an returns it.
      *

@@ -55,6 +55,9 @@ public class Destination extends BaseModel {
     @Constraints.Required
     public CountryDefinition country;
 
+    @ManyToOne
+    public Photo primaryPhotoId;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "destinationPhotos")
     @JoinTable(
