@@ -119,10 +119,10 @@ CREATE TABLE IF NOT EXISTS Destination
     country_id        INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
     deleted           BOOLEAN NOT NULL DEFAULT false,
-    primary_photo_id_guid  INT,
+    primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
-    FOREIGN KEY (primary_photo_id_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
 
@@ -173,10 +173,10 @@ CREATE TABLE IF NOT EXISTS TripData
     destination_id    INT NOT NULL,
     arrival_time      DATETIME,
     departure_time    DATETIME,
-    primary_photo_id_guid  INT,
+    primary_photo_guid  INT,
     FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    FOREIGN KEY (primary_photo_id_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
