@@ -39,13 +39,25 @@ $('#upload-img').on('click', function () {
 let usersPhotos = [];
 
 /**
+ * Function to filter gallery by tags
+ */
+$('#tagFilter').on('change', function() {
+    const tags = $(this).val();
+    const galleryId = $('#upload-img').data('gallery-id');
+    const pageId = $('#upload-img').data('page-id');
+    fillGallery(getAllPhotosUrl, galleryId, pageId, tags);
+
+});
+
+/**
  * Function to populate gallery with current users photos
  *
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId) {
+function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -56,8 +68,19 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
             for (let i = 0; i < data.length; i++) {
-                data[i]["isOwned"] = true;
-                usersPhotos[i] = data[i];
+                if (!filters || filters.length === 0) {
+                    data[i]["isOwned"] = true;
+                    usersPhotos[i] = data[i];
+                } else {
+                    for (const filter of filters) {
+                        if (data[i].tags.map(tag => tag.name).includes(filter)) {
+                            data[i]["isOwned"] = true;
+                            usersPhotos.push(data[i]);
+                            break;
+                        }
+                    }
+
+                }
             }
             const galleryObjects = createGalleryObjects(true);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));

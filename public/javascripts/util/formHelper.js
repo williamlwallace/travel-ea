@@ -103,6 +103,8 @@ function fillDropDown(dropdownName, dict, sort = false) {
     let array = [];
     let item;
 
+    $('#' + dropdownName).empty();
+
     for (let key in dict) {
         item = {};
         item.id = key;

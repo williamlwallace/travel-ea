@@ -340,6 +340,7 @@ function updatePhotoCaptionAndTags(guid) {
         if (status === 200) {
             $('[data-id="' + guid + '"]').attr("data-caption", caption);
             fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+            getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
         }
     }.bind({initialUpdate});
     const reqData = new ReqData(requestTypes["UPDATE"], url, handler, reqBody);
@@ -366,7 +367,7 @@ function deletePhoto(route) {
                 getProfileAndCoverPicture();
                 undoRedo.undoStack.clear();
                 undoRedo.redoStack.clear();
-                undoRedo.updateButtons();
+                updateUndoRedoButtons();
             }
         });
     });
