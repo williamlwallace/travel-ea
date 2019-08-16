@@ -1,7 +1,6 @@
 @import models.User
 @(title: String, user: User, scripts: Html = Html(""))(content: Html)
 
-@* Shows the current tab as active. Thanks to user2518430 of stackoverflow *@
 @activeLink(currentPath:String) = @{
     if(request.path.equals(currentPath)) "active"
 }
@@ -12,7 +11,7 @@
         <title>TravelEA - @title</title>
         @* Adds all stylesheets to files using the layout template. *@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/picker.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap-select.min.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap-tagsinput.css")">
 
@@ -86,7 +85,6 @@
         <script src="@routes.Assets.at("javascripts/common/jquery-ui.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/popper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/bootstrap.min.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.at("javascripts/common/picker.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/bootstrap-tagsinput.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/mainLayout.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/fetch.js")" type="text/javascript"></script>
@@ -103,6 +101,7 @@
         <script src="@routes.Assets.at("javascripts/util/mapHelper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/tagsPicker.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/tagsDisplay.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/common/bootstrap-select.min.js")" type="text/javascript"></script>
 
         @* Imports MBBootstrap Datatables JS. *@
         <script src="@routes.Assets.at("javascripts/common/datatables.min.js")" type="text/javascript"></script>

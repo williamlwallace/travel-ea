@@ -19,6 +19,7 @@ $('#upload-img').on('click', function () {
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
+        formData.append("userUploadId", window.location.href.split("/").pop());
         formData.append('tags', JSON.stringify(tags));
     }
     // Send request and handle response

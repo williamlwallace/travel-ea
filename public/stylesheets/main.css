@@ -169,10 +169,6 @@ pre {
     pointer-events: none;
 }
 
-.selectpicker {
-    border: 1px solid #ced4da !important;
-}
-
 .upload-btn-wrapper {
     position: relative;
     overflow: hidden;
@@ -357,3 +353,16 @@ pre {
     color: rgba(255,255,255, 0.4) !important;
 }
 
+.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) {
+    width: 100%;
+}
+
+.bootstrap-select>.dropdown-toggle {
+    border-radius: .25rem;
+    border: 1px solid #ced4da;
+    background-color: white;
+}
+
+.control-label {
+    margin-bottom: 5px;
+}
