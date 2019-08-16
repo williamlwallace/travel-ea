@@ -135,11 +135,11 @@ function createPaginationBar() {
         }
     }
     $(".pagination").html("");
-    $(".pagination").append("<li class=\"page-item\" onclick='goToPage(" + (pageNum - 1) + ")'><a class=\"page-link\">Previous</a></li>");
+    $(".pagination").append("<li class=\"page-item\" style=\"cursor: pointer\" onclick='goToPage(" + (pageNum - 1) + ")'><a class=\"page-link\">Previous</a></li>");
     pageNumbers.forEach((item) => {
-        $(".pagination").append("<li class=\"page-item\" onclick='goToPage(" + item + ")'><a class=\"page-link\">" + item + " </a></li>");
+        $(".pagination").append("<li class=\"page-item\" style=\"cursor: pointer\" onclick='goToPage(" + item + ")'><a class=\"page-link\">" + item + " </a></li>");
     });
-    $(".pagination").append("<li class=\"page-item\" onclick='goToPage(" + pageNum + 1 + ")'><a class=\"page-link\">Next</a></li>");
+    $(".pagination").append("<li class=\"page-item\" style=\"cursor: pointer\" onclick='goToPage(" + pageNum + 1 + ")'><a class=\"page-link\">Next</a></li>");
 }
 
 /**
