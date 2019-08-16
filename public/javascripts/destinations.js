@@ -1,25 +1,14 @@
-let table;
 let activeInfoWindow;
 let map;
 let toggled;
 
 /**
- * Initializes destination table and calls method to populate
+ * Initializes destination page and map
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
     const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
         userId).url;
-    const tableModal = {
-        createdRow: function (row, data, dataIndex) {
-            $(row).attr('data-href', data[data.length - 1]);
-            $(row).addClass("clickable-row");
-        }
-    };
-    table = new EATable('dtDestination', tableModal, destinationGetURL,
-        populateDestinations, (json) => {
-            document.getElementById("otherError").innerHTML = json;
-        });
     const options = {
         zoom: 1.8,
         center: {lat: 2, lng: 2}
@@ -81,7 +70,7 @@ function addDestination(url, redirect, userId) {
             }
         } else {
             toast("Destination Created!",
-                "The new destination will be added to the table.",
+                "The new destination will be added.",
                 "success");
             $('#createDestinationModal').modal('hide');
             resetDestinationModal();
@@ -106,7 +95,7 @@ function addDestination(url, redirect, userId) {
                 }
             }
 
-            table.populateTable();
+            //TODO:refresh cards
             toggled = true;
             toggleDestinationForm();
             this.map.populateMarkers();
@@ -116,7 +105,7 @@ function addDestination(url, redirect, userId) {
     }.bind({userId, data, map});
     const inverseHandler = function (status, json) {
         if (status === 200) {
-            table.populateTable();
+            //TODO:refresh cards
             map.populateMarkers();
         }
     }.bind({map});
@@ -133,37 +122,6 @@ function addDestination(url, redirect, userId) {
 function resetDestinationModal() {
     document.getElementById("addDestinationForm").reset();
     hideErrors("addDestinationForm");
-}
-
-/**
- * Insert destination data into table
- * @param {Object} json Json object containing destination data
- */
-function populateDestinations(json) {
-    const rows = [];
-    for (const dest in json) {
-        const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-            json[dest].id).url;
-        const name = json[dest].name;
-        const type = json[dest].destType;
-        const district = json[dest].district;
-        const latitude = json[dest].latitude.toFixed(2);
-        const longitude = json[dest].longitude.toFixed(2);
-        let country = json[dest].country.name;
-        const row = checkCountryValidity(json[dest].country.name,
-            json[dest].country.id)
-        .then(result => {
-            if (result === false) {
-                country = json[dest].country.name + ' (invalid)';
-            }
-            return [name, type, district, latitude, longitude, country,
-                destination]
-        });
-        rows.push(row);
-    }
-    return Promise.all(rows).then(finishedRows => {
-        return finishedRows
-    });
 }
 
 /**
@@ -215,13 +173,6 @@ function toggleDestinationForm() {
         toggled = true;
     }
 }
-
-/**
- * Redirect to the destinations details page when row is clicked.
- */
-$('#dtDestination').on('click', 'tbody tr', function () {
-    window.location = this.dataset.href;
-});
 
 /**
  * On click listener for the create destinations cancel button
