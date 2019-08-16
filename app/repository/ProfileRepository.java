@@ -131,7 +131,7 @@ public class ProfileRepository {
                     .fetch("travellerTypes")
                     .fetch("nationalities")
                     .where()
-                    //.ne("t0.user_id", userId) // Where t0 is the name ebeans generates for the table (if broken, it's probably this.)
+                    .ne("t0.user_id", userId) // Where t0 is the name ebeans generates for the table (if broken, it's probably this.)
                     // Filter traveller types by given traveller type ids, only if some were given
                     .or(
                         Expr.in("travellerTypes.id", travellerTypeIdsNotNull),

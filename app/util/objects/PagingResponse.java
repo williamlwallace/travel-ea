@@ -1,14 +1,12 @@
 package util.objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 public class PagingResponse<T> {
 
-    private Collection<T> data;
-    private Integer requestOrder;
-    private Integer totalNumberPages;
+    public List<T> data;
+    public Integer requestOrder;
+    public Integer totalNumberPages;
 
     /**
      * Constructor to initialize a paging response object, this is the only chance to set values
@@ -17,23 +15,15 @@ public class PagingResponse<T> {
      * @param requestOrder The order this request was sent in, keeps track of which request is most recent
      * @param totalNumberPages Total number of pages to show available (how many more data sets there are)
      */
-    @JsonCreator
-    public PagingResponse(Collection<T> data, Integer requestOrder, Integer totalNumberPages) {
+    public PagingResponse(List<T> data, Integer requestOrder, Integer totalNumberPages) {
         this.data = data;
         this.requestOrder = requestOrder;
         this.totalNumberPages = totalNumberPages;
     }
 
-    public Collection<T> getData() {
-        return Collections.unmodifiableCollection(data);
-    }
-
-    public Integer getTotalNumberPages() {
-        return totalNumberPages;
-    }
-
-    public Integer getRequestOrder() {
-        return requestOrder;
-    }
+    /**
+     * Empty constructor for getting class when deserializing
+     */
+    public PagingResponse() { }
 }
 
