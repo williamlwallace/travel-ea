@@ -212,6 +212,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
             const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
             const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
             const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
+            const tags = usersPhotos[(6 * page + position)]["tags"].map(tag => tag.name);
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
@@ -243,6 +244,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
             }
             photo.setAttribute("data-id", guid);
             photo.setAttribute("data-caption", caption);
+            photo.setAttribute("data-tags", tags.join(", "));
             photo.setAttribute("data-filename", filename);
             // thumbnail
             let thumbnail = usersPhotos[(6 * page
@@ -357,7 +359,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             $(galleryId).html(galleryObjects[currentPage - 1]);
             baguetteBox.run('.tz-gallery', {
                 captions: function (element) {
-                    return $(element).attr('data-caption');
+                    return `${$(element).attr('data-caption')}\n${$(element).attr('data-tags')}`;
                 }
             });
             $('.img-wrap .close').on('click', function () {
@@ -371,7 +373,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
-                return $(element).attr('data-caption');
+                return `${$(element).attr('data-caption')} - ${$(element).attr('data-tags')}`;
             }
         });
         $('.img-wrap .close').on('click', function () {
