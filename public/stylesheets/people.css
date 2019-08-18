@@ -1,8 +1,19 @@
 #filterItemDiv {
     padding: 10px;
     display: inline-block;
-    width:250px;
+    width:200px;
     height:90px;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
 }
 
 #filterButton {
@@ -23,7 +34,11 @@
 }
 
 #ageRange {
-    width: 200px;
+    width: 120px;
+}
+
+#pageSize {
+    width: 100px;
 }
 
 #buttonDiv {

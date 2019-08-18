@@ -1014,36 +1014,85 @@ paths:
       summary: Searches through all profiles based on some criteria
       parameters:
       - in: query
-        name: nationalityId
-        description: ID of some nationality to search by
+        name: nationalityIds
+        description: IDs of some nationalities to search by
         schema:
-          type: integer
-          format: int64
-          minimum: 0
+          type: array
+          items:
+            type: integer
+            format: int64
+            minimum: 0
       - in: query
         name: travellerTypeId
         description: ID of some traveller type to search by
         schema:
-          type: integer
-          format: int64
-          minimum: 0
+          type: array
+          items:
+            type: integer
+            format: int64
+            minimum: 0
       - in: query
         name: gender
-        description: A gender to search for
+        description: Must be in Male, Female, or Other.
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+            minimum: 0
       - in: query
         name: minAge
         description: The minimum age of people for whom to show profiles
         schema:
           type: integer
           minimum: 0
+          example: 3
       - in: query
         name: maxAge
         description: The maximum age of people for whom to show profiles
         schema:
           type: integer
           minimum: 0
+          example: 90
+      - in: query
+        name: searchQuery
+        description: Profile name to search for (WHERE ('fName ' + 'mName ' + 'lname' LIKE searchQuery) OR ('fName ' + 'lname' LIKE searchQuery))
+        schema:
+          type: string
+          example: 'Matthew Mi'
+      - in: query
+        name: sortBy
+        description: "Column to sort by, must be in: 'fName', 'lName', 'gender', or 'age'"
+        schema:
+          type: string
+          example: 'lName'
+      - in: query
+        name: ascending
+        description: Whether or not to sort the results in ascending order
+        schema:
+          type: boolean
+          example: true
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: he order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
+
       responses:
         '200':
           description: Successfully retrieved (possibly zero) profiles
@@ -1190,7 +1239,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update profile photo of
         schema:
@@ -1234,7 +1283,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update cover photo of
         schema:
@@ -1278,7 +1327,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The ID of the photo being toggled
         schema:
@@ -1319,6 +1368,10 @@ paths:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
                   example: 'true'
+                userUploadId:
+                  type: string
+                  description: 'The id of the user to upload the photo for, note only admins can upload photos for other users'
+                  example: '1'
                 profilePhotoFileName:
                   type: string
                   description: 'If an image being uploaded should be set to profile photo of the uploading user, put the name of the file here. This overwrites any existing profile photo'
@@ -1342,6 +1395,8 @@ paths:
           description: Invalid file type given | Missing file | No files given
         '401':
           description: Unauthorized
+        '403':
+          description: Forbidden, returned when someone tries to upload a photo for a different user
 
   '/user/{id}/photo/':
     get:
