@@ -1,6 +1,3 @@
--- AUTHOR: Matthew Minish, William Wallace, Ollie Sharplin, what about me?
--- MODIFIED: 9/7/2019 2.00PM
-
 -- !Ups
 
 -- Create User table
@@ -258,7 +255,7 @@ CREATE TABLE IF NOT EXISTS UsedTag
     tag_id                INT NOT NULL,
     user_id               INT NOT NULL,
     time_used             DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id)  REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (guid)
   );
@@ -271,7 +268,6 @@ DROP TABLE DestinationTag;
 DROP TABLE Tag;
 DROP TABLE TreasureHunt;
 DROP TABLE DestinationPhoto;
-DROP TABLE Photo;
 DROP TABLE DestinationTravellerType;
 DROP TABLE DestinationTravellerTypePending;
 DROP TABLE TravellerType;
@@ -283,4 +279,5 @@ DROP TABLE Destination;
 DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
+DROP TABLE Photo;
 DROP TABLE User;
