@@ -97,7 +97,7 @@ function makeDestinationPublic(destinationId) {
             createPrivacyButton(true);
             initMap(destinationId);
             toast('Destination Privacy Changed',
-                'The destination is now public.', 'success');
+                'The destination is now public');
         } else {
             toast('Error changing privacy', response.toString(), 'danger',
                 5000);
@@ -178,7 +178,7 @@ function editDestination(destinationId) {
                         if (status !== 200) {
                             if (data === "Duplicate destination") {
                                 toast("Destination could not be edited!",
-                                    "The destination already exists.",
+                                    "The destination already exists",
                                     "danger",
                                     5000);
                                 $('#editDestinationModal').modal('hide');
@@ -186,14 +186,13 @@ function editDestination(destinationId) {
                                 toast("Not Updated",
                                     "There was an error updating the destination details:"
                                     + data,
-                                    "danger");
+                                    "danger", 5000);
                             }
                         } else if (status === 200) {
                             populateDestinationDetails(this.destinationId)
                             .then(() => {
                                 toast("Destination Updated",
-                                    "Updated Details are now showing",
-                                    'success');
+                                    "Successfully updated the destination");
                                 closeEdit();
                             });
                         }
@@ -366,8 +365,7 @@ function toggleLinked(guid, newLinked, destinationId) {
                 label.setAttribute("onClick",
                     "toggleLinked(" + guid + "," + !this.newLinked + ")");
                 toast("Photo Unlinked",
-                    "Photo has been successfully removed from this destination",
-                    "success");
+                    "Photo has been successfully removed from this destination");
             } else {
                 label.innerHTML = "Linked";
                 label.setAttribute("src",
@@ -375,7 +373,7 @@ function toggleLinked(guid, newLinked, destinationId) {
                 label.setAttribute("onClick",
                     "toggleLinked(" + guid + "," + !this.newLinked + ")");
                 toast("Photo Linked",
-                    "Photo Successfully linked to this destination, success");
+                    "Photo Successfully linked to this destination");
             }
             getUserId().then(id => {
                 sendUserIdAndFillGallery(id, destinationId);

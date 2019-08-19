@@ -92,8 +92,7 @@ function updateProfile(uri, redirect) {
                     updateProfileData(this.data);
                     $("#editProfileModal").modal('hide');
                     toast("Profile Updated!",
-                        "The updated information will be displayed on your profile.",
-                        "success");
+                        "The updated information will be displayed on your profile");
                 }
                 this.data = json;
             }.bind({data});
@@ -242,8 +241,7 @@ function uploadProfilePicture() {
                         if (status === 200) {
                             getProfileAndCoverPicture();
                             toast("Changes saved!",
-                                "Profile picture changes saved successfully.",
-                                "success");
+                                "Profile picture changes saved successfully");
                         } else {
                             toast("Error",
                                 "Unable to update profile picture", "danger");
@@ -294,7 +292,7 @@ function populateEditPhoto(guid, filename) {
         .then(photo => {
             if (response.status !== 200) {
                 toast("Error in retrieving photo data",
-                    "Could not retrive photo"
+                    "Could not retrieve photo"
                     + "data properly", "danger", 5000);
             } else {
                 const caption = photo.caption;
@@ -323,8 +321,7 @@ function updatePhotoCaption(guid) {
         } else {
             $('[data-id="' + guid + '"]').attr("data-caption", caption);
             fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
-            toast("Caption updated!", "The photo caption has been updated",
-                "success");
+            toast("Caption updated!", "The photo caption has been updated");
         }
     };
     const reqData = new ReqData(requestTypes["UPDATE"], url, handler, caption);
@@ -346,8 +343,7 @@ function deletePhoto(route) {
                 $('#edit-modal').modal('hide');
                 fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
                 toast("Picture deleted!",
-                    "The photo will no longer be displayed in the gallery.",
-                    "success");
+                    "The photo will no longer be displayed in the gallery");
                 getProfileAndCoverPicture();
                 undoRedo.undoStack.clear();
                 undoRedo.redoStack.clear();
@@ -446,8 +442,7 @@ function setCoverPhoto(photoId) {
             getProfileAndCoverPicture();
             $("#editCoverPhotoModal").modal('hide');
             toast("Changes saved!",
-                "Cover photo changes saved successfully.",
-                "success");
+                "Cover photo changes saved successfully");
         } else {
             toast("Error",
                 "Unable to update cover photo", "danger");

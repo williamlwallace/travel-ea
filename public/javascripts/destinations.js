@@ -81,7 +81,7 @@ function addDestination(url, redirect, userId) {
             }
         } else {
             toast("Destination Created!",
-                "The new destination will be added to the table.",
+                "The new destination will be added to the table",
                 "success");
             $('#createDestinationModal').modal('hide');
             resetDestinationModal();

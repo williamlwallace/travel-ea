@@ -76,8 +76,7 @@ function updateTreasureHunt(id) {
             } else {
                 document.getElementById("treasureHuntForm").reset();
                 toast("Treasure hunt successfully updated",
-                    "Your treasure hunt has been updated",
-                    "success");
+                    "Your treasure hunt has been updated");
                 $("#treasureHuntModal").modal("hide");
             }
             this.initialUpdate = false;
@@ -158,8 +157,7 @@ function deleteTreasureHunt(id) {
                     5000);
             } else {
                 toast("Treasure hunt deleted",
-                    "The treasure hunt was successfully deleted.",
-                    "success");
+                    "The treasure hunt was successfully deleted");
             }
             this.initialDelete = false;
         }
@@ -320,8 +318,8 @@ function addTreasureHunt(userId) {
             showErrors(json);
         } else {
             document.getElementById("treasureHuntForm").reset();
-            toast("Riddle Created!",
-                "The new riddle will be added to the table.",
+            toast("Treasure hunt created!",
+                "The new treasure hunt will be added to the table",
                 "success");
             $("#treasureHuntModal").modal("hide");
             populateTreasureHunts();

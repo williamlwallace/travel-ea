@@ -111,7 +111,7 @@ function addDestination(url, redirect, userId) {
         if (status !== 200) {
             if (json === "Duplicate destination") {
                 toast("Destination could not be created!",
-                    "The destination already exists.", "danger", 5000);
+                    "The destination already exists", "danger", 5000);
                 $('#createDestinationModal').modal('hide');
                 resetDestinationModal();
             } else {
@@ -119,7 +119,7 @@ function addDestination(url, redirect, userId) {
             }
         } else {
             toast("Destination Created!",
-                "The new destination will be added to the table.",
+                "The new destination will be added to the table",
                 "success");
             $('#createDestinationModal').modal('hide');
             resetDestinationModal();

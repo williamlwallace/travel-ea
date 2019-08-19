@@ -79,7 +79,7 @@ function toggleAdmin(button, tableAPI, id) {
                 toast("Could not toggle admin privileges", json, "danger",
                     5000);
             } else {
-                toast("Success", "Admin privileges toggled", "success");
+                toast("Success", "Admin privileges toggled");
             }
             this.initialToggle = false;
         }
@@ -177,7 +177,7 @@ function deleteTrip(button, tableAPI, id) {
             if (status !== 200) {
                 toast("Could not delete trip", json, "danger", 5000);
             } else {
-                toast("Success", "Trip deleted", "success");
+                toast("Success", "Trip deleted");
             }
             this.initialToggle = false;
         }
@@ -330,7 +330,7 @@ function rejectTravellerTypeRequest(destId, ttId) {
             if (status !== 200) {
                 toast("Could not reject request", json, "danger", 5000);
             } else {
-                toast("Success", json, "success");
+                toast("Success", json);
             }
             this.initialToggle = false;
         }

@@ -41,7 +41,7 @@ function updateTripPrivacy(uri, publicImageSrc, privateImageSrc, tripId) {
                     "Public");
             }
             if (this.initialToggle) {
-                toast("Success", "Trip privacy updated", "success");
+                toast("Success", "Trip privacy updated");
                 this.initialToggle = false;
             }
         }
