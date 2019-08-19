@@ -22,6 +22,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.TagRepository;
+import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
 import repository.UserRepository;
 import util.validation.DestinationValidator;
@@ -35,6 +36,7 @@ public class DestinationController extends TEABackController {
     private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
+    private final PhotoRepository photoRepository;
     private final WSClient ws;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
@@ -43,9 +45,11 @@ public class DestinationController extends TEABackController {
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
-        TagRepository tagRepository, UserRepository userRepository) {
+        TagRepository tagRepository, UserRepository userRepository,
+        PhotoRepository photoRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
+        this.photoRepository = photoRepository;
         this.ws = ws;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
@@ -366,6 +370,56 @@ public class DestinationController extends TEABackController {
                             rows -> ok(
                                 Json.toJson("Successfully rejected traveller type modification")));
                     }
+                });
+        });
+    }
+
+    /**
+     * Changes the photo set as the primary photo for a destination. If the user does not own the
+     * destination or isn't an admin, then a request to modify is stored instead.
+     *
+     * @param request Http request containing authentication information
+     * @param destId ID of destination to change primary photo of
+     * @param photoId Id of photo to add as primary photo for destination
+     * @return Response result containing success/error message
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> changeDestinationPrimaryPhoto(Http.Request request, Long destId,
+        Long photoId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
+            }
+
+            return photoRepository.getPhotoById(photoId)
+                .thenComposeAsync(photo -> {
+                    if (photo == null) {
+                        return CompletableFuture.supplyAsync(() -> notFound(
+                            Json.toJson("Photo with provided ID not found")));
+                    }
+
+                    // If user is allowed to change photo
+                    if (destination.user.id.equals(user.id) || user.admin) {
+                        destination.primaryPhoto = photo;
+                        if (destination.isPendingPhoto(photoId)) {
+                            destination.removePendingDestinationPrimaryPhoto(photoId);
+                        }
+                    }
+                    // If user must request to change destination primary photo
+                    else {
+                        // Request already exists
+                        if (destination.isPendingPhoto(photoId)) {
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(
+                                "Successfully requested to change destinations primary photo")));
+                        } else {
+
+                            destination.addPendingDestinationProfilePhoto(photoId);
+                        }
+                    }
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(rows -> ok(Json.toJson(
+                            "Successfully changed destinations primary photo")));
                 });
         });
     }

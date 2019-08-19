@@ -1,0 +1,36 @@
+<template id="personCardTemplate">
+    <div id="card" class="card">
+        <div id="card-header" class="card-header"></div>
+        <div id="inner-card" class="card flex-row">
+            <div id ="card-thumbnail-div" class="card-header border-0">
+                <img id="card-thumbnail" src="" alt="">
+            </div>
+            <div class="card-body font-weight-bold">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-text" id="age">
+                            <i class="fas fa-calendar-alt" style="padding-right: 3px"></i>
+                        </p>
+                        <p class="card-text" id="gender">
+                            <i class="fas fa-venus-mars" style="padding-right: 3px"></i>
+                        </p>
+                        <p class="card-text" id="nationalities">
+                            <i class="fas fa-flag" style="padding-right: 3px"></i>
+                        </p>
+                        <p class="card-text" id="traveller-type">
+                            <i class="fas fa-luggage-cart" style="padding-right: 3px"></i>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination" id="peoplePagination">
+        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+</nav>

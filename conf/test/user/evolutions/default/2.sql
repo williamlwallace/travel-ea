@@ -21,6 +21,7 @@ DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
 DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
 DELETE FROM DestinationPhoto;
 DELETE FROM TripData;
 DELETE FROM Trip;

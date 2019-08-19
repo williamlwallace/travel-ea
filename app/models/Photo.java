@@ -81,6 +81,15 @@ public class Photo extends Model implements Taggable {
         return tags;
     }
 
+    @ManyToMany(mappedBy = "destinationPrimaryPhotoPending")
+    @JsonBackReference("dest-primary-photo-pending-reference")
+    @JoinTable(
+        name = "PendingDestinationPhoto",
+        joinColumns = @JoinColumn(name = "guid", referencedColumnName = "guid"),
+        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
+
+    public List<Destination> destPrimaryPhotoPending;
+
     /**
      * Removes given destination from photo.
      */

@@ -56,6 +56,9 @@ public class Destination extends BaseModel implements Taggable {
     @Constraints.Required
     public CountryDefinition country;
 
+    @ManyToOne
+    public Photo primaryPhoto;
+
     @JsonIgnore
     @ManyToMany(mappedBy = "destinationPhotos")
     @JoinTable(
@@ -78,6 +81,13 @@ public class Destination extends BaseModel implements Taggable {
         joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypesPending;
+
+    @ManyToMany(mappedBy = "destPrimaryPhotoPending")
+    @JoinTable(
+        name = "PendingDestinationPhoto",
+        joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
+    public List<Photo> destinationPrimaryPhotoPending;
 
     @ManyToMany(mappedBy = "destinations")
     @JoinTable(
@@ -169,6 +179,52 @@ public class Destination extends BaseModel implements Taggable {
         while (iterator.hasNext()) {
             TravellerTypeDefinition travellerType = iterator.next();
             if (travellerType.id.equals(travellerTypeId)) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a photo is already pending as the destination photo
+     *
+     * @param photoId id of photo
+     * @return True if dest is linked to photo
+     */
+    public Boolean isPendingPhoto(Long photoId) {
+        Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
+        while (iterator.hasNext()) {
+            Photo photo = iterator.next();
+            if (photo.guid.equals(photoId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds request to set destination primary photo
+     *
+     * @param photoId The id of the photo to add
+     */
+    public void addPendingDestinationProfilePhoto(Long photoId) {
+        Photo photo = new Photo();
+        photo.guid = photoId;
+        this.destinationPrimaryPhotoPending.add(photo);
+    }
+
+    /**
+     * Removes request to set a destinations primary photo
+     *
+     * @param photoId The id of the photo to remove
+     * @return true if the photo was removed, false if not
+     */
+    public Boolean removePendingDestinationPrimaryPhoto(Long photoId) {
+        Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
+        while (iterator.hasNext()) {
+            Photo photo = iterator.next();
+            if (photo.guid.equals(photoId)) {
                 iterator.remove();
                 return true;
             }

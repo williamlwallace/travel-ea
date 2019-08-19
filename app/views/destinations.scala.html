@@ -44,23 +44,16 @@
                     </div>
                     <div class="tab-pane fade" id="tableTab" role="tabpanel" aria-labelledby="table-tab">
                         <div class="container">
-                            @* The destination table *@
-                            <div>
-                                <table id="dtDestination" class="table table-hover table-bordered" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th class="th-sm">Name</th>
-                                            <th class="th-sm">Type</th>
-                                            <th class="th-sm">District</th>
-                                            <th class="th-sm">Latitude</th>
-                                            <th class="th-sm">Longitude</th>
-                                            <th class="th-sm">Country</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="destinationList">
-                                    </tbody>
-                                </table>
-                            </div>
+
+
+
+
+
+
+
+
+
+
                         </div>
 
                     </div>
@@ -103,9 +96,10 @@
 
                         <div>Country
                             <em class="fas prefix grey-text"></em>
-                            <select id="countryDropDown" name="countryId" class="form-control validate">
-
-                            </select>
+                            <select id="countryDropDown" name="countryId"
+                            class="form-control validate selectpicker"
+                            data-live-search="true"
+                            data-size="5"></select>
                             <label id="countryError" class="error-messages"></label>
                         </div>
                         <br/>
