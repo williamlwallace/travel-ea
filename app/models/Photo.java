@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -8,6 +9,7 @@ import io.ebean.Model;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,7 +17,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -25,7 +26,7 @@ import javax.persistence.Table;
 @Table(name = "Photo")
 @Entity
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Photo extends Model {
+public class Photo extends Model implements Taggable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -68,13 +69,23 @@ public class Photo extends Model {
         name = "PhotoTag",
         joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    public List<Tag> tags;
+    public Set<Tag> tags;
+
+    /**
+     * Returns the list of tags associated with the object
+     *
+     * @return a list of Tags
+     */
+    @JsonIgnore
+    public Set<Tag> getTagsList() {
+        return tags;
+    }
 
     @ManyToMany(mappedBy = "destinationPrimaryPhotoPending")
     @JsonBackReference("dest-primary-photo-pending-reference")
     @JoinTable(
         name = "PendingDestinationPhoto",
-        joinColumns = @JoinColumn(name = "guid", referencedColumnName = "guid"),
+        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
         inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
 
     public List<Destination> destPrimaryPhotoPending;

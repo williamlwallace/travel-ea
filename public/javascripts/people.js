@@ -1,7 +1,15 @@
 let requestOrder = 0;
 let lastRecievedRequestOrder = -1;
-let pageNum = 1;
-let totalNumberPages = 0;
+let paginationHelper;
+
+/**
+ * Runs when the page is loaded. Initialises the paginationHelper object and
+ * runs the getPeopleResults method.
+ */
+$(document).ready(function() {
+    paginationHelper = new PaginationHelper(1, 1, "peoplePagination", getPeopleResults);
+    getPeopleResults();
+});
 
 /**
  * Capitalise first letter of string
@@ -94,57 +102,7 @@ function getAscending() {
 }
 
 /**
- * Changes the page we are viewing (if possible) and reloads data
- *
- * @param desiredPageNumber Page number to change to
- */
-function goToPage(desiredPageNumber) {
-    if(desiredPageNumber > totalNumberPages || desiredPageNumber < 1) {
-      toast("No such page", "The page you have tried to go to does not exist", "danger");
-      return;
-    }
-    pageNum = desiredPageNumber;
-
-    getPeopleResults();
-}
-
-/**
- * Based on what page you are on, creates the correct pagination bar with up to 5 page buttons
- */
-function createPaginationBar() {
-    let pageNumbers = [];
-    // Less than 5 pages
-    if(totalNumberPages <= 5) {
-        for(let i = 1; i <= totalNumberPages; i++) {
-            pageNumbers.push(i);
-        }
-    }
-    // In first 3 pages, and more than 5 total
-    else if(totalNumberPages >= 5 && pageNum < 3) {
-        for(let i = 1; i <= 5; i++) {
-            pageNumbers.push(i);
-        }
-    }
-    // In last 3, and more than 5 total
-    else if(totalNumberPages >= 5 && pageNum > totalNumberPages - 2) {
-        for(let i = totalNumberPages - 4; i <= totalNumberPages; i++) {
-            pageNumbers.push(i);
-        }
-    } else {
-        for(let i = pageNum - 2; i <= pageNum + 2; i++) {
-            pageNumbers.push(i);
-        }
-    }
-    $(".pagination").html("");
-    $(".pagination").append("<li class=\"page-item\" style=\"cursor: pointer\" onclick='goToPage(" + (pageNum - 1) + ")'><a class=\"page-link\">Previous</a></li>");
-    pageNumbers.forEach((item) => {
-        $(".pagination").append("<li class=\"page-item\" style=\"cursor: pointer\" onclick='goToPage(" + item + ")'><a class=\"page-link\">" + item + " </a></li>");
-    });
-    $(".pagination").append("<li class=\"page-item\" style=\"cursor: pointer\" onclick='goToPage(" + pageNum + 1 + ")'><a class=\"page-link\">Next</a></li>");
-}
-
-/**
- * Filters the table with filtered results
+ * Filters the cards with filtered results
  */
 function getPeopleResults() {
     const url = new URL(profileRouter.controllers.backend.ProfileController.searchProfilesJson().url, window.location.origin);
@@ -159,7 +117,7 @@ function getPeopleResults() {
     if(getSelectedMaxAge() !== "") { url.searchParams.append("maxAge", getSelectedMaxAge()); }
 
     // Append pagination params
-    url.searchParams.append("pageNum", pageNum);
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", getPageSize().toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
@@ -172,13 +130,18 @@ function getPeopleResults() {
                 toast("Error", "Error fetching people data", "danger")
             } else {
                 if(lastRecievedRequestOrder < json.requestOrder) {
-                    totalNumberPages = json.totalNumberPages;
+                    const totalNumberPages = json.totalNumberPages;
                     $("#peopleCardsList").html("");
                     lastRecievedRequestOrder = json.requestOrder;
                     json.data.forEach((item) => {
                         createPeopleCard(item);
                     });
-                    createPaginationBar();
+
+                    $(".card").click((element) => {
+                        location.href = `/profile/${$(element.currentTarget).find("#card-header").data().id}`;
+                    })
+                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+
                 }
             }
         })
@@ -191,8 +154,8 @@ function getPeopleResults() {
  * @param person is Json profile object
  */
 function createPeopleCard(person) {
-    let template = $("#personCardTemplate").get(0);
-    let clone = template.content.cloneNode(true);
+    const template = $("#personCardTemplate").get(0);
+    const clone = template.content.cloneNode(true);
     let nationalities = "";
     let travellerTypes = "";
 
@@ -200,6 +163,8 @@ function createPeopleCard(person) {
     $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
     $(clone).find("#age").append("Age: " + person.dateOfBirth);
     $(clone).find("#gender").append("Gender: " + person.gender);
+    $(clone).find("#card-header").attr("data-id", person.userId.toString());
+
     person.nationalities.forEach(item => {
         nationalities += item.name + ", ";
     });
@@ -217,7 +182,7 @@ function createPeopleCard(person) {
 }
 
 /**
- * Clears the filter and repopulates the table
+ * Clears the filter and repopulates the cards
  */
 function clearFilter() {
     $('#gender').val('');
@@ -225,7 +190,6 @@ function clearFilter() {
     $('#maxAge').val(null);
     $(document.getElementById('nationalities')).selectpicker('val', "");
     $(document.getElementById('travellerTypes')).selectpicker('val', "");
-    table.populateTable();
 }
 
 /**

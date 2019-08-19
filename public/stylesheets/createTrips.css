@@ -119,3 +119,8 @@
 #createDestinationButton {
     margin-top: 10px;
 }
+
+#tagInput {
+    margin-left: 10px;
+    width: 300px;
+}
