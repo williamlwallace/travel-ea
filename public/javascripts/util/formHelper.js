@@ -67,7 +67,6 @@ function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
                     dict[data[i][idKey]] = data[i][dataKey];
                 }
             }
-            
             return dict;
         });
     });
@@ -102,8 +101,9 @@ function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
 function fillDropDown(dropdownName, dict, sort = false) {
     let array = [];
     let item;
+    let dropdown = $('#' + dropdownName);
 
-    $('#' + dropdownName).empty();
+    dropdown.empty();
 
     for (let key in dict) {
         item = {};
@@ -131,12 +131,11 @@ function fillDropDown(dropdownName, dict, sort = false) {
         // Add list element to drop down list
         document.getElementById(dropdownName).appendChild(option);
     }*/
-
     $.each(array, function(number, item) {
-        $('#' + dropdownName).append($('<option>').text(item.value).attr('value', item.id));
+        dropdown.append($('<option>').text(item.value).attr('value', item.id));
     });
 
-    $('#' + dropdownName).selectpicker();
+    dropdown.selectpicker('refresh');
 }
 
 /**

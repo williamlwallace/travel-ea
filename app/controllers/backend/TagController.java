@@ -166,9 +166,10 @@ public class TagController extends TEABackController {
      */
     public Result tagRoutes (Http.Request request) {
         return ok(
-                JavaScriptReverseRouter.create("tagRouter", "jQuery.ajax", request.host(),
-                        controllers.backend.routes.javascript.TagController.getAllUserPhotoTags()
-                )
+            JavaScriptReverseRouter.create("tagRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TagController.getAllUserPhotoTags(),
+                controllers.backend.routes.javascript.TagController.getAllDestinationPhotoTags()
+            )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }

@@ -9,15 +9,17 @@ can add an intermediate modal as is the case in detailed destinations *@
         @if(withTitle) {
             <span id="galleryTitle" class="section-title">Your Photos</span>
         }
-        <select id="tagFilter" multiple>
-            <option value="" disabled hidden>Filter</option>
-        </select>
+
         @if(canModify) {
             <a class="button-secondary" id="upload-gallery-image-button" data-toggle="modal" href="#upload-modal" >
                 <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
             </a>
         }
     </p>
+    <div class="tag-filter">
+        <select name="tagFilter" id="tagFilter"  data-live-search="true" data-size="5" multiple></select>
+    </div>
+
 </div>
 
 @* Photo Gallery *@
@@ -89,8 +91,8 @@ can add an intermediate modal as is the case in detailed destinations *@
                 @modules.tagPicker("edit-picker")
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger mr-auto" data-dismiss="modal" onclick=
-                    'deletePhoto("@controllers.backend.routes.PhotoController.deletePhoto(1)")'>Delete Photo</button>
+                    <button id="delete-img" type="button" class="btn btn-danger mr-auto" data-dismiss="modal" onclick=
+                    'deletePhoto("@controllers.backend.routes.PhotoController.deletePhoto(1)");'>Delete Photo</button>
                     <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                     <button id="update-img" type="button" class="btn btn-primary" data-dismiss="modal">Update</button>
                 </div>

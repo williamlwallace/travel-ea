@@ -1,18 +1,3 @@
-
-
-let profileId = -1;
-let getAllPhotosUrl;
-
-/**
- * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
- * @param {Number} profileID the profileId to set
- */
-function setProfileId(profileID) {
-    profileId = profileID;
-    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        profileId).url;
-}
-
 /**
  * The JavaScript method to fill the initial profile data
  *
@@ -339,11 +324,13 @@ function updatePhotoCaptionAndTags(guid) {
 
         if (status === 200) {
             $('[data-id="' + guid + '"]').attr("data-caption", caption);
-            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
             getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+
         }
     }.bind({initialUpdate});
     const reqData = new ReqData(requestTypes["UPDATE"], url, handler, reqBody);
+    console.log(reqBody);
     undoRedo.sendAndAppend(reqData);
 }
 
@@ -365,6 +352,7 @@ function deletePhoto(route) {
                     "The photo will no longer be displayed in the gallery.",
                     "success");
                 getProfileAndCoverPicture();
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
                 undoRedo.undoStack.clear();
                 undoRedo.redoStack.clear();
                 updateUndoRedoButtons();

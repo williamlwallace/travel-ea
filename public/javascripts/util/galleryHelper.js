@@ -31,21 +31,35 @@ $('#upload-img').on('click', function () {
                 toast("Photo Added!",
                     "The new photo will be shown in the picture gallery.",
                     "success");
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
         })
     })
 });
 
 let usersPhotos = [];
+let profileId = -1;
+let getAllPhotosUrl;
+
+/**
+ * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
+ * @param {Number} profileID the profileId to set
+ */
+function setProfileId(profileID) {
+    profileId = profileID;
+    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url;
+}
 
 /**
  * Function to filter gallery by tags
  */
 $('#tagFilter').on('change', function() {
     const tags = $(this).val();
-    const galleryId = $('#upload-img').data('gallery-id');
-    const pageId = $('#upload-img').data('page-id');
-    fillGallery(getAllPhotosUrl, galleryId, pageId, tags);
+    const galleryId = "main-gallery";
+    const pageId = "page-selection";
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url, galleryId, pageId, tags);
 
 });
 
