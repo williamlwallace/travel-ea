@@ -49,7 +49,6 @@
                         <div class="container pt-4">
 
                             @* The destination filter options *@
-                            //TODO: Add the onlyGetMine toggle
                             <div class="card card-body" id="card-body">
                                 <div class="filterItemDiv">
                                     <label for="searchQuery">Search</label>
@@ -64,9 +63,9 @@
                                     <label for="sortBy">Sort by</label>
                                     <select id="sortBy" class="form-control selectpicker" data-style="form-control">
                                         //TODO: Have correct values for these
-                                        <option value="creation_date">Creation date</option>
-                                        <option value="date_of_birth">Date of birth</option>
-                                        <option value="first_name">First Name</option>
+                                        <option value="name">Name</option>
+                                        <option value="type">Type</option>
+                                        <option value="country.name">Country</option>
                                         <option value="last_name">Last Name</option>
                                     </select>
                                 </div>
@@ -76,19 +75,39 @@
                                         <option value="false">Descending</option>
                                     </select>
                                 </div>
+
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="onlyGetMine">
+                                    <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
+                                </div>
+
                                 <div class="text-center" id="buttonDiv">
                                     <div id="applyButton">
-                                        //TODO: Create these functions
-                                        <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
-                                        <button class="btn btn-primary"  onclick='getPeopleResults()'>Apply</button>
+                                        <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
+                                        <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
                                     </div>
                                 </div>
                             </div>
 
 
                             @* The destinations cards *@
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-destinations">
+                                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </nav>
                             @modules.destinationCards()
                             <div id="destinationCardList"></div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-destinations">
+                                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </nav>
+
                         </div>
                     </div>
 

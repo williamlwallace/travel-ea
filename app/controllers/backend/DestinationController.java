@@ -423,7 +423,7 @@ public class DestinationController extends TEABackController {
 
         // Constrain sortBy to a set, default to creation date
         if(sortBy == null ||
-            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude", "country_id").contains(sortBy)) {
+            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude", "country.name").contains(sortBy)) {
             sortBy = "id";
         }
 
