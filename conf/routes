@@ -45,8 +45,6 @@ POST          /api/country                           controllers.backend.Country
 
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
 
-GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
-
 PUT           /api/destination/:id/delete            controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(request:Request, onlyGetMine: Boolean ?= false, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)

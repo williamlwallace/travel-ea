@@ -23,6 +23,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.objects.PagingResponse;
 import util.validation.DestinationValidator;
@@ -36,13 +37,16 @@ public class DestinationController extends TEABackController {
     private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
+    private final PhotoRepository photoRepository;
     private final WSClient ws;
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository,
+        PhotoRepository photoRepository, WSClient ws) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
+        this.photoRepository = photoRepository;
         this.ws = ws;
     }
 
@@ -400,11 +404,12 @@ public class DestinationController extends TEABackController {
      * @param requestOrder
      * @return
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getPagedDestinations(
         Http.Request request,
+        Boolean onlyGetMine,
         String searchQuery,
         String sortBy,
-        Boolean onlyGetMine,
         Boolean ascending,
         Integer pageNum,
         Integer pageSize,
