@@ -421,50 +421,6 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets all destinations valid for the requesting user.
-     *
-     * @param request Http request containing authentication information
-     * @param userId ID of user to retrieve destinations for
-     * @return OK status code with a list of destinations in the body
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllDestinations(Http.Request request, Long userId) {
-        User user = request.attrs().get(ActionState.USER);
-
-        // If user is admin or requesting for their own destinations
-        if ((user.admin && user.id == userId)) {
-            return destinationRepository.getAllDestinationsAdmin()
-                .thenApplyAsync(allDestinations -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(allDestinations)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        } else if (user.id.equals(userId)) {
-            return destinationRepository.getAllDestinations(userId)
-                .thenApplyAsync(allDestinations -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(allDestinations)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        }
-        // Else return only public destinations
-        else {
-            return destinationRepository.getAllPublicDestinations()
-                .thenApplyAsync(allDestinations -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(allDestinations)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        }
-    }
-
-    /**
      * Gets a destination with a given id. Returns a json with destination object.
      *
      * @param getId ID of wanted destination
@@ -547,9 +503,7 @@ public class DestinationController extends TEABackController {
     public Result destinationRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("destinationRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.DestinationController.getAllDestinations(),
-                controllers.backend.routes.javascript.DestinationController
-                    .getAllPublicDestinations(),
+                controllers.backend.routes.javascript.DestinationController.getPagedDestinations(),
                 controllers.backend.routes.javascript.DestinationController.getDestination(),
                 controllers.backend.routes.javascript.DestinationController.deleteDestination(),
                 controllers.frontend.routes.javascript.DestinationController
