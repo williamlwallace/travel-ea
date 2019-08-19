@@ -1,8 +1,11 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -72,15 +75,20 @@ public class PhotoRepository {
      * Finds all photos in database related to the given user ID that aren't a profile photo
      *
      * @param userID User to find all photos for
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Number of photos to retrieve
      * @return List of Photo objects with the specified user ID
      */
-    public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
+    public CompletableFuture<PagedList<Photo>> getAllUserPhotos(long userID, Integer pageNum,
+        Integer pageSize) {
         return supplyAsync(() -> {
-                List<Photo> photos = ebeanServer.find(Photo.class)
+                PagedList<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
                     .eq("used_for_profile", false)
-                    .findList();
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
                 return appendAssetsUrl(photos);
             },
             executionContext);
@@ -90,16 +98,47 @@ public class PhotoRepository {
      * Finds all public photos in database related to the given user ID that aren't a profile photo
      *
      * @param userID User to find all public photos for
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Number of photos to retrieve
      * @return List of Photo objects with the specified user ID
      */
-    public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
+    public CompletableFuture<PagedList<Photo>> getAllPublicUserPhotos(long userID, Integer pageNum,
+        Integer pageSize) {
         return supplyAsync(() -> {
-                List<Photo> photos = ebeanServer.find(Photo.class)
+                PagedList<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
                     .eq("used_for_profile", false)
                     .eq("is_public", true)
-                    .findList();
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
+                return appendAssetsUrl(photos);
+            },
+            executionContext);
+    }
+
+    /**
+     * Finds a page of photos associated with a destination
+     *
+     * @param userId ID of user to return private photos linked to the destination
+     * @param destinationId ID of destination to retrieve photos for
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Amount of photos to retrieve
+     * @return A paged list of photos
+     */
+    public CompletableFuture<PagedList<Photo>> getDestinationPhotosForUser(long userId,
+        long destinationId, Integer pageNum, Integer pageSize) {
+        return supplyAsync(() -> {
+                PagedList<Photo> photos = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("destination_id", destinationId)
+                    .or()
+                    .eq("is_public", true)
+                    .eq("user_id", userId)
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
                 return appendAssetsUrl(photos);
             },
             executionContext);
@@ -165,8 +204,8 @@ public class PhotoRepository {
      *
      * @param photos Photos to append path to
      */
-    public List<Photo> appendAssetsUrl(List<Photo> photos) {
-        for (Photo photo : photos) {
+    public PagedList<Photo> appendAssetsUrl(PagedList<Photo> photos) {
+        for (Photo photo : photos.getList()) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
             photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
         }

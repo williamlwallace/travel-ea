@@ -34,6 +34,7 @@ import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
 import repository.ProfileRepository;
+import util.objects.PagingResponse;
 import util.objects.Pair;
 import util.validation.ErrorResponse;
 
@@ -93,9 +94,6 @@ public class PhotoController extends TEABackController {
 
     /**
      * Sets a photo caption
-     * @param request
-     * @param photoId
-     * @return
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> setPhotoCaption(Http.Request request, Long photoId) {
@@ -142,10 +140,12 @@ public class PhotoController extends TEABackController {
         Long newPhotoId = Json.fromJson(request.body().asJson(), Long.class);
 
         // Update profile photo, and get the prior photo id
-        try{
-            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId).thenApplyAsync(returnedId ->
-                returnedId != null ? ok(Json.toJson(returnedId)) : ok(Json.newObject().nullNode())
-            );
+        try {
+            return profileRepository.updateProfilePictureAndReturnExistingId(id, newPhotoId)
+                .thenApplyAsync(returnedId ->
+                    returnedId != null ? ok(Json.toJson(returnedId))
+                        : ok(Json.newObject().nullNode())
+                );
         } catch (NullPointerException e) {
             return CompletableFuture
                 .supplyAsync(() -> badRequest(Json.toJson("No such profile found")));
@@ -190,20 +190,43 @@ public class PhotoController extends TEABackController {
      * the photos getting them
      *
      * @param request Request to read cookie data from
-     * @param id ID of user to get photos of
+     * @param userId ID of user to get photos of
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Number of photos to retrieve
+     * @param requestOrder Request count identifier the users most recent request
+     * @return A paged list of the users photos
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long id) {
+    public CompletableFuture<Result> getAllUserPhotos(Http.Request request, Long userId,
+        Integer pageNum, Integer pageSize, Integer requestOrder) {
         Long currentUserId = request.attrs().get(ActionState.USER).id;
         // Checks if the photos belong to the user getting them
-        if (currentUserId.equals(id)) {
+        if (currentUserId.equals(userId)) {
             // get public and private photos
-            return photoRepository.getAllUserPhotos(id)
-                .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+            return photoRepository.getAllUserPhotos(userId, pageNum, pageSize)
+                .thenApplyAsync(photos -> {
+                    try {
+                        System.out.println(photos.getTotalCount());
+                        return ok(sanitizeJson(Json.toJson(
+                            new PagingResponse<>(photos.getList(), requestOrder,
+                                photos.getTotalPageCount()))));
+                    } catch (IOException ex) {
+                        return internalServerError(SANITIZATION_ERROR);
+                    }
+                });
         } else {
             // only get public photos
-            return photoRepository.getAllPublicUserPhotos(id)
-                .thenApplyAsync(photos -> ok(Json.toJson(photos)));
+            return photoRepository.getAllPublicUserPhotos(userId, pageNum, pageSize)
+                .thenApplyAsync(photos -> {
+                    try {
+                        System.out.println(photos.getTotalCount());
+                        return ok(sanitizeJson(Json.toJson(
+                            new PagingResponse<>(photos.getList(), requestOrder,
+                                photos.getTotalPageCount()))));
+                    } catch (IOException ex) {
+                        return internalServerError(SANITIZATION_ERROR);
+                    }
+                });
         }
     }
 
@@ -231,15 +254,17 @@ public class PhotoController extends TEABackController {
         // Id of user that photo is being uploaded for, only applicable when admin is uploading
         Long userIdForUpload;
         String userUploadVal = formKeys.getOrDefault("userUploadId", new String[]{""})[0];
-        if(!userUploadVal.equals("")) {
+        if (!userUploadVal.equals("")) {
             try {
                 userIdForUpload = Long.parseLong(userUploadVal);
                 // If user is not an admin and uploading for someone else, throw forbidden
-                if(!loggedInUser.admin && !userIdForUpload.equals(loggedInUser.id)) {
-                    return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Non-admin users can only upload photos for themselves.")));
+                if (!loggedInUser.admin && !userIdForUpload.equals(loggedInUser.id)) {
+                    return CompletableFuture.supplyAsync(() -> forbidden(
+                        Json.toJson("Non-admin users can only upload photos for themselves.")));
                 }
             } catch (Exception e) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Could not parse userUploadId")));
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest(Json.toJson("Could not parse userUploadId")));
             }
         } else { // If no userId specified, upload for themselves
             userIdForUpload = loggedInUser.id;
@@ -364,9 +389,10 @@ public class PhotoController extends TEABackController {
         HashSet<String> publicPhotoFileNames, long userId,
         boolean isTest, String caption) throws IOException {
         // Get the filename, file size and content-type of the file
-        int randomNumber = (int)(Math.random() * 496148154 + 1);
+        int randomNumber = (int) (Math.random() * 496148154 + 1);
         String[] filenameParts = file.getFilename().split("\\.");
-        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[filenameParts.length - 1];
+        String fileName = System.currentTimeMillis() + "_" + randomNumber + "." + filenameParts[
+            filenameParts.length - 1];
 
         String contentType = file.getContentType();
         if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
@@ -591,48 +617,40 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Get Destination photos based on logged in user.
+     * Gets destination photos based on logged in user.
      *
-     * @param request Request
+     * @param request Request containing authentication information
      * @param destId id of destination
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Number of photos to retrieve
+     * @param requestOrder Request count identifier the users most recent request
+     * @return A paged list of photos associated with the destination
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId) {
+    public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId,
+        Integer pageNum, Integer pageSize, Integer requestOrder) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
-                return notFound(Json.toJson(destId));
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(destId)));
             } else if (!destination.isPublic && !destination.user.id.equals(user.id)
                 && !user.admin) {
-                return forbidden();
+                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
+                    "You do not have permission to retrieve the photos for this destination")));
             } else {
-                List<Photo> photos = filterPhotos(destination.destinationPhotos, user.id);
-                try {
-                    photos = photoRepository.appendAssetsUrl(photos);
-                    return ok(sanitizeJson(Json.toJson(photos)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
+                return photoRepository
+                    .getDestinationPhotosForUser(user.id, destination.id, pageNum, pageSize)
+                    .thenApplyAsync(photos -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(
+                                new PagingResponse<>(photos.getList(), requestOrder,
+                                    photos.getTotalPageCount()))));
+                        } catch (IOException ex) {
+                            return internalServerError(SANITIZATION_ERROR);
+                        }
+                    });
             }
         });
-    }
-
-    /**
-     * Removes photos that shouldnt be seen by given user.
-     *
-     * @param photos List of photos
-     * @param userId Id of authenticated user
-     * @return List of filtered photos
-     */
-    private List<Photo> filterPhotos(List<Photo> photos, Long userId) {
-        Iterator<Photo> iter = photos.iterator();
-        while (iter.hasNext()) {
-            Photo photo = iter.next();
-            if (!photo.isPublic && !photo.userId.equals(userId)) {
-                iter.remove();
-            }
-        }
-        return photos;
     }
 
     /**
