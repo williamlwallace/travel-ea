@@ -14,7 +14,7 @@ function toggleTravellerType(destId, ttId, adminPage) {
                 toast("Could not modify destination traveller types", json,
                     "danger", 5000);
             } else {
-                toast("Success", json, "success");
+                toast("Success", json);
             }
             this.initialToggle = false;
         }

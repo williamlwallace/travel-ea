@@ -85,7 +85,7 @@ public class Photo extends Model implements Taggable {
     @JsonBackReference("dest-primary-photo-pending-reference")
     @JoinTable(
         name = "PendingDestinationPhoto",
-        joinColumns = @JoinColumn(name = "guid", referencedColumnName = "guid"),
+        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
         inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
 
     public List<Destination> destPrimaryPhotoPending;

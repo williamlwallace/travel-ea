@@ -29,7 +29,7 @@ $('#upload-img').on('click', function () {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl, galleryId, pageId);
                 toast("Photo Added!",
-                    "The new photo will be shown in the picture gallery.",
+                    "The new photo will appear in the photo gallery",
                     "success");
                 getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
@@ -451,8 +451,7 @@ function togglePrivacy(guid, newPrivacy) {
             label.setAttribute("onClick",
                 "togglePrivacy(" + guid + "," + !this.newPrivacy + ")");
             toast("Picture privacy changed!",
-                "The photo is now " + (this.newPrivacy ? "Public" : "Private"),
-                "success");
+                "The photo is now " + (this.newPrivacy ? "Public" : "Private"));
             this.newPrivacy = !this.newPrivacy;
         }
     }.bind({newPrivacy});
