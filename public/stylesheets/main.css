@@ -216,20 +216,12 @@ pre {
     background: #555;
 }
 
-.pagination a {
-    color: black;
-    float: left;
-    padding: 8px 16px;
-    text-decoration: none;
+.pagination>.active {
+    pointer-events: none;
 }
 
-.pagination a:hover:not(.active) {background-color: #ddd;}
-
-.pagination>.active>a {
-    color: #FFFFFF;
-    background-color: #b4b4b5 !important;
-    cursor: default;
-
+.pagination>.disabled {
+    pointer-events: none;
 }
 
 .pagination {
