@@ -45,13 +45,13 @@ INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (3, 2);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (4, 1);
 
 -- !Downs
--- Now delete all rows from tables (DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE)
 DELETE FROM UsedTag;
 DELETE FROM PhotoTag;
 DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
 DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
 DELETE FROM DestinationPhoto;
 DELETE FROM TripData;
 DELETE FROM Trip;

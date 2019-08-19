@@ -46,13 +46,13 @@ INSERT INTO PhotoTag (tag_id, photo_id) VALUES (2, 1);
 INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1);
 
 -- !Downs
--- Now delete all rows from tables (DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE)
 DELETE FROM UsedTag;
 DELETE FROM PhotoTag;
 DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
 DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
 DELETE FROM DestinationPhoto;
 DELETE FROM TripData;
 DELETE FROM Trip;
