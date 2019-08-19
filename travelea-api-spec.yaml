@@ -475,11 +475,57 @@ paths:
                 items:
                   $ref: '#/components/schemas/CountryDefinition'
 
-  '/destination/getAllPublic':
+  '/destination/search':
     get:
       tags:
       - Destinations
-      summary: Get all destinations that are strictly public
+      summary: Get all destinations based on some criteria
+      parameters:
+      - in: query
+        name: searchQuery
+        description: Searches mutiple fields to see if value contains searchQuery. Fields searched are name, type, country.name, and district
+        schema:
+          type: string
+          example: 'Franc'
+      - in: query
+        name: sortBy
+        description: 'Column to sort by, must be in: "id", "user_id", "name", "type", "district", "latitude", "longitude", "country_id"'
+        schema:
+          type: string
+          example: 'lName'
+      - in: query
+        name: ascending
+        description: Whether or not to sort the results in ascending order
+        schema:
+          type: boolean
+          example: true
+      - in: query
+        name: onlyGetMine
+        description: Whether or not to only return a users destinations (public and private, but only destinations they are the 'owner' of)
+        schema:
+          type: boolean
+          example: true
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: The order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
       responses:
         '200':
           description: Successfully retrieved public destinations
@@ -869,38 +915,6 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '404':
           description: Destination or traveller type with provided ID not found
-
-  '/destination/search':
-    get:
-      tags:
-      - Destinations
-      summary: Searches through all destinations based on some criteria
-      parameters:
-      - in: query
-        name: p
-        description: Number of page to get
-        schema:
-          type: integer
-          minimum: 0
-      - in: query
-        name: pSize
-        description: Number of results to show per page
-        schema:
-          type: integer
-      - in: query
-        name: filter
-        description: Filter criteria by which to search desinations
-        schema:
-          type: string
-      - in: query
-        name: order
-        description: Whether to sort ascending or descending
-        schema:
-          type: string
-          description: "Either 'asc' or 'desc'"
-      responses:
-        '200':
-          description: Successfully retrieved (possibly zero) destinations
 
   '/destination/makePublic/{id}':
     put:

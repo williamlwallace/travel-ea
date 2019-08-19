@@ -6,6 +6,7 @@ import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -16,6 +17,7 @@ import models.User;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
+import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -23,6 +25,7 @@ import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
+import util.objects.PagingResponse;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -482,19 +485,43 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets a paged list of destinations conforming to the amount of destinations requested and the
-     * provided order and filters.
+     * Gets a paged list of destinations that are visible to the currently logged in user
+     * This means any public destinations, or private destinations that they own
      *
-     * @param page The current page to display
-     * @param pageSize The number of destinations per page
-     * @param order The column to order by
-     * @param filter The sort order (either asc or desc)
-     * @return OK with paged list of destinations
+     * @param request
+     * @param searchQuery
+     * @param sortBy
+     * @param onlyGetMine
+     * @param ascending
+     * @param pageNum
+     * @param pageSize
+     * @param requestOrder
+     * @return
      */
-    public CompletableFuture<Result> getPagedDestinations(int page, int pageSize, String order,
-        String filter) {
-        return destinationRepository.getPagedDestinations(page, pageSize, order, filter)
-            .thenApplyAsync(destinations -> ok());
+    public CompletableFuture<Result> getPagedDestinations(
+        Http.Request request,
+        String searchQuery,
+        String sortBy,
+        Boolean onlyGetMine,
+        Boolean ascending,
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
+        // Set hard limit of 100 destinations to return, and minimum 1
+        pageSize = pageSize > 50 ? 50 : pageSize;
+        pageSize = pageSize < 1 ? 1 : pageSize;
+
+        // Get user id
+        Long userId = request.attrs().get(ActionState.USER).id;
+
+        // Constrain sortBy to a set, default to creation date
+        if(sortBy == null ||
+            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude", "country_id").contains(sortBy)) {
+            sortBy = "id";
+        }
+
+        return destinationRepository.getPagedDestinations(userId, searchQuery, onlyGetMine, sortBy, ascending, pageNum, pageSize)
+            .thenApplyAsync(destinations -> ok(Json.toJson(new PagingResponse<>(destinations.getList(), requestOrder, destinations.getTotalPageCount()))));
     }
 
     /**
