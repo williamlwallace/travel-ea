@@ -116,13 +116,23 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
-DELETE FROM TripData;
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
+DELETE FROM DestinationTag;
+DELETE FROM Tag;
+DELETE FROM TreasureHunt;
+DELETE FROM DestinationPhoto;
 DELETE FROM DestinationTravellerType;
 DELETE FROM DestinationTravellerTypePending;
-DELETE FROM Photo;
-DELETE FROM DestinationPhoto;
-DELETE FROM Destination;
-DELETE FROM Profile;
-DELETE FROM User;
+DELETE FROM TravellerType;
+DELETE FROM Passport;
+DELETE FROM Nationality;
 DELETE FROM TravellerTypeDefinition;
+DELETE FROM TripData;
+DELETE FROM Destination;
+DELETE FROM Trip;
 DELETE FROM CountryDefinition;
+DELETE FROM Profile;
+DELETE FROM Photo;
+DELETE FROM User;

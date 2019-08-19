@@ -42,6 +42,7 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 
 -- Add photo
 INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test.jpeg', './public/storage/photos/test/thumbnails/test.jpeg', 1, 1);
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
 
 -- Add photo-destination link that can be merged
 INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
@@ -63,15 +64,23 @@ INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1);
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
-DELETE FROM TripData;
+DELETE FROM TreasureHunt;
+DELETE FROM DestinationPhoto;
 DELETE FROM DestinationTravellerType;
 DELETE FROM DestinationTravellerTypePending;
-DELETE FROM Photo;
-DELETE FROM DestinationPhoto;
-DELETE FROM Destination;
-DELETE FROM Profile;
-DELETE FROM User;
+DELETE FROM TravellerType;
+DELETE FROM Passport;
+DELETE FROM Nationality;
 DELETE FROM TravellerTypeDefinition;
+DELETE FROM TripData;
+DELETE FROM Destination;
+DELETE FROM Trip;
 DELETE FROM CountryDefinition;
+DELETE FROM Profile;
+DELETE FROM Photo;
+DELETE FROM User;
