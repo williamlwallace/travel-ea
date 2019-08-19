@@ -4,12 +4,12 @@
  * @param {number} destinationId  of the destination to display
  */
 function populateDestinationDetails(destinationId) {
-    return get(
+    get(
         destinationRouter.controllers.backend.DestinationController.getDestination(
             destinationId).url)
     .then(response => {
         // Read response from server, which will be a json object
-        return response.json()
+        response.json()
         .then(destination => {
             if (response.status !== 200) {
                 showErrors(destination);
@@ -34,9 +34,11 @@ function populateDestinationDetails(destinationId) {
                     }
                 });
                 document.getElementById(
-                    "summary_latitude").innerText = destination.latitude.toFixed(2);
+                    "summary_latitude").innerText = destination.latitude.toFixed(
+                    2);
                 document.getElementById(
-                    "summary_longitude").innerText = destination.longitude.toFixed(2);
+                    "summary_longitude").innerText = destination.longitude.toFixed(
+                    2);
 
                 if (destination.travellerTypes.length > 0) {
                     let travellerTypes = "";
@@ -55,6 +57,16 @@ function populateDestinationDetails(destinationId) {
                         "heading_traveller_types").style.display = "none";
                     document.getElementById(
                         "summary_traveller_types").innerText = "";
+                }
+
+                // Populates tags
+                tagDisplay.populateTags(destination.tags);
+                if (destination.tags.length > 0) {
+                    document.getElementById(
+                        "heading_tags").style.display = "block";
+                } else {
+                    document.getElementById(
+                        "heading_tags").style.display = "none";
                 }
 
                 createPrivacyButton(destination.isPublic);
@@ -135,74 +147,67 @@ function createPrivacyButton(isPublic) {
 }
 
 /**
- * Edits the current destination
+ * Builds the destination object and sends update request
  *
  * @param {number} destinationId the id of the destination to edit
  */
 function editDestination(destinationId) {
-    get(destinationRouter.controllers.backend.DestinationController.getDestination(
-        destinationId).url)
-    .then(response => {
-        // Read response from server, which will be a json object
-        response.json()
-        .then(destination => {
-            if (response.status !== 200) {
-                showErrors(destination);
-            } else {
-                // Read data from destination form
-                const formData = new FormData(
-                    document.getElementById("editDestinationForm"));
-                // Convert data to json object
-                const data = Array.from(formData.entries()).reduce(
-                    (memo, pair) => ({
-                        ...memo,
-                        [pair[0]]: pair[1],
-                    }), {});
+    // Read data from destination form
+    const formData = new FormData(
+        document.getElementById("editDestinationForm"));
+    // Convert data to json object
+    const data = Array.from(formData.entries()).reduce(
+        (memo, pair) => ({
+            ...memo,
+            [pair[0]]: pair[1],
+        }), {});
 
-                // Convert lat and long to double values, and id to int
-                destination.latitude = parseFloat(data.latitude);
-                destination.longitude = parseFloat(data.longitude);
-                data.countryId = parseInt(data.countryId);
+    // Builds destination object out of form data
+    const destination = {
+        name: data.name,
+        destType: data.destType,
+        district: data.district,
+        latitude: parseFloat(data.latitude),
+        longitude: parseFloat(data.longitude),
+        country: {
+            id: parseInt(data.countryId)
+        }
+    };
 
-                // Convert country id to country object
-                destination.country.id = data.countryId;
-                destination.destType = data.destType;
-                destination.name = data.name;
-                destination.district = data.district;
-                addNonExistingCountries([destination.country]).then(result => {
-                    // Post json data to given uri
-                    const URL = destinationRouter.controllers.backend.DestinationController.editDestination(
-                        destinationId).url;
-                    const body = destination;
-                    const handler = function (status, data) {
-                        if (status !== 200) {
-                            if (data === "Duplicate destination") {
-                                toast("Destination could not be edited!",
-                                    "The destination already exists",
-                                    "danger",
-                                    5000);
-                                $('#editDestinationModal').modal('hide');
-                            } else {
-                                toast("Not Updated",
-                                    "There was an error updating the destination details:"
-                                    + data,
-                                    "danger", 5000);
-                            }
-                        } else if (status === 200) {
-                            populateDestinationDetails(this.destinationId)
-                            .then(() => {
-                                toast("Destination Updated",
-                                    "Successfully updated the destination");
-                                closeEdit();
-                            });
-                        }
-                    }.bind({destinationId});
-                    const reqData = new ReqData(requestTypes['UPDATE'], URL,
-                        handler, body);
-                    undoRedo.sendAndAppend(reqData);
-                });
+    // Add tags to destination
+    const tags = tagPicker.getTags();
+    destination.tags = tags.map((tag) => {
+        return {
+            name: tag
+        }
+    });
+
+    addNonExistingCountries([destination.country]).then(result => {
+        // Post json data to given uri
+        const URL = destinationRouter.controllers.backend.DestinationController.editDestination(
+            destinationId).url;
+        const initialUpdate = true;
+        const handler = function (status, json) {
+            if (this.initialUpdate) {
+                if (status === 200) {
+                    toast("Update successful",
+                        "The destination has been updated");
+                } else if (status !== 400) {
+                    toast("Destination could not be updated", json, "danger",
+                        5000);
+                }
+                this.initialUpdate = false;
             }
-        });
+
+            if (status === 200) {
+                populateDestinationDetails(this.destinationId);
+                $('#editDestinationModal').modal('hide');
+                closeEdit();
+            }
+        }.bind({destinationId, initialUpdate});
+        const reqData = new ReqData(requestTypes['UPDATE'], URL, handler,
+            destination);
+        undoRedo.sendAndAppend(reqData);
     });
 }
 
@@ -232,8 +237,10 @@ function populateEditDestination(destinationId) {
                     "latitudeDeat").value = destination.latitude;
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
-                //fills country picker
+                // Fills country picker
                 $('#countryDropDown').picker('set', destination.country.id);
+                // Fills tag input field
+                tagPicker.populateTags(destination.tags);
             }
         })
     })

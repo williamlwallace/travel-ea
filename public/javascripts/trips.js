@@ -106,6 +106,7 @@ function populateModal(row) {
  * @param {Object} trip object containing all trip data
  */
 function createTimeline(trip) {
+    tripTagDisplay.populateTags(trip.tags);
     $('#timeline').html("");
     getUserId().then(currentUserId => {
         if (isUserAdmin() || (trip.userId == currentUserId)) {

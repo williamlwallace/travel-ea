@@ -20,10 +20,12 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Tag;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
@@ -46,6 +48,7 @@ public class DestinationTestSteps {
         destination.user = new User();
         destination.user.id = 2L;
         destination.isPublic = false;
+        destination.tags = new HashSet<>();
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()

@@ -7,8 +7,11 @@ $('#upload-img').on('click', function () {
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
     let caption = $('#caption input').val();
-
-    const tags = getTags().map(tag => {tag});
+    const tags = uploadTagPicker.getTags().map(tag => {
+        return {
+            name: tag
+        }
+    });
 
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
@@ -16,6 +19,7 @@ $('#upload-img').on('click', function () {
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
+        formData.append('tags', JSON.stringify(tags));
         formData.append("userUploadId", window.location.href.split("/").pop());
     }
     // Send request and handle response
@@ -335,7 +339,7 @@ function createEditButton() {
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param {List} galleryObjects a list of photo objects to insert
+ * @param {Array} galleryObjects a list of photo objects to insert
  * @param {string} galleryId the id of the gallery to populate
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
@@ -435,5 +439,5 @@ $('#upload-gallery-image-file').on('change', function handleImage(e) {
  * Opens edit photo modal when clicking on edit icon in photo thumbnail
  */
 $('#editCaption').on('click', function () {
-    $('#upload-modal').show()
+    $('#upload-modal').show();
 });

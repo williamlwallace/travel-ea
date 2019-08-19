@@ -29,6 +29,9 @@ function onPageLoad(userId) {
         toggleDestinationForm();
     });
 
+    $('#destinationTags').tagsinput({
+        trimValue: true
+    });
 }
 
 /**
@@ -57,6 +60,9 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
+
+    const destinationTags = tagPicker.getTags();
+    data.tags = destinationTags.map((tag) => {return {name:tag}});
 
     //Create response handler
     const handler = function (status, json) {
@@ -122,6 +128,7 @@ function addDestination(url, redirect, userId) {
  */
 function resetDestinationModal() {
     document.getElementById("addDestinationForm").reset();
+    tagPicker.clearTags();
     hideErrors("addDestinationForm");
 }
 
