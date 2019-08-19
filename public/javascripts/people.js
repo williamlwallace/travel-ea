@@ -136,7 +136,12 @@ function getPeopleResults() {
                     json.data.forEach((item) => {
                         createPeopleCard(item);
                     });
+
+                    $(".card").click((element) => {
+                        location.href = `/profile/${$(element.currentTarget).find("#card-header").data().id}`;
+                    })
                     paginationHelper.setTotalNumberOfPages(totalNumberPages);
+
                 }
             }
         })
@@ -149,8 +154,8 @@ function getPeopleResults() {
  * @param person is Json profile object
  */
 function createPeopleCard(person) {
-    let template = $("#personCardTemplate").get(0);
-    let clone = template.content.cloneNode(true);
+    const template = $("#personCardTemplate").get(0);
+    const clone = template.content.cloneNode(true);
     let nationalities = "";
     let travellerTypes = "";
 
@@ -158,6 +163,8 @@ function createPeopleCard(person) {
     $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
     $(clone).find("#age").append("Age: " + person.dateOfBirth);
     $(clone).find("#gender").append("Gender: " + person.gender);
+    $(clone).find("#card-header").attr("data-id", person.userId.toString());
+
     person.nationalities.forEach(item => {
         nationalities += item.name + ", ";
     });

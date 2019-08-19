@@ -765,37 +765,4 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         assertEquals("Optional[text/javascript]", result.contentType().toString());
     }
-
-    @Test
-    public void addPrimaryPhotoOwner() throws IOException {
-
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(PUT)
-            .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "2/photo/2/primary");
-
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-
-        JsonNode json = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals("Successfully changed destinations primary photo", json.textValue());
-    }
-
-    @Test
-    public void addPrimaryPhotoNotOwner() throws IOException {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(PUT)
-            .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "2/photo/2/primary");
-
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-
-        JsonNode json = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals("Successfully changed destinations primary photo",
-            json.textValue());
-    }
-
 }
