@@ -8,7 +8,7 @@ can add an intermediate modal as is the case in detailed destinations *@
 <div class="section-title">
     <p>
         @if(withTitle) {
-            <span id="galleryTitle" class="section-title">Your Photos</span>
+            <span id="galleryTitle" class="section-title">Photos</span>
         }
         @if(canModify) {
             <a class="button-secondary" id="upload-gallery-image-button" data-toggle="modal" href="#upload-modal" >
@@ -61,7 +61,7 @@ can add an intermediate modal as is the case in detailed destinations *@
 }
 
 @if(editModal) {
-    <!-- Edit photo modal -->
+    @* Edit photo modal *@
     <div class="modal fade" id="edit-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">

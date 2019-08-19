@@ -216,7 +216,7 @@ function deleteTrip(tripId, userId) {
             if (status !== 200) {
                 toast("Failed to delete trip", json, "danger");
             } else if (initialDelete) {
-                toast("Success", "Trip deleted!", "success");
+                toast("Success", "Trip deleted!");
             }
             this.initialDelete = false;
         }
