@@ -266,9 +266,11 @@ cropGallery.on('click', 'img', function () {
  * @param {String} filename - the filename of the photo
  */
 function populateEditPhoto(guid, filename) {
-    $('#modal-photo').attr('src', "");
-    $('#modal-photo').attr('src', filename);
-    $('#modal-photo').attr("name", guid);
+    const modalPhoto = $('#modal-photo');
+    const updateImgButton = $('#update-img');
+    modalPhoto.attr('src', "");
+    modalPhoto.attr('src', filename);
+    modalPhoto.attr("name", guid);
     $('#update-caption input').val("");
     $('#edit-modal').modal('show');
     get(photoRouter.controllers.backend.PhotoController.getPhotoById(guid).url)
@@ -285,8 +287,8 @@ function populateEditPhoto(guid, filename) {
             }
         })
     });
-    $('#update-img').unbind('click');
-    $('#update-img').bind('click', function () {
+    updateImgButton.unbind('click');
+    updateImgButton.bind('click', function () {
         updatePhotoCaptionAndTags(guid);
     });
 }
