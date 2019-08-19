@@ -130,7 +130,7 @@ function getPeopleResults() {
                 toast("Error", "Error fetching people data", "danger")
             } else {
                 if(lastRecievedRequestOrder < json.requestOrder) {
-                    let totalNumberPages = json.totalNumberPages;
+                    const totalNumberPages = json.totalNumberPages;
                     $("#peopleCardsList").html("");
                     lastRecievedRequestOrder = json.requestOrder;
                     json.data.forEach((item) => {
