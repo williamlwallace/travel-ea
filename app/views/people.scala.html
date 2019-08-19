@@ -15,23 +15,23 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
     @* Filter *@
-    <div>
+    <div style="height: 30px;">
         <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample"
         aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
     </div>
     <div>
         <div class="collapse" id="collapseExample">
             <div class="card card-body" id="card-body">
-                <div id="filterItemDiv">
+                <div class="filterItemDiv">
                     <label for="gender">Gender</label>
-                    <select id="gender" class="form-control" data-style="form-control selectpicker">
+                    <select id="gender" class="form-control selectpicker" data-style="form-control">
                         <option value="">Select</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div id="filterItemDiv">
+                <div class="filterItemDiv">
                     <label for="ageRange">Age Range</label>
                     <div id="ageRange" class="input-group">
                         <input id="minAge" type="number" class="form-control validate" placeholder="Min"/>
@@ -39,21 +39,39 @@
                         <label data-error="wrong" data-success="right"></label>
                     </div>
                 </div>
-                <div id="filterItemDiv">
+                <div class="filterItemDiv">
                     <label for="pageSize">Results per page</label>
                     <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
                 </div>
-                <div id="filterItemDiv">
+                <div class="filterItemDiv">
                         <label for="nationalities">Nationality</label>
-                        <select id="nationalities" class="form-control" data-style="form-control selectpicker">
+                        <select id="nationalities" class="form-control selectpicker" data-style="form-control"
+                        data-live-search="true"
+                        data-size="5">
                             <option value="">Select Nationality</option>
                         </select>
                 </div>
-                <div id="filterItemDiv">
+                <div class="filterItemDiv">
                         <label for="travellerTypes">Type of Traveller</label>
-                        <select id="travellerTypes" class="form-control" data-style="form-control selectpicker">
+                        <select id="travellerTypes" class="form-control selectpicker" data-style="form-control">
                             <option value="">Select Traveller Type</option>
                         </select>
+                </div>
+                <div class="filterItemDiv">
+                    <label for="sortBy">Sort by</label>
+                    <select id="sortBy" class="form-control selectpicker" data-style="form-control">
+                        <option value="creation_date">Creation date</option>
+                        <option value="date_of_birth">Date of birth</option>
+                        <option value="first_name">First Name</option>
+                        <option value="last_name">Last Name</option>
+                    </select>
+                </div>
+                <div class="filterItemDiv">
+                    <label for="ascending">Sort by</label>
+                    <select id="ascending" class="form-control selectpicker" data-style="form-control">
+                        <option value="true">Ascending</option>
+                        <option value="false">Descending</option>
+                    </select>
                 </div>
                 <div class="text-center" id="buttonDiv">
                     <div id="closeButton">
@@ -63,22 +81,6 @@
                         <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
                         <button class="btn btn-primary"  onclick='getPeopleResults()'>Apply</button>
                     </div>
-                </div>
-                <div id="filterItemDiv">
-                    <label for="sortBy">Sort by</label>
-                    <select id="sortBy" class="form-control" data-style="form-control selectpicker">
-                        <option value="creation_date">Creation date</option>
-                        <option value="date_of_birth">Date of birth</option>
-                        <option value="first_name">First Name</option>
-                        <option value="last_name">Last Name</option>
-                    </select>
-                </div>
-                <div id="filterItemDiv">
-                    <label for="ascending">Sort by</label>
-                    <select id="ascending" class="form-control" data-style="form-control selectpicker">
-                        <option value="true">Ascending</option>
-                        <option value="false">Descending</option>
-                    </select>
                 </div>
             </div>
         </div>

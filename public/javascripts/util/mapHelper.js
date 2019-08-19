@@ -117,58 +117,47 @@ class DestinationMap {
 
     /**
      * Populates the markers list with props which can be iterated over to dynamically add destination markers
-     */
-    populateMarkers() {
+     *///TODO: Doc
+    populateMarkers(dests) {
         const destinations = [];
         this.removeDestinations();
-        return get(
-            destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-                this.userId).url)
-        .then(response => {
-            return response.json()
-            .then(json => {
-                if (response.status !== 200) {
-                    document.getElementById("otherError").innerHTML = json;
-                } else {
-                    for (const dest in json) {
-                        //Link to detailed destination in info window
-                        const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                            json[dest].id).url;
 
-                        //Setting public and privacy icon in info window
-                        let privacySrc;
-                        json[dest].isPublic
-                            ? privacySrc = "/assets/images/public.png"
-                            : privacySrc = "/assets/images/private.png";
+        dests.data.forEach((dest) => {
+            //Link to detailed destination in info window
+            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
+                dest.id).url;
 
-                        destinations.push({
-                            coords: {
-                                lat: json[dest].latitude,
-                                lng: json[dest].longitude
-                            },
-                            iconImage: json[dest].isPublic ? this.markerPublic
-                                : this.markerPrivate,
-                            content: '<a class="marker-link" title="View detailed destination" href="'
-                                + destination + '"><h3 style="display:inline">'
-                                + json[dest].name
-                                + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="'
-                                + privacySrc
-                                + '"height="20" style="margin-bottom:13px">'
-                                + '<p><b>Type:</b> ' + json[dest].destType
-                                + '<br>'
-                                + '<b>District:</b> ' + json[dest].district
-                                + '<br>'
-                                + '<b>Latitude:</b> ' + json[dest].latitude.toFixed(2)
-                                + '<br>'
-                                + '<b>Longitude:</b> ' + json[dest].longitude.toFixed(2)
-                                + '<br>'
-                                + '<b>Country:</b> ' + json[dest].country.name
-                                + '</p>'
-                        });
-                    }
-                    this.addDestinations(destinations);
-                }
+            //Setting public and privacy icon in info window
+            let privacySrc;
+            dest.isPublic
+                ? privacySrc = "/assets/images/public.png"
+                : privacySrc = "/assets/images/private.png";
+
+            destinations.push({
+                coords: {
+                    lat: dest.latitude,
+                    lng: dest.longitude
+                },
+                iconImage: dest.isPublic ? this.markerPublic
+                    : this.markerPrivate,
+                content: '<a class="marker-link" title="View detailed destination" href="'
+                    + destination + '"><h3 style="display:inline">'
+                    + dest.name
+                    + '</h3></a>&nbsp;&nbsp;&nbsp;<img src="'
+                    + privacySrc
+                    + '"height="20" style="margin-bottom:13px">'
+                    + '<p><b>Type:</b> ' + dest.destType
+                    + '<br>'
+                    + '<b>District:</b> ' + dest.district
+                    + '<br>'
+                    + '<b>Latitude:</b> ' + dest.latitude.toFixed(2)
+                    + '<br>'
+                    + '<b>Longitude:</b> ' + dest.longitude.toFixed(2)
+                    + '<br>'
+                    + '<b>Country:</b> ' + dest.country.name
+                    + '</p>'
             });
         });
+        this.addDestinations(destinations);
     }
 }

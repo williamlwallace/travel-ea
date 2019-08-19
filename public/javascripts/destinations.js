@@ -1,20 +1,27 @@
 let activeInfoWindow;
 let map;
 let toggled;
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+let paginationHelper;
 
 /**
  * Initializes destination page and map
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url;
+    paginationHelper = new PaginationHelper(1, 1, "destinationPagination", getDestinations);
     const options = {
         zoom: 1.8,
         center: {lat: 2, lng: 2}
     };
     map = new DestinationMap(options, true, userId);
-    map.populateMarkers().then(() => map.addDestinations());
+    getDestinations().then((dests) => {
+        map.populateMarkers(dests);
+        createDestinationCards(dests);
+    }).then(() => {
+        map.addDestinations()
+    });
 
     google.maps.event.addListener(map.map, 'click', function (event) {
         if (this.newMarker) {
@@ -28,6 +35,112 @@ function onPageLoad(userId) {
         toggleDestinationForm();
     }.bind(map));
 
+    toggleDestinationForm();
+
+}
+
+/**
+ * //TODO
+ * @returns {*}
+ */
+function getOnlyGetMine() {
+    return $('#onlyGetMine').val();
+}
+
+/**
+ * //TODO
+ * @returns {*}
+ */
+function getSearchQuery() {
+    return $('#searchQuery').val();
+}
+
+/**
+ * Get the value of the number of results to show per page
+ * @returns {number} The number of results shown per page
+ */
+function getPageSize() {
+    return $('#pageSize').val();
+}
+
+/**
+ * Returns the name of the db column to search by
+ * @returns {string} Name of db column to search by
+ */
+function getSortBy() {
+    return $('#sortBy').val();
+}
+
+/**
+ * Gets whether or not to sort by ascending
+ * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ */
+function getAscending() {
+    return $('#ascending').val();
+}
+
+//TODO: Doc
+function getDestinations() {
+    const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
+
+    // Append non-list params
+    if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
+    if(getOnlyGetMine() !== "") { url.searchParams.append("onlyGetMine", getOnlyGetMine()); }
+
+    // Append pagination params
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("sortBy", getSortBy());
+    url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("requestOrder", requestOrder++);
+
+    return get(url)
+        .then(response => {
+            return response.json()
+                .then(json => {
+                    if (response.status !== 200) {
+                        toast("Error with destinations", "Cannot load destinations", "danger")
+                    } else {
+                        if(lastRecievedRequestOrder < json.requestOrder) {
+                            lastRecievedRequestOrder = json.requestOrder;
+                            paginationHelper.setTotalNumberOfPages(json.totalNumberPages);
+                            return json;
+                        }
+                    }
+                });
+        });
+}
+
+//TODO: Doc
+function createDestinationCards(dests) {
+    dests.data.forEach((dest) => {
+        const template = $("#destinationCardTemplate").get(0);
+        const clone = template.content.cloneNode(true);
+        let tags = "";
+        let travellerTypes = "";
+
+        $(clone).find("#card-header").append(dest.name);
+        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
+        $(clone).find("#district").append("District: " + dest.district);
+        $(clone).find("#country").append("Country: " + dest.country.name);
+        $(clone).find("#destType").append("Type: " + dest.destType);
+        $(clone).find("#card-header").attr("data-id", dest.id.toString());
+
+        dest.tags.forEach(item => {
+            tags += item.name + ", ";
+        });
+        tags = tags.slice(0, -2);
+
+        dest.travellerTypes.forEach(item => {
+            travellerTypes += item.description + ", ";
+        });
+        travellerTypes = travellerTypes.slice(0, -2);
+
+        $(clone).find("#travellerTypes").append("Traveller Types: " + travellerTypes);
+        $(clone).find("#tags").append("Tags: " + tags);
+
+        $("#destinationCardList").get(0).appendChild(clone);
+    });
 }
 
 /**
@@ -166,9 +279,9 @@ function toggleDestinationForm() {
         $("#arrow").attr('class', "fas fa-1x fa-arrow-left");
         toggled = false;
     } else {
-        $("#mainSection").attr('class', 'col-md-9');
+        $("#mainSection").attr('class', 'col-md-8');
         $("#createDestinationPopOut").attr('class',
-            'col-md-3 showCreateDestinationPopOut');
+            'col-md-4 showCreateDestinationPopOut');
         $("#arrow").attr('class', "fas fa-1x fa-arrow-right");
         toggled = true;
     }

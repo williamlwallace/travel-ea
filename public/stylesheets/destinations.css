@@ -46,10 +46,6 @@ a.black-nav {
     display: Inline;
 }
 
-#createDestinationPopOut {
-    margin-top: 65px;
-}
-
 .col-md-9 {
     flex-shrink: 1;
     transition: all 400ms ease;
@@ -58,4 +54,9 @@ a.black-nav {
 .col-md-12 {
     flex-grow: 1;
     transition: all 400ms ease;
+}
+
+#cardsTab {
+    overflow-y: scroll;
+    height: 820px;
 }

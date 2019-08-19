@@ -139,7 +139,7 @@ function getPeopleResults() {
 
                     $(".card").click((element) => {
                         location.href = `/profile/${$(element.currentTarget).find("#card-header").data().id}`;
-                    })
+                    });
                     paginationHelper.setTotalNumberOfPages(totalNumberPages);
 
                 }
