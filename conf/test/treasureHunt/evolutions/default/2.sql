@@ -21,8 +21,23 @@ INSERT INTO TreasureHunt (user_id, riddle, destination_id, start_date, end_date,
 
 -- !Downs
 -- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
+DELETE FROM DestinationTag;
+DELETE FROM Tag;
 DELETE FROM TreasureHunt;
+DELETE FROM DestinationPhoto;
+DELETE FROM DestinationTravellerType;
+DELETE FROM DestinationTravellerTypePending;
+DELETE FROM TravellerType;
+DELETE FROM Passport;
+DELETE FROM Nationality;
+DELETE FROM TravellerTypeDefinition;
+DELETE FROM TripData;
 DELETE FROM Destination;
+DELETE FROM Trip;
 DELETE FROM CountryDefinition;
 DELETE FROM Profile;
+DELETE FROM Photo;
 DELETE FROM User;

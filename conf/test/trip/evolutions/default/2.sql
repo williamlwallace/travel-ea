@@ -40,12 +40,23 @@ INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO TripTag (tag_id, trip_id) VALUES (3, 1), (2, 2);
 
 -- !Downs
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
 DELETE FROM TripTag;
+DELETE FROM DestinationTag;
 DELETE FROM Tag;
+DELETE FROM TreasureHunt;
+DELETE FROM DestinationPhoto;
+DELETE FROM DestinationTravellerType;
+DELETE FROM DestinationTravellerTypePending;
+DELETE FROM TravellerType;
+DELETE FROM Passport;
+DELETE FROM Nationality;
 DELETE FROM TravellerTypeDefinition;
 DELETE FROM TripData;
-DELETE FROM Trip;
 DELETE FROM Destination;
+DELETE FROM Trip;
 DELETE FROM CountryDefinition;
 DELETE FROM Profile;
+DELETE FROM Photo;
 DELETE FROM User;
