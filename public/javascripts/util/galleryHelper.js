@@ -51,9 +51,9 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
             // "data" should now be a list of photo models for the given user
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
-            for (let i = 0; i < data.length; i++) {
-                data[i]["isOwned"] = true;
-                usersPhotos[i] = data[i];
+            for (const photo of data.data) {
+                photo.isOwned = true;
+                usersPhotos.push(photo);
             }
             const galleryObjects = createGalleryObjects(true);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
@@ -177,89 +177,76 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
  * @param {Number} destinationId the id of the destination to link the photos to
  * @param {function} clickFunction the function that will be called when a photo is clicked
- * @returns {Array} the array of photo gallery objects
+ * @returns {Object} Div containing all the photo tiles
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
     destinationId = null, clickFunction = null) {
-    let galleryObjects = [];
-    let numPages = Math.ceil(usersPhotos.length / 6);
-    for (let page = 0; page < numPages; page++) {
-        // page is the page number starting from 0
-        // Create a gallery which will have 6 photos
-        let newGallery = document.createElement("div");
-        newGallery.id = "page" + page;
-        newGallery.setAttribute("class", "tz-gallery");
-        // create the row div
-        let row = document.createElement("div");
-        row.setAttribute("class", "row");
-        // create each photo tile
-        for (let position = 0;
-            position <= 5 && (6 * page + position) < usersPhotos.length;
-            position++) {
-            let tile = document.createElement("div");
-            tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
+    // Create a gallery which will have 6 photos
+    let newGallery = document.createElement("div");
+    newGallery.id = "profilePhotos";
+    newGallery.setAttribute("class", "tz-gallery");
+    // create the row div
+    let row = document.createElement("div");
+    row.setAttribute("class", "row");
+    // create each photo tile
+    for (const position in usersPhotos.length) {
+        let tile = document.createElement("div");
+        tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
 
-            let photo = document.createElement("a");
-            photo.setAttribute("class", "lightbox");
+        let photo = document.createElement("a");
+        photo.setAttribute("class", "lightbox");
 
-            // 6 * page + position finds the correct photo index in the dictionary
-            const filename = usersPhotos[(6 * page + position)]["filename"];
-            const guid = usersPhotos[(6 * page + position)]["guid"];
-            const caption = usersPhotos[(6 * page + position)]["caption"];
-            const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
-            const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
-            const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
+        const filename = usersPhotos[position]["filename"];
+        const guid = usersPhotos[position]["guid"];
+        const caption = usersPhotos[position]["caption"];
+        const isPublic = usersPhotos[position]["isPublic"];
+        const isLinked = usersPhotos[position]["isLinked"];
+        const isOwned = usersPhotos[position]["isOwned"];
 
-            //Will only add full size links and removal buttons if requested
-            if (hasFullSizeLinks === true) {
-                if (canEdit === true && isOwned) {
-                    // Create toggle button
-                    const toggleButton = createToggleButton(isPublic, guid);
-                    tile.appendChild(toggleButton);
+        //Will only add full size links and removal buttons if requested
+        if (hasFullSizeLinks === true) {
+            if (canEdit === true && isOwned) {
+                // Create toggle button
+                const toggleButton = createToggleButton(isPublic, guid);
+                tile.appendChild(toggleButton);
 
-                }
-                if (canDelete === true) {
-                    // Create delete button
-                    // const deleteButton = createDeleteButton();
-                    // tile.appendChild(deleteButton);
-                    const editCaptionButton = createEditButton();
-                    tile.appendChild(editCaptionButton)
-
-                }
-
-                photo.href = filename;
             }
-            if (clickFunction) {
-                photo.addEventListener("click", clickFunction);
-                photo.style.cursor = "pointer";
+            if (canDelete === true) {
+                // Create delete button
+                // const deleteButton = createDeleteButton();
+                // tile.appendChild(deleteButton);
+                const editCaptionButton = createEditButton();
+                tile.appendChild(editCaptionButton)
+
             }
-            if (withLinkButton) {
-                const linkButton = createLinkButton(isLinked, guid,
-                    destinationId);
-                tile.appendChild(linkButton)
-            }
-            photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-caption", caption);
-            photo.setAttribute("data-filename", filename);
-            // thumbnail
-            let thumbnail = usersPhotos[(6 * page
-                + position)]["thumbnailFilename"];
-            let thumb = document.createElement("img");
-            thumb.src = thumbnail;
-            // add image to photo a
-            photo.appendChild(thumb);
-            // add photo a to the tile div
-            tile.appendChild(photo);
-            // add the entire tile, with image and thumbnail to the row div
-            row.appendChild(tile);
-            // row should now have 6 or less individual 'tiles' in it.
-            // add the row to the gallery div
-            newGallery.appendChild(row);
-            // Add the gallery page to the galleryObjects
+
+            photo.href = filename;
         }
-        galleryObjects[page] = newGallery;
+        if (clickFunction) {
+            photo.addEventListener("click", clickFunction);
+            photo.style.cursor = "pointer";
+        }
+        if (withLinkButton) {
+            const linkButton = createLinkButton(isLinked, guid,
+                destinationId);
+            tile.appendChild(linkButton)
+        }
+        photo.setAttribute("data-id", guid);
+        photo.setAttribute("data-caption", caption);
+        photo.setAttribute("data-filename", filename);
+        // thumbnail
+        let thumbnail = usersPhotos[position]["thumbnailFilename"];
+        let thumb = document.createElement("img");
+        thumb.src = thumbnail;
+        // add image to photo
+        photo.appendChild(thumb);
+        // add photo to the tile div
+        tile.appendChild(photo);
+        // add the entire tile, with image and thumbnail to the row div
+        row.appendChild(tile);
+        newGallery.appendChild(row);
     }
-    return galleryObjects;
+    return newGallery;
 }
 
 /**
@@ -335,37 +322,40 @@ function createEditButton() {
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param {List} galleryObjects a list of photo objects to insert
- * @param {string} galleryId the id of the gallery to populate
+ * @param {Object} galleryObject - A list of photo objects to insert
+ * @param {string} galleryId - The id of the gallery to populate
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
-function addPhotos(galleryObjects, galleryId, pageSelectionId) {
-    let numPages = Math.ceil(usersPhotos.length / 6);
-    let currentPage = 1;
-    if (galleryObjects !== undefined && galleryObjects.length !== 0) {
+function addPhotos(galleryObject, galleryId, pageSelectionId) {
+    // Gallery object is a div containing a div, thus [0], containing the photo tiles
+    console.log(galleryObject.children.length);
+    console.log(galleryObject);
+    if (!galleryObject.find().isEmpty()) {
+        $(galleryId).html(galleryObject);
+
+
         // init bootpage
-        $(pageSelectionId).bootpag({
-            total: numPages,
-            maxVisible: 5,
-            page: 1,
-            leaps: false,
-        }).on("page", function (event, num) {
-            currentPage = num;
-            $(galleryId).html(galleryObjects[currentPage - 1]);
-            baguetteBox.run('.tz-gallery', {
-                captions: function (element) {
-                    return $(element).attr('data-caption');
-                }
-            });
-            $('.img-wrap .close').on('click', function () {
-                let guid = $(this).closest('.img-wrap').find('a').data("id");
-                let filename = $(this).closest('.img-wrap').find('a').data(
-                    "filename");
-                populateEditPhoto(guid, filename);
-            });
-        });
-        // set first page
-        $(galleryId).html(galleryObjects[currentPage - 1]);
+        // $(pageSelectionId).bootpag({
+        //     total: numPages,
+        //     maxVisible: 5,
+        //     page: 1,
+        //     leaps: false,
+        // }).on("page", function (event, num) {
+        //     currentPage = num;
+        //     $(galleryId).html(galleryObject[currentPage - 1]);
+        //     baguetteBox.run('.tz-gallery', {
+        //         captions: function (element) {
+        //             return $(element).attr('data-caption');
+        //         }
+        //     });
+        //     $('.img-wrap .close').on('click', function () {
+        //         let guid = $(this).closest('.img-wrap').find('a').data("id");
+        //         let filename = $(this).closest('.img-wrap').find('a').data(
+        //             "filename");
+        //         populateEditPhoto(guid, filename);
+        //     });
+        // });
+
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
                 return $(element).attr('data-caption');

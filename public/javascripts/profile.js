@@ -412,8 +412,6 @@ function getProfileAndCoverPicture() {
 
 /**
  * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
- *
- * @param url the backend PhotoController url
  */
 function getPictures() {
     fillGallery(
@@ -425,8 +423,8 @@ function getPictures() {
  * Displays the users images in a change profile picture gallery modal
  */
 function showProfilePictureGallery() {
-    let galleryObjects = createGalleryObjects(false);
-    addPhotos(galleryObjects, $("#profile-gallery"),
+    let galleryObject = createGalleryObjects(false);
+    addPhotos(galleryObject, $("#profile-gallery"),
         $('#page-selection-profile-picture'));
     $('#changeProfilePictureModal').modal('show');
 }
