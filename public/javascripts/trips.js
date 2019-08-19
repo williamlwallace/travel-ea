@@ -1,5 +1,3 @@
-let tripTable;
-
 /**
  * Initializes trip table and calls method to populate
  * @param {Number} userId - ID of user to get trips for
