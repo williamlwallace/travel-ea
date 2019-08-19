@@ -63,8 +63,6 @@ PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  co
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
-PUT           /api/destination/:destId/photo/:photoId/primary  controllers.backend.DestinationController.changeDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
-
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
