@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import javax.persistence.EntityNotFoundException;
 import models.Trip;
 import models.TripData;
+import models.TripTag;
 import play.db.ebean.EbeanConfig;
 
 /**
@@ -52,6 +53,9 @@ public class TripRepository {
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
         return supplyAsync(() -> {
             try {
+                if (trip.tags.isEmpty()) {
+                    ebeanServer.find(TripTag.class).where().eq("trip_id", trip.id).delete();
+                }
                 ebeanServer.update(trip);
                 return true;
             } catch (EntityNotFoundException ex) {

@@ -206,8 +206,12 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Set<Tag> tripTags = new HashSet<>();
         Tag tag = new Tag("test tag");
         Tag tag2 = new Tag("test tag2");
+        Tag tag3 = new Tag("Russia");   // Already in DB
+        Tag tag4 = new Tag("#TravelEA");   // Already in DB
         tripTags.add(tag);
         tripTags.add(tag2);
+        tripTags.add(tag3);
+        tripTags.add(tag4);
 
         Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
             tripTags);
@@ -239,6 +243,116 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Trip retrieved = new ObjectMapper()
             .readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {
             });
+
+        assertEquals(tripTags.size(), retrieved.tags.size());
+
+        for (Tag expectedTag : tripTags) {
+            assertTrue(retrieved.tags.contains(expectedTag));
+        }
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = trip.tripDataList.get(i);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertNull(tripData.arrivalTime);
+            assertNull(tripData.departureTime);
+        }
+    }
+
+    @Test
+    public void updateTripRemoveTags() throws IOException {
+        // Creates trip object
+        int[] destinations = new int[]{1, 2};
+        String[] arrivalTimes = new String[]{null, null};
+        String[] departureTimes = new String[]{null, null};
+        Set<Tag> tripTags = new HashSet<>();
+
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
+        trip.id = 1L;    // Needs to be set to trip created in evolutions
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/1");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {
+            });
+
+        assertTrue(retrieved.tags.isEmpty());
+
+        for (int i = 0; i < retrieved.tripDataList.size(); i++) {
+            TripData tripData = trip.tripDataList.get(i);
+
+            assertEquals(Long.valueOf(destinations[i]), tripData.destination.id);
+            assertNull(tripData.arrivalTime);
+            assertNull(tripData.departureTime);
+        }
+    }
+
+    @Test
+    public void updateTripChangeTags() throws IOException {
+        // Creates trip object
+        int[] destinations = new int[]{1, 2};
+        String[] arrivalTimes = new String[]{null, null};
+        String[] departureTimes = new String[]{null, null};
+        Set<Tag> tripTags = new HashSet<>();
+        tripTags.add(new Tag("New Tag"));
+        tripTags.add(new Tag("Russia"));
+        tripTags.add(new Tag("Another tag"));
+
+        Trip trip = createTestTripObject(false, destinations, arrivalTimes, departureTimes,
+            tripTags);
+        trip.id = 1L;    // Needs to be set to trip created in evolutions
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Get trip and check data
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/1");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        Trip retrieved = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json), new TypeReference<Trip>() {
+            });
+
+        assertEquals(tripTags.size(), retrieved.tags.size());
+        assertTrue(retrieved.tags.containsAll(tripTags));
 
         for (int i = 0; i < retrieved.tripDataList.size(); i++) {
             TripData tripData = trip.tripDataList.get(i);

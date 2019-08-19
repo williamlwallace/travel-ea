@@ -191,6 +191,7 @@ public class TripController extends TEABackController {
             } else {
                 return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
                     userRepository.updateUsedTags(user, oldTrip, trip);
+                    trip.tags = existingTags;
                     return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
                         if (uploaded) {
                             return ok(Json.toJson(trip.id));
@@ -300,6 +301,7 @@ public class TripController extends TEABackController {
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
         return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
             userRepository.updateUsedTags(user, trip);
+            trip.tags = existingTags;
             return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
                 ok(Json.toJson(tripId)));
         });

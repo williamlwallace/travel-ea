@@ -93,7 +93,7 @@ GET           /api/photo/:photoId                    controllers.backend.PhotoCo
 
 DELETE        /api/photo/:photoId                    controllers.backend.PhotoController.deletePhoto(photoId:Long)
 
-PUT           /api/photo/:photoId/profile            controllers.backend.PhotoController.makePhotoProfile(request:Request, photoId:Long)
+PUT           /api/photo/:userId/profile             controllers.backend.PhotoController.makePhotoProfile(request:Request, userId:Long)
 
 PUT           /api/photo/:photoId                    controllers.backend.PhotoController.updatePhotoDetails(request:Request, photoId:Long)
 
