@@ -1,6 +1,7 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.HttpVerbs.PUT;
@@ -24,11 +25,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Tag;
 import models.TripData;
 import models.User;
 import org.junit.Assert;
@@ -105,8 +109,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(Long.valueOf(1), dest.id);
         assertEquals(2, dest.travellerTypes.size());
         assertEquals(2, dest.travellerTypesPending.size());
-        assertEquals("sports", dest.tags.get(0).name);
-
+        assertEquals(2, dest.tags.size());
     }
 
     @Test
@@ -198,27 +201,99 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
     @Test
     public void editDestination() throws IOException {
-        Destination destination = getDestination(4);
+        int destToEdit = 4;
+        Destination destination = getDestination(destToEdit);
         assertNotNull(destination);
+        assertNotEquals("Definitely Not Blitzcrank", destination.name);
+        assertEquals(1, destination.tags.size());
+        assertTrue(destination.tags.contains(new Tag("sports")));
 
         destination.name = "Definitely Not Blitzcrank";
         destination.district = "Summoners Rift";
 
+        Tag newTag = new Tag("New Tag");
+        destination.tags.add(newTag);
+
         Http.RequestBuilder putRequest = Helpers.fakeRequest()
             .method(PUT)
             .bodyJson(Json.toJson(destination))
-            .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "7");
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + destToEdit);
 
         // Get result and check it was successful
         Result putResult = route(fakeApp, putRequest);
         assertEquals(OK, putResult.status());
 
-        Destination updatedDestination = getDestination(4);
+        Destination updatedDestination = getDestination(destToEdit);
         assertNotNull(updatedDestination);
 
         assertEquals("Definitely Not Blitzcrank", updatedDestination.name);
         assertEquals("Summoners Rift", updatedDestination.district);
+        assertEquals(2, updatedDestination.tags.size());
+        assertTrue(updatedDestination.tags.contains(new Tag("sports")));
+        assertTrue(updatedDestination.tags.contains(newTag));
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationRemoveTags() throws IOException {
+        int destToEdit = 4;
+        Destination destination = getDestination(destToEdit);
+        assertNotNull(destination);
+        assertNotEquals("Testing removing tags", destination.name);
+        assertEquals(1, destination.tags.size());
+        assertTrue(destination.tags.contains(new Tag("sports")));
+
+        destination.name = "Testing removing tags";
+        destination.tags.clear();    // Removes existing tag
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + destToEdit);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(destToEdit);
+        assertNotNull(updatedDestination);
+
+        assertEquals("Testing removing tags", updatedDestination.name);
+        assertTrue(updatedDestination.tags.isEmpty());
+        assertEquals(destination, updatedDestination);
+    }
+
+    @Test
+    public void editDestinationChangeTags() throws IOException {
+        int destToEdit = 1;
+        Destination destination = getDestination(destToEdit);
+        assertNotNull(destination);
+        assertNotEquals("Testing changing tags", destination.name);
+        assertEquals(2, destination.tags.size());
+        assertTrue(destination.tags.contains(new Tag("sports")));
+        assertTrue(destination.tags.contains(new Tag("music")));
+
+        destination.name = "Testing changing tags";
+        destination.tags.remove(new Tag("sports"));    // Removes existing tag
+
+        Http.RequestBuilder putRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + destToEdit);
+
+        // Get result and check it was successful
+        Result putResult = route(fakeApp, putRequest);
+        assertEquals(OK, putResult.status());
+
+        Destination updatedDestination = getDestination(destToEdit);
+        assertNotNull(updatedDestination);
+
+        assertEquals("Testing changing tags", updatedDestination.name);
+        assertEquals(destination.tags.size(), updatedDestination.tags.size());
+        assertTrue(updatedDestination.tags.containsAll(destination.tags));
         assertEquals(destination, updatedDestination);
     }
 
@@ -360,6 +435,10 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         user.id = 1L;
         node.set("user", Json.toJson(user));
 
+        Set<Tag> tags = new HashSet<>();
+        tags.add(new Tag("New Tag"));
+        node.set("tags", Json.toJson(tags));
+
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
@@ -411,6 +490,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         expectedMessages.put("longitude", "longitude must be at least -180.000000");
         expectedMessages.put("country", "Country field must be present");
         expectedMessages.put("user", "User field must be present");
+        expectedMessages.put("tags", "Tags field must be present");
 
         // Check all error messages were present
         for (String key : response.keySet()) {

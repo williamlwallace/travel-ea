@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import models.Destination;
+import models.Tag;
 import models.Trip;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +41,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
         assertEquals((Long) 2L, trip.tripDataList.get(1).destination.id);
 
         assertEquals(1, trip.tags.size());
-        assertEquals((Long) 2L, trip.tags.get(0).id);
-        assertEquals("sports", trip.tags.get(0).name);
+        assertTrue(trip.tags.contains(new Tag("sports")));
 
         return true;
     }
