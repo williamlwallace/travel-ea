@@ -118,7 +118,7 @@ function populateUpdateTreasureHunt(id) {
 
                 document.getElementById(
                     "updateRiddle").value = treasureHunt.riddle;
-                $('#destinationDropDown').picker('set',
+                $('#destinationDropDown').selectpicker('val',
                     treasureHunt.destination.id);
                 document.getElementById("updateStartDate").value = startDate;
                 document.getElementById("updateEndDate").value = endDate;
