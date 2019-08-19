@@ -248,6 +248,48 @@ function populateEditDestination(destinationId) {
 }
 
 /**
+ * The editCoverPhotoButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#changePrimaryPhotoButton").click(function () {
+    $("#changePrimaryPhotoModal").modal('show');
+    fillSelectionGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "cover-photo-gallery", "current-page", function () {
+            setPrimaryPhoto(this.getAttribute("data-id"))
+        });
+});
+
+/**
+ * Sets the users cover photo given a specific photoID
+ * @Param {Number} photoId the id of the photo to set as the cover photo
+ * @Param {Number} profileId the id of the user whos cover photo should change
+ */
+function setPrimaryPhoto(photoId) {
+    const coverPicUpdateURL = photoRouter.controllers.backend.PhotoController.setCoverPhoto(
+        profileId).url;
+
+    // Create reversible request to update profile photo to this new photo
+    const handler = (status, json) => {
+        if (status === 200) {
+            getProfileAndCoverPicture();
+            $("#editCoverPhotoModal").modal('hide');
+            toast("Changes saved!",
+                "Cover photo changes saved successfully.",
+                "success");
+        } else {
+            toast("Error",
+                "Unable to update cover photo", "danger");
+        }
+    };
+
+    const requestData = new ReqData(requestTypes["UPDATE"],
+        coverPicUpdateURL, handler, photoId);
+    undoRedo.sendAndAppend(requestData);
+
+}
+/**
  * Gets traveller type to modify for a destination and determines whether to add or remove, calls appropriate method
  *
  * @param {Number} destId - ID of destination to link traveller type to
