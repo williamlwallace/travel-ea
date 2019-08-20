@@ -21,8 +21,10 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.TagRepository;
 import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
+import repository.UserRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -34,17 +36,21 @@ public class DestinationController extends TEABackController {
     private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
-    private final PhotoRepository photoRepository;
     private final WSClient ws;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository,
-        PhotoRepository photoRepository, WSClient ws) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
+        TagRepository tagRepository, UserRepository userRepository,
+        PhotoRepository photoRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
-        this.photoRepository = photoRepository;
         this.ws = ws;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -60,7 +66,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking, if error returns bad request
-        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(false);
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
@@ -73,7 +79,8 @@ public class DestinationController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
                 "You do not have permission to create a destination for someone else")));
         }
-        //check if destination already exists
+
+        // Checks if similar destination already exists
         List<Destination> destinations = destinationRepository
             .getSimilarDestinations(newDestination);
         for (Destination destination : destinations) {
@@ -82,14 +89,19 @@ public class DestinationController extends TEABackController {
                     .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
             }
         }
-        return destinationRepository.addDestination(newDestination)
-            .thenApplyAsync(id -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(id)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+
+        return tagRepository.addTags(newDestination.tags).thenComposeAsync(existingTags -> {
+            userRepository.updateUsedTags(user, newDestination);
+            newDestination.tags = existingTags;
+            return destinationRepository.addDestination(newDestination)
+                .thenApplyAsync(id -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(id)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        });
     }
 
     /**
@@ -190,7 +202,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> editDestination(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
-        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(true);
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture
@@ -200,23 +212,33 @@ public class DestinationController extends TEABackController {
                     return CompletableFuture
                         .supplyAsync(() -> badRequest(validatorResult.toJson()));
                 }
+
+                // Build destination object and set required fields
                 Destination editedDestination = Json.fromJson(data, Destination.class);
-                //check if destination already exists
+                editedDestination.id = id;
+
+                // Check if destination already exists, if so rejects update
                 List<Destination> destinations = destinationRepository
                     .getSimilarDestinations(editedDestination);
                 for (Destination dest : destinations) {
                     if (dest.user.id.equals(user.id) || dest.isPublic) {
-                        return CompletableFuture
-                            .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                        return CompletableFuture.supplyAsync(() -> badRequest(
+                            Json.toJson("Another destination with these details already exists")));
                     }
                 }
-                return destinationRepository.updateDestination(editedDestination)
-                    .thenApplyAsync(updatedDestination -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(destination)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
+
+                return tagRepository.addTags(editedDestination.tags)
+                    .thenComposeAsync(existingTags -> {
+                        userRepository.updateUsedTags(user, destination, editedDestination);
+                        editedDestination.tags = existingTags;
+                        return destinationRepository.updateDestination(editedDestination)
+                            .thenApplyAsync(updatedDestination -> {
+                                try {
+                                    return ok(sanitizeJson(Json.toJson(destination)));
+                                } catch (IOException e) {
+                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                                }
+                            });
                     });
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden(
@@ -351,56 +373,6 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Changes the photo set as the primary photo for a destination. If the user does not own the
-     * destination or isn't an admin, then a request to modify is stored instead.
-     *
-     * @param request Http request containing authentication information
-     * @param destId ID of destination to change primary photo of
-     * @param photoId Id of photo to add as primary photo for destination
-     * @return Response result containing success/error message
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> changeDestinationPrimaryPhoto(Http.Request request, Long destId,
-        Long photoId) {
-        User user = request.attrs().get(ActionState.USER);
-        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
-            if (destination == null) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
-            }
-
-            return photoRepository.getPhotoById(photoId)
-                .thenComposeAsync(photo -> {
-                    if (photo == null) {
-                        return CompletableFuture.supplyAsync(() -> notFound(
-                            Json.toJson("Photo with provided ID not found")));
-                    }
-
-                    // If user is allowed to change photo
-                    if (destination.user.id.equals(user.id) || user.admin) {
-                        destination.primaryPhoto = photo;
-                        if (destination.isPendingPhoto(photoId)) {
-                            destination.removePendingDestinationPrimaryPhoto(photoId);
-                        }
-                    }
-                    // If user must request to change destination primary photo
-                    else {
-                        // Request already exists
-                        if (destination.isPendingPhoto(photoId)) {
-                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(
-                                "Successfully requested to change destinations primary photo")));
-                        } else {
-
-                            destination.addPendingDestinationProfilePhoto(photoId);
-                        }
-                    }
-                    return destinationRepository.updateDestination(destination)
-                        .thenApplyAsync(rows -> ok(Json.toJson(
-                            "Successfully changed destinations primary photo")));
-                });
-        });
-    }
-
-    /**
      * Gets all destinations that are strictly public, regardless of which user is requesting them
      *
      * @return 200 code with public destination array on success, otherwise 500 if sanitization
@@ -429,7 +401,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // If user is admin or requesting for their own destinations
-        if ((user.admin && user.id == userId)) {
+        if ((user.admin && user.id.equals(userId))) {
             return destinationRepository.getAllDestinationsAdmin()
                 .thenApplyAsync(allDestinations -> {
                     try {

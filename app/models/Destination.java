@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -21,7 +22,7 @@ import play.data.validation.Constraints;
 @Entity
 @Table(name = "Destination")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Destination extends BaseModel {
+public class Destination extends BaseModel implements Taggable {
 
     @Id
     @Constraints.Required
@@ -55,9 +56,6 @@ public class Destination extends BaseModel {
     @Constraints.Required
     public CountryDefinition country;
 
-    @ManyToOne
-    public Photo primaryPhoto;
-
     @JsonIgnore
     @ManyToMany(mappedBy = "destinationPhotos")
     @JoinTable(
@@ -85,7 +83,7 @@ public class Destination extends BaseModel {
     @JoinTable(
         name = "PendingDestinationPhoto",
         joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "guid", referencedColumnName = "guid"))
+        inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
     public List<Photo> destinationPrimaryPhotoPending;
 
     @ManyToMany(mappedBy = "destinations")
@@ -93,7 +91,17 @@ public class Destination extends BaseModel {
         name = "DestinationTag",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
-    public List<Tag> tags;
+    public Set<Tag> tags;
+
+    /**
+     * Returns the list of tags associated with the object
+     *
+     * @return a list of Tags
+     */
+    @JsonIgnore
+    public Set<Tag> getTagsList() {
+        return tags;
+    }
 
     /**
      * Checks if photo is linked to destination.
@@ -168,52 +176,6 @@ public class Destination extends BaseModel {
         while (iterator.hasNext()) {
             TravellerTypeDefinition travellerType = iterator.next();
             if (travellerType.id.equals(travellerTypeId)) {
-                iterator.remove();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Checks if a photo is already pending as the destination photo
-     *
-     * @param photoId id of photo
-     * @return True if dest is linked to photo
-     */
-    public Boolean isPendingPhoto(Long photoId) {
-        Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
-        while (iterator.hasNext()) {
-            Photo photo = iterator.next();
-            if (photo.guid.equals(photoId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Adds request to set destination primary photo
-     *
-     * @param photoId The id of the photo to add
-     */
-    public void addPendingDestinationProfilePhoto(Long photoId) {
-        Photo photo = new Photo();
-        photo.guid = photoId;
-        this.destinationPrimaryPhotoPending.add(photo);
-    }
-
-    /**
-     * Removes request to set a destinations primary photo
-     *
-     * @param photoId The id of the photo to remove
-     * @return true if the photo was removed, false if not
-     */
-    public Boolean removePendingDestinationPrimaryPhoto(Long photoId) {
-        Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
-        while (iterator.hasNext()) {
-            Photo photo = iterator.next();
-            if (photo.guid.equals(photoId)) {
                 iterator.remove();
                 return true;
             }

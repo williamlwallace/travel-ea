@@ -116,10 +116,8 @@ CREATE TABLE IF NOT EXISTS Destination
     country_id        INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
     deleted           BOOLEAN NOT NULL DEFAULT false,
-    primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
-    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
 
@@ -170,10 +168,8 @@ CREATE TABLE IF NOT EXISTS TripData
     destination_id    INT NOT NULL,
     arrival_time      DATETIME,
     departure_time    DATETIME,
-    primary_photo_guid  INT,
     FOREIGN KEY (trip_id) REFERENCES Trip(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (guid),
     INDEX tripdata_index (trip_id, position),
     INDEX destination_id_index (destination_id)
@@ -196,11 +192,11 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 -- Create PendingDestinationPhotos table, which specifies all current requests for a change in primary photos
 CREATE TABLE IF NOT EXISTS PendingDestinationPhoto
   (
-    id                  INT NOT NULL AUTO_INCREMENT,
-    guid_id             INT NOT NULL,
-    dest_id             INT NOT NULL,
-    FOREIGN KEY (guid_id) REFERENCES Photo(guid) ON DELETE CASCADE,
-    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    id                     INT NOT NULL AUTO_INCREMENT,
+    photo_id               INT NOT NULL,
+    dest_id                INT NOT NULL,
+    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (dest_id)  REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
 
@@ -223,12 +219,12 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
 CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
-    name                  VARCHAR(64),
-    PRIMARY KEY (id)
+    name                  VARCHAR(64) UNIQUE NOT NULL,
+    PRIMARY KEY (id),
+    INDEX tag_name_index (name)
   );
 
 -- Specifies the DestinationTag table, this is only done in the SQL so we can populate it in the evolutions
--- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS DestinationTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -240,7 +236,6 @@ CREATE TABLE IF NOT EXISTS DestinationTag
   );
 
 -- Specifies the TripTag table, this is only done in the SQL so we can populate it in the evolutions
--- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS TripTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -252,7 +247,6 @@ CREATE TABLE IF NOT EXISTS TripTag
   );
 
 -- Specifies the PhotoTag table, this is only done in the SQL so we can populate it in the evolutions
--- This does not need a corresponding Model, as we don't need the class
 CREATE TABLE IF NOT EXISTS PhotoTag
   (
     guid                  INT NOT NULL AUTO_INCREMENT,
@@ -282,17 +276,16 @@ DROP TABLE TripTag;
 DROP TABLE DestinationTag;
 DROP TABLE Tag;
 DROP TABLE TreasureHunt;
-DROP TABLE PendingDestinationPhoto;
 DROP TABLE DestinationPhoto;
-DROP TABLE DestinationTravellerType;
+DROP TABLE TripData;
+DROP TABLE Trip;
 DROP TABLE DestinationTravellerTypePending;
+DROP TABLE DestinationTravellerType;
+DROP TABLE Destination;
 DROP TABLE TravellerType;
+DROP TABLE TravellerTypeDefinition;
 DROP TABLE Passport;
 DROP TABLE Nationality;
-DROP TABLE TravellerTypeDefinition;
-DROP TABLE TripData;
-DROP TABLE Destination;
-DROP TABLE Trip;
 DROP TABLE CountryDefinition;
 DROP TABLE Profile;
 DROP TABLE Photo;

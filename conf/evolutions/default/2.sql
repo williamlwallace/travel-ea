@@ -113,6 +113,8 @@ INSERT INTO Trip (user_id) VALUES (1);
 
 -- Add sample tripData for the sample trip
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 1, 2, NULL, NULL);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 2, 3, NULL, NULL);
 
 -- Add sample photos
 INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
@@ -131,16 +133,17 @@ DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
 DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
 DELETE FROM DestinationPhoto;
-DELETE FROM DestinationTravellerType;
+DELETE FROM TripData;
+DELETE FROM Trip;
 DELETE FROM DestinationTravellerTypePending;
+DELETE FROM DestinationTravellerType;
+DELETE FROM Destination;
 DELETE FROM TravellerType;
+DELETE FROM TravellerTypeDefinition;
 DELETE FROM Passport;
 DELETE FROM Nationality;
-DELETE FROM TravellerTypeDefinition;
-DELETE FROM TripData;
-DELETE FROM Destination;
-DELETE FROM Trip;
 DELETE FROM CountryDefinition;
 DELETE FROM Profile;
 DELETE FROM Photo;

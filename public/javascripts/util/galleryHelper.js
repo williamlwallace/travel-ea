@@ -7,8 +7,11 @@ $('#upload-img').on('click', function () {
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
     let caption = $('#caption input').val();
-
-    const tags = getTags().map(tag => {tag});
+    const tags = uploadTagPicker.getTags().map(tag => {
+        return {
+            name: tag
+        }
+    });
 
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
@@ -16,6 +19,7 @@ $('#upload-img').on('click', function () {
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
+        formData.append('tags', JSON.stringify(tags));
         formData.append("userUploadId", window.location.href.split("/").pop());
     }
     // Send request and handle response
@@ -25,7 +29,7 @@ $('#upload-img').on('click', function () {
             if (response.status === 201) {
                 fillGallery(getAllPhotosUrl, galleryId, pageId);
                 toast("Photo Added!",
-                    "The new photo will be shown in the picture gallery.",
+                    "The new photo will appear in the photo gallery",
                     "success");
             }
         })
@@ -398,8 +402,7 @@ function togglePrivacy(guid, newPrivacy) {
             label.setAttribute("onClick",
                 "togglePrivacy(" + guid + "," + !this.newPrivacy + ")");
             toast("Picture privacy changed!",
-                "The photo is now " + (this.newPrivacy ? "Public" : "Private"),
-                "success");
+                "The photo is now " + (this.newPrivacy ? "Public" : "Private"));
             this.newPrivacy = !this.newPrivacy;
         }
     }.bind({newPrivacy});
@@ -426,5 +429,5 @@ $('#upload-gallery-image-file').on('change', function handleImage(e) {
  * Opens edit photo modal when clicking on edit icon in photo thumbnail
  */
 $('#editCaption').on('click', function () {
-    $('#upload-modal').show()
+    $('#upload-modal').show();
 });
