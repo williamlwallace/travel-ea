@@ -261,21 +261,20 @@ $("#changePrimaryPhotoButton").click(function () {
 });
 
 /**
- * Sets the users cover photo given a specific photoID
+ * Sets the destination primary photo given a specific photoID
  * @Param {Number} photoId the id of the photo to set as the cover photo
- * @Param {Number} profileId the id of the user whos cover photo should change
  */
 function setPrimaryPhoto(photoId) {
-    const coverPicUpdateURL = photoRouter.controllers.backend.PhotoController.setCoverPhoto(
-        profileId).url;
+    const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
+        DESTINATIONID, photoId).url;
 
-    // Create reversible request to update profile photo to this new photo
+    // Create reversible request to update primary photo to this new photo
     const handler = (status, json) => {
         if (status === 200) {
-            getProfileAndCoverPicture();
-            $("#editCoverPhotoModal").modal('hide');
+            getPrimaryPicture();
+            $("#changePrimaryPhotoModal").modal('hide');
             toast("Changes saved!",
-                "Cover photo changes saved successfully.",
+                "Primary photo changes saved successfully.",
                 "success");
         } else {
             toast("Error",
@@ -284,10 +283,36 @@ function setPrimaryPhoto(photoId) {
     };
 
     const requestData = new ReqData(requestTypes["UPDATE"],
-        coverPicUpdateURL, handler, photoId);
+        primaryPicUpdateURL, handler, photoId);
     undoRedo.sendAndAppend(requestData);
 
 }
+
+/**
+ * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
+ * the profile picture and cover photo path to it.
+ */
+function getPrimaryPicture() {
+    get(destinationRouter.controllers.backend.DestinationController.getDestination(
+        DESTINATIONID).url).then(response => {
+        // Read response from server, which will be a json object
+        if (response.status === 200) {
+            response.json().then(data => {
+                if (data.primaryPhoto === null) {
+                    $("#DestinationProfilePicture").attr("src",
+                        "/assets/images/default-destination-primary.png");
+                } else {
+                    $("#DestinationProfilePicture").attr("src",
+                        "../user_content/" + data.primaryPhoto.filename);
+                }
+            });
+        } else if (response.status === 404) {
+            $("#DestinationProfilePicture").attr("src",
+                "/assets/images/default-destination-primary.png");
+        }
+    });
+}
+
 /**
  * Gets traveller type to modify for a destination and determines whether to add or remove, calls appropriate method
  *

@@ -39,7 +39,7 @@
                     @if(canModify) {
                         <a id="changePrimaryPhotoButton" class="edit-button" style="top:0;"title="Edit Primary Picture"><i class="fas fa-pen fa-1x"></i></a>
                     }
-                    <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="DestinationProfilePicture" class="img-thumbnail profile-picture">
+                    <img src= "@routes.Assets.at("images/default-destination-primary.png")" id="DestinationProfilePicture" class="img-thumbnail profile-picture">
                     <div class="destination-details">
                         <div style="padding-bottom: 10px">
                             <span id="destination_name" class="destination_name h1" style="display: inline"></span>
@@ -192,7 +192,7 @@
         </div>
     </div>
 
-    @*Gallery modal for selecting a cover photo, false as we want no titles and no add photo button*@
+    @*Gallery modal for selecting a destination primary photo, false as we want no titles and no add photo button*@
     <div class="modal fade" id="changePrimaryPhotoModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
@@ -203,7 +203,7 @@
                     </button>
                 </div>
                 @* all images gallery *@
-                @modules.gallery(false, false, "cover-photo-gallery", "current-page")
+                @modules.gallery(false, false, "cover-photo-gallery", "current-page", false)
             </div>
         </div>
     </div>
@@ -274,7 +274,7 @@
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         getAndFillDD("@controllers.backend.routes.TagController.getAllDestinationPhotoTags(destinationId)", ["tagFilter"], "name", false, "name");
         populateDestinationDetails(@destinationId);
-
+        getPrimaryPicture();
         const tagPicker = new TagPicker(@loggedUser.id, "detailed-destination-tag");
         const tagDisplay = new TagDisplay("detailed-destination-tag-display");
 </script>

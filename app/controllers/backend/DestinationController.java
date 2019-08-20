@@ -435,10 +435,10 @@ public class DestinationController extends TEABackController {
 
     /**
      * Rejects a pending destination primary photo
-     * 
+     *
      * @param destId Id of destination
-     * @param photoId Id of photo  
-     * @return Response result containing success/error message  
+     * @param photoId Id of photo
+     * @return Response result containing success/error message
      */
     @With({Admin.class, Authenticator.class}) //admin auth
     public CompletableFuture<Result> rejectDestinaitonPrimaryPhoto(Http.Request request,
@@ -454,7 +454,7 @@ public class DestinationController extends TEABackController {
 
     /**
      * Accepts a pending destination primary photo and sets it
-     * 
+     *
      * @param destId Id of destination
      * @param photoId Id of photo
      * @return Response result containing success/error message
@@ -468,7 +468,7 @@ public class DestinationController extends TEABackController {
             } else {
                 return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
                     if (photo == null) {
-                        return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Photo not found"))); 
+                        return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Photo not found")));
                     }
                     JsonNode oldDestination = Json.toJson(destination);
                     destination.primaryPhoto = photo;
@@ -612,7 +612,8 @@ public class DestinationController extends TEABackController {
                     .toggleDestinationTravellerType(),
                 controllers.backend.routes.javascript.DestinationController
                     .toggleRejectTravellerType(),
-                controllers.backend.routes.javascript.DestinationController.addNewDestination()
+                controllers.backend.routes.javascript.DestinationController.addNewDestination(),
+                controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

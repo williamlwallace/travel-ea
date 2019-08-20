@@ -776,6 +776,11 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully changed destinations primary photo", json.textValue());
+
     }
 
     @Test
@@ -787,6 +792,12 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
+
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("Successfully changed destinations primary photo",
+            json.textValue());
+
     }
 
     @Test
