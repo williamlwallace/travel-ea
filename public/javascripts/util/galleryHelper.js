@@ -81,21 +81,23 @@ function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
             // "data" should now be a list of photo models for the given user
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
-            for (let i = 0; i < data.length; i++) {
+            for (const photo of data.data) {
                 if (!filters || filters.length === 0) {
-                    data[i]["isOwned"] = true;
-                    usersPhotos[i] = data[i];
+                    photo.isOwned = true;
+                    usersPhotos.push(photo);
                 } else {
                     for (const filter of filters) {
-                        if (data[i].tags.map(tag => tag.name).includes(filter)) {
-                            data[i]["isOwned"] = true;
-                            usersPhotos.push(data[i]);
+                        if (photo.tags.map(tag => tag.name).includes(filter)) {
+                            photo.isOwned = true;
+                            usersPhotos.push(photo);
                             break;
                         }
                     }
 
                 }
             }
+
+            paginationHelper.setTotalNumberOfPages(data.totalNumberPages);
             const galleryObjects = createGalleryObjects(true);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
@@ -222,86 +224,80 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
     destinationId = null, clickFunction = null) {
-    let galleryObjects = [];
-    let numPages = Math.ceil(usersPhotos.length / 6);
-    for (let page = 0; page < numPages; page++) {
-        // page is the page number starting from 0
-        // Create a gallery which will have 6 photos
-        let newGallery = document.createElement("div");
-        newGallery.id = "page" + page;
-        newGallery.setAttribute("class", "tz-gallery");
-        // create the row div
-        let row = document.createElement("div");
-        row.setAttribute("class", "row");
-        // create each photo tile
-        for (let position = 0;
-            position <= 5 && (6 * page + position) < usersPhotos.length;
-            position++) {
-            let tile = document.createElement("div");
-            tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
+    const galleryObjects = [];
+    // page is the page number starting from 0
+    // Create a gallery which will have 6 photos
+    let newGallery = document.createElement("div");
+    newGallery.id = "page" + "0";    // TODO: May need to modify this to store actual page id
+    newGallery.setAttribute("class", "tz-gallery");
+    // create the row div
+    let row = document.createElement("div");
+    row.setAttribute("class", "row");
+    // create each photo tile
+    for (const position in usersPhotos.length) {
+        let tile = document.createElement("div");
+        tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
 
-            let photo = document.createElement("a");
-            photo.setAttribute("class", "lightbox");
+        let photo = document.createElement("a");
+        photo.setAttribute("class", "lightbox");
 
-            // 6 * page + position finds the correct photo index in the dictionary
-            const filename = usersPhotos[(6 * page + position)]["filename"];
-            const guid = usersPhotos[(6 * page + position)]["guid"];
-            const caption = usersPhotos[(6 * page + position)]["caption"];
-            const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
-            const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
-            const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
-            const tags = usersPhotos[(6 * page + position)]["tags"].map(tag => tag.name);
+        // 6 * page + position finds the correct photo index in the dictionary
+        const filename = usersPhotos[position]["filename"];
+        const guid = usersPhotos[position]["guid"];
+        const caption = usersPhotos[position]["caption"];
+        const isPublic = usersPhotos[position]["isPublic"];
+        const isLinked = usersPhotos[position]["isLinked"];
+        const isOwned = usersPhotos[position]["isOwned"];
+        const tags = usersPhotos[position]["tags"].map(tag => tag.name);
 
-            //Will only add full size links and removal buttons if requested
-            if (hasFullSizeLinks === true) {
-                if (canEdit === true && isOwned) {
-                    // Create toggle button
-                    const toggleButton = createToggleButton(isPublic, guid);
-                    tile.appendChild(toggleButton);
+        //Will only add full size links and removal buttons if requested
+        if (hasFullSizeLinks === true) {
+            if (canEdit === true && isOwned) {
+                // Create toggle button
+                const toggleButton = createToggleButton(isPublic, guid);
+                tile.appendChild(toggleButton);
 
-                }
-                if (canDelete === true) {
-                    // Create delete button
-                    // const deleteButton = createDeleteButton();
-                    // tile.appendChild(deleteButton);
-                    const editCaptionButton = createEditButton();
-                    tile.appendChild(editCaptionButton)
-
-                }
-
-                photo.href = filename;
             }
-            if (clickFunction) {
-                photo.addEventListener("click", clickFunction);
-                photo.style.cursor = "pointer";
+            if (canDelete === true) {
+                // Create delete button
+                // const deleteButton = createDeleteButton();
+                // tile.appendChild(deleteButton);
+                const editCaptionButton = createEditButton();
+                tile.appendChild(editCaptionButton)
+
             }
-            if (withLinkButton) {
-                const linkButton = createLinkButton(isLinked, guid,
-                    destinationId);
-                tile.appendChild(linkButton)
-            }
-            photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-caption", caption);
-            photo.setAttribute("data-tags", tags.join(", "));
-            photo.setAttribute("data-filename", filename);
-            // thumbnail
-            let thumbnail = usersPhotos[(6 * page
-                + position)]["thumbnailFilename"];
-            let thumb = document.createElement("img");
-            thumb.src = thumbnail;
-            // add image to photo a
-            photo.appendChild(thumb);
-            // add photo a to the tile div
-            tile.appendChild(photo);
-            // add the entire tile, with image and thumbnail to the row div
-            row.appendChild(tile);
-            // row should now have 6 or less individual 'tiles' in it.
-            // add the row to the gallery div
-            newGallery.appendChild(row);
-            // Add the gallery page to the galleryObjects
+
+            photo.href = filename;
         }
-        galleryObjects[page] = newGallery;
+        if (clickFunction) {
+            photo.addEventListener("click", clickFunction);
+            photo.style.cursor = "pointer";
+        }
+        if (withLinkButton) {
+            const linkButton = createLinkButton(isLinked, guid,
+                destinationId);
+            tile.appendChild(linkButton)
+        }
+        photo.setAttribute("data-id", guid);
+        photo.setAttribute("data-caption", caption);
+        photo.setAttribute("data-tags", tags.join(", "));
+        photo.setAttribute("data-filename", filename);
+        // thumbnail
+        let thumbnail = usersPhotos[position]["thumbnailFilename"];
+        let thumb = document.createElement("img");
+        thumb.src = thumbnail;
+        // add image to photo a
+        photo.appendChild(thumb);
+        // add photo a to the tile div
+        tile.appendChild(photo);
+        // add the entire tile, with image and thumbnail to the row div
+        row.appendChild(tile);
+        // row should now have 6 or less individual 'tiles' in it.
+        // add the row to the gallery div
+        newGallery.appendChild(row);
+        // Add the gallery page to the galleryObjects
     }
+    galleryObjects.push(newGallery);
     return galleryObjects;
 }
 

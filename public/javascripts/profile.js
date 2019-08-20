@@ -416,9 +416,10 @@ function getProfileAndCoverPicture() {
  * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
  */
 function getPictures() {
-    fillGallery(
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            profileId).url, 'main-gallery', 'page-selection');
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber().toString());
+
+    fillGallery(url, 'main-gallery', 'page-selection');
 }
 
 /**
