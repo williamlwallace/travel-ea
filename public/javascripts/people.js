@@ -7,7 +7,7 @@ let paginationHelper;
  * runs the getPeopleResults method.
  */
 $(document).ready(function() {
-    paginationHelper = new PaginationHelper(1, 1, "peoplePagination", getPeopleResults);
+    paginationHelper = new PaginationHelper(1, 1, getPeopleResults);
     getPeopleResults();
 });
 
@@ -139,7 +139,7 @@ function getPeopleResults() {
 
                     $(".card").click((element) => {
                         location.href = `/profile/${$(element.currentTarget).find("#card-header").data().id}`;
-                    })
+                    });
                     paginationHelper.setTotalNumberOfPages(totalNumberPages);
 
                 }

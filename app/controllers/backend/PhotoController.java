@@ -387,7 +387,7 @@ public class PhotoController extends TEABackController {
                     return saveMultiplePhotos(photos, loggedInUser, profilePhotoFilename != null);
                 } catch (IOException e) {
                     return CompletableFuture.supplyAsync(() -> internalServerError(
-                        Json.toJson("Unkown number of photos failed to save")));
+                        Json.toJson("Unknown number of photos failed to save")));
                 }
             }
         });
@@ -429,12 +429,15 @@ public class PhotoController extends TEABackController {
 
         // If this photo is going to be added as profile picture, return the name of it
         if (useProfileThumbnailSize) {
-            photoRepository.addPhotos(photosToAdd, user);
-            // Return filename of photo that was just added
-            photosToAdd.get(0).thumbnailFilename =
-                "../user_content/" + photosToAdd.get(0).thumbnailFilename;
-            photosToAdd.get(0).filename = "../user_content/" + photosToAdd.get(0).filename;
-            return CompletableFuture.supplyAsync(() -> created(Json.toJson(photosToAdd.get(0))));
+            photosToAdd.get(0).usedForProfile = true;
+            return photoRepository.addPhotos(photosToAdd, user).thenApplyAsync(addedPhotos -> {
+                // Return filename of photo that was just added
+                addedPhotos.get(0).thumbnailFilename =
+                        "../user_content/" + addedPhotos.get(0).thumbnailFilename;
+                addedPhotos.get(0).filename = "../user_content/" + addedPhotos.get(0).filename;
+                return  created(Json.toJson(addedPhotos.get(0)));
+            });
+
         } else {
             return CompletableFuture.supplyAsync(() -> {
                 photoRepository.addPhotos(photosToAdd, user);

@@ -10,12 +10,13 @@ class PaginationHelper {
      *
      * @param {Number} totalNumberPages the total number of pages of cards
      * @param {Number} pageNum the current page number
-     * @param {String} paginationId the id of the pagination DOM element in HTML
      * @param {Function} onChangeFunction the function that will be called when the page is
      *        changed.
+     * @param {String} className the name of the class to use for pagination. Defaults
+     *        to "pagination" if no parameter is provided.
      */
-    constructor(totalNumberPages, pageNum, paginationId, onChangeFunction) {
-        this.paginationObject = $("#" + paginationId);
+    constructor(totalNumberPages, pageNum, onChangeFunction, className = "pagination") {
+        this.paginationObject = $("." + className);
         this.totalNumberPages = totalNumberPages;
         this.pageNum = pageNum;
         this.pageNumbers = [];
@@ -98,9 +99,7 @@ class PaginationHelper {
      * @param {Number} desiredPageNumber Page number to change to
      */
     goToPage(desiredPageNumber) {
-        if(desiredPageNumber > this.totalNumberPages || desiredPageNumber < 1) {
-            toast("No such page", "The page you have tried to go to does not exist", "danger");
-        } else {
+        if(!(desiredPageNumber > this.totalNumberPages || desiredPageNumber < 1)) {
             this.pageNum = desiredPageNumber;
             this.onChangeFunction();
         }
@@ -122,6 +121,9 @@ class PaginationHelper {
      */
     setTotalNumberOfPages(totalNumberOfPages) {
         this.totalNumberPages = totalNumberOfPages;
+        if (this.pageNum > this.totalNumberPages) {
+            this.goToPage(1);
+        }
         this.drawPaginationBar();
     }
 }

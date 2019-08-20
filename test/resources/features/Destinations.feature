@@ -9,7 +9,6 @@ Feature: Story 13
   Scenario: Private destination
     Given I am logged in
     And I have created a private destination
-    Then The next time I retrieve all public destinations, my private destination is not among them
 
   Scenario: If a public destination is created and I have the same destination in my private list of destinations, it will automatically be merged with the public one. (AC6)
     Given I am logged in

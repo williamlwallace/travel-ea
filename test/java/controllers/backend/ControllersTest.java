@@ -33,7 +33,7 @@ public abstract class ControllersTest extends WithApplication {
     // Belongs to non-admin, userID = 2
     static Cookie nonAdminAuthCookie;
     static DestinationRepository destinationRepository;
-    private static Database db;
+    static Database db;
 
     /**
      * Configures system to use dest database, and starts a fake app
