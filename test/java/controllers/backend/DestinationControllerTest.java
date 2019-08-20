@@ -767,7 +767,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void addPrimaryPhotoOwner() throws IOException {
+    public void addPrimaryPhotoOwner() {
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
@@ -776,10 +776,6 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
-
-        JsonNode json = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals("Successfully changed destinations primary photo", json.textValue());
 
     }
 
@@ -795,7 +791,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals("Successfully changed destinations primary photo",
+        assertEquals("You do not have permission to set this photo as the destination primary photo",
             json.textValue());
 
     }
