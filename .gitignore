@@ -1,6 +1,9 @@
 #node
 node_modules/
 
+#Aplication.conf
+conf/application.conf
+
 # Ignore Play! working directory #
 bin/
 /db

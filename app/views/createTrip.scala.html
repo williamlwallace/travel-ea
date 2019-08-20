@@ -8,6 +8,7 @@
     <script src="@routes.Assets.at("javascripts/createTrips.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes" type="text/javascript"></script>
     <script src="@controllers.backend.routes.TripController.tripRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
 @layouts.main(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, scripts){
@@ -251,6 +252,7 @@
 <script type="text/javascript">
         onPageLoad(@ownerId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+        const createTripTagPicker = new TagPicker(@user.id, "create-trip-tag");
         $( function() {
             $( "#list" ).disableSelection().sortable({
                 scroll: true,

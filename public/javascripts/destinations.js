@@ -12,23 +12,24 @@ let paginationHelper;
 function onPageLoad(userId) {
     paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
     const options = {
-        zoom: 1.8,
-        center: {lat: 2, lng: 2}
+        zoom: 2.2,
+        center: {lat: 0, lng: 0}
     };
     map = new DestinationMap(options, true, userId);
     refreshData();
 
     google.maps.event.addListener(map.map, 'click', function (event) {
-        if (this.newMarker) {
-            this.newMarker.setPosition(event.latLng);
+        if (!map.creativeMode) return;
+        if (map.newMarker) {
+            map.newMarker.setPosition(event.latLng);
         } else {
-            this.newMarker = this.placeMarker(event.latLng, null);
+            map.newMarker = map.placeMarker(event.latLng, null);
         }
         $('#latitude').val(event.latLng.lat);
         $('#longitude').val(event.latLng.lng);
         toggled = false;
         toggleDestinationForm();
-    }.bind(map));
+    });
 
     toggleDestinationForm();
 
@@ -171,6 +172,9 @@ function createDestinationCards(dests) {
 
         $("#destinationCardList").get(0).appendChild(clone);
     });
+    $('#destinationTags').tagsinput({
+        trimValue: true
+    });
 }
 
 /**
@@ -199,6 +203,9 @@ function addDestination(url, redirect, userId) {
 
     // Convert country id to country object
     data.country = {"id": data.countryId};
+
+    const destinationTags = tagPicker.getTags();
+    data.tags = destinationTags.map((tag) => {return {name:tag}});
 
     //Create response handler
     const handler = function (status, json) {
@@ -261,6 +268,7 @@ function addDestination(url, redirect, userId) {
  */
 function resetDestinationModal() {
     document.getElementById("addDestinationForm").reset();
+    tagPicker.clearTags();
     hideErrors("addDestinationForm");
 }
 

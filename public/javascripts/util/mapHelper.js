@@ -7,6 +7,7 @@ class DestinationMap {
         this.map = new google.maps.Map(document.getElementById('map'), options);
         this.markers = [];
         this.newMarker;
+        this.markerCluster;
         this.userId = userId;
         this.creativeMode = creativeMode;
         //Setting public and private marker images, resized
@@ -94,18 +95,18 @@ class DestinationMap {
 
     /**
      * Goes through all destinations and adds to map
-     * @param {Array} markers list of destinations
+     * @param {Array} destinations list of destinations
      */
     addDestinations(destinations) {
         // Loop through markers list and add them to the map
         for (const destination of destinations) {
             this.addDestination(destination);
         }
+        this.clusterMarkers();
     }
 
     /**
      * Goes through all destinations and removes from map
-     * @param {Array} markers list of destinations
      */
     removeDestinations() {
         // Loop through markers list and add them to the map
@@ -113,6 +114,21 @@ class DestinationMap {
             marker.setMap(null);
         }
         this.markers = [];
+    }
+
+    /**
+     * Clusters all of the destination markers on the map.
+     */
+    clusterMarkers() {
+        const markerCluster = new MarkerClusterer(this.map, this.markers,
+            {imagePath: '/assets/images/markerClusterer/m'});
+        // add listner to stop marker change on cluster click
+        google.maps.event.addListener(this.map, 'zoom_changed', function() {
+            map.creativeMode = false;
+            setTimeout(() => {
+                map.creativeMode = true;
+            }, 10);
+        });
     }
 
     /**

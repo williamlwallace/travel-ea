@@ -210,44 +210,6 @@ public class ProfileRepository {
     }
 
     /**
-     * Updates the profile photo of some users profile, and returns the id that WAS being used
-     *
-     * @param userId ID of user to update profile picture of
-     * @param newId New id of photo to set as profile
-     * @return The id of the photo (possibly null) that was previously used
-     */
-    public CompletableFuture<Long> updateProfilePictureAndReturnExistingId(Long userId, Long newId) throws NullPointerException {
-        return supplyAsync(() -> {
-            // Find existing profile
-            Profile found = ebeanServer.find(Profile.class)
-                .where()
-                .eq("user_id", userId)
-                .findOne();
-            if(found == null) {
-                throw new NullPointerException("No such profile");
-            }
-
-            Photo foundPhoto = ebeanServer.find(Photo.class)
-                .where()
-                .eq("guid", newId)
-                .findOne();
-            if(foundPhoto != null) {
-                // Update object and return
-                foundPhoto.usedForProfile = true;
-                foundPhoto.isPublic = true;
-                ebeanServer.update(foundPhoto);
-            }
-
-            // Keep track of existing ID, and update profile photo to new id
-            Long returnId = (found.profilePhoto != null) ? found.profilePhoto.guid : null;
-            found.profilePhoto = new Photo();
-            found.profilePhoto.guid = newId;
-            ebeanServer.update(found);
-            return returnId;
-        });
-    }
-
-    /**
      * Updates the profile cover photo of some user's profile, and returns the id that WAS being used
      *
      * @param userId ID of user to update cover photo of

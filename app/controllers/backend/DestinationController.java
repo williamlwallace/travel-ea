@@ -23,9 +23,11 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.TagRepository;
 import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
 import util.objects.PagingResponse;
+import repository.UserRepository;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -37,17 +39,23 @@ public class DestinationController extends TEABackController {
     private static final String DEST_NOT_FOUND = "Destination with provided ID not found";
     private final DestinationRepository destinationRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
-    private final PhotoRepository photoRepository;
     private final WSClient ws;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
+    private final PhotoRepository photoRepository;
+
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository,
-        PhotoRepository photoRepository, WSClient ws) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
+        TagRepository tagRepository, UserRepository userRepository,
+        PhotoRepository photoRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
-        this.photoRepository = photoRepository;
         this.ws = ws;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
+        this.photoRepository = photoRepository;
     }
 
     /**
@@ -63,7 +71,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking, if error returns bad request
-        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(false);
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
         }
@@ -76,7 +84,8 @@ public class DestinationController extends TEABackController {
             return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
                 "You do not have permission to create a destination for someone else")));
         }
-        //check if destination already exists
+
+        // Checks if similar destination already exists
         List<Destination> destinations = destinationRepository
             .getSimilarDestinations(newDestination);
         for (Destination destination : destinations) {
@@ -85,14 +94,19 @@ public class DestinationController extends TEABackController {
                     .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
             }
         }
-        return destinationRepository.addDestination(newDestination)
-            .thenApplyAsync(id -> {
-                try {
-                    return ok(sanitizeJson(Json.toJson(id)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+
+        return tagRepository.addTags(newDestination.tags).thenComposeAsync(existingTags -> {
+            userRepository.updateUsedTags(user, newDestination);
+            newDestination.tags = existingTags;
+            return destinationRepository.addDestination(newDestination)
+                .thenApplyAsync(id -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(id)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+        });
     }
 
     /**
@@ -193,7 +207,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> editDestination(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
-        ErrorResponse validatorResult = new DestinationValidator(data).addNewDestination();
+        ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(true);
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture
@@ -203,23 +217,33 @@ public class DestinationController extends TEABackController {
                     return CompletableFuture
                         .supplyAsync(() -> badRequest(validatorResult.toJson()));
                 }
+
+                // Build destination object and set required fields
                 Destination editedDestination = Json.fromJson(data, Destination.class);
-                //check if destination already exists
+                editedDestination.id = id;
+
+                // Check if destination already exists, if so rejects update
                 List<Destination> destinations = destinationRepository
                     .getSimilarDestinations(editedDestination);
                 for (Destination dest : destinations) {
                     if (dest.user.id.equals(user.id) || dest.isPublic) {
-                        return CompletableFuture
-                            .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                        return CompletableFuture.supplyAsync(() -> badRequest(
+                            Json.toJson("Another destination with these details already exists")));
                     }
                 }
-                return destinationRepository.updateDestination(editedDestination)
-                    .thenApplyAsync(updatedDestination -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(destination)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
+
+                return tagRepository.addTags(editedDestination.tags)
+                    .thenComposeAsync(existingTags -> {
+                        userRepository.updateUsedTags(user, destination, editedDestination);
+                        editedDestination.tags = existingTags;
+                        return destinationRepository.updateDestination(editedDestination)
+                            .thenApplyAsync(updatedDestination -> {
+                                try {
+                                    return ok(sanitizeJson(Json.toJson(destination)));
+                                } catch (IOException e) {
+                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                                }
+                            });
                     });
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden(
@@ -335,9 +359,6 @@ public class DestinationController extends TEABackController {
                     if (travellerType == null) {
                         return CompletableFuture.supplyAsync(() -> notFound(
                             Json.toJson("Traveller Type with provided ID not found")));
-                    } else if (!user.admin) {
-                        return CompletableFuture.supplyAsync(() -> forbidden(
-                            Json.toJson("You do not have permission to reject this request")));
                     } else {
                         if (dest.isPendingTravellerType(travellerTypeId)) {
                             dest.removePendingTravellerType(travellerTypeId);
@@ -350,6 +371,114 @@ public class DestinationController extends TEABackController {
                                 Json.toJson("Successfully rejected traveller type modification")));
                     }
                 });
+        });
+    }
+
+    /**
+     * Changes the photo set as the primary photo for a destination. If the user does not own the
+     * destination or isn't an admin, then a request to modify is stored instead.
+     *
+     * @param request Http request containing authentication information
+     * @param destId ID of destination to change primary photo of
+     * @param photoId Id of photo to add as primary photo for destination
+     * @return Response result containing success/error message
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> changeDestinationPrimaryPhoto(Http.Request request,
+        Long destId, Long photoId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
+            }
+
+            return photoRepository.getPhotoById(photoId)
+                .thenComposeAsync(photo -> {
+                    if (photo == null) {
+                        return CompletableFuture.supplyAsync(
+                            () -> notFound(Json.toJson("Photo with provided ID not found")));
+                    }
+
+                    JsonNode oldDestination = Json.toJson(destination);
+
+                    // Currently a photo can only be set/requested to set as the destination primary
+                    // photo by the owner of the photo or an admin. This is because if a user requests
+                    // for someone else's photo to be destination primary photo, admin will probably
+                    // just accept, without the user's agreement. Also if this user then makes their
+                    // photo private again it should no longer be the destination primary photo.
+                    // This adds too many complications so it is better to only allow the owner of the
+                    // photo or an admin to set/request the photo to become destination primary photo.
+
+                    // If user is destination owner and photo owner, or if user is admin, set the photo
+                    if ((destination.user.id.equals(user.id) && photo.userId.equals(user.id))
+                        || user.admin) {
+                        destination.primaryPhoto = photo;
+                        if (destination.hasPhotoPending(photoId)) {
+                            destination.removePendingDestinationPrimaryPhoto(photoId);
+                        }
+                    }
+                    // If user is photo owner and wants the photo on the destination, request to set photo
+                    else if (photo.userId.equals(user.id)) {
+                        // If request already exists
+                        if (destination.hasPhotoPending(photoId)) {
+                            return CompletableFuture
+                                .supplyAsync(() -> ok(Json.toJson(oldDestination)));
+                        } else {
+                            destination.addPendingDestinationProfilePhoto(photoId);
+                        }
+                    } else {
+                        return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
+                            "You do not have permission to set this photo as the destination primary photo")));
+                    }
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(rows -> ok(Json.toJson(oldDestination)));
+                });
+        });
+    }
+
+    /**
+     * Rejects a pending destination primary photo
+     *
+     * @param destId Id of destination
+     * @param photoId Id of photo
+     * @return Response result containing success/error message
+     */
+    @With({Admin.class, Authenticator.class}) //admin auth
+    public CompletableFuture<Result> rejectDestinaitonPrimaryPhoto(Http.Request request,
+        Long destId, Long photoId) {
+        return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
+            if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
+                return notFound(Json.toJson("No pending phot destination combo"));
+            } else {
+                return ok(Json.toJson(photoId));
+            }
+        });
+    }
+
+    /**
+     * Accepts a pending destination primary photo and sets it
+     *
+     * @param destId Id of destination
+     * @param photoId Id of photo
+     * @return Response result containing success/error message
+     */
+    @With({Admin.class, Authenticator.class}) //admin auth
+    public CompletableFuture<Result> acceptDestinaitonPrimaryPhoto(Http.Request request,
+        Long destId, Long photoId) {
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending phot destination combo")));
+            } else {
+                return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+                    if (photo == null) {
+                        return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Photo not found")));
+                    }
+                    JsonNode oldDestination = Json.toJson(destination);
+                    destination.primaryPhoto = photo;
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(rows -> ok(oldDestination));
+                });
+            }
         });
     }
 

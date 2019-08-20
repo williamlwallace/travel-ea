@@ -11,6 +11,7 @@ import javax.inject.Singleton;
 import javax.persistence.EntityNotFoundException;
 import models.Trip;
 import models.TripData;
+import models.TripTag;
 import play.db.ebean.EbeanConfig;
 
 /**
@@ -22,6 +23,7 @@ public class TripRepository {
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
 
+
     @Inject
     public TripRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
@@ -31,14 +33,14 @@ public class TripRepository {
     /**
      * Inserts new trip into database.
      *
-     * @param newTrip Trip object to be added
+     * @param trip Trip object to be added
      * @return the id of the inserted trip
      */
-    public CompletableFuture<Long> insertTrip(Trip newTrip) {
+    public CompletableFuture<Long> insertTrip(Trip trip) {
         return supplyAsync(() -> {
-            newTrip.deleted = false;
-            ebeanServer.insert(newTrip);
-            return newTrip.id;
+            trip.deleted = false;
+            ebeanServer.insert(trip);
+            return trip.id;
         }, executionContext);
     }
 
@@ -51,6 +53,9 @@ public class TripRepository {
     public CompletableFuture<Boolean> updateTrip(Trip trip) {
         return supplyAsync(() -> {
             try {
+                if (trip.tags.isEmpty()) {
+                    ebeanServer.find(TripTag.class).where().eq("trip_id", trip.id).delete();
+                }
                 ebeanServer.update(trip);
                 return true;
             } catch (EntityNotFoundException ex) {

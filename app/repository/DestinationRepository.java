@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Destination;
+import models.DestinationTag;
 import models.TripData;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
@@ -81,7 +82,10 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
         return supplyAsync(() -> {
-
+            if (destination.tags.isEmpty()) {
+                ebeanServer.find(DestinationTag.class).where().eq("destination_id", destination.id)
+                    .delete();
+            }
             ebeanServer.update(destination);
             return destination;
         }, executionContext);
@@ -114,11 +118,14 @@ public class DestinationRepository {
     public void setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
             .where()
-            .eq("id", destinationId).findOneOrEmpty().orElse(null);
+            .eq("id", destinationId)
+            .findOneOrEmpty()
+            .orElse(null);
 
-        // Otherwise set to public, update it, and return ok
-        destination.isPublic = true;
-        ebeanServer.update(destination);
+        if (destination != null) {
+            destination.isPublic = true;
+            ebeanServer.update(destination);
+        }
     }
 
     /**

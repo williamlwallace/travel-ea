@@ -4,15 +4,19 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.Tag;
 import models.Trip;
 import models.TripData;
 import models.User;
@@ -22,7 +26,9 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.TagRepository;
 import repository.TripRepository;
+import repository.UserRepository;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
@@ -34,13 +40,17 @@ public class TripController extends TEABackController {
     private static final String IS_PUBLIC = "isPublic";
     private final TripRepository tripRepository;
     private final DestinationRepository destinationRepository;
+    private final TagRepository tagRepository;
+    private final UserRepository userRepository;
 
     @Inject
-    public TripController(TripRepository tripRepository,
-        DestinationRepository destinationRepository) {
+    public TripController(TripRepository tripRepository, TagRepository tagRepository,
+        DestinationRepository destinationRepository, UserRepository userRepository) {
 
         this.tripRepository = tripRepository;
         this.destinationRepository = destinationRepository;
+        this.tagRepository = tagRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -152,6 +162,8 @@ public class TripController extends TEABackController {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
+        User user = request.attrs().get(ActionState.USER);
+
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(true);
 
@@ -166,16 +178,28 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
 
         // Update trip in db
-        return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
-            if (uploaded) {
-                return ok(Json.toJson(trip.id));
+        return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
+            if (oldTrip == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("Trip with provided ID not found")));
             } else {
-                return notFound();
+                return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+                    userRepository.updateUsedTags(user, oldTrip, trip);
+                    trip.tags = existingTags;
+                    return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+                        if (uploaded) {
+                            return ok(Json.toJson(trip.id));
+                        } else {
+                            return notFound();
+                        }
+                    });
+                });
             }
         });
     }
@@ -256,6 +280,7 @@ public class TripController extends TEABackController {
     public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
+        User user = request.attrs().get(ActionState.USER);
 
         // Sends the received data to the validator for checking
         ErrorResponse validatorResult = new TripValidator(data).validateTrip(false);
@@ -270,12 +295,17 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
+        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
+        return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+            userRepository.updateUsedTags(user, trip);
+            trip.tags = existingTags;
+            return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
+                ok(Json.toJson(tripId)));
+        });
 
-        return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
-            ok(Json.toJson(tripId)));
     }
 
     /**
