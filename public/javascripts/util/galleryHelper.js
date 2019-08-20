@@ -19,8 +19,8 @@ $('#upload-img').on('click', function () {
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
-        formData.append('tags', JSON.stringify(tags));
         formData.append("userUploadId", window.location.href.split("/").pop());
+        formData.append('tags', JSON.stringify(tags));
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {
@@ -31,12 +31,37 @@ $('#upload-img').on('click', function () {
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
         })
     })
 });
 
 let usersPhotos = [];
+let profileId = -1;
+let getAllPhotosUrl;
+
+/**
+ * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
+ * @param {Number} profileID the profileId to set
+ */
+function setProfileId(profileID) {
+    profileId = profileID;
+    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url;
+}
+
+/**
+ * Function to filter gallery by tags
+ */
+$('#tagFilter').on('change', function() {
+    const tags = $(this).val();
+    const galleryId = "main-gallery";
+    const pageId = "page-selection";
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url, galleryId, pageId, tags);
+
+});
 
 /**
  * Function to populate gallery with current users photos
@@ -44,8 +69,9 @@ let usersPhotos = [];
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId) {
+function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -56,8 +82,19 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
             for (let i = 0; i < data.length; i++) {
-                data[i]["isOwned"] = true;
-                usersPhotos[i] = data[i];
+                if (!filters || filters.length === 0) {
+                    data[i]["isOwned"] = true;
+                    usersPhotos[i] = data[i];
+                } else {
+                    for (const filter of filters) {
+                        if (data[i].tags.map(tag => tag.name).includes(filter)) {
+                            data[i]["isOwned"] = true;
+                            usersPhotos.push(data[i]);
+                            break;
+                        }
+                    }
+
+                }
             }
             const galleryObjects = createGalleryObjects(true);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
@@ -213,6 +250,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
             const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
             const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
             const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
+            const tags = usersPhotos[(6 * page + position)]["tags"].map(tag => tag.name);
 
             //Will only add full size links and removal buttons if requested
             if (hasFullSizeLinks === true) {
@@ -244,6 +282,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
             }
             photo.setAttribute("data-id", guid);
             photo.setAttribute("data-caption", caption);
+            photo.setAttribute("data-tags", tags.join(", "));
             photo.setAttribute("data-filename", filename);
             // thumbnail
             let thumbnail = usersPhotos[(6 * page
@@ -358,7 +397,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             $(galleryId).html(galleryObjects[currentPage - 1]);
             baguetteBox.run('.tz-gallery', {
                 captions: function (element) {
-                    return $(element).attr('data-caption');
+                    return `${$(element).attr('data-caption')}\n${$(element).attr('data-tags')}`;
                 }
             });
             $('.img-wrap .close').on('click', function () {
@@ -372,7 +411,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
-                return $(element).attr('data-caption');
+                return `${$(element).attr('data-caption')} - ${$(element).attr('data-tags')}`;
             }
         });
         $('.img-wrap .close').on('click', function () {

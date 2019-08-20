@@ -337,8 +337,8 @@ $("#cancelEditButton").click(closeEdit);
  * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
  * Also fills the initial gallery on photos
  *
- * @param {Long} userId of the logged in user
- * @param {Long} destinationId of the destination of photos to get
+ * @param {Number} userId of the logged in user
+ * @param {Number} destinationId of the destination of photos to get
  */
 function sendUserIdAndFillGallery(userId, destinationId) {
     USERID = userId;
@@ -354,9 +354,9 @@ function sendUserIdAndFillGallery(userId, destinationId) {
  * Function to toggle the linked status of a photo.
  * Is used even though Intellij doesn't think so
  *
- * @param {Long} guid of the photo to be linked
+ * @param {Number} guid of the photo to be linked
  * @param {boolean} newLinked the new status of the photo
- * @param {Long} destinationId the destination to link (or unlink) the photo to/from
+ * @param {Number} destinationId the destination to link (or unlink) the photo to/from
  */
 function toggleLinked(guid, newLinked, destinationId) {
     const label = document.getElementById(guid + "linked");
@@ -385,6 +385,7 @@ function toggleLinked(guid, newLinked, destinationId) {
             getUserId().then(id => {
                 sendUserIdAndFillGallery(id, destinationId);
             });
+            getAndFillDD(tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(destinationId).url, ["tagFilter"], "name", false, "name");
 
             this.newLinked = !this.newLinked;
         }
