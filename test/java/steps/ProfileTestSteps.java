@@ -113,7 +113,6 @@ public class ProfileTestSteps {
     @When("I search profiles")
     public void i_search_profiles() throws IOException {
         // Write code here that turns the phrase above into concrete actions
-        System.out.println(searchURI);
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
@@ -194,7 +193,6 @@ public class ProfileTestSteps {
 
     @Then("The first profile has first name {string}, last name {string}")
     public void the_first_profile_has_first_name_last_name(String string, String string2) {
-        System.out.println(Json.toJson(response.data.get(0)));
         Assert.assertEquals(string, response.data.get(0).firstName);
         Assert.assertEquals(string2, response.data.get(0).lastName);
     }
