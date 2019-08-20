@@ -523,15 +523,15 @@ public class DestinationController extends TEABackController {
      * Gets a paged list of destinations that are visible to the currently logged in user
      * This means any public destinations, or private destinations that they own
      *
-     * @param request
-     * @param searchQuery
-     * @param sortBy
-     * @param onlyGetMine
-     * @param ascending
-     * @param pageNum
-     * @param pageSize
-     * @param requestOrder
-     * @return
+     * @param request Http request
+     * @param searchQuery Query to search all fields for
+     * @param sortBy What column to sort by
+     * @param onlyGetMine Whether or not to only get my own destinations
+     * @param ascending Whether or not to sort ascendingly
+     * @param pageNum Page number to get
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order of this request compared to others from the same page
+     * @return Paged list of destinations
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getPagedDestinations(

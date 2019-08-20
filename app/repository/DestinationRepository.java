@@ -307,10 +307,13 @@ public class DestinationRepository {
      * Gets a paged list of destinations conforming to the amount of destinations requested and the
      * provided order and filters.
      *
-     * @param page The current page to display
-     * @param pageSize The number of destinations per page
-     * @param order The column to order by
-     * @param filter The sort order (either asc or desc)
+     * @param searchQuery Query to search all fields for
+     * @param sortBy What column to sort by
+     * @param onlyGetMine Whether or not to only get my own destinations
+     * @param ascending Whether or not to sort ascendingly
+     * @param pageNum Page number to get
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order of this request compared to others from the same page
      * @return Paged list of destinations
      */
     public CompletableFuture<PagedList<Destination>> getPagedDestinations(

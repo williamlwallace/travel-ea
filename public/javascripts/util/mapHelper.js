@@ -133,7 +133,7 @@ class DestinationMap {
 
     /**
      * Populates the markers list with props which can be iterated over to dynamically add destination markers
-     *///TODO: Doc
+     */
     populateMarkers(dests) {
         const destinations = [];
         this.removeDestinations();
