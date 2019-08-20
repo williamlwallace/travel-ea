@@ -57,6 +57,7 @@ public class Destination extends BaseModel implements Taggable {
     public CountryDefinition country;
 
     @ManyToOne
+    @Column(name = "primary_photo_guid")
     public Photo primaryPhoto;
 
     @JsonIgnore

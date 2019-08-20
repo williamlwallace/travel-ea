@@ -57,7 +57,7 @@ GET           /api/destination/:id                   controllers.backend.Destina
 
 PUT           /api/destination/:id                   controllers.backend.DestinationController.editDestination(request:Request, id:Long)
 
-PUT           /api/destination/:destId/photo/:photoId/delete  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
+PUT           /api/destination/:destId/photo/:photoId  controllers.backend.PhotoController.deleteLinkPhotoToDest(request:Request, destId:Long, photoId:Long)
 
 GET           /api/destination/:destId/photo         controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
@@ -66,6 +66,8 @@ GET           /api/destination/:destId/phototags     controllers.backend.TagCont
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  controllers.backend.DestinationController.toggleDestinationTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
+
+PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
 PUT           /api/destination/:destId/photo/:photoId/primary  controllers.backend.DestinationController.changeDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 

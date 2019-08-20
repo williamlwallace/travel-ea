@@ -356,9 +356,6 @@ public class DestinationController extends TEABackController {
                     if (travellerType == null) {
                         return CompletableFuture.supplyAsync(() -> notFound(
                             Json.toJson("Traveller Type with provided ID not found")));
-                    } else if (!user.admin) {
-                        return CompletableFuture.supplyAsync(() -> forbidden(
-                            Json.toJson("You do not have permission to reject this request")));
                     } else {
                         if (dest.isPendingTravellerType(travellerTypeId)) {
                             dest.removePendingTravellerType(travellerTypeId);
@@ -433,6 +430,24 @@ public class DestinationController extends TEABackController {
                     return destinationRepository.updateDestination(destination)
                         .thenApplyAsync(rows -> ok(Json.toJson(oldDestination)));
                 });
+        });
+    }
+
+    /**
+     * Rejects a pending destination primary photo
+     * 
+     * @param destId Id of destination
+     * @param photoId Id of photo    
+     */
+    @With({Admin.class, Authenticator.class}) //admin auth
+    public CompletableFuture<Result> rejectDestinaitonPrimaryPhoto(Http.Request request,
+        Long destId, Long photoId) {
+        return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
+            if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
+                return notFound(Json.toJson(DEST_NOT_FOUND));
+            } else {
+                return ok(Json.toJson(photoId));
+            }
         });
     }
 

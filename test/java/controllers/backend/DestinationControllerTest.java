@@ -765,4 +765,50 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         assertEquals("Optional[text/javascript]", result.contentType().toString());
     }
+
+    @Test
+    public void addPrimaryPhotoOwner() throws IOException {
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/2/primary");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void addPrimaryPhotoNotOwner() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/2/primary");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void rejectPendingDestinaiton() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/1/reject");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void rejectPendingDestinaitonNotAdmin() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/1/reject");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
 }
