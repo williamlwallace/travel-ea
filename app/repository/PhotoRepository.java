@@ -29,6 +29,7 @@ public class PhotoRepository {
     private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
     private static final String USED_FOR_PROFILE = "used_for_profile";
+    private static final String IS_PUBLIC = "is_public";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
     private final TagRepository tagRepository;
@@ -85,11 +86,46 @@ public class PhotoRepository {
      * Finds all photos in database related to the given user ID that aren't a profile photo
      *
      * @param userID User to find all photos for
+     * @return List of Photo objects with the specified user ID
+     */
+    public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
+        return supplyAsync(() ->
+                ebeanServer.find(Photo.class)
+                    .where()
+                    .eq(USER_ID, userID)
+                    .eq(USED_FOR_PROFILE, false)
+                    .findList(),
+            executionContext
+        );
+    }
+
+    /**
+     * Finds all public photos in database related to the given user ID that aren't a profile photo
+     *
+     * @param userID User to find all public photos for
+     * @return List of Photo objects with the specified user ID
+     */
+    public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
+        return supplyAsync(() ->
+            ebeanServer.find(Photo.class)
+                .where()
+                .eq(USER_ID, userID)
+                .eq(USED_FOR_PROFILE, false)
+                .eq(IS_PUBLIC, true)
+                .findList(),
+            executionContext
+        );
+    }
+
+    /**
+     * Finds a page of photos in database related to the given users ID that aren't the profile photo
+     *
+     * @param userID User to find all photos for
      * @param pageNum Page number of photos to retrieve
      * @param pageSize Number of photos to retrieve
      * @return List of Photo objects with the specified user ID
      */
-    public CompletableFuture<PagedList<Photo>> getAllUserPhotos(long userID, Integer pageNum,
+    public CompletableFuture<PagedList<Photo>> getPagedUserPhotos(long userID, Integer pageNum,
         Integer pageSize) {
         return supplyAsync(() -> {
                 PagedList<Photo> photos = ebeanServer.find(Photo.class)
@@ -105,21 +141,21 @@ public class PhotoRepository {
     }
 
     /**
-     * Finds all public photos in database related to the given user ID that aren't a profile photo
+     * Finds a page of public photos in database related to the given user ID that aren't the profile photo
      *
      * @param userID User to find all public photos for
      * @param pageNum Page number of photos to retrieve
      * @param pageSize Number of photos to retrieve
      * @return List of Photo objects with the specified user ID
      */
-    public CompletableFuture<PagedList<Photo>> getAllPublicUserPhotos(long userID, Integer pageNum,
+    public CompletableFuture<PagedList<Photo>> getPagedPublicUserPhotos(long userID, Integer pageNum,
         Integer pageSize) {
         return supplyAsync(() -> {
                 PagedList<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
                     .eq(USED_FOR_PROFILE, false)
-                    .eq("is_public", true)
+                    .eq(IS_PUBLIC, true)
                     .setFirstRow((pageNum - 1) * pageSize)
                     .setMaxRows(pageSize)
                     .findPagedList();
@@ -144,8 +180,8 @@ public class PhotoRepository {
                     .where()
                     .eq("destination_id", destinationId)
                     .or()
-                    .eq("is_public", true)
-                    .eq("user_id", userId)
+                    .eq(IS_PUBLIC, true)
+                    .eq(USER_ID, userId)
                     .setFirstRow((pageNum - 1) * pageSize)
                     .setMaxRows(pageSize)
                     .findPagedList();

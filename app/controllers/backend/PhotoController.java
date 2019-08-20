@@ -263,10 +263,9 @@ public class PhotoController extends TEABackController {
         // Checks if the photos belong to the user getting them
         if (currentUserId.equals(userId)) {
             // get public and private photos
-            return photoRepository.getAllUserPhotos(userId, pageNum, pageSize)
+            return photoRepository.getPagedUserPhotos(userId, pageNum, pageSize)
                 .thenApplyAsync(photos -> {
                     try {
-                        System.out.println(photos.getTotalCount());
                         return ok(sanitizeJson(Json.toJson(
                             new PagingResponse<>(photos.getList(), requestOrder,
                                 photos.getTotalPageCount()))));
@@ -276,10 +275,9 @@ public class PhotoController extends TEABackController {
                 });
         } else {
             // only get public photos
-            return photoRepository.getAllPublicUserPhotos(userId, pageNum, pageSize)
+            return photoRepository.getPagedPublicUserPhotos(userId, pageNum, pageSize)
                 .thenApplyAsync(photos -> {
                     try {
-                        System.out.println(photos.getTotalCount());
                         return ok(sanitizeJson(Json.toJson(
                             new PagingResponse<>(photos.getList(), requestOrder,
                                 photos.getTotalPageCount()))));
