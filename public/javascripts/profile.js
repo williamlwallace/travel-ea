@@ -487,9 +487,14 @@ $("#upload-gallery-image-button").click(function () {
  */
 $("#editCoverPhotoButton").click(function () {
     $("#editCoverPhotoModal").modal('show');
-    fillSelectionGallery(
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            profileId).url, "cover-photo-gallery", "current-page", function () {
-            setCoverPhoto(this.getAttribute("data-id"))
-        });
+    getCoverPictures();
+
 });
+
+function getCoverPictures() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", coverPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "cover-photo-gallery", "current-page", function () {
+        setCoverPhoto(this.getAttribute("data-id"))
+    });
+}

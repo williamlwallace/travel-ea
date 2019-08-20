@@ -203,10 +203,11 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
             // "data" should now be a list of photo models for the given user
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
-            for (let i = 0; i < data.length; i++) {
-                data[i]["canSelect"] = true;
-                usersPhotos[i] = data[i];
+            for (const photo of data.data) {
+                photo.canSelect = true;
+                usersPhotos.push(photo);
             }
+            paginationHelper.setTotalNumberOfPages(data.totalNumberPages);
             const galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
