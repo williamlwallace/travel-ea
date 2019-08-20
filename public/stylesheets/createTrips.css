@@ -13,14 +13,13 @@
 .parent {
     overflow: auto;
     min-height: 240px;
-    max-height:840px;
-    width:1110px;
+    max-height:770px;
 }
 
 /*
  * card header contains picture
  */
-.card-header {
+.card-header-dest-for-trip {
     height:200px;
     width:350px;
     background-color: rgba(0,0,0,0) !important;
@@ -29,69 +28,33 @@
 /*
  * sortable destination cards
  */
-.card {
+.card-dest-for-trip {
     height: 200px;
-    width: 1065px;
     margin:20px;
     cursor:pointer;
     border-color: #a0a0a0;
     background-color: #FFFFFF !important
 }
 
-.card:hover {
+.card-dest-for-trip:hover {
     border-color: #000000;
 }
 
-/*
- * card block contains the details of the card
- */
-.card-block {
-    padding-top: 8px;
-    height:200px;
-    width: 750px;
+.scrollBlock {
+    max-height: 620px;
 }
 
+#destinationCardList {
+    overflow-y: scroll;
+    height: -webkit-fill-available;
+    overflow-x: hidden;
+}
 
 /*
  * height determines the gap when a card is dragged into a new spot
  */
 .ui-sortable-placeholder {
     height: 200px;
-}
-
-/*
- * the arrival/dest times from the
- * destination info in destination cards
- */
-#left {
-    float:left;
-    width: 220px;
-    white-space: nowrap;
-    overflow: hidden;
-    display: inline-block;
-    text-overflow: ellipsis;
-}
-#right { float:right }
-
-/*
- * set padding for arrival and destination times
- * within destination card
- */
-#arrival {
-    padding-bottom: 0px;
-    padding-top: 0px;
-    padding-left: 10px;
-    padding-right: 10px;
-    float:left;
-    vertical-align: top;
-}
-#depart {
-    padding-bottom: 0px;
-    padding-top: 0px;
-    padding-left: 10px;
-    padding-right: 10px;
-    float:right;
-    vertical-align: top;
 }
 
 #removeTrip {
@@ -112,10 +75,6 @@
     opacity: 0.5;
 }
 
-#arrivalDate, #arrivalTime, #departureDate, #departureTime {
-    width: 175px;
-}
-
 #createDestinationButton {
     margin-top: 10px;
 }
@@ -123,4 +82,18 @@
 #tagInput {
     margin-left: 10px;
     width: 300px;
+}
+.mainTripContainer {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+.card-title-dest-for-trip {
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+.date-columns {
+    max-width: 50%;
 }
