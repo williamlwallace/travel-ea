@@ -29,6 +29,7 @@ import repository.DestinationRepository;
 import repository.TagRepository;
 import repository.TripRepository;
 import repository.UserRepository;
+import util.objects.PagingResponse;
 import util.validation.ErrorResponse;
 import util.validation.TripValidator;
 
@@ -93,22 +94,31 @@ public class TripController extends TEABackController {
      * @return JSON object with list of trips that a user has, bad request if user has no trips
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllTrips(Http.Request request) {
+    public CompletableFuture<Result> getAllTrips(Http.Request request,
+                                                String searchQuery,
+                                                Boolean ascending,
+                                                Integer pageNum,
+                                                Integer pageSize,
+                                                Integer requestOrder) {
         User user = request.attrs().get(ActionState.USER);
         if (user.admin) {
-            return tripRepository.getAllTrips()
+            return tripRepository.searchTrips(user.id, searchQuery, ascending, pageNum, pageSize, false)
                 .thenApplyAsync(trips -> {
                     try {
-                        return ok(sanitizeJson(Json.toJson(trips)));
+                        return ok(sanitizeJson(Json.toJson(
+                            new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
+                        )));
                     } catch (IOException e) {
                         return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
                 });
         } else {
-            return tripRepository.getAllPublicTrips(user.id)
+            return tripRepository.searchTrips(user.id, searchQuery, ascending, pageNum, pageSize, true)
                 .thenApplyAsync(trips -> {
                     try {
-                        return ok(sanitizeJson(Json.toJson(trips)));
+                        return ok(sanitizeJson(Json.toJson(
+                            new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
+                        )));
                     } catch (IOException e) {
                         return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }

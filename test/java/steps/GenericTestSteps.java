@@ -80,8 +80,7 @@ public class GenericTestSteps extends WithApplication {
 
     @Given("I am logged in")
     public void i_am_logged_in() {
-        Evolutions.applyEvolutions(db,
-            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/trip/"));
+        this.applyEvolutions("test/trip/");
 
         // Create new user, so password is hashed
         ObjectNode node = Json.newObject();
@@ -97,6 +96,17 @@ public class GenericTestSteps extends WithApplication {
         // Get result and check OK was sent back
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+    }
+
+    /**
+     * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
+     * should contain minimal sql data needed for tests
+     *
+     * @param evolutionsRoute The route of the evolutions to apply
+     */
+    void applyEvolutions(String evolutionsRoute) {
+        Evolutions.applyEvolutions(db,
+            Evolutions.fromClassLoader(getClass().getClassLoader(), evolutionsRoute));
     }
 
 }

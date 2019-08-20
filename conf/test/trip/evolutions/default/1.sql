@@ -106,16 +106,16 @@ CREATE TABLE IF NOT EXISTS TravellerType
 -- Create Destination table
 CREATE TABLE IF NOT EXISTS Destination
   (
-    id                INT NOT NULL AUTO_INCREMENT,
-    user_id           INT NOT NULL,
-    name              VARCHAR(128) NOT NULL,
-    type              VARCHAR(128) NOT NULL,
-    district          VARCHAR(128) NOT NULL,
-    latitude          DOUBLE NOT NULL,
-    longitude         DOUBLE NOT NULL,
-    country_id        INT NOT NULL,
-    is_public         BIT NOT NULL DEFAULT 0,
-    deleted           BOOLEAN NOT NULL DEFAULT false,
+    id                  INT NOT NULL AUTO_INCREMENT,
+    user_id             INT NOT NULL,
+    name                VARCHAR(128) NOT NULL,
+    type                VARCHAR(128) NOT NULL,
+    district            VARCHAR(128) NOT NULL,
+    latitude            DOUBLE NOT NULL,
+    longitude           DOUBLE NOT NULL,
+    country_id          INT NOT NULL,
+    is_public           BIT NOT NULL DEFAULT 0,
+    deleted             BOOLEAN NOT NULL DEFAULT false,
     primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
@@ -155,6 +155,7 @@ CREATE TABLE IF NOT EXISTS Trip
     user_id           INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
     deleted           BOOLEAN NOT NULL DEFAULT false,
+    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -193,11 +194,11 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 -- Create PendingDestinationPhotos table, which specifies all current requests for a change in primary photos
 CREATE TABLE IF NOT EXISTS PendingDestinationPhoto
   (
-    id                  INT NOT NULL AUTO_INCREMENT,
-    photo_id             INT NOT NULL,
-    dest_id             INT NOT NULL,
+    id                     INT NOT NULL AUTO_INCREMENT,
+    photo_id               INT NOT NULL,
+    dest_id                INT NOT NULL,
     FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
-    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    FOREIGN KEY (dest_id)  REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
 

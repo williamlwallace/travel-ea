@@ -1,0 +1,9 @@
+.filterButton {
+    margin-bottom: 10px;
+    float:right;
+    display:block;
+}
+
+.tripsCollapse {
+    text-align: center;
+}

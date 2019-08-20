@@ -4,6 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -99,20 +100,40 @@ public class TripRepository {
     }
 
     /**
-     * Finds all trips in database related to the given user ID or public.
+     * Finds all trips in database with given paramters
      *
-     * @param userID User to find all trips for
-     * @return List of Trip objects with the specified user ID
+     * @return PagedList of Trip objects with the specified user ID
      */
-    public CompletableFuture<List<Trip>> getAllPublicTrips(long userID) {
-        return supplyAsync(() ->
+    public CompletableFuture<PagedList<Trip>> searchTrips(Long userId,
+        String searchQuery,
+        Boolean ascending,
+        Integer pageNum,
+        Integer pageSize,
+        Boolean public_) {
+        
+        final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery).replaceAll(" ", "").toLowerCase();
+        System.out.println(cleanedSearchQuery);
+
+        return supplyAsync(() -> {
+            PagedList<Trip> trips =
                 ebeanServer.find(Trip.class)
+                    .fetch("tripDataList.destination")
                     .where()
+                    // Search where name fits search query
                     .or()
-                    .eq("is_public", 1)
-                    .eq("user_id", userID)
-                    .findList()
-            , executionContext);
+                    .eq("t0.is_public", true)
+                    .eq("t0.user_id", userId)
+                    .eq("t0.is_public", public_)
+                    .endOr()
+                    .ilike("tripDataList.destination.name", "%" + cleanedSearchQuery + "%")
+                    // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
+                    .orderBy("creation_date " + (ascending ? "asc" : "desc"))
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
+
+            return trips;
+        });
     }
 
     /**
@@ -127,18 +148,6 @@ public class TripRepository {
                     .where()
                     .eq("user_id", userID)
                     .eq("is_public", 1)
-                    .findList()
-            , executionContext);
-    }
-
-    /**
-     * Finds all trips in database.
-     *
-     * @return List of all Trip objects
-     */
-    public CompletableFuture<List<Trip>> getAllTrips() {
-        return supplyAsync(() ->
-                ebeanServer.find(Trip.class)
                     .findList()
             , executionContext);
     }

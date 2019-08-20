@@ -1,60 +1,88 @@
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+let paginationHelper;
+
 /**
  * Initializes trip table and calls method to populate
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
-    const tripGetURL = tripRouter.controllers.backend.TripController.getAllUserTrips(
-        userId).url;
-    const tripModal = {
-        createdRow: function (row, data, dataIndex) {
-            $(row).attr('data-id', data[data.length - 1]);
-            $(row).addClass("clickable-row");
-        },
-        order: [],
-        aoColumnDefs: [
-            {'bSortable': false, 'aTargets': [3]}
-        ]
-    };
-    tripTable = new EATable('tripTable', tripModal, tripGetURL, populate,
-        showTripErrors);
-    if (!tripTable.table.data().any()) {
-        tripTable.initRowClicks(function () {
-            populateModal(this);
-        });
-    }
+    paginationHelper = new PaginationHelper(1, 1, "tripPagination", getTripResults);
+    getTripResults();
+    
 }
 
 /**
- * Populates trips table
- *
- * @param {Object} json json object containing row data
+ * Filters the cards with filtered results
  */
-function populate(json) {
-    const rows = [];
+function getTripResults() {
+    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
 
-    for (const trip of json) {
-        const id = trip.id;
-        const startDestination = trip.tripDataList[0].destination.name;
-        let endDestination;
-        if (trip.tripDataList.length > 1) {
-            endDestination = trip.tripDataList[trip.tripDataList.length
-            - 1].destination.name;
-        } else {
-            endDestination = "-"
-        }
-        const tripLength = trip.tripDataList.length;
-        let date;
-        let firstDate = findFirstTripDate(trip);
-        if (firstDate != null) {
-            date = firstDate.toLocaleDateString();
-        } else {
-            date = "No Date"
-        }
-        const row = [startDestination, endDestination, tripLength,
-            date, id];
-        rows.push(row);
+
+    // Append pagination params
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", $('#pageSize').val().toString());
+    url.searchParams.append("searchQuery", $('#search').val());
+    url.searchParams.append("ascending", $('#ascending').val());
+    url.searchParams.append("requestOrder", requestOrder++);
+
+    get(url).then(response => {
+        response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                toast("Error", "Error fetching people data", "danger")
+            } else {
+                if(lastRecievedRequestOrder < json.requestOrder) {
+                    const totalNumberPages = json.totalNumberPages;
+                    $("#tripCardsList").html("");
+                    lastRecievedRequestOrder = json.requestOrder;
+                    json.data.forEach((item) => {
+                        createTripCard(item);
+                    });
+
+                    $(".card").click((element) => {
+                        populateModal($(element.currentTarget).find("#card-header").data().id);
+                    })
+                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+
+                }
+            }
+        })
+    });
+}
+
+/**
+ * Creates a html trip card
+ *
+ * @param trip is Json profile object
+ */
+function createTripCard(trip) {
+    const template = $("#tripCardTemplate").get(0);
+    const clone = template.content.cloneNode(true);
+
+    //Gather details
+    const startDestination = trip.tripDataList[0].destination.name;
+    const endDestination = trip.tripDataList[trip.tripDataList.length -1].destination.name;
+    const tripLength = trip.tripDataList.length;
+    let firstDate = findFirstTripDate(trip);
+    console.log (firstDate);
+    if (!!firstDate) {
+        firstDate = firstDate.toLocaleDateString();
+    } else {
+        firstDate = "No Date"
     }
-    return rows;
+
+    //insert in cards
+    $(clone).find("#card-header").append(`${startDestination} - ${endDestination}`);
+    //this will be the primary photo
+    $(clone).find("#card-thumbnail").attr("src", null === null ? "/assets/images/default-profile-picture.jpg" : "/assets/images/default-profile-picture.jpg");
+    $(clone).find("#start-location").append("Start Destination: " + startDestination);
+    $(clone).find("#end-location").append("End Destination: " + endDestination);
+    $(clone).find("#destinations").append("Trip Length: " + tripLength);
+    $(clone).find("#date").append("Date: " + firstDate);
+    $(clone).find("#card-header").attr("data-id", trip.id.toString());
+
+    $("#tripCardsList").get(0).appendChild(clone);
 }
 
 /**
@@ -76,10 +104,9 @@ function findFirstTripDate(trip) {
 /**
  * Gets data relevant to trip and populates modal
  *
- * @param {Object} row row element
+ * @param {Number} tripId id of trip
  */
-function populateModal(row) {
-    const tripId = row.dataset.id;
+function populateModal(tripId) {
     if (tripId == null) {
         return;
     }
@@ -219,11 +246,28 @@ function deleteTrip(tripId, userId) {
             this.initialDelete = false;
         }
 
-        const getTripURL = tripRouter.controllers.backend.TripController.getAllUserTrips(
+        const getTripURL = tripRouter.controllers.backend.TripController.getAllTrips(
             userId).url;
-        tripTable.populateTable(getTripURL);
+        getTripResults();
         $('#trip-modal').modal('hide');
     }.bind({initialDelete});
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Toggles the filter button between being visible and invisible
+ */
+function toggleFilterButton() {
+    console.log("yoink")
+    const toggled = $('#tripsFilterButton').css("display") === "block";
+    console.log(toggled);
+    $('#tripsFilterButton').css("display", toggled ? "none" : "block");
+}
+
+/**
+ * Clears the filter and repopulates the cards
+ */
+function clearFilter() {
+    $('#search').val('');
 }
