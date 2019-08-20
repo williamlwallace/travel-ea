@@ -129,7 +129,7 @@ function getPeopleResults() {
             if (response.status !== 200) {
                 toast("Error", "Error fetching people data", "danger")
             } else {
-                if(lastRecievedRequestOrder < json.requestOrder) {
+                if (lastRecievedRequestOrder < json.requestOrder) {
                     const totalNumberPages = json.totalNumberPages;
                     $("#peopleCardsList").html("");
                     lastRecievedRequestOrder = json.requestOrder;

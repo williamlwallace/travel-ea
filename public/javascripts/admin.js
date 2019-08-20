@@ -2,6 +2,9 @@ const MASTER_ADMIN_ID = 1;
 let travellerTypeRequestTable;
 let usersTable;
 let tripsTable;
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+let paginationHelper;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
@@ -9,7 +12,6 @@ $(document).ready(function () {
         document.getElementById('adminError').innerHTML = json;
     };
     //set table population urls
-    const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url;
     const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
     const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
         MASTER_ADMIN_ID).url;
@@ -20,18 +22,23 @@ $(document).ready(function () {
             $(row).attr('data-id', data[0] + "," + data[4]);
         }
     };
+
+    clearFilter();
+    paginationHelper = new PaginationHelper(1, 1, "userPagination", getUserResults);
+    getUserResults();
     //create tables
-    usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers,
-        errorRes);
+    // usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers,
+    //     errorRes);
+
     tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips,
         errorRes);
     travellerTypeRequestTable = new EATable('dtTravellerTypeModifications',
         ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
     //set table click callbacks callbacks
-    usersTable.initButtonClicks({
-        2: toggleAdmin,
-        3: deleteUser
-    });
+    // usersTable.initButtonClicks({
+    //     2: toggleAdmin,
+    //     3: deleteUser
+    // });
     tripsTable.initButtonClicks({
         5: deleteTrip
     });
@@ -53,13 +60,105 @@ function deleteUser(button, tableAPI, id) {
         if (status !== 200) {
             document.getElementById("adminError").innerHTML = json;
         } else {
-            usersTable.populateTable();
+            // usersTable.populateTable();
         }
     };
     const URL = userRouter.controllers.backend.UserController.deleteOtherUser(
         id).url;
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+function clearFilter() {
+    $("#searchQuery").val("");
+    $("#pageSize").val(5);
+}
+
+/**
+ * Get the value of the number of results to show per page
+ * @returns {number} The number of results shown per page
+ */
+function getPageSize() {
+    return $('#pageSize').val();
+}
+
+/**
+ * Returns the name of the db column to search by
+ * @returns {string} Name of db column to search by
+ */
+function getSortBy() {
+    return $('#sortBy').val();
+}
+
+/**
+ * Gets whether or not to sort by ascending
+ * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ */
+function getAscending() {
+    return $('#ascending').val();
+}
+
+/**
+ * Gets whether or not to sort by ascending
+ * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ */
+function getSearchQuery() {
+    return $('#searchQuery').val();
+}
+
+function createUserCard(user) {
+    const template = $("#userCardTemplate").get(0);
+    const clone = template.content.cloneNode(true);
+
+    const admin = (user.admin ? "True" : "False");
+    const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
+    const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
+
+    $(clone).find("#card-thumbnail").attr("src", "/assets/images/default-profile-picture.jpg");
+    $(clone).find("#username").append("Email: " + user.username);
+    $(clone).find("#id").append("User Id: " + user.id);
+    $(clone).find("#admin").append("Admin: " + admin);
+
+    $(clone).find("#card-thumbnail-div-body").html(user.admin ? adminIcon : nonAdminIcon);
+
+    $("#userCardsList").get(0).appendChild(clone);
+
+}
+
+function getUserResults() {
+    const url = new URL(userRouter.controllers.backend.UserController.userSearch().url, window.location.origin);
+    url.searchParams.append("searchQuery", getSearchQuery());
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("sortBy", getSortBy());
+    url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("requestOrder", requestOrder++);
+    get(url).then(response => {
+        response.json().then(json => {
+            if (response.status !== 200) {
+                toast("Error", "Error fetching user data", "danger")
+            } else {
+                if (lastRecievedRequestOrder < json.requestOrder) {
+                    const totalNumberPages = json.totalNumberPages;
+                    $("#userCardsList").html("");
+                    lastRecievedRequestOrder = json.requestOrder;
+                    json.data.forEach((item) => {
+                        createUserCard(item);
+                    });
+
+                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+                }
+            }
+        });
+    });
+}
+
+/**
+ * Toggles the filter button between being visible and invisible
+ */
+function toggleFilterButton() {
+    const toggled = $('#filterButton').css("display") === "block";
+    $('#filterButton').css("display", toggled ? "none" : "block");
 }
 
 /**
@@ -206,7 +305,7 @@ function createUser(URL) {
                 json);
             toast('User error', JSON.stringify(json), 'danger');
         } else {
-            usersTable.populateTable();
+            // usersTable.populateTable();
             $('#createUser').modal('hide');
         }
     };

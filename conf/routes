@@ -7,7 +7,7 @@ PUT           /api/user/:id/admin                    controllers.backend.AdminCo
 
 GET           /api/user/setid                        controllers.backend.UserController.setId(request:Request)
 
-GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
+GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 5, requestOrder: Integer ?= 1)
 
 GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
