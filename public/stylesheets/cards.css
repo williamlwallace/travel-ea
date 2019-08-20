@@ -15,7 +15,8 @@
     color: white;
     font-size: 1.2rem;
     text-align: center;
-    padding: .30rem
+    padding: .30rem;
+    cursor: pointer;
 }
 
 #card-thumbnail-div {

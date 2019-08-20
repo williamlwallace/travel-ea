@@ -60,3 +60,8 @@ a.black-nav {
     overflow-y: scroll;
     height: 820px;
 }
+
+.filterButtonContainer {
+    height: 50px;
+    text-align: center;
+}

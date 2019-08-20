@@ -35,18 +35,17 @@ function onPageLoad(userId) {
 }
 
 /**
- * //TODO
- * @returns {*}
+ * Returns a boolean of the getonlymine selector tick box
+ * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
  */
 function getOnlyGetMine() {
-    let currentValue = $('#onlyGetMine').val();
-
+    const currentValue = $('#onlyGetMine').val();
     return currentValue === "On";
 }
 
 /**
- * //TODO
- * @returns {*}
+ * Returns the string of the searchQuery field.
+ * @returns {string} a string of the data in the searchQuery field
  */
 function getSearchQuery() {
     return $('#searchQuery').val();
@@ -76,7 +75,11 @@ function getAscending() {
     return $('#ascending').val();
 }
 
-//TODO: Doc
+/**
+ * Gets the destinations from the database given the query parameters set by the
+ * user with the destination filters.
+ * @returns {object} Returns a promise of the get request sent
+ */
 function getDestinations() {
     const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
 
@@ -108,7 +111,10 @@ function getDestinations() {
         });
 }
 
-//TODO: Doc
+/**
+ * Refreshes the destination data and populates the map the destination cards
+ * with this.
+ */
 function refreshData() {
     getDestinations().then((dests) => {
         map.populateMarkers(dests);
@@ -119,14 +125,17 @@ function refreshData() {
 }
 
 /**
- * Clears the filter and repopulates the cards
+ * Resets the fields of the destinations filter
  */
 function clearFilter() {
     $('#searchQuery').val('');
     $('#pageSize').val(10);
 }
 
-//TODO: Doc
+/**
+ * Takes a list of destinations and creates destination cards out of these.
+ * @param {Object} an array of destinations to display
+ */
 function createDestinationCards(dests) {
     $("#destinationCardList").html("");
     dests.data.forEach((dest) => {
@@ -141,6 +150,11 @@ function createDestinationCards(dests) {
         $(clone).find("#country").append("Country: " + dest.country.name);
         $(clone).find("#destType").append("Type: " + dest.destType);
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
+        $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
+
+        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+            location.href = '/destinations/' + $(this).data().id;
+        });
 
         dest.tags.forEach(item => {
             tags += item.name + ", ";
@@ -224,18 +238,15 @@ function addDestination(url, redirect, userId) {
                 }
             }
 
-            //TODO:refresh cards
+            refreshData();
             toggled = true;
             toggleDestinationForm();
-            this.map.populateMarkers();
-            this.map.removeNewMarker();
 
         }
     }.bind({userId, data, map});
     const inverseHandler = function (status, json) {
         if (status === 200) {
-            //TODO:refresh cards
-            map.populateMarkers();
+            refreshData();
         }
     }.bind({map});
     // Post json data to given url
@@ -321,3 +332,4 @@ $('#createNewDestinationButton').click(function () {
             "/", userId)
     );
 });
+
