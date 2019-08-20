@@ -27,7 +27,7 @@ $('#upload-img').on('click', function () {
         // Read response from server, which will be a json object
         response.json().then(data => {
             if (response.status === 201) {
-                fillGallery(getAllPhotosUrl, galleryId, pageId);
+                fillGallery(getAllPhotosUrl, galleryId, "page0"); // pageId);
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
@@ -153,8 +153,7 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
  * @param {string} pageId the id of the pagination that the gallery is in
  * @param {function} selectionFunction, the function that will be called when a photo is clicked on
  */
-function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
-    selectionFunction) {
+function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -187,12 +186,13 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
     destinationId = null, clickFunction = null) {
     // Create a gallery which will have 6 photos
     let newGallery = document.createElement("div");
-    newGallery.id = "profilePhotos";
+    newGallery.id = "page0";
     newGallery.setAttribute("class", "tz-gallery");
     // create the row div
     let row = document.createElement("div");
     row.setAttribute("class", "row");
     // create each photo tile
+    console.log(usersPhotos.length);
     for (const position in usersPhotos.length) {
         let tile = document.createElement("div");
         tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
@@ -207,7 +207,7 @@ function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
         const isLinked = usersPhotos[position]["isLinked"];
         const isOwned = usersPhotos[position]["isOwned"];
 
-        //Will only add full size links and removal buttons if requested
+        // Will only add full size links and removal buttons if requested
         if (hasFullSizeLinks === true) {
             if (canEdit === true && isOwned) {
                 // Create toggle button
@@ -326,19 +326,15 @@ function createEditButton() {
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param {Object} galleryObject - A list of photo objects to insert
+ * @param {Object} galleryObjects - A list of photo objects to insert
  * @param {string} galleryId - The id of the gallery to populate
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
-function addPhotos(galleryObject, galleryId, pageSelectionId) {
+function addPhotos(galleryObjects, galleryId, pageSelectionId) {
     // Gallery object is a div containing a div, thus [0], containing the photo tiles
-    console.log(galleryObject.children.length);
-    console.log(galleryObject);
-    if (!galleryObject.find().isEmpty()) {
-        $(galleryId).html(galleryObject);
+    if (usersPhotos !== undefined && usersPhotos.length !== 0) {
 
-
-        // init bootpage
+        // // init bootpage
         // $(pageSelectionId).bootpag({
         //     total: numPages,
         //     maxVisible: 5,
@@ -359,7 +355,7 @@ function addPhotos(galleryObject, galleryId, pageSelectionId) {
         //         populateEditPhoto(guid, filename);
         //     });
         // });
-
+        $(galleryId).html(galleryObjects);
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
                 return $(element).attr('data-caption');
