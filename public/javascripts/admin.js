@@ -24,7 +24,8 @@ $(document).ready(function () {
     };
 
     clearFilter();
-    paginationHelper = new PaginationHelper(1, 1, "userPagination", getUserResults);
+    paginationHelper = new PaginationHelper(1, 1, "userPagination",
+        getUserResults);
     getUserResults();
     //create tables
     // usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers,
@@ -114,19 +115,29 @@ function createUserCard(user) {
     const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
     const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
 
-    $(clone).find("#card-thumbnail").attr("src", "/assets/images/default-profile-picture.jpg");
+    $(clone).find("#card-thumbnail").attr("src",
+        "/assets/images/default-profile-picture.jpg");
     $(clone).find("#username").append("Email: " + user.username);
     $(clone).find("#id").append("User Id: " + user.id);
     $(clone).find("#admin").append("Admin: " + admin);
 
-    $(clone).find("#card-thumbnail-div-body").html(user.admin ? adminIcon : nonAdminIcon);
+    if (user.admin) {
+        $(clone).find("#card-thumbnail-div").css("padding-right", "0rem");
+        $(clone).find(".card-header").css("padding-right", "0rem");
+        $(clone).find("#card-thumbnail-div-body").html(adminIcon);
+    } else {
+        $(clone).find(".card-header").css("padding-right", "1.55rem");
+        $(clone).find("#card-thumbnail-div-body").html(nonAdminIcon);
+    }
 
     $("#userCardsList").get(0).appendChild(clone);
 
 }
 
 function getUserResults() {
-    const url = new URL(userRouter.controllers.backend.UserController.userSearch().url, window.location.origin);
+    const url = new URL(
+        userRouter.controllers.backend.UserController.userSearch().url,
+        window.location.origin);
     url.searchParams.append("searchQuery", getSearchQuery());
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", getPageSize().toString());

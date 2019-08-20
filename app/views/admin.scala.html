@@ -1,4 +1,3 @@
-@import play.mvc.Http.Request
 @import models.User
 @(user: User)
 
@@ -36,50 +35,57 @@
             @*</table>*@
         @*</div>*@
     @*</div>*@
-    <div>
-        <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample"
-        aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
-    </div>
-    <div class="collapse" id="collapseExample">
-        <div class="card card-body" id="card-body">
-            <div id="filterItemDiv">
-                <input id="searchQuery" type="text" value="" class="form-control validate"/>
+    <div class="pl-5">
+        <div class="col-md-11">
+            <h3>Users</h3>
+            <div>
+                <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample"
+                aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
             </div>
-            <div id="filterItemDiv">
-                <label for="pageSize">Results per page</label>
-                <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
-            </div>
-            <div class="text-center" id="buttonDiv">
-                <div id="closeButton">
-                    <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body" id="card-body">
+                    <div id="filterItemDiv">
+                        <label for="searchQuery">Filter by email</label>
+                        <input id="searchQuery" type="text" value="" class="form-control validate"/>
+                    </div>
+                    <div id="resultsPerPageDiv">
+                        <label for="pageSize">Results per page</label>
+                        <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
+                    </div>
+                    <div id="filterItemDiv">
+                        <label for="sortBy">Sort by</label>
+                        <select id="sortBy" class="form-control" data-style="form-control selectpicker">
+                            <option value="id">User ID</option>
+                            <option value="username">Email</option>
+                            <option value="creation_date">Creation date</option>
+                            <option value="admin">User is admin</option>
+                        </select>
+                    </div>
+                    <div id="filterItemDiv">
+                        <label for="ascending">Sort by</label>
+                        <select id="ascending" class="form-control" data-style="form-control selectpicker">
+                            <option value="true">Ascending</option>
+                            <option value="false">Descending</option>
+                        </select>
+                    </div>
+                    <div id="buttonDiv">
+                        <div id="closeButton">
+                            <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                        </div>
+                        <div id="applyButton">
+                            <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                            <button class="btn btn-primary"  onclick='getUserResults()'>Apply</button>
+                        </div>
+                    </div>
                 </div>
-                <div id="applyButton">
-                    <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
-                    <button class="btn btn-primary"  onclick='getUserResults()'>Apply</button>
-                </div>
             </div>
-            <div id="filterItemDiv">
-                <label for="sortBy">Sort by</label>
-                <select id="sortBy" class="form-control" data-style="form-control selectpicker">
-                    <option value="creation_date">Creation date</option>
-                    <option value="date_of_birth">Date of birth</option>
-                    <option value="first_name">First Name</option>
-                    <option value="last_name">Last Name</option>
-                </select>
-            </div>
-            <div id="filterItemDiv">
-                <label for="ascending">Sort by</label>
-                <select id="ascending" class="form-control" data-style="form-control selectpicker">
-                    <option value="true">Ascending</option>
-                    <option value="false">Descending</option>
-                </select>
-            </div>
+
+            @modules.userCards()
+            <div id="userCardsList"></div>
+            <br>
         </div>
     </div>
 
-    @modules.userCards()
-    <div id="userCardsList"></div>
-    <br>
 
     <div id="startchange"></div>
 

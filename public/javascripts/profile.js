@@ -329,7 +329,6 @@ function updatePhotoCaptionAndTags(guid) {
         }
     }.bind({initialUpdate});
     const reqData = new ReqData(requestTypes["UPDATE"], url, handler, reqBody);
-    console.log(reqBody);
     undoRedo.sendAndAppend(reqData);
 }
 
