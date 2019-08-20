@@ -709,7 +709,83 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
-
+  
+  '/destination/{destId}/photo/{photoId}/accept':
+    put:
+      tags:
+      - Destinations
+      summary: Accepts a pending primary phot request
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: photoId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully accepted destination
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+          
+  '/destination/{destId}/photo/{photoId}/reject':
+    put:
+      tags:
+      - Destinations
+      summary: Rejects a pending primary phot request
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: photoId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully rejected destination
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+  
   '/destination/{destId}/photo/{photoId}':
     put:
       tags:

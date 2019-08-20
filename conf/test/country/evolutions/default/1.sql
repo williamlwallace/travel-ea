@@ -116,6 +116,7 @@ CREATE TABLE IF NOT EXISTS Destination
     country_id        INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
     deleted           BOOLEAN NOT NULL DEFAULT false,
+    primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     PRIMARY KEY (id)

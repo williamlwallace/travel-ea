@@ -427,6 +427,7 @@ public class PhotoController extends TEABackController {
      * if referenced here
      * @param userId ID of user who is uploading the files
      * @param isTest Whether or not these photos should be added to test folder of storage
+     * @param caption Caption for photo
      * @return Photo object to be added to database
      * @throws IOException Thrown when an unsupported file type added (i.e not image/jpeg or
      * image/png)
