@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.PagedList;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -217,6 +218,12 @@ public class ProfileController extends TEABackController {
         Integer requestOrder) {
 
         User user = request.attrs().get(ActionState.USER);
+
+        // Constrain sortBy to a set, default to creation date
+        if(sortBy == null ||
+            !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth", "gender", "creation_date").contains(sortBy)) {
+            sortBy = "creation_date";
+        }
 
         return profileRepository.getAllProfiles(user.id, nationalityIds, travellerTypeIds, genders,
             minAge, maxAge, searchQuery, sortBy, ascending, pageNum, pageSize)

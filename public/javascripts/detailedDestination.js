@@ -238,7 +238,7 @@ function populateEditDestination(destinationId) {
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
                 // Fills country picker
-                $('#countryDropDown').picker('set', destination.country.id);
+                $('#countryDropDown').selectpicker('val', destination.country.id);
                 // Fills tag input field
                 tagPicker.populateTags(destination.tags);
             }

@@ -138,25 +138,6 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("The next time I retrieve all public destinations, my private destination is not among them")
-    public void the_next_time_I_retrieve_all_public_destinations_my_private_destination_is_not_among_them()
-        throws IOException {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/getAllPublic");
-
-        Result result = route(fakeApp, request);
-
-        assertEquals(OK, result.status());
-
-        // Deserialize result to list of destinations
-        List<Destination> destinations = Arrays.asList(
-            new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
-
-        assertFalse(destinations.stream().map(d -> d.id).collect(Collectors.toList())
-            .contains(5L));
-    }
 
     @Then("My private destination is automatically merged with the public one")
     public void my_private_destination_is_automatically_merged_with_the_public_one() {

@@ -43,15 +43,11 @@ GET           /api/country/getCountry/:id            controllers.backend.Country
 
 POST          /api/country                           controllers.backend.CountryController.addCountry(request:Request)
 
-GET           /api/destination/getAllPublic          controllers.backend.DestinationController.getAllPublicDestinations()
-
 POST          /api/destination                       controllers.backend.DestinationController.addNewDestination(request:Request)
-
-GET           /api/user/destination/:id              controllers.backend.DestinationController.getAllDestinations(request:Request, id: Long)
 
 PUT           /api/destination/:id/delete            controllers.backend.DestinationController.deleteDestination(request:Request, id:Long)
 
-GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(p:Int ?= 0,  pSize:Int ?= 10, order ?= "asc", filter ?= "")
+GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(request:Request, onlyGetMine: Boolean ?= false, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
 GET           /api/destination/:id                   controllers.backend.DestinationController.getDestination(id:Long)
 

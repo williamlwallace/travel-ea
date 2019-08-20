@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
+import io.ebean.Expression;
 import io.ebean.PagedList;
 import java.util.Collection;
 import java.util.List;
@@ -23,6 +24,9 @@ import play.db.ebean.EbeanConfig;
  */
 @Singleton
 public class DestinationRepository {
+
+    private final Expression SQL_FALSE = Expr.raw("false");
+    private final Expression SQL_TRUE = Expr.raw("true");
 
     // The number of decimal places to check for determining similarity of destinations
     // (2 = 1km, 3 = 100m, 4 = 10m, 5 = 1m, ...)
@@ -303,22 +307,60 @@ public class DestinationRepository {
      * Gets a paged list of destinations conforming to the amount of destinations requested and the
      * provided order and filters.
      *
-     * @param page The current page to display
-     * @param pageSize The number of destinations per page
-     * @param order The column to order by
-     * @param filter The sort order (either asc or desc)
+     * @param searchQuery Query to search all fields for
+     * @param sortBy What column to sort by
+     * @param onlyGetMine Whether or not to only get my own destinations
+     * @param ascending Whether or not to sort ascendingly
+     * @param pageNum Page number to get
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order of this request compared to others from the same page
      * @return Paged list of destinations
      */
-    public CompletableFuture<PagedList<Destination>> getPagedDestinations(int page, int pageSize,
-        String order, String filter) {
+    public CompletableFuture<PagedList<Destination>> getPagedDestinations(
+        Long userId,
+        String searchQuery, // Nullable
+        Boolean onlyGetMine,
+        String sortBy,
+        Boolean ascending,
+        Integer pageNum,
+        Integer pageSize) {
+        String cleanedQueryString = "%" + (searchQuery == null ? "" : searchQuery) + "%";
+
         return supplyAsync(() -> ebeanServer.find(Destination.class)
+                .fetch("country")
                 .where()
-                .ilike("name", "%" + filter + "%")
-                .orderBy(order)
-                .setFirstRow(page * pageSize)
+                // Only get results that match search query, or if no search query provided
+                // Big nested or statement allows for searching multiple fields by one value
+                .or(
+                    (searchQuery == null || searchQuery.equals("")) ? SQL_TRUE : SQL_FALSE,
+                    Expr.or(
+                        Expr.ilike("name", cleanedQueryString),
+                        Expr.or(
+                            Expr.ilike("type", cleanedQueryString),
+                            Expr.or(
+                                Expr.ilike("country.name", cleanedQueryString),
+                                Expr.ilike("district", cleanedQueryString)
+                            )
+                        )
+                    )
+                ).endOr()
+                // If the user only wants their own destinations, filter out all other
+                .or(
+                    Expr.eq("user_id", userId),
+                    onlyGetMine ? SQL_FALSE : SQL_TRUE
+                ).endOr()
+                // If the user doesn't only want theirs, show them public and their own
+                .or(
+                    onlyGetMine ? SQL_TRUE : SQL_FALSE,
+                    Expr.or(
+                        Expr.eq("is_public", true),
+                        Expr.eq("user_id", userId)
+                    )
+                )
+                .orderBy(sortBy + " " + (ascending ? "asc" : "desc"))
+                .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
-                .findPagedList()
-            , executionContext);
+                .findPagedList());
     }
 
     /**
