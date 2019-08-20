@@ -147,23 +147,22 @@ public class PhotoRepository {
      * @param photos A list of photos to upload
      * @return The collection of photos now containing ID's
      */
-    public CompletableFuture<Object> addPhotos(Collection<Photo> photos, User user) {
+    public CompletableFuture<List<Photo>> addPhotos(List<Photo> photos, User user) {
         List<CompletableFuture<Set<Tag>>> futures = new ArrayList<>();
         for (Photo photo : photos) {
             userRepository.updateUsedTags(user, photo);
             futures.add(tagRepository.addTags(photo.tags));
         }
-
         CompletableFuture<Void> allFutures = CompletableFuture
             .allOf(futures.toArray(new CompletableFuture[0]));
 
         //This ensures that the method can be called and the actions executed without calling
         //ThenApply/Async but also whilst allowing the tests to wait for completion before
         //Continuing execution
-        return allFutures.thenApplyAsync(v -> supplyAsync(() -> {
+        return allFutures.thenApplyAsync(v -> {
             ebeanServer.insertAll(photos);
             return photos;
-        }, executionContext));
+        }, executionContext);
     }
 
     /**
