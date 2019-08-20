@@ -156,6 +156,7 @@ CREATE TABLE IF NOT EXISTS Trip
     user_id           INT NOT NULL,
     is_public         BIT NOT NULL DEFAULT 0,
     deleted           BOOLEAN NOT NULL DEFAULT false,
+    creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     PRIMARY KEY (id),
     INDEX user_id_index (user_id)
@@ -232,7 +233,7 @@ CREATE TABLE IF NOT EXISTS DestinationTag
     guid                  INT NOT NULL AUTO_INCREMENT,
     tag_id                INT NOT NULL,
     destination_id        INT NOT NULL,
-    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id)  REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (guid)
   );
