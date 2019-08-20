@@ -112,10 +112,8 @@ public class TripRepository {
         Boolean public_) {
         
         final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery).replaceAll(" ", "").toLowerCase();
-        System.out.println(cleanedSearchQuery);
 
-        return supplyAsync(() -> {
-            PagedList<Trip> trips =
+        return supplyAsync(() ->
                 ebeanServer.find(Trip.class)
                     .fetch("tripDataList.destination")
                     .where()
@@ -127,13 +125,11 @@ public class TripRepository {
                     .endOr()
                     .ilike("tripDataList.destination.name", "%" + cleanedSearchQuery + "%")
                     // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
-                    .orderBy("creation_date " + (ascending ? "asc" : "desc"))
+                    .orderBy("creation_date " + (ascending ? "asc" : "desc") + ", t0.id " + (ascending ? "asc" : "desc"))
                     .setFirstRow((pageNum - 1) * pageSize)
                     .setMaxRows(pageSize)
-                    .findPagedList();
-
-            return trips;
-        });
+                    .findPagedList()
+        );
     }
 
     /**

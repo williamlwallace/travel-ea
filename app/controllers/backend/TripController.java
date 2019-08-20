@@ -101,29 +101,16 @@ public class TripController extends TEABackController {
                                                 Integer pageSize,
                                                 Integer requestOrder) {
         User user = request.attrs().get(ActionState.USER);
-        if (user.admin) {
-            return tripRepository.searchTrips(user.id, searchQuery, ascending, pageNum, pageSize, false)
-                .thenApplyAsync(trips -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(
-                            new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
-                        )));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        } else {
-            return tripRepository.searchTrips(user.id, searchQuery, ascending, pageNum, pageSize, true)
-                .thenApplyAsync(trips -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(
-                            new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
-                        )));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        }
+
+        return tripRepository.searchTrips(user.id, searchQuery, ascending, pageNum, pageSize, !user.admin)
+            .thenApplyAsync(trips -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(
+                        new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
+                    )));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }});
     }
 
     /**
