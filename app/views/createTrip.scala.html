@@ -28,9 +28,9 @@
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/createTrips.css")">
         <div id="createTripContainer" class="row">
             <div class="col-8">
-                <div style="padding-bottom: 60px;">
+                <div>
                         <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
-                    <div style="float: right;">
+                    <div style="float: right;" class="ml-4">
                         @if(trip.tripDataList.length == 0 || !trip.isPublic) {
                             <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
                                 <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>
@@ -52,6 +52,7 @@
                             <a href="javascript:history.back()"><button class="btn btn-danger">Cancel</button></a>
                         }
                     </div>
+                    @modules.tagPicker("create-trip-tag")
                 </div>
 
                 <!-- Destination cards -->
@@ -128,10 +129,9 @@
             </div>
 
             <div class="col-4 scrollblock">
-                <h3>Add Destinations to Trip</h3>
                 <div class="filterButtonContainer">
                     <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
-                    aria-expanded="false" aria-controls="collapseDestinationFilter">Filter</button>
+                    aria-expanded="false" aria-controls="collapseDestinationFilter">Filter Destinations To Add</button>
                 </div>
                 @* The destination filter options *@
                 <div class="collapse" id="collapseDestinationFilter">
