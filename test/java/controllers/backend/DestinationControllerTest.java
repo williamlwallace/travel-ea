@@ -772,7 +772,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "2/photo/2/primary");
+            .bodyJson(Json.toJson("2"))
+            .uri(DEST_URL_SLASH + "2/photo/primary");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -784,7 +785,8 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "2/photo/2/primary");
+            .bodyJson(Json.toJson("2"))
+            .uri(DEST_URL_SLASH + "2/photo/primary");
 
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());

@@ -266,7 +266,7 @@ $("#changePrimaryPhotoButton").click(function () {
  */
 function setPrimaryPhoto(photoId) {
     const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
-        DESTINATIONID, photoId).url;
+        DESTINATIONID).url;
 
     // Create reversible request to update primary photo to this new photo
     const handler = (status, json) => {
