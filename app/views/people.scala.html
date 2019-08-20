@@ -2,6 +2,7 @@
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/people.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/util/paginationHelper.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
@@ -11,6 +12,7 @@
 
     @* Importing People CSS *@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/people.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
     @* Filter *@
     <div>
@@ -24,19 +26,22 @@
                     <label for="gender">Gender</label>
                     <select id="gender" class="form-control" data-style="form-control selectpicker">
                         <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div id="filterItemDiv">
                     <label for="ageRange">Age Range</label>
                     <div id="ageRange" class="input-group">
                         <input id="minAge" type="number" class="form-control validate" placeholder="Min"/>
-                        <span class="input-group-addon pr-3 pl-3"> - </span>
                         <input id="maxAge" type="number" class="form-control validate" placeholder="Max"/>
                         <label data-error="wrong" data-success="right"></label>
                     </div>
+                </div>
+                <div id="filterItemDiv">
+                    <label for="pageSize">Results per page</label>
+                    <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
                 </div>
                 <div id="filterItemDiv">
                         <label for="nationalities">Nationality</label>
@@ -56,30 +61,32 @@
                     </div>
                     <div id="applyButton">
                         <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
-                        <button class="btn btn-primary"  onclick='filterPeopleTable()'>Apply</button>
+                        <button class="btn btn-primary"  onclick='getPeopleResults()'>Apply</button>
                     </div>
+                </div>
+                <div id="filterItemDiv">
+                    <label for="sortBy">Sort by</label>
+                    <select id="sortBy" class="form-control" data-style="form-control selectpicker">
+                        <option value="creation_date">Creation date</option>
+                        <option value="date_of_birth">Date of birth</option>
+                        <option value="first_name">First Name</option>
+                        <option value="last_name">Last Name</option>
+                    </select>
+                </div>
+                <div id="filterItemDiv">
+                    <label for="ascending">Sort by</label>
+                    <select id="ascending" class="form-control" data-style="form-control selectpicker">
+                        <option value="true">Ascending</option>
+                        <option value="false">Descending</option>
+                    </select>
                 </div>
             </div>
         </div>
     </div>
 
-    @* The people table *@
-    <div>
-        <table id="dtPeople" class="table table-hover table-bordered" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th class="th-sm">First Name</th>
-                    <th class="th-sm">Last Name</th>
-                    <th class="th-sm">Gender</th>
-                    <th class="th-sm">Age</th>
-                    <th class="th-sm">Nationalities</th>
-                    <th class="th-sm">Traveller Types</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+    @modules.cards()
+
+    <div id="peopleCardsList"></div>
 }
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@

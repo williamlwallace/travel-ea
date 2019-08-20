@@ -17,10 +17,10 @@ INSERT INTO CountryDefinition (id, name) VALUES
 (1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
 
 -- Create profile for tester1@gmail.com
-INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
-INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
-INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (3, 'Jim', 'Jimmy', 'Bob', '2001-11-05', 'Other');
-INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (4, 'YA BOI', 'Jimmy', 'SKINNY P', '1997-10-19', 'Male');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male', '2003-01-01');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female', '2002-01-01');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (3, 'Jim', 'Jimmy', 'Bob', '2001-11-05', 'Other', '2001-01-01');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (4, 'YA BOI', 'Jimmy', 'SKINNY P', '1997-10-19', 'Male', '2000-01-01');
 
 
 -- Add nationalities to profile
@@ -45,11 +45,24 @@ INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (3, 2);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (4, 1);
 
 -- !Downs
--- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
+DELETE FROM DestinationTag;
+DELETE FROM Tag;
+DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
+DELETE FROM DestinationPhoto;
+DELETE FROM TripData;
+DELETE FROM Trip;
+DELETE FROM DestinationTravellerTypePending;
+DELETE FROM DestinationTravellerType;
+DELETE FROM Destination;
 DELETE FROM TravellerType;
+DELETE FROM TravellerTypeDefinition;
 DELETE FROM Passport;
 DELETE FROM Nationality;
-DELETE FROM Profile;
 DELETE FROM CountryDefinition;
-DELETE FROM TravellerTypeDefinition;
+DELETE FROM Profile;
+DELETE FROM Photo;
 DELETE FROM User;

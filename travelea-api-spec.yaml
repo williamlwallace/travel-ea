@@ -709,7 +709,83 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
-
+  
+  '/destination/{destId}/photo/{photoId}/accept':
+    put:
+      tags:
+      - Destinations
+      summary: Accepts a pending primary phot request
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: photoId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully accepted destination
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+          
+  '/destination/{destId}/photo/{photoId}/reject':
+    put:
+      tags:
+      - Destinations
+      summary: Rejects a pending primary phot request
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: destId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      - in: path
+        name: photoId
+        required: true
+        description: The destination ID
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: Successfully rejected destination
+        '404':
+          description: Destination with provided ID not found
+        '403':
+          description: Forbidden, user does not have permission to edit this destination
+        '401':
+          description: Unauthorized
+  
   '/destination/{destId}/photo/{photoId}':
     put:
       tags:
@@ -1014,36 +1090,85 @@ paths:
       summary: Searches through all profiles based on some criteria
       parameters:
       - in: query
-        name: nationalityId
-        description: ID of some nationality to search by
+        name: nationalityIds
+        description: IDs of some nationalities to search by
         schema:
-          type: integer
-          format: int64
-          minimum: 0
+          type: array
+          items:
+            type: integer
+            format: int64
+            minimum: 0
       - in: query
         name: travellerTypeId
         description: ID of some traveller type to search by
         schema:
-          type: integer
-          format: int64
-          minimum: 0
+          type: array
+          items:
+            type: integer
+            format: int64
+            minimum: 0
       - in: query
         name: gender
-        description: A gender to search for
+        description: Must be in Male, Female, or Other.
         schema:
-          type: string
+          type: array
+          items:
+            type: string
+            minimum: 0
       - in: query
         name: minAge
         description: The minimum age of people for whom to show profiles
         schema:
           type: integer
           minimum: 0
+          example: 3
       - in: query
         name: maxAge
         description: The maximum age of people for whom to show profiles
         schema:
           type: integer
           minimum: 0
+          example: 90
+      - in: query
+        name: searchQuery
+        description: Profile name to search for (WHERE ('fName ' + 'mName ' + 'lname' LIKE searchQuery) OR ('fName ' + 'lname' LIKE searchQuery))
+        schema:
+          type: string
+          example: 'Matthew Mi'
+      - in: query
+        name: sortBy
+        description: "Column to sort by, must be in: 'fName', 'lName', 'gender', or 'age'"
+        schema:
+          type: string
+          example: 'lName'
+      - in: query
+        name: ascending
+        description: Whether or not to sort the results in ascending order
+        schema:
+          type: boolean
+          example: true
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: he order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
+
       responses:
         '200':
           description: Successfully retrieved (possibly zero) profiles
@@ -1190,7 +1315,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update profile photo of
         schema:
@@ -1234,7 +1359,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The user ID to update cover photo of
         schema:
@@ -1278,7 +1403,7 @@ paths:
         schema:
           type: string
       - in: path
-        name: id
+        name: photoId
         required: true
         description: The ID of the photo being toggled
         schema:
@@ -1315,6 +1440,14 @@ paths:
             schema:
               type: object
               properties:
+                tags:
+                  type: array
+                  description: Tags ascociated with photo
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
                 isTest:
                   type: string
                   description: 'When true, the uploaded files should be placed in test directory to be later wiped'
@@ -1349,7 +1482,7 @@ paths:
         '403':
           description: Forbidden, returned when someone tries to upload a photo for a different user
 
-  '/user/{id}/photo/':
+  '/user/{id}/photo':
     get:
       tags:
       - Photos
@@ -1395,6 +1528,35 @@ paths:
                 items:
                   $ref: '#/components/schemas/Photo'
 
+  '/user/{id}/phototags':
+    get:
+      tags:
+      - Photos
+      summary: 'Get all tags belonging to a users photos'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The user ID to retrieve photos of
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully retrieved all tags for a users photos'
+        '401':
+          description: 'Unauthorized'
+
+
+
   '/photo/{photoId}':
     get:
       tags:
@@ -1425,6 +1587,42 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Photo'
+        '403':
+          description: 'Forbidden'
+        '404':
+          description: 'Photo not found'
+
+    put:
+      tags:
+      - Photos
+      summary: 'Updates the caption and tags associated with a photo'
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: photoId
+        required: true
+        description: The ID of the photo to retrieve
+        schema:
+          type: integer
+          minimum: 1
+      requestBody:
+        $ref: '#/components/requestBodies/putPhotoDetails'
+      responses:
+        '200':
+          description: 'Successfully updated photo details'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdatePhotoDetails'
+        '400':
+          description: 'Bad Request'
         '403':
           description: 'Forbidden'
         '404':
@@ -1776,6 +1974,21 @@ components:
                 description: Date when treasure hunt ends
       description: Treasure hunt object to insert into database.
 
+    putPhotoDetails:
+      content:
+        application/json:
+          schema:
+            type: object
+            description: ""
+            properties:
+              caption:
+                type: string
+                example: 'A picture of the Eiffel tower, taken from Berlin with a really big camera lens'
+              tags:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+
 
 
   schemas:
@@ -1939,6 +2152,10 @@ components:
           example: 2.294694
         country:
           $ref: '#/components/schemas/CountryDefinition'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
 
     Trip:
       type: object
@@ -2035,6 +2252,18 @@ components:
           format: ISO date-time
           example: '2019-04-01T23:26:00.000'
 
+    UpdatePhotoDetails:
+      type: object
+      description: ""
+      properties:
+        caption:
+          type: string
+          example: 'A picture of the Eiffel tower, taken from Berlin with a really big camera lens'
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+
     TreasureHunt:
       type: object
       required:
@@ -2071,6 +2300,21 @@ components:
           type: string
           format: date yyyy/mm/dd
           example: '2019-07-12'
+
+    Tag:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          format: int64
+          description: >-
+            Automatically generated when tag is created, should never be assigned manually
+        name:
+          type: string
+          example: New Zealand
 
     BinaryImageFile:
       type: string

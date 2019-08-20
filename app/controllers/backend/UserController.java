@@ -5,13 +5,18 @@ import actions.Authenticator;
 import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.Tag;
 import models.User;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
@@ -277,8 +282,14 @@ public class UserController extends TEABackController {
                 if (user == null) {
                     return badRequest();
                 } else {
+                    // Builds User object replacing usedTags with tags
+                    ObjectMapper mapper = new ObjectMapper();
+                    final ObjectNode userNode = mapper.valueToTree(user);
+                    Set<Tag> tags = user.usedTags.stream().map(usedTag -> usedTag.tag).collect(Collectors.toSet());
+                    userNode.replace("usedTags", Json.toJson(tags));
+
                     try {
-                        return ok(sanitizeJson(Json.toJson(user)));
+                        return ok(sanitizeJson(userNode));
                     } catch (IOException e) {
                         return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }

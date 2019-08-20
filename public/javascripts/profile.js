@@ -1,19 +1,3 @@
-/* Display gender drop down the same as the others */
-$('#gender').picker();
-
-let profileId = -1;
-let getAllPhotosUrl;
-
-/**
- * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
- * @param profileId the profileId to set
- */
-function setprofileId(profileID) {
-    profileId = profileID;
-    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        profileId).url;
-}
-
 /**
  * The JavaScript method to fill the initial profile data
  *
@@ -93,8 +77,7 @@ function updateProfile(uri, redirect) {
                     updateProfileData(this.data);
                     $("#editProfileModal").modal('hide');
                     toast("Profile Updated!",
-                        "The updated information will be displayed on your profile.",
-                        "success");
+                        "The updated information will be displayed on your profile");
                 }
                 this.data = json;
             }.bind({data});
@@ -143,31 +126,29 @@ function populateProfileData(uri) {
     get(uri)
     .then(response => {
         // Read response from server, which will be a json object
-        return response.json()
+        return response.json();
     })
     .then(json => {
         const pickMapper = function (id, item) {
-            $(`#${id}`).picker('set', item.id);
-        }
+            $(`#${id}`).selectpicker('val', item.id);
+        };
         //Maps the json data into the pickers
         json.nationalities.map(pickMapper.bind(null, 'nationalities'));
         json.passports.map(pickMapper.bind(null, 'passports'));
         json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
 
-        $('#gender').picker('set', json.gender);
-        tagsPickerTags = json.tags;
+        $('#gender').selectpicker('val', json.gender);
+        //tagsPickerTags = json.tags;
     });
 }
 
 /**
  * Variables for selecting and cropping the profile picture.
  */
-let cropGallery = $('#profile-gallery');
-let profilePictureToCrop = document.getElementById('image');
-let profilePictureSize = 350;
+const cropGallery = $('#profile-gallery');
+const profilePictureToCrop = document.getElementById('image');
+const profilePictureSize = 350;
 let cropper;
-
-let profilePictureControllerUrl;
 let canEdit;
 let canDelete;
 
@@ -198,7 +179,7 @@ $(document).ready(function () {
             minContainerHeight: profilePictureSize,
 
             cropmove: function (event) {
-                let data = cropper.getData();
+                const data = cropper.getData();
                 if (data.width < profilePictureSize) {
                     event.preventDefault();
                     data.width = profilePictureSize;
@@ -219,7 +200,7 @@ $(document).ready(function () {
 function uploadProfilePicture() {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
         formData.append("userUploadId", profileId.toString());
@@ -243,8 +224,7 @@ function uploadProfilePicture() {
                         if (status === 200) {
                             getProfileAndCoverPicture();
                             toast("Changes saved!",
-                                "Profile picture changes saved successfully.",
-                                "success");
+                                "Profile picture changes saved successfully");
                         } else {
                             toast("Error",
                                 "Unable to update profile picture", "danger");
@@ -269,7 +249,7 @@ function uploadProfilePicture() {
  */
 cropGallery.on('click', 'img', function () {
     //Get the path for the pictures thumbnail
-    let fullPicturePath = $(this).parent().attr("data-filename");
+    const fullPicturePath = $(this).parent().attr("data-filename");
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -284,9 +264,11 @@ cropGallery.on('click', 'img', function () {
  * @param {String} filename - the filename of the photo
  */
 function populateEditPhoto(guid, filename) {
-    $('#modal-photo').attr('src', "");
-    $('#modal-photo').attr('src', filename);
-    $('#modal-photo').attr("name", guid);
+    const modalPhoto = $('#modal-photo');
+    const updateImgButton = $('#update-img');
+    modalPhoto.attr('src', "");
+    modalPhoto.attr('src', filename);
+    modalPhoto.attr("name", guid);
     $('#update-caption input').val("");
     $('#edit-modal').modal('show');
     get(photoRouter.controllers.backend.PhotoController.getPhotoById(guid).url)
@@ -295,40 +277,59 @@ function populateEditPhoto(guid, filename) {
         .then(photo => {
             if (response.status !== 200) {
                 toast("Error in retrieving photo data",
-                    "Could not retrive photo"
+                    "Could not retrieve photo"
                     + "data properly", "danger", 5000);
             } else {
-                const caption = photo.caption;
-                $('#update-caption input').val(caption);
+                $('#update-caption input').val(photo.caption);
+                editTagPicker.populateTags(photo.tags);
             }
         })
     });
-    $('#update-img').unbind('click');
-    $('#update-img').bind('click', function () {
-        updatePhotoCaption(guid);
+    updateImgButton.unbind('click');
+    updateImgButton.bind('click', function () {
+        updatePhotoCaptionAndTags(guid);
     });
 }
 
 /**
- * Updates the caption of a photo
+ * Updates the caption and tags of a photo
  *
- * @param {Number} guid - the id of the photo
+ * @param {Number} guid - The ID of the photo being updated
  */
-function updatePhotoCaption(guid) {
-    let caption = $('#update-caption input').val();
-    const url = photoRouter.controllers.backend.PhotoController.setPhotoCaption(
-        guid).url;
-    const handler = (status, json) => {
-        if (status !== 200) {
-            $('#errorLabel').html("Error! Could not update caption");
-        } else {
-            $('[data-id="' + guid + '"]').attr("data-caption", caption);
-            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
-            toast("Caption updated!", "The photo caption has been updated",
-                "success");
+function updatePhotoCaptionAndTags(guid) {
+    const caption = $('#update-caption input').val();
+    const tags = editTagPicker.getTags().map(tag => {
+        return {
+            name: tag
         }
+    });
+    const reqBody = {
+        caption: caption,
+        tags: tags
     };
-    const reqData = new ReqData(requestTypes["UPDATE"], url, handler, caption);
+    const url = photoRouter.controllers.backend.PhotoController.updatePhotoDetails(
+        guid).url;
+    const initialUpdate = true;
+    const handler = function(status, json) {
+        if (this.initialUpdate) {
+            if (status !== 200) {
+                toast("Update failed", json, "danger", 5000);
+            } else {
+                toast("Update successful!",
+                    "The photo's captions and tags have been updated");
+            }
+            this.initialUpdate = false;
+        }
+
+        if (status === 200) {
+            $('[data-id="' + guid + '"]').attr("data-caption", caption);
+            getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+
+        }
+    }.bind({initialUpdate});
+    const reqData = new ReqData(requestTypes["UPDATE"], url, handler, reqBody);
+    console.log(reqBody);
     undoRedo.sendAndAppend(reqData);
 }
 
@@ -337,8 +338,8 @@ function updatePhotoCaption(guid) {
  * @param route
  */
 function deletePhoto(route) {
-    let guid = document.getElementById("modal-photo").name;
-    let deleteUrl = route.substring(0, route.length - 1) + guid;
+    const guid = document.getElementById("modal-photo").name;
+    const deleteUrl = route.substring(0, route.length - 1) + guid;
 
     _delete(deleteUrl)
     .then(response => {
@@ -347,12 +348,12 @@ function deletePhoto(route) {
                 $('#edit-modal').modal('hide');
                 fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
                 toast("Picture deleted!",
-                    "The photo will no longer be displayed in the gallery.",
-                    "success");
+                    "The photo will no longer be displayed in the gallery");
                 getProfileAndCoverPicture();
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
                 undoRedo.undoStack.clear();
                 undoRedo.redoStack.clear();
-                undoRedo.updateButtons();
+                updateUndoRedoButtons();
             }
         });
     });
@@ -413,8 +414,6 @@ function getProfileAndCoverPicture() {
 
 /**
  * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
- *
- * @param url the backend PhotoController url
  */
 function getPictures() {
     fillGallery(
@@ -426,7 +425,7 @@ function getPictures() {
  * Displays the users images in a change profile picture gallery modal
  */
 function showProfilePictureGallery() {
-    let galleryObjects = createGalleryObjects(false);
+    const galleryObjects = createGalleryObjects(false);
     addPhotos(galleryObjects, $("#profile-gallery"),
         $('#page-selection-profile-picture'));
     $('#changeProfilePictureModal').modal('show');
@@ -447,8 +446,7 @@ function setCoverPhoto(photoId) {
             getProfileAndCoverPicture();
             $("#editCoverPhotoModal").modal('hide');
             toast("Changes saved!",
-                "Cover photo changes saved successfully.",
-                "success");
+                "Cover photo changes saved successfully");
         } else {
             toast("Error",
                 "Unable to update cover photo", "danger");
@@ -458,7 +456,6 @@ function setCoverPhoto(photoId) {
     const requestData = new ReqData(requestTypes["UPDATE"],
         coverPicUpdateURL, handler, photoId);
     undoRedo.sendAndAppend(requestData);
-
 }
 
 /**
@@ -470,6 +467,7 @@ $("#upload-gallery-image-button").click(function () {
     $('.image-body img').attr('src', '');
     $('.image-body').css('display', 'none');
     $('.uploader').css('display', 'block');
+    uploadTagPicker.clearTags();
 });
 
 /**

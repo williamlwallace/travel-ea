@@ -13,6 +13,7 @@
     <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.UserController.userRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TagController.tagRoutes()" type="text/javascript"></script>
 }
 
 @layouts.main("Profile", loggedUser, scripts){
@@ -41,7 +42,7 @@
                 @* Profile Details *@
                 <div id="profile-summary">
                     @if(canModify) {
-                        <a id="editProfilePictureButton" class="edit-button" style="top:0;"title="Edit Profile Picture" onClick="showProfilePictureGallery()"><i class="fas fa-pen fa-1x"></i></a>
+                        <a id="editProfilePictureButton" class="edit-button" style="top:0;" title="Edit Profile Picture" onClick="showProfilePictureGallery()"><i class="fas fa-pen fa-1x"></i></a>
                     }
                     <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture" class="img-thumbnail profile-picture">
                     <div class="profile-details">
@@ -65,7 +66,7 @@
                 <div class="profile-main">
                     <div>
                         @*Call gallery modal, true indicating we want titles*@
-                        @modules.gallery(canModify, true, "main-gallery", "page-selection")
+                        @modules.gallery(canModify, true, "main-gallery", "page-selection", true)
                         @* Trips table Section *@
                         <div class="section-title">
                             <p>
@@ -100,7 +101,7 @@
         </div>
         </div>
 
-        @* Delete Photo Modal *@
+        @* Edit Photo Details Modal *@
         <div class="modal fade" id="deletePhotoModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -143,73 +144,86 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <div class="mx-auto" style="width: fit-content; padding: 10px">
+                    <div class="mx-auto pr-3 pl-3 pt-3" style="width: 100%;">
                         <form id="updateProfileForm">
                             <div class="form-row mb-4">
                                 <div class="col">
                                         <!-- First name -->
-                                    <input type="text" name="firstName" class="form-control" placeholder="First name" value="@profile.firstName" required>
+                                    <pre class="control-label">First Name</pre>
+                                    <input type="text" name="firstName" class="form-control"
+                                    placeholder="First name" value="@profile.firstName" required>
                                     <label id="firstNameError" class="error-messages"></label>
                                 </div>
                                 <div class="col">
                                         <!-- Middle name -->
-                                    <input type="text" name="middleName" class="form-control" placeholder="Middle name" value="@profile.middleName" required>
+                                    <pre class="control-label">Middle Name</pre>
+                                    <input type="text" name="middleName" class="form-control"
+                                    placeholder="Middle name" value="@profile.middleName" required>
                                     <label id="middleNameError" class="error-messages"></label>
                                 </div>
                                 <div class="col">
                                         <!-- Last name -->
-                                    <input type="text" name="lastName" class="form-control" placeholder="Last name" value="@profile.lastName" required>
+                                    <pre class="control-label">Last Name</pre>
+                                    <input type="text" name="lastName" class="form-control"
+                                    placeholder="Last name" value="@profile.lastName" required>
                                     <label id="lastNameError" class="error-messages"></label>
                                 </div>
                             </div>
-                            <div class="control-group">
-                                <pre for="gender" class="control-label">Gender</pre>
-                                <div>
-                                    <select name="gender" id="gender" required>
-                                        <option value="" disabled hidden>Select</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                    <br/>
-                                    <label id="genderError" class="error-messages"></label>
-                                </div>
-                            </div>
-                            <br>
                             <div class="row">
-                                <div class="form-group col-5">
-                                    <pre for="dateOfBirth" class="control-label">Date of Birth</pre>
-                                    <input type="date" name="dateOfBirth" size="8" class="form-control validate" value="@profile.dateOfBirth">
-                                    <br/>
-                                    <label id="dateOfBirthError" class="error-messages"></label>
+                                <div class="col">
+                                    <div class="control-group">
+                                        <pre class="control-label">Gender</pre>
+                                        <div>
+                                            <select class="selectpicker" name="gender" id="gender" required>
+                                                <option value="" disabled hidden>Select</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                            </select>
+                                            <label id="genderError" class="error-messages"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="control-group">
+                                        <pre class="control-label">Date of Birth</pre>
+                                        <input type="date" name="dateOfBirth" size="8"
+                                        class="form-control validate" value="@profile.dateOfBirth">
+                                        <label id="dateOfBirthError" class="error-messages"></label>
+                                    </div>
                                 </div>
                             </div>
-                            <pre for="nationality" id="nationality" class="control-label">Nationalities</pre>
+
+                            <pre id="nationality" class="control-label">Nationalities</pre>
                             <div>
-                                <select name="nationalities" id="nationalities" multiple required>
+                                <select name="nationalities" class="selectpicker" id="nationalities"
+                                data-live-search="true" data-size="5" multiple required>
                                     <option value="" disabled hidden>Select Nationalities</option>
                                 </select>
                                 <br/>
                                 <label id="nationalitiesError" class="error-messages"></label>
                             </div>
-                            <br/>
-                            <pre for="country" id="country" class="control-label">Passports (Optional)</pre>
-                            <div>
-                                <select name="passports" id="passports" multiple>
-                                    <option value="" disabled hidden>Select Passports</option>
-                                </select>
-                            </div>
-                            <br/>
+
                             <pre class="control-label">Traveller Types</pre>
                             <div>
                                 <select name="travellerTypes" id="travellerTypes" multiple required>
-                                    <option value="" disabled hidden>Select Traveller Type</option>
+                                    <option value="" data-live-search="true" disabled hidden>Select Traveller Type</option>
                                 </select>
                                 <label id="travellerTypesError" class="error-messages"></label>
                             </div>
+
+                            <pre id="country" class="control-label">Passports <span class="badge badge-secondary">Optional</span></pre>
+                            <div>
+                                <select name="passports" id="passports" class="selectpicker"
+                                data-live-search="true" data-size="5" multiple>
+                                    <option value="" disabled hidden>Select Passports</option>
+                                </select>
+                            </div>
+
                         </form>
                         <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-outline-secondary" type="button" data-toggle="modal" data-target="#editProfileModal">Cancel</button>
+                            <button class="btn btn-outline-secondary" type="button"
+                            data-toggle="modal" data-target="#editProfileModal">Cancel</button>
                             <button class="btn btn-primary" onclick=
                             'updateProfile(
                                     "@controllers.backend.routes.ProfileController.updateProfile(user.id)",
@@ -263,7 +277,7 @@
                         </button>
                     </div>
                     @* all images gallery *@
-                    @modules.gallery(false, false, "cover-photo-gallery", "current-page")
+                    @modules.gallery(false, false, "cover-photo-gallery", "current-page", false)
                 </div>
             </div>
         </div>
@@ -294,21 +308,23 @@
             </div>
         </div>
 
-
     </body>
 
 }
 
 <script type="text/javascript">
-    setprofileId(@user.id);
+    setProfileId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
     onPageLoad(@user.id, @canModify);
     fillProfileData("@user.username");
     getPictures();
-    getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
     getProfileAndCoverPicture();
+    getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
+    getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)", ["tagFilter"], "name", false, "name");
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
         populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     });
-    fillTagSuggestions(@user.id);
+
+    const uploadTagPicker = new TagPicker(@user.id, "upload-picker");
+    const editTagPicker = new TagPicker(@user.id, "edit-picker");
 </script>

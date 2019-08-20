@@ -29,7 +29,7 @@ GET           /api/profile                           controllers.backend.Profile
 
 PUT           /api/profile/:id                       controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityId:Long ?= 0, gender:String ?= null, minAge:Int ?= 0, maxAge:Int ?= 999, travellerTypeId:Long ?= 0)
+GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityIds: java.util.List[java.lang.Long] ?= null, travellerTypeIds: java.util.List[java.lang.Long] ?= null, genders: java.util.List[String] ?= null, minAge: Integer ?= null, maxAge: Integer ?= null, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
 GET           /api/profile/:userId                   controllers.backend.ProfileController.getProfile(userId:Long)
 
@@ -61,9 +61,17 @@ PUT           /api/destination/:destId/photo/:photoId  controllers.backend.Photo
 
 GET           /api/destination/:destId/photo         controllers.backend.PhotoController.getDestinationPhotos(request:Request, destId:Long)
 
+GET           /api/destination/:destId/phototags     controllers.backend.TagController.getAllDestinationPhotoTags(request:Request, destId:Long)
+
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  controllers.backend.DestinationController.toggleDestinationTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
+
+PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+
+PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+
+PUT           /api/destination/:destId/photo/:photoId/primary  controllers.backend.DestinationController.changeDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
@@ -85,13 +93,15 @@ PUT           /api/photo/:photoId/privacy            controllers.backend.PhotoCo
 
 GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
 
+GET           /api/user/:id/phototags                controllers.backend.TagController.getAllUserPhotoTags(request:Request, id:Long)
+
 GET           /api/photo/:photoId                    controllers.backend.PhotoController.getPhotoById(request:Request, photoId:Long)
 
 DELETE        /api/photo/:photoId                    controllers.backend.PhotoController.deletePhoto(photoId:Long)
 
-PUT           /api/photo/:photoId/profile            controllers.backend.PhotoController.makePhotoProfile(request:Request, photoId:Long)
+PUT           /api/photo/:userId/profile             controllers.backend.PhotoController.makePhotoProfile(request:Request, userId:Long)
 
-PUT           /api/photo/:photoId/setCaption         controllers.backend.PhotoController.setPhotoCaption(request:Request, photoId:Long)
+PUT           /api/photo/:photoId                    controllers.backend.PhotoController.updatePhotoDetails(request:Request, photoId:Long)
 
 PUT           /api/photo/:photoId/cover              controllers.backend.PhotoController.setCoverPhoto(request:Request, photoId:Long)
 
@@ -106,6 +116,10 @@ PUT           /api/treasurehunt/:id                  controllers.backend.Treasur
 PUT           /api/treasurehunt/:id/delete           controllers.backend.TreasureHuntController.deleteTreasureHunt(request:Request, id:Long)
 
 GET           /api/maps                              controllers.backend.DestinationController.googleMapsHelper()
+
+GET           /api/tag/                              controllers.backend.TagController.getTags(request:Request, name:String ?= null, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
+GET          /api/tag/:id                       controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
@@ -165,6 +179,8 @@ GET     /assets/routers/destination   controllers.backend.DestinationController.
 GET     /assets/routers/country       controllers.backend.CountryController.countryRoutes(request: Request)
 
 GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
+
+GET     /assets/routers/tags          controllers.backend.TagController.tagRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

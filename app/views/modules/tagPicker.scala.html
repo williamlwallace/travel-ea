@@ -1,12 +1,12 @@
-@()
+@(id:String)
 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/tags.css")">
 
-<div id="tags" class="row">
+<div id='@id' class="row tags">
     <ul>
         <li class="spacer">fillerfillerfil</li>
     </ul>
     <div class="inputCont">
-        <input id="tagsInput" type="text" class="form-control tagsInput" placeholder="Tags"/>
-        <p id="backText"></p>
+        <input type="text" class="form-control tagsInput" placeholder="Tags"/>
+        <p></p>
     </div>
 </div>

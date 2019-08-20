@@ -1,11 +1,11 @@
-#tags {
+.tags {
     margin: 0px 30px 20px 30px;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     padding-left: 3px;
 }
 
-#tags ul{
+.tags ul{
     display: flex;
     list-style-type: none;
     overflow-x: auto;
@@ -16,11 +16,7 @@
     padding-bottom:10px;
 }
 
-#tags::-webkit-scrollbar {
-    z-index: 100;
-}
-
-#tags li{
+.tags li{
     font-family: "Liberation Mono";
     border: 1px solid #007bff;
     background-color: #5283B7;
@@ -32,6 +28,38 @@
     max-height: 25px;
     padding-left: 2px;
     padding-top: 3px;
+    line-height: 16px;
+}
+
+.tags-display {
+    margin: 0px;
+    padding: 0px;
+    max-width: 100%;
+    padding-bottom: 10px;
+}
+
+.tags-display li {
+    font-family: "Liberation Mono";
+    border: 1px solid #007bff;
+    background-color: #5283B7;
+    color: #fff;
+    border-radius: 4px;
+    padding: 2px 2px 1px 1px;
+    margin: 8px 3px 0px 3px;
+    font-size: 18px;
+    max-height: 25px;
+    padding-left: 2px;
+    padding-top: 3px;
+    line-height: 16px;
+}
+
+.tags-display ul {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    list-style-type: none;
+    flex-wrap: wrap;
+    padding-left: 0px;
 }
 
 .spacer {

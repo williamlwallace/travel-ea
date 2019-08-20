@@ -13,13 +13,13 @@ INSERT INTO User(username, password, salt) VALUES ('testUser2@email.com', '51i2x
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Luxury'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 
 -- Add sample Profile
-INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES
-    (1, 'Moffat', 'the', 'Proffat', '1990-01-01', 'Male'),
-    (2, 'Kermit', 'the', 'Frog', '1995-07-18', 'Female'),
-    (3, 'William', 'the', 'Conqueror', '1969-012-24', 'Other');
-INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3);
+INSERT INTO Profile(user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES
+    (1, 'Moffat', 'the', 'Proffat', '1990-01-01', 'Male', '2001-01-01'),
+    (2, 'Kermit', 'the', 'Frog', '1995-07-18', 'Female', '2002-01-02'),
+    (3, 'William', 'the', 'Conqueror', '1969-012-24', 'Other', '2003-01-03');
+INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (1,1), (1,3), (2,2), (3,4);
 INSERT INTO Passport (user_id, country_id) VALUES (1,246);
-INSERT INTO Nationality (user_id, country_id) VALUES (1,246), (1,643);
+INSERT INTO Nationality (user_id, country_id) VALUES (1,246), (1,643), (2, 246), (3, 643);
 
 -- Add sample data for destination
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES
@@ -113,6 +113,8 @@ INSERT INTO Trip (user_id) VALUES (1);
 
 -- Add sample tripData for the sample trip
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 0, 1, NULL, NULL);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 1, 2, NULL, NULL);
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 2, 3, NULL, NULL);
 
 -- Add sample photos
 INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
@@ -130,15 +132,19 @@ DELETE FROM PhotoTag;
 DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
-DELETE FROM Photo;
+DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
+DELETE FROM DestinationPhoto;
 DELETE FROM TripData;
 DELETE FROM Trip;
+DELETE FROM DestinationTravellerTypePending;
 DELETE FROM DestinationTravellerType;
 DELETE FROM Destination;
-DELETE FROM Nationality;
-DELETE FROM Passport;
 DELETE FROM TravellerType;
-DELETE FROM Profile;
 DELETE FROM TravellerTypeDefinition;
-DELETE FROM User;
+DELETE FROM Passport;
+DELETE FROM Nationality;
 DELETE FROM CountryDefinition;
+DELETE FROM Profile;
+DELETE FROM Photo;
+DELETE FROM User;

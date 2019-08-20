@@ -1,5 +1,3 @@
-let tripTable;
-
 /**
  * Initializes trip table and calls method to populate
  * @param {Number} userId - ID of user to get trips for
@@ -106,6 +104,7 @@ function populateModal(row) {
  * @param {Object} trip object containing all trip data
  */
 function createTimeline(trip) {
+    tripTagDisplay.populateTags(trip.tags);
     $('#timeline').html("");
     getUserId().then(currentUserId => {
         if (isUserAdmin() || (trip.userId == currentUserId)) {
@@ -215,7 +214,7 @@ function deleteTrip(tripId, userId) {
             if (status !== 200) {
                 toast("Failed to delete trip", json, "danger");
             } else if (initialDelete) {
-                toast("Success", "Trip deleted!", "success");
+                toast("Success", "Trip deleted!");
             }
             this.initialDelete = false;
         }
