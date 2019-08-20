@@ -73,7 +73,8 @@ start-server-prod:
 Update-sonar:
   stage: deploy
   script:
-    - sbt compile && sbt checkstyle && sonar-scanner
+    - sonar-scanner -D sonar.login=80a413580f3baa2e97b10d3f73634e07df52177b
   only:
-    - IGNOREDmaster@seng302-2019/team-400
-    - IGNOREDmaster-dev@seng302-2019/team-400
+    - master@seng302-2019/team-400
+    - master-dev@seng302-2019/team-400
+    - P5-DestinationsPagination@seng302-2019/team-400
