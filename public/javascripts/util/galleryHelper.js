@@ -19,24 +19,49 @@ $('#upload-img').on('click', function () {
     for (let i = 0; i < selectedPhotos.length; i++) {
         formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
         formData.append('caption', caption);
-        formData.append('tags', JSON.stringify(tags));
         formData.append("userUploadId", window.location.href.split("/").pop());
+        formData.append('tags', JSON.stringify(tags));
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {
         // Read response from server, which will be a json object
         response.json().then(data => {
             if (response.status === 201) {
-                fillGallery(getAllPhotosUrl, galleryId, "page0"); // pageId);
+                fillGallery(getAllPhotosUrl, galleryId, pageId);
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
         })
     })
 });
 
 let usersPhotos = [];
+let profileId = -1;
+let getAllPhotosUrl;
+
+/**
+ * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
+ * @param {Number} profileID the profileId to set
+ */
+function setProfileId(profileID) {
+    profileId = profileID;
+    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url;
+}
+
+/**
+ * Function to filter gallery by tags
+ */
+$('#tagFilter').on('change', function() {
+    const tags = $(this).val();
+    const galleryId = "main-gallery";
+    const pageId = "page-selection";
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url, galleryId, pageId, tags);
+
+});
 
 /**
  * Function to populate gallery with current users photos
@@ -44,8 +69,9 @@ let usersPhotos = [];
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId) {
+function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -55,9 +81,20 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
             // "data" should now be a list of photo models for the given user
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
-            for (const photo of data.data) {
-                photo.isOwned = true;
-                usersPhotos.push(photo);
+            for (let i = 0; i < data.length; i++) {
+                if (!filters || filters.length === 0) {
+                    data[i]["isOwned"] = true;
+                    usersPhotos[i] = data[i];
+                } else {
+                    for (const filter of filters) {
+                        if (data[i].tags.map(tag => tag.name).includes(filter)) {
+                            data[i]["isOwned"] = true;
+                            usersPhotos.push(data[i]);
+                            break;
+                        }
+                    }
+
+                }
             }
             const galleryObjects = createGalleryObjects(true);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
@@ -153,7 +190,8 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
  * @param {string} pageId the id of the pagination that the gallery is in
  * @param {function} selectionFunction, the function that will be called when a photo is clicked on
  */
-function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction) {
+function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
+    selectionFunction) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -180,77 +218,91 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId, selectionFunction
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
  * @param {Number} destinationId the id of the destination to link the photos to
  * @param {function} clickFunction the function that will be called when a photo is clicked
- * @returns {Object} Div containing all the photo tiles
+ * @returns {Array} the array of photo gallery objects
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
     destinationId = null, clickFunction = null) {
-    // Create a gallery which will have 6 photos
-    let newGallery = document.createElement("div");
-    newGallery.id = "page0";
-    newGallery.setAttribute("class", "tz-gallery");
-    // create the row div
-    let row = document.createElement("div");
-    row.setAttribute("class", "row");
-    // create each photo tile
-    console.log(usersPhotos.length);
-    for (const position in usersPhotos.length) {
-        let tile = document.createElement("div");
-        tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
+    let galleryObjects = [];
+    let numPages = Math.ceil(usersPhotos.length / 6);
+    for (let page = 0; page < numPages; page++) {
+        // page is the page number starting from 0
+        // Create a gallery which will have 6 photos
+        let newGallery = document.createElement("div");
+        newGallery.id = "page" + page;
+        newGallery.setAttribute("class", "tz-gallery");
+        // create the row div
+        let row = document.createElement("div");
+        row.setAttribute("class", "row");
+        // create each photo tile
+        for (let position = 0;
+            position <= 5 && (6 * page + position) < usersPhotos.length;
+            position++) {
+            let tile = document.createElement("div");
+            tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
 
-        let photo = document.createElement("a");
-        photo.setAttribute("class", "lightbox");
+            let photo = document.createElement("a");
+            photo.setAttribute("class", "lightbox");
 
-        const filename = usersPhotos[position]["filename"];
-        const guid = usersPhotos[position]["guid"];
-        const caption = usersPhotos[position]["caption"];
-        const isPublic = usersPhotos[position]["isPublic"];
-        const isLinked = usersPhotos[position]["isLinked"];
-        const isOwned = usersPhotos[position]["isOwned"];
+            // 6 * page + position finds the correct photo index in the dictionary
+            const filename = usersPhotos[(6 * page + position)]["filename"];
+            const guid = usersPhotos[(6 * page + position)]["guid"];
+            const caption = usersPhotos[(6 * page + position)]["caption"];
+            const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
+            const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
+            const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
+            const tags = usersPhotos[(6 * page + position)]["tags"].map(tag => tag.name);
 
-        // Will only add full size links and removal buttons if requested
-        if (hasFullSizeLinks === true) {
-            if (canEdit === true && isOwned) {
-                // Create toggle button
-                const toggleButton = createToggleButton(isPublic, guid);
-                tile.appendChild(toggleButton);
+            //Will only add full size links and removal buttons if requested
+            if (hasFullSizeLinks === true) {
+                if (canEdit === true && isOwned) {
+                    // Create toggle button
+                    const toggleButton = createToggleButton(isPublic, guid);
+                    tile.appendChild(toggleButton);
 
+                }
+                if (canDelete === true) {
+                    // Create delete button
+                    // const deleteButton = createDeleteButton();
+                    // tile.appendChild(deleteButton);
+                    const editCaptionButton = createEditButton();
+                    tile.appendChild(editCaptionButton)
+
+                }
+
+                photo.href = filename;
             }
-            if (canDelete === true) {
-                // Create delete button
-                // const deleteButton = createDeleteButton();
-                // tile.appendChild(deleteButton);
-                const editCaptionButton = createEditButton();
-                tile.appendChild(editCaptionButton)
-
+            if (clickFunction) {
+                photo.addEventListener("click", clickFunction);
+                photo.style.cursor = "pointer";
             }
-
-            photo.href = filename;
+            if (withLinkButton) {
+                const linkButton = createLinkButton(isLinked, guid,
+                    destinationId);
+                tile.appendChild(linkButton)
+            }
+            photo.setAttribute("data-id", guid);
+            photo.setAttribute("data-caption", caption);
+            photo.setAttribute("data-tags", tags.join(", "));
+            photo.setAttribute("data-filename", filename);
+            // thumbnail
+            let thumbnail = usersPhotos[(6 * page
+                + position)]["thumbnailFilename"];
+            let thumb = document.createElement("img");
+            thumb.src = thumbnail;
+            // add image to photo a
+            photo.appendChild(thumb);
+            // add photo a to the tile div
+            tile.appendChild(photo);
+            // add the entire tile, with image and thumbnail to the row div
+            row.appendChild(tile);
+            // row should now have 6 or less individual 'tiles' in it.
+            // add the row to the gallery div
+            newGallery.appendChild(row);
+            // Add the gallery page to the galleryObjects
         }
-        if (clickFunction) {
-            photo.addEventListener("click", clickFunction);
-            photo.style.cursor = "pointer";
-        }
-        if (withLinkButton) {
-            const linkButton = createLinkButton(isLinked, guid,
-                destinationId);
-            tile.appendChild(linkButton)
-        }
-        photo.setAttribute("data-id", guid);
-        photo.setAttribute("data-caption", caption);
-        photo.setAttribute("data-filename", filename);
-        // thumbnail
-        let thumbnail = usersPhotos[position]["thumbnailFilename"];
-        let thumb = document.createElement("img");
-        thumb.src = thumbnail;
-        // add image to photo
-        photo.appendChild(thumb);
-        // add photo to the tile div
-        tile.appendChild(photo);
-        // add the entire tile, with image and thumbnail to the row div
-        row.appendChild(tile);
-        newGallery.appendChild(row);
+        galleryObjects[page] = newGallery;
     }
-    return newGallery;
+    return galleryObjects;
 }
 
 /**
@@ -326,39 +378,40 @@ function createEditButton() {
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param {Object} galleryObjects - A list of photo objects to insert
- * @param {string} galleryId - The id of the gallery to populate
+ * @param {Array} galleryObjects a list of photo objects to insert
+ * @param {string} galleryId the id of the gallery to populate
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
-    // Gallery object is a div containing a div, thus [0], containing the photo tiles
-    if (usersPhotos !== undefined && usersPhotos.length !== 0) {
-
-        // // init bootpage
-        // $(pageSelectionId).bootpag({
-        //     total: numPages,
-        //     maxVisible: 5,
-        //     page: 1,
-        //     leaps: false,
-        // }).on("page", function (event, num) {
-        //     currentPage = num;
-        //     $(galleryId).html(galleryObject[currentPage - 1]);
-        //     baguetteBox.run('.tz-gallery', {
-        //         captions: function (element) {
-        //             return $(element).attr('data-caption');
-        //         }
-        //     });
-        //     $('.img-wrap .close').on('click', function () {
-        //         let guid = $(this).closest('.img-wrap').find('a').data("id");
-        //         let filename = $(this).closest('.img-wrap').find('a').data(
-        //             "filename");
-        //         populateEditPhoto(guid, filename);
-        //     });
-        // });
-        $(galleryId).html(galleryObjects);
+    let numPages = Math.ceil(usersPhotos.length / 6);
+    let currentPage = 1;
+    if (galleryObjects !== undefined && galleryObjects.length !== 0) {
+        // init bootpage
+        $(pageSelectionId).bootpag({
+            total: numPages,
+            maxVisible: 5,
+            page: 1,
+            leaps: false,
+        }).on("page", function (event, num) {
+            currentPage = num;
+            $(galleryId).html(galleryObjects[currentPage - 1]);
+            baguetteBox.run('.tz-gallery', {
+                captions: function (element) {
+                    return `${$(element).attr('data-caption')}\n${$(element).attr('data-tags')}`;
+                }
+            });
+            $('.img-wrap .close').on('click', function () {
+                let guid = $(this).closest('.img-wrap').find('a').data("id");
+                let filename = $(this).closest('.img-wrap').find('a').data(
+                    "filename");
+                populateEditPhoto(guid, filename);
+            });
+        });
+        // set first page
+        $(galleryId).html(galleryObjects[currentPage - 1]);
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
-                return $(element).attr('data-caption');
+                return `${$(element).attr('data-caption')} - ${$(element).attr('data-tags')}`;
             }
         });
         $('.img-wrap .close').on('click', function () {

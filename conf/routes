@@ -67,6 +67,12 @@ PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  co
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
+PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+
+PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+
+PUT           /api/destination/:destId/photo/:photoId/primary  controllers.backend.DestinationController.changeDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
@@ -173,6 +179,8 @@ GET     /assets/routers/destination   controllers.backend.DestinationController.
 GET     /assets/routers/country       controllers.backend.CountryController.countryRoutes(request: Request)
 
 GET     /assets/routers/treasureHunt  controllers.backend.TreasureHuntController.treasureHuntRoutes(request: Request)
+
+GET     /assets/routers/tags          controllers.backend.TagController.tagRoutes(request: Request)
 
 GET     /assets/*file                 controllers.Assets.at(path="/public", file)
 

@@ -13,11 +13,13 @@
     <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()"></script>
     <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TagController.tagRoutes" type="text/javascript"></script>
 }
 
 @layouts.main("Destination", loggedUser, scripts){
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/detailedDestination.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
 
     @* The custom title section with background image *@
@@ -247,8 +249,10 @@
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
         initMap(@destinationId);
+        setProfileId(@loggedUser.id);
         sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+        getAndFillDD("@controllers.backend.routes.TagController.getAllDestinationPhotoTags(destinationId)", ["tagFilter"], "name", false, "name");
         populateDestinationDetails(@destinationId);
 
         const tagPicker = new TagPicker(@loggedUser.id, "detailed-destination-tag");

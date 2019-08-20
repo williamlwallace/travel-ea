@@ -1,6 +1,3 @@
-let countryDict = {};
-let destinationTable;
-
 /**
  * Initializes destination and trip table and calls methods to populate
  * @param {Number} userId - ID of user to get destinations for
@@ -450,7 +447,7 @@ function updateTrip(uri, redirect, tripId, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
-    const tripTagObjects = getTags().map((tag) => {return {name:tag}});
+    const tripTagObjects = createTripTagPicker.getTags().map((tag) => {return {name:tag}});
 
     let tripData = {
         "id": tripId,

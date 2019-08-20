@@ -27,6 +27,8 @@ recent-artifacts:
     expire_in: 1 week
   except:
     - tags
+  only:
+    - master-dev@seng302-2019/team-400
 
 release-artifacts:
  stage: deploy

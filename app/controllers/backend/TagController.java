@@ -22,6 +22,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.PhotoRepository;
 import repository.DestinationRepository;
 import repository.TagRepository;
@@ -170,5 +171,19 @@ public class TagController extends TEABackController {
                 return ok(Json.toJson(getTagsFromPhotos(photos)));
             }
         });
+    }
+
+    /**
+     * Lists routes to put in JS router for use from frontend.
+     *
+     * @return JSRouter Play result
+     */
+    public Result tagRoutes (Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("tagRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.TagController.getAllUserPhotoTags(),
+                controllers.backend.routes.javascript.TagController.getAllDestinationPhotoTags()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
