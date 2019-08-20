@@ -437,7 +437,8 @@ public class DestinationController extends TEABackController {
      * Rejects a pending destination primary photo
      * 
      * @param destId Id of destination
-     * @param photoId Id of photo    
+     * @param photoId Id of photo  
+     * @return Response result containing success/error message  
      */
     @With({Admin.class, Authenticator.class}) //admin auth
     public CompletableFuture<Result> rejectDestinaitonPrimaryPhoto(Http.Request request,
@@ -455,7 +456,8 @@ public class DestinationController extends TEABackController {
      * Accepts a pending destination primary photo and sets it
      * 
      * @param destId Id of destination
-     * @param photoId Id of photo    
+     * @param photoId Id of photo
+     * @return Response result containing success/error message
      */
     @With({Admin.class, Authenticator.class}) //admin auth
     public CompletableFuture<Result> acceptDestinaitonPrimaryPhoto(Http.Request request,
