@@ -7,7 +7,7 @@ let paginationHelper;
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
-    paginationHelper = new PaginationHelper(1, 1, "tripPagination", getTripResults);
+    paginationHelper = new PaginationHelper(1, 1, getTripResults, "tripPagination");
     getTripResults();
     
 }
