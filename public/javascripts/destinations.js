@@ -10,18 +10,13 @@ let paginationHelper;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    paginationHelper = new PaginationHelper(1, 1, "destinationPagination", getDestinations);
+    paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
     const options = {
         zoom: 1.8,
         center: {lat: 2, lng: 2}
     };
     map = new DestinationMap(options, true, userId);
-    getDestinations().then((dests) => {
-        map.populateMarkers(dests);
-        createDestinationCards(dests);
-    }).then(() => {
-        map.addDestinations()
-    });
+    refreshData();
 
     google.maps.event.addListener(map.map, 'click', function (event) {
         if (this.newMarker) {
@@ -44,7 +39,9 @@ function onPageLoad(userId) {
  * @returns {*}
  */
 function getOnlyGetMine() {
-    return $('#onlyGetMine').val();
+    let currentValue = $('#onlyGetMine').val();
+
+    return currentValue === "On";
 }
 
 /**
@@ -112,7 +109,26 @@ function getDestinations() {
 }
 
 //TODO: Doc
+function refreshData() {
+    getDestinations().then((dests) => {
+        map.populateMarkers(dests);
+        createDestinationCards(dests);
+    }).then(() => {
+        map.addDestinations()
+    });
+}
+
+/**
+ * Clears the filter and repopulates the cards
+ */
+function clearFilter() {
+    $('#searchQuery').val('');
+    $('#pageSize').val(10);
+}
+
+//TODO: Doc
 function createDestinationCards(dests) {
+    $("#destinationCardList").html("");
     dests.data.forEach((dest) => {
         const template = $("#destinationCardTemplate").get(0);
         const clone = template.content.cloneNode(true);

@@ -7,7 +7,7 @@ let paginationHelper;
  * runs the getPeopleResults method.
  */
 $(document).ready(function() {
-    paginationHelper = new PaginationHelper(1, 1, "peoplePagination", getPeopleResults);
+    paginationHelper = new PaginationHelper(1, 1, getPeopleResults);
     getPeopleResults();
 });
 
