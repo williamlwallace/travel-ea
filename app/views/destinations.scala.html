@@ -46,55 +46,61 @@
                     </ul>
 
                     <div class="tab-pane fade show active" id="cardsTab" role="tabpanel" aria-labelledby="card-tab">
+
                         <div class="container pt-4">
+                            <div class="filterButtonContainer">
+                                <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
+                                aria-expanded="false" aria-controls="collapseDestinationFilter" onclick="toggleFilterButton()">Filter</button>
+                            </div>
 
                             @* The destination filter options *@
-                            <div class="card card-body" id="card-body">
-                                <div class="filterItemDiv">
-                                    <label for="searchQuery">Search</label>
-                                    <input id="searchQuery" class="form-control validate"/>
-                                </div>
-                                <div class="filterItemDiv">
-                                    <label for="pageSize">Results per page</label>
-                                    <input id="pageSize" type="number" class="form-control validate" value="10" min="1"/>
-                                </div>
+                            <div class="collapse" id="collapseDestinationFilter">
+                                <div class="card card-body" id="card-body">
+                                    <div class="filterItemDiv">
+                                        <label for="searchQuery">Search</label>
+                                        <input id="searchQuery" class="form-control validate"/>
+                                    </div>
+                                    <div class="filterItemDiv pt-2  pb-2">
+                                        <label for="pageSize">Results per page</label>
+                                        <input id="pageSize" type="number" class="form-control validate" value="10" min="1"/>
+                                    </div>
 
-                                <div class="filterItemDiv">
-                                    <label for="sortBy">Sort by</label>
-                                    <select id="sortBy" class="form-control selectpicker" data-style="form-control">
-                                        //TODO: Have correct values for these
-                                        <option value="name">Name</option>
-                                        <option value="type">Type</option>
-                                        <option value="country.name">Country</option>
-                                        <option value="last_name">Last Name</option>
-                                    </select>
-                                </div>
-                                <div class="filterItemDiv">
-                                    <select id="ascending" class="form-control selectpicker" data-style="form-control">
-                                        <option value="true">Ascending</option>
-                                        <option value="false">Descending</option>
-                                    </select>
-                                </div>
+                                        <label for="sortBy">Sort by</label>
+                                        <div class="row">
+                                            <div class="filterItemDiv col">
+                                                <select id="sortBy" class="form-control selectpicker" data-style="form-control">
+                                                    <option value="name">Name</option>
+                                                    <option value="type">Type</option>
+                                                    <option value="country.name">Country</option>
+                                                    <option value="last_name">Last Name</option>
+                                                </select>
+                                            </div>
+                                            <div class="filterItemDiv col">
+                                                <select id="ascending" class="form-control selectpicker" data-style="form-control">
+                                                    <option value="true">Ascending</option>
+                                                    <option value="false">Descending</option>
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="onlyGetMine">
-                                    <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
-                                </div>
+                                    <div class="form-check pt-3">
+                                        <input type="checkbox" class="form-check-input" id="onlyGetMine">
+                                        <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
+                                    </div>
 
-                                <div class="text-center" id="buttonDiv">
-                                    <div id="applyButton">
-                                        <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
-                                        <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
+                                    <div class="text-center pt-3" id="buttonDiv">
+                                        <div id="applyButton">
+                                            <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
+                                            <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-
                             @* The destinations cards *@
                             <nav aria-label="Page navigation">
-                                <ul class="pagination pagination-destinations">
+                                <ul class="pagination pagination-destinations pt-3">
                                     <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-
                                     <li class="page-item"><a class="page-link" href="#">Next</a></li>
                                 </ul>
                             </nav>
@@ -103,7 +109,6 @@
                             <nav aria-label="Page navigation">
                                 <ul class="pagination pagination-destinations">
                                     <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-
                                     <li class="page-item"><a class="page-link" href="#">Next</a></li>
                                 </ul>
                             </nav>

@@ -7,12 +7,13 @@ class PaginationHelper {
     /**
      * The pagination helper constructor, takes in required parameters and draws
      * the pagination bar on the page.
-     *TODO
+     *
      * @param {Number} totalNumberPages the total number of pages of cards
      * @param {Number} pageNum the current page number
-     * @param {String} paginationId the id of the pagination DOM element in HTML
      * @param {Function} onChangeFunction the function that will be called when the page is
      *        changed.
+     * @param {String} className the name of the class to use for pagination. Defaults
+     *        to "pagination" if no parameter is provided.
      */
     constructor(totalNumberPages, pageNum, onChangeFunction, className = "pagination") {
         this.paginationObject = $("." + className);
