@@ -5,7 +5,9 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
+import io.ebean.ExpressionList;
 import io.ebean.PagedList;
+import io.ebean.Query;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -126,7 +128,7 @@ public class ProfileRepository {
         final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery).replaceAll(" ", "").toLowerCase();
 
         return supplyAsync(() -> {
-            PagedList<Profile> profiles =
+            ExpressionList<Profile> profilesExprList =
                 ebeanServer.find(Profile.class)
                     .fetch("travellerTypes")
                     .fetch("nationalities")
@@ -161,9 +163,38 @@ public class ProfileRepository {
                     .or(
                         Expr.raw("LOWER(CONCAT(first_name, middle_name, last_name)) LIKE ?", "%" + cleanedSearchQuery + "%"),
                         Expr.raw("LOWER(CONCAT(first_name, last_name)) LIKE ?", "%" + cleanedSearchQuery + "%")
-                    ).endOr()
+                    ).endOr();
+
+                    Query<Profile> query;
+                    // Apply sorting
+                    if(ascending) {
+                        switch (sortBy) {
+                            case "first_name":
+                                query = profilesExprList.orderBy("first_name asc, last_name asc");
+                                break;
+                            case "last_name":
+                                query = profilesExprList.orderBy("last_name asc, first_name asc");
+                                break;
+                            default:
+                                query = profilesExprList.orderBy().asc(sortBy);
+                                break;
+                        }
+                    } else {
+                        switch (sortBy) {
+                            case "first_name":
+                                query = profilesExprList.orderBy("first_name desc, last_name desc");
+                                break;
+                            case "last_name":
+                                query = profilesExprList.orderBy("last_name desc, first_name desc");
+                                break;
+                            default:
+                                query = profilesExprList.orderBy().desc(sortBy);
+                                break;
+                        }
+                    }
+
                     // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
-                    .orderBy((sortBy == null ? "creation_date" : sortBy) + " " + (ascending ? "asc" : "desc"))
+                    PagedList<Profile> profiles = query
                     .setFirstRow((pageNum - 1) * pageSize)
                     .setMaxRows(pageSize)
                     .findPagedList();
