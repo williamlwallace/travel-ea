@@ -27,7 +27,7 @@ $('#upload-img').on('click', function () {
         // Read response from server, which will be a json object
         response.json().then(data => {
             if (response.status === 201) {
-                fillGallery(getAllPhotosUrl, galleryId, pageId);
+                fillGallery(getAllPhotosUrl, galleryId, pageId, mainGalleryPaginationHelper);
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
@@ -58,8 +58,9 @@ $('#tagFilter').on('change', function() {
     const tags = $(this).val();
     const galleryId = "main-gallery";
     const pageId = "page-selection";
+
     fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        profileId).url, galleryId, pageId, tags);
+        profileId).url, galleryId, pageId, mainGalleryPaginationHelper, tags);
 
 });
 
@@ -69,9 +70,12 @@ $('#tagFilter').on('change', function() {
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
+function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, filters=null) {
+    console.log(galleryId);
+    console.log(pageHelper);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -97,8 +101,8 @@ function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
                 }
             }
 
-            paginationHelper.setTotalNumberOfPages(data.totalNumberPages);
-            const galleryObjects = createGalleryObjects(true);
+            pageHelper.setTotalNumberOfPages(data.totalNumberPages);
+            const galleryObjects = createGalleryObjects(true, pageHelper);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
@@ -111,8 +115,9 @@ function fillGallery(getPhotosUrl, galleryId, pageId, filters=null) {
  * @param {String} galleryId the id of the gallery to add the photo to
  * @param {String} pageId the id of the pagination that the gallery is in
  * @param {Number} destinationId the id of the destination to link the photos to
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  */
-function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
+function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHelper) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -133,7 +138,7 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
                         }
                         usersPhotos[i] = data[i];
                     }
-                    const galleryObjects = createGalleryObjects(false, true,
+                    const galleryObjects = createGalleryObjects(false, pageHelper, true,
                         destinationId);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
@@ -152,9 +157,10 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
  * @param {String} galleryId the id of the gallery to add the photo to
  * @param {String} pageId the id of the pagination that the gallery is in
  * @param {Number} destinationId the id of the destination to link the photos to
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  */
 function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
-    galleryId, pageId, destinationId) {
+    galleryId, pageId, pageHelper, destinationId) {
     // Run a get request to fetch all users photos
     get(getDestinationPhotosUrl)
     // Get the response of the request
@@ -174,7 +180,7 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
                         }
                         usersPhotos[i] = destinationPhotos[i];
                     }
-                    const galleryObjects = createGalleryObjects(true);
+                    const galleryObjects = createGalleryObjects(true, pageHelper);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
                 })
@@ -191,9 +197,10 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
  * @param {function} selectionFunction, the function that will be called when a photo is clicked on
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  */
 function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
-    selectionFunction) {
+    selectionFunction, pageHelper) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -207,8 +214,8 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
                 photo.canSelect = true;
                 usersPhotos.push(photo);
             }
-            paginationHelper.setTotalNumberOfPages(data.totalNumberPages);
-            const galleryObjects = createGalleryObjects(false, false, null, selectionFunction);
+            pageHelper.setTotalNumberOfPages(data.totalNumberPages);
+            const galleryObjects = createGalleryObjects(false, pageHelper, false, null, selectionFunction);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
@@ -218,18 +225,22 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
  * @param {Number} destinationId the id of the destination to link the photos to
  * @param {function} clickFunction the function that will be called when a photo is clicked
  * @returns {Array} the array of photo gallery objects
  */
-function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
+function createGalleryObjects(hasFullSizeLinks, pageHelper, withLinkButton = false,
     destinationId = null, clickFunction = null) {
     let galleryObjects = [];
+    if (usersPhotos.length === 0) {
+        return galleryObjects;
+    }
     // page is the page number starting from 0
     // Create a gallery which will have 6 photos
     let newGallery = document.createElement("div");
-    newGallery.id = "page" + paginationHelper.getCurrentPageNumber();
+    newGallery.id = "page" + pageHelper.getCurrentPageNumber();
     newGallery.setAttribute("class", "tz-gallery");
     // create the row div
     let row = document.createElement("div");

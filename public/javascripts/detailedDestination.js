@@ -293,26 +293,56 @@ let DESTINATIONID;
 let canEdit = true;
 let canDelete = false;
 
-let paginationHelper;
+let destinationPhotosPaginationHelper;
+let linkPhotosPaginationHelper;
 
 /**
- * Runs when the page is loaded. Initialises the paginationHelper object and
- * runs the getPictures method.
+ * Runs when the page is loaded. Initialises the paginationHelper objects
  */
 $(document).ready(function() {
-    paginationHelper = new PaginationHelper(1, 1,  getPictures);
-
+    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,  getDestinationPhotos, "destination-photos-pagination");
+    linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
+    getDestinationPhotos();
 });
+
+/**
+ * Retrieves the userId and destination Id from the rendered scala which can
+ * then be accessed by various JavaScript methods
+ *
+ * @param {Number} userId of the logged in user
+ * @param {Number} destinationId of the destination of photos to get
+ */
+function sendUserIdAndDestinationId(userId, destinationId) {
+    USERID = userId;
+    DESTINATIONID = destinationId;
+}
+
 /**
  * Allows the upload image button call the link photo modal which then
  * fills the gallery with all the users photos, and indicates which are already linked
  */
 $("#upload-gallery-image-button").click(function () {
     $("#linkPhotoToDestinationModal").modal('show');
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
-    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber().toString());
-    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID);
+    getDestinationLinkPhotos();
 });
+
+function getDestinationPhotos() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+        DESTINATIONID).url, window.location.origin);
+    url.searchParams.append("pageNum", destinationPhotosPaginationHelper.getCurrentPageNumber().toString());
+
+    fillDestinationGallery(url,
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url,
+        "main-gallery", "page-selection",
+        DESTINATIONID, destinationPhotosPaginationHelper)
+}
+
+function getDestinationLinkPhotos() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
+    url.searchParams.append("pageNum", linkPhotosPaginationHelper.getCurrentPageNumber().toString());
+    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID, linkPhotosPaginationHelper);
+
+}
 
 /**
  * Closes all data related to editing a destination
@@ -343,22 +373,6 @@ function openEdit() {
  */
 $("#cancelEditButton").click(closeEdit);
 
-/**
- * Retrieves the userId from the rendered scala which can then be accessed by various JavaScript methods
- * Also fills the initial gallery on photos
- *
- * @param {Number} userId of the logged in user
- * @param {Number} destinationId of the destination of photos to get
- */
-function sendUserIdAndFillGallery(userId, destinationId) {
-    USERID = userId;
-    DESTINATIONID = destinationId;
-    fillDestinationGallery(
-        photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
-            destinationId).url,
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            USERID).url, "main-gallery", "page-selection")
-}
 
 /**
  * Function to toggle the linked status of a photo.
@@ -393,7 +407,7 @@ function toggleLinked(guid, newLinked, destinationId) {
                     "Photo Successfully linked to this destination");
             }
             getUserId().then(id => {
-                sendUserIdAndFillGallery(id, destinationId);
+                sendUserIdAndDestinationId(id, destinationId);
             });
             getAndFillDD(tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(destinationId).url, ["tagFilter"], "name", false, "name");
 

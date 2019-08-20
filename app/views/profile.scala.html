@@ -81,7 +81,7 @@
 
                         </div>
                         @*Call gallery modal, true indicating we want titles*@
-                        @modules.gallery(canModify, true, "main-gallery", "page-selection", true)
+                        @modules.gallery(canModify, true, "main-gallery", "page-selection", true, "main-gallery-pagination")
                         @* Trips table Section *@
                         <div class="section-title">
                             <p>
@@ -265,7 +265,13 @@
                     <div class="mx-auto" style="width: 80%; padding: 10px">
                         @* Profile Photo Gallery *@
                         <div id="profile-gallery" class="text-center">You don't have any photos yet, add some by clicking on the add photo button.</div>
-                        <div id="page-selection-profile-picture"></div>
+                        <nav aria-label="Page navigation">
+                            <ul class="profile-picture-pagination pagination" id="page-selection-profile-picture">
+                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                            </ul>
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -282,7 +288,7 @@
                         </button>
                     </div>
                     @* all images gallery *@
-                    @modules.gallery(false, false, "cover-photo-gallery", "current-page", false)
+                    @modules.gallery(false, false, "cover-photo-gallery", "current-page", false, "cover-photo-pagination")
                 </div>
             </div>
         </div>
@@ -331,5 +337,4 @@
     const tripTagDisplay = new TagDisplay("trip-tag-display");
     const uploadTagPicker = new TagPicker(@user.id, "upload-picker");
     const editTagPicker = new TagPicker(@user.id, "edit-picker");
-    const coverPhotoPaginationHelper = new PaginationHelper(1, 1, getCoverPictures);
 </script>
