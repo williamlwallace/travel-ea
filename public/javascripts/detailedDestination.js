@@ -255,7 +255,7 @@ $("#changePrimaryPhotoButton").click(function () {
     $("#changePrimaryPhotoModal").modal('show');
     fillSelectionGallery(
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            USERID).url, "cover-photo-gallery", "current-page", function () {
+            USERID).url, "primary-photo-gallery", "current-page", function () {
             setPrimaryPhoto(this.getAttribute("data-id"))
         });
 });
