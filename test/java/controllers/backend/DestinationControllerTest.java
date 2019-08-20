@@ -811,4 +811,37 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(FORBIDDEN, result.status());
     }
 
+    @Test
+    public void acceptPendingDestinaiton() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/1/accept");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
+    @Test
+    public void acceptPendingDestinaitonNotAdmin() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/1/accept");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void acceptPendingDestinaitonNonExisting() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/photo/69/accept");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
+
 }

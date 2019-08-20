@@ -444,9 +444,35 @@ public class DestinationController extends TEABackController {
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return notFound(Json.toJson(DEST_NOT_FOUND));
+                return notFound(Json.toJson("No pending phot destination combo"));
             } else {
                 return ok(Json.toJson(photoId));
+            }
+        });
+    }
+
+    /**
+     * Accepts a pending destination primary photo and sets it
+     * 
+     * @param destId Id of destination
+     * @param photoId Id of photo    
+     */
+    @With({Admin.class, Authenticator.class}) //admin auth
+    public CompletableFuture<Result> acceptDestinaitonPrimaryPhoto(Http.Request request,
+        Long destId, Long photoId) {
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending phot destination combo")));
+            } else {
+                return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+                    if (photo == null) {
+                        return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Photo not found"))); 
+                    }
+                    JsonNode oldDestination = Json.toJson(destination);
+                    destination.primaryPhoto = photo;
+                    return destinationRepository.updateDestination(destination)
+                        .thenApplyAsync(rows -> ok(oldDestination));
+                });
             }
         });
     }
