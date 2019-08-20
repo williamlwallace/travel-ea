@@ -11,6 +11,8 @@
 }
 
 @layouts.main(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, scripts){
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/destinations.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -21,7 +23,7 @@
         </div>
     </div>
 
-    <div class="mainTripContainer">
+    <div class="mainTripContainer" id="startchange">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/createTrips.css")">
         <div id="createTripContainer" class="row">
             <div class="col-8">
@@ -57,7 +59,7 @@
                 <div id="parent"  style="border:1px solid #cecece; background-color: #ececed;" class="parent">
                     <div id="list" class="list">
                         @for(i <- trip.tripDataList.indices) {
-                            <div class="card flex-row" id=@i >
+                            <div class="card card-dest-for-trip flex-row" id=@i >
                                 <label id=@trip.tripDataList(i).destination.id></label>
                                 <div class="card-header border-0" style="height: 100%">
                                     <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">
@@ -65,10 +67,10 @@
 
                                 <div class="container">
                                     <div id="topCardBlock" class="row">
-                                        <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
+                                        <h4 class="card-title card-title-dest-for-trip"> @trip.tripDataList(i).destination.name</h4>
                                         <div id="removeTrip" onclick="setDestinationToRemove(@i)"></div>
                                     </div>
-                                    <div class="card-block px-2 row">
+                                    <div class="card-block card-block-dest-for-trip px-2 row">
                                         <div id="left" class="col-5">
                                             <p id="destinationDetails" class="card-text" id="card-text">
                                                 <strong>Type: </strong>
@@ -124,8 +126,55 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-4 scrollblock">
                 <h3>Add Destinations to Trip</h3>
+                <div class="filterButtonContainer">
+                    <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
+                    aria-expanded="false" aria-controls="collapseDestinationFilter">Filter</button>
+                </div>
+                @* The destination filter options *@
+                <div class="collapse" id="collapseDestinationFilter">
+                    <div class="card card-body" id="card-body">
+                        <div class="filterItemDiv">
+                            <label for="searchQuery">Search</label>
+                            <input id="searchQuery" class="form-control validate"/>
+                        </div>
+                        <div class="filterItemDiv pt-2  pb-2">
+                            <label for="pageSize">Results per page</label>
+                            <input id="pageSize" type="number" class="form-control validate" value="10" min="1"/>
+                        </div>
+
+                        <label for="sortBy">Sort by</label>
+                        <div class="row">
+                            <div class="filterItemDiv col">
+                                <select id="sortBy" class="form-control selectpicker" data-style="form-control">
+                                    <option value="name">Name</option>
+                                    <option value="type">Type</option>
+                                    <option value="country.name">Country</option>
+                                    <option value="last_name">Last Name</option>
+                                </select>
+                            </div>
+                            <div class="filterItemDiv col">
+                                <select id="ascending" class="form-control selectpicker" data-style="form-control">
+                                    <option value="true">Ascending</option>
+                                    <option value="false">Descending</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-check pt-3">
+                            <input type="checkbox" class="form-check-input" id="onlyGetMine">
+                            <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
+                        </div>
+
+                        <div class="text-center pt-3" id="buttonDiv">
+                            <div id="applyButton">
+                                <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
+                                <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 @* The destinations cards *@
                 <nav aria-label="Page navigation">
                     <ul class="pagination pagination-destinations pt-3">

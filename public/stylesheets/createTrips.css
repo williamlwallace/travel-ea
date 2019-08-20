@@ -13,13 +13,13 @@
 .parent {
     overflow: auto;
     min-height: 240px;
-    max-height:840px;
+    max-height:770px;
 }
 
 /*
  * card header contains picture
  */
-.card-header {
+.card-header-dest-for-trip {
     height:200px;
     width:350px;
     background-color: rgba(0,0,0,0) !important;
@@ -28,7 +28,7 @@
 /*
  * sortable destination cards
  */
-.card {
+.card-dest-for-trip {
     height: 200px;
     margin:20px;
     cursor:pointer;
@@ -36,12 +36,19 @@
     background-color: #FFFFFF !important
 }
 
-.card:hover {
+.card-dest-for-trip:hover {
     border-color: #000000;
 }
 
+.scrollBlock {
+    max-height: 620px;
+}
 
-
+#destinationCardList {
+    overflow-y: scroll;
+    height: -webkit-fill-available;
+    overflow-x: hidden;
+}
 
 /*
  * height determines the gap when a card is dragged into a new spot
@@ -78,7 +85,7 @@
     padding-top: 1.5rem;
 }
 
-.card-title {
+.card-title-dest-for-trip {
     margin-left: 20px;
     margin-top: 5px;
 }

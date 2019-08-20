@@ -99,9 +99,7 @@ class PaginationHelper {
      * @param {Number} desiredPageNumber Page number to change to
      */
     goToPage(desiredPageNumber) {
-        if(desiredPageNumber > this.totalNumberPages || desiredPageNumber < 1) {
-            toast("No such page", "The page you have tried to go to does not exist", "danger");
-        } else {
+        if(!(desiredPageNumber > this.totalNumberPages || desiredPageNumber < 1)) {
             this.pageNum = desiredPageNumber;
             this.onChangeFunction();
         }

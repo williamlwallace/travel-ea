@@ -1,71 +1,150 @@
-let countryDict = {};
-let destinationTable;
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+let paginationHelper;
 
 /**
  * Initializes destination and trip table and calls methods to populate
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const tripGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url;
-    const tableModal = {
-        createdRow: function (row, data, dataIndex) {
-            $(row).attr('id', data[data.length - 2]);
-            $(row).attr('data-countryId', data[data.length - 1]);
-        }
-    };
-    destinationTable = new EATable('destTable', tableModal, tripGetURL,
-        populate, showTripErrors)
-    destinationTable.initButtonClicks({
-        6: addDestClick
-    });
+    paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
+
+    refreshData();
 }
 
-function populate(json) {
-    const rows = [];
-    for (const destination of json) {
-        const id = destination.id;
-        const name = destination.name;
-        const type = destination.destType;
-        const district = destination.district;
-        const latitude = destination.latitude.toFixed(2);
-        const longitude = destination.longitude.toFixed(2);
-        let country = destination.country.name;
-        const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-        const row = checkCountryValidity(destination.country.name,
-            destination.country.id)
-        .then(result => {
-            if (result === false) {
-                country = destination.country.name + ' (invalid)';
-            }
-            return [name, type, district, latitude, longitude,
-                country, button, id, destination.country.id]
+/**
+ * Refreshes the destination data and populates the destination cards with this.
+ */
+function refreshData() {
+    getDestinations().then((dests) => createDestinationCards(dests));
+}
+
+/**
+ * Resets the fields of the destinations filter
+ */
+function clearFilter() {
+    $('#searchQuery').val('');
+    $('#pageSize').val(10);
+}
+
+/**
+ * Takes a list of destinations and creates destination cards out of these.
+ * @param {Object} an array of destinations to display
+ */
+function createDestinationCards(dests) {
+    $("#destinationCardList").html("");
+    dests.data.forEach((dest) => {
+        const template = $("#destinationCardTemplate").get(0);
+        const clone = template.content.cloneNode(true);
+        let tags = "";
+        let travellerTypes = "";
+
+        $(clone).find("#card-header").append(dest.name);
+        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
+        $(clone).find("#district").append("District: " + dest.district);
+        $(clone).find("#country").append("Country: " + dest.country.name);
+        $(clone).find("#destType").append("Type: " + dest.destType);
+        $(clone).find("#card-header").attr("data-id", dest.id.toString());
+        $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
+
+        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+            addDestinationToTrip(dest.id, dest.name, dest.destType,
+                dest.district, dest.latitude, dest.longitude, dest.country.id);
         });
-        rows.push(row);
-    }
-    return Promise.all(rows).then(finishedRows => {
-        return finishedRows
+
+
+        dest.tags.forEach(item => {
+            tags += item.name + ", ";
+        });
+        tags = tags.slice(0, -2);
+
+        dest.travellerTypes.forEach(item => {
+            travellerTypes += item.description + ", ";
+        });
+        travellerTypes = travellerTypes.slice(0, -2);
+
+        $(clone).find("#travellerTypes").append("Traveller Types: " + travellerTypes);
+        $(clone).find("#tags").append("Tags: " + tags);
+
+        $("#destinationCardList").get(0).appendChild(clone);
     });
 }
 
 /**
- * Click listener that handles clicks in destination table
- *
- * @param {Object} button button element
- * @param {Object} tableAPI table
- * @param {Number} cellId id of containing cell
+ * Returns a boolean of the getonlymine selector tick box
+ * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
  */
-function addDestClick(button, tableAPI, cellId) {
-    let name = tableAPI.cell($(button).parents('tr'), 0).data();
-    let district = tableAPI.cell($(button).parents('tr'), 1).data();
-    let type = tableAPI.cell($(button).parents('tr'), 2).data();
-    let latitude = tableAPI.cell($(button).parents('tr'), 3).data();
-    let longitude = tableAPI.cell($(button).parents('tr'), 4).data();
-    let countryId = $(button).parents('tr').attr("data-countryId");
-    let id = $(button).parents('tr').attr('id');
+function getOnlyGetMine() {
+    const currentValue = $('#onlyGetMine').val();
+    return currentValue === "On";
+}
 
-    addDestinationToTrip(id, name, district, type, latitude, longitude,
-        countryId);
+/**
+ * Returns the string of the searchQuery field.
+ * @returns {string} a string of the data in the searchQuery field
+ */
+function getSearchQuery() {
+    return $('#searchQuery').val();
+}
+
+/**
+ * Get the value of the number of results to show per page
+ * @returns {number} The number of results shown per page
+ */
+function getPageSize() {
+    return $('#pageSize').val();
+}
+
+/**
+ * Returns the name of the db column to search by
+ * @returns {string} Name of db column to search by
+ */
+function getSortBy() {
+    return $('#sortBy').val();
+}
+
+/**
+ * Gets whether or not to sort by ascending
+ * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ */
+function getAscending() {
+    return $('#ascending').val();
+}
+
+/**
+ * Gets the destinations from the database given the query parameters set by the
+ * user with the destination filters.
+ * @returns {object} Returns a promise of the get request sent
+ */
+function getDestinations() {
+    const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
+
+    // Append non-list params
+    if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
+    if(getOnlyGetMine() !== "") { url.searchParams.append("onlyGetMine", getOnlyGetMine()); }
+
+    // Append pagination params
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("sortBy", getSortBy());
+    url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("requestOrder", requestOrder++);
+
+    return get(url)
+    .then(response => {
+        return response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                toast("Error with destinations", "Cannot load destinations", "danger")
+            } else {
+                if(lastRecievedRequestOrder < json.requestOrder) {
+                    lastRecievedRequestOrder = json.requestOrder;
+                    paginationHelper.setTotalNumberOfPages(json.totalNumberPages);
+                    return json;
+                }
+            }
+        });
+    });
 }
 
 /**
@@ -76,166 +155,6 @@ function checkTripListEmpty() {
         $("#createTripButton").css("display", "");
     } else if ($("#list").children().length <= 1) {
         $("#createTripButton").css("display", "none");
-    }
-}
-
-/**
- * Add destination to database
- * @param {string} url - API URI to add destination
- * @param {string} redirect - URI of redirect page
- */
-function addDestination(url, redirect, userId) {
-    // Read data from destination form
-    const formData = new FormData(
-        document.getElementById("addDestinationForm"));
-
-    // Convert data to json object
-    const data = Array.from(formData.entries()).reduce((memo, pair) => ({
-        ...memo,
-        [pair[0]]: pair[1],
-    }), {});
-
-    // Convert lat and long to double values, and id to int
-    data.latitude = parseFloat(data.latitude);
-    data.longitude = parseFloat(data.longitude);
-    data.countryId = parseInt(data.countryId);
-    data.user = {
-        id: userId
-    };
-
-    // Convert country id to country object
-    data.country = {"id": data.countryId};
-
-    //Create response handler
-    const handler = function (status, json) {
-        if (status !== 200) {
-            if (json === "Duplicate destination") {
-                toast("Destination could not be created!",
-                    "The destination already exists.", "danger", 5000);
-                $('#createDestinationModal').modal('hide');
-                resetDestinationModal();
-            } else {
-                showErrors(json);
-            }
-        } else {
-            toast("Destination Created!",
-                "The new destination will be added to the table.",
-                "success");
-            $('#createDestinationModal').modal('hide');
-            resetDestinationModal();
-
-            // Add row to table
-            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                json).url;
-            const name = data.name;
-            const type = data.destType;
-            const district = data.district;
-            const latitude = data.latitude;
-            const longitude = data.longitude;
-            let country = data.country.id;
-
-            // Set country name
-            let countries = document.getElementById(
-                "countryDropDown").getElementsByTagName("option");
-            for (let i = 0; i < countries.length; i++) {
-                if (parseInt(countries[i].value) === data.country.id) {
-                    country = countries[i].innerText;
-                    break;
-                }
-            }
-            table.add(
-                [name, type, district, latitude, longitude, country,
-                    destination]);
-            populateMarkers(userId);
-        }
-    }.bind({userId, data});
-    const inverseHandler = (status, json) => {
-        if (status === 200) {
-            table.populateTable();
-            populateMarkers(userId);
-        }
-    };
-    // Post json data to given url
-    addNonExistingCountries([data.country]).then(result => {
-        const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
-        undoRedo.sendAndAppend(reqData, inverseHandler);
-    });
-}
-
-/**
- * Clears all fields and error labels in the create destination modal form
- */
-function resetDestinationModal() {
-    document.getElementById("addDestinationForm").reset();
-    hideErrors("addDestinationForm");
-}
-
-/**
- * Adds a row to the destinations table with the given data
- * @param {Object} data - Data object to be added to table
- */
-function addRow(data) {
-    const id = data.id;
-    const name = data.name;
-    const type = data.destType;
-    const district = data.district;
-    const latitude = data.latitude;
-    const longitude = data.longitude;
-    let country = data.country.id;
-
-    // Set country name
-    let countries = document.getElementById(
-        "countryDropDown").getElementsByTagName("option");
-    for (let i = 0; i < countries.length; i++) {
-        if (parseInt(countries[i].value) === data.country.id) {
-            country = countries[i].innerText;
-            break;
-        }
-    }
-
-    const button = '<button id="addDestination" class="btn btn-popup" type="button">Add</button>';
-    const row = [name, type, district, latitude, longitude, country, button, id,
-        data.country.id];
-    destinationTable.add(row);
-}
-
-/**
- * Maps countries into destinations
- * @param {Object} countryDict - Dictionary of Countries
- */
-function updateDestinationsCountryField(countryDict) {
-    let tableBody = document.getElementsByTagName('tbody')[0];
-    let rowList = tableBody.getElementsByTagName('tr');
-
-    for (let i = 0; i < rowList.length; i++) {
-        let dataList = rowList[i].getElementsByTagName('td');
-
-        for (let j = 0; j < dataList.length; j++) {
-            if (dataList[j].getAttribute("id") === "country") {
-                dataList[j].innerHTML = countryDict[parseInt(
-                    rowList[i].getAttribute("id"))];
-            }
-        }
-    }
-}
-
-/**
- * Maps Countries into the Card fields
- * @param {Object} countryDict - Dictionary of Countries
- */
-function updateCountryCardField(countryDict) {
-    let cards = Array.of(document.getElementById("list").children)[0];
-
-    for (let i = 0; i < cards.length; i++) {
-        let labels = cards[i].getElementsByTagName("label");
-
-        for (let j in labels) {
-            if (labels[j].getAttribute("id") === "countryField") {
-                let destinationId = parseInt(labels[0].getAttribute("id"));
-                labels[j].innerHTML = countryDict[destinationId];
-                break;
-            }
-        }
     }
 }
 
@@ -262,48 +181,69 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
 
     getCountryNameById(countryId).then(countryName => {
         document.getElementById('list').insertAdjacentHTML('beforeend',
-            '<div class="card flex-row" id=' + cardId + '>\n' +
-            '<label id=' + id + '></label>' +
-            '<div class="card-header border-0" style="height: 100%">\n' +
-            '<img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%";>\n'
-            +    // TODO: Store default card image rather than reference
-            '</div>\n' +
-            '<div class="card-block px-2">\n' +
-            '<div id="topCardBlock">\n' +
-            '<h4 class="card-title">' + name + '</h4>\n' +
-            '<div id="removeTrip" onclick="setDestinationToRemove(' + cardId
-            + ')"></div>\n' +
-            '<div id="left">\n' +
-            '<p class="card-text" id="card-text">' +
-            '<b>Type: </b> ' + type + '<br/>' +
-            '<b>District: </b> ' + district + '<br/>' +
-            '<b>Latitude: </b>' + parseFloat(latitude).toFixed(2) + '<br/>' +
-            '<b>Longitude: </b>' + parseFloat(longitude).toFixed(2) + '<br/>' +
-            '<b>Country: </b>' + countryName +
-            '</p>\n' +
-            '</div>' +
-            '<div id="right">\n' +
-            '<form id="arrivalDepartureForm">\n' +
-            '                <div class="modal-body mx-3">\n' +
-            '                    <div id="arrival">Arrival\n' +
-            '                        <i class="fas prefix grey-text"></i>\n' +
-            '                        <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate"><input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
-            +
-            '                    </div>\n' +
-            '                    <div id="depart">Departure\n' +
-            '                        <i class="fas prefix grey-text"></i>\n' +
-            '                        <input id="departureDate" type="date" name="departureDate" class="form-control validate"><input id="departureTime" type="time" name="departureTime" class="form-control validate">\n'
-            +
-            '                    </div>\n' +
-            '                </div>\n' +
-            '            </form>\n' +
-            '<div style="text-align: center;">\n' +
-            '<label id="destinationError" class="error-messages" style="font-size: 15px;"></label>\n'
-            +
-            '<br/>\n' +
-            '</div>\n' +
-            '</div>\n' +
-            '</div>'
+            '<div class="card card-dest-for-trip flex-row" id= ' + id + ' >\n'
+            + '                                <label id=' + id + '></label>\n'
+            + '                                <div class="card-header border-0" style="height: 100%">\n'
+            + '                                    <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">\n'
+            + '                                </div>\n'
+            + '\n'
+            + '                                <div class="container">\n'
+            + '                                    <div id="topCardBlock" class="row">\n'
+            + '                                        <h4 class="card-title card-title-dest-for-trip"> ' + name + ' </h4>\n'
+            + '                                        <div id="removeTrip" onclick="setDestinationToRemove(' + id + ')"></div>\n'
+            + '                                    </div>\n'
+            + '                                    <div class="card-block card-block-dest-for-trip px-2 row">\n'
+            + '                                        <div id="left" class="col-5">\n'
+            + '                                            <p id="destinationDetails" class="card-text" id="card-text">\n'
+            + '                                                <strong>Type: </strong>\n'
+            + '                                                ' + type + ''
+            + '                                                <br/>\n'
+            + '                                                <strong>District: </strong>\n'
+            + '                                                ' + district + ''
+            + '                                                <br/>\n'
+            + '                                                <strong>Latitude: </strong>\n'
+            + '                                                ' + latitude + ''
+            + '                                                <br/>\n'
+            + '                                                <strong>Longitude: </strong>\n'
+            + '                                                ' + longitude + ''
+            + '                                                <br/>\n'
+            + '                                                <strong>Country: </strong>\n'
+            + '                                                <label id="countryField">' + countryName + '</label>\n'
+            + '                                            </p>\n'
+            + '                                        </div>\n'
+            + '                                        <div id="right" class="col-7">\n'
+            + '                                            <form id="arrivalDepartureForm">\n'
+            + '                                                <div class="row">\n'
+            + '                                                    <div class="col date-columns">\n'
+            + '                                                        <div>Arrival</div>\n'
+            + '                                                        <div id="arrival">\n'
+            + '                                                            <em class="fas prefix grey-text"></em>\n'
+            + '                                                            <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate">\n'
+            + '                                                            <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate">\n'
+            + '                                                            <label id="arrivalError"></label>\n'
+            + '                                                        </div>\n'
+            + '                                                    </div>\n'
+            + '\n'
+            + '                                                    <div class="col date-columns">\n'
+            + '                                                        <div>Departure</div>\n'
+            + '                                                        <div id="depart">\n'
+            + '                                                            <em class="fas prefix grey-text"></em>\n'
+            + '                                                            <input id="departureDate" type="date" name="arrivalDate" class="form-control validate">\n'
+            + '                                                            <input id="departureTime" type="time" name="arrivalTime" class="form-control validate">\n'
+            + '                                                            <label id="departureError"></label>\n'
+            + '                                                        </div>\n'
+            + '                                                    </div>\n'
+            + '                                                </div>\n'
+            + '                                            </form>\n'
+            + '                                            <div class="text-center">\n'
+            + '                                                <label id="destinationError"></label><br/>\n'
+            + '                                            </div>\n'
+            + '                                        </div>\n'
+            + '                                    </div>\n'
+            + '                                </div>\n'
+            + '                            </div>'
+
+
         );
         checkTripListEmpty();
     });
