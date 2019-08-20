@@ -82,7 +82,7 @@ public class PhotoCaptionsTestSteps {
 
         for (Pair<String, String> pair : Arrays.asList(
             new Pair<>("isTest", "true"),
-            new Pair<>("profilePhotoName", "test.png"),
+            new Pair<>("userUploadId", "1"),
             new Pair<>("publicPhotoFileNames", ""),
             new Pair<>("caption", caption)
         )) {

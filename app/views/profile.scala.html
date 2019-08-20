@@ -65,6 +65,20 @@
                 @* Body Content *@
                 <div class="profile-main">
                     <div>
+                        <div class="section-title">
+                            <p>
+                                <span id="galleryTitle" class="section-title" style="padding-right: 15px">Photos</span>
+                                <select name="tagFilter" id="tagFilter"  data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                                @if(canModify) {
+                                    <a class="button-secondary" id="upload-gallery-image-button" data-toggle="modal" href="#upload-modal" >
+                                        <span class="profile-button" style="float: right; padding-left:10px;">Add Photo</span>
+                                    </a>
+                                }
+                            </p>
+
+
+
+                        </div>
                         @*Call gallery modal, true indicating we want titles*@
                         @modules.gallery(canModify, true, "main-gallery", "page-selection", true)
                         @* Trips table Section *@
@@ -247,16 +261,6 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-
-                        @* Uploading a new profile picture image to crop *@
-                        <input id="upload-image-file" type="file" onchange="uploadNewPhoto()"
-                        accept="image/jpeg, image/png" style="display: none"/>
-
-                    <br>
-                    <a class="button-secondary" id="upload-image-button" style="text-align: center">
-                        <span class="profile-button">Add New Photo</span>
-                    </a>
-
                     <div class="mx-auto" style="width: 80%; padding: 10px">
                         @* Profile Photo Gallery *@
                         <div id="profile-gallery" class="text-center">You don't have any photos yet, add some by clicking on the add photo button.</div>
@@ -324,7 +328,7 @@
     getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
         populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
     });
-
+    const tripTagDisplay = new TagDisplay("trip-tag-display");
     const uploadTagPicker = new TagPicker(@user.id, "upload-picker");
     const editTagPicker = new TagPicker(@user.id, "edit-picker");
 </script>
