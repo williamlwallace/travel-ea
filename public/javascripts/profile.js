@@ -1,3 +1,14 @@
+let paginationHelper;
+
+/**
+ * Runs when the page is loaded. Initialises the paginationHelper object and
+ * runs the getPictures method.
+ */
+$(document).ready(function() {
+    paginationHelper = new PaginationHelper(1, 1,  getPictures);
+    getPictures();
+});
+
 /**
  * The JavaScript method to fill the initial profile data
  *
@@ -417,7 +428,6 @@ function getProfileAndCoverPicture() {
 function getPictures() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber().toString());
-
     fillGallery(url, 'main-gallery', 'page-selection');
 }
 

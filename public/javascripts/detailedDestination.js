@@ -293,15 +293,25 @@ let DESTINATIONID;
 let canEdit = true;
 let canDelete = false;
 
+let paginationHelper;
+
+/**
+ * Runs when the page is loaded. Initialises the paginationHelper object and
+ * runs the getPictures method.
+ */
+$(document).ready(function() {
+    paginationHelper = new PaginationHelper(1, 1,  getPictures);
+
+});
 /**
  * Allows the upload image button call the link photo modal which then
  * fills the gallery with all the users photos, and indicates which are already linked
  */
 $("#upload-gallery-image-button").click(function () {
     $("#linkPhotoToDestinationModal").modal('show');
-    fillLinkGallery(
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            USERID).url, "link-gallery", "link-selection", DESTINATIONID);
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber().toString());
+    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID);
 });
 
 /**

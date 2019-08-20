@@ -224,24 +224,22 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
  */
 function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
     destinationId = null, clickFunction = null) {
-    const galleryObjects = [];
+    let galleryObjects = [];
     // page is the page number starting from 0
     // Create a gallery which will have 6 photos
     let newGallery = document.createElement("div");
-    newGallery.id = "page" + "0";    // TODO: May need to modify this to store actual page id
+    newGallery.id = "page" + paginationHelper.getCurrentPageNumber();
     newGallery.setAttribute("class", "tz-gallery");
     // create the row div
     let row = document.createElement("div");
     row.setAttribute("class", "row");
     // create each photo tile
-    for (const position in usersPhotos.length) {
+    for (const position in usersPhotos) {
         let tile = document.createElement("div");
         tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
 
         let photo = document.createElement("a");
         photo.setAttribute("class", "lightbox");
-
-        // 6 * page + position finds the correct photo index in the dictionary
         const filename = usersPhotos[position]["filename"];
         const guid = usersPhotos[position]["guid"];
         const caption = usersPhotos[position]["caption"];
@@ -379,32 +377,8 @@ function createEditButton() {
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
-    let numPages = Math.ceil(usersPhotos.length / 6);
-    let currentPage = 1;
     if (galleryObjects !== undefined && galleryObjects.length !== 0) {
-        // init bootpage
-        $(pageSelectionId).bootpag({
-            total: numPages,
-            maxVisible: 5,
-            page: 1,
-            leaps: false,
-        }).on("page", function (event, num) {
-            currentPage = num;
-            $(galleryId).html(galleryObjects[currentPage - 1]);
-            baguetteBox.run('.tz-gallery', {
-                captions: function (element) {
-                    return `${$(element).attr('data-caption')}\n${$(element).attr('data-tags')}`;
-                }
-            });
-            $('.img-wrap .close').on('click', function () {
-                let guid = $(this).closest('.img-wrap').find('a').data("id");
-                let filename = $(this).closest('.img-wrap').find('a').data(
-                    "filename");
-                populateEditPhoto(guid, filename);
-            });
-        });
-        // set first page
-        $(galleryId).html(galleryObjects[currentPage - 1]);
+        $(galleryId).html(galleryObjects[0]);
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
                 return `${$(element).attr('data-caption')} - ${$(element).attr('data-tags')}`;

@@ -322,7 +322,6 @@
     setPermissions("@loggedUser.id", "@user.id");
     onPageLoad(@user.id, @canModify);
     fillProfileData("@user.username");
-    getPictures();
     getProfileAndCoverPicture();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
     getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)", ["tagFilter"], "name", false, "name");
@@ -332,5 +331,4 @@
     const tripTagDisplay = new TagDisplay("trip-tag-display");
     const uploadTagPicker = new TagPicker(@user.id, "upload-picker");
     const editTagPicker = new TagPicker(@user.id, "edit-picker");
-    const paginationHelper = new PaginationHelper(1, 1, "profile-photo-pagination", getPictures);
 </script>

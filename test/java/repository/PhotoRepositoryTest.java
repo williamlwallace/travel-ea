@@ -176,17 +176,17 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         assertNull(deletedPhoto);
     }
 
-    @Test
-    public void appendAssetsUrl() {
-        Photo photo = createPhoto();
-        List<Photo> photos = new ArrayList<>();
-        photos.add(photo);
-
-        List<Photo> newPhotos = photoRepository.appendAssetsUrl(photos);
-        assertEquals(1, newPhotos.size());
-        assertEquals("../user_content/Idon'tlikethePlayFramework.jpeg", newPhotos.get(0).filename);
-        assertEquals("../user_content/test/thumbnail", newPhotos.get(0).thumbnailFilename);
-    }
+//    @Test
+//    public void appendAssetsUrl() {
+//        Photo photo = createPhoto();
+//        List<Photo> photos = new ArrayList<>();
+//        photos.add(photo);
+//
+//        List<Photo> newPhotos = photoRepository.appendAssetsUrl(photos);
+//        assertEquals(1, newPhotos.size());
+//        assertEquals("../user_content/Idon'tlikethePlayFramework.jpeg", newPhotos.get(0).filename);
+//        assertEquals("../user_content/test/thumbnail", newPhotos.get(0).thumbnailFilename);
+//    }
 
     @Test
     public void getPhotoById() {
