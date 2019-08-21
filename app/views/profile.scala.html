@@ -92,23 +92,54 @@
                                     </a>
                                 }
                             </p>
+                            <p>
+                                <a id="tripsFilterButton" class="filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
+                                aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">
+                                    <span class="profile-button" style="float: right; padding-left:10px;">Filter</span>
+                                </a>
+                            </p>
                         </div><br>
 
                         @* The Trips Table *@
-                        <div>
-                            <table id="tripTable" class="table table-hover table-bordered" cellspacing="0" width="100%">
-                                <thead>
-                                    <tr>
-                                        <th class="th-sm">Start Destination</th>
-                                        <th class="th-sm">End Destination</th>
-                                        <th class="th-sm">Trip Length</th>
-                                        <th class="th-sm">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                        
+
+                        @* The Trips Table *@
+                        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
+
+                        <div class="tripsCollapse collapse" id="collapseExample">
+                            <div class="card card-body" id="card-body">
+                                <div class="row">
+                                    <div id="filterItemDiv">
+                                        <label for="pageSize">Results per page</label>
+                                        <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
+                                    </div>
+                                    <div id="filterItemDiv">
+                                        <label for="search">Search</label>
+                                        <input type=text id="search" class="form-control"/>
+                                    </div>
+                                    <div id="filterItemDiv">
+                                        <label for="ascending">Order by</label>
+                                        <select id="ascending" class="form-control" data-style="form-control selectpicker">
+                                            <option value="true">Ascending</option>
+                                            <option value="false">Descending</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="text-center" id="buttonDiv">
+                                    <div id="closeButton">
+                                        <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                                    </div>
+                                    <div id="applyButton">
+                                        <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                                        <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        @modules.tripCards()
+
+                        <div id="tripCardsList"></div>
 
                     </div>
                 </div>
@@ -326,7 +357,7 @@
 <script type="text/javascript">
     setProfileId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
-    onPageLoad(@user.id, @canModify);
+    profileLoadTrips(@user.id);
     fillProfileData("@user.username");
     getProfileAndCoverPicture();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
