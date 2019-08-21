@@ -12,9 +12,8 @@ $(document).ready(function () {
         document.getElementById('adminError').innerHTML = json;
     };
     //set table population urls
-    const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
-    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        MASTER_ADMIN_ID).url;
+    // const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
+    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url;
 
     const ttTableModal = {
         createdRow: function (row, data) {
@@ -24,8 +23,7 @@ $(document).ready(function () {
     };
 
     clearFilter();
-    paginationHelper = new PaginationHelper(1, 1, "userPagination",
-        getUserResults);
+    paginationHelper = new PaginationHelper(1, 1, getUserResults, "userPagination");
     getUserResults();
     //create tables
     // usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers,
