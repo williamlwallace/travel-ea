@@ -12,12 +12,15 @@ function onPageLoad(userId) {
     
 }
 
+function getTripResults() {
+    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    getAndCreateTrips(url);
+}
+
 /**
  * Filters the cards with filtered results
  */
-function getTripResults() {
-    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
-
+function getAndCreateTrips(url) {
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
