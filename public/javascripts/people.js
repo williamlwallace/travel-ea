@@ -40,7 +40,7 @@ function getNationalityAndTravellerStrings(people) {
  * @returns {*[]} Array of nationality ids
  */
 function getSelectedNationalityIds() {
-    return [document.getElementById('nationalities').options[document.getElementById('nationalities').selectedIndex].value];
+    return JSONFromDropDowns("nationalities").map(nationality => nationality.id);
 }
 
 /**
@@ -48,9 +48,7 @@ function getSelectedNationalityIds() {
  * @returns {*[]} Array of traveller type ids
  */
 function getSelectedTravellerTypeIds() {
-    return [document.getElementById(
-        'travellerTypes').options[document.getElementById(
-        'travellerTypes').selectedIndex].value];
+    return JSONFromDropDowns("travellerTypes").map(travellerType => travellerType.id);
 }
 
 /**
@@ -58,7 +56,8 @@ function getSelectedTravellerTypeIds() {
  * @returns {*[]} Array of genders, all items will be in ('Male', 'Female', 'Other')
  */
 function getSelectedGenders() {
-    return [$('#gender').val()];
+    console.log($('#gender').val());
+    return $('#gender').val();
 }
 
 /**
@@ -138,7 +137,11 @@ function getPeopleResults() {
                     });
 
                     $(".card").click((element) => {
-                        location.href = `/profile/${$(element.currentTarget).find("#card-header").data().id}`;
+                        if($(element.currentTarget).find("#card-header").data() !== undefined) {
+                            location.href = `/profile/${$(
+                                element.currentTarget).find(
+                                "#card-header").data().id}`;
+                        }
                     });
                     paginationHelper.setTotalNumberOfPages(totalNumberPages);
 
