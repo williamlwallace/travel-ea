@@ -110,16 +110,25 @@ function getSearchQuery() {
 function createUserCard(user) {
     const template = $("#userCardTemplate").get(0);
     const clone = template.content.cloneNode(true);
+    let adminBtn = "Master";
+    // let deleteUser = "Master";
+    if (user.id !== 1) {
+        adminBtn = `<button id=\"toggleAdminBtn\" data-id=${user.id} class=\"admin btn btn-secondary\">`
+            + ((user.admin) ? "Revoke admin"
+                : "Grant admin") + "</button>";
+    }
 
     const admin = (user.admin ? "True" : "False");
     const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
     const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
+    // const toggleAdminBtn = "<button class=\"btn btn-secondary\">Grant admin</button>";
 
     $(clone).find("#card-thumbnail").attr("src",
         "/assets/images/default-profile-picture.jpg");
     $(clone).find("#username").append("Email: " + user.username);
     $(clone).find("#id").append("User Id: " + user.id);
     $(clone).find("#admin").append("Admin: " + admin);
+    $(clone).find("#adminBtn").append(adminBtn);
 
     if (user.admin) {
         $(clone).find("#card-thumbnail-div").css("padding-right", "0rem");
@@ -131,8 +140,9 @@ function createUserCard(user) {
     }
 
     $("#userCardsList").get(0).appendChild(clone);
-
 }
+
+
 
 function getUserResults() {
     const url = new URL(
@@ -158,6 +168,11 @@ function getUserResults() {
                     });
 
                     paginationHelper.setTotalNumberOfPages(totalNumberPages);
+
+                    //Set click handler for toggle admin using data-id
+                    $(".admin").click(event => {
+                        toggleAdmin(event.target, $(event.target).data().id);
+                    });
                 }
             }
         });
@@ -179,7 +194,8 @@ function toggleFilterButton() {
  * @param {Object} tableAPI - data table api
  * @param {Number} id - user id
  */
-function toggleAdmin(button, tableAPI, id) {
+function toggleAdmin(button, id) {
+    // console.log(button);
     const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(
         id).url;
     const initialToggle = true;
@@ -196,6 +212,12 @@ function toggleAdmin(button, tableAPI, id) {
         if (status === 200) {
             this.button.innerHTML = button.innerHTML.trim().startsWith('Revoke')
                 ? 'Grant admin' : 'Revoke admin';
+
+            const adminLabel = $(button).closest('div').siblings(".admin-label");
+            const adminIcon = "<em class=\"fas fa-user-shield\" style=\"padding-right: 3px\"></em>";
+            console.log(adminLabel.html().slice(15, -1));
+            console.log(adminLabel.html());
+            adminLabel.html(adminIcon + (adminLabel.html().slice(-12)) === "Admin: True" ? "Admin: False" : "Admin: True");
         }
     }.bind({button, initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
