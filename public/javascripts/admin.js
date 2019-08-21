@@ -5,9 +5,15 @@ let tripsTable;
 let requestOrder = 0;
 let lastRecievedRequestOrder = -1;
 let paginationHelper;
+let tripTagDisplay;
 
 //Initialises the data table and adds the data
 $(document).ready(function () {
+    tripTagDisplay = new TagDisplay("trip-tag-display");
+    getUserId().then(userId => {
+        onPageLoad(userId);
+    });
+
     const errorRes = json => {
         document.getElementById('adminError').innerHTML = json;
     };
@@ -25,22 +31,10 @@ $(document).ready(function () {
     clearFilter();
     paginationHelper = new PaginationHelper(1, 1, getUserResults, "userPagination");
     getUserResults();
-    //create tables
-    // usersTable = new EATable('dtUser', {}, usersGetURL, populateUsers,
-    //     errorRes);
 
-    tripsTable = new EATable('dtTrips', {}, tripsGetURL, populateTrips,
-        errorRes);
     travellerTypeRequestTable = new EATable('dtTravellerTypeModifications',
         ttTableModal, ttGetURL, populateTravellerTypeRequests, errorRes);
-    //set table click callbacks callbacks
-    // usersTable.initButtonClicks({
-    //     2: toggleAdmin,
-    //     3: deleteUser
-    // });
-    tripsTable.initButtonClicks({
-        5: deleteTrip
-    });
+
     travellerTypeRequestTable.initRowClicks(function () {
         let idData = this.dataset.id.split(",");
         showTTSuggestion(idData[0], idData[1]);
