@@ -54,7 +54,7 @@ start-server-dev:
     - sudo systemctl start proffatDevServer
 
   only:
-    - master-dev@seng302-2019/team-400
+    - master-dev@seng302-2019/team-400 
 
 start-server-prod:
   stage: deploy
