@@ -464,11 +464,13 @@ def main():
     num_treasure_hunts = 200
     evolutions_num = "3"
     
+    photos_filename = "photo_urls_and_users.json"    
+    
     print("Generating countries...")
     country_insert, country_dict = setup_countries()
     
     print("Done\nGenerating users and profiles...")
-    users, profiles = generate_users(num_users, num_existing_users)
+    users, profiles = generate_users(num_users, num_existing_users, photos_filename)
     
     print("Done\nGenerating nationalities and passports...")
     values = generate_nationalities_and_passports(num_users, num_existing_users,
@@ -502,7 +504,6 @@ def main():
     print("Done\nGeneration complete!\nPopulating file...")
     
     filename = "../../conf/evolutions/default/" + evolutions_num + ".sql"
-    photos_filename = "photo_urls_and_users.json"
     
     drops = """DELETE FROM TripTag;
 DELETE FROM DestinationTag;

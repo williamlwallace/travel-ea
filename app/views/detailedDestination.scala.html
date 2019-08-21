@@ -145,7 +145,7 @@
                         </div>
                         @* Photo Gallery *
                         @*Gallery modal, false as we want no titles and no add photo button*@
-                        @modules.gallery(false, false, "main-gallery", "page-selection", false)
+                        @modules.gallery(false, false, "main-gallery", "page-selection", false, "destination-photos-pagination")
                     </div>
                 </div>
             </div>
@@ -188,7 +188,7 @@
                     </button>
                 </div>
                 @* all images gallery *@
-                @modules.gallery(false, false, "link-gallery", "link-selection", false)
+                @modules.gallery(false, false, "link-gallery", "link-selection", false, "link-destination-photo-pagination")
             </div>
         </div>
     </div>
@@ -204,7 +204,7 @@
                     </button>
                 </div>
                 @* all images gallery *@
-                @modules.gallery(false, false, "primary-photo-gallery", "current-page", false)
+                @modules.gallery(false, false, "primary-photo-gallery", "current-page", false, "destination-primary-photo-pagination")
             </div>
         </div>
     </div>
@@ -271,7 +271,7 @@
 <script type="text/javascript">
         initMap(@destinationId);
         setProfileId(@loggedUser.id);
-        sendUserIdAndFillGallery(@loggedUser.id, @destinationId);
+        sendUserIdAndDestinationId(@loggedUser.id, @destinationId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         getAndFillDD("@controllers.backend.routes.TagController.getAllDestinationPhotoTags(destinationId)", ["tagFilter"], "name", false, "name");
         populateDestinationDetails(@destinationId);

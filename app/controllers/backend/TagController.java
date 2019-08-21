@@ -6,6 +6,7 @@ import actions.roles.Everyone;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -89,11 +90,12 @@ public class TagController extends TEABackController {
      * Controller method to get all tags a user has used. Paginated and sorted by timeUsed
      *
      * @param request Contains the HTTP request info
-     * @param userId ID of the user for whom to recieve the tags
+     * @param userId ID of the user for whom to receive the tags
      * @param pageNum page being requested
      * @param pageSize number of tags per page
      * @return OK with the data as the tags and totalPageCount or badRequest
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getUserTags(Http.Request request, Long userId, Integer pageNum, Integer pageSize) {
         return tagRepository.getRecentUserTags(userId, pageNum, pageSize).thenApplyAsync(tags ->
         {
@@ -106,7 +108,6 @@ public class TagController extends TEABackController {
 
     }
 
-
     /**
      * Retrieves all tags associated with a given user's photos. If the user is viewing their own profile or an admin
      * then retrieve all their private and public photo tags; else, only retrieve their public photo tags
@@ -118,12 +119,25 @@ public class TagController extends TEABackController {
     public CompletableFuture<Result> getAllUserPhotoTags(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
 
-        if (user.id.equals(id) || user.admin) {
-            return photoRepository.getAllUserPhotos(id)
-                    .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+        // Admins cannot see the users private photos
+        if (user.id.equals(id)) {
+            return photoRepository.getAllUserPhotos(id).thenApplyAsync(photos -> {
+                Set<Tag> tags = getTagsFromPhotos(photos);
+                try {
+                    return ok(sanitizeJson(Json.toJson(tags)));
+                } catch (IOException ex) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
         } else {
-            return photoRepository.getAllPublicUserPhotos(id)
-                    .thenApplyAsync(photos -> ok(Json.toJson(getTagsFromPhotos(photos))));
+            return photoRepository.getAllPublicUserPhotos(id).thenApplyAsync(photos -> {
+                Set<Tag> tags = getTagsFromPhotos(photos);
+                try {
+                    return ok(sanitizeJson(Json.toJson(tags)));
+                } catch (IOException ex) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
         }
     }
 

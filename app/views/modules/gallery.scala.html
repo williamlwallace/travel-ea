@@ -2,12 +2,19 @@
 "upload-gallery-image-button" to call upload-gallery-image-file (as in profile) or you
 can add an intermediate modal as is the case in detailed destinations *@
 
-@(canModify: Boolean, withTitle: Boolean, galleryId: String, pageId: String, editModal:Boolean)
+@(canModify: Boolean, withTitle: Boolean, galleryId: String, pageId: String, editModal:Boolean, paginationClass: String)
 
 
 @* Photo Gallery *@
 <div id="@galleryId" class="text-center">There are no photos!</div>
-<div id="@pageId"></div>
+
+<nav aria-label="Page navigation">
+    <ul class="@paginationClass pagination" id="@pageId">
+        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+</nav>
 
 
 @* Upload modal *@
@@ -35,7 +42,7 @@ can add an intermediate modal as is the case in detailed destinations *@
                 </div>
 
                 <div style="margin: 0px 30px 0px 30px;">
-                    <!-- Tag Picker Module --!>
+                    <!-- Tag Picker Module -->
                     @modules.tagPicker("upload-picker")
                 </div>
 

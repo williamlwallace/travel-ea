@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import io.ebean.DataIntegrityException;
+import io.ebean.PagedList;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -419,5 +420,53 @@ public class UserRepositoryTest extends repository.RepositoryTest {
 
         assertTrue(updatedTimeStamp.after(originalTimestamp));
     }
+
+    @Test
+    public void userSearch() {
+        PagedList<User> userList = userRepository.search(1L, "", null, true, 1, 10).join();
+        assertEquals(1, userList.getList().size());
+        boolean foundBob = false;
+        for (User user : userList.getList()) {
+            if (user.username.equals("bob@gmail.com")) {
+                foundBob = true;
+            }
+        }
+        assertTrue(foundBob);
+    }
+
+    @Test
+    public void userSearchUsername() {
+        PagedList<User> userList = userRepository.search(3L, "@gmail.com", null, true, 1, 10).join();
+        assertEquals(2, userList.getList().size());
+        boolean foundDave = false;
+        boolean foundBob = false;
+        for (User user : userList.getList()) {
+            if (user.username.equals("dave@gmail.com")) {
+                foundDave = true;
+            }
+            if (user.username.equals("bob@gmail.com")) {
+                foundBob = true;
+            }
+        }
+        assertTrue(foundDave);
+        assertTrue(foundBob);
+    }
+
+    @Test
+    public void userSearchSortByAsc() {
+        PagedList<User> userList = userRepository.search(3L, "", "username", true, 1, 10).join();
+        assertEquals(2, userList.getList().size());
+        assertEquals("bob@gmail.com", userList.getList().get(0).username);
+        assertEquals("dave@gmail.com", userList.getList().get(1).username);
+    }
+
+    @Test
+    public void userSearchSortByDsc() {
+        PagedList<User> userList = userRepository.search(3L, "", "username", false, 1, 10).join();
+        assertEquals(2, userList.getList().size());
+        assertEquals("bob@gmail.com", userList.getList().get(1).username);
+        assertEquals("dave@gmail.com", userList.getList().get(0).username);
+    }
+
 
 }

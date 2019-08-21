@@ -7,7 +7,7 @@ PUT           /api/user/:id/admin                    controllers.backend.AdminCo
 
 GET           /api/user/setid                        controllers.backend.UserController.setId(request:Request)
 
-GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, order ?= "asc", filter ?= "")
+GET           /api/user/search                       controllers.backend.UserController.userSearch(request:Request, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 5, requestOrder: Integer ?= 1)
 
 GET           /api/user/:id                          controllers.backend.UserController.getUser(request:Request, id:Long)
 
@@ -89,7 +89,7 @@ POST          /api/photo                             controllers.backend.PhotoCo
 
 PUT           /api/photo/:photoId/privacy            controllers.backend.PhotoController.togglePhotoPrivacy(request: Request, photoId:Long)
 
-GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long)
+GET           /api/user/:id/photo                    controllers.backend.PhotoController.getAllUserPhotos(request:Request, id:Long, pageNum: Integer ?= 1, pageSize: Integer ?= 6, requestOrder: Integer ?= 1)
 
 GET           /api/user/:id/phototags                controllers.backend.TagController.getAllUserPhotoTags(request:Request, id:Long)
 

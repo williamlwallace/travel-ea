@@ -13,6 +13,7 @@ import static steps.GenericTestSteps.fakeApp;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.en.Then;
@@ -28,6 +29,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 import util.objects.Pair;
 
 public class PhotoCaptionsTestSteps {
@@ -60,7 +62,12 @@ public class PhotoCaptionsTestSteps {
         Result result = route(fakeApp, request);
         assertEquals(200, result.status());
 
-        List<Photo> response = Arrays.asList(new ObjectMapper().readValue(Helpers.contentAsString(result), Photo[].class));
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Photo> pagedResponse =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Photo>>(){});
+
+        // Deserialize result to list of photos
+        List<Photo> response = pagedResponse.data;
 
         // Checks one of the photos have a matching caption, the tests are compromising each others
         // data so is only way to fix currently (I know its not good sorry about it)

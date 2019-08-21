@@ -1,13 +1,13 @@
-let requestOrder = 0;
-let lastRecievedRequestOrder = -1;
-let paginationHelper;
+let tripsRequestOrder = 0;
+let tripsLastRecievedRequestOrder = -1;
+let tripsPaginationHelper;
 
 /**
  * Initializes trip pages
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
-    paginationHelper = new PaginationHelper(1, 1, getTripResults, "tripPagination");
+    tripsPaginationHelper = new PaginationHelper(1, 1, getTripResults, "tripPagination");
     getTripResults();
     
 }
@@ -26,11 +26,11 @@ function getTripResults() {
 function getAndCreateTrips(url) {
 
     // Append pagination params
-    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
-    url.searchParams.append("pageSize", $('#pageSize').val().toString());
-    url.searchParams.append("searchQuery", $('#search').val());
-    url.searchParams.append("ascending", $('#ascending').val());
-    url.searchParams.append("requestOrder", requestOrder++);
+    url.searchParams.append("pageNum", tripsPaginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", $('#tripPageSize').val().toString());
+    url.searchParams.append("searchQuery", $('#tripSearch').val());
+    url.searchParams.append("ascending", $('#tripAscending').val());
+    url.searchParams.append("requestOrder", tripsRequestOrder++);
 
     get(url).then(response => {
         response.json()
@@ -38,18 +38,21 @@ function getAndCreateTrips(url) {
             if (response.status !== 200) {
                 toast("Error", "Error fetching people data", "danger")
             } else {
-                if(lastRecievedRequestOrder < json.requestOrder) {
+                if(tripsLastRecievedRequestOrder < json.requestOrder) {
                     const totalNumberPages = json.totalNumberPages;
                     $("#tripCardsList").html("");
-                    lastRecievedRequestOrder = json.requestOrder;
+                    tripsLastRecievedRequestOrder = json.requestOrder;
                     json.data.forEach((item) => {
                         createTripCard(item);
                     });
 
                     $(".card").click((element) => {
+                        if(!$(element.currentTarget).find("#card-header").data()) {
+                            return;
+                        }
                         populateModal($(element.currentTarget).find("#card-header").data().id);
                     });
-                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+                    tripsPaginationHelper.setTotalNumberOfPages(totalNumberPages);
 
                 }
             }
@@ -71,7 +74,6 @@ function createTripCard(trip) {
     const endDestination = trip.tripDataList[trip.tripDataList.length -1].destination.name;
     const tripLength = trip.tripDataList.length;
     let firstDate = findFirstTripDate(trip);
-    console.log (firstDate);
     if (!!firstDate) {
         firstDate = firstDate.toLocaleDateString();
     } else {
@@ -265,9 +267,7 @@ function deleteTrip(tripId, userId) {
  * Toggles the filter button between being visible and invisible
  */
 function toggleFilterButton() {
-    console.log("yoink")
     const toggled = $('#tripsFilterButton').css("display") === "block";
-    console.log(toggled);
     $('#tripsFilterButton').css("display", toggled ? "none" : "block");
 }
 
