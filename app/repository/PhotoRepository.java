@@ -274,6 +274,19 @@ public class PhotoRepository {
     }
 
     /**
+     * For a list of photos, append the default assets path to them, when the photos are not paginated
+     *
+     * @param photos Photos to append path to
+     */
+    public List<Photo> appendAssetsUrlNoPage(List<Photo> photos) {
+        for (Photo photo : photos) {
+            photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
+            photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
+        }
+        return photos;
+    }
+
+    /**
      * Get photo object form db.
      *
      * @param id id of photo

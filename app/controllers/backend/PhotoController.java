@@ -699,34 +699,25 @@ public class PhotoController extends TEABackController {
      *
      * @param request Request containing authentication information
      * @param destId id of destination
-     * @param pageNum Page number of photos to retrieve
-     * @param pageSize Number of photos to retrieve
-     * @param requestOrder Request count identifier the users most recent request
      * @return A paged list of photos associated with the destination
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId,
-        Integer pageNum, Integer pageSize, Integer requestOrder) {
+    public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+        return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
             if (destination == null) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(destId)));
+                return notFound(Json.toJson(destId));
             } else if (!destination.isPublic && !destination.user.id.equals(user.id)
                 && !user.admin) {
-                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson(
-                    "You do not have permission to retrieve the photos for this destination")));
+                return forbidden();
             } else {
-                return photoRepository
-                    .getDestinationPhotosForUser(user.id, destination.id, pageNum, pageSize)
-                    .thenApplyAsync(photos -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(
-                                new PagingResponse<>(photos.getList(), requestOrder,
-                                    photos.getTotalPageCount()))));
-                        } catch (IOException ex) {
-                            return internalServerError(SANITIZATION_ERROR);
-                        }
-                    });
+                List<Photo> photos = filterPhotos(destination.destinationPhotos, user.id);
+                try {
+                    photos = photoRepository.appendAssetsUrlNoPage(photos);
+                    return ok(sanitizeJson(Json.toJson(photos)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
             }
         });
     }

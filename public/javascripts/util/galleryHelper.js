@@ -123,20 +123,20 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHel
     // Get the response of the request
     .then(response => {
         // Convert the response to json
-        response.json().then(data => {
+        response.json().then(photos => {
             usersPhotos = [];
             get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
                 destinationId).url)
             .then(response => {
                 response.json().then(linkedPhotos => {
-                    for (let i = 0; i < data.length; i++) {
-                        data[i]["isLinked"] = false;
+                    for (let i = 0; i < photos.data.length; i++) {
+                        photos.data[i]["isLinked"] = false;
                         for (let photo of linkedPhotos) {
-                            if (photo.guid === data[i].guid) {
-                                data[i]["isLinked"] = true;
+                            if (photo.guid === photos.data[i].guid) {
+                                photos.data[i]["isLinked"] = true;
                             }
                         }
-                        usersPhotos[i] = data[i];
+                        usersPhotos[i] = photos.data[i];
                     }
                     const galleryObjects = createGalleryObjects(false, pageHelper, true,
                         destinationId);
@@ -161,6 +161,7 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHel
  */
 function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
     galleryId, pageId, pageHelper, destinationId) {
+    console.log("HI");
     // Run a get request to fetch all users photos
     get(getDestinationPhotosUrl)
     // Get the response of the request
@@ -173,7 +174,7 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
                 response.json().then(ownedPhotos => {
                     for (let i = 0; i < destinationPhotos.length; i++) {
                         destinationPhotos[i]["isOwned"] = false;
-                        for (let photo of ownedPhotos) {
+                        for (let photo of ownedPhotos.data) {
                             if (photo.guid === destinationPhotos[i].guid) {
                                 destinationPhotos[i]["isOwned"] = true;
                             }

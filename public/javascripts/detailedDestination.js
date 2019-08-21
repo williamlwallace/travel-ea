@@ -333,8 +333,8 @@ function getDestinationPhotos() {
 
     fillDestinationGallery(url,
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url,
-        "main-gallery", "page-selection",
-        DESTINATIONID, destinationPhotosPaginationHelper)
+        "main-gallery", "page-selection", destinationPhotosPaginationHelper,
+        DESTINATIONID)
 }
 
 function getDestinationLinkPhotos() {
@@ -408,6 +408,7 @@ function toggleLinked(guid, newLinked, destinationId) {
             }
             getUserId().then(id => {
                 sendUserIdAndDestinationId(id, destinationId);
+                getDestinationPhotos();
             });
             getAndFillDD(tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(destinationId).url, ["tagFilter"], "name", false, "name");
 
@@ -418,6 +419,7 @@ function toggleLinked(guid, newLinked, destinationId) {
     undoRedo.sendAndAppend(reqData);
 
     $("#linkPhotoToDestinationModal").modal('hide');
+    getDestinationPhotos();
 }
 
 /**
