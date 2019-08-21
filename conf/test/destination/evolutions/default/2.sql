@@ -47,8 +47,8 @@ INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_pr
 
 -- Add photo-destination link that can be merged
 INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
-INSERT INTO PendingDestinationPhoto (photo_id, dest_id) VALUES (2, 2);
-INSERT INTO PendingDestinationPhoto (photo_id, dest_id) VALUES (1, 2);
+INSERT INTO PendingDestinationPhoto (photo_guid, dest_id) VALUES (2, 2);
+INSERT INTO PendingDestinationPhoto (photo_guid, dest_id) VALUES (1, 2);
 
 
 -- Add traveller types to destination

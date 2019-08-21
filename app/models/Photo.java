@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import io.ebean.Model;
+
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
@@ -50,9 +51,9 @@ public class Photo extends Model implements Taggable {
     @ManyToMany(mappedBy = "destinationPhotos")
     @JsonBackReference("photo-reference")
     @JoinTable(
-        name = "DestinationPhoto",
-        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
-        inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
+            name = "DestinationPhoto",
+            joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
+            inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
 
     public List<Destination> destinationPhotos;
 
@@ -66,10 +67,19 @@ public class Photo extends Model implements Taggable {
 
     @ManyToMany(mappedBy = "photos")
     @JoinTable(
-        name = "PhotoTag",
-        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
-        inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
+            name = "PhotoTag",
+            joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public Set<Tag> tags;
+
+    @JsonBackReference("destinationPrimaryPhotoReference")
+    @ManyToMany(mappedBy = "pendingPrimaryPhotos")
+    @JoinTable(
+            name = "PendingDestinationPhoto",
+            joinColumns = @JoinColumn(name = "photo_guid", referencedColumnName = "guid"),
+            inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
+    public Set<Destination> destinationPrimaryPhotos;
+
 
     /**
      * Returns the list of tags associated with the object
@@ -80,15 +90,6 @@ public class Photo extends Model implements Taggable {
     public Set<Tag> getTagsList() {
         return tags;
     }
-
-    @ManyToMany(mappedBy = "destinationPrimaryPhotoPending")
-    @JsonBackReference("dest-primary-photo-pending-reference")
-    @JoinTable(
-        name = "PendingDestinationPhoto",
-        joinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"),
-        inverseJoinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"))
-
-    public List<Destination> destPrimaryPhotoPending;
 
     /**
      * Removes given destination from photo.

@@ -83,19 +83,19 @@ public class Destination extends BaseModel implements Taggable {
         inverseJoinColumns = @JoinColumn(name = "traveller_type_definition_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypesPending;
 
-    @ManyToMany(mappedBy = "destPrimaryPhotoPending")
-    @JoinTable(
-        name = "PendingDestinationPhoto",
-        joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "photo_id", referencedColumnName = "guid"))
-    public List<Photo> destinationPrimaryPhotoPending;
-
     @ManyToMany(mappedBy = "destinations")
     @JoinTable(
         name = "DestinationTag",
         joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
         inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"))
     public Set<Tag> tags;
+
+    @ManyToMany(mappedBy = "destinationPrimaryPhotos")
+    @JoinTable(
+            name = "PendingDestinationPhoto",
+            joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "photo_guid", referencedColumnName = "guid"))
+    public List<Photo> pendingPrimaryPhotos;
 
     /**
      * Returns the list of tags associated with the object
@@ -194,7 +194,7 @@ public class Destination extends BaseModel implements Taggable {
      * @return True if dest is linked to photo
      */
     public Boolean hasPhotoPending(Long photoId) {
-        Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
+        Iterator<Photo> iterator = pendingPrimaryPhotos.iterator();
         while (iterator.hasNext()) {
             Photo photo = iterator.next();
             if (photo.guid.equals(photoId)) {
@@ -212,7 +212,7 @@ public class Destination extends BaseModel implements Taggable {
     public void addPendingDestinationProfilePhoto(Long photoId) {
         Photo photo = new Photo();
         photo.guid = photoId;
-        this.destinationPrimaryPhotoPending.add(photo);
+        this.pendingPrimaryPhotos.add(photo);
     }
 
     /**
@@ -222,7 +222,7 @@ public class Destination extends BaseModel implements Taggable {
      * @return true if the photo was removed, false if not
      */
     public Boolean removePendingDestinationPrimaryPhoto(Long photoId) {
-        Iterator<Photo> iterator = destinationPrimaryPhotoPending.iterator();
+        Iterator<Photo> iterator = pendingPrimaryPhotos.iterator();
         while (iterator.hasNext()) {
             Photo photo = iterator.next();
             if (photo.guid.equals(photoId)) {
