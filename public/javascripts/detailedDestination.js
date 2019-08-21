@@ -238,12 +238,79 @@ function populateEditDestination(destinationId) {
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
                 // Fills country picker
-                $('#countryDropDown').picker('set', destination.country.id);
+                $('#countryDropDown').selectpicker('val', destination.country.id);
                 // Fills tag input field
                 tagPicker.populateTags(destination.tags);
             }
         })
     })
+}
+
+/**
+ * The editCoverPhotoButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#changePrimaryPhotoButton").click(function () {
+    $("#changePrimaryPhotoModal").modal('show');
+    fillSelectionGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, "primary-photo-gallery", "current-page", function () {
+            setPrimaryPhoto(this.getAttribute("data-id"))
+        });
+});
+
+/**
+ * Sets the destination primary photo given a specific photoID
+ * @Param {Number} photoId the id of the photo to set as the cover photo
+ */
+function setPrimaryPhoto(photoId) {
+    const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
+        DESTINATIONID).url;
+
+    // Create reversible request to update primary photo to this new photo
+    const handler = (status, json) => {
+        if (status === 200) {
+            getPrimaryPicture();
+            $("#changePrimaryPhotoModal").modal('hide');
+            toast("Changes saved!",
+                "Primary photo changes saved successfully.",
+                "success");
+        } else {
+            toast("Error",
+                "Unable to update cover photo", "danger");
+        }
+    };
+
+    const requestData = new ReqData(requestTypes["UPDATE"],
+        primaryPicUpdateURL, handler, photoId);
+    undoRedo.sendAndAppend(requestData);
+
+}
+
+/**
+ * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
+ * the profile picture and cover photo path to it.
+ */
+function getPrimaryPicture() {
+    get(destinationRouter.controllers.backend.DestinationController.getDestination(
+        DESTINATIONID).url).then(response => {
+        // Read response from server, which will be a json object
+        if (response.status === 200) {
+            response.json().then(data => {
+                if (data.primaryPhoto === null) {
+                    $("#DestinationProfilePicture").attr("src",
+                        "/assets/images/default-destination-primary.png");
+                } else {
+                    $("#DestinationProfilePicture").attr("src",
+                        "../user_content/" + data.primaryPhoto.filename);
+                }
+            });
+        } else if (response.status === 404) {
+            $("#DestinationProfilePicture").attr("src",
+                "/assets/images/default-destination-primary.png");
+        }
+    });
 }
 
 /**

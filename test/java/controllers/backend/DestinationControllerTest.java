@@ -42,11 +42,11 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 
 public class DestinationControllerTest extends controllers.backend.ControllersTest {
 
     private static final String DEST_URL_SLASH = "/api/destination/";
-    private static final String USER_DEST_URL = "/api/user/destination/";
     private static final String CREATE_DEST_URL = "/api/destination";
     private static final String MAKE_PUBLIC_URL = "/api/destination/makePublic/";
     private static final String DEST_TRAV_TYPE_URL = "/travellertype/";
@@ -85,55 +85,22 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri(USER_DEST_URL + "1");
+            .uri(DEST_URL_SLASH + "search");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Destination> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Destination>>(){});
+
         // Deserialize result to list of destinations
-        List<Destination> destinations = Arrays.asList(
-            new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
+        List<Destination> destinations = response.data;
 
         // Check that list has exactly 10 results
-        assertEquals(10, destinations.size());
-
-        // Check that the destination is what we expect having run destination test evolution
-        Destination dest = destinations.get(0);
-        assertEquals("Eiffel Tower", dest.name);
-        assertEquals("Monument", dest.destType);
-        assertEquals("Paris", dest.district);
-        assertEquals(Double.valueOf(48.8583), dest.latitude);
-        assertEquals(Double.valueOf(2.2945), dest.longitude);
-        assertEquals(Long.valueOf(1), dest.country.id);
-        assertEquals(Long.valueOf(1), dest.id);
-        assertEquals(2, dest.travellerTypes.size());
-        assertEquals(2, dest.travellerTypesPending.size());
-        assertEquals(2, dest.tags.size());
-    }
-
-    @Test
-    public void getPublicDestinations() throws IOException {
-        // Gets all destinations of user with ID 1
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "getAllPublic");
-
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
-
-        // Deserialize result to list of destinations
-        List<Destination> destinations = Arrays.asList(
-            new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
-
-        // Check that list has exactly 2 results
-        assertEquals(2, destinations.size());
-
-        // Check that the destination is what we expect having run destination test evolution
-        assertEquals("Public dest one", destinations.get(0).name);
-        assertEquals("Public dest two", destinations.get(1).name);
+        assertEquals(8, destinations.size());
     }
 
     @Test
@@ -767,15 +734,17 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void addPrimaryPhotoOwner() throws IOException {
+    public void addPrimaryPhotoOwner() {
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
-            .uri(DEST_URL_SLASH + "2/photo/2/primary");
+            .bodyJson(Json.toJson("2"))
+            .uri(DEST_URL_SLASH + "2/photo/primary");
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+
     }
 
     @Test
@@ -783,10 +752,17 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri(DEST_URL_SLASH + "2/photo/2/primary");
+            .bodyJson(Json.toJson("2"))
+            .uri(DEST_URL_SLASH + "2/photo/primary");
 
         Result result = route(fakeApp, request);
         assertEquals(FORBIDDEN, result.status());
+
+        JsonNode json = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        assertEquals("You do not have permission to set this photo as the destination primary photo",
+            json.textValue());
+
     }
 
     @Test

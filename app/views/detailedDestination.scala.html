@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/profile.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame" style="pointer-events: all !important;">
@@ -32,9 +33,13 @@
 
     <body style="margin:auto">
         <div class="row destination" id="startchange">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-3">
                 @* Destination Details *@
                 <div id="destination-summary">
+                    @if(canModify) {
+                        <a id="changePrimaryPhotoButton" class="edit-button" style="top:0;"title="Edit Primary Picture"><i class="fas fa-pen fa-1x"></i></a>
+                    }
+                    <img src= "@routes.Assets.at("images/default-destination-primary.png")" id="DestinationProfilePicture" class="img-thumbnail profile-picture">
                     <div class="destination-details">
                         <div style="padding-bottom: 10px">
                             <span id="destination_name" class="destination_name h1" style="display: inline"></span>
@@ -129,12 +134,13 @@
                     <div>
                         <div class="section-title">
                             <p>
-                            <span class="section-title">Destination Photos</span>
-                                <a class="button-secondary" id="upload-gallery-image-button" >
-                                    <span class="destination-button" style="float: right; padding-left:10px;">Link Photo</span>
-                                </a>
-                                <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
-                                accept="image/jpeg, image/png" style="display: none;" multiple/>
+                            <span class="section-title" style="padding-right: 15px">Destination Photos</span>
+                            <select name="tagFilter" id="tagFilter"  data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                            <a class="button-secondary" id="upload-gallery-image-button" >
+                                <span class="destination-button" style="float: right; padding-left:10px;">Link Photo</span>
+                            </a>
+                            <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
+                            accept="image/jpeg, image/png" style="display: none;" multiple/>
                             </p>
                         </div>
                         @* Photo Gallery *
@@ -187,6 +193,21 @@
         </div>
     </div>
 
+    @*Gallery modal for selecting a destination primary photo, false as we want no titles and no add photo button*@
+    <div class="modal fade" id="changePrimaryPhotoModal" tabindex="-1" role="dialog" data-show="true" aria-labelledby="modalLabel">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Change Primary Photo</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                @* all images gallery *@
+                @modules.gallery(false, false, "primary-photo-gallery", "current-page", false)
+            </div>
+        </div>
+    </div>
 
     @* Make Destination Public Modal *@
     <div class="modal fade" id="makeDestinationPublicModal" role="dialog" data-show="true" aria-labelledby="modalLabel" data-backdrop="static" data-keyboard="false">
@@ -254,7 +275,7 @@
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         getAndFillDD("@controllers.backend.routes.TagController.getAllDestinationPhotoTags(destinationId)", ["tagFilter"], "name", false, "name");
         populateDestinationDetails(@destinationId);
-
+        getPrimaryPicture();
         const tagPicker = new TagPicker(@loggedUser.id, "detailed-destination-tag");
         const tagDisplay = new TagDisplay("detailed-destination-tag-display");
 </script>

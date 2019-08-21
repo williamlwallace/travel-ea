@@ -1,20 +1,22 @@
 let activeInfoWindow;
 let map;
 let toggled;
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+let paginationHelper;
 
 /**
  * Initializes destination page and map
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url;
+    paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
     const options = {
         zoom: 2.2,
         center: {lat: 0, lng: 0}
     };
     map = new DestinationMap(options, true, userId);
-    map.populateMarkers();
+    refreshData();
 
     google.maps.event.addListener(map.map, 'click', function (event) {
         if (!map.creativeMode) return;
@@ -29,6 +31,147 @@ function onPageLoad(userId) {
         toggleDestinationForm();
     });
 
+    toggleDestinationForm();
+
+}
+
+/**
+ * Returns a boolean of the getonlymine selector tick box
+ * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
+ */
+function getOnlyGetMine() {
+    const currentValue = $('#onlyGetMine').val();
+    return currentValue === "On";
+}
+
+/**
+ * Returns the string of the searchQuery field.
+ * @returns {string} a string of the data in the searchQuery field
+ */
+function getSearchQuery() {
+    return $('#searchQuery').val();
+}
+
+/**
+ * Get the value of the number of results to show per page
+ * @returns {number} The number of results shown per page
+ */
+function getPageSize() {
+    return $('#pageSize').val();
+}
+
+/**
+ * Returns the name of the db column to search by
+ * @returns {string} Name of db column to search by
+ */
+function getSortBy() {
+    return $('#sortBy').val();
+}
+
+/**
+ * Gets whether or not to sort by ascending
+ * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ */
+function getAscending() {
+    return $('#ascending').val();
+}
+
+/**
+ * Gets the destinations from the database given the query parameters set by the
+ * user with the destination filters.
+ * @returns {object} Returns a promise of the get request sent
+ */
+function getDestinations() {
+    const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
+
+    // Append non-list params
+    if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
+    if(getOnlyGetMine() !== "") { url.searchParams.append("onlyGetMine", getOnlyGetMine()); }
+
+    // Append pagination params
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("sortBy", getSortBy());
+    url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("requestOrder", requestOrder++);
+
+    return get(url)
+        .then(response => {
+            return response.json()
+                .then(json => {
+                    if (response.status !== 200) {
+                        toast("Error with destinations", "Cannot load destinations", "danger")
+                    } else {
+                        if(lastRecievedRequestOrder < json.requestOrder) {
+                            lastRecievedRequestOrder = json.requestOrder;
+                            paginationHelper.setTotalNumberOfPages(json.totalNumberPages);
+                            return json;
+                        }
+                    }
+                });
+        });
+}
+
+/**
+ * Refreshes the destination data and populates the map the destination cards
+ * with this.
+ */
+function refreshData() {
+    getDestinations().then((dests) => {
+        map.populateMarkers(dests);
+        createDestinationCards(dests);
+    }).then(() => {
+        map.addDestinations()
+    });
+}
+
+/**
+ * Resets the fields of the destinations filter
+ */
+function clearFilter() {
+    $('#searchQuery').val('');
+    $('#pageSize').val(10);
+}
+
+/**
+ * Takes a list of destinations and creates destination cards out of these.
+ * @param {Object} an array of destinations to display
+ */
+function createDestinationCards(dests) {
+    $("#destinationCardList").html("");
+    dests.data.forEach((dest) => {
+        const template = $("#destinationCardTemplate").get(0);
+        const clone = template.content.cloneNode(true);
+        let tags = "";
+        let travellerTypes = "";
+
+        $(clone).find("#card-header").append(dest.name);
+        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
+        $(clone).find("#district").append("District: " + dest.district);
+        $(clone).find("#country").append("Country: " + dest.country.name);
+        $(clone).find("#destType").append("Type: " + dest.destType);
+        $(clone).find("#card-header").attr("data-id", dest.id.toString());
+        $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
+
+        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+            location.href = '/destinations/' + $(this).data().id;
+        });
+
+        dest.tags.forEach(item => {
+            tags += item.name + ", ";
+        });
+        tags = tags.slice(0, -2);
+
+        dest.travellerTypes.forEach(item => {
+            travellerTypes += item.description + ", ";
+        });
+        travellerTypes = travellerTypes.slice(0, -2);
+
+        $(clone).find("#travellerTypes").append("Traveller Types: " + travellerTypes);
+        $(clone).find("#tags").append("Tags: " + tags);
+
+        $("#destinationCardList").get(0).appendChild(clone);
+    });
     $('#destinationTags').tagsinput({
         trimValue: true
     });
@@ -102,18 +245,15 @@ function addDestination(url, redirect, userId) {
                 }
             }
 
-            //TODO:refresh cards
+            refreshData();
             toggled = true;
             toggleDestinationForm();
-            this.map.populateMarkers();
-            this.map.removeNewMarker();
 
         }
     }.bind({userId, data, map});
     const inverseHandler = function (status, json) {
         if (status === 200) {
-            //TODO:refresh cards
-            map.populateMarkers();
+            refreshData();
         }
     }.bind({map});
     // Post json data to given url
@@ -174,9 +314,9 @@ function toggleDestinationForm() {
         $("#arrow").attr('class', "fas fa-1x fa-arrow-left");
         toggled = false;
     } else {
-        $("#mainSection").attr('class', 'col-md-9');
+        $("#mainSection").attr('class', 'col-md-8');
         $("#createDestinationPopOut").attr('class',
-            'col-md-3 showCreateDestinationPopOut');
+            'col-md-4 showCreateDestinationPopOut');
         $("#arrow").attr('class', "fas fa-1x fa-arrow-right");
         toggled = true;
     }
@@ -200,3 +340,4 @@ $('#createNewDestinationButton').click(function () {
             "/", userId)
     );
 });
+

@@ -3,6 +3,14 @@
     display: inline-block;
     width:200px;
     height:90px;
+    text-align: left;
+}
+
+.filterItemDiv {
+    padding: 10px;
+    display: inline-block;
+    width:200px;
+    height:90px;
 }
 
 input::-webkit-outer-spin-button,
@@ -17,7 +25,8 @@ input[type=number] {
 }
 
 #filterButton {
-    float: right;
+    margin: auto;
+    display: block;
 }
 
 #collapseExample {

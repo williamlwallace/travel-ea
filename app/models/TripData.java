@@ -29,7 +29,7 @@ public class TripData extends Model {
     public Long guid;
 
     @ManyToOne
-    @JsonBackReference
+    @JsonBackReference(value = "trip-refrence")
     public Trip trip;
 
     @Constraints.Required
