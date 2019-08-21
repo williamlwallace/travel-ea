@@ -19,7 +19,7 @@ $(document).ready(function () {
     };
     //set table population urls
     // const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
-    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url;
+    // const ttGetURL = destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url;
     const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinationsWithRequests().url;
     const ttTableModal = {
         createdRow: function (row, data) {
