@@ -568,6 +568,12 @@ public class DestinationController extends TEABackController {
             .thenApplyAsync(destinations -> ok(Json.toJson(new PagingResponse<>(destinations.getList(), requestOrder, destinations.getTotalPageCount()))));
     }
 
+//    /**
+//     * Gets all the destination traveller type modification request
+//     *
+//     */
+//    public CompletableFuture<Result>
+
     /**
      * Gets the google api key
      *
@@ -605,7 +611,8 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController.addNewDestination(),
                 controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto(),
                 controllers.backend.routes.javascript.DestinationController.rejectDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto()
+                controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController.getDestination()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

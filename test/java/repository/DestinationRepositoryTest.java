@@ -255,4 +255,12 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
             System.out.println(tag.id + " " + tag.name);
         }
     }
+
+    @Test
+    public void getDestinationTravellerTypeRequest() {
+        List<Destination> destinations = destinationRepository.getAllDestinationRequests().join();
+
+        assertEquals(1, destinations.size());
+        assertEquals(2, destinations.get(0).travellerTypesPending.size());
+    }
 }

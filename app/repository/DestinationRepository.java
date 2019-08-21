@@ -7,15 +7,14 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.PagedList;
-import java.util.Collection;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.Destination;
-import models.DestinationTag;
-import models.TripData;
+
+import models.*;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
 
@@ -301,6 +300,27 @@ public class DestinationRepository {
         return supplyAsync(() -> ebeanServer.find(Destination.class)
                 .findList()
             , executionContext);
+    }
+
+    /**
+     * Gets all destinations with a traveller type modification request.
+     *
+     * @return List of destinations
+     */
+    public CompletableFuture<List<Destination>> getAllDestinationRequests() {
+        return supplyAsync(() -> {
+            return ebeanServer.find(Destination.class).where().idEq("1").findList();
+//            List<DestinationTravellerTypePending> pendings = ebeanServer.find(DestinationTravellerTypePending.class)
+//                    .findList();
+//
+//            Set<Long> destinationsWithPending = new HashSet<>();
+//
+//            for (DestinationTravellerTypePending pending : pendings) {
+//                destinationsWithPending.add(pending.destId);
+//            }
+//
+//            return ebeanServer.find(Destination.class).where().idIn(destinationsWithPending).findList();
+        }, executionContext);
     }
 
     /**

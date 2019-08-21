@@ -42,7 +42,7 @@ function getTripResults() {
 
                     $(".card").click((element) => {
                         populateModal($(element.currentTarget).find("#card-header").data().id);
-                    })
+                    });
                     paginationHelper.setTotalNumberOfPages(totalNumberPages);
 
                 }
