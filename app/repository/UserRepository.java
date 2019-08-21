@@ -6,7 +6,6 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.PagedList;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -52,7 +51,7 @@ public class UserRepository {
                 .where()
                 .ne("id", String.valueOf(userId))
                 .ilike("username", "%" + cleanedSearchQuery + "%")
-                .orderBy((sortBy == null ? "creation_date" : sortBy) + " " + (ascending ? "asc"
+                .orderBy((sortBy == null ? "id" : sortBy) + " " + (ascending ? "asc"
                     : "desc"))
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)

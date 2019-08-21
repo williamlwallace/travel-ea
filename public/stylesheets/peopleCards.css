@@ -15,9 +15,11 @@
 }
 
 #banner {
-    height: 13%;
+    height: 10%;
     /*background: linear-gradient(40deg,#2096ff,#05ffa3) !important;*/
-    background: linear-gradient(40deg,#45cafc,#303f9f)
+    background: linear-gradient(40deg,#45cafc,#303f9f);
+    align-items: center;
+    justify-content: center;
 }
 
 #thumbnail-div {
@@ -26,4 +28,14 @@
 
 #card-cover-photo {
 
+}
+
+#card-header {
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    display: inline-block;
+    color: #FFFFFF;
+    font-size: 3rem;
+    opacity: 1;
+    text-shadow: 2px 2px 7px #0000008a;
 }
