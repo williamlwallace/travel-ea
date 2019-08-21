@@ -4,8 +4,10 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.ebean.PagedList;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -20,6 +22,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.ProfileRepository;
 import repository.TravellerTypeDefinitionRepository;
+import util.objects.PagingResponse;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
 
@@ -187,84 +190,50 @@ public class ProfileController extends TEABackController {
     /**
      * Retrieves all profiles, filters them and then returns the filtered list of profiles.
      *
-     * @param nationalityId nationality request
-     * @param gender gender requested
+     * @param nationalityIds nationality request
+     * @param genders gender requested
      * @param minAge minimum age for filter
      * @param maxAge maximum age for filter
-     * @param travellerTypeId traveller type requested
+     * @param travellerTypeIds traveller type requested
+     * @param searchQuery The string to filter names by
+     * @param sortBy What column to sort by
+     * @param ascending Whether or not to sort ascendingly
+     * @param pageNum Number of page we are currently showing
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order that this request has, allows frontend to determine what results to take
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<List<Profile>> searchProfiles(Http.Request request, Long nationalityId,
-        String gender, int minAge, int maxAge, Long travellerTypeId) {
+    public CompletableFuture<Result> searchProfilesJson(Http.Request request,
+        List<Long> nationalityIds,
+        List<Long> travellerTypeIds,
+        List<String> genders,
+        Integer minAge,
+        Integer maxAge,
+        String searchQuery,
+        String sortBy,
+        Boolean ascending,
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
+
         User user = request.attrs().get(ActionState.USER);
-        return profileRepository.getAllProfiles(user.id).thenApplyAsync(profiles -> {
-            List<Profile> toReturn = new ArrayList<>(profiles);
 
-            for (Profile profile : profiles) {
-                if (gender != null && !gender.equals("") && !profile.gender
-                    .equalsIgnoreCase(gender)) {
-                    toReturn.remove(profile);
-                    continue;
-                }
+        // Constrain sortBy to a set, default to creation date
+        if(sortBy == null ||
+            !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth", "gender", "creation_date").contains(sortBy)) {
+            sortBy = "creation_date";
+        }
 
-                int age = profile.calculateAge();
-                if (age < minAge || age > maxAge) {
-                    toReturn.remove(profile);
-                    continue;
-                }
-
-                if (nationalityId != 0) {
-                    boolean found = false;
-                    for (CountryDefinition country : profile.nationalities) {
-
-                        if (country.id.equals(nationalityId)) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        toReturn.remove(profile);
-                        continue;
-                    }
-                }
-                if (travellerTypeId != 0) {
-                    boolean found = false;
-                    for (TravellerTypeDefinition travellerTypeDefinition : profile.travellerTypes) {
-                        if (travellerTypeDefinition.id.equals(travellerTypeId)) {
-                            found = true;
-                        }
-                    }
-                    if (!found) {
-                        toReturn.remove(profile);
-                    }
-                }
-
-            }
-
-            return toReturn;
-        });
-    }
-
-    /**
-     * Retrieves all profiles, filters them and returns the result inside a Result object as JSON.
-     *
-     * @param nationalityId nationality request
-     * @param gender gender requested
-     * @param minAge minimum age for filter
-     * @param maxAge maximum age for filter
-     * @param travellerTypeId traveller type requested
-     * @return A ok result containing the JSON of the profiles matching search criteria
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> searchProfilesJson(Http.Request request, Long nationalityId,
-        String gender,
-        int minAge, int maxAge, Long travellerTypeId) {
-        return searchProfiles(request, nationalityId, gender, minAge, maxAge, travellerTypeId)
+        return profileRepository.getAllProfiles(user.id, nationalityIds, travellerTypeIds, genders,
+            minAge, maxAge, searchQuery, sortBy, ascending, pageNum, pageSize)
             .thenApplyAsync(profiles -> {
                 try {
-                    return ok(sanitizeJson(Json.toJson(profiles)));
+                    return ok(sanitizeJson(Json.toJson(
+                        new PagingResponse<>(profiles.getList(), requestOrder, profiles.getTotalPageCount())
+                    )));
                 } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    return internalServerError(Json.toJson("Failed to serialize response"));
                 }
             });
     }

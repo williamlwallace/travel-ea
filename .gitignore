@@ -1,6 +1,9 @@
 #node
 node_modules/
 
+#Aplication.conf
+conf/application.conf
+
 # Ignore Play! working directory #
 bin/
 /db
@@ -42,6 +45,9 @@ server.pid
 *.jar
 *.war
 *.ear
+
+# Application Config
+/conf/application.conf
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

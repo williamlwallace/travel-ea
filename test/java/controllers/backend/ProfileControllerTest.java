@@ -12,11 +12,13 @@ import static play.test.Helpers.UNAUTHORIZED;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import models.CountryDefinition;
@@ -28,7 +30,9 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 
+@SuppressWarnings("unchecked")
 public class ProfileControllerTest extends ControllersTest {
 
     /**
@@ -224,9 +228,12 @@ public class ProfileControllerTest extends ControllersTest {
             .uri("/api/profile/search?" + parameters);
 
         Result result = route(fakeApp, request);
+        ObjectMapper mapper = new ObjectMapper();
 
-        return Arrays
-            .asList(new ObjectMapper().readValue(Helpers.contentAsString(result), Profile[].class));
+        PagingResponse<Profile> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Profile>>(){});
+
+        return response.data;
     }
 
     @Test
@@ -255,7 +262,7 @@ public class ProfileControllerTest extends ControllersTest {
 
     @Test
     public void searchProfilesGenderMale() throws IOException {
-        List<Profile> profiles = searchProfiles("gender=male");
+        List<Profile> profiles = searchProfiles("genders=Male");
 
         //Expect 2 profiles to be found
         assertEquals(1, profiles.size());
@@ -267,7 +274,7 @@ public class ProfileControllerTest extends ControllersTest {
 
     @Test
     public void searchProfilesGenderOther() throws IOException {
-        List<Profile> profiles = searchProfiles("gender=other");
+        List<Profile> profiles = searchProfiles("genders=Other");
 
         //Expect 1 profiles to be found
         assertEquals(1, profiles.size());
@@ -279,7 +286,7 @@ public class ProfileControllerTest extends ControllersTest {
 
     @Test
     public void searchProfilesNationalityFrance() throws IOException {
-        List<Profile> profiles = searchProfiles("nationalityId=2");
+        List<Profile> profiles = searchProfiles("nationalityIds=2");
 
         long countryId = 2;
 
@@ -299,7 +306,7 @@ public class ProfileControllerTest extends ControllersTest {
 
     @Test
     public void searchProfilesTravellerTypeBackpacker() throws IOException {
-        List<Profile> profiles = searchProfiles("travellerTypeId=2");
+        List<Profile> profiles = searchProfiles("travellerTypeIds=2");
 
         long travellerTypeId = 2;
 
@@ -351,7 +358,7 @@ public class ProfileControllerTest extends ControllersTest {
 
     @Test
     public void searchProfilesMultipleParams() throws IOException {
-        List<Profile> profiles = searchProfiles("minAge=20&travellerTypeId=1");
+        List<Profile> profiles = searchProfiles("minAge=20&travellerTypeIds=1");
 
         long travellerTypeId = 1;
 

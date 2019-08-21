@@ -5,10 +5,12 @@
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.googleMapsHelper()"></script>
     <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
 @layouts.main("Destinations", user, scripts){
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/destinations.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -21,110 +23,177 @@
 
     <body>
         <div class="destination row" id="startchange">
-
             <div id="mainSection" class="col-md-12">
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="black-nav nav-link active" id="map-tab" data-toggle="tab" href="#mapTab" role="tab" aria-controls="mapTab" aria-selected="true">Map</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="black-nav nav-link" id="table-tab" data-toggle="tab" href="#tableTab" role="tab" aria-controls="tableTab" aria-selected="false">Table</a>
-                    </li>
-                </ul>
-
-                <div class="tab-content pt-2" id="myTabContent">
-                    <button class="createButton btn" id="createDestinationButton" onclick="toggleDestinationForm()" >
-                        <i class="fas fa-1x fa-arrow-left" id="arrow" style="color: #666666;"></i>
-                    </button>
-
-                    <div class="tab-pane fade show active" id="mapTab" role="tabpanel" aria-labelledby="map-tab">
-                        @* The destination map *@
-                        <div id="map" style="height: 800px;"></div>
-                    </div>
-                    <div class="tab-pane fade" id="tableTab" role="tabpanel" aria-labelledby="table-tab">
-                        <div class="container">
-                            @* The destination table *@
-                            <div>
-                                <table id="dtDestination" class="table table-hover table-bordered" cellspacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th class="th-sm">Name</th>
-                                            <th class="th-sm">Type</th>
-                                            <th class="th-sm">District</th>
-                                            <th class="th-sm">Latitude</th>
-                                            <th class="th-sm">Longitude</th>
-                                            <th class="th-sm">Country</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="destinationList">
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
+                @* The destination map *@
+                <div id="map" style="height: 900px;"></div>
+                <button class="createButton btn" id="createDestinationButton" onclick="toggleDestinationForm()" >
+                    <i class="fas fa-1x fa-arrow-left" id="arrow" style="color: #666666;"></i>
+                </button>
             </div>
 
             <div id="createDestinationPopOut" class="col-md-0 hideCreateDestinationPopOut">
-                <H2>Create New Destination</H2>
-                <form id="addDestinationForm">
-                    <div>
-                        <div>Name
-                            <em class="fas prefix grey-text"></em>
-                            <input type="text" name="name" class="form-control validate" required>
-                            <label id="nameError" class="error-messages"></label>
-                        </div>
+                <div class="tab-content pt-2" id="myTabContent">
 
-                        <div>Type
-                            <em class="fas prefix grey-text"></em>
-                            <input type="text" name="destType" class="form-control validate" required>
-                            <label id="_typeError" class="error-messages"></label>
-                        </div>
+                    <H2>Destinations</H2>
 
-                        <div>District
-                            <em class="fas prefix grey-text"></em>
-                            <input type="text" name="district" class="form-control validate" required>
-                            <label id="districtError" class="error-messages"></label>
-                        </div>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="black-nav nav-link active" id="card-tab" data-toggle="tab" href="#cardsTab" role="tab" aria-controls="tableTab" aria-selected="false">View</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="black-nav nav-link" id="create-tab" data-toggle="tab" href="#createTab" role="tab" aria-controls="mapTab" aria-selected="true">Create</a>
+                        </li>
+                    </ul>
 
-                        <div>Latitude
-                            <em class="fas prefix grey-text"></em>
-                            <input type="number" name="latitude" id="latitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" value="0" required>
-                            <label id="latitudeError" class="error-messages"></label>
-                        </div>
+                    <div class="tab-pane fade show active" id="cardsTab" role="tabpanel" aria-labelledby="card-tab">
 
-                        <div>Longitude
-                            <em class="fas prefix grey-text"></em>
-                            <input type="number" name="longitude" id="longitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" value="0" required>
-                            <label id="longitudeError" class="error-messages"></label>
-                        </div>
+                        <div class="container pt-4">
+                            <div class="filterButtonContainer">
+                                <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
+                                aria-expanded="false" aria-controls="collapseDestinationFilter">Filter</button>
+                            </div>
 
+                            @* The destination filter options *@
+                            <div class="collapse" id="collapseDestinationFilter">
+                                <div class="card card-body" id="card-body">
+                                    <div class="filterItemDiv">
+                                        <label for="searchQuery">Search</label>
+                                        <input id="searchQuery" class="form-control validate"/>
+                                    </div>
+                                    <div class="filterItemDiv pt-2  pb-2">
+                                        <label for="pageSize">Results per page</label>
+                                        <input id="pageSize" type="number" class="form-control validate" value="10" min="1"/>
+                                    </div>
+
+                                        <label for="sortBy">Sort by</label>
+                                        <div class="row">
+                                            <div class="filterItemDiv col">
+                                                <select id="sortBy" class="form-control selectpicker" data-style="form-control">
+                                                    <option value="name">Name</option>
+                                                    <option value="type">Type</option>
+                                                    <option value="country.name">Country</option>
+                                                    <option value="last_name">Last Name</option>
+                                                </select>
+                                            </div>
+                                            <div class="filterItemDiv col">
+                                                <select id="ascending" class="form-control selectpicker" data-style="form-control">
+                                                    <option value="true">Ascending</option>
+                                                    <option value="false">Descending</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    <div class="form-check pt-3">
+                                        <input type="checkbox" class="form-check-input" id="onlyGetMine">
+                                        <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
+                                    </div>
+
+                                    <div class="text-center pt-3" id="buttonDiv">
+                                        <div id="applyButton">
+                                            <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
+                                            <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @* The destinations cards *@
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-destinations pt-3">
+                                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </nav>
+                            @modules.destinationCards()
+                            <div id="destinationCardList"></div>
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination pagination-destinations pt-2">
+                                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                </ul>
+                            </nav>
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="createTab" role="tabpanel" aria-labelledby="create-tab">
+                        <form id="addDestinationForm" class="pt-2">
+                            <div>
+                                <div>Name
+                                    <em class="fas prefix grey-text"></em>
+                                    <input type="text" name="name" class="form-control validate" required>
+                                    <label id="nameError" class="error-messages"></label>
+                                </div>
+
+                                <div>Type
+                                    <em class="fas prefix grey-text"></em>
+                                    <input type="text" name="destType" class="form-control validate" required>
+                                    <label id="_typeError" class="error-messages"></label>
+                                </div>
+
+                                <div>District
+                                    <em class="fas prefix grey-text"></em>
+                                    <input type="text" name="district" class="form-control validate" required>
+                                    <label id="districtError" class="error-messages"></label>
+                                </div>
+
+                                <div>Latitude
+                                    <em class="fas prefix grey-text"></em>
+                                    <input type="number" name="latitude" id="latitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" value="0" required>
+                                    <label id="latitudeError" class="error-messages"></label>
+                                </div>
+
+                                <div>Longitude
+                                    <em class="fas prefix grey-text"></em>
+                                    <input type="number" name="longitude" id="longitude" class="form-control validate" pattern="[0-9]+([\.,][0-9]+)?" step="any" value="0" required>
+                                    <label id="longitudeError" class="error-messages"></label>
+                                </div>
+
+                                <div>Country
+                                    <em class="fas prefix grey-text"></em>
+                                    <select id="countryDropDown" name="countryId"
+                                    class="form-control validate selectpicker"
+                                    data-live-search="true"
+                                    data-size="5"></select>
+                                    <label id="countryError" class="error-messages"></label>
+                                </div>
+                            </div>
+                        </form>
                         <div>Country
                             <em class="fas prefix grey-text"></em>
-                            <select id="countryDropDown" name="countryId" class="form-control validate">
-
-                            </select>
+                            <select id="countryDropDown" name="countryId"
+                            class="form-control validate selectpicker"
+                            data-live-search="true"
+                            data-size="5"></select>
                             <label id="countryError" class="error-messages"></label>
+                        </div>
+                        <br/>
+                        <div>
+                            @modules.tagPicker("destinations-tag")
                         </div>
                     </div>
                 </form>
 
-                <div class="modal-footer d-flex justify-content-center">
-                    <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
-                    </button>
-                    <button class="btn btn-primary" id="createNewDestinationButton">
-                        Create
-                    </button>
-                    <label id="otherError"></label>
+                        <div class="modal-footer d-flex justify-content-center">
+                            <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
+                            </button>
+                            <button class="btn btn-primary" id="createNewDestinationButton">
+                                Create
+                            </button>
+                            <label id="otherError"></label>
+                        </div>
+                    </div>
+
                 </div>
             </div>
-
         </div>
     </body>
 }
 
+<script src="@routes.Assets.at("javascripts/common/markerclusterer.js")"></script>
 <script type="text/javascript">
     onPageLoad(@user.id);
     getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+
+    const tagPicker = new TagPicker(@user.id, "destinations-tag");
 </script>

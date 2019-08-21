@@ -5,13 +5,18 @@ import actions.Authenticator;
 import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.typesafe.config.Config;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.Tag;
 import models.User;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
@@ -23,6 +28,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.UserRepository;
 import util.CryptoManager;
+import util.objects.PagingResponse;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
 
@@ -54,17 +60,27 @@ public class UserController extends TEABackController {
      * Display the paginated list of users.
      *
      * @param request HTTP request
-     * @param order Sort order (either asc or desc)
-     * @param filter Filter applied on user names
-     * @return Returns a CompletionStage ok type for successful query
+     * @param searchQuery username to search by
+     * @param sortBy column to sort by
+     * @param ascending returns results in ascending order if true or descending order if false
+     * @param pageNum page number you are on
+     * @param pageSize number of results per page
+     * @param requestOrder The order that this request has, allows frontend to determine what
+     * results to take
+     * @return a PagedList of users
      */
     @With({Admin.class, Authenticator.class})
-    public CompletableFuture<Result> userSearch(Http.Request request, String order, String filter) {
-        // Run a db operation in another thread (using DatabaseExecutionContext)
-        return userRepository.search(order, filter, request.attrs().get(ActionState.USER).id)
+    public CompletableFuture<Result> userSearch(Http.Request request, String searchQuery,
+        String sortBy, Boolean ascending, Integer pageNum, Integer pageSize, Integer requestOrder) {
+
+        return userRepository
+            .search(request.attrs().get(ActionState.USER).id, searchQuery, sortBy, ascending,
+                pageNum, pageSize)
             .thenApplyAsync(users -> {
                 try {
-                    return ok(sanitizeJson(Json.toJson(users)));
+                    return ok(sanitizeJson(Json.toJson(
+                        new PagingResponse<>(users.getList(), requestOrder,
+                            users.getTotalPageCount()))));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
@@ -277,8 +293,15 @@ public class UserController extends TEABackController {
                 if (user == null) {
                     return badRequest();
                 } else {
+                    // Builds User object replacing usedTags with tags
+                    ObjectMapper mapper = new ObjectMapper();
+                    final ObjectNode userNode = mapper.valueToTree(user);
+                    Set<Tag> tags = user.usedTags.stream().map(usedTag -> usedTag.tag)
+                        .collect(Collectors.toSet());
+                    userNode.replace("usedTags", Json.toJson(tags));
+
                     try {
-                        return ok(sanitizeJson(Json.toJson(user)));
+                        return ok(sanitizeJson(userNode));
                     } catch (IOException e) {
                         return internalServerError(Json.toJson(SANITIZATION_ERROR));
                     }
@@ -325,7 +348,8 @@ public class UserController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
-                controllers.backend.routes.javascript.UserController.userSearch()
+                controllers.backend.routes.javascript.UserController.userSearch(),
+                controllers.backend.routes.javascript.UserController.getUser()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

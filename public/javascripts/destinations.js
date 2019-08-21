@@ -1,44 +1,180 @@
-let table;
 let activeInfoWindow;
 let map;
 let toggled;
+let requestOrder = 0;
+let lastRecievedRequestOrder = -1;
+let paginationHelper;
 
 /**
- * Initializes destination table and calls method to populate
+ * Initializes destination page and map
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    const destinationGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        userId).url;
-    const tableModal = {
-        createdRow: function (row, data, dataIndex) {
-            $(row).attr('data-href', data[data.length - 1]);
-            $(row).addClass("clickable-row");
-        }
-    };
-    table = new EATable('dtDestination', tableModal, destinationGetURL,
-        populateDestinations, (json) => {
-            document.getElementById("otherError").innerHTML = json;
-        });
+    paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
     const options = {
-        zoom: 1.8,
-        center: {lat: 2, lng: 2}
+        zoom: 2.2,
+        center: {lat: 0, lng: 0}
     };
     map = new DestinationMap(options, true, userId);
-    map.populateMarkers().then(() => map.addDestinations());
+    refreshData();
 
     google.maps.event.addListener(map.map, 'click', function (event) {
-        if (this.newMarker) {
-            this.newMarker.setPosition(event.latLng);
+        if (!map.creativeMode) return;
+        if (map.newMarker) {
+            map.newMarker.setPosition(event.latLng);
         } else {
-            this.newMarker = this.placeMarker(event.latLng, null);
+            map.newMarker = map.placeMarker(event.latLng, null);
         }
         $('#latitude').val(event.latLng.lat);
         $('#longitude').val(event.latLng.lng);
         toggled = false;
         toggleDestinationForm();
-    }.bind(map));
+    });
 
+    toggleDestinationForm();
+
+}
+
+/**
+ * Returns a boolean of the getonlymine selector tick box
+ * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
+ */
+function getOnlyGetMine() {
+    const currentValue = $('#onlyGetMine').val();
+    return currentValue === "On";
+}
+
+/**
+ * Returns the string of the searchQuery field.
+ * @returns {string} a string of the data in the searchQuery field
+ */
+function getSearchQuery() {
+    return $('#searchQuery').val();
+}
+
+/**
+ * Get the value of the number of results to show per page
+ * @returns {number} The number of results shown per page
+ */
+function getPageSize() {
+    return $('#pageSize').val();
+}
+
+/**
+ * Returns the name of the db column to search by
+ * @returns {string} Name of db column to search by
+ */
+function getSortBy() {
+    return $('#sortBy').val();
+}
+
+/**
+ * Gets whether or not to sort by ascending
+ * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ */
+function getAscending() {
+    return $('#ascending').val();
+}
+
+/**
+ * Gets the destinations from the database given the query parameters set by the
+ * user with the destination filters.
+ * @returns {object} Returns a promise of the get request sent
+ */
+function getDestinations() {
+    const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
+
+    // Append non-list params
+    if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
+    if(getOnlyGetMine() !== "") { url.searchParams.append("onlyGetMine", getOnlyGetMine()); }
+
+    // Append pagination params
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("sortBy", getSortBy());
+    url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("requestOrder", requestOrder++);
+
+    return get(url)
+        .then(response => {
+            return response.json()
+                .then(json => {
+                    if (response.status !== 200) {
+                        toast("Error with destinations", "Cannot load destinations", "danger")
+                    } else {
+                        if(lastRecievedRequestOrder < json.requestOrder) {
+                            lastRecievedRequestOrder = json.requestOrder;
+                            paginationHelper.setTotalNumberOfPages(json.totalNumberPages);
+                            return json;
+                        }
+                    }
+                });
+        });
+}
+
+/**
+ * Refreshes the destination data and populates the map the destination cards
+ * with this.
+ */
+function refreshData() {
+    getDestinations().then((dests) => {
+        map.populateMarkers(dests);
+        createDestinationCards(dests);
+    }).then(() => {
+        map.addDestinations()
+    });
+}
+
+/**
+ * Resets the fields of the destinations filter
+ */
+function clearFilter() {
+    $('#searchQuery').val('');
+    $('#pageSize').val(10);
+}
+
+/**
+ * Takes a list of destinations and creates destination cards out of these.
+ * @param {Object} an array of destinations to display
+ */
+function createDestinationCards(dests) {
+    $("#destinationCardList").html("");
+    dests.data.forEach((dest) => {
+        const template = $("#destinationCardTemplate").get(0);
+        const clone = template.content.cloneNode(true);
+        let tags = "";
+        let travellerTypes = "";
+
+        $(clone).find("#card-header").append(dest.name);
+        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
+        $(clone).find("#district").append("District: " + dest.district);
+        $(clone).find("#country").append("Country: " + dest.country.name);
+        $(clone).find("#destType").append("Type: " + dest.destType);
+        $(clone).find("#card-header").attr("data-id", dest.id.toString());
+        $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
+
+        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+            location.href = '/destinations/' + $(this).data().id;
+        });
+
+        dest.tags.forEach(item => {
+            tags += item.name + ", ";
+        });
+        tags = tags.slice(0, -2);
+
+        dest.travellerTypes.forEach(item => {
+            travellerTypes += item.description + ", ";
+        });
+        travellerTypes = travellerTypes.slice(0, -2);
+
+        $(clone).find("#travellerTypes").append("Traveller Types: " + travellerTypes);
+        $(clone).find("#tags").append("Tags: " + tags);
+
+        $("#destinationCardList").get(0).appendChild(clone);
+    });
+    $('#destinationTags').tagsinput({
+        trimValue: true
+    });
 }
 
 /**
@@ -68,6 +204,9 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    const destinationTags = tagPicker.getTags();
+    data.tags = destinationTags.map((tag) => {return {name:tag}});
+
     //Create response handler
     const handler = function (status, json) {
         if (status !== 200) {
@@ -81,7 +220,7 @@ function addDestination(url, redirect, userId) {
             }
         } else {
             toast("Destination Created!",
-                "The new destination will be added to the table.",
+                "The new destination will be added.",
                 "success");
             $('#createDestinationModal').modal('hide');
             resetDestinationModal();
@@ -106,18 +245,15 @@ function addDestination(url, redirect, userId) {
                 }
             }
 
-            table.populateTable();
+            refreshData();
             toggled = true;
             toggleDestinationForm();
-            this.map.populateMarkers();
-            this.map.removeNewMarker();
 
         }
     }.bind({userId, data, map});
     const inverseHandler = function (status, json) {
         if (status === 200) {
-            table.populateTable();
-            map.populateMarkers();
+            refreshData();
         }
     }.bind({map});
     // Post json data to given url
@@ -132,38 +268,8 @@ function addDestination(url, redirect, userId) {
  */
 function resetDestinationModal() {
     document.getElementById("addDestinationForm").reset();
+    tagPicker.clearTags();
     hideErrors("addDestinationForm");
-}
-
-/**
- * Insert destination data into table
- * @param {Object} json Json object containing destination data
- */
-function populateDestinations(json) {
-    const rows = [];
-    for (const dest in json) {
-        const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-            json[dest].id).url;
-        const name = json[dest].name;
-        const type = json[dest].destType;
-        const district = json[dest].district;
-        const latitude = json[dest].latitude.toFixed(2);
-        const longitude = json[dest].longitude.toFixed(2);
-        let country = json[dest].country.name;
-        const row = checkCountryValidity(json[dest].country.name,
-            json[dest].country.id)
-        .then(result => {
-            if (result === false) {
-                country = json[dest].country.name + ' (invalid)';
-            }
-            return [name, type, district, latitude, longitude, country,
-                destination]
-        });
-        rows.push(row);
-    }
-    return Promise.all(rows).then(finishedRows => {
-        return finishedRows
-    });
 }
 
 /**
@@ -208,20 +314,13 @@ function toggleDestinationForm() {
         $("#arrow").attr('class', "fas fa-1x fa-arrow-left");
         toggled = false;
     } else {
-        $("#mainSection").attr('class', 'col-md-9');
+        $("#mainSection").attr('class', 'col-md-8');
         $("#createDestinationPopOut").attr('class',
-            'col-md-3 showCreateDestinationPopOut');
+            'col-md-4 showCreateDestinationPopOut');
         $("#arrow").attr('class', "fas fa-1x fa-arrow-right");
         toggled = true;
     }
 }
-
-/**
- * Redirect to the destinations details page when row is clicked.
- */
-$('#dtDestination').on('click', 'tbody tr', function () {
-    window.location = this.dataset.href;
-});
 
 /**
  * On click listener for the create destinations cancel button
@@ -241,3 +340,4 @@ $('#createNewDestinationButton').click(function () {
             "/", userId)
     );
 });
+

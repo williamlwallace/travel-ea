@@ -1,3 +1,9 @@
+.filterButton {
+    margin-bottom: 10px;
+    float:right;
+    display:block;
+}
+
 /**
  * The full profile page
  */
@@ -114,7 +120,6 @@ img.profile-picture {
     border: none !important;
     background-color: rgba(0, 0, 0, 0) !important;
     padding: 2%;
-    cursor: pointer;
 }
 
 /**
@@ -316,4 +321,21 @@ section#timeline article:nth-child(n) div.inner h2:after {
 section#timeline a {
     color: #FFFFFF;
     font-size: larger;
+}
+
+/**
+ * Edit Button
+ */
+.edit-button {
+    position: absolute;
+    right: 0;
+    color: grey !important;
+    cursor: pointer;
+    background-color: white;
+    margin: 2px;
+    padding: 5px;
+    border-radius: 5px;
+}
+.edit-button:hover {
+    color: #000000 !important;
 }

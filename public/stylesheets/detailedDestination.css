@@ -2,21 +2,21 @@
  * The full detailed destination page
  */
 div.destination {
-    padding-right: 3%;
-    padding-left: 3%;
+    padding-right: 4%;
+    padding-left: 4%;
     margin-right: 0;
     margin-left: 0;
 }
 
 /**
  * The left hand summary of the destination details,
- * Same as the profile details, but no photo and in line so
- * no -12o margin top
+ * Same as the profile details
  */
 #destination-summary {
     background-color: #FFFFFF;
-    width: 68%;
+    width: 80%;
     height: auto;
+    margin-top: -120px;
     margin-left: auto;
     margin-right: auto;
     position: -webkit-sticky;
@@ -38,7 +38,6 @@ div.destination {
 div.destination-details {
     padding-top: 10px;
     padding-left: 5px;
-    padding-bottom: 10px;
     overflow:auto;
 }
 

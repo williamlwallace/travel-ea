@@ -1,6 +1,8 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.GET;
@@ -12,10 +14,12 @@ import static play.test.Helpers.route;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.PagedList;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import models.UsedTag;
 import models.User;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +27,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 
 public class UserControllerTest extends controllers.backend.ControllersTest {
 
@@ -49,8 +54,13 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         assertEquals(OK, result.status());
 
         // Deserialize result to list of users
-        List<User> users = Arrays
-            .asList(new ObjectMapper().readValue(Helpers.contentAsString(result), User[].class));
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<User> response = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<User>>() {
+                });
+
+        List<User> users = response.data;
 
         // Check that list has exactly one result
         assertEquals(1, users.size());
@@ -59,6 +69,20 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         User user = users.get(0);
         assertEquals(Long.valueOf(2), user.id);
         assertEquals("bob@gmail.com", user.username);
+        assertEquals(1, user.usedTags.size());
+    }
+
+    @Test
+    public void searchUsersNonAdmin() {
+        //Create request to GET all users
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/user/search");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
     }
 
     @Test
@@ -81,7 +105,7 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         // Check a success message was sent
         String message = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), String.class);
-        assertEquals("3", message);
+        assertEquals("4", message);
     }
 
     @Test

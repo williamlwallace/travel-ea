@@ -1,33 +1,68 @@
 /**
  * Takes the users selected photos and  creates a form from them
  * Sends this form to  the appropriate url
- *
- * @param {string} url the appropriate  photo backend controller
- * @param {string} galleryId the id of the gallery to add the photo to
- * @param {string} pageId the id of the pagination that the gallery is in
  */
-function uploadNewGalleryPhoto(url, galleryId, pageId) {
+$('#upload-img').on('click', function () {
+    const url = photoRouter.controllers.backend.PhotoController.upload().url;
+    const galleryId = $(this).data('gallery-id');
+    const pageId = $(this).data('page-id');
+    let caption = $('#caption input').val();
+    const tags = uploadTagPicker.getTags().map(tag => {
+        return {
+            name: tag
+        }
+    });
+
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
     let formData = new FormData();
     for (let i = 0; i < selectedPhotos.length; i++) {
-        formData.append("file", selectedPhotos[i], selectedPhotos[i].name)
+        formData.append("file", selectedPhotos[i], selectedPhotos[i].name);
+        formData.append('caption', caption);
+        formData.append("userUploadId", window.location.href.split("/").pop());
+        formData.append('tags', JSON.stringify(tags));
     }
     // Send request and handle response
     postMultipart(url, formData).then(response => {
         // Read response from server, which will be a json object
         response.json().then(data => {
             if (response.status === 201) {
-                fillGallery(getAllPhotosUrl, galleryId, pageId);
+                fillGallery(getAllPhotosUrl, galleryId, pageId, mainGalleryPaginationHelper);
                 toast("Photo Added!",
-                    "The new photo will be shown in the picture gallery.",
+                    "The new photo will appear in the photo gallery",
                     "success");
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
         })
     })
-}
+});
 
 let usersPhotos = [];
+let profileId = -1;
+let getAllPhotosUrl;
+
+/**
+ * Sets the profileId as a global variable. Also sets the getAllPhotosUrl
+ * @param {Number} profileID the profileId to set
+ */
+function setProfileId(profileID) {
+    profileId = profileID;
+    getAllPhotosUrl = photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url;
+}
+
+/**
+ * Function to filter gallery by tags
+ */
+$('#tagFilter').on('change', function() {
+    const tags = $(this).val();
+    const galleryId = "main-gallery";
+    const pageId = "page-selection";
+
+    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+        profileId).url, galleryId, pageId, mainGalleryPaginationHelper, tags);
+
+});
 
 /**
  * Function to populate gallery with current users photos
@@ -35,8 +70,10 @@ let usersPhotos = [];
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
+ * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId) {
+function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, filters=null) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -46,11 +83,24 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
             // "data" should now be a list of photo models for the given user
             // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
             usersPhotos = [];
-            for (let i = 0; i < data.length; i++) {
-                data[i]["isOwned"] = true;
-                usersPhotos[i] = data[i];
+            for (const photo of data.data) {
+                if (!filters || filters.length === 0) {
+                    photo.isOwned = true;
+                    usersPhotos.push(photo);
+                } else {
+                    for (const filter of filters) {
+                        if (photo.tags.map(tag => tag.name).includes(filter)) {
+                            photo.isOwned = true;
+                            usersPhotos.push(photo);
+                            break;
+                        }
+                    }
+
+                }
             }
-            let galleryObjects = createGalleryObjects(true);
+
+            pageHelper.setTotalNumberOfPages(data.totalNumberPages);
+            const galleryObjects = createGalleryObjects(true, pageHelper);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
@@ -60,32 +110,33 @@ function fillGallery(getPhotosUrl, galleryId, pageId) {
  * Function to populate gallery with current users photos with link destination functionality
  *
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
- * @param {string} galleryId the id of the gallery to add the photo to
- * @param {string} pageId the id of the pagination that the gallery is in
- * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {String} galleryId the id of the gallery to add the photo to
+ * @param {String} pageId the id of the pagination that the gallery is in
+ * @param {Number} destinationId the id of the destination to link the photos to
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  */
-function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
+function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHelper) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
     .then(response => {
         // Convert the response to json
-        response.json().then(data => {
+        response.json().then(photos => {
             usersPhotos = [];
             get(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
                 destinationId).url)
             .then(response => {
                 response.json().then(linkedPhotos => {
-                    for (let i = 0; i < data.length; i++) {
-                        data[i]["isLinked"] = false;
+                    for (let i = 0; i < photos.data.length; i++) {
+                        photos.data[i]["isLinked"] = false;
                         for (let photo of linkedPhotos) {
-                            if (photo.guid === data[i].guid) {
-                                data[i]["isLinked"] = true;
+                            if (photo.guid === photos.data[i].guid) {
+                                photos.data[i]["isLinked"] = true;
                             }
                         }
-                        usersPhotos[i] = data[i];
+                        usersPhotos[i] = photos.data[i];
                     }
-                    let galleryObjects = createGalleryObjects(false, true,
+                    const galleryObjects = createGalleryObjects(false, pageHelper, true,
                         destinationId);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
@@ -99,14 +150,15 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId) {
  * Function to populate gallery with current photos from a certain destination
  * sets a isOwn variable
  *
- * @param {string} getDestinationPhotosUrl the url from where destination photos are retrieved from
- * @param {string} getUserPhotosUrl the url where all users photos are from
- * @param {string} galleryId the id of the gallery to add the photo to
- * @param {string} pageId the id of the pagination that the gallery is in
- * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {String} getDestinationPhotosUrl the url from where destination photos are retrieved from
+ * @param {String} getUserPhotosUrl the url where all users photos are from
+ * @param {String} galleryId the id of the gallery to add the photo to
+ * @param {String} pageId the id of the pagination that the gallery is in
+ * @param {Number} destinationId the id of the destination to link the photos to
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  */
 function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
-    galleryId, pageId, destinationId) {
+    galleryId, pageId, pageHelper, destinationId) {
     // Run a get request to fetch all users photos
     get(getDestinationPhotosUrl)
     // Get the response of the request
@@ -119,14 +171,14 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
                 response.json().then(ownedPhotos => {
                     for (let i = 0; i < destinationPhotos.length; i++) {
                         destinationPhotos[i]["isOwned"] = false;
-                        for (let photo of ownedPhotos) {
+                        for (let photo of ownedPhotos.data) {
                             if (photo.guid === destinationPhotos[i].guid) {
                                 destinationPhotos[i]["isOwned"] = true;
                             }
                         }
                         usersPhotos[i] = destinationPhotos[i];
                     }
-                    let galleryObjects = createGalleryObjects(true);
+                    const galleryObjects = createGalleryObjects(true, pageHelper);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
                 })
@@ -136,90 +188,131 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
 }
 
 /**
+ * Function to populate gallery with current users photos.
+ * Takes a selectionFunction that will be set to each photos on click.
+ *
+ * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
+ * @param {string} galleryId the id of the gallery to add the photo to
+ * @param {string} pageId the id of the pagination that the gallery is in
+ * @param {function} selectionFunction, the function that will be called when a photo is clicked on
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
+ */
+function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
+    selectionFunction, pageHelper) {
+    // Run a get request to fetch all users photos
+    get(getPhotosUrl)
+    // Get the response of the request
+    .then(response => {
+        // Convert the response to json
+        response.json().then(data => {
+            // "data" should now be a list of photo models for the given user
+            // E.g data[0] = { id:1, filename:"example", thumbnail_filename:"anotherExample"}
+            usersPhotos = [];
+            for (const photo of data.data) {
+                photo.canSelect = true;
+                usersPhotos.push(photo);
+            }
+            pageHelper.setTotalNumberOfPages(data.totalNumberPages);
+            const galleryObjects = createGalleryObjects(false, pageHelper, false, null, selectionFunction);
+            addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
+        });
+    });
+}
+
+/**
  * Creates gallery objects from the users photos to display on picture galleries.
  *
  * @param {boolean} hasFullSizeLinks a boolean to if the gallery should have full photo links when clicked.
+ * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  * @param {boolean} withLinkButton whether the gallery has the buttons to link to destination
- * @param {Long} destinationId the id of the destination to link the photos to
+ * @param {Number} destinationId the id of the destination to link the photos to
+ * @param {function} clickFunction the function that will be called when a photo is clicked
  * @returns {Array} the array of photo gallery objects
  */
-function createGalleryObjects(hasFullSizeLinks, withLinkButton = false,
-    destinationId = null) {
+function createGalleryObjects(hasFullSizeLinks, pageHelper, withLinkButton = false,
+    destinationId = null, clickFunction = null) {
     let galleryObjects = [];
-    let numPages = Math.ceil(usersPhotos.length / 6);
-    for (let page = 0; page < numPages; page++) {
-        // page is the page number starting from 0
-        // Create a gallery which will have 6 photos
-        let newGallery = document.createElement("div");
-        newGallery.id = "page" + page;
-        newGallery.setAttribute("class", "tz-gallery");
-        // create the row div
-        let row = document.createElement("div");
-        row.setAttribute("class", "row");
-        // create each photo tile
-        for (let position = 0;
-            position <= 5 && (6 * page + position) < usersPhotos.length;
-            position++) {
-            let tile = document.createElement("div");
-            tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
-
-            let photo = document.createElement("a");
-            photo.setAttribute("class", "lightbox");
-
-            // 6 * page + position finds the correct photo index in the dictionary
-            const filename = usersPhotos[(6 * page + position)]["filename"];
-            const guid = usersPhotos[(6 * page + position)]["guid"];
-            const isPublic = usersPhotos[(6 * page + position)]["isPublic"];
-            const isLinked = usersPhotos[(6 * page + position)]["isLinked"];
-            const isOwned = usersPhotos[(6 * page + position)]["isOwned"];
-
-            //Will only add full size links and removal buttons if requested
-            if (hasFullSizeLinks === true) {
-                if (canEdit === true && isOwned) {
-                    // Create toggle button
-                    const toggleButton = createToggleButton(isPublic, guid);
-                    tile.appendChild(toggleButton);
-                }
-                if (canDelete === true) {
-                    // Create delete button
-                    const deleteButton = createDeleteButton();
-                    tile.appendChild(deleteButton);
-                }
-
-                photo.href = filename;
-            }
-            if (withLinkButton) {
-                const linkButton = createLinkButton(isLinked, guid,
-                    destinationId);
-                tile.appendChild(linkButton)
-            }
-            photo.setAttribute("data-id", guid);
-            photo.setAttribute("data-filename", filename);
-            // thumbnail
-            let thumbnail = usersPhotos[(6 * page
-                + position)]["thumbnailFilename"];
-            let thumb = document.createElement("img");
-            thumb.src = thumbnail;
-            // add image to photo a
-            photo.appendChild(thumb);
-            // add photo a to the tile div
-            tile.appendChild(photo);
-            // add the entire tile, with image and thumbnail to the row div
-            row.appendChild(tile);
-            // row should now have 6 or less individual 'tiles' in it.
-            // add the row to the gallery div
-            newGallery.appendChild(row);
-            // Add the gallery page to the galleryObjects
-        }
-        galleryObjects[page] = newGallery;
+    if (usersPhotos.length === 0) {
+        return galleryObjects;
     }
+    // page is the page number starting from 0
+    // Create a gallery which will have 6 photos
+    let newGallery = document.createElement("div");
+    newGallery.id = "page" + pageHelper.getCurrentPageNumber();
+    newGallery.setAttribute("class", "tz-gallery");
+    // create the row div
+    let row = document.createElement("div");
+    row.setAttribute("class", "row");
+    // create each photo tile
+    for (const position in usersPhotos) {
+        let tile = document.createElement("div");
+        tile.setAttribute("class", "img-wrap col-sm6 col-md-4");
+
+        let photo = document.createElement("a");
+        photo.setAttribute("class", "lightbox");
+        const filename = usersPhotos[position]["filename"];
+        const guid = usersPhotos[position]["guid"];
+        const caption = usersPhotos[position]["caption"];
+        const isPublic = usersPhotos[position]["isPublic"];
+        const isLinked = usersPhotos[position]["isLinked"];
+        const isOwned = usersPhotos[position]["isOwned"];
+        const tags = usersPhotos[position]["tags"].map(tag => tag.name);
+
+        //Will only add full size links and removal buttons if requested
+        if (hasFullSizeLinks === true) {
+            if (canEdit === true && isOwned) {
+                // Create toggle button
+                const toggleButton = createToggleButton(isPublic, guid);
+                tile.appendChild(toggleButton);
+
+            }
+            if (canDelete === true) {
+                // Create delete button
+                // const deleteButton = createDeleteButton();
+                // tile.appendChild(deleteButton);
+                const editCaptionButton = createEditButton();
+                tile.appendChild(editCaptionButton)
+
+            }
+
+            photo.href = filename;
+        }
+        if (clickFunction) {
+            photo.addEventListener("click", clickFunction);
+            photo.style.cursor = "pointer";
+        }
+        if (withLinkButton) {
+            const linkButton = createLinkButton(isLinked, guid,
+                destinationId);
+            tile.appendChild(linkButton)
+        }
+        photo.setAttribute("data-id", guid);
+        photo.setAttribute("data-caption", caption);
+        photo.setAttribute("data-tags", tags.join(", "));
+        photo.setAttribute("data-filename", filename);
+        // thumbnail
+        let thumbnail = usersPhotos[position]["thumbnailFilename"];
+        let thumb = document.createElement("img");
+        thumb.src = thumbnail;
+        // add image to photo a
+        photo.appendChild(thumb);
+        // add photo a to the tile div
+        tile.appendChild(photo);
+        // add the entire tile, with image and thumbnail to the row div
+        row.appendChild(tile);
+        // row should now have 6 or less individual 'tiles' in it.
+        // add the row to the gallery div
+        newGallery.appendChild(row);
+        // Add the gallery page to the galleryObjects
+    }
+    galleryObjects.push(newGallery);
     return galleryObjects;
 }
 
 /**
- * Helper function to greate the button on the photo that toggles privacy
- * @param {boolean} isPublic current state of the photo
- * @param {Long} guid the id of the photo on which to create a toggle button
+ * Helper function to create the button on the photo that toggles privacy
+ * @param {Boolean} isPublic current state of the photo
+ * @param {Number} guid the id of the photo on which to create a toggle button
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
 function createToggleButton(isPublic, guid) {
@@ -246,8 +339,8 @@ function createToggleButton(isPublic, guid) {
 /**
  * Helper function to create the button on the photo that links a photo to a destination
  * @param {boolean} isLinked current state of the photo re being linked to a destination
- * @param {Long} guid the id of the photo on which to create a link button
- * @param {Long} destinationId the id of the destination the button will link to
+ * @param {Number} guid the id of the photo on which to create a link button
+ * @param {Number} destinationId the id of the destination the button will link to
  * @returns {HTMLElement} the created toggle button to add to the photo
  */
 function createLinkButton(isLinked, guid, destinationId) {
@@ -272,53 +365,40 @@ function createLinkButton(isLinked, guid, destinationId) {
 }
 
 /**
- * Creates the delete button for photos in gallery
+ * Creates the edit button for photos in gallery
  * @returns {HTMLElement}
  */
-function createDeleteButton() {
-    let deleteButton = document.createElement("span");
-    deleteButton.setAttribute("class", "close");
-    deleteButton.innerHTML = "&times;";
-    return deleteButton;
+function createEditButton() {
+    const editCaptionButton = document.createElement("span");
+    const editCaptionIcon = document.createElement("i");
+    editCaptionButton.setAttribute("id", "editCaption");
+    editCaptionButton.setAttribute("class", "close");
+    editCaptionIcon.setAttribute("class", "fas fa-pen fa-1x");
+    editCaptionButton.appendChild(editCaptionIcon);
+    return editCaptionButton;
 }
 
 /**
  * Adds galleryObjects to a gallery with a galleryID and a pageSelectionID
  * If galleryId is link-gallery the arrows to move between photos are removed
  *
- * @param {List} galleryObjects a list of photo objects to insert
+ * @param {Array} galleryObjects a list of photo objects to insert
  * @param {string} galleryId the id of the gallery to populate
  * @param {string} pageSelectionId the id of the page selector for the provided gallery
  */
 function addPhotos(galleryObjects, galleryId, pageSelectionId) {
-    let numPages = Math.ceil(usersPhotos.length / 6);
-    let currentPage = 1;
     if (galleryObjects !== undefined && galleryObjects.length !== 0) {
-        // init bootpage
-        $(pageSelectionId).bootpag({
-            total: numPages,
-            maxVisible: 5,
-            page: 1,
-            leaps: false,
-        }).on("page", function (event, num) {
-            currentPage = num;
-            $(galleryId).html(galleryObjects[currentPage - 1]);
-            baguetteBox.run('.tz-gallery');
-            $('.img-wrap .close').on('click', function () {
-                let guid = $(this).closest('.img-wrap').find('a').data("id");
-                let filename = $(this).closest('.img-wrap').find('a').data(
-                    "filename");
-                removePhoto(guid, filename);
-            });
+        $(galleryId).html(galleryObjects[0]);
+        baguetteBox.run('.tz-gallery', {
+            captions: function (element) {
+                return `${$(element).attr('data-caption')} - ${$(element).attr('data-tags')}`;
+            }
         });
-        // set first page
-        $(galleryId).html(galleryObjects[currentPage - 1]);
-        baguetteBox.run('.tz-gallery');
         $('.img-wrap .close').on('click', function () {
             let guid = $(this).closest('.img-wrap').find('a').data("id");
             let filename = $(this).closest('.img-wrap').find('a').data(
                 "filename");
-            removePhoto(guid, filename);
+            populateEditPhoto(guid, filename);
         });
     } else {
         $(galleryId).html("There are no photos!");
@@ -328,7 +408,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
 /**
  * Function that updates the privacy state of a photo
  *
- * @param {Long} guid of photo to update
+ * @param {Number} guid of photo to update
  * @param {boolean} newPrivacy
  */
 function togglePrivacy(guid, newPrivacy) {
@@ -351,11 +431,32 @@ function togglePrivacy(guid, newPrivacy) {
             label.setAttribute("onClick",
                 "togglePrivacy(" + guid + "," + !this.newPrivacy + ")");
             toast("Picture privacy changed!",
-                "The photo is now " + (this.newPrivacy ? "Public" : "Private"),
-                "success");
+                "The photo is now " + (this.newPrivacy ? "Public" : "Private"));
             this.newPrivacy = !this.newPrivacy;
         }
     }.bind({newPrivacy});
     const reqData = new ReqData(requestTypes['UPDATE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
+
+/**
+ * Sets the photo in the upload photo modal to the selected photo from file
+ * browser
+ */
+$('#upload-gallery-image-file').on('change', function handleImage(e) {
+    const reader = new FileReader();
+    reader.onload = function (event) {
+
+        $('.image-body img').attr('src', event.target.result);
+        $('.image-body').css('display', 'block');
+        $('.uploader').css('display', 'none');
+    };
+    reader.readAsDataURL(e.target.files[0]);
+});
+
+/**
+ * Opens edit photo modal when clicking on edit icon in photo thumbnail
+ */
+$('#editCaption').on('click', function () {
+    $('#upload-modal').show();
+});
