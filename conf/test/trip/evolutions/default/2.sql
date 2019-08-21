@@ -31,7 +31,7 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 2, 3,'2019-04-17 13:59:00', '2019-04-18 08:00:00');
 -- Trip 2
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 2, 1,'2019-04-22 13:59:00', '2019-04-23 08:00:00');
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 2,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 4,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
 
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 

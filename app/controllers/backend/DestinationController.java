@@ -385,8 +385,16 @@ public class DestinationController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> changeDestinationPrimaryPhoto(Http.Request request,
-        Long destId, Long photoId) {
+        Long destId) {
         User user = request.attrs().get(ActionState.USER);
+
+        Long photoId = Json.fromJson(request.body().asJson(), Long.class);
+
+        if (photoId == null) {
+            return CompletableFuture
+                .supplyAsync(() -> badRequest(Json.toJson("No photo Id")));
+        }
+
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
@@ -394,12 +402,12 @@ public class DestinationController extends TEABackController {
 
             return photoRepository.getPhotoById(photoId)
                 .thenComposeAsync(photo -> {
-                    if (photo == null) {
+                    if (photo == null && photoId != 0) {
                         return CompletableFuture.supplyAsync(
                             () -> notFound(Json.toJson("Photo with provided ID not found")));
                     }
 
-                    JsonNode oldDestination = Json.toJson(destination);
+                    JsonNode oldPhoto = (destination.primaryPhoto == null) ? Json.toJson(0) : Json.toJson(destination.primaryPhoto.guid);
 
                     // Currently a photo can only be set/requested to set as the destination primary
                     // photo by the owner of the photo or an admin. This is because if a user requests
@@ -410,7 +418,7 @@ public class DestinationController extends TEABackController {
                     // photo or an admin to set/request the photo to become destination primary photo.
 
                     // If user is destination owner and photo owner, or if user is admin, set the photo
-                    if ((destination.user.id.equals(user.id) && photo.userId.equals(user.id))
+                    if ((destination.user.id.equals(user.id) && (photo == null || photo.userId.equals(user.id)))
                         || user.admin) {
                         destination.primaryPhoto = photo;
                         if (destination.hasPhotoPending(photoId)) {
@@ -418,11 +426,11 @@ public class DestinationController extends TEABackController {
                         }
                     }
                     // If user is photo owner and wants the photo on the destination, request to set photo
-                    else if (photo.userId.equals(user.id)) {
+                    else if (photo == null || photo.userId.equals(user.id)) {
                         // If request already exists
                         if (destination.hasPhotoPending(photoId)) {
                             return CompletableFuture
-                                .supplyAsync(() -> ok(Json.toJson(oldDestination)));
+                                .supplyAsync(() -> ok(Json.toJson(oldPhoto)));
                         } else {
                             destination.addPendingDestinationProfilePhoto(photoId);
                         }
@@ -431,7 +439,7 @@ public class DestinationController extends TEABackController {
                             "You do not have permission to set this photo as the destination primary photo")));
                     }
                     return destinationRepository.updateDestination(destination)
-                        .thenApplyAsync(rows -> ok(Json.toJson(oldDestination)));
+                        .thenApplyAsync(rows -> ok(Json.toJson(oldPhoto)));
                 });
         });
     }
