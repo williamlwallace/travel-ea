@@ -49,6 +49,8 @@ PUT           /api/destination/:id/delete            controllers.backend.Destina
 
 GET           /api/destination/search                controllers.backend.DestinationController.getPagedDestinations(request:Request, onlyGetMine: Boolean ?= false, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
+GET           /api/destination/requests              controllers.backend.DestinationController.getAllDestinationsWithRequests(request:Request)
+
 GET           /api/destination/:id                   controllers.backend.DestinationController.getDestination(id:Long)
 
 PUT           /api/destination/:id                   controllers.backend.DestinationController.editDestination(request:Request, id:Long)
@@ -65,9 +67,9 @@ PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  co
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
-PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
-PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 

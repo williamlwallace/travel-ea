@@ -17,7 +17,6 @@ import models.User;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
-import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -388,7 +387,7 @@ public class DestinationController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         Long photoId = Json.fromJson(request.body().asJson(), Long.class);
-  
+
         if (photoId == null) {
             return CompletableFuture
                 .supplyAsync(() -> badRequest(Json.toJson("No photo Id")));
@@ -451,11 +450,11 @@ public class DestinationController extends TEABackController {
      * @return Response result containing success/error message
      */
     @With({Admin.class, Authenticator.class}) //admin auth
-    public CompletableFuture<Result> rejectDestinaitonPrimaryPhoto(Http.Request request,
+    public CompletableFuture<Result> rejectDestinationPrimaryPhoto(Http.Request request,
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return notFound(Json.toJson("No pending phot destination combo"));
+                return notFound(Json.toJson("No pending photo destination combo"));
             } else {
                 return ok(Json.toJson(photoId));
             }
@@ -470,11 +469,11 @@ public class DestinationController extends TEABackController {
      * @return Response result containing success/error message
      */
     @With({Admin.class, Authenticator.class}) //admin auth
-    public CompletableFuture<Result> acceptDestinaitonPrimaryPhoto(Http.Request request,
+    public CompletableFuture<Result> acceptDestinationPrimaryPhoto(Http.Request request,
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending phot destination combo")));
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending photo destination combo")));
             } else {
                 return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
                     if (photo == null) {
@@ -568,6 +567,22 @@ public class DestinationController extends TEABackController {
     }
 
     /**
+     * Gets all the destination traveller type modification request
+     *
+     */
+    @With({Admin.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinationsWithRequests(Http.Request request) {
+        return destinationRepository.getAllDestinationsWithRequests()
+                .thenApplyAsync(destinations -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(destinations)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+    }
+
+    /**
      * Gets the google api key
      *
      * @return an ok message with the google api key
@@ -602,7 +617,10 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController
                     .toggleRejectTravellerType(),
                 controllers.backend.routes.javascript.DestinationController.addNewDestination(),
-                controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto()
+                controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController.rejectDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController.getAllDestinationsWithRequests()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

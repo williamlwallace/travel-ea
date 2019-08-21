@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS Destination
     primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (id)
   );
 
@@ -195,9 +196,9 @@ CREATE TABLE IF NOT EXISTS DestinationPhoto
 CREATE TABLE IF NOT EXISTS PendingDestinationPhoto
   (
     id                     INT NOT NULL AUTO_INCREMENT,
-    photo_id               INT NOT NULL,
+    photo_guid               INT NOT NULL,
     dest_id                INT NOT NULL,
-    FOREIGN KEY (photo_id) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     FOREIGN KEY (dest_id)  REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
@@ -232,7 +233,7 @@ CREATE TABLE IF NOT EXISTS DestinationTag
     guid                  INT NOT NULL AUTO_INCREMENT,
     tag_id                INT NOT NULL,
     destination_id        INT NOT NULL,
-    FOREIGN KEY (tag_id) REFERENCES Tag(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id)  REFERENCES Tag(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (guid)
   );

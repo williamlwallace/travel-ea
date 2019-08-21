@@ -268,18 +268,27 @@ $("#changePrimaryPhotoButton").click(function () {
 function setPrimaryPhoto(photoId) {
     const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
         DESTINATIONID).url;
+    const destinationURL =  destinationRouter.controllers.backend.DestinationController.getDestination(
+        DESTINATIONID).url;
+
 
     // Create reversible request to update primary photo to this new photo
     const handler = (status, json) => {
         if (status === 200) {
-            getPrimaryPicture();
-            $("#changePrimaryPhotoModal").modal('hide');
-            toast("Changes saved!",
-                "Primary photo changes saved successfully.",
-                "success");
+            getUserId().then(userId => {
+                getPrimaryPicture();
+                $("#changePrimaryPhotoModal").modal('hide');
+                if(isUserAdmin() ) {
+                    toast("Changes saved!",
+                        "Primary photo changes saved successfully");
+                } else {
+                    toast("Suggestion requested",
+                        "Your suggestion has been sent for approval");
+                }
+            })
         } else {
             toast("Error",
-                "Unable to update cover photo", "danger");
+                "Unable to update photo", "danger");
         }
     };
 
