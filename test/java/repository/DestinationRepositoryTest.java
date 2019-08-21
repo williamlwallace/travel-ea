@@ -259,7 +259,7 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
     public void getDestinationTravellerTypeRequest() {
         List<Destination> destinations = destinationRepository.getAllDestinationsWithRequests().join();
 
-        assertEquals(1, destinations.size());
+        assertEquals(2, destinations.size());
         assertEquals(2, destinations.get(0).travellerTypesPending.size());
     }
 }
