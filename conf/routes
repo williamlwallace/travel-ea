@@ -79,7 +79,7 @@ PUT           /api/trip                              controllers.backend.TripCon
 
 PUT           /api/trip/privacy                      controllers.backend.TripController.updateTripPrivacy(request:Request)
 
-GET           /api/trip                              controllers.backend.TripController.getAllTrips(request:Request, searchQuery: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
+GET           /api/trip                              controllers.backend.TripController.getAllTrips(request:Request, userId: Long ?= -1, searchQuery: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
 GET           /api/trip/:id                          controllers.backend.TripController.getTrip(request:Request, id:Long)
 

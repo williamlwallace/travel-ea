@@ -3,7 +3,7 @@ let lastRecievedRequestOrder = -1;
 let paginationHelper;
 
 /**
- * Initializes trip table and calls method to populate
+ * Initializes trip pages
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
@@ -13,11 +13,17 @@ function onPageLoad(userId) {
 }
 
 /**
- * Filters the cards with filtered results
+ * Gets url and creates trips ha
  */
 function getTripResults() {
     const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    getAndCreateTrips(url);
+}
 
+/**
+ * Filters the cards with filtered results
+ */
+function getAndCreateTrips(url) {
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());

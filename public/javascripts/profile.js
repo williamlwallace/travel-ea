@@ -1,4 +1,25 @@
 /**
+ * Initializes trip table and calls method to populate
+ * @param {Number} userId - ID of user to get trips for
+ */
+function profileLoadTrips(userId) {
+    paginationHelper = new PaginationHelper(1, 1, getProfileTripResults.bind(null, userId), "tripPagination");
+    getProfileTripResults(userId);
+    
+}
+
+/**
+ * Gets url and sets id for populating trips
+ *
+ * @param {Number} userId user id
+ */
+function getProfileTripResults(userId) {
+    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    url.searchParams.append("userId", userId);
+    getAndCreateTrips(url);
+}
+
+/**
  * The JavaScript method to fill the initial profile data
  *
  * @param {String} email the email of the logged in user, which may or may not be displayed
