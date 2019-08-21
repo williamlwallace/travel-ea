@@ -444,11 +444,11 @@ public class DestinationController extends TEABackController {
      * @return Response result containing success/error message
      */
     @With({Admin.class, Authenticator.class}) //admin auth
-    public CompletableFuture<Result> rejectDestinaitonPrimaryPhoto(Http.Request request,
+    public CompletableFuture<Result> rejectDestinationPrimaryPhoto(Http.Request request,
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return notFound(Json.toJson("No pending phot destination combo"));
+                return notFound(Json.toJson("No pending photo destination combo"));
             } else {
                 return ok(Json.toJson(photoId));
             }
@@ -463,11 +463,11 @@ public class DestinationController extends TEABackController {
      * @return Response result containing success/error message
      */
     @With({Admin.class, Authenticator.class}) //admin auth
-    public CompletableFuture<Result> acceptDestinaitonPrimaryPhoto(Http.Request request,
+    public CompletableFuture<Result> acceptDestinationPrimaryPhoto(Http.Request request,
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending phot destination combo")));
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending photo destination combo")));
             } else {
                 return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
                     if (photo == null) {
@@ -594,7 +594,10 @@ public class DestinationController extends TEABackController {
                     .toggleDestinationTravellerType(),
                 controllers.backend.routes.javascript.DestinationController
                     .toggleRejectTravellerType(),
-                controllers.backend.routes.javascript.DestinationController.addNewDestination()
+                controllers.backend.routes.javascript.DestinationController.addNewDestination(),
+                controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController.rejectDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

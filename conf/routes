@@ -63,9 +63,9 @@ PUT           /api/destination/:destId/travellertype/:travellerTypeId/toggle  co
 
 PUT           /api/destination/:destId/travellertype/:travellerTypeId/reject  controllers.backend.DestinationController.toggleRejectTravellerType(request:Request, destId:Long, travellerTypeId:Long)
 
-PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backend.DestinationController.rejectDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
-PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinaitonPrimaryPhoto(request:Request, destId:Long, photoId:Long)
+PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
 PUT           /api/destination/:destId/photo/:photoId/primary  controllers.backend.DestinationController.changeDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
