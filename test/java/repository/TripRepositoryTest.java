@@ -166,16 +166,16 @@ public class TripRepositoryTest extends repository.RepositoryTest {
     public void getAllPublicTripsOrUsersTripsSecondUser() {
         List<Trip> trips = tripRepository.searchTrips(2L, 2L, "", true, 1, 10, true, true).join().getList();
 
-        assertEquals(1, trips.size());
-        assertTrue(checkSecondTrip(trips.get(0)));
+        assertEquals(2, trips.size());
+        assertTrue(checkSecondTrip(trips.get(1)));
     }
 
     @Test
     public void getAllPublicTripsOrUsersTripsInvalidUserId() {
-        List<Trip> trips = tripRepository.searchTrips(99999L, 999999l, "", true, 1, 10, true, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(99999L, 2l, "", true, 1, 10, true, true).join().getList();
 
-        assertEquals(1, trips.size());
-        assertTrue(checkSecondTrip(trips.get(0)));
+        assertEquals(2, trips.size());
+        assertTrue(checkSecondTrip(trips.get(1)));
     }
 
     @Test
