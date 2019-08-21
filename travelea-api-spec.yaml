@@ -206,15 +206,44 @@ paths:
         schema:
           type: string
       - in: query
-        name: order
-        description: asc or desc
+        name: searchQuery
+        description: User name to search for (WHERE 'username' LIKE searchQuery)
         schema:
           type: string
+          example: 'dave@gmail.com'
       - in: query
-        name: filter
-        description: Username search filter
+        name: sortBy
+        description: "Column to sort by, must be in: 'id', 'username', 'creation_date', 'admin'"
         schema:
           type: string
+          example: 'username'
+      - in: query
+        name: ascending
+        description: Whether or not to sort the results in ascending order
+        schema:
+          type: boolean
+          example: true
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: The order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
       responses:
         '200':
           description: OK
@@ -755,7 +784,7 @@ paths:
           description: Forbidden
         '404':
           description: No such destination found
-  
+
   '/destination/{destId}/photo/{photoId}/accept':
     put:
       tags:
@@ -793,7 +822,7 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
-          
+
   '/destination/{destId}/photo/{photoId}/reject':
     put:
       tags:
@@ -831,7 +860,7 @@ paths:
           description: Forbidden, user does not have permission to edit this destination
         '401':
           description: Unauthorized
-  
+
   '/destination/{destId}/photo/{photoId}':
     put:
       tags:
@@ -2318,7 +2347,7 @@ components:
     Tag:
       type: object
       required:
-        - name
+      - name
       properties:
         id:
           type: integer

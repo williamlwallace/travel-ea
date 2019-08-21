@@ -16,6 +16,7 @@ def import_photos_dict(photos_filename):
         return json.loads(file.read())
 
 def get_photo_data(URL):
+    print("getting photo")
     response = requests.get(URL)
     if response.status_code == 200:
         open("tempImage.jpeg", "wb").write(response.content)
@@ -26,11 +27,8 @@ def post_photo(cookie, data, port):
     URL = "http://localhost:" + port + "/api/photo"
     headers = {"cookie": "JWT-Auth=" + cookie}
     
-    #request = requests.Request("POST", URL, files=data, headers=headers).prepare()
-    #print(type(request.body))
-    
     response = requests.post(URL, files=data, headers=headers)
-    #print(str(response.status_code) + " " + response.text)
+    
     return response.status_code
     
     
@@ -39,7 +37,7 @@ def make_profile_picture(user_id, photo_id, port, cookie):
     headers = {"cookie": "JWT-Auth=" + cookie}
     
     response = requests.put(URL, headers=headers, json=json.dumps(1))
-    #print(str(response.status_code) + " " + response.text)
+    
     return response.status_code
 
 def get_and_post_photos(photos_dict, port, cookie, num_existing_photos):

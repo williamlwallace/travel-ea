@@ -4,8 +4,8 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,19 +34,28 @@ public class UserRepository {
     /**
      * Return a paged list of users not including provided user id.
      *
-     * @param order Sort order (either or asc or desc)
-     * @param filter Filter applied on the name column
-     * @param userId The user to exclude from the results, normally used for the logged in user
+     * @param userId The user Id to ignore
+     * @param searchQuery username to search by
+     * @param sortBy column to sort by
+     * @param ascending returns results in ascending order if true or descending order if false
+     * @param pageNum page number you are on
+     * @param pageSize number of results per page
+     * @return a PagedList of users
      */
-    public CompletableFuture<List<User>> search(String order, String filter, Long userId) {
+    public CompletableFuture<PagedList<User>> search(Long userId,
+        String searchQuery, String sortBy, Boolean ascending, Integer pageNum, Integer pageSize) {
+
+        final String cleanedSearchQuery = searchQuery == null ? "" : searchQuery;
         return supplyAsync(() ->
-                ebeanServer.find(User.class)
-                    .where()
-                    .ne("id", String.valueOf(userId))
-                    .ilike("username", "%" + filter + "%")
-                    .orderBy("username " + order)
-                    .findList(),
-            executionContext);
+            ebeanServer.find(User.class)
+                .where()
+                .ne("id", String.valueOf(userId))
+                .ilike("username", "%" + cleanedSearchQuery + "%")
+                .orderBy((sortBy == null ? "id" : sortBy) + " " + (ascending ? "asc"
+                    : "desc"))
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList());
     }
 
     /**
