@@ -138,7 +138,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllPublicTripsOrUsersTrips() {
-        List<Trip> trips = tripRepository.searchTrips(1L, "", true, 1, 10, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", true, 1, 10, true, true).join().getList();
 
         assertEquals(2, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));
@@ -148,7 +148,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllPublicTripsOrUsersTripsWithSearch() {
-        List<Trip> trips = tripRepository.searchTrips(1L, "london", true, 1, 10, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "london", true, 1, 10, true, true).join().getList();
 
         assertEquals(1, trips.size());
         assertTrue(checkSecondTrip(trips.get(0)));
@@ -156,7 +156,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllPublicTripsOrUsersTripsDescPaged() {
-        List<Trip> trips = tripRepository.searchTrips(1L, "", false, 1, 1, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", false, 1, 1, true, true).join().getList();
 
         assertEquals(1, trips.size());
         assertTrue(checkSecondTrip(trips.get(0)));
@@ -164,7 +164,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllPublicTripsOrUsersTripsSecondUser() {
-        List<Trip> trips = tripRepository.searchTrips(2L, "", true, 1, 10, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(2L, 2L, "", true, 1, 10, true, true).join().getList();
 
         assertEquals(1, trips.size());
         assertTrue(checkSecondTrip(trips.get(0)));
@@ -172,7 +172,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllPublicTripsOrUsersTripsInvalidUserId() {
-        List<Trip> trips = tripRepository.searchTrips(99999L, "", true, 1, 10, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(99999L, 999999l, "", true, 1, 10, true, true).join().getList();
 
         assertEquals(1, trips.size());
         assertTrue(checkSecondTrip(trips.get(0)));
@@ -202,7 +202,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllTrips() {
-        List<Trip> trips = tripRepository.searchTrips(1L, "", true, 1, 10, false).join().getList();;
+        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", true, 1, 10, false, true).join().getList();;
 
         assertEquals(2, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));

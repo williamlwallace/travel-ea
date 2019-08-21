@@ -5,6 +5,8 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.PagedList;
+import io.ebean.Expr;
+import io.ebean.Expression;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -20,6 +22,9 @@ import play.db.ebean.EbeanConfig;
  */
 @Singleton
 public class TripRepository {
+
+    private final Expression SQL_FALSE = Expr.raw("false");
+    private final Expression SQL_TRUE = Expr.raw("true");
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
@@ -105,11 +110,13 @@ public class TripRepository {
      * @return PagedList of Trip objects with the specified user ID
      */
     public CompletableFuture<PagedList<Trip>> searchTrips(Long userId,
+        Long loggedInUserId,
         String searchQuery,
         Boolean ascending,
         Integer pageNum,
         Integer pageSize,
-        Boolean public_) {
+        Boolean getPrivate,
+        Boolean getAll) {
         
         final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery).replaceAll(" ", "").toLowerCase();
 
@@ -118,11 +125,18 @@ public class TripRepository {
                     .fetch("tripDataList.destination")
                     .where()
                     // Search where name fits search query
-                    .or()
-                    .eq("t0.is_public", true)
-                    .eq("t0.user_id", userId)
-                    .eq("t0.is_public", public_)
-                    .endOr()
+                    .or(
+                        Expr.eq("t0.user_id", userId),
+                        getAll ? SQL_TRUE : SQL_FALSE
+                    ).endOr()
+                    // Only get public results, unless getPrivate is true, or we are getting all in which case return the logged in users private trips as well
+                    .or(
+                        Expr.eq("t0.is_public", true),
+                        Expr.or(
+                            getPrivate ? SQL_TRUE : SQL_FALSE,
+                            getAll ? Expr.eq("t0.user_id", loggedInUserId) : SQL_FALSE
+                        )                   
+                    ).endOr()
                     .ilike("tripDataList.destination.name", "%" + cleanedSearchQuery + "%")
                     // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
                     .orderBy("creation_date " + (ascending ? "asc" : "desc") + ", t0.id " + (ascending ? "asc" : "desc"))
