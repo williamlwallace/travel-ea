@@ -74,8 +74,6 @@ $('#tagFilter').on('change', function() {
  * @param {Object} filters the list of tags to filter the gallery by
  */
 function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, filters=null) {
-    console.log(galleryId);
-    console.log(pageHelper);
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -161,7 +159,6 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHel
  */
 function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
     galleryId, pageId, pageHelper, destinationId) {
-    console.log("HI");
     // Run a get request to fetch all users photos
     get(getDestinationPhotosUrl)
     // Get the response of the request

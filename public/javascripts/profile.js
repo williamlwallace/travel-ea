@@ -523,6 +523,10 @@ $("#editCoverPhotoButton").click(function () {
 
 });
 
+/**
+ * Gets a users photos and adds them to the gallery in the modal for setting a cover photo
+ * is paginated
+ */
 function getCoverPictures() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
     url.searchParams.append("pageNum", coverPhotoPaginationHelper.getCurrentPageNumber().toString());

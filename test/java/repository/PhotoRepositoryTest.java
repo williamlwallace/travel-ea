@@ -113,7 +113,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     public void getAllUserPhotos() {
         List<Photo> photos = photoRepository.getAllUserPhotos(1L).join();
         assertEquals(2, photos.size());
-        assertEquals("../user_content/./public/storage/photos/test/test2.jpeg",
+        assertEquals("./public/storage/photos/test/test2.jpeg",
             photos.get(0).filename); // With default assets path added on
         assertEquals(2, photos.get(0).tags.size());
         assertTrue(photos.get(0).tags.contains(new Tag("Russia")));
@@ -129,7 +129,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     public void getAllPublicUserPhotos() {
         List<Photo> photos = photoRepository.getAllPublicUserPhotos(1L).join();
         assertEquals(1, photos.size());
-        assertEquals("../user_content/./public/storage/photos/test/test3.jpeg",
+        assertEquals("./public/storage/photos/test/test3.jpeg",
             photos.get(0).filename); // With default assets path added on
         assertEquals(0, photos.get(0).tags.size());
 

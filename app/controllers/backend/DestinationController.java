@@ -380,7 +380,6 @@ public class DestinationController extends TEABackController {
      *
      * @param request Http request containing authentication information
      * @param destId ID of destination to change primary photo of
-     * @param photoId Id of photo to add as primary photo for destination
      * @return Response result containing success/error message
      */
     @With({Everyone.class, Authenticator.class})

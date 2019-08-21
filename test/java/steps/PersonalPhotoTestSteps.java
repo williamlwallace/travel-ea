@@ -12,6 +12,7 @@ import static steps.GenericTestSteps.fakeApp;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.en.Given;
@@ -22,10 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import models.Photo;
 import org.junit.Assert;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 import util.objects.Pair;
 
 public class PersonalPhotoTestSteps {
@@ -38,14 +41,19 @@ public class PersonalPhotoTestSteps {
             .uri("/api/user/1/photo");
 
         Result result = route(fakeApp, request);
-        JsonNode photos = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Photo>>(){});
+
+        // Deserialize result to list of photos
+        List<Photo> photos = response.data;
 
         for (int i = 0; i < photos.size(); i++) {
+            System.out.println(photos.get(i).guid);
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
                 .method(DELETE)
                 .cookie(adminAuthCookie)
-                .uri("/api/photo/" + photos.get(i).get("guid"));
+                .uri("/api/photo/" + photos.get(i).guid);
 
             Result deleteResult = route(fakeApp, deleteRequest);
             Assert.assertEquals(OK, deleteResult.status());
@@ -57,8 +65,13 @@ public class PersonalPhotoTestSteps {
             .uri("/api/user/1/photo");
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
-        JsonNode checkEmptyPhotos = new ObjectMapper()
-            .readValue(Helpers.contentAsString(checkEmptyResult), JsonNode.class);
+
+        ObjectMapper newMapper = new ObjectMapper();
+        PagingResponse<Photo> emptyResponse =  newMapper.convertValue(mapper.readTree(Helpers.contentAsString(checkEmptyResult)),
+            new TypeReference<PagingResponse<Photo>>(){});
+
+        // Deserialize result to list of photos
+        List<Photo> checkEmptyPhotos = emptyResponse.data;
 
         Assert.assertEquals(0, checkEmptyPhotos.size());
     }
@@ -110,8 +123,13 @@ public class PersonalPhotoTestSteps {
 
         Result result = route(fakeApp, request);
         Assert.assertEquals(OK, result.status());
-        JsonNode photos = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Photo>>(){});
+
+        // Deserialize result to list of photos
+        List<Photo> photos = response.data;
 
         Assert.assertEquals(int1, photos.size());
     }

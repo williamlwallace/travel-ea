@@ -16,6 +16,7 @@ import static play.test.Helpers.route;
 import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.File;
@@ -35,9 +36,10 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 import util.objects.Pair;
 
-public class PhotoControllerTest extends ControllersTest {
+public class PhotoControllerTest extends controllers.backend.ControllersTest {
 
     /**
      * Stop the fake app
@@ -145,7 +147,7 @@ public class PhotoControllerTest extends ControllersTest {
             .bodyMultipart(
                 partsList,
                 play.libs.Files.singletonTemporaryFileCreator(),
-                app.asScala().materializer()
+                fakeApp.asScala().materializer()
             );
 
         // Post to url and get result, checking that a success was returned
@@ -236,9 +238,13 @@ public class PhotoControllerTest extends ControllersTest {
         Result photoResult = route(fakeApp, photoRequest);
         assertEquals(OK, photoResult.status());
 
-        List<Photo> photos = Arrays
-            .asList(
-                new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(photoResult)),
+            new TypeReference<PagingResponse<Photo>>(){});
+
+        // Deserialize result to list of photos
+        List<Photo> photos = response.data;
+
         assertEquals(2, photos.size());
         assertEquals(true, photos.get(0).isPublic);
     }
@@ -262,9 +268,13 @@ public class PhotoControllerTest extends ControllersTest {
         Result photoResult = route(fakeApp, photoRequest);
         assertEquals(OK, photoResult.status());
 
-        List<Photo> photos = Arrays
-            .asList(
-                new ObjectMapper().readValue(Helpers.contentAsString(photoResult), Photo[].class));
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(photoResult)),
+            new TypeReference<PagingResponse<Photo>>(){});
+
+        // Deserialize result to list of photos
+        List<Photo> photos = response.data;
+
         assertEquals(2, photos.size());
     }
 

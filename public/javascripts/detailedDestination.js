@@ -253,11 +253,12 @@ function populateEditDestination(destinationId) {
  */
 $("#changePrimaryPhotoButton").click(function () {
     $("#changePrimaryPhotoModal").modal('show');
-    fillSelectionGallery(
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-            USERID).url, "primary-photo-gallery", "current-page", function () {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
+    url.searchParams.append("pageNum", primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
+
+    fillSelectionGallery(url, "primary-photo-gallery", "current-page", function () {
             setPrimaryPhoto(this.getAttribute("data-id"))
-        });
+        }, primaryPhotoPaginationHelper);
 });
 
 /**
@@ -290,7 +291,7 @@ function setPrimaryPhoto(photoId) {
 
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
- * the profile picture and cover photo path to it.
+ * the profile picture to it.
  */
 function getPrimaryPicture() {
     get(destinationRouter.controllers.backend.DestinationController.getDestination(
@@ -362,6 +363,7 @@ let canDelete = false;
 
 let destinationPhotosPaginationHelper;
 let linkPhotosPaginationHelper;
+let primaryPhotoPaginationHelper;
 
 /**
  * Runs when the page is loaded. Initialises the paginationHelper objects
@@ -369,8 +371,18 @@ let linkPhotosPaginationHelper;
 $(document).ready(function() {
     destinationPhotosPaginationHelper = new PaginationHelper(1, 1,  getDestinationPhotos, "destination-photos-pagination");
     linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
+    primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
     getDestinationPhotos();
 });
+
+/**
+ * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ */
+function getPictures() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", mainGalleryPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+}
 
 /**
  * Retrieves the userId and destination Id from the rendered scala which can
@@ -393,6 +405,9 @@ $("#upload-gallery-image-button").click(function () {
     getDestinationLinkPhotos();
 });
 
+/**
+ *  Gets all photos for a destination
+ */
 function getDestinationPhotos() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
         DESTINATIONID).url, window.location.origin);
@@ -404,6 +419,10 @@ function getDestinationPhotos() {
         DESTINATIONID)
 }
 
+/**
+ * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery
+ * to allow a user to link to a photo to a destination
+ */
 function getDestinationLinkPhotos() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
     url.searchParams.append("pageNum", linkPhotosPaginationHelper.getCurrentPageNumber().toString());
