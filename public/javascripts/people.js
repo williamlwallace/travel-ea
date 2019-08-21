@@ -164,6 +164,8 @@ function createPeopleCard(person) {
 
     $(clone).find("#card-header").append(`${person.firstName} ${person.lastName}`);
     $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
+    $(clone).find("#card-cover-photo").attr("src", person.coverPhoto === null ? "/assets/images/profile-bg.jpg" : "user_content/" + person.coverPhoto.thumbnailFilename);
+    console.log(person);
     $(clone).find("#age").append("Age: " + person.dateOfBirth);
     $(clone).find("#gender").append("Gender: " + person.gender);
     $(clone).find("#card-header").attr("data-id", person.userId.toString());
