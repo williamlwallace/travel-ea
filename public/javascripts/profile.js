@@ -1,4 +1,3 @@
-let paginationHelper;
 let coverPhotoPaginationHelper;
 let profilePhotoPaginationHelper;
 let mainGalleryPaginationHelper;
