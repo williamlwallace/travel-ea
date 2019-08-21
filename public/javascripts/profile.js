@@ -8,10 +8,14 @@ function profileLoadTrips(userId) {
     
 }
 
+/**
+ * Gets url and sets id for populating trips
+ *
+ * @param {Number} userId user id
+ */
 function getProfileTripResults(userId) {
     const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
     url.searchParams.append("userId", userId);
-    console.log("yoink");
     getAndCreateTrips(url);
 }
 

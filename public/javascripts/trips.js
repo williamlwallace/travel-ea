@@ -3,7 +3,7 @@ let lastRecievedRequestOrder = -1;
 let paginationHelper;
 
 /**
- * Initializes trip table and calls method to populate
+ * Initializes trip pages
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
@@ -12,6 +12,9 @@ function onPageLoad(userId) {
     
 }
 
+/**
+ * Gets url and creates trips ha
+ */
 function getTripResults() {
     const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
     getAndCreateTrips(url);
