@@ -1,3 +1,9 @@
+.filterButton {
+    margin-bottom: 10px;
+    float:right;
+    display:block;
+}
+
 /**
  * The full profile page
  */
