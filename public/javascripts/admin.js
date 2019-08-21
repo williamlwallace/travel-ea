@@ -94,10 +94,10 @@ function toggleAdmin(button, tableAPI, id) {
 /**
  * Inserts users into admin table
  *
- * @param {Object} table - data table object
+ * @param {Object} json - data table object
  */
 function populateUsers(json) {
-    const rows = []
+    const rows = [];
     for (const user in json) {
         const id = json[user].id;
         const username = json[user].username;
@@ -140,6 +140,8 @@ function populateTrips(json) {
     }
     return rows;
 }
+let destPhoto;
+let photoId;
 
 /**
  * Populates the traveller type requests table
@@ -150,12 +152,21 @@ function populateTravellerTypeRequests(json) {
         const destId = json[dest].id;
         const destName = json[dest].name;
 
+
         for (const ttRequest in json[dest].travellerTypesPending) {
             const username = "";
             const modification = json[dest].travellerTypesPending[ttRequest].description;
             const ttId = json[dest].travellerTypesPending[ttRequest].id;
             rows.push([destId, destName, modification, username, ttId])
         }
+
+        for (const photoRequest in json[dest].pendingPrimaryPhotos) {
+            photoId = json[dest].pendingPrimaryPhotos[photoRequest].guid;
+            destPhoto = json[dest].pendingPrimaryPhotos[photoRequest].filename;
+            const modification = "Photo";
+            rows.push([destId, destName, modification])
+        }
+
     }
     return rows
 }
@@ -230,6 +241,13 @@ function showTTSuggestion(destId, ttId) {
             if (response.status !== 200) {
                 toast("Could not retrieve request details", "", "danger", 5000);
             } else {
+                if(!!ttId) {
+                    $('<img style="max-width: 200px" src=' + "user_content/" + destPhoto + '>').appendTo("#modificationDiv");
+                    document.getElementById("modificationType").innerText = "Photo Change";
+                    $("#modificationDiv").attr('class', 'text-center');
+
+
+                }
                 document.getElementById(
                     "requestDestName").innerText = dest.name;
                 document.getElementById(
@@ -290,9 +308,15 @@ function showTTSuggestion(destId, ttId) {
                 rejectButton.setAttribute("class", "btn btn-danger");
                 rejectButton.setAttribute("data-toggle", "modal");
                 rejectButton.setAttribute("data-target", "#modal-destModify");
-                rejectButton.addEventListener('click', function () {
-                    rejectTravellerTypeRequest(destId, ttId);
-                });
+                if(!!ttId) {
+                    rejectButton.addEventListener('click', function() {
+                        rejectDestinationPrimaryPhoto(destId, photoId)
+                    });
+                } else {
+                    rejectButton.addEventListener('click', function () {
+                        rejectTravellerTypeRequest(destId, ttId);
+                    });
+                }
 
                 let acceptButton = document.createElement("button");
                 acceptButton.setAttribute("id", "acceptButton");
@@ -300,9 +324,15 @@ function showTTSuggestion(destId, ttId) {
                 acceptButton.setAttribute("class", "btn btn-success");
                 acceptButton.setAttribute("data-toggle", "modal");
                 acceptButton.setAttribute("data-target", "#modal-destModify");
-                acceptButton.addEventListener('click', function () {
-                    toggleTravellerType(destId, ttId, true);
-                });
+                if (!!ttId) {
+                    acceptButton.addEventListener('click', function () {
+                        acceptDestinationPrimaryPhoto(destId, photoId)
+                    });
+                } else {
+                    acceptButton.addEventListener('click', function () {
+                        toggleTravellerType(destId, ttId, true);
+                    });
+                }
 
                 document.getElementById("ttRequestButtons").appendChild(
                     rejectButton);
@@ -335,6 +365,62 @@ function rejectTravellerTypeRequest(destId, ttId) {
         }
         if (status === 200) {
             travellerTypeRequestTable.populateTable();
+        }
+    }.bind({initialToggle});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Toggles the deletion of a request made to change a destination photo.
+ *
+ * @param {Number} destId The destination id
+ * @param {Number} photoId The photoId
+ */
+function rejectDestinationPrimaryPhoto(destId, photoId) {
+    const URL = destinationRouter.controllers.backend.DestinationController.rejectDestinationPrimaryPhoto(
+        destId, photoId).url;
+    const initialToggle = true;
+    const handler = function (status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not reject request", json, "danger", 5000);
+            } else {
+                toast("Success", "Rejected destination photo change request");
+            }
+            this.initialToggle = false;
+        }
+        if (status === 200) {
+            travellerTypeRequestTable.populateTable();
+        }
+    }.bind({initialToggle});
+    const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
+    undoRedo.sendAndAppend(reqData);
+}
+
+
+/**
+ * Toggles the acceptance of a request made to change a destination photo.
+ *
+ * @param {Number} destId The destination id
+ * @param {Number} photoId The photoId
+ */
+function acceptDestinationPrimaryPhoto(destId, photoId) {
+    const URL = destinationRouter.controllers.backend.DestinationController.acceptDestinationPrimaryPhoto(
+        destId, photoId).url;
+    const initialToggle = true;
+    const handler = function (status, json) {
+        if (this.initialToggle) {
+            if (status !== 200) {
+                toast("Could not accept request", json, "danger", 5000);
+            } else {
+                toast("Success", "Accepted destination photo change request");
+            }
+            this.initialToggle = false;
+        }
+        if (status === 200) {
+            travellerTypeRequestTable.populateTable();
+            setPrimaryPhoto(photoId)
         }
     }.bind({initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
