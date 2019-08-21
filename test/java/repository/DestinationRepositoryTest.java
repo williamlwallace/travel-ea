@@ -252,13 +252,12 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
 
         Destination updatedDestination = destinationRepository.getDestination(1L).join();
         for (Tag tag : updatedDestination.tags) {
-            System.out.println(tag.id + " " + tag.name);
         }
     }
 
     @Test
     public void getDestinationTravellerTypeRequest() {
-        List<Destination> destinations = destinationRepository.getAllDestinationRequests().join();
+        List<Destination> destinations = destinationRepository.getAllDestinationsWithRequests().join();
 
         assertEquals(1, destinations.size());
         assertEquals(2, destinations.get(0).travellerTypesPending.size());

@@ -17,7 +17,6 @@ import models.User;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
-import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -380,7 +379,6 @@ public class DestinationController extends TEABackController {
      *
      * @param request Http request containing authentication information
      * @param destId ID of destination to change primary photo of
-     * @param photoId Id of photo to add as primary photo for destination
      * @return Response result containing success/error message
      */
     @With({Everyone.class, Authenticator.class})
@@ -568,11 +566,21 @@ public class DestinationController extends TEABackController {
             .thenApplyAsync(destinations -> ok(Json.toJson(new PagingResponse<>(destinations.getList(), requestOrder, destinations.getTotalPageCount()))));
     }
 
-//    /**
-//     * Gets all the destination traveller type modification request
-//     *
-//     */
-//    public CompletableFuture<Result>
+    /**
+     * Gets all the destination traveller type modification request
+     *
+     */
+    @With({Admin.class, Authenticator.class})
+    public CompletableFuture<Result> getAllDestinationsWithRequests(Http.Request request) {
+        return destinationRepository.getAllDestinationsWithRequests()
+                .thenApplyAsync(destinations -> {
+                    try {
+                        return ok(sanitizeJson(Json.toJson(destinations)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+    }
 
     /**
      * Gets the google api key
@@ -612,7 +620,7 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto(),
                 controllers.backend.routes.javascript.DestinationController.rejectDestinationPrimaryPhoto(),
                 controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.getDestination()
+                controllers.backend.routes.javascript.DestinationController.getAllDestinationsWithRequests()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

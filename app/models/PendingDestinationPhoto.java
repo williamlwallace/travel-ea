@@ -9,14 +9,14 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that stores information regarding users and which country passports they hold.
+ * A class that stores information regarding pending requests for a destination primary photo.
  */
 @Entity
-@Table(name = "DestinationTravellerTypePending")
-public class DestinationTravellerTypePending extends Model {
+@Table(name = "PendingDestinationPhoto")
+public class PendingDestinationPhoto extends Model {
 
     @Id
-    public Long guid;
+    public Long id;
 
     @Constraints.Required
     @Column(name = "dest_id")
@@ -24,5 +24,5 @@ public class DestinationTravellerTypePending extends Model {
 
     @ManyToOne
     @Constraints.Required
-    public TravellerTypeDefinition travellerTypeDefinition;
+    public Photo photo;
 }

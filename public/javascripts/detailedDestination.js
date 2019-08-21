@@ -256,7 +256,11 @@ $("#changePrimaryPhotoButton").click(function () {
     fillSelectionGallery(
         photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
             USERID).url, "primary-photo-gallery", "current-page", function () {
-            setPrimaryPhoto(this.getAttribute("data-id"))
+            if(isUserAdmin()) {
+                setPrimaryPhoto(this.getAttribute("data-id"))
+            } else {
+                console.log('lol')
+            }
         });
 });
 

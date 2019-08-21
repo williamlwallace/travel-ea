@@ -11,8 +11,7 @@ $(document).ready(function () {
     //set table population urls
     const usersGetURL = userRouter.controllers.backend.UserController.userSearch().url;
     const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
-    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinations(
-        MASTER_ADMIN_ID).url;
+    const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinationsWithRequests().url;
 
     const ttTableModal = {
         createdRow: function (row, data) {

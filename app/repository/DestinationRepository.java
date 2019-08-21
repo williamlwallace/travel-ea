@@ -307,19 +307,28 @@ public class DestinationRepository {
      *
      * @return List of destinations
      */
-    public CompletableFuture<List<Destination>> getAllDestinationRequests() {
+    public CompletableFuture<List<Destination>> getAllDestinationsWithRequests() {
         return supplyAsync(() -> {
-            return ebeanServer.find(Destination.class).where().idEq("1").findList();
-//            List<DestinationTravellerTypePending> pendings = ebeanServer.find(DestinationTravellerTypePending.class)
-//                    .findList();
-//
-//            Set<Long> destinationsWithPending = new HashSet<>();
-//
-//            for (DestinationTravellerTypePending pending : pendings) {
-//                destinationsWithPending.add(pending.destId);
-//            }
-//
-//            return ebeanServer.find(Destination.class).where().idIn(destinationsWithPending).findList();
+
+            List<DestinationTravellerTypePending> travellerTypeRequests = ebeanServer.find(DestinationTravellerTypePending.class)
+                    .findList();
+            List<PendingDestinationPhoto> photoRequests = ebeanServer.find(PendingDestinationPhoto.class)
+                    .findList();
+
+            Set<Long> destinationsWithPending = new HashSet<>();
+
+            for (DestinationTravellerTypePending request : travellerTypeRequests) {
+                destinationsWithPending.add(request.destId);
+            }
+            for (PendingDestinationPhoto request : photoRequests) {
+                destinationsWithPending.add(request.destId);
+            }
+
+            if (destinationsWithPending.isEmpty()) {
+                return new ArrayList<>();
+            } else {
+                return ebeanServer.find(Destination.class).where().idIn(destinationsWithPending).findList();
+            }
         }, executionContext);
     }
 
