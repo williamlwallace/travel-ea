@@ -192,7 +192,6 @@ function toggleFilterButton() {
  * @param {Number} id - user id
  */
 function toggleAdmin(button, id) {
-    // console.log(button);
     const URL = adminRouter.controllers.backend.AdminController.toggleAdmin(
         id).url;
     const initialToggle = true;

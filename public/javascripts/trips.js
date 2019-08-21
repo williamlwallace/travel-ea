@@ -74,7 +74,6 @@ function createTripCard(trip) {
     const endDestination = trip.tripDataList[trip.tripDataList.length -1].destination.name;
     const tripLength = trip.tripDataList.length;
     let firstDate = findFirstTripDate(trip);
-    console.log (firstDate);
     if (!!firstDate) {
         firstDate = firstDate.toLocaleDateString();
     } else {
@@ -269,7 +268,6 @@ function deleteTrip(tripId, userId) {
  */
 function toggleFilterButton() {
     const toggled = $('#tripsFilterButton').css("display") === "block";
-    console.log(toggled);
     $('#tripsFilterButton').css("display", toggled ? "none" : "block");
 }
 
