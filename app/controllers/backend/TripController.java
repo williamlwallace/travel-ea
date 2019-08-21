@@ -95,14 +95,23 @@ public class TripController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips(Http.Request request,
+                                                Long userId,
                                                 String searchQuery,
                                                 Boolean ascending,
                                                 Integer pageNum,
                                                 Integer pageSize,
                                                 Integer requestOrder) {
         User user = request.attrs().get(ActionState.USER);
+        
+        // By default, only get public trips
+        boolean getPrivate = false;
 
-        return tripRepository.searchTrips(user.id, searchQuery, ascending, pageNum, pageSize, !user.admin)
+        // If user is admin, or getting their own trips, show all results not just public
+        if(user.admin || (userId != -1 && userId == user.id)) {
+            getPrivate = true;
+        }
+
+        return tripRepository.searchTrips(userId, user.id, searchQuery, ascending, pageNum, pageSize, getPrivate, userId == -1)
             .thenApplyAsync(trips -> {
                 try {
                     return ok(sanitizeJson(Json.toJson(
