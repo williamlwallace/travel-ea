@@ -4,6 +4,7 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -28,6 +29,7 @@ public class PhotoRepository {
     private static final String FRONTEND_APPEND_DIRECTORY = "../user_content/";
     private static final String USER_ID = "user_id";
     private static final String USED_FOR_PROFILE = "used_for_profile";
+    private static final String IS_PUBLIC = "is_public";
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
     private final TagRepository tagRepository;
@@ -87,15 +89,14 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllUserPhotos(long userID) {
-        return supplyAsync(() -> {
-                List<Photo> photos = ebeanServer.find(Photo.class)
+        return supplyAsync(() ->
+                ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
                     .eq(USED_FOR_PROFILE, false)
-                    .findList();
-                return appendAssetsUrl(photos);
-            },
-            executionContext);
+                    .findList(),
+            executionContext
+        );
     }
 
     /**
@@ -105,13 +106,85 @@ public class PhotoRepository {
      * @return List of Photo objects with the specified user ID
      */
     public CompletableFuture<List<Photo>> getAllPublicUserPhotos(long userID) {
+        return supplyAsync(() ->
+            ebeanServer.find(Photo.class)
+                .where()
+                .eq(USER_ID, userID)
+                .eq(USED_FOR_PROFILE, false)
+                .eq(IS_PUBLIC, true)
+                .findList(),
+            executionContext
+        );
+    }
+
+    /**
+     * Finds a page of photos in database related to the given users ID that aren't the profile photo
+     *
+     * @param userID User to find all photos for
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Number of photos to retrieve
+     * @return List of Photo objects with the specified user ID
+     */
+    public CompletableFuture<PagedList<Photo>> getPagedUserPhotos(long userID, Integer pageNum,
+        Integer pageSize) {
         return supplyAsync(() -> {
-                List<Photo> photos = ebeanServer.find(Photo.class)
+                PagedList<Photo> photos = ebeanServer.find(Photo.class)
                     .where()
                     .eq(USER_ID, userID)
                     .eq(USED_FOR_PROFILE, false)
-                    .eq("is_public", true)
-                    .findList();
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
+                return appendAssetsUrl(photos);
+            },
+            executionContext);
+    }
+
+    /**
+     * Finds a page of public photos in database related to the given user ID that aren't the profile photo
+     *
+     * @param userID User to find all public photos for
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Number of photos to retrieve
+     * @return List of Photo objects with the specified user ID
+     */
+    public CompletableFuture<PagedList<Photo>> getPagedPublicUserPhotos(long userID, Integer pageNum,
+        Integer pageSize) {
+        return supplyAsync(() -> {
+                PagedList<Photo> photos = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq(USER_ID, userID)
+                    .eq(USED_FOR_PROFILE, false)
+                    .eq(IS_PUBLIC, true)
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
+                return appendAssetsUrl(photos);
+            },
+            executionContext);
+    }
+
+    /**
+     * Finds a page of photos associated with a destination
+     *
+     * @param userId ID of user to return private photos linked to the destination
+     * @param destinationId ID of destination to retrieve photos for
+     * @param pageNum Page number of photos to retrieve
+     * @param pageSize Amount of photos to retrieve
+     * @return A paged list of photos
+     */
+    public CompletableFuture<PagedList<Photo>> getDestinationPhotosForUser(long userId,
+        long destinationId, Integer pageNum, Integer pageSize) {
+        return supplyAsync(() -> {
+                PagedList<Photo> photos = ebeanServer.find(Photo.class)
+                    .where()
+                    .eq("destination_id", destinationId)
+                    .or()
+                    .eq(IS_PUBLIC, true)
+                    .eq(USER_ID, userId)
+                    .setFirstRow((pageNum - 1) * pageSize)
+                    .setMaxRows(pageSize)
+                    .findPagedList();
                 return appendAssetsUrl(photos);
             },
             executionContext);
@@ -192,7 +265,20 @@ public class PhotoRepository {
      *
      * @param photos Photos to append path to
      */
-    public List<Photo> appendAssetsUrl(List<Photo> photos) {
+    public PagedList<Photo> appendAssetsUrl(PagedList<Photo> photos) {
+        for (Photo photo : photos.getList()) {
+            photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
+            photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;
+        }
+        return photos;
+    }
+
+    /**
+     * For a list of photos, append the default assets path to them, when the photos are not paginated
+     *
+     * @param photos Photos to append path to
+     */
+    public List<Photo> appendAssetsUrlNoPage(List<Photo> photos) {
         for (Photo photo : photos) {
             photo.filename = FRONTEND_APPEND_DIRECTORY + photo.filename;
             photo.thumbnailFilename = FRONTEND_APPEND_DIRECTORY + photo.thumbnailFilename;

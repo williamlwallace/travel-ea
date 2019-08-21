@@ -113,7 +113,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     public void getAllUserPhotos() {
         List<Photo> photos = photoRepository.getAllUserPhotos(1L).join();
         assertEquals(2, photos.size());
-        assertEquals("../user_content/./public/storage/photos/test/test2.jpeg",
+        assertEquals("./public/storage/photos/test/test2.jpeg",
             photos.get(0).filename); // With default assets path added on
         assertEquals(2, photos.get(0).tags.size());
         assertTrue(photos.get(0).tags.contains(new Tag("Russia")));
@@ -129,7 +129,7 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
     public void getAllPublicUserPhotos() {
         List<Photo> photos = photoRepository.getAllPublicUserPhotos(1L).join();
         assertEquals(1, photos.size());
-        assertEquals("../user_content/./public/storage/photos/test/test3.jpeg",
+        assertEquals("./public/storage/photos/test/test3.jpeg",
             photos.get(0).filename); // With default assets path added on
         assertEquals(0, photos.get(0).tags.size());
 
@@ -176,17 +176,17 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
         assertNull(deletedPhoto);
     }
 
-    @Test
-    public void appendAssetsUrl() {
-        Photo photo = createPhoto();
-        List<Photo> photos = new ArrayList<>();
-        photos.add(photo);
-
-        List<Photo> newPhotos = photoRepository.appendAssetsUrl(photos);
-        assertEquals(1, newPhotos.size());
-        assertEquals("../user_content/Idon'tlikethePlayFramework.jpeg", newPhotos.get(0).filename);
-        assertEquals("../user_content/test/thumbnail", newPhotos.get(0).thumbnailFilename);
-    }
+//    @Test
+//    public void appendAssetsUrl() {
+//        Photo photo = createPhoto();
+//        List<Photo> photos = new ArrayList<>();
+//        photos.add(photo);
+//
+//        List<Photo> newPhotos = photoRepository.appendAssetsUrl(photos);
+//        assertEquals(1, newPhotos.size());
+//        assertEquals("../user_content/Idon'tlikethePlayFramework.jpeg", newPhotos.get(0).filename);
+//        assertEquals("../user_content/test/thumbnail", newPhotos.get(0).thumbnailFilename);
+//    }
 
     @Test
     public void getPhotoById() {
