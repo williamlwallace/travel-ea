@@ -1,17 +1,51 @@
-/* Display gender drop down the same as the others */
-$('#gender').picker();
+let coverPhotoPaginationHelper;
+let profilePhotoPaginationHelper;
+let mainGalleryPaginationHelper;
+
+/**
+ * Runs when the page is loaded. Initialises the paginationHelper object and
+ * runs the getPictures method.
+ */
+$(document).ready(function() {
+    paginationHelper = new PaginationHelper(1, 1,  getPictures);
+    coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');
+    profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
+    mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
+    getPictures();
+});
+
+/**
+ * Initializes trip table and calls method to populate
+ * @param {Number} userId - ID of user to get trips for
+ */
+function profileLoadTrips(userId) {
+    paginationHelper = new PaginationHelper(1, 1, getProfileTripResults.bind(null, userId), "tripPagination");
+    getProfileTripResults(userId);
+    
+}
+
+/**
+ * Gets url and sets id for populating trips
+ *
+ * @param {Number} userId user id
+ */
+function getProfileTripResults(userId) {
+    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    url.searchParams.append("userId", userId);
+    getAndCreateTrips(url);
+}
 
 /**
  * The JavaScript method to fill the initial profile data
- * @param {Number} userId the id of the user who's profile to receive
+ *
  * @param {String} email the email of the logged in user, which may or may not be displayed
  */
-function fillProfileData(userId, email) {
+function fillProfileData(email) {
     if (document.getElementById("summary_email")) {
         document.getElementById("summary_email").innerText = email;
     }
     get(profileRouter.controllers.backend.ProfileController.getProfile(
-        userId).url)
+        profileId).url)
     .then(response => {
         response.json()
         .then(profile => {
@@ -80,8 +114,7 @@ function updateProfile(uri, redirect) {
                     updateProfileData(this.data);
                     $("#editProfileModal").modal('hide');
                     toast("Profile Updated!",
-                        "The updated information will be displayed on your profile.",
-                        "success");
+                        "The updated information will be displayed on your profile");
                 }
                 this.data = json;
             }.bind({data});
@@ -130,31 +163,29 @@ function populateProfileData(uri) {
     get(uri)
     .then(response => {
         // Read response from server, which will be a json object
-        return response.json()
+        return response.json();
     })
     .then(json => {
         const pickMapper = function (id, item) {
-            $(`#${id}`).picker('set', item.id);
-        }
+            $(`#${id}`).selectpicker('val', item.id);
+        };
         //Maps the json data into the pickers
         json.nationalities.map(pickMapper.bind(null, 'nationalities'));
         json.passports.map(pickMapper.bind(null, 'passports'));
         json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
 
-        $('#gender').picker('set', json.gender);
+        $('#gender').selectpicker('val', json.gender);
+        //tagsPickerTags = json.tags;
     });
 }
 
 /**
  * Variables for selecting and cropping the profile picture.
  */
-let cropGallery = $('#profile-gallery');
-let profilePictureToCrop = document.getElementById('image');
-let profilePictureSize = 350;
+const cropGallery = $('#profile-gallery');
+const profilePictureToCrop = document.getElementById('image');
+const profilePictureSize = 350;
 let cropper;
-
-let getAllPhotosUrl;
-let profilePictureControllerUrl;
 let canEdit;
 let canDelete;
 
@@ -185,7 +216,7 @@ $(document).ready(function () {
             minContainerHeight: profilePictureSize,
 
             cropmove: function (event) {
-                let data = cropper.getData();
+                const data = cropper.getData();
                 if (data.width < profilePictureSize) {
                     event.preventDefault();
                     data.width = profilePictureSize;
@@ -203,38 +234,41 @@ $(document).ready(function () {
  * Handles uploading the new cropped profile picture, called by the confirm button in the cropping modal.
  * Creates the cropped image and stores it in the database. Reloads the users profile picture.
  */
-function uploadProfilePicture(userId) {
+function uploadProfilePicture() {
     //Get the cropped image and set the size to 290px x 290px
     cropper.getCroppedCanvas({width: 350, height: 350}).toBlob(function (blob) {
-        let formData = new FormData();
+        const formData = new FormData();
         formData.append("profilePhotoName", "profilepic.jpg");
         formData.append("file", blob, "profilepic.jpg");
+        formData.append("userUploadId", profileId.toString());
 
         const photoPostURL = photoRouter.controllers.backend.PhotoController.upload().url;
         const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(
-            userId).url;
+            profileId).url;
 
         // Send request and handle response
         postMultipart(photoPostURL, formData).then(response => {
             // Read response from server, which will be a json object
             response.json().then(data => {
                 if (response.status === 201) {
-                    const photoFilename = "/public/storage/photos/" + data;
+                    const photoFilename = data["filename"];
+                    const photoId = data["guid"];
+
+                    $("#ProfilePicture").attr("src", photoFilename);
 
                     // Create reversible request to update profile photo to this new photo
                     const handler = (status, json) => {
                         if (status === 200) {
-                            getProfilePicture(profilePictureControllerUrl);
+                            getProfileAndCoverPicture();
                             toast("Changes saved!",
-                                "Profile picture changes saved successfully.",
-                                "success");
+                                "Profile picture changes saved successfully");
                         } else {
                             toast("Error",
                                 "Unable to update profile picture", "danger");
                         }
                     };
                     const requestData = new ReqData(requestTypes["UPDATE"],
-                        profilePicUpdateURL, handler, photoFilename);
+                        profilePicUpdateURL, handler, photoId);
                     undoRedo.sendAndAppend(requestData);
 
                 }
@@ -252,7 +286,7 @@ function uploadProfilePicture(userId) {
  */
 cropGallery.on('click', 'img', function () {
     //Get the path for the pictures thumbnail
-    let fullPicturePath = $(this).parent().attr("data-filename");
+    const fullPicturePath = $(this).parent().attr("data-filename");
     //Set the croppers image to this
     profilePictureToCrop.setAttribute('src', fullPicturePath);
     //Show the cropPPModal and hide the changePPModal
@@ -260,36 +294,106 @@ cropGallery.on('click', 'img', function () {
     $('#cropProfilePictureModal').modal('show');
 });
 
-function removePhoto(guid, filename) {
-    $('#deletePhotoModal').modal('show');
-    document.getElementById("deleteMe").setAttribute("src", filename);
-    document.getElementById("deleteMe").setAttribute("name", guid);
+/**
+ * Populates the edit photo modal
+ *
+ * @param {Number} guid - the id of the photo
+ * @param {String} filename - the filename of the photo
+ */
+function populateEditPhoto(guid, filename) {
+    const modalPhoto = $('#modal-photo');
+    const updateImgButton = $('#update-img');
+    modalPhoto.attr('src', "");
+    modalPhoto.attr('src', filename);
+    modalPhoto.attr("name", guid);
+    $('#update-caption input').val("");
+    $('#edit-modal').modal('show');
+    get(photoRouter.controllers.backend.PhotoController.getPhotoById(guid).url)
+    .then(response => {
+        response.json()
+        .then(photo => {
+            if (response.status !== 200) {
+                toast("Error in retrieving photo data",
+                    "Could not retrieve photo"
+                    + "data properly", "danger", 5000);
+            } else {
+                $('#update-caption input').val(photo.caption);
+                editTagPicker.populateTags(photo.tags);
+            }
+        })
+    });
+    updateImgButton.unbind('click');
+    updateImgButton.bind('click', function () {
+        updatePhotoCaptionAndTags(guid);
+    });
 }
 
+/**
+ * Updates the caption and tags of a photo
+ *
+ * @param {Number} guid - The ID of the photo being updated
+ */
+function updatePhotoCaptionAndTags(guid) {
+    const caption = $('#update-caption input').val();
+    const tags = editTagPicker.getTags().map(tag => {
+        return {
+            name: tag
+        }
+    });
+    const reqBody = {
+        caption: caption,
+        tags: tags
+    };
+    const url = photoRouter.controllers.backend.PhotoController.updatePhotoDetails(
+        guid).url;
+    const initialUpdate = true;
+    const handler = function(status, json) {
+        if (this.initialUpdate) {
+            if (status !== 200) {
+                toast("Update failed", json, "danger", 5000);
+            } else {
+                toast("Update successful!",
+                    "The photo's captions and tags have been updated");
+            }
+            this.initialUpdate = false;
+        }
+
+        if (status === 200) {
+            $('[data-id="' + guid + '"]').attr("data-caption", caption);
+            getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+
+        }
+    }.bind({initialUpdate});
+    const reqData = new ReqData(requestTypes["UPDATE"], url, handler, reqBody);
+    undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Deletes a photo
+ * @param route
+ */
 function deletePhoto(route) {
-    let guid = document.getElementById("deleteMe").name;
-    let deleteUrl = route.substring(0, route.length - 1) + guid;
+    const guid = document.getElementById("modal-photo").name;
+    const deleteUrl = route.substring(0, route.length - 1) + guid;
 
     _delete(deleteUrl)
     .then(response => {
         response.json().then(data => {
             if (response.status === 200) {
-                $('#deletePhotoModal').modal('hide');
-                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+                $('#edit-modal').modal('hide');
+                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
                 toast("Picture deleted!",
-                    "The photo will no longer be displayed in the gallery.",
-                    "success");
+                    "The photo will no longer be displayed in the gallery");
+                getProfileAndCoverPicture();
+                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+                undoRedo.undoStack.clear();
+                undoRedo.redoStack.clear();
+                updateUndoRedoButtons();
             }
         });
     });
 }
-
-/**
- * allows the upload image button to act as an input field by clicking on the upload image file field
- */
-$("#upload-image-button").click(function () {
-    $("#upload-image-file").click();
-});
 
 /**
  * Takes the users selected photo file and creates a url object out of it. This is then passed to cropper.
@@ -299,6 +403,7 @@ function uploadNewPhoto() {
     const selectedFile = document.getElementById('upload-image-file').files[0];
     profilePictureToCrop.setAttribute('src',
         window.URL.createObjectURL(selectedFile));
+
     //Show the cropPPModal and hide the changePPModal
     $('#changeProfilePictureModal').modal('hide');
     $('#cropProfilePictureModal').modal('show');
@@ -306,43 +411,92 @@ function uploadNewPhoto() {
 
 /**
  * Takes a url for the backend controller method to get the users profile picture. Sends a get for this file and sets
- * the profile picture path to it.
- *
- * @param url the backend PhotoController url
+ * the profile picture and cover photo path to it.
  */
-function getProfilePicture(url) {
-    profilePictureControllerUrl = url;
-    get(profilePictureControllerUrl).then(response => {
+function getProfileAndCoverPicture() {
+    const profileId = window.location.href.split("/").pop();
+    get(profileRouter.controllers.backend.ProfileController.getProfile(
+        profileId).url).then(response => {
         // Read response from server, which will be a json object
         if (response.status === 200) {
             response.json().then(data => {
-                $("#ProfilePicture").attr("src", data.filename);
+                if (data.profilePhoto === null) {
+                    $("#ProfilePicture").attr("src",
+                        "/assets/images/default-profile-picture.jpg");
+                } else {
+                    getPictures();
+                    $("#ProfilePicture").attr("src",
+                        "../user_content/" + data.profilePhoto.filename);
+                }
+
+                if (data.coverPhoto === null) {
+                    $("#CoverPhoto").css("background-image",
+                        "url(/assets/images/profile-bg.jpg)");
+                } else {
+                    getPictures();
+                    $("#CoverPhoto").css("background-image",
+                        "url(../user_content/" + data.coverPhoto.filename
+                        + ")");
+                }
             });
         } else if (response.status === 404) {
             $("#ProfilePicture").attr("src",
                 "/assets/images/default-profile-picture.jpg");
+            $("#CoverPhoto").css("background-image",
+                "/assets/images/profile-bg.jpg");
         }
     });
 }
 
 /**
  * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
- *
- * @param url the backend PhotoController url
  */
-function getPictures(url) {
-    getAllPhotosUrl = url;
-    fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection');
+function getPictures() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", mainGalleryPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
 }
 
+function getProfilePicturesForGallery() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
+}
 /**
  * Displays the users images in a change profile picture gallery modal
  */
 function showProfilePictureGallery() {
-    let galleryObjects = createGalleryObjects(false);
+    const galleryObjects = createGalleryObjects(false, profilePhotoPaginationHelper);
     addPhotos(galleryObjects, $("#profile-gallery"),
         $('#page-selection-profile-picture'));
     $('#changeProfilePictureModal').modal('show');
+}
+
+/**
+ * Sets the users cover photo given a specific photoID
+ * @Param {Number} photoId the id of the photo to set as the cover photo
+ * @Param {Number} profileId the id of the user whos cover photo should change
+ */
+function setCoverPhoto(photoId) {
+    const coverPicUpdateURL = photoRouter.controllers.backend.PhotoController.setCoverPhoto(
+        profileId).url;
+
+    // Create reversible request to update profile photo to this new photo
+    const handler = (status, json) => {
+        if (status === 200) {
+            getProfileAndCoverPicture();
+            $("#editCoverPhotoModal").modal('hide');
+            toast("Changes saved!",
+                "Cover photo changes saved successfully");
+        } else {
+            toast("Error",
+                "Unable to update cover photo", "danger");
+        }
+    };
+
+    const requestData = new ReqData(requestTypes["UPDATE"],
+        coverPicUpdateURL, handler, photoId);
+    undoRedo.sendAndAppend(requestData);
 }
 
 /**
@@ -350,5 +504,32 @@ function showProfilePictureGallery() {
  * For a normal photo
  */
 $("#upload-gallery-image-button").click(function () {
-    $("#upload-gallery-image-file").click();
+    $('#caption input').val("");
+    $('.image-body img').attr('src', '');
+    $('.image-body').css('display', 'none');
+    $('.uploader').css('display', 'block');
+    uploadTagPicker.clearTags();
 });
+
+/**
+ * The editCoverPhotoButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#editCoverPhotoButton").click(function () {
+    $("#editCoverPhotoModal").modal('show');
+    getCoverPictures();
+
+});
+
+/**
+ * Gets a users photos and adds them to the gallery in the modal for setting a cover photo
+ * is paginated
+ */
+function getCoverPictures() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", coverPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "cover-photo-gallery", "current-page", function () {
+        setCoverPhoto(this.getAttribute("data-id"))
+    }, coverPhotoPaginationHelper);
+}

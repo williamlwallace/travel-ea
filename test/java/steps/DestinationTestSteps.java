@@ -20,10 +20,12 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Tag;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
@@ -46,6 +48,7 @@ public class DestinationTestSteps {
         destination.user = new User();
         destination.user.id = 2L;
         destination.isPublic = false;
+        destination.tags = new HashSet<>();
 
         // Create request to create a new destination
         Http.RequestBuilder request = Helpers.fakeRequest()
@@ -135,25 +138,6 @@ public class DestinationTestSteps {
     }
 
 
-    @Then("The next time I retrieve all public destinations, my private destination is not among them")
-    public void the_next_time_I_retrieve_all_public_destinations_my_private_destination_is_not_among_them()
-        throws IOException {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/getAllPublic");
-
-        Result result = route(fakeApp, request);
-
-        assertEquals(OK, result.status());
-
-        // Deserialize result to list of destinations
-        List<Destination> destinations = Arrays.asList(
-            new ObjectMapper().readValue(Helpers.contentAsString(result), Destination[].class));
-
-        assertFalse(destinations.stream().map(d -> d.id).collect(Collectors.toList())
-            .contains(5L));
-    }
 
     @Then("My private destination is automatically merged with the public one")
     public void my_private_destination_is_automatically_merged_with_the_public_one() {

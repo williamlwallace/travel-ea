@@ -21,7 +21,8 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 
 -- Create 2 Trips for testing
 INSERT INTO Trip (user_id) VALUES (1);
-INSERT INTO Trip (user_id) VALUES (2);
+INSERT INTO Trip (user_id, is_public) VALUES (2, 1);
+INSERT INTO Trip (user_id, deleted) VALUES (2, 1);
 
 -- Add destinations to the Trips
 -- Trip 1
@@ -30,16 +31,39 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (1, 2, 3,'2019-04-17 13:59:00', '2019-04-18 08:00:00');
 -- Trip 2
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 2, 1,'2019-04-22 13:59:00', '2019-04-23 08:00:00');
-INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 2,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 4,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
 
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 
+-- Add sample photos
+INSERT INTO Photo (user_id, filename, thumbnail_filename, is_public, used_for_profile) VALUES (1, './public/storage/photos/test/test2.jpeg', './public/storage/photos/test/thumbnails/test2.jpeg', 0, 0);
+
+-- Add sample tags
+INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
+INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (1, 1);
+INSERT INTO TripTag (tag_id, trip_id) VALUES (3, 1), (2, 2), (1, 1);
+INSERT INTO PhotoTag (tag_id, photo_id) VALUES (2, 1);
+INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1);
+
 -- !Downs
--- Now delete all rows from tables ( DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE )
-DELETE FROM TravellerTypeDefinition;
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
+DELETE FROM TripTag;
+DELETE FROM DestinationTag;
+DELETE FROM Tag;
+DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
+DELETE FROM DestinationPhoto;
 DELETE FROM TripData;
 DELETE FROM Trip;
+DELETE FROM DestinationTravellerTypePending;
+DELETE FROM DestinationTravellerType;
 DELETE FROM Destination;
+DELETE FROM TravellerType;
+DELETE FROM TravellerTypeDefinition;
+DELETE FROM Passport;
+DELETE FROM Nationality;
 DELETE FROM CountryDefinition;
 DELETE FROM Profile;
+DELETE FROM Photo;
 DELETE FROM User;

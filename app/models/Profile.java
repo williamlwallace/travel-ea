@@ -6,14 +6,18 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.CascadeType;
 import play.data.validation.Constraints;
 
 /**
@@ -62,6 +66,12 @@ public class Profile extends Model {
         joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "country_id", referencedColumnName = "id"))
     public List<CountryDefinition> passports;
+
+    @ManyToOne
+    public Photo profilePhoto;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    public Photo coverPhoto;
 
     /**
      * Calculates age based on the birth date.

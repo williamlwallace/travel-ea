@@ -8,238 +8,261 @@
     <script src="@routes.Assets.at("javascripts/createTrips.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.DestinationController.destinationRoutes" type="text/javascript"></script>
     <script src="@controllers.backend.routes.TripController.tripRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes" type="text/javascript"></script>
 }
 
-@layouts.imageHeader(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, "images/home-bg.jpg", scripts){
-    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/createTrips.css")">
-    <main role="main" id="createTripContainer">
+@layouts.main(if(trip.id == null) { "Create Trip" } else { "Edit Trip" }, user, scripts){
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/destinations.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
-        <div style="padding-bottom: 60px;">
-                <!-- Buttons to add/create destination and trip -->
-            <div style="float: left;">
-                <button type="submit" class="btn btn-secondary" data-toggle="modal" data-target="#modalAddForm">Add Destination</button>
-            </div>
-
-            <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
-            <div style="float: right;">
-                @if(trip.tripDataList.length == 0 || !trip.isPublic) {
-                    <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
-                        <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>
-                        <label class="custom-control-label" id="tripPrivacy" for="tripPrivacyStatus">Private</label>
-                    </div>
-                } else {
-                    <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
-                        <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()' checked>
-                        <label class="custom-control-label" id="tripPrivacy" for="tripPrivacyStatus">Public</label>
-                    </div>
-                }
-
-                @if(trip.tripDataList.length == 0) {
-                    <button class="btn btn-primary" id="createTripButton" style="display: none;" onclick='createTrip(
-                        "@controllers.frontend.routes.TripController.tripIndex()", @ownerId)'>Create Trip</button>
-                } else{
-                    <button class="btn btn-primary" onclick='updateTrip("@controllers.backend.routes.TripController.updateTrip()",
-                            "@controllers.frontend.routes.TripController.tripIndex()", @trip.id, @ownerId)'>Update Trip</button>
-                    <a href="javascript:history.back()"><button class="btn btn-danger">Cancel</button></a>
-                }
+    @* The custom title section with background image *@
+    <div class="title-frame" id="title-frame">
+        <div class="title-bg" style="background-image: url(@routes.Assets.at("images/home-bg.jpg"))">
+            <div class="title-text-wrap">
+                <p id="summary_name" class="title-text">@if(trip.id == null) { Create Trip } else { Edit Trip }</p>
             </div>
         </div>
+    </div>
 
-        <!-- Destination cards -->
-        <!doctype html>
-        <html lang="en">
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>jQuery UI Sortable - Default functionality</title>
-                <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-                <link rel="stylesheet" href="/resources/demos/style.css">
-                <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-                <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-                <script>
-                        $( function() {
-                            $( "#list" ).disableSelection().sortable({
-                                scroll: true,
-                                axis: 'y',
-                                revert: true,
-                                helper: function(event, ui){
-                                    let $clone =  $(ui).clone();
-                                    $clone .css('position','absolute');
-                                    return $clone.get(0);
-                                },
-                            });
-                        } );
-                </script>
-            </head>
-            <body>
+    <div class="mainTripContainer" id="startchange">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/createTrips.css")">
+        <div id="createTripContainer" class="row">
+            <div class="col-8">
+                <div>
+                        <!-- Displays buttons and privacy status depending on whether create or update trip has been loaded -->
+                    <div style="float: right;" class="ml-4">
+                        @if(trip.tripDataList.length == 0 || !trip.isPublic) {
+                            <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
+                                <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()'>
+                                <label class="custom-control-label" id="tripPrivacy" for="tripPrivacyStatus">Private</label>
+                            </div>
+                        } else {
+                            <div class="custom-control custom-switch" style="float:left; padding-top: 7px; padding-right: 18px">
+                                <input type="checkbox" class="custom-control-input" id="tripPrivacyStatus" onclick='toggleTripPrivacy()' checked>
+                                <label class="custom-control-label" id="tripPrivacy" for="tripPrivacyStatus">Public</label>
+                            </div>
+                        }
+
+                        @if(trip.tripDataList.length == 0) {
+                            <button class="btn btn-primary" id="createTripButton" style="display: none;" onclick='createTrip(
+                                "@controllers.frontend.routes.TripController.tripIndex()", @ownerId)'>Create Trip</button>
+                        } else{
+                            <button class="btn btn-primary" onclick='updateTrip("@controllers.backend.routes.TripController.updateTrip()",
+                                "@controllers.frontend.routes.TripController.tripIndex()", @trip.id, @ownerId)'>Update Trip</button>
+                            <a href="javascript:history.back()"><button class="btn btn-danger">Cancel</button></a>
+                        }
+                    </div>
+                    @modules.tagPicker("create-trip-tag")
+                </div>
+
+                <!-- Destination cards -->
                 <div id="tripError"></div>
                     <!-- Destination card deck -->
                 <div id="parent"  style="border:1px solid #cecece; background-color: #ececed;" class="parent">
                     <div id="list" class="list">
                         @for(i <- trip.tripDataList.indices) {
-                            <div class="card flex-row" id=@i >
+                            <div class="card card-dest-for-trip flex-row" id=@i >
                                 <label id=@trip.tripDataList(i).destination.id></label>
                                 <div class="card-header border-0" style="height: 100%">
                                     <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">
                                 </div>
-                                <div class="card-block px-2">
-                                    <div id="topCardBlock">
-                                        <h4 class="card-title"> @trip.tripDataList(i).destination.name</h4>
+
+                                <div class="container">
+                                    <div id="topCardBlock" class="row">
+                                        <h4 class="card-title card-title-dest-for-trip"> @trip.tripDataList(i).destination.name</h4>
                                         <div id="removeTrip" onclick="setDestinationToRemove(@i)"></div>
                                     </div>
-                                    <div id="left">
-                                        <p id="destinationDetails" class="card-text" id="card-text">
-                                            <strong>Type: </strong>
-                                            @trip.tripDataList(i).destination.destType
-                                            <br/>
-                                            <strong>District: </strong>
-                                            @trip.tripDataList(i).destination.district
-                                            <br/>
-                                            <strong>Latitude: </strong>
-                                            @trip.tripDataList(i).destination.latitude
-                                            <br/>
-                                            <strong>Longitude: </strong>
-                                            @trip.tripDataList(i).destination.longitude
-                                            <br/>
-                                            <strong>Country: </strong>
-                                            <label id="countryField">@trip.tripDataList(i).destination.country.name</label>
-                                        </p>
-                                    </div>
-                                    <div id="right">
-                                        <form id="arrivalDepartureForm">
-                                            <div class="modal-body mx-3">
-                                                <div id="arrival">Arrival
-                                                    <em class="fas prefix grey-text"></em>
-                                                    <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(0, 10)" }>
-                                                    <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(11, 16)" }>
-                                                    <label id="arrivalError"></label>
+                                    <div class="card-block card-block-dest-for-trip px-2 row">
+                                        <div id="left" class="col-5">
+                                            <p id="destinationDetails" class="card-text" id="card-text">
+                                                <strong>Type: </strong>
+                                                @trip.tripDataList(i).destination.destType
+                                                <br/>
+                                                <strong>District: </strong>
+                                                @trip.tripDataList(i).destination.district
+                                                <br/>
+                                                <strong>Latitude: </strong>
+                                                @trip.tripDataList(i).destination.latitude
+                                                <br/>
+                                                <strong>Longitude: </strong>
+                                                @trip.tripDataList(i).destination.longitude
+                                                <br/>
+                                                <strong>Country: </strong>
+                                                <label id="countryField">@trip.tripDataList(i).destination.country.name</label>
+                                            </p>
+                                        </div>
+                                        <div id="right" class="col-7">
+                                            <form id="arrivalDepartureForm">
+                                                <div class="row">
+                                                    <div class="col date-columns">
+                                                        <div>Arrival</div>
+                                                        <div id="arrival">
+                                                            <em class="fas prefix grey-text"></em>
+                                                            <input id="arrivalDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(0, 10)" }>
+                                                            <input id="arrivalTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).arrivalTime != null) { value="@trip.tripDataList(i).getArrivalTime.slice(11, 16)" }>
+                                                            <label id="arrivalError"></label>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col date-columns">
+                                                        <div>Departure</div>
+                                                        <div id="depart">
+                                                            <em class="fas prefix grey-text"></em>
+                                                            <input id="departureDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" }>
+                                                            <input id="departureTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" }>
+                                                            <label id="departureError"></label>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div id="depart">Departure
-                                                    <em class="fas prefix grey-text"></em>
-                                                    <input id="departureDate" type="date" name="arrivalDate" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(0, 10)" }>
-                                                    <input id="departureTime" type="time" name="arrivalTime" class="form-control validate" @if(trip.tripDataList(i).departureTime != null) { value="@trip.tripDataList(i).getDepartureTime.slice(11, 16)" }>
-                                                    <label id="departureError"></label>
-                                                </div>
+                                            </form>
+                                            <div class="text-center">
+                                                <label id="destinationError"></label><br/>
                                             </div>
-                                        </form>
-                                        <div class="text-center">
-                                            <label id="destinationError"></label><br/>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         }
-
-                        <!-- Destinations inserted here -->
-                    </div>
-                </div>
-            </body>
-        </html>
-
-        <!-- Remove Destination From Trip Modal -->
-        <div class="modal fade" id="removeDestinationFromTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content text-center">
-                    <div class="modal-header text-center">
-                        <h4 class="modal-title w-100 font-weight-bold">Remove Destination</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>Are you sure you wish to remove this destination from the trip?</p>
-                    </div>
-                    <div class="modal-footer d-flex justify-content-center">
-                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
+                            <!-- Destinations inserted here -->
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Create destination form -->
-        <div class="container">
-            @modules.createDestinationForm(ownerId)
-        </div>
-
-
-        <!-- Edit arrival depart times form -->
-            <div class="modal fade" id="modalEditForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
-            aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header text-center">
-                            <h4 class="modal-title w-100 font-weight-bold">Edit date and times</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+            <div class="col-4 scrollblock">
+                <div class="filterButtonContainer">
+                    <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
+                    aria-expanded="false" aria-controls="collapseDestinationFilter">Filter Destinations To Add</button>
+                </div>
+                @* The destination filter options *@
+                <div class="collapse" id="collapseDestinationFilter">
+                    <div class="card card-body" id="card-body">
+                        <div class="filterItemDiv">
+                            <label for="searchQuery">Search</label>
+                            <input id="searchQuery" class="form-control validate"/>
                         </div>
-                            <div class="container">
-                                <form>
-                                    <div class="form-group">
-                                        <label for="Departure time">Departure time</label>
-                                        <input type="date" class="form-control" id="Departure date" >
-                                        <input type="time" class="form-control" id="Departure time" >
-                                    </div>
+                        <div class="filterItemDiv pt-2  pb-2">
+                            <label for="pageSize">Results per page</label>
+                            <input id="pageSize" type="number" class="form-control validate" value="10" min="1"/>
+                        </div>
 
-                                    <div class="form-group">
-                                        <label for="Arrival time">Arrival time</label>
-                                        <input type="date" class="form-control" id="Arrival date" >
-                                        <input type="time" class="form-control" id="Arrival time" >
-                                    </div>
-                                </form>
+                        <label for="sortBy">Sort by</label>
+                        <div class="row">
+                            <div class="filterItemDiv col">
+                                <select id="sortBy" class="form-control selectpicker" data-style="form-control">
+                                    <option value="name">Name</option>
+                                    <option value="type">Type</option>
+                                    <option value="country.name">Country</option>
+                                    <option value="last_name">Last Name</option>
+                                </select>
                             </div>
+                            <div class="filterItemDiv col">
+                                <select id="ascending" class="form-control selectpicker" data-style="form-control">
+                                    <option value="true">Ascending</option>
+                                    <option value="false">Descending</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-check pt-3">
+                            <input type="checkbox" class="form-check-input" id="onlyGetMine">
+                            <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
+                        </div>
+
+                        <div class="text-center pt-3" id="buttonDiv">
+                            <div id="applyButton">
+                                <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
+                                <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @* The destinations cards *@
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-destinations pt-3">
+                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+                @modules.destinationCards()
+                <div id="destinationCardList"></div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-destinations">
+                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Remove Destination From Trip Modal -->
+            <div class="modal fade" id="removeDestinationFromTripModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content text-center">
+                        <div class="modal-header text-center">
+                            <h4 class="modal-title w-100 font-weight-bold">Remove Destination</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you wish to remove this destination from the trip?</p>
+                        </div>
                         <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-popup">Done<em class="fas fa-paper-plane-o ml-1"></em></button>
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="removeDestinationFromTrip()">Remove</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-        <!-- Form to add destination to trip -->
-            <div class="modal fade" id="modalAddForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
-            aria-hidden="true">
-                <div class="modal-dialog modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header text-center">
-                            <h4 class="modal-title w-100 font-weight-bold">Add destination to trip</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="container">
-                            <div style="text-align:center">
-                                <button id="createDestinationButton" class="btn btn-secondary" data-toggle="modal" data-dismiss="modal" data-target="#createDestinationModal" target="_blank" rel="nofollow noopener">Create new destination</button>
+
+            <!-- Edit arrival depart times form -->
+                <div class="modal fade" id="modalEditForm" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+                aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header text-center">
+                                <h4 class="modal-title w-100 font-weight-bold">Edit date and times</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <form>
-                                <div class="destTable"><br>
-                                    <table id="destTable" class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Name</th>
-                                                <th scope="col">Type</th>
-                                                <th scope="col">District</th>
-                                                <th scope="col">Latitude</th>
-                                                <th scope="col">Longitude</th>
-                                                <th scope="col">Country</th>
-                                                <th scope="col"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        </tbody>
-                                    </table>
+                                <div class="container">
+                                    <form>
+                                        <div class="form-group">
+                                            <label for="Departure time">Departure time</label>
+                                            <input type="date" class="form-control" id="Departure date" >
+                                            <input type="time" class="form-control" id="Departure time" >
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="Arrival time">Arrival time</label>
+                                            <input type="date" class="form-control" id="Arrival date" >
+                                            <input type="time" class="form-control" id="Arrival time" >
+                                        </div>
+                                    </form>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer d-flex justify-content-center" style="display: block;">
-                            <button type="button" class="btn btn-popup waves-effect waves-light" data-dismiss="modal">Close</button>
+                            <div class="modal-footer d-flex justify-content-center">
+                                <button class="btn btn-popup">Done<em class="fas fa-paper-plane-o ml-1"></em></button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-     </div>
-    </main>
+        </div>
+    </div>
 }
 
 <script type="text/javascript">
         onPageLoad(@ownerId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+        const createTripTagPicker = new TagPicker(@user.id, "create-trip-tag");
+        $( function() {
+            $( "#list" ).disableSelection().sortable({
+                scroll: true,
+                axis: 'y',
+                revert: true,
+                helper: function(event, ui){
+                    let $clone =  $(ui).clone();
+                    $clone .css('position','absolute');
+                    return $clone.get(0);
+                },
+            });
+        } );
 </script>

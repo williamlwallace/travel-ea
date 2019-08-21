@@ -4,11 +4,14 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.PagedList;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.Tag;
+import models.Taggable;
+import models.UsedTag;
 import models.User;
 import play.db.ebean.EbeanConfig;
 
@@ -29,20 +32,30 @@ public class UserRepository {
     }
 
     /**
-     * Return a paged list of user.
+     * Return a paged list of users not including provided user id.
      *
-     * @param order Sort order (either or asc or desc)
-     * @param filter Filter applied on the name column
+     * @param userId The user Id to ignore
+     * @param searchQuery username to search by
+     * @param sortBy column to sort by
+     * @param ascending returns results in ascending order if true or descending order if false
+     * @param pageNum page number you are on
+     * @param pageSize number of results per page
+     * @return a PagedList of users
      */
-    public CompletableFuture<List<User>> search(String order, String filter, Long userId) {
+    public CompletableFuture<PagedList<User>> search(Long userId,
+        String searchQuery, String sortBy, Boolean ascending, Integer pageNum, Integer pageSize) {
+
+        final String cleanedSearchQuery = searchQuery == null ? "" : searchQuery;
         return supplyAsync(() ->
-                ebeanServer.find(User.class)
-                    .where()
-                    .ne("id", String.valueOf(userId))
-                    .ilike("username", "%" + filter + "%")
-                    .orderBy("username " + order)
-                    .findList(),
-            executionContext);
+            ebeanServer.find(User.class)
+                .where()
+                .ne("id", String.valueOf(userId))
+                .ilike("username", "%" + cleanedSearchQuery + "%")
+                .orderBy((sortBy == null ? "id" : sortBy) + " " + (ascending ? "asc"
+                    : "desc"))
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList());
     }
 
     /**
@@ -62,14 +75,15 @@ public class UserRepository {
     }
 
     /**
-     * Gets the user with some id from the database, or null if no such user exists.
+     * Gets the deleted user with some id from the database, or null if no such user exists.
      *
      * @param id Unique ID of user to retrieve
      * @return User object with given ID, or null if none found
      */
     public CompletableFuture<User> findDeletedID(Long id) {
         return supplyAsync(() ->
-                ebeanServer.find(User.class).setIncludeSoftDeletes()
+                ebeanServer.find(User.class)
+                    .setIncludeSoftDeletes()
                     .where()
                     .idEq(id)
                     .findOneOrEmpty()
@@ -97,6 +111,7 @@ public class UserRepository {
      */
     public CompletableFuture<Long> updateUser(User updatedUser) {
         return supplyAsync(() -> {
+            ebeanServer.saveAll(updatedUser.usedTags);
             ebeanServer.update(updatedUser);
             return updatedUser.id;
         }, executionContext);
@@ -112,19 +127,67 @@ public class UserRepository {
         return supplyAsync(() -> {
             newUser.creationDate = LocalDateTime.now();
             ebeanServer.insert(newUser);
+            ebeanServer.saveAll(newUser.usedTags);
             return newUser;
         }, executionContext);
     }
 
     /**
-     * remove a user from db.
+     * Remove a user from db.
      *
      * @param id uid of user
-     * @return Ok result object in a completableFuture
+     * @return the number of rows that were deleted
      */
     public CompletableFuture<Integer> deleteUser(Long id) {
         return supplyAsync(() ->
                 ebeanServer.delete(User.class, id)
             , executionContext);
+    }
+
+    /**
+     * Updates this users tags, updating the date of the tag or inserting a new tag. Then calls
+     * ebean to commit the changes to the database Compares the original object to the new object to
+     * find newly added tags. Tags must already be in the database
+     *
+     * Use this method signature when the user is updating the object.
+     *
+     * @param oldTaggable The original tagged object before this user's changes
+     * @param newTaggable The new tagged object after this user's changes
+     */
+    public void updateUsedTags(User user, Taggable oldTaggable, Taggable newTaggable) {
+        user.updateUserTags(oldTaggable, newTaggable);
+        for (UsedTag usedTag : user.usedTags) {
+            if (usedTag.tag.id == null) {
+                usedTag.tag = ebeanServer.find(Tag.class)
+                    .where()
+                    .eq("name", usedTag.tag.name)
+                    .findOneOrEmpty()
+                    .orElse(null);
+            }
+        }
+        ebeanServer.saveAll(user.usedTags);
+    }
+
+    /**
+     * Updates this users tags, updating the date of the tag or inserting a new tag. Then calls
+     * ebean to commit the changes to the database Compares the original object to the new object to
+     * find newly added tags.
+     *
+     * Use this method signature when the user is inserting/adding the object.
+     *
+     * @param taggable The original tagged object before this user's changes
+     */
+    public void updateUsedTags(User user, Taggable taggable) {
+        user.updateUserTags(taggable);
+        for (UsedTag usedTag : user.usedTags) {
+            if (usedTag.tag.id == null) {
+                usedTag.tag = ebeanServer.find(Tag.class)
+                    .where()
+                    .eq("name", usedTag.tag.name)
+                    .findOneOrEmpty()
+                    .orElse(null);
+            }
+        }
+        ebeanServer.saveAll(user.usedTags);
     }
 }

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Singleton;
@@ -31,8 +33,8 @@ public class GenericTestSteps extends WithApplication {
 
     protected static Application fakeApp;
     static Database db;
-    static Http.Cookie adminAuthCookie;
-    static Http.Cookie nonAdminAuthCookie;
+    public static Http.Cookie adminAuthCookie;
+    public static Http.Cookie nonAdminAuthCookie;
 
     static Long userId = 1L;
 
@@ -80,8 +82,7 @@ public class GenericTestSteps extends WithApplication {
 
     @Given("I am logged in")
     public void i_am_logged_in() {
-        Evolutions.applyEvolutions(db,
-            Evolutions.fromClassLoader(getClass().getClassLoader(), "test/trip/"));
+        this.applyEvolutions("test/trip/");
 
         // Create new user, so password is hashed
         ObjectNode node = Json.newObject();
@@ -97,6 +98,40 @@ public class GenericTestSteps extends WithApplication {
         // Get result and check OK was sent back
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
+    }
+
+    /**
+     * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
+     * should contain minimal sql data needed for tests
+     *
+     * @param evolutionsRoute The route of the evolutions to apply
+     */
+    void applyEvolutions(String evolutionsRoute) {
+        Evolutions.applyEvolutions(db,
+            Evolutions.fromClassLoader(getClass().getClassLoader(), evolutionsRoute));
+    }
+
+    /*
+     * Used to append parameters to some existing URI
+     * @param uri Existing URI to add to
+     * @param appendQuery New query to add
+     * @return URI with appended parameter
+     * @throws URISyntaxException Thrown if unable to pass URI
+     */
+    public static URI appendUri(String uri, String appendQuery) throws URISyntaxException {
+        URI oldUri = new URI(uri);
+
+        String newQuery = oldUri.getQuery();
+        if (newQuery == null) {
+            newQuery = appendQuery;
+        } else {
+            newQuery += "&" + appendQuery;
+        }
+
+        URI newUri = new URI(oldUri.getScheme(), oldUri.getAuthority(),
+            oldUri.getPath(), newQuery, oldUri.getFragment());
+
+        return newUri;
     }
 
 }

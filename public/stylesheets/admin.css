@@ -96,3 +96,73 @@ code {
     padding-left: 3px;
     padding-top: 3px;
 }
+
+#filterItemDiv {
+    padding: 0.8rem;
+    display: inline-block;
+    width:15rem;
+    height:90px;
+}
+
+#resultsPerPageDiv {
+    padding: 0.8rem;
+    display: inline-block;
+    /*width:200px;*/
+    height:90px;
+}
+
+#filterButton {
+    float: right;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
+}
+
+#card-body {
+    display: inline-block;
+    width: -webkit-fill-available;
+}
+
+#pageSize {
+    /*width: 100px;*/
+    width:7.5rem;
+}
+
+#buttonDiv {
+    /*padding-top: 10px;*/
+    overflow: auto;
+    display: inline-block;
+    /*float: right;*/
+    vertical-align: middle;
+}
+
+#closeButton {
+    float: right;
+    padding-left: 5px;
+    display: inline-block;
+}
+
+#applyButton {
+    float: right;
+    display: inline-block;
+}
+
+#main {
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+#collapseExample {
+    padding-bottom: 1rem;
+}

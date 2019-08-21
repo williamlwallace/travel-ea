@@ -23,7 +23,7 @@ describe('I can send requests and create inverse actions', () => {
         const handler = (status, json) => {
             expect(status).toEqual(200);
             expect(json.data.name).toEqual('Tester');
-        }
+        };
         const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
         await undoRedo.sendAndAppend(reqData);
         expect(undoRedo.undoStack.stack.length).toEqual(1);
@@ -37,7 +37,7 @@ describe('I can send requests and create inverse actions', () => {
         const handler = (status, json) => {
             expect(status).toEqual(200);
             expect(json.data).toEqual('1');
-        }
+        };
         const reqData = new UndoRedo.ReqData(type, URL, handler, 1);
         await undoRedo.sendAndAppend(reqData);
         expect(undoRedo.undoStack.stack.length).toEqual(1);
@@ -52,7 +52,7 @@ describe('I can send requests and create inverse actions', () => {
         const handler = (status, json) => {
             expect(status).toEqual(200);
             expect(json.data.name).toEqual('Tester');
-        }
+        };
         const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
         await undoRedo.sendAndAppend(reqData);
         expect(undoRedo.undoStack.stack.length).toEqual(1);
@@ -83,7 +83,7 @@ describe('I can send requests and create inverse actions', () => {
         const handler = (status, json) => {
             expect(status).toEqual(404);
             expect(json.data.name).toEqual('Tester');
-        }
+        };
         const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
         //This doesnt exactly happen if it was our api, but its close enough lmao
         try {
@@ -103,7 +103,7 @@ describe('I can undo and redo sent actions', () => {
         const handler = (status, json) => {
             expect(status).toEqual(200);
             expect(json.data.name).toEqual('Tester');
-        }
+        };
         const reqData = new UndoRedo.ReqData(type, URL, handler, {name: "Tester"});
         undoRedo.undoStack.stack = [new UndoRedo.UndoRedoReq(reqData, {})];
         await undoRedo.undo();

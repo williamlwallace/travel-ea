@@ -10,6 +10,13 @@ junit:
   script:
     - sbt test
 
+# Need to fix on server to have this
+# jest:
+#   stage: test
+#   script:
+#     - npm install
+#     - npm test
+
 recent-artifacts:
   stage: deploy
   script:
@@ -20,6 +27,8 @@ recent-artifacts:
     expire_in: 1 week
   except:
     - tags
+  only:
+    - master-dev@seng302-2019/team-400
 
 release-artifacts:
  stage: deploy
@@ -38,33 +47,36 @@ start-server-dev:
     - sbt clean
     - sbt update
     - sbt dist
-    - source /home/sengstudent/runServerScript
-    - stopDev
-    - setupDev
-    - startDev
+    - sudo rm -rf ~/devServerProffat
+    - mkdir -p ~/devServerProffat
+    - unzip target/universal/seng302-team-400-proffat-0.0.4.zip -d ~/devServerProffat
+    - sudo systemctl stop proffatDevServer
+    - sudo systemctl start proffatDevServer
+
   only:
     - master-dev@seng302-2019/team-400
-    - fix-dest-privacy-from-profile-hotfix@seng302-2019/team-400
 
 start-server-prod:
   stage: deploy
   script:
-  - sudo git lfs pull
-  - sbt clean
-  - sbt update
-  - sbt dist
-  - source /home/sengstudent/runServerScript
-  - stopProd
-  - setupProd
-  - startProd
+    - sudo git lfs pull
+    - sbt clean
+    - sbt update
+    - sbt dist
+    - sudo rm -rf ~/prodServerProffat
+    - mkdir -p ~/prodServerProffat
+    - unzip target/universal/seng302-team-400-proffat-0.0.4.zip -d ~/prodServerProffat
+    - sudo systemctl stop proffatProdServer
+    - sudo systemctl start proffatProdServer
+
   only:
     - master@seng302-2019/team-400
-
 
 Update-sonar:
   stage: deploy
   script:
-    - sbt compile && sbt checkstyle && sonar-scanner
+    - sbt compile && sbt checkstyle && sonar-scanner -D sonar.login=80a413580f3baa2e97b10d3f73634e07df52177b
   only:
     - master@seng302-2019/team-400
     - master-dev@seng302-2019/team-400
+    - P5-DestinationsPagination@seng302-2019/team-400

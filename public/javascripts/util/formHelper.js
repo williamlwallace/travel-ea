@@ -63,6 +63,7 @@ function getHardData(URI, dataKey, capitalise = false, idKey = 'id') {
                     dict[data[i][idKey]] = capitalizeFirstLetter(
                         data[i][dataKey]);
                 } else {
+                    
                     dict[data[i][idKey]] = data[i][dataKey];
                 }
             }
@@ -100,6 +101,9 @@ function getAndFillDD(URI, dropdowns, dataKey, capitalise = false, idKey = "id",
 function fillDropDown(dropdownName, dict, sort = false) {
     let array = [];
     let item;
+    let dropdown = $('#' + dropdownName);
+
+    dropdown.empty();
 
     for (let key in dict) {
         item = {};
@@ -119,15 +123,19 @@ function fillDropDown(dropdownName, dict, sort = false) {
             }
         });
     }
-
+/*
     for (let i in array) {
         let option = document.createElement("OPTION");
         option.innerHTML = array[i].value;
         option.value = array[i].id;
         // Add list element to drop down list
         document.getElementById(dropdownName).appendChild(option);
-    }
-    $('#' + dropdownName).picker();
+    }*/
+    $.each(array, function(number, item) {
+        dropdown.append($('<option>').text(item.value).attr('value', item.id));
+    });
+
+    dropdown.selectpicker('refresh');
 }
 
 /**
@@ -153,7 +161,7 @@ function insertFieldData(json) {
  */
 function JSONFromDropDowns(dropdown) {
     let data = [];
-    let ids = $.map($(document.getElementById(dropdown)).picker('get'), Number);
+    let ids = $.map($(document.getElementById(dropdown)).selectpicker('val'), Number);
     for (let i = 0; i < ids.length; i++) {
         let dat = {};
         dat.id = ids[i];

@@ -5,15 +5,16 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
+import io.ebean.Expression;
 import io.ebean.PagedList;
-import java.util.Collection;
-import java.util.List;
+
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.Destination;
-import models.TripData;
+
+import models.*;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
 
@@ -22,6 +23,9 @@ import play.db.ebean.EbeanConfig;
  */
 @Singleton
 public class DestinationRepository {
+
+    private final Expression SQL_FALSE = Expr.raw("false");
+    private final Expression SQL_TRUE = Expr.raw("true");
 
     // The number of decimal places to check for determining similarity of destinations
     // (2 = 1km, 3 = 100m, 4 = 10m, 5 = 1m, ...)
@@ -70,21 +74,6 @@ public class DestinationRepository {
     }
 
     /**
-     * Deletes multiple destinations from database.
-     *
-     * @param ids Unique destination IDs of destinations to be deleted
-     * @return The number of rows deleted
-     */
-    public CompletableFuture<Integer> deleteDestinations(Collection<Long> ids) {
-        return supplyAsync(() ->
-                ebeanServer.find(Destination.class)
-                    .where()
-                    .idIn(ids)
-                    .delete()
-            , executionContext);
-    }
-
-    /**
      * Updates a destination.
      *
      * @param destination The destination object to update, with the updated parameters
@@ -92,6 +81,10 @@ public class DestinationRepository {
      */
     public CompletableFuture<Destination> updateDestination(Destination destination) {
         return supplyAsync(() -> {
+            if (destination.tags.isEmpty()) {
+                ebeanServer.find(DestinationTag.class).where().eq("destination_id", destination.id)
+                    .delete();
+            }
             ebeanServer.update(destination);
             return destination;
         }, executionContext);
@@ -102,6 +95,7 @@ public class DestinationRepository {
      *
      * @param destinationId id of destination to update
      * @param newUserId id to set user to
+     * @return The number of rows that were updated
      */
     public CompletableFuture<Integer> changeDestinationOwner(Long destinationId, Long newUserId) {
         return supplyAsync(() ->
@@ -119,17 +113,18 @@ public class DestinationRepository {
      * public
      *
      * @param destinationId ID of destination to make public
-     * @return Result of call, ok if good, badRequest if already public, not found if no such
-     * destination ID found
      */
     public void setDestinationToPublicInDatabase(Long destinationId) {
         Destination destination = ebeanServer.find(Destination.class)
             .where()
-            .eq("id", destinationId).findOneOrEmpty().orElse(null);
+            .eq("id", destinationId)
+            .findOneOrEmpty()
+            .orElse(null);
 
-        // Otherwise set to public, update it, and return ok
-        destination.isPublic = true;
-        ebeanServer.update(destination);
+        if (destination != null) {
+            destination.isPublic = true;
+            ebeanServer.update(destination);
+        }
     }
 
     /**
@@ -253,7 +248,7 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets a single includeding deleted destination given the destination ID.
+     * Gets a single including deleted destination given the destination ID.
      *
      * @param id Unique destination ID of the requested destination
      * @return A single destination with the requested ID, or null if none was found
@@ -308,25 +303,93 @@ public class DestinationRepository {
     }
 
     /**
+     * Gets all destinations with a traveller type modification request.
+     *
+     * @return List of destinations
+     */
+    public CompletableFuture<List<Destination>> getAllDestinationsWithRequests() {
+        return supplyAsync(() -> {
+
+            List<DestinationTravellerTypePending> travellerTypeRequests = ebeanServer.find(DestinationTravellerTypePending.class)
+                    .findList();
+            List<PendingDestinationPhoto> photoRequests = ebeanServer.find(PendingDestinationPhoto.class)
+                    .findList();
+
+            Set<Long> destinationsWithPending = new HashSet<>();
+
+            for (DestinationTravellerTypePending request : travellerTypeRequests) {
+                destinationsWithPending.add(request.destId);
+            }
+            for (PendingDestinationPhoto request : photoRequests) {
+                destinationsWithPending.add(request.destId);
+            }
+
+            if (destinationsWithPending.isEmpty()) {
+                return new ArrayList<>();
+            } else {
+                return ebeanServer.find(Destination.class).where().idIn(destinationsWithPending).findList();
+            }
+        }, executionContext);
+    }
+
+    /**
      * Gets a paged list of destinations conforming to the amount of destinations requested and the
      * provided order and filters.
      *
-     * @param page The current page to display
-     * @param pageSize The number of destinations per page
-     * @param order The column to order by
-     * @param filter The sort order (either asc or desc)
+     * @param searchQuery Query to search all fields for
+     * @param sortBy What column to sort by
+     * @param onlyGetMine Whether or not to only get my own destinations
+     * @param ascending Whether or not to sort ascendingly
+     * @param pageNum Page number to get
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order of this request compared to others from the same page
      * @return Paged list of destinations
      */
-    public CompletableFuture<PagedList<Destination>> getPagedDestinations(int page, int pageSize,
-        String order, String filter) {
+    public CompletableFuture<PagedList<Destination>> getPagedDestinations(
+        Long userId,
+        String searchQuery, // Nullable
+        Boolean onlyGetMine,
+        String sortBy,
+        Boolean ascending,
+        Integer pageNum,
+        Integer pageSize) {
+        String cleanedQueryString = "%" + (searchQuery == null ? "" : searchQuery) + "%";
+
         return supplyAsync(() -> ebeanServer.find(Destination.class)
+                .fetch("country")
                 .where()
-                .ilike("name", "%" + filter + "%")
-                .orderBy(order)
-                .setFirstRow(page * pageSize)
+                // Only get results that match search query, or if no search query provided
+                // Big nested or statement allows for searching multiple fields by one value
+                .or(
+                    (searchQuery == null || searchQuery.equals("")) ? SQL_TRUE : SQL_FALSE,
+                    Expr.or(
+                        Expr.ilike("name", cleanedQueryString),
+                        Expr.or(
+                            Expr.ilike("type", cleanedQueryString),
+                            Expr.or(
+                                Expr.ilike("country.name", cleanedQueryString),
+                                Expr.ilike("district", cleanedQueryString)
+                            )
+                        )
+                    )
+                ).endOr()
+                // If the user only wants their own destinations, filter out all other
+                .or(
+                    Expr.eq("user_id", userId),
+                    onlyGetMine ? SQL_FALSE : SQL_TRUE
+                ).endOr()
+                // If the user doesn't only want theirs, show them public and their own
+                .or(
+                    onlyGetMine ? SQL_TRUE : SQL_FALSE,
+                    Expr.or(
+                        Expr.eq("is_public", true),
+                        Expr.eq("user_id", userId)
+                    )
+                )
+                .orderBy(sortBy + " " + (ascending ? "asc" : "desc"))
+                .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
-                .findPagedList()
-            , executionContext);
+                .findPagedList());
     }
 
     /**
