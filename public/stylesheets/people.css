@@ -3,6 +3,7 @@
     display: inline-block;
     width:200px;
     height:90px;
+    text-align: left;
 }
 
 .filterItemDiv {
