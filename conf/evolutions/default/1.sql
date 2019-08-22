@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS User
   (
     id                INT NOT NULL AUTO_INCREMENT,
-    username          VARCHAR(64) NOT NULL,
+    username          VARCHAR(64) NOT NULL CHARACTER SET utf16 COLLATE utf16_general_ci,
     password          VARCHAR(128) NOT NULL,
     salt              VARCHAR(64) NOT NULL,
     admin             BOOLEAN NOT NULL DEFAULT false,
@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS Photo
 CREATE TABLE IF NOT EXISTS Profile
   (
     user_id             INT NOT NULL AUTO_INCREMENT,
-    first_name          VARCHAR(64) NOT NULL,
-    middle_name         VARCHAR(64),
-    last_name           VARCHAR(64) NOT NULL,
+    first_name          VARCHAR(64) NOT NULL CHARACTER SET utf16 COLLATE utf16_general_ci,
+    middle_name         VARCHAR(64) CHARACTER SET utf16 COLLATE utf16_general_ci,
+    last_name           VARCHAR(64) NOT NULL CHARACTER SET utf16 COLLATE utf16_general_ci,
     date_of_birth       DATE,
     gender              VARCHAR(32),
     creation_date       DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS Profile
 CREATE TABLE IF NOT EXISTS CountryDefinition
   (
     id                INT NOT NULL,
-    name              VARCHAR(64) NOT NULL,
+    name              VARCHAR(64) NOT NULL CHARACTER SET utf16 COLLATE utf16_general_ci,
     PRIMARY KEY (id),
     INDEX name_index (name)
   );
@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS Destination
   (
     id                  INT NOT NULL AUTO_INCREMENT,
     user_id             INT NOT NULL,
-    name                VARCHAR(128) NOT NULL,
+    name                VARCHAR(128) NOT NULL CHARACTER SET utf16 COLLATE utf16_general_ci,
     type                VARCHAR(128) NOT NULL,
     district            VARCHAR(128) NOT NULL,
     latitude            DOUBLE NOT NULL,
@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
 CREATE TABLE IF NOT EXISTS Tag
   (
     id                    INT NOT NULL AUTO_INCREMENT,
-    name                  VARCHAR(64) UNIQUE NOT NULL,
+    name                  VARCHAR(64) UNIQUE NOT NULL CHARACTER SET utf16 COLLATE utf16_general_ci,
     PRIMARY KEY (id),
     INDEX tag_name_index (name)
   );
