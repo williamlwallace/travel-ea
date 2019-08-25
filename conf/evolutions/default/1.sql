@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS User
     UNIQUE (username)
   );
 
+
 -- Create Photo table, which stores the filenames and details for all photos
 CREATE TABLE IF NOT EXISTS Photo
   (
