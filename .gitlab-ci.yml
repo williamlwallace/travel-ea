@@ -5,10 +5,10 @@ tag_checker:
   only:
     - tags
 
-#junit:
-#  stage: test
-#  script:
-#    - sbt test
+junit:
+  stage: test
+  script:
+    - sbt test
 
 # Need to fix on server to have this
 # jest:
