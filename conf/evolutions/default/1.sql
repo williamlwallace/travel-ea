@@ -4,15 +4,15 @@
 CREATE TABLE IF NOT EXISTS User
   (
     id                INT NOT NULL AUTO_INCREMENT,
-    username          VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    password          VARCHAR(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    salt              VARCHAR(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+    username          VARCHAR(64) NOT NULL,
+    password          VARCHAR(128) NOT NULL,
+    salt              VARCHAR(64) NOT NULL,
     admin             BOOLEAN NOT NULL DEFAULT false,
     deleted           BOOLEAN NOT NULL DEFAULT false,
     creation_date     DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE (username)
-  ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+  );
 
 
 -- Create Photo table, which stores the filenames and details for all photos
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS Profile
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_photo_guid) REFERENCES Photo(guid),
     FOREIGN KEY (cover_photo_guid) REFERENCES Photo(guid) ON DELETE SET NULL
-  ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+  );
 
 -- Create the country definition table, which is static and defines all possible countries
 CREATE TABLE IF NOT EXISTS CountryDefinition
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS CountryDefinition
     name              VARCHAR(64) NOT NULL,
     PRIMARY KEY (id),
     INDEX name_index (name)
-  ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+  );
 
 -- Create Nationality table, which specifies nationalities for users
 CREATE TABLE IF NOT EXISTS Nationality
@@ -122,7 +122,7 @@ CREATE TABLE IF NOT EXISTS Destination
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
     FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
     PRIMARY KEY (id)
-  ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+  );
 
 -- Create DestinationTravellerType table, which specifies the traveller types of users
 CREATE TABLE IF NOT EXISTS DestinationTravellerType
@@ -217,7 +217,7 @@ CREATE TABLE IF NOT EXISTS TreasureHunt
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
-  ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+  );
 
 -- Create tags table, which stores the name of the tag
 CREATE TABLE IF NOT EXISTS Tag
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS Tag
     name                  VARCHAR(64) UNIQUE NOT NULL,
     PRIMARY KEY (id),
     INDEX tag_name_index (name)
-  ) CHARACTER SET utf8 COLLATE utf8_general_ci;
+  );
 
 -- Specifies the DestinationTag table, this is only done in the SQL so we can populate it in the evolutions
 CREATE TABLE IF NOT EXISTS DestinationTag
