@@ -148,11 +148,12 @@ def generate_users(num_users, num_existing_users, photos_filename):
                                 .encode("utf-8")).hexdigest()
         salt = result["login"]["sha1"]
         
-        creation_date  = result["registered"]["date"]
+        creation_date = result["registered"]["date"]
+        creation_date = creation_date[:10] + " " + creation_date[11:-1]
         users.append(user_template.format(email, password, salt, creation_date))
         
         user_id = i + num_existing_users + 1 # +1 because SQL ids start from 1
-        
+        	
         # Escape apostrophes
         first_name = result["name"]["first"].capitalize().replace("'", "''")
         last_name = result["name"]["last"].capitalize().replace("'", "''")
@@ -213,7 +214,7 @@ def generate_destinations(countries):
             row[3] = "'" + row[3].replace("'", "''") + "'"
             
             # Add is_public field
-            row.append("'" + str(random.randint(0, 1)) + "'") 
+            row.append(random.randint(0, 1)) 
             
             # Convert the list to a string and add to destinations
             destinations.append("(" + ','.join(row) + "),\n")
