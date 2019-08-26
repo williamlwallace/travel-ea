@@ -158,7 +158,6 @@ class TagPicker {
         .then((res) => {
             res.json()
             .then((json) => {
-                console.log(json.usedTags);
                 this.tagPickerSuggestions = json.usedTags.map(
                     (tag) => tag.name);
             });
