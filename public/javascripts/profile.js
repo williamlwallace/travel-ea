@@ -247,14 +247,11 @@ function uploadProfilePicture() {
             profileId).url;
 
         postMultipartWithProgress(photoPostURL, formData,
-                (e) => { // Progress handler
-                    console.log("On progress: ");
-                    console.log(e);
-                },
+                (e) => { }, // Progress handler
+                (e) => { }, // End upload handler
                 (status, response) => { // On finished handler
                     // Read response from server, which will be a json object
                     const data = JSON.parse(response);
-                    console.log(data);
                     if (status === 201) {
                         const photoFilename = data["filename"];
                         const photoId = data["guid"];
