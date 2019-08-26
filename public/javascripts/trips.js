@@ -7,16 +7,18 @@ let tripsPaginationHelper;
  * @param {Number} userId - ID of user to get trips for
  */
 function onPageLoad(userId) {
-    tripsPaginationHelper = new PaginationHelper(1, 1, getTripResults, "tripPagination");
+    tripsPaginationHelper = new PaginationHelper(1, 1, getTripResults,
+        "tripPagination");
     getTripResults();
-    
 }
 
 /**
  * Gets url and creates trips ha
  */
 function getTripResults() {
-    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    const url = new URL(
+        tripRouter.controllers.backend.TripController.getAllTrips().url,
+        window.location.origin);
     getAndCreateTrips(url);
 }
 
@@ -26,7 +28,8 @@ function getTripResults() {
 function getAndCreateTrips(url) {
 
     // Append pagination params
-    url.searchParams.append("pageNum", tripsPaginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageNum",
+        tripsPaginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", $('#tripPageSize').val().toString());
     url.searchParams.append("searchQuery", $('#tripSearch').val());
     url.searchParams.append("ascending", $('#tripAscending').val());
@@ -38,7 +41,7 @@ function getAndCreateTrips(url) {
             if (response.status !== 200) {
                 toast("Error", "Error fetching people data", "danger")
             } else {
-                if(tripsLastRecievedRequestOrder < json.requestOrder) {
+                if (tripsLastRecievedRequestOrder < json.requestOrder) {
                     const totalNumberPages = json.totalNumberPages;
                     $("#tripCardsList").html("");
                     tripsLastRecievedRequestOrder = json.requestOrder;
@@ -46,13 +49,16 @@ function getAndCreateTrips(url) {
                         createTripCard(item);
                     });
 
-                    $(".card").click((element) => {
-                        if(!$(element.currentTarget).find("#card-header").data()) {
-                            return;
-                        }
-                        populateModal($(element.currentTarget).find("#card-header").data().id);
-                    });
-                    tripsPaginationHelper.setTotalNumberOfPages(totalNumberPages);
+                    // $(".card").click((element) => {
+                    //     if (!$(element.currentTarget).find(
+                    //         "#card-header").data()) {
+                    //         return;
+                    //     }
+                    //     populateModal($(element.currentTarget).find(
+                    //         "#card-header").data().id);
+                    // });
+                    tripsPaginationHelper.setTotalNumberOfPages(
+                        totalNumberPages);
 
                 }
             }
@@ -71,7 +77,8 @@ function createTripCard(trip) {
 
     //Gather details
     const startDestination = trip.tripDataList[0].destination.name;
-    const endDestination = trip.tripDataList[trip.tripDataList.length -1].destination.name;
+    const endDestination = trip.tripDataList[trip.tripDataList.length
+    - 1].destination.name;
     const tripLength = trip.tripDataList.length;
     let firstDate = findFirstTripDate(trip);
     if (!!firstDate) {
@@ -79,18 +86,60 @@ function createTripCard(trip) {
     } else {
         firstDate = "No Date"
     }
-
     //insert in cards
-    $(clone).find("#card-header").append(`${startDestination} - ${endDestination}`);
+    // $(clone).find("#card-header").append(
+    // `${startDestination} - ${endDestination}`);
+
     //this will be the primary photo
-    $(clone).find("#card-thumbnail").attr("src", null === null ? "/assets/images/default-profile-picture.jpg" : "/assets/images/default-profile-picture.jpg");
-    $(clone).find("#start-location").append("Start Destination: " + startDestination);
+    initCarousel(clone, trip);
+
+    $(clone).find("#start-location").append(
+        "Start Destination: " + startDestination);
     $(clone).find("#end-location").append("End Destination: " + endDestination);
     $(clone).find("#destinations").append("Trip Length: " + tripLength);
     $(clone).find("#date").append("Date: " + firstDate);
     $(clone).find("#card-header").attr("data-id", trip.id.toString());
 
     $("#tripCardsList").get(0).appendChild(clone);
+}
+
+let i = 0;
+
+function initCarousel(clone, trip) {
+    $(clone).find("#card-thumbnail-div").append(
+        `<div id=tripCarousel-${i} class="carousel slide" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class=carousel-inner data-id=carousel-inner-${i}></div></div>`
+    );
+
+    trip.tripDataList.forEach(tripObject => {
+        // console.log(tripObject.destination.id);
+        const photo = tripObject.destination.primaryPhoto
+        === null ? null : "user_content/"
+            + tripObject.destination.primaryPhoto.thumbnailFilename;
+        if (photo != null) {
+            $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
+                "<div class=\"carousel-item\">\n"
+                + "<img src=" + photo
+                + " class=\"d-block w-100\" alt=\"...\">\n"
+                + "</div>"
+            )
+        }
+    });
+
+    $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
+        `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
+        <span class=carousel-control-prev-icon aria-hidden=true></span>
+        <span class=sr-only>Previous</span>
+        </a>
+        <a class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
+        <span class=carousel-control-next-icon aria-hidden=true></span>
+        <span class=sr-only>Next</span>
+        </a>`
+    );
+    $(clone).find('.carousel-item').first().addClass('active');
+    $(clone).carousel({
+        interval: 5000,
+    });
+    i++;
 }
 
 /**
