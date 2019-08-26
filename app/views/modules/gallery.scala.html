@@ -46,9 +46,18 @@ can add an intermediate modal as is the case in detailed destinations *@
                     @modules.tagPicker("upload-picker")
                 </div>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                    <button id="upload-img" type="button" class="btn btn-primary" data-dismiss="modal" data-page-id="@pageId" data-gallery-id="@galleryId">Upload</button>
+                <div style="margin-left: 10px; margin-right: 10px">
+                    <div class="progress" id="progressBarHolder" style="display:none">
+                        <div class="progress-bar" id="progressBar" role="progressbar" aria-valuenow="0"
+                        aria-valuemin="0" aria-valuemax="100" style="width:0%;font-size:20px">
+                            0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer" id="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" id="dismiss-modal">Close</button>
+                    <button id="upload-img" type="button" class="btn btn-primary" data-page-id="@pageId" data-gallery-id="@galleryId">Upload</button>
                 </div>
             </div>
         </div>

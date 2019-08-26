@@ -42,12 +42,13 @@ function postMultipart(uri, data) {
  * @param progressHandler Function that takes one parameter, the event data given to it
  * @param responseHandler Function that deals with the response, (status, response)
  */
-function postMultipartWithProgress(uri, formdata, progressHandler, responseHandler) {
+function postMultipartWithProgress(uri, formdata, progressHandler, endUploadHandler, responseHandler) {
     let xhr = new XMLHttpRequest();
-    xhr.upload.onprogress = function(evt) {
-        console.log("a");
+    xhr.upload.onprogress = function(evt) {;
         progressHandler(evt);
     };
+
+    xhr.upload.onloadend = endUploadHandler;
 
     xhr.open("POST", uri);
 
