@@ -39852,16 +39852,24 @@ INSERT INTO TripTag(tag_id, trip_id) VALUES
 (89, 501);
 
 -- !Downs
+DELETE FROM UsedTag;
+DELETE FROM PhotoTag;
 DELETE FROM TripTag;
 DELETE FROM DestinationTag;
 DELETE FROM Tag;
 DELETE FROM TreasureHunt;
+DELETE FROM PendingDestinationPhoto;
+DELETE FROM DestinationPhoto;
 DELETE FROM TripData;
 DELETE FROM Trip;
+DELETE FROM DestinationTravellerTypePending;
+DELETE FROM DestinationTravellerType;
 DELETE FROM Destination;
 DELETE FROM TravellerType;
+DELETE FROM TravellerTypeDefinition;
 DELETE FROM Passport;
 DELETE FROM Nationality;
-DELETE FROM Profile;
-DELETE FROM User;
 DELETE FROM CountryDefinition;
+DELETE FROM Profile;
+DELETE FROM Photo;
+DELETE FROM User;

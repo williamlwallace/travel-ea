@@ -341,7 +341,7 @@ public class DestinationController extends TEABackController {
      * @param request The request
      * @param destId The id of the destination
      * @param travellerTypeId The id of the traveller type
-     * @return ok is traveller type request toggled, forbidden if user not admin, not found if
+     * @return ok is traveller type request togglenatured, forbidden if user not admin, not found if
      * destination or traveller type does not exist
      */
     @With({Admin.class, Authenticator.class})
