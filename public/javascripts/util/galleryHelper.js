@@ -22,19 +22,23 @@ $('#upload-img').on('click', function () {
         formData.append("userUploadId", window.location.href.split("/").pop());
         formData.append('tags', JSON.stringify(tags));
     }
-    // Send request and handle response
-    postMultipart(url, formData).then(response => {
-        // Read response from server, which will be a json object
-        response.json().then(data => {
-            if (response.status === 201) {
+
+    postMultipartWithProgress(url, formData,
+        (e) => { // Progress handler
+            console.log(`On progress: ${e.loaded} / ${e.total}`);
+        },
+        (status, response) => { // On finished handler
+            // Read response from server, which will be a json object
+            const data = JSON.parse(response);
+            console.log(data);
+            if (status === 201) {
                 fillGallery(getAllPhotosUrl, galleryId, pageId, mainGalleryPaginationHelper);
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
                 getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
-        })
-    })
+        });
 });
 
 let usersPhotos = [];
