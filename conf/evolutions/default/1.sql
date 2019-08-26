@@ -279,6 +279,7 @@ DROP TABLE TripTag;
 DROP TABLE DestinationTag;
 DROP TABLE Tag;
 DROP TABLE TreasureHunt;
+DROP TABLE PendingDestinationPhoto;
 DROP TABLE DestinationPhoto;
 DROP TABLE TripData;
 DROP TABLE Trip;

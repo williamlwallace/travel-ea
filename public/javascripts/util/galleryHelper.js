@@ -1,3 +1,10 @@
+$('#dismiss-modal').on('click', function () {
+    const progressBarHolder = $('#progressBarHolder')
+    progressBarHolder.attr('style', 'display:none;');
+
+    $('#upload-modal').modal('hide');
+});
+
 /**
  * Takes the users selected photos and  creates a form from them
  * Sends this form to  the appropriate url
@@ -6,12 +13,25 @@ $('#upload-img').on('click', function () {
     const url = photoRouter.controllers.backend.PhotoController.upload().url;
     const galleryId = $(this).data('gallery-id');
     const pageId = $(this).data('page-id');
+
+    // Disable footer buttons while processing
+    $('#upload-img').prop('disabled', true);
+    $('#dismiss-modal').prop('disabled', true);
+
     let caption = $('#caption input').val();
     const tags = uploadTagPicker.getTags().map(tag => {
         return {
             name: tag
         }
     });
+
+    const progressBarHolder = $('#progressBarHolder');
+    progressBarHolder.attr('style', 'display:block;height:32px;');
+    const progressBar = $('#progressBar');
+    progressBar.text(`0%`);
+    progressBar.attr('style', `width:0%;font-size:16px;height:32px;`);
+    progressBar.attr('aria-valuenow', 0);
+    progressBar.attr('class', 'progress-bar progress-bar-info');
 
     const selectedPhotos = document.getElementById(
         'upload-gallery-image-file').files;
@@ -22,19 +42,39 @@ $('#upload-img').on('click', function () {
         formData.append("userUploadId", window.location.href.split("/").pop());
         formData.append('tags', JSON.stringify(tags));
     }
-    // Send request and handle response
-    postMultipart(url, formData).then(response => {
-        // Read response from server, which will be a json object
-        response.json().then(data => {
-            if (response.status === 201) {
-                fillGallery(getAllPhotosUrl, galleryId, pageId, mainGalleryPaginationHelper);
+
+    postMultipartWithProgress(url, formData,
+        (e) => { // Progress handler
+            progressBarHolder.attr('style', 'display:block;height:32px');
+            const percent = Math.round((e.loaded / e.total) * 100);
+            progressBar.text(`${percent}%`);
+            progressBar.attr('style', `width:${percent}%;font-size:16px;height:32px;`);
+            progressBar.attr('aria-valuenow', percent);
+            progressBar.attr('class', 'progress-bar');
+        },
+        () => { // End upload handler
+            progressBar.attr('class', 'progress-bar progress-bar-animated progress-bar-striped bg-success');
+            progressBar.html("Processing image, this may take a few seconds...");
+            $('#modal-footer').prop('disabled', true);
+        },
+        (status, response) => { // On finished handler
+            // Read response from server, which will be a json object
+            const data = JSON.parse(response);
+            if (status === 201) {
+                fillGallery(getAllPhotosUrl, galleryId, pageId, mainGalleryPaginationHelper, () => {
+                    $('#upload-modal').modal('hide');
+                    progressBarHolder.attr('style', 'display:none');
+                    // Re-enable footer buttons
+                    $('#upload-img').prop('disabled', false);
+                    $('#dismiss-modal').prop('disabled', false);
+                });
+
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
                 getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
             }
-        })
-    })
+        });
 });
 
 let usersPhotos = [];
@@ -71,9 +111,10 @@ $('#tagFilter').on('change', function() {
  * @param {string} galleryId the id of the gallery to add the photo to
  * @param {string} pageId the id of the pagination that the gallery is in
  * @param {paginationHelper} pageHelper pagination helper for the specific gallery
+ * @param {function} callback Callback to run after gallery has filled
  * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, filters=null) {
+function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, callback=null, filters=null) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -102,6 +143,8 @@ function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, filters=null) 
             pageHelper.setTotalNumberOfPages(data.totalNumberPages);
             const galleryObjects = createGalleryObjects(true, pageHelper);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
+
+            if(callback !== null) { callback(); }
         });
     });
 }

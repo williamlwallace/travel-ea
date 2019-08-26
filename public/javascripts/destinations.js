@@ -334,10 +334,11 @@ $('#CreateDestinationCancelButton').click(function () {
  * Destination button on click
  */
 $('#createNewDestinationButton').click(function () {
-    getUserId().then(userId =>
-        addDestination(
-            destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
-            "/", userId)
-    );
+    getUserId().then(userId => {
+        console.log(userId);
+            addDestination(
+                destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
+                "/", userId)
+    });
 });
 

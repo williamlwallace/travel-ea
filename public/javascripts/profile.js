@@ -258,34 +258,35 @@ function uploadProfilePicture() {
         const profilePicUpdateURL = photoRouter.controllers.backend.PhotoController.makePhotoProfile(
             profileId).url;
 
-        // Send request and handle response
-        postMultipart(photoPostURL, formData).then(response => {
-            // Read response from server, which will be a json object
-            response.json().then(data => {
-                if (response.status === 201) {
-                    const photoFilename = data["filename"];
-                    const photoId = data["guid"];
+        postMultipartWithProgress(photoPostURL, formData,
+                (e) => { }, // Progress handler
+                (e) => { }, // End upload handler
+                (status, response) => { // On finished handler
+                    // Read response from server, which will be a json object
+                    const data = JSON.parse(response);
+                    if (status === 201) {
+                        const photoFilename = data["filename"];
+                        const photoId = data["guid"];
 
-                    $("#ProfilePicture").attr("src", photoFilename);
+                        $("#ProfilePicture").attr("src", photoFilename);
 
-                    // Create reversible request to update profile photo to this new photo
-                    const handler = (status, json) => {
-                        if (status === 200) {
-                            getProfileAndCoverPicture();
-                            toast("Changes saved!",
-                                "Profile picture changes saved successfully");
-                        } else {
-                            toast("Error",
-                                "Unable to update profile picture", "danger");
-                        }
-                    };
-                    const requestData = new ReqData(requestTypes["UPDATE"],
-                        profilePicUpdateURL, handler, photoId);
-                    undoRedo.sendAndAppend(requestData);
+                        // Create reversible request to update profile photo to this new photo
+                        const handler = (status, json) => {
+                            if (status === 200) {
+                                getProfileAndCoverPicture();
+                                toast("Changes saved!",
+                                    "Profile picture changes saved successfully");
+                            } else {
+                                toast("Error",
+                                    "Unable to update profile picture", "danger");
+                            }
+                        };
+                        const requestData = new ReqData(requestTypes["UPDATE"],
+                            profilePicUpdateURL, handler, photoId);
+                        undoRedo.sendAndAppend(requestData);
 
-                }
+                    }
             });
-        });
     });
 
     $('#cropProfilePictureModal').modal('hide');
