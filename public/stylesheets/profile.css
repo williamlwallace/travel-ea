@@ -348,9 +348,13 @@ section#timeline a {
 .profile-nav:hover{color:#495057}
 .profile-nav{margin-bottom:2rem}
 .profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
-
 .profile-nav-text{font-weight: 600; font-size: 22px}
 
-.tab-buttons{;
+
+.tab-buttons {
     padding: 0 2.5rem 0 1.5rem;
+}
+
+#tripCardsList {
+    padding: 40px 2.5rem 40px 1.5rem;
 }

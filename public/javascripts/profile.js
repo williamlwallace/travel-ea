@@ -21,9 +21,16 @@ $(document).ready(function() {
 $('#profile-tabs a').on('click', function(event) {
     event.preventDefault();
     $(this).tab('show');
-    $([document.documentElement, document.body]).animate({
-        scrollTop: $("#main-gallery").offset().top
-    }, 500);
+    let activeTab = $('#profile-tabs a.active').attr('id');
+    if (activeTab === "photos-tab") {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $("#main-gallery").offset().top
+        }, 500);
+    } else if (activeTab === "trips-tab") {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $("#tripCardsList").offset().top
+        }, 500);
+    }
 });
 
 /**

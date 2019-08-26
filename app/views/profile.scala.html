@@ -108,20 +108,14 @@
 
                         <!-- Trips Tab -->
                         <div class="tab-pane" id="trips" role="tabpanel" aria-labelledby="trips-tab">
-                            <div class="section-title">
-                                <p>
-                                    @if(loggedUser.admin || user.id == loggedUser.id) {
-                                        <a class="button-secondary" href="/trips/create/@user.id" role="button">
-                                            <span class="profile-button" style="float: right; padding-left:10px;">Create New Trip</span>
-                                        </a>
-                                    }
-                                </p>
-                                <p>
-                                    <a id="tripsFilterButton" class="filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
-                                    aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">
-                                        <span class="profile-button" style="float: right; padding-left:10px;">Filter</span>
+                            <div class="tab-buttons">
+                                <a id="tripsFilterButton" class="filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
+                                aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</a>
+                                @if(loggedUser.admin || user.id == loggedUser.id) {
+                                    <a class="button-secondary" href="/trips/create/@user.id" role="button">
+                                        <span class="profile-button" style="float: right; padding-left:10px;">Create New Trip</span>
                                     </a>
-                                </p>
+                                }
                             </div>
 
                             <!-- The Trips Table -->
@@ -145,7 +139,7 @@
                                                 <option value="false">Descending</option>
                                             </select>
                                         </div>
-                                 Edit Photo Details   </div>
+                                    </div>
                                     <div class="text-center" id="buttonDiv">
                                         <div id="closeButton">
                                             <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
