@@ -336,6 +336,21 @@ section#timeline a {
     padding: 5px;
     border-radius: 5px;
 }
+
 .edit-button:hover {
     color: #000000 !important;
+}
+
+/* Tab panel buttons */
+.profile-nav{display:block;padding:0 1.5rem 0;color: #000000;}
+.profile-nav:focus,.profile-nav:hover{text-decoration:none}
+.profile-nav.active{border-bottom: 1px solid #495057;}
+.profile-nav:hover{color:#495057}
+.profile-nav{margin-bottom:2rem}
+.profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
+
+.profile-nav-text{font-weight: 600; font-size: 22px}
+
+.tab-buttons{;
+    padding: 0 2.5rem 0 1.5rem;
 }

@@ -12,6 +12,18 @@ $(document).ready(function() {
     profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
     mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
+    $("#feed-tab").click();
+});
+
+/**
+ * On click handler to change tab panel on profile page
+ */
+$('#profile-tabs a').on('click', function(event) {
+    event.preventDefault();
+    $(this).tab('show');
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#main-gallery").offset().top
+    }, 500);
 });
 
 /**

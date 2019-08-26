@@ -14,7 +14,7 @@
 }
 
 .tz-gallery {
-    padding: 40px;
+    padding: 40px 1.5rem 40px;
 }
 
 .tz-gallery .lightbox img {
@@ -43,3 +43,4 @@
         border-radius: 0;
     }
 }
+

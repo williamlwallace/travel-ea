@@ -27,6 +27,23 @@
 }
 
 #caption, #update-caption {
-    margin: 0px 30px 20px 30px;
+    margin: 0 30px 15px 30px;
 }
 
+#main-gallery, #cover-photo-gallery {
+    min-height: 590px;
+}
+
+.img-wrap #editPhoto {
+    position: absolute;
+    right: 0;
+    z-index: 100;
+    cursor: pointer;
+    color: grey !important;
+    background-color: white;
+    margin: 5px 20px;
+}
+
+#editPhoto:hover {
+    color: #000000 !important;
+}
