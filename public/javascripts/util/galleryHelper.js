@@ -46,7 +46,7 @@ $('#upload-img').on('click', function () {
     postMultipartWithProgress(url, formData,
         (e) => { // Progress handler
             progressBarHolder.attr('style', 'display:block;height:32px');
-            const percent = Math.round((e.total / e.loaded) * 100);
+            const percent = Math.round((e.loaded / e.total) * 100);
             progressBar.text(`${percent}%`);
             progressBar.attr('style', `width:${percent}%;font-size:16px;height:32px;`);
             progressBar.attr('aria-valuenow', percent);
