@@ -157,7 +157,7 @@ public class UserRepository {
     public void updateUsedTags(User user, Taggable oldTaggable, Taggable newTaggable) {
         user.updateUserTags(oldTaggable, newTaggable);
         for (UsedTag usedTag : user.usedTags) {
-            if (usedTag.tag.id == null) {
+            if (usedTag.tag != null && usedTag.tag.id == null) {
                 usedTag.tag = ebeanServer.find(Tag.class)
                     .where()
                     .eq("name", usedTag.tag.name)
@@ -180,7 +180,7 @@ public class UserRepository {
     public void updateUsedTags(User user, Taggable taggable) {
         user.updateUserTags(taggable);
         for (UsedTag usedTag : user.usedTags) {
-            if (usedTag.tag.id == null) {
+            if (usedTag.tag != null && usedTag.tag.id == null) {
                 usedTag.tag = ebeanServer.find(Tag.class)
                     .where()
                     .eq("name", usedTag.tag.name)

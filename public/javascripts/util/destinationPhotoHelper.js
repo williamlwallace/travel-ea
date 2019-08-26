@@ -5,7 +5,8 @@
  * @param {Boolean} adminPage - Boolean value which determines what to update on a successful response
  */
 function toggleDestinationPhotoRequest(destId, photoId, adminPage) {
-    const URL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(destId, photoId).url;
+    const URL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
+        destId, photoId).url;
     const initialToggle = true;
     const handler = function (status, json) {
         if (this.initialToggle) {
@@ -27,3 +28,4 @@ function toggleDestinationPhotoRequest(destId, photoId, adminPage) {
     }.bind({initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
