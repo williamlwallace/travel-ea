@@ -1,11 +1,11 @@
 #card {
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
     margin-bottom: 15px;
+    border-radius: 0px;
 }
 
 #inner-card {
     border: none;
-    background-color: #f1f1f1;
 }
 
 .card-header-destinations {
@@ -19,7 +19,7 @@
 }
 
 #card-thumbnail-div {
-    background-color: #f1f1f1;
+    background-color: white;
 }
 
 #card-thumbnail {
@@ -36,3 +36,9 @@
 #banner {
     height: 30%;
 }
+
+.carousel-inner {
+    width: 400px;
+    height: 266px;
+}
+
