@@ -1,20 +1,28 @@
-
 body > .container {
-    font-family: 'Roboto', sans-serif;
     padding: 60px 15px 0;
 }
 
 body {
     min-height: 100%;
+    font-family: 'Lato', sans-serif;
+}
+
+header {
+    font-family: 'Lato', sans-serif;
 }
 
 html {
     min-height: 100%;
+    font-family: 'Lato', sans-serif;
 }
 
 .footer > .container {
     padding-right: 15px;
     padding-left: 15px;
+}
+
+pre {
+    font-family: 'Lato', sans-serif;
 }
 
 code {
@@ -25,7 +33,12 @@ code {
  * The colour of the navbar
  */
 .bg-main {
+    font-family: 'Lato', sans-serif;
     box-shadow: 0 3px 2px -2px rgba(255,255,255,.2);
+}
+
+.card {
+    font-family: 'Lato', sans-serif;
 }
 
 /**
@@ -92,7 +105,6 @@ tr.clickable-row {
 * Style for labels that are <pre> so that addiing  errors doesnt clear them
  */
 pre {
-    font-family: 'Roboto', sans-serif;
     font-size: 20px;
 }
 
@@ -100,12 +112,10 @@ pre {
 * Style for Primary button
  */
 .btn-primary {
-    font-family: 'Roboto', sans-serif;
     background-color: #5283B7;
 }
 
 .btn-popup {
-    font-family: 'Roboto', sans-serif;
     background-color: #ffffff;
     border-radius: 8px;
     border: 2px solid #ebebeb;
@@ -140,7 +150,6 @@ pre {
 }
 
 .title-text {
-    font-family: 'Roboto', sans-serif;
     font-weight: bold;
     display: inline-block;
     color: #FFFFFF;

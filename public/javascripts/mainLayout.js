@@ -8,17 +8,17 @@ $(document).ready(function () {
     $(document).scroll(function () {
         scroll_start = $(this).scrollTop();
         if (scroll_start > offset.top - $('#navbar').outerHeight()) {
-            $('#navbar').css('background-color', '#5283B7');
+            $('#navbar').css('background-color', 'rgba(0,0,0,.5)');
         } else {
             $('#navbar').css('background-color', 'transparent');
         }
     });
 });
 
-$('.collapse').on('show.bs.collapse', function () {
-    $('#navbar').css('background-color', '#5283B7');
-});
-
-$('.collapse').on('hide.bs.collapse', function () {
-    $('#navbar').css('background-color', 'transparent');
-});
+// $('.collapse').on('show.bs.collapse', function () {
+//     $('#navbar').css('background-color', 'rgba(0,0,0,.5)');
+// });
+//
+// $('.collapse').on('hide.bs.collapse', function () {
+//     $('#navbar').css('background-color', 'transparent');
+// });

@@ -82,22 +82,34 @@ function fillProfileData(email) {
                 arrayToCountryString(profile.nationalities, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
-                    document.getElementById(
-                        "summary_nationalities").innerHTML = out;
+                    const nationalities = out.split(",");
+                    for (let i=0; i < nationalities.length; i++) {
+                        document.getElementById(
+                            "summary_nationalities").innerHTML += '<li>' + nationalities[i].trim() + '</li>';
+                    }
                 });
                 arrayToCountryString(profile.passports, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
                     // If passports were cleared, update html text to None: Fix for Issue #36
-                    document.getElementById("summary_passports").innerHTML = out
-                    === ""
-                        ? "None" : out;
+                    if (out === "") {
+                        document.getElementById("summary_passports").innerHTML = "None"
+                    } else {
+                        const passports = out.split(",");
+                        for (let i=0; i < passports.length; i++) {
+                            document.getElementById(
+                                "summary_passports").innerHTML += '<li>' + passports[i].trim() + '</li>';
+                        }
+                    }
                 });
                 arrayToString(profile.travellerTypes, 'description',
                     profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
                 .then(out => {
-                    document.getElementById(
-                        "summary_travellerTypes").innerHTML = out;
+                    const travellerTypes = out.split(",");
+                    for (let i=0; i < travellerTypes.length; i++) {
+                        document.getElementById(
+                            "summary_travellerTypes").innerHTML += '<li>' + travellerTypes[i].trim() + '</li>';
+                    }
                 });
             }
         })

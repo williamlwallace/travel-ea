@@ -382,6 +382,21 @@ $(document).ready(function() {
     linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
     primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
     getDestinationPhotos();
+    $("#feed-tab").click();
+});
+
+/**
+ * On click handler to change tab panel on profile page
+ */
+$('#dest-tabs a').on('click', function(event) {
+    event.preventDefault();
+    $(this).tab('show');
+    let activeTab = $('#dest-tabs a.active').attr('id');
+    if (activeTab === "photos-tab") {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $("#main-gallery").offset().top
+        }, 500);
+    }
 });
 
 /**
