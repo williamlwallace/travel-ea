@@ -49,17 +49,17 @@ function getAndCreateTrips(url) {
                         createTripCard(item);
                     });
 
-                    // $(".card").click((element) => {
-                    //     if (!$(element.currentTarget).find(
-                    //         "#card-header").data()) {
-                    //         return;
-                    //     }
-                    //     populateModal($(element.currentTarget).find(
-                    //         "#card-header").data().id);
-                    // });
+                    $(".card-body").click((element) => {
+                        if (!$(element.currentTarget).find(
+                            ".title").data()) {
+                            return;
+                        }
+                        console.log("work?");
+                        populateModal($(element.currentTarget).find(
+                            ".title").data().id);
+                    });
                     tripsPaginationHelper.setTotalNumberOfPages(
                         totalNumberPages);
-
                 }
             }
         })
@@ -86,47 +86,53 @@ function createTripCard(trip) {
     } else {
         firstDate = "No Date"
     }
-    //insert in cards
-    // $(clone).find("#card-header").append(
-    // `${startDestination} - ${endDestination}`);
 
-    //this will be the primary photo
     initCarousel(clone, trip);
 
-    $(clone).find("#start-location").append(
-        "Start Destination: " + startDestination);
-    $(clone).find("#end-location").append("End Destination: " + endDestination);
-    $(clone).find("#destinations").append("Trip Length: " + tripLength);
+    $(clone).find("#start-location").append(startDestination);
+    $(clone).find("#end-location").append(endDestination);
+    $(clone).find("#destinations").append("No. of Destinations: " + tripLength);
     $(clone).find("#date").append("Date: " + firstDate);
-    $(clone).find("#card-header").attr("data-id", trip.id.toString());
+    $(clone).find(".title").attr("data-id", trip.id.toString());
 
     $("#tripCardsList").get(0).appendChild(clone);
 }
 
-let i = 0;
+let i = 0; // Global counter for carousel data-id
 
+/**
+ * Creates a carousel for given clone and trip data
+ *
+ * @param clone is the card template clone
+ * @param trip is the trip data
+ */
 function initCarousel(clone, trip) {
     $(clone).find("#card-thumbnail-div").append(
         `<div id=tripCarousel-${i} class="carousel slide" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class=carousel-inner data-id=carousel-inner-${i}></div></div>`
     );
-
+    let photo = null;
+    let photoNum = 0;
     trip.tripDataList.forEach(tripObject => {
-        // console.log(tripObject.destination.id);
-        const photo = tripObject.destination.primaryPhoto
-        === null ? null : "user_content/"
-            + tripObject.destination.primaryPhoto.thumbnailFilename;
+         if (tripObject.destination.primaryPhoto === null) {
+             photo = null
+         } else {
+             photo = "../user_content/" + tripObject.destination.primaryPhoto.thumbnailFilename;
+             photoNum += 1;
+         }
         if (photo != null) {
             $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
                 "<div class=\"carousel-item\">\n"
                 + "<img src=" + photo
-                + " class=\"d-block w-100\" alt=\"...\">\n"
+                + " class=\"d-block w-100\">\n"
                 + "</div>"
             )
         }
     });
 
-    $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
-        `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
+    // If there is more than one photo, create the carousel arrow buttons
+    if (photoNum > 1) {
+        $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
+            `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
         <span class=carousel-control-prev-icon aria-hidden=true></span>
         <span class=sr-only>Previous</span>
         </a>
@@ -134,11 +140,22 @@ function initCarousel(clone, trip) {
         <span class=carousel-control-next-icon aria-hidden=true></span>
         <span class=sr-only>Next</span>
         </a>`
-    );
-    $(clone).find('.carousel-item').first().addClass('active');
-    $(clone).carousel({
-        interval: 5000,
-    });
+        );
+        $(clone).find('.carousel-item').first().addClass('active');
+        $(clone).carousel({
+            interval: 5000,
+        });
+    }
+
+    // if (photo === null) {
+    //     photo = "https://images.pexels.com/photos/747964/pexels-photo-747964.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
+    //     $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
+    //         "<div class=\"carousel-item\">\n"
+    //         + "<img src=" + photo
+    //         + " class=\"d-block w-100\" alt=\"...\">\n"
+    //         + "</div>"
+    //     )
+    // }
     i++;
 }
 
