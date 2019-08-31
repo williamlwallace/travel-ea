@@ -128,3 +128,10 @@
     height: 24px;
     border-radius: 4px;
 }
+
+.focus-glow {
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 1px 3px rgba(102,175,233,.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 1px 3px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 1px 3px rgba(102,175,233,.6);
+    outline: 0 none;
+}
