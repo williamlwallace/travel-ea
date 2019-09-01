@@ -170,6 +170,12 @@ function getUserResults() {
                     $(".user-delete").click(event => {
                         deleteUser(event.target, $(event.target).data().delete);
                     });
+
+                    $(".user-card").click(event => {
+                        location.href = `/profile/${$(
+                            event.currentTarget).find(
+                            "#toggleAdminBtn").data().id}`;
+                    });
                 }
             }
         });
@@ -222,55 +228,6 @@ function toggleAdmin(button, id) {
     undoRedo.sendAndAppend(reqData);
 }
 
-/**
- * Inserts users into admin table
- *
- * @param {Object} json - data table object
- */
-function populateUsers(json) {
-    const rows = [];
-    for (const user in json) {
-        const id = json[user].id;
-        const username = json[user].username;
-        let admin = "Master";
-        let deleteUser = "Master";
-        if (id !== 1) {
-            admin = "<button class=\"btn btn-secondary\">"
-                + ((json[user].admin) ? "Revoke admin"
-                    : "Grant admin") + "</button>";
-            deleteUser = "<button class=\"btn btn-danger\">Delete</button>"
-        }
-
-        rows.push([id, username, admin, deleteUser])
-    }
-    return rows
-}
-
-/**
- * Insert trip data into table
- *
- * @param {Object} json - data table object
- */
-function populateTrips(json) {
-    const rows = [];
-    for (const trip in json) {
-        const id = json[trip].id;
-        const tripDataList = json[trip].tripDataList;
-        const startDest = tripDataList[0].destination.name;
-        const endDest = tripDataList[(tripDataList.length
-            - 1)].destination.name;
-        const tripLength = tripDataList.length;
-        const editURL = tripRouter.controllers.frontend.TripController.editTrip(
-            id).url;
-
-        let update = "<a href=\"" + editURL
-            + "\" class=\"btn btn-secondary\">Update</a>";
-        let removeTrip = "<button class=\"btn btn-danger\">Delete</button>";
-        rows.push([id, startDest, endDest, tripLength, update,
-            removeTrip]);
-    }
-    return rows;
-}
 let destPhoto;
 let photoId;
 
