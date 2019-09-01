@@ -113,8 +113,6 @@ function createUserCard(user) {
     }
 
     const admin = (user.admin ? "True" : "False");
-    const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
-    const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
 
     $(clone).find("#card-thumbnail").attr("src",
         "/assets/images/default-profile-picture.jpg");
@@ -126,14 +124,7 @@ function createUserCard(user) {
     $(clone).find("#adminBtn").append(adminBtn);
     $(clone).find("#deleteBtn").append(deleteUser);
 
-    if (user.admin) {
-        $(clone).find("#card-thumbnail-div").css("padding-right", "0rem");
-        $(clone).find(".card-header").css("padding-right", "0rem");
-        $(clone).find("#card-thumbnail-div-body").html(adminIcon);
-    } else {
-        $(clone).find(".card-header").css("padding-right", "1.55rem");
-        $(clone).find("#card-thumbnail-div-body").html(nonAdminIcon);
-    }
+    setAdminIcon($(clone), user.admin);
 
     $("#userCardsList").get(0).appendChild(clone);
 }
@@ -165,9 +156,11 @@ function getUserResults() {
 
                     //Set click handler for toggle admin using data-id
                     $(".admin").click(event => {
+                        event.stopImmediatePropagation()
                         toggleAdmin(event.target, $(event.target).data().id);
                     });
                     $(".user-delete").click(event => {
+                        event.stopImmediatePropagation()
                         deleteUser(event.target, $(event.target).data().delete);
                     });
 
@@ -212,20 +205,39 @@ function toggleAdmin(button, id) {
             this.initialToggle = false;
         }
         if (status === 200) {
-            this.button.innerHTML = button.innerHTML.trim().startsWith('Revoke')
-                ? 'Grant admin' : 'Revoke admin';
+            const admin = $(this.button).html().trim().startsWith('Grant');
 
-            const adminLabel = $(button).closest('div').siblings("#admin");
+            $(this.button).html(!admin ? 'Grant admin' : 'Revoke admin');
+            
+            const adminLabel = $(this.button).closest('div').siblings("#admin");
             const adminIcon = "<em class=\"fas fa-user-shield\"\"></em>";
 
-            adminLabel.text(adminLabel.text() === "Admin: True" ? "Admin: False"
-                : "Admin: True");
+            adminLabel.text(!admin ? "Admin: False" : "Admin: True");
             adminLabel.html(adminIcon + adminLabel.text());
-
+            setAdminIcon($(this.button).closest('#inner-card'), admin);
         }
     }.bind({button, initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Sets the correct user icon if admin
+ * @param {object} card Jquery object of card
+ * @param {boolean} admin is user admin
+ */
+function setAdminIcon(card, admin) {
+    const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
+    const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
+
+    if (admin) {
+        card.find("#card-thumbnail-div").css("padding-right", "0rem");
+        card.find(".card-header").css("padding-right", "0rem");
+        card.find("#card-thumbnail-div-body").html(adminIcon);
+    } else {
+        card.find(".card-header").css("padding-right", "1.5rem");
+        card.find("#card-thumbnail-div-body").html(nonAdminIcon);
+    }
 }
 
 let destPhoto;
