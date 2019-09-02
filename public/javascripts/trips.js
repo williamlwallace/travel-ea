@@ -54,7 +54,6 @@ function getAndCreateTrips(url) {
                             ".title").data()) {
                             return;
                         }
-                        console.log("work?");
                         populateModal($(element.currentTarget).find(
                             ".title").data().id);
                     });
@@ -114,12 +113,12 @@ function initCarousel(clone, trip) {
     let photoNum = 0;
     trip.tripDataList.forEach(tripObject => {
          if (tripObject.destination.primaryPhoto === null) {
-             photo = null
+             return;
          } else {
              photo = "../user_content/" + tripObject.destination.primaryPhoto.thumbnailFilename;
              photoNum += 1;
          }
-        if (photo != null) {
+        if (photo) {
             $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
                 "<div class=\"carousel-item\">\n"
                 + "<img src=" + photo
@@ -130,32 +129,24 @@ function initCarousel(clone, trip) {
     });
 
     // If there is more than one photo, create the carousel arrow buttons
-    if (photoNum > 1) {
-        $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
-            `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
-        <span class=carousel-control-prev-icon aria-hidden=true></span>
-        <span class=sr-only>Previous</span>
-        </a>
-        <a class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
-        <span class=carousel-control-next-icon aria-hidden=true></span>
-        <span class=sr-only>Next</span>
-        </a>`
-        );
+    if (photoNum >= 1) {
         $(clone).find('.carousel-item').first().addClass('active');
         $(clone).carousel({
             interval: 5000,
         });
+        if (photoNum > 1) {
+            $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
+                `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
+                <span class=carousel-control-prev-icon aria-hidden=true></span>
+                <span class=sr-only>Previous</span>
+                </a>
+                <a class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
+                <span class=carousel-control-next-icon aria-hidden=true></span>
+                <span class=sr-only>Next</span>
+                </a>`
+            );
+        }
     }
-
-    // if (photo === null) {
-    //     photo = "https://images.pexels.com/photos/747964/pexels-photo-747964.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
-    //     $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
-    //         "<div class=\"carousel-item\">\n"
-    //         + "<img src=" + photo
-    //         + " class=\"d-block w-100\" alt=\"...\">\n"
-    //         + "</div>"
-    //     )
-    // }
     i++;
 }
 
