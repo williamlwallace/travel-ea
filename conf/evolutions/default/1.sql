@@ -14,7 +14,6 @@ CREATE TABLE IF NOT EXISTS User
     UNIQUE (username)
   );
 
-
 -- Create Photo table, which stores the filenames and details for all photos
 CREATE TABLE IF NOT EXISTS Photo
   (
@@ -280,6 +279,7 @@ DROP TABLE TripTag;
 DROP TABLE DestinationTag;
 DROP TABLE Tag;
 DROP TABLE TreasureHunt;
+DROP TABLE PendingDestinationPhoto;
 DROP TABLE DestinationPhoto;
 DROP TABLE TripData;
 DROP TABLE Trip;

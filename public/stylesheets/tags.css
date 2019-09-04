@@ -1,5 +1,5 @@
 .tags {
-    margin: 0px 30px 20px 30px;
+    margin: 0px 0px 20px 0px;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     padding-left: 3px;
@@ -127,4 +127,11 @@
     color: white;
     height: 24px;
     border-radius: 4px;
+}
+
+.focus-glow {
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 1px 3px rgba(102,175,233,.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 1px 3px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 1px 3px rgba(102,175,233,.6);
+    outline: 0 none;
 }
