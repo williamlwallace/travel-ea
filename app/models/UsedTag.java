@@ -48,6 +48,9 @@ public class UsedTag extends Model {
         }
 
         Tag usedTag = ((UsedTag) o).tag;
+        if (tag == null) {
+            return false;
+        }
         if (tag.name == null || usedTag.name == null) {
             return Objects.equals(guid, tag.id);
         } else {
@@ -57,6 +60,6 @@ public class UsedTag extends Model {
 
     @Override
     public final int hashCode() {
-        return Objects.hash(tag.name);
+        return Objects.hash(tag);
     }
 }
