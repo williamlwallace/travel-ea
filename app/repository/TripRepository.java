@@ -129,22 +129,6 @@ public class TripRepository {
     }
 
     /**
-     * Finds all trips in database related to the given user ID which are public.
-     *
-     * @param userID User to find all trips for
-     * @return List of Trip objects with the specified user ID
-     */
-    public CompletableFuture<List<Trip>> getAllPublicUserTrips(long userID) {
-        return supplyAsync(() ->
-                ebeanServer.find(Trip.class)
-                    .where()
-                    .eq("user_id", userID)
-                    .eq("is_public", 1)
-                    .findList()
-            , executionContext);
-    }
-
-    /**
      * Returns a single trip as specified by its ID.
      *
      * @param tripId ID of trip to return
