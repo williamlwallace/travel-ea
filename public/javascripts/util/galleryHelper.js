@@ -100,7 +100,7 @@ $('#tagFilter').on('change', function() {
     const pageId = "page-selection";
 
     fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        profileId).url, galleryId, pageId, mainGalleryPaginationHelper, tags);
+        profileId).url, galleryId, pageId, mainGalleryPaginationHelper, null, tags);
 
 });
 

@@ -43,7 +43,7 @@
                 @* Profile Details *@
                 <div id="profile-summary">
                     @if(canModify) {
-                        <a id="editProfilePictureButton" class="edit-button" style="top:0;" title="Edit Profile Picture" onClick="showProfilePictureGallery()"><i class="fas fa-pen fa-1x"></i></a>
+                        <a id="editProfilePictureButton" class="edit-button" style="top:0;" title="Edit Profile Picture"><i class="fas fa-pen fa-1x"></i></a>
                     }
                     <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture" class="img-thumbnail profile-picture">
                     <div class="profile-details">
@@ -99,9 +99,6 @@
                                 </a>
                             </p>
                         </div><br>
-
-                        @* The Trips Table *@
-                        
 
                         @* The Trips Table *@
                         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
