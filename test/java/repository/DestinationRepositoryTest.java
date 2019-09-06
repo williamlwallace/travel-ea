@@ -6,7 +6,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletionException;
 import models.CountryDefinition;
 import models.Destination;
@@ -261,5 +265,25 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
 
         assertEquals(2, destinations.size());
         assertEquals(2, destinations.get(0).travellerTypesPending.size());
+    }
+
+    @Test
+    public void getDestinationsById() {
+        Set<Long> destinationIds = new HashSet<>(Arrays.asList(1L, 3L, 5L));
+        List<Destination> destinations = destinationRepository.getDestinationsById(destinationIds).join();
+
+        assertEquals(3, destinations.size());
+
+        for (Destination dest : destinations) {
+            assertTrue(destinationIds.contains(dest.id));
+        }
+    }
+
+    @Test
+    public void getDestinationsByIdEmpty() {
+        Set<Long> destinationIds = new HashSet<>();
+        List<Destination> destinations = destinationRepository.getDestinationsById(destinationIds).join();
+
+        assertTrue(destinations.isEmpty());
     }
 }

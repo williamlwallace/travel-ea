@@ -6,11 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import models.Tag;
+import java.util.List;
+import models.Destination;
 import models.TripData;
-import play.libs.Json;
 
 /**
  * A class which validates Trip information.
@@ -113,6 +111,27 @@ public class TripValidator extends Validator {
 
         // Validation for trip privacy
         this.required("isPublic", "Privacy");
+
+        return this.getErrorResponse();
+    }
+
+    /**
+     * Validates a trip is not public with private destinations
+     *
+     * @param isPublic Privacy of trip
+     * @param destinations List of destination objects in trip
+     * @return Error response containing error messages
+     */
+    public ErrorResponse validateDestinationPrivacy(boolean isPublic,
+        List<Destination> destinations) {
+        if (isPublic) {
+            for (int i = 0; i < destinations.size(); i++) {
+                if (!destinations.get(i).isPublic) {
+                    this.getErrorResponse().map("Public trip cannot have private destination.",
+                        Integer.toString(i + 1));
+                }
+            }
+        }
 
         return this.getErrorResponse();
     }

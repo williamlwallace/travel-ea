@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -160,28 +160,44 @@ public class TripController extends TEABackController {
             trip.tags = new HashSet<>();
         }
 
-        // Transfers ownership of destinations to master admin where necessary
-        transferDestinationsOwnership(trip.userId, trip.tripDataList);
+        // Validates all destinations are public in private trip
+        Set<Long> destinationIds = trip.tripDataList.stream()
+            .map(tripData -> tripData.destination.id).collect(Collectors.toSet());
 
-        // Update trip in db
-        return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
-            if (oldTrip == null) {
-                return CompletableFuture
-                    .supplyAsync(() -> notFound(Json.toJson("Trip with provided ID not found")));
-            } else {
-                return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
-                    userRepository.updateUsedTags(user, oldTrip, trip);
-                    trip.tags = existingTags;
-                    return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
-                        if (uploaded) {
-                            return ok(Json.toJson(trip.id));
-                        } else {
-                            return notFound();
-                        }
-                    });
+        return destinationRepository.getDestinationsById(destinationIds)
+            .thenComposeAsync(destinations -> {
+                ErrorResponse destinationValidationResult = new TripValidator(null)
+                    .validateDestinationPrivacy(trip.isPublic, destinations);
+
+                if (destinationValidationResult.error()) {
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(destinationValidationResult.toJson()));
+                }
+
+                // Transfers ownership of destinations to master admin where necessary
+                transferDestinationsOwnership(trip.userId, trip.tripDataList);
+
+                // Update trip in db
+                return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
+                    if (oldTrip == null) {
+                        return CompletableFuture
+                            .supplyAsync(
+                                () -> notFound(Json.toJson("Trip with provided ID not found")));
+                    } else {
+                        return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+                            userRepository.updateUsedTags(user, oldTrip, trip);
+                            trip.tags = existingTags;
+                            return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+                                if (uploaded) {
+                                    return ok(Json.toJson(trip.id));
+                                } else {
+                                    return notFound();
+                                }
+                            });
+                        });
+                    }
                 });
-            }
-        });
+            });
     }
 
     /**
@@ -215,6 +231,17 @@ public class TripController extends TEABackController {
             } else if (!user.admin && !user.id.equals(existingTrip.userId)) {
                 return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
             } else {
+                // Checks trip does not get made public with private destinations
+                List<Destination> destinations = existingTrip.tripDataList.stream()
+                    .map(tripData -> tripData.destination).collect(Collectors.toList());
+                ErrorResponse destinationValidationResult = new TripValidator(null)
+                    .validateDestinationPrivacy(updatedTrip.isPublic, destinations);
+
+                if (destinationValidationResult.error()) {
+                    return CompletableFuture.supplyAsync(() -> badRequest(
+                        Json.toJson("Trip cannot be public as it contains a private destination")));
+                }
+
                 // Update trip in db
                 return tripRepository.updateTrip(updatedTrip).thenApplyAsync(uploaded ->
                     ok(Json.toJson(existingTrip))
@@ -283,15 +310,29 @@ public class TripController extends TEABackController {
             trip.tags = new HashSet<>();
         }
 
-        // Transfers ownership of destinations to master admin where necessary
-        transferDestinationsOwnership(trip.userId, trip.tripDataList);
-        return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
-            userRepository.updateUsedTags(user, trip);
-            trip.tags = existingTags;
-            return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
-                ok(Json.toJson(tripId)));
-        });
+        // Validates all destinations are public in private trip
+        Set<Long> destinationIds = trip.tripDataList.stream()
+            .map(tripData -> tripData.destination.id).collect(Collectors.toSet());
 
+        return destinationRepository.getDestinationsById(destinationIds)
+            .thenComposeAsync(destinations -> {
+                ErrorResponse destinationValidationResult = new TripValidator(null)
+                    .validateDestinationPrivacy(trip.isPublic, destinations);
+
+                if (destinationValidationResult.error()) {
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(destinationValidationResult.toJson()));
+                }
+
+                // Transfers ownership of destinations to master admin where necessary
+                transferDestinationsOwnership(trip.userId, trip.tripDataList);
+                return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+                    userRepository.updateUsedTags(user, trip);
+                    trip.tags = existingTags;
+                    return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
+                        ok(Json.toJson(tripId)));
+                });
+            });
     }
 
     /**

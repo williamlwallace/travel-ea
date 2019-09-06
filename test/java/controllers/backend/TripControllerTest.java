@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -258,6 +259,44 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             assertNull(tripData.arrivalTime);
             assertNull(tripData.departureTime);
         }
+    }
+
+    @Test
+    public void updateTripPublicWithPrivateDest() throws IOException {
+        // Creates trip object
+        int[] destinations = new int[]{1, 2, 5};
+        String[] arrivalTimes = new String[]{null, null, null};
+        String[] departureTimes = new String[]{null, null, null};
+        Set<Tag> tripTags = new HashSet<>();
+
+        Trip trip = createTestTripObject(true, destinations, arrivalTimes, departureTimes,
+            tripTags);
+
+        trip.id = 4L;
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Get error response
+        HashMap<String, String> response = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result),
+                new TypeReference<HashMap<String, String>>() {
+                });
+
+        // Expected error messages
+        HashMap<String, String> expectedMessages = new HashMap<>();
+        expectedMessages.put("3", "Public trip cannot have private destination.");
+
+        assertEquals(1, response.size());
+        assertEquals(expectedMessages, response);
     }
 
     @Test
@@ -577,6 +616,59 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     }
 
     @Test
+    public void updateTripPrivacy() throws IOException {
+        Trip trip = new Trip();
+        trip.id = 1L;
+        trip.userId = 1L;
+        trip.isPublic = true;
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(trip))
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/privacy");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result result = route(fakeApp, insertRequest);
+        assertEquals(OK, result.status());
+
+        // Check result has old privacy status of false
+        JsonNode data = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        Trip oldTrip = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(data), new TypeReference<Trip>() {
+            });
+
+        assertFalse(oldTrip.isPublic);
+    }
+
+    @Test
+    public void makeTripPublicHasPrivateDestinations() throws IOException {
+        Trip trip = new Trip();
+        trip.id = 4L;
+        trip.userId = 1L;
+        trip.isPublic = true;
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(trip))
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/privacy");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result result = route(fakeApp, insertRequest);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Check result message is correct
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+        assertEquals("Trip cannot be public as it contains a private destination", message);
+    }
+
+    @Test
     public void transferDestinationOwnershipByTrip() throws IOException {
         // Check destination 4 is public and owned by user 2
         Http.RequestBuilder initGetRequest = Helpers.fakeRequest()
@@ -681,7 +773,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
                 });
 
         List<Trip> trips = pagingResponse.data;
-        assertEquals(1, trips.size());    // Because 1 trip inserted in evolutions
+        assertEquals(2, trips.size());    // Because 1 trip inserted in evolutions
     }
 
     @Test
@@ -712,16 +804,16 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Deletes trip added in evolutions
         Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
             .method(PUT)
-            .cookie(adminAuthCookie)
-            .uri("/api/trip/1/delete");
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip/2/delete");
 
         Result deleteResult = route(fakeApp, deleteRequest);
         assertEquals(OK, deleteResult.status());
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(adminAuthCookie)
-            .uri("/api/trip?userId=1");
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip?userId=2");
 
         // Get result and check no trips were returned
         Result result = route(fakeApp, request);
