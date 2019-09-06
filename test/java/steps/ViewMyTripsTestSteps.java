@@ -1,7 +1,10 @@
 package steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static play.mvc.Http.HttpVerbs.PUT;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
@@ -11,12 +14,14 @@ import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 import static steps.GenericTestSteps.userId;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.en.And;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
+import io.ebean.PagedList;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +29,13 @@ import models.CountryDefinition;
 import models.Destination;
 import models.Trip;
 import models.TripData;
+import org.springframework.util.Assert;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
+import util.objects.PagingResponse;
 
 
 public class ViewMyTripsTestSteps extends WithApplication {
@@ -50,31 +57,47 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/" + userId);
+            .uri("/api/trip?userId=" + userId);
 
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper()
+
+        JsonNode tripsJson = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
 
-        for (int i = 0; i < trips.size(); i++) {
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(tripsJson),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
+
+        for (Trip trip : trips) {
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
                 .method(PUT)
                 .cookie(adminAuthCookie)
-                .uri("/api/trip/" + trips.get(i).get("id") + "/delete");
+                .uri("/api/trip/" + trip.id + "/delete");
 
-            Result deleteResult = route(fakeApp, deleteRequest);
+            route(fakeApp, deleteRequest);
         }
 
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/" + userId);
+            .uri("/api/trip?userId=" + userId);
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
+
         JsonNode checkEmptyTrips = new ObjectMapper()
             .readValue(Helpers.contentAsString(checkEmptyResult), JsonNode.class);
 
-        assertEquals(0, checkEmptyTrips.size());
+        PagingResponse<Trip> emptyPagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(checkEmptyTrips),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> emptyTrips = emptyPagingResponse.data;
+
+        assertEquals(0, emptyTrips.size());
     }
 
 
@@ -127,7 +150,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/" + userId);
+            .uri("/api/trip?userId=" + userId);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -140,13 +163,20 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/" + userId);
+            .uri("/api/trip?userId=" + userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper()
+
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertNotNull(trips.get(0).get("tripDataList"));
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        assertFalse(pagingResponse.data.isEmpty());
     }
 
     @And("it shows all of my trips")
@@ -155,12 +185,21 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/" + userId);
+            .uri("/api/trip?userId=" + userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper()
+
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
+
         assertEquals(1, trips.size());
     }
 
@@ -170,12 +209,23 @@ public class ViewMyTripsTestSteps extends WithApplication {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/" + userId);
+            .uri("/api/trip?userId=" + userId);
 
         // Deserialize result to list of trips
         Result result = route(fakeApp, request);
-        JsonNode trips = new ObjectMapper()
+
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(1, trips.get(0).get("userId").asInt());
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
+
+        for (Trip trip : trips) {
+            assertEquals(userId, trip.userId);
+        }
     }
 }

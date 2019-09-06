@@ -1,20 +1,15 @@
 package controllers.frontend;
 
-import static play.libs.Scala.asScala;
-
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Profile;
-import models.Trip;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSBodyReadables;
@@ -69,38 +64,11 @@ public class ProfileController extends TEAFrontController {
                     user -> {
                         user.id = userId;
                         boolean canModify = loggedUser.id.equals(userId) || loggedUser.admin;
-                        return ok(views.html.profile
-                            .render(profile, user, loggedUser, canModify));
+                        return ok(views.html.profile.render(profile, user, loggedUser, canModify));
                     },
                     httpExecutionContext.current())
             ,
             httpExecutionContext.current());
-    }
-
-    /**
-     * Gets trips from api endpoint via get request.
-     *
-     * @return List of trips wrapped in completable future
-     */
-    private CompletableFuture<List<Trip>> getUserTrips(Http.Request request, Long userId) {
-        String url = HTTP + request.host() + controllers.backend.routes.TripController
-            .getAllUserTrips(userId);
-        CompletableFuture<WSResponse> res = ws
-            .url(url)
-            .addHeader("Cookie",
-                String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
-            .get()
-            .toCompletableFuture();
-        return res.thenApply(r -> {
-            JsonNode json = r.getBody(WSBodyReadables.instance.json());
-            try {
-                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<List<Trip>>() {
-                    });
-            } catch (Exception e) {
-                return new ArrayList<>();
-            }
-        });
     }
 
     /**

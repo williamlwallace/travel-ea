@@ -101,7 +101,6 @@ $('#tagFilter').on('change', function() {
 
     fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
         profileId).url, galleryId, pageId, mainGalleryPaginationHelper, tags);
-
 });
 
 /**

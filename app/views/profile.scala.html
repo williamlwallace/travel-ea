@@ -76,9 +76,6 @@
                                     </a>
                                 }
                             </p>
-
-
-
                         </div>
                         @*Call gallery modal, true indicating we want titles*@
                         @modules.gallery(canModify, true, "main-gallery", "page-selection", true, "main-gallery-pagination")
@@ -99,9 +96,6 @@
                                 </a>
                             </p>
                         </div><br>
-
-                        @* The Trips Table *@
-                        
 
                         @* The Trips Table *@
                         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
@@ -131,7 +125,7 @@
                                     </div>
                                     <div id="applyButton">
                                         <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
-                                        <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
+                                        <button class="btn btn-primary"  onclick='getProfileTripResults()'>Apply</button>
                                     </div>
                                 </div>
                             </div>
@@ -351,14 +345,11 @@
         </div>
 
     </body>
-
 }
 
 <script type="text/javascript">
-    onPageLoad(@user.id);
     setProfileId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
-    profileLoadTrips(@user.id);
     fillProfileData("@user.username");
     getProfileAndCoverPicture();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
