@@ -29,6 +29,7 @@ class TagPicker {
             input.focus();
         }.bind(null, this.input));
 
+        this.userId = userId;
         this.fillTagSuggestions(userId);
     }
 
@@ -191,5 +192,6 @@ class TagPicker {
     clearTags() {
         this.list.empty();
         this.list.append(this.spacer);
+        this.fillTagSuggestions(this.userId);
     }
 }

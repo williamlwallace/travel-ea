@@ -459,24 +459,6 @@ function getPictures() {
     fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
 }
 
-/**
- * Retrieves the users pictures and uses them to fill the profile photo gallery.
- */
-function getProfilePicturesForGallery() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
-}
-
-/**
- * Displays the users images in a change profile picture gallery modal
- */
-function showProfilePictureGallery() {
-    const galleryObjects = createGalleryObjects(false, profilePhotoPaginationHelper);
-    addPhotos(galleryObjects, $("#profile-gallery"),
-        $('#page-selection-profile-picture'));
-    $('#changeProfilePictureModal').modal('show');
-}
 
 /**
  * Sets the users cover photo given a specific photoID
@@ -529,6 +511,17 @@ $("#editCoverPhotoButton").click(function () {
 });
 
 /**
+ * The editProfilePictureButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#editProfilePictureButton").click(function () {
+    $("#changeProfilePictureModal").modal('show');
+    getProfilePicturesForGallery();
+
+});
+
+/**
  * Gets a users photos and adds them to the gallery in the modal for setting a cover photo
  * is paginated
  */
@@ -538,4 +531,14 @@ function getCoverPictures() {
     fillSelectionGallery(url, "cover-photo-gallery", "current-page", function () {
         setCoverPhoto(this.getAttribute("data-id"))
     }, coverPhotoPaginationHelper);
+}
+
+/**
+ * Gets a users photos and adds them to the gallery in the modal for setting a profile photo
+ * is paginated
+ */
+function getProfilePicturesForGallery() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
 }
