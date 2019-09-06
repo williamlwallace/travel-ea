@@ -342,7 +342,6 @@ public class DestinationRepository {
      * @param ascending Whether or not to sort ascendingly
      * @param pageNum Page number to get
      * @param pageSize Number of results to show per page
-     * @param requestOrder The order of this request compared to others from the same page
      * @return Paged list of destinations
      */
     public CompletableFuture<PagedList<Destination>> getPagedDestinations(
@@ -415,5 +414,23 @@ public class DestinationRepository {
             .setParameter("userId", userId)
             .setParameter("masterId", masterId)
             .execute();
+    }
+
+    /**
+     * Retrieves a list of destinations which have an ID provided
+     *
+     * @param destinationIds List of ID's of destinations to retrieve
+     * @return List of destination objects
+     */
+    public CompletableFuture<List<Destination>> getDestinationsById(Set<Long> destinationIds) {
+        if (destinationIds.isEmpty()) {
+            return CompletableFuture.supplyAsync(ArrayList::new);
+        } else {
+            return supplyAsync(() -> ebeanServer.find(Destination.class)
+                    .where()
+                    .idIn(destinationIds)
+                    .findList()
+                , executionContext);
+        }
     }
 }
