@@ -1,15 +1,11 @@
 package controllers.frontend;
 
-import static play.libs.Scala.asScala;
-
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Trip;
@@ -44,11 +40,9 @@ public class TripController extends TEAFrontController {
      * @return displays the trips or start page.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> tripIndex(Http.Request request) {
+    public Result tripIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return this.getUserTrips(request).thenApplyAsync(
-            tripList -> ok(trips.render(user)),
-            httpExecutionContext.current());
+        return ok(trips.render(user));
     }
 
     /**
@@ -82,49 +76,19 @@ public class TripController extends TEAFrontController {
     public CompletableFuture<Result> editTrip(Http.Request request, Long tripId) {
         User user = request.attrs().get(ActionState.USER);
 
-        return this.getTrip(request, tripId).thenComposeAsync(
+        return this.getTrip(request, tripId).thenApplyAsync(
             trip -> {
                 // If user is allowed to edit trip, renders edit trip page
                 if (user.admin || user.id.equals(trip.userId)) {
-                    return CompletableFuture
-                        .supplyAsync(() -> ok(createTrip.render(user, trip.userId, trip)),
-                            httpExecutionContext.current());
+                    return ok(createTrip.render(user, trip.userId, trip));
+
                 }
                 // Else renders trips page
                 else {
-                    return this.getUserTrips(request).thenApplyAsync(
-                        tripList -> ok(trips.render(user)),
-                        httpExecutionContext.current());
+                    return ok(trips.render(user));
                 }
             },
             httpExecutionContext.current());
-    }
-
-    /**
-     * Gets trips from api endpoint via get request.
-     *
-     * @return List of trips wrapped in completable future
-     */
-    private CompletableFuture<List<Trip>> getUserTrips(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-        String url = HTTP + request.host() + controllers.backend.routes.TripController
-            .getAllUserTrips(user.id);
-        CompletableFuture<WSResponse> res = ws
-            .url(url)
-            .addHeader("Cookie",
-                String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
-            .get()
-            .toCompletableFuture();
-        return res.thenApply(r -> {
-            JsonNode json = r.getBody(WSBodyReadables.instance.json());
-            try {
-                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<List<Trip>>() {
-                    });
-            } catch (Exception e) {
-                return new ArrayList<>();
-            }
-        });
     }
 
     /**

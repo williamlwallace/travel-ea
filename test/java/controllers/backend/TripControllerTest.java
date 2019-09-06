@@ -34,6 +34,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 
 public class TripControllerTest extends controllers.backend.ControllersTest {
 
@@ -665,14 +666,21 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        JsonNode trips = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
         assertEquals(1, trips.size());    // Because 1 trip inserted in evolutions
     }
 
@@ -681,16 +689,22 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/100");
+            .uri("/api/trip?userId=100");
 
         // Get result and check no trips were returned
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        JsonNode trips = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(0, trips.size());
 
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
+        assertEquals(0, trips.size());
     }
 
     @Test
@@ -707,14 +721,21 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         // Get result and check no trips were returned
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        JsonNode trips = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
         assertEquals(0, trips.size());
     }
 
@@ -752,16 +773,20 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, getResult.status());
 
-        JsonNode tripsJson = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(getResult), JsonNode.class);
-        trips = new ObjectMapper()
-            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {
-            });
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        trips = pagingResponse.data;
         assertFalse(trips.isEmpty());
 
         for (int i = 0; i < trips.size() - 1; i++) {
@@ -812,28 +837,28 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, getResult.status());
 
-        JsonNode tripsJson = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(getResult), JsonNode.class);
-        trips = new ObjectMapper()
-            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {
-            });
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        trips = pagingResponse.data;
         assertFalse(trips.isEmpty());
 
         for (int i = 0; i < trips.size() - 1; i++) {
-            // If both not null, check index i date is after index i+1 date
+            // If two consecutive trips have dates, the first should be more recent of equal to the second
             if (trips.get(i).findFirstTripDateAsDate() != null
                 && trips.get(i + 1).findFirstTripDateAsDate() != null) {
                 assertTrue(trips.get(i).findFirstTripDateAsDate()
                     .compareTo(trips.get(i).findFirstTripDateAsDate()) <= 0);
-            }
-            // Else ensure index i+1 date is null, if this is not null then index i will be null and it will not be ordered correctly
-            else {
-                assertNull(trips.get(i + 1).findFirstTripDateAsDate());
             }
         }
     }

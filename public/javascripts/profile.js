@@ -1,6 +1,7 @@
 let coverPhotoPaginationHelper;
 let profilePhotoPaginationHelper;
 let mainGalleryPaginationHelper;
+let tripPaginationHelper;
 
 /**
  * Runs when the page is loaded. Initialises the paginationHelper object and
@@ -12,27 +13,27 @@ $(document).ready(function() {
     profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
     mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
+    profileLoadTrips()
 });
 
 /**
  * Initializes trip table and calls method to populate
- * @param {Number} userId - ID of user to get trips for
  */
-function profileLoadTrips(userId) {
-    paginationHelper = new PaginationHelper(1, 1, getProfileTripResults.bind(null, userId), "tripPagination");
-    getProfileTripResults(userId);
-    
+function profileLoadTrips() {
+    if (!tripPaginationHelper) {
+        tripPaginationHelper = new PaginationHelper(1, 1,
+            getProfileTripResults, "profileTripPagination");
+    }
+    getProfileTripResults();
 }
 
 /**
  * Gets url and sets id for populating trips
- *
- * @param {Number} userId user id
  */
-function getProfileTripResults(userId) {
+function getProfileTripResults() {
     const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
-    url.searchParams.append("userId", userId);
-    getAndCreateTrips(url);
+    url.searchParams.append("userId", profileId);
+    getAndCreateTrips(url, tripPaginationHelper);
 }
 
 /**
@@ -450,7 +451,7 @@ function getProfileAndCoverPicture() {
 }
 
 /**
- * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ * Retrieves the users pictures. Then uses them to fill the gallery.
  */
 function getPictures() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
