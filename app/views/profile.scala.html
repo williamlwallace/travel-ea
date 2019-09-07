@@ -45,7 +45,7 @@
             <div class="col-12 col-md-3">
                 <div id="profile-summary">
                     @if(canModify) {
-                        <a id="editProfilePictureButton" class="edit-button" style="top:0;" title="Edit Profile Picture" onClick="showProfilePictureGallery()"><i class="fas fa-pen fa-1x"></i></a>
+                        <a id="editProfilePictureButton" class="edit-button" style="top:0;" title="Edit Profile Picture"><i class="fas fa-pen fa-1x"></i></a>
                     }
                     <img src= "@routes.Assets.at("images/default-profile-picture.jpg")" id="ProfilePicture" class="img-thumbnail profile-picture">
                     <div class="profile-details">
@@ -147,7 +147,7 @@
                                         </div>
                                         <div id="applyButton">
                                             <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
-                                            <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
+                                            <button class="btn btn-primary"  onclick='getProfileTripResults()'>Apply</button>
                                         </div>
                                     </div>
                                 </div>
@@ -366,14 +366,11 @@
         </div>
 
     </body>
-
 }
 
 <script type="text/javascript">
-    onPageLoad(@user.id);
     setProfileId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
-    profileLoadTrips(@user.id);
     fillProfileData("@user.username");
     getProfileAndCoverPicture();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");

@@ -13,23 +13,20 @@ function onPageLoad(userId) {
 }
 
 /**
- * Gets url and creates trips ha
+ * Gets url and creates trip cards
  */
 function getTripResults() {
-    const url = new URL(
-        tripRouter.controllers.backend.TripController.getAllTrips().url,
-        window.location.origin);
-    getAndCreateTrips(url);
+    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    getAndCreateTrips(url, tripsPaginationHelper);
 }
 
 /**
  * Filters the cards with filtered results
  */
-function getAndCreateTrips(url) {
+function getAndCreateTrips(url, paginationHelper) {
 
     // Append pagination params
-    url.searchParams.append("pageNum",
-        tripsPaginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", $('#tripPageSize').val().toString());
     url.searchParams.append("searchQuery", $('#tripSearch').val());
     url.searchParams.append("ascending", $('#tripAscending').val());
@@ -58,8 +55,8 @@ function getAndCreateTrips(url) {
                         populateModal($(element.currentTarget).find(
                             ".title").data().id);
                     });
-                    tripsPaginationHelper.setTotalNumberOfPages(
-                        totalNumberPages);
+                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+
                 }
             }
         })

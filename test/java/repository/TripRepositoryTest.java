@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import io.ebean.PagedList;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import models.Destination;
@@ -51,7 +52,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
         Trip trip = new Trip();
         trip.userId = 1L;
 
-        assertEquals((Long) 4L, tripRepository.insertTrip(trip).join());
+        assertEquals((Long) 5L, tripRepository.insertTrip(trip).join());
     }
 
     @Test(expected = CompletionException.class)
@@ -116,31 +117,31 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllUsersTrips() {
-        List<Trip> trips = tripRepository.getAllUserTrips(2L).join();
+        PagedList<Trip> trips = tripRepository.searchTrips(2L, 2L, "", true, 1, 10, true, false).join();
 
-        assertEquals(1, trips.size());
-        assertTrue(checkSecondTrip(trips.get(0)));
+        assertEquals(1, trips.getTotalCount());
+        assertTrue(checkSecondTrip(trips.getList().get(0)));
     }
 
     @Test
     public void getAllUsersTripsInvalidUser() {
-        List<Trip> trips = tripRepository.getAllUserTrips(99999L).join();
+        PagedList<Trip> trips = tripRepository.searchTrips(99999L, 99999L, "", true, 1, 10, true, false).join();
 
-        assertEquals(0, trips.size());
+        assertEquals(0, trips.getTotalCount());
     }
 
     @Test
     public void getAllUsersTripsNoTrips() {
-        List<Trip> trips = tripRepository.getAllUserTrips(3L).join();
+        PagedList<Trip> trips = tripRepository.searchTrips(3L, 3L, "", true, 1, 10, true, false).join();
 
-        assertEquals(0, trips.size());
+        assertEquals(0, trips.getTotalCount());
     }
 
     @Test
     public void getAllPublicTripsOrUsersTrips() {
         List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", true, 1, 10, true, true).join().getList();
 
-        assertEquals(2, trips.size());
+        assertEquals(3, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));
         assertEquals((Long) 1L, trips.get(0).id);
         assertEquals((Long) 1L, trips.get(0).userId);
@@ -156,31 +157,31 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllPublicTripsOrUsersTripsDescPaged() {
-        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", false, 1, 1, true, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", false, 1, 10, true, true).join().getList();
 
-        assertEquals(1, trips.size());
-        assertTrue(checkSecondTrip(trips.get(0)));
+        assertEquals(3, trips.size());
+        assertTrue(checkSecondTrip(trips.get(1)));
     }
 
     @Test
     public void getAllPublicTripsOrUsersTripsSecondUser() {
         List<Trip> trips = tripRepository.searchTrips(2L, 2L, "", true, 1, 10, true, true).join().getList();
 
-        assertEquals(2, trips.size());
+        assertEquals(3, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));
     }
 
     @Test
     public void getAllPublicTripsOrUsersTripsInvalidUserId() {
-        List<Trip> trips = tripRepository.searchTrips(99999L, 2l, "", true, 1, 10, true, true).join().getList();
+        List<Trip> trips = tripRepository.searchTrips(99999L, 2L, "", true, 1, 10, true, true).join().getList();
 
-        assertEquals(2, trips.size());
+        assertEquals(3, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));
     }
 
     @Test
     public void getAllUsersPublicTrips() {
-        List<Trip> trips = tripRepository.getAllPublicUserTrips(2L).join();
+        List<Trip> trips = tripRepository.searchTrips(2L, 2L, "", true, 1, 10, false, false).join().getList();
 
         assertEquals(1, trips.size());
         assertTrue(checkSecondTrip(trips.get(0)));
@@ -188,14 +189,14 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getAllUsersPublicTripsNoTrips() {
-        List<Trip> trips = tripRepository.getAllPublicUserTrips(1L).join();
+        List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", true, 1, 10, false, false).join().getList();
 
         assertEquals(0, trips.size());
     }
 
     @Test
     public void getAllUsersPublicTripsInvalidUser() {
-        List<Trip> trips = tripRepository.getAllPublicUserTrips(99999L).join();
+        List<Trip> trips = tripRepository.searchTrips(99999L, 99999L, "", true, 1, 10, false, false).join().getList();
 
         assertEquals(0, trips.size());
     }
@@ -204,7 +205,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
     public void getAllTrips() {
         List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", true, 1, 10, false, true).join().getList();;
 
-        assertEquals(2, trips.size());
+        assertEquals(3, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));
         assertEquals((Long) 1L, trips.get(0).id);
         assertEquals((Long) 1L, trips.get(0).userId);

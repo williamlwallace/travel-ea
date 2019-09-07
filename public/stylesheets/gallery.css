@@ -26,12 +26,16 @@
     max-height: 500px;
 }
 
-#caption, #update-caption {
-    margin: 0 30px 15px 30px;
-}
-
 #main-gallery, #cover-photo-gallery {
     min-height: 72%
+}
+
+#caption,
+#update-caption,
+#update-tags,
+#tags-picker-wrapper {
+    margin: 0px 30px 20px 30px;
+    max-height:40px;
 }
 
 .img-wrap #editPhoto {

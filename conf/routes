@@ -17,8 +17,6 @@ PUT           /api/user/delete                       controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
-GET           /api/user/trips/:id                    controllers.backend.TripController.getAllUserTrips(request:Request, id:Long)
-
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
 POST          /api/logout                            controllers.backend.UserController.logout(request:Request)

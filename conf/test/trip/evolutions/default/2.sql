@@ -18,11 +18,13 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Sky Tower', 'Monument', 'Auckland', -36.8484, 174.76000, 2, 1);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Britomart Monument', 'Monument', 'Akaroa', -43.81546, 172.94883, 2, 1);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (2, 'London Eye', 'Monument', 'London', 56.3453, 23.94883, 1, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Sydney Harbour Bridge', 'Bridge', 'Sydney', 56.3453, 23.94883, 1, 0);
 
 -- Create 2 Trips for testing
 INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO Trip (user_id, is_public) VALUES (2, 1);
 INSERT INTO Trip (user_id, deleted) VALUES (2, 1);
+INSERT INTO Trip (user_id, is_public) VALUES (1, 0);
 
 -- Add destinations to the Trips
 -- Trip 1
@@ -32,6 +34,9 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 -- Trip 2
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 2, 1,'2019-04-22 13:59:00', '2019-04-23 08:00:00');
 INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (2, 1, 4,'2019-04-25 13:59:00', '2019-04-26 08:00:00');
+-- Trip 4
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (4, 0, 1,'2019-04-12 13:59:00', '2019-04-13 08:00:00');
+INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure_time) VALUES (4, 1, 5, null, null);
 
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker'), ('Functional/Business Traveller'), ('Groupies'), ('Thrillseeker'), ('Frequent Weekender'), ('Gap Year');
 

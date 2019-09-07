@@ -1,6 +1,7 @@
 let coverPhotoPaginationHelper;
 let profilePhotoPaginationHelper;
 let mainGalleryPaginationHelper;
+let tripPaginationHelper;
 
 /**
  * Runs when the page is loaded. Initialises the paginationHelper object and
@@ -12,6 +13,7 @@ $(document).ready(function() {
     profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
     mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
+    profileLoadTrips()
     $("#feed-tab").click();
 });
 
@@ -35,23 +37,22 @@ $('#profile-tabs a').on('click', function(event) {
 
 /**
  * Initializes trip table and calls method to populate
- * @param {Number} userId - ID of user to get trips for
  */
-function profileLoadTrips(userId) {
-    paginationHelper = new PaginationHelper(1, 1, getProfileTripResults.bind(null, userId), "tripPagination");
-    getProfileTripResults(userId);
-    
+function profileLoadTrips() {
+    if (!tripPaginationHelper) {
+        tripPaginationHelper = new PaginationHelper(1, 1,
+            getProfileTripResults, "profileTripPagination");
+    }
+    getProfileTripResults();
 }
 
 /**
  * Gets url and sets id for populating trips
- *
- * @param {Number} userId user id
  */
-function getProfileTripResults(userId) {
+function getProfileTripResults() {
     const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
-    url.searchParams.append("userId", userId);
-    getAndCreateTrips(url);
+    url.searchParams.append("userId", profileId);
+    getAndCreateTrips(url, tripPaginationHelper);
 }
 
 /**
@@ -481,7 +482,7 @@ function getProfileAndCoverPicture() {
 }
 
 /**
- * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ * Retrieves the users pictures. Then uses them to fill the gallery.
  */
 function getPictures() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
@@ -489,20 +490,6 @@ function getPictures() {
     fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
 }
 
-function getProfilePicturesForGallery() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
-}
-/**
- * Displays the users images in a change profile picture gallery modal
- */
-function showProfilePictureGallery() {
-    const galleryObjects = createGalleryObjects(false, profilePhotoPaginationHelper);
-    addPhotos(galleryObjects, $("#profile-gallery"),
-        $('#page-selection-profile-picture'));
-    $('#changeProfilePictureModal').modal('show');
-}
 
 /**
  * Sets the users cover photo given a specific photoID
@@ -555,6 +542,17 @@ $("#editCoverPhotoButton").click(function () {
 });
 
 /**
+ * The editProfilePictureButton click listener.
+ * Shows the editCoverPhotoModal and fills the gallery with the available photos.
+ * Sets the photos click listeners to call the setCoverPhoto method.
+ */
+$("#editProfilePictureButton").click(function () {
+    $("#changeProfilePictureModal").modal('show');
+    getProfilePicturesForGallery();
+
+});
+
+/**
  * Gets a users photos and adds them to the gallery in the modal for setting a cover photo
  * is paginated
  */
@@ -564,4 +562,14 @@ function getCoverPictures() {
     fillSelectionGallery(url, "cover-photo-gallery", "current-page", function () {
         setCoverPhoto(this.getAttribute("data-id"))
     }, coverPhotoPaginationHelper);
+}
+
+/**
+ * Gets a users photos and adds them to the gallery in the modal for setting a profile photo
+ * is paginated
+ */
+function getProfilePicturesForGallery() {
+    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
+    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
 }

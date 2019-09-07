@@ -363,6 +363,10 @@ public class PhotoController extends TEABackController {
                         String caption =
                             (position >= photoCaptions.length) ? "" : photoCaptions[position];
                         position += 1;
+                        // Make file public if admin is uploading for somone else
+                        if (loggedInUser.admin && !userIdForUpload.equals(loggedInUser.id)) {
+                            publicPhotoFileNames.add(file.getFilename());
+                        }
                         // Store file with photo in list to be added later
                         photos.add(new Pair<>(
                             readFileToPhoto(file, publicPhotoFileNames,
