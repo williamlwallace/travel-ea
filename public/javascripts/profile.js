@@ -13,7 +13,7 @@ $(document).ready(function() {
     profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
     mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
-    profileLoadTrips()
+    profileLoadTrips();
     $("#feed-tab").click();
 });
 

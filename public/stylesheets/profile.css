@@ -376,17 +376,3 @@ section#timeline a {
 .tripsFilterCard {
     max-width: 36rem;
 }
-
-#tripsFilterButton {
-    border-color: #ced4da;
-    color: #999999;
-}
-
-#tripsFilterButton:hover {
-    cursor: pointer;
-    border-color: #ced4da;
-    background-color: white;
-    color: #999999;
-}
-
-
