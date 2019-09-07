@@ -110,8 +110,10 @@
                         <!-- Trips Tab -->
                         <div class="tab-pane" id="trips" role="tabpanel" aria-labelledby="trips-tab">
                             <div class="tab-buttons">
-                                <a id="tripsFilterButton" class="filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
-                                aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</a>
+                                <div style="display: inline-block">
+                                    <a id="tripsFilterButton" class="btn btn-outline-secondary filterButton" role="button" data-toggle="collapse" data-target="#collapseExample"
+                                    aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</a>
+                                </div>
                                 @if(loggedUser.admin || user.id == loggedUser.id) {
                                     <a class="button-secondary" href="/trips/create/@user.id" role="button">
                                         <span class="profile-button" style="float: right; padding-left:10px;">Create New Trip</span>
@@ -123,7 +125,7 @@
                             <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
                             <div class="tripsCollapse collapse" id="collapseExample">
-                                <div class="card card-body" id="card-body">
+                                <div class="card card-body tripsFilterCard" id="card-body">
                                     <div class="row">
                                         <div id="filterItemDiv">
                                             <label for="tripPageSize">Results per page</label>

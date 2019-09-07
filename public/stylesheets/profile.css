@@ -1,6 +1,4 @@
 .filterButton {
-    margin-bottom: 10px;
-    float:right;
     display:block;
 }
 
@@ -356,4 +354,39 @@ section#timeline a {
 
 #tripCardsList {
     padding: 40px 2.5rem 40px 1.5rem;
+    min-height: 76%;
 }
+
+#closeButton {
+    float: left;
+}
+
+#applyButton {
+    float: right;
+}
+
+#filterItemDiv {
+    margin: 0 5px 10px 5px;
+}
+
+.tripsCollapse {
+    padding: 0 1.5rem;
+}
+
+.tripsFilterCard {
+    max-width: 36rem;
+}
+
+#tripsFilterButton {
+    border-color: #ced4da;
+    color: #999999;
+}
+
+#tripsFilterButton:hover {
+    cursor: pointer;
+    border-color: #ced4da;
+    background-color: white;
+    color: #999999;
+}
+
+
