@@ -64,7 +64,13 @@
                             <div class="card card-dest-for-trip flex-row" id=@i >
                                 <label id=@trip.tripDataList(i).destination.id></label>
                                 <div class="card-header border-0" style="height: 100%">
-                                    <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">
+                                    @if(trip.tripDataList(i).destination.primaryPhoto != null) {
+                                        @defining("../../user_content/" + trip.tripDataList(i).destination.primaryPhoto.thumbnailFilename) { photo =>
+                                            <img src="@photo" style="height: 100%"; alt="Destination Primary Photo">
+                                        }
+                                    } else {
+                                        <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">
+                                    }
                                 </div>
 
                                 <div class="container">
