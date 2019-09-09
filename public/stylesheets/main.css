@@ -4,16 +4,16 @@ body > .container {
 
 body {
     min-height: 100%;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 header {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 html {
     min-height: 100%;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 .footer > .container {
@@ -22,7 +22,7 @@ html {
 }
 
 pre {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
 code {
@@ -33,12 +33,12 @@ code {
  * The colour of the navbar
  */
 .bg-main {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto', sans-serif;
     box-shadow: 0 3px 2px -2px rgba(255,255,255,.2);
 }
 
 .card {
-    font-family: 'Lato', sans-serif;
+    font-family: 'Roboto Condensed', sans-serif;
 }
 
 /**
