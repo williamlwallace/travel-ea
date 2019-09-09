@@ -442,7 +442,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             populateEditPhoto(guid, filename);
         });
     } else {
-        $(galleryId).html("<p style='padding: 150px'>There are no photos!</p>");
+        $(galleryId).html("<p class='no-photos'>There are no photos!</p>");
     }
 }
 
