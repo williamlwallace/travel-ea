@@ -146,7 +146,10 @@ function createDestinationCards(dests) {
         let travellerTypes = "";
 
         $(clone).find("#card-header").append(dest.name);
-        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
+        if (dest.primaryPhoto) {
+            console.log("../user_content/" + dest.primaryPhoto.thumbnailFilename);
+            $(clone).find("#card-thumbnail").attr("src", "../user_content/" + dest.primaryPhoto.thumbnailFilename);
+        }
         $(clone).find("#district").append("District: " + dest.district);
         $(clone).find("#country").append("Country: " + dest.country.name);
         $(clone).find("#destType").append("Type: " + dest.destType);

@@ -179,6 +179,7 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHel
                         }
                         usersPhotos[i] = photos.data[i];
                     }
+                    pageHelper.setTotalNumberOfPages(photos.totalNumberPages);
                     const galleryObjects = createGalleryObjects(false, pageHelper, true,
                         destinationId);
                     addPhotos(galleryObjects, $("#" + galleryId),
