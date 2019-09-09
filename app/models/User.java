@@ -3,11 +3,16 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -44,6 +49,26 @@ public class User extends BaseModel {
     @OneToMany(mappedBy = "user")
     public Set<UsedTag> usedTags;
 
+    @ManyToMany(mappedBy = "following")
+    @JoinTable(
+        name = "FollowerUser",
+        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"))
+    public List<User> followers;
+
+    @ManyToMany(mappedBy = "followers")
+    @JoinTable(
+        name = "FollowerUser",
+        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    public List<User> following;
+
+    @ManyToMany(mappedBy = "followersDestination")
+    @JoinTable(
+        name = "FollowerDestination",
+        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
+    public List<Destination> followingDestinations;
 
     /**
      * Updates this users tags, updating the date of the tag or inserting a new tag. Compares the
