@@ -106,6 +106,7 @@ $('#tagFilter').on('change', function() {
 
 /**
  * Function to populate gallery with current users photos
+ * If the gallery oid is profile picture then it removed the full size links
  *
  * @param getPhotosUrl the url from where photos are retrieved from, varies for each gallery case
  * @param {string} galleryId the id of the gallery to add the photo to
@@ -141,7 +142,10 @@ function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, callback=null,
             }
 
             pageHelper.setTotalNumberOfPages(data.totalNumberPages);
-            const galleryObjects = createGalleryObjects(true, pageHelper);
+            let galleryObjects = createGalleryObjects(true, pageHelper);
+            if (galleryId === "profile-gallery") {
+                galleryObjects = createGalleryObjects(false, pageHelper);
+            }
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
 
             if(callback !== null) { callback(); }
