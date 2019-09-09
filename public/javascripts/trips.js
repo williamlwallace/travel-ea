@@ -16,7 +16,9 @@ function onPageLoad(userId) {
  * Gets url and creates trip cards
  */
 function getTripResults() {
-    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    const url = new URL(
+        tripRouter.controllers.backend.TripController.getAllTrips().url,
+        window.location.origin);
     getAndCreateTrips(url, tripsPaginationHelper);
 }
 
@@ -104,17 +106,18 @@ let i = 0; // Global counter for carousel data-id
  */
 function initCarousel(clone, trip) {
     $(clone).find("#card-thumbnail-div").append(
-        `<div id=tripCarousel-${i} class="carousel slide" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class=carousel-inner data-id=carousel-inner-${i}></div></div>`
+        `<div id=tripCarousel-${i} class="carousel slide carousel-fade" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class=carousel-inner data-id=carousel-inner-${i}></div></div>`
     );
     let photo = null;
     let photoNum = 0;
     trip.tripDataList.forEach(tripObject => {
-         if (tripObject.destination.primaryPhoto === null) {
-             return;
-         } else {
-             photo = "../user_content/" + tripObject.destination.primaryPhoto.thumbnailFilename;
-             photoNum += 1;
-         }
+        if (tripObject.destination.primaryPhoto === null) {
+            return;
+        } else {
+            photo = "../user_content/"
+                + tripObject.destination.primaryPhoto.thumbnailFilename;
+            photoNum += 1;
+        }
         if (photo) {
             $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
                 "<div class=\"carousel-item\">\n"
@@ -128,9 +131,7 @@ function initCarousel(clone, trip) {
     // If there is more than one photo, create the carousel arrow buttons
     if (photoNum >= 1) {
         $(clone).find('.carousel-item').first().addClass('active');
-        $(clone).carousel({
-            interval: 5000,
-        });
+        $(clone).carousel();
         if (photoNum > 1) {
             $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
                 `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
