@@ -40,18 +40,27 @@ function createDestinationCards(dests) {
         let travellerTypes = "";
 
         $(clone).find("#card-header").append(dest.name);
-        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
+        if (dest.primaryPhoto) {
+            $(clone).find("#card-thumbnail").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
+        }
         $(clone).find("#district").append("District: " + dest.district);
         $(clone).find("#country").append("Country: " + dest.country.name);
         $(clone).find("#destType").append("Type: " + dest.destType);
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
         $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
 
-        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
-            addDestinationToTrip(dest.id, dest.name, dest.destType,
-                dest.district, dest.latitude, dest.longitude, dest.country.id);
-        });
-
+        if (dest.primaryPhoto) {
+            $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+                addDestinationToTrip(dest.id, dest.name, dest.destType,
+                    dest.district, dest.latitude, dest.longitude,
+                    dest.country.id, dest.primaryPhoto);
+            });
+        } else {
+            $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+                addDestinationToTrip(dest.id, dest.name, dest.destType,
+                    dest.district, dest.latitude, dest.longitude, dest.country.id);
+            });
+        }
 
         dest.tags.forEach(item => {
             tags += item.name + ", ";
@@ -170,10 +179,13 @@ function checkTripListEmpty() {
  * @param countryId CountryID of the destination
  */
 function addDestinationToTrip(id, name, type, district, latitude, longitude,
-    countryId) {
+    countryId, primaryPhoto=null) {
     let cards = $("#list").sortable('toArray');
     let cardId = 0;
-
+    let image = "https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg";
+    if (primaryPhoto) {
+         image = "../../user_content/" + primaryPhoto.thumbnailFilename;
+    }
     // Finds id not used
     while (cards.includes(cardId.toString())) {
         cardId++;
@@ -184,7 +196,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card card-dest-for-trip flex-row" id= ' + id + ' >\n'
             + '                                <label id=' + id + '></label>\n'
             + '                                <div class="card-header border-0" style="height: 100%">\n'
-            + '                                    <img src="https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg" style="height: 100%"; alt="Happy travellers">\n'
+            + '                                    <img src=' + image + ' style="height: 100%"; alt="Happy travellers">\n'
             + '                                </div>\n'
             + '\n'
             + '                                <div class="container">\n'

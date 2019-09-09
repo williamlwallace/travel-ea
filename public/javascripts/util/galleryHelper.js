@@ -179,6 +179,7 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHel
                         }
                         usersPhotos[i] = photos.data[i];
                     }
+                    pageHelper.setTotalNumberOfPages(photos.totalNumberPages);
                     const galleryObjects = createGalleryObjects(false, pageHelper, true,
                         destinationId);
                     addPhotos(galleryObjects, $("#" + galleryId),
@@ -441,7 +442,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             populateEditPhoto(guid, filename);
         });
     } else {
-        $(galleryId).html("<p style='padding: 150px'>There are no photos!</p>");
+        $(galleryId).html("<p class='no-photos'>There are no photos!</p>");
     }
 }
 

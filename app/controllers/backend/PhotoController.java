@@ -700,10 +700,11 @@ public class PhotoController extends TEABackController {
 
     /**
      * Gets destination photos based on logged in user.
+     * Desttination photos not currently paginated
      *
      * @param request Request containing authentication information
      * @param destId id of destination
-     * @return A paged list of photos associated with the destination
+     * @return A list of photos associated with the destination
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getDestinationPhotos(Http.Request request, Long destId) {

@@ -51,3 +51,7 @@
 #editPhoto:hover {
     color: #000000 !important;
 }
+
+.no-photos {
+    padding: 150px;
+}
