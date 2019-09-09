@@ -10,9 +10,7 @@
 }
 
 #card-thumbnail-div {
-    /*background-color: rgb(255, 255, 255);*/
     background-image: radial-gradient( circle farthest-corner at 12.3% 19.3%,  rgba(85,88,218,1) 0%, rgba(95,209,249,1) 100.2% );
-    /*background: linear-gradient(40deg,#45cafc,#303f9f);*/
     -webkit-clip-path: polygon(0 0, 100% 0%, 90% 100%, 0% 100%);
     clip-path: polygon(0 0, 100% 0%, 90% 100%, 0% 100%);
 }
@@ -38,7 +36,6 @@
 
 .title {
     font-size: 1.3rem;
-    /*padding-bottom: 1.25rem;*/
 }
 
 .carousel-control-next-icon {
@@ -51,6 +48,5 @@
     color:white;
     height:1px;
     background:black;
-    /*background: -webkit-gradient(radial, 0% 0%, 0, 50% 50%, 350, from(rgba(0, 0, 0, 0.75)), to(#fff));*/
     background: linear-gradient(90deg, #161616, #ffffff);
 }

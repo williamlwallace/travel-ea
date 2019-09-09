@@ -1,6 +1,4 @@
 #card-thumbnail {
-    /*box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);*/
-    /*border-radius: .25rem;*/
     max-height: 150px;
     max-width: 150px;
     margin-top: -60px;
@@ -17,8 +15,6 @@
 
 #banner {
     height: 10%;
-    /*background: linear-gradient(40deg,#2096ff,#05ffa3) !important;*/
-    /*background: linear-gradient(40deg,#45cafc,#303f9f);*/
     background-image: radial-gradient( circle farthest-corner at 12.3% 19.3%,  rgba(85,88,218,1) 0%, rgba(95,209,249,1) 100.2% );
     align-items: center;
     justify-content: center;
