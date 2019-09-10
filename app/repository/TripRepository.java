@@ -4,9 +4,9 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import io.ebean.PagedList;
 import io.ebean.Expr;
 import io.ebean.Expression;
+import io.ebean.PagedList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
@@ -117,32 +117,34 @@ public class TripRepository {
         Integer pageSize,
         Boolean getPrivate,
         Boolean getAll) {
-        
-        final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery).replaceAll(" ", "").toLowerCase();
+
+        final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery)
+            .replaceAll(" ", "").toLowerCase();
 
         return supplyAsync(() ->
-                ebeanServer.find(Trip.class)
-                    .fetch("tripDataList.destination")
-                    .where()
-                    // Search where name fits search query
-                    .or(
-                        Expr.eq("t0.user_id", userId),
-                        getAll ? SQL_TRUE : SQL_FALSE
-                    ).endOr()
-                    // Only get public results, unless getPrivate is true, or we are getting all in which case return the logged in users private trips as well
-                    .or(
-                        Expr.eq("t0.is_public", true),
-                        Expr.or(
-                            getPrivate ? SQL_TRUE : SQL_FALSE,
-                            getAll ? Expr.eq("t0.user_id", loggedInUserId) : SQL_FALSE
-                        )                   
-                    ).endOr()
-                    .ilike("tripDataList.destination.name", "%" + cleanedSearchQuery + "%")
-                    // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
-                    .orderBy("creation_date " + (ascending ? "asc" : "desc") + ", t0.id " + (ascending ? "asc" : "desc"))
-                    .setFirstRow((pageNum - 1) * pageSize)
-                    .setMaxRows(pageSize)
-                    .findPagedList()
+            ebeanServer.find(Trip.class)
+                .fetch("tripDataList.destination")
+                .where()
+                // Search where name fits search query
+                .or(
+                    Expr.eq("t0.user_id", userId),
+                    getAll ? SQL_TRUE : SQL_FALSE
+                ).endOr()
+                // Only get public results, unless getPrivate is true, or we are getting all in which case return the logged in users private trips as well
+                .or(
+                    Expr.eq("t0.is_public", true),
+                    Expr.or(
+                        getPrivate ? SQL_TRUE : SQL_FALSE,
+                        getAll ? Expr.eq("t0.user_id", loggedInUserId) : SQL_FALSE
+                    )
+                ).endOr()
+                .ilike("tripDataList.destination.name", "%" + cleanedSearchQuery + "%")
+                // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
+                .orderBy("creation_date " + (ascending ? "asc" : "desc") + ", t0.id " + (ascending
+                    ? "asc" : "desc"))
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList()
         );
     }
 
@@ -191,5 +193,23 @@ public class TripRepository {
             .idEq(tripId)
             .findOneOrEmpty()
             .orElse(null), executionContext);
+    }
+
+    /**
+     * Copies a trip and changes the user who owns the new trip
+     *
+     * @param trip The trip to copy
+     * @param newUserId The user to own the copied trip
+     * @return The id of the trip
+     */
+    public CompletableFuture<Long> copyTrip(Trip trip, Long newUserId) {
+        trip.userId = newUserId;
+        trip.id = null;
+
+        for (TripData tripData : trip.tripDataList) {
+            tripData.guid = null;
+        }
+
+        return insertTrip(trip);
     }
 }

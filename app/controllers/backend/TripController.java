@@ -95,31 +95,35 @@ public class TripController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips(Http.Request request,
-                                                Long userId,
-                                                String searchQuery,
-                                                Boolean ascending,
-                                                Integer pageNum,
-                                                Integer pageSize,
-                                                Integer requestOrder) {
+        Long userId,
+        String searchQuery,
+        Boolean ascending,
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
         User user = request.attrs().get(ActionState.USER);
-        
+
         // By default, only get public trips
         boolean getPrivate = false;
 
         // If user is admin, or getting their own trips, show all results not just public
-        if(user.admin || (userId != -1 && userId == user.id)) {
+        if (user.admin || (userId != -1 && userId == user.id)) {
             getPrivate = true;
         }
 
-        return tripRepository.searchTrips(userId, user.id, searchQuery, ascending, pageNum, pageSize, getPrivate, userId == -1)
+        return tripRepository
+            .searchTrips(userId, user.id, searchQuery, ascending, pageNum, pageSize, getPrivate,
+                userId == -1)
             .thenApplyAsync(trips -> {
                 try {
                     return ok(sanitizeJson(Json.toJson(
-                        new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
+                        new PagingResponse<>(trips.getList(), requestOrder,
+                            trips.getTotalPageCount())
                     )));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }});
+                }
+            });
     }
 
     /**
@@ -184,7 +188,8 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
-        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
+        trip.tags = new HashSet<>(Arrays.asList(
+            Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -301,7 +306,8 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
-        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
+        trip.tags = new HashSet<>(Arrays.asList(
+            Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
         // Transfers ownership of destinations to master admin where necessary
         transferDestinationsOwnership(trip.userId, trip.tripDataList);
@@ -311,7 +317,20 @@ public class TripController extends TEABackController {
             return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
                 ok(Json.toJson(tripId)));
         });
+    }
 
+    /**
+     * Copies one user's trip into another users trips
+     *
+     * @param request The HTTP request
+     * @param tripId The id of the trip to copy
+     * @return 201 if successful, 400 if the trip data is invalid, 403 if the user is not authorised
+     * to copy the trip, 404 if the trip or the user does not exist
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> copyTrip(Http.Request request, Long tripId) {
+        //Should block non-admins from copying a private trip
+        return null;
     }
 
     /**

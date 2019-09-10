@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.CREATED;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.DELETE;
@@ -891,4 +892,36 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         return statusesOk;
     }
+
+    @Test
+    public void copyTrip() throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/user/trips/2");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, getResult.status());
+
+        JsonNode trips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        assertEquals(1, trips.size());
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip/2/copy");
+
+        Result result = route(fakeApp, request);
+        assertEquals(CREATED, result.status());
+
+        Result getResultConfirm = route(fakeApp, getRequest);
+        assertEquals(OK, getResultConfirm.status());
+
+        JsonNode newTrips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResultConfirm), JsonNode.class);
+        assertEquals(2, newTrips.size());
+    }
+
+
 }
