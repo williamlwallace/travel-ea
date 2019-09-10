@@ -40,12 +40,9 @@
     background-color: #107DF1;
     color: #fff;
     border-radius: 3px;
-    /*padding: 2px 2px 1px 1px;*/
     margin: 8px 3px 0px 3px;
     font-size: 14px;
     max-height: 25px;
-    /*padding-left: 2px;*/
-    /*padding-top: 3px;*/
     line-height: 16px;
     padding:4px;
     display: table
@@ -69,7 +66,6 @@
 .close-icon {
     display:inline-block;
     box-sizing:border-box;
-    /*margin: -17px 2px 0px 4px;*/
     padding:0px;
     margin-left: 5px;
     vertical-align: middle;
