@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,11 +21,13 @@ import models.NewsFeedEvent;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import io.ebean.ExpressionList;
+import io.ebean.PagedList;
+import io.ebean.Expression;
 
 public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
 
     private static NewsFeedEventRepository newsFeedEventRepository;
-
 
     @Before
     public void runEvolutions() {
@@ -76,5 +79,31 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
     @Test
     public void addEvent() {
         assertEquals((Long) 4L, newsFeedEventRepository.addNewsFeedEvent(createEvent()).join());
+    }
+
+    @Test(expected = CompletionException.class)
+    public void addEventPrimaryKeyError() {
+        NewsFeedEvent newsFeedEvent = createEvent();
+        newsFeedEvent.guid = 1L;
+
+        newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).join();
+    }
+
+    @Test
+    public void personalEventFeed() {
+        List<Long> users = new ArrayList<Long>();
+        users.add(2L);
+        PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(users, null, 1, 10).join();
+        assertEquals(2, eventFeed.getList().size());
+        for (NewsFeedEvent event : eventFeed.getList()) {
+           assertEquals(Long.valueOf(1), event.userId);
+        }
+    }
+
+    @Test
+    public void ExploreEventFeed() {
+        PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(null, null, 1, 10).join();
+        assertEquals(3, eventFeed.getList().size());
+        assertTrue(checkFirstEvent(eventFeed.getList().get(2)));
     }
 }

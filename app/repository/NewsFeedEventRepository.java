@@ -8,6 +8,7 @@ import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
+import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 
 import java.io.IOException;
@@ -31,6 +32,9 @@ public class NewsFeedEventRepository {
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
+
+    private final Expression SQL_FALSE = Expr.raw("false");
+    private final Expression SQL_TRUE = Expr.raw("true");
 
     @Inject
     public NewsFeedEventRepository(EbeanConfig ebeanConfig,
@@ -65,5 +69,46 @@ public class NewsFeedEventRepository {
             .findOneOrEmpty()
             .orElse(null), executionContext);
     }
+
+    /**
+     * Gets all the profiles in the database except the given user id.
+     *
+     * @return A list of all profiles
+     */
+    public CompletableFuture<PagedList<NewsFeedEvent>> getPagedEvents(List<Long> userIds, // Possibly null
+        List<Long> destIds,
+        Integer pageNum,
+        Integer pageSize) {
+
+        // Below we make items for each value that we know aren't null, so that EBean won't throw NullPointer,
+        // but we must check against the original parameter when checking if the variable was null initially
+        List<Long> userIdsNotNull = userIds == null ? new ArrayList<>() : userIds;
+        List<Long> destIdsNotNull = destIds == null ? new ArrayList<>() : destIds;
+
+        return supplyAsync(() -> {
+            ExpressionList<NewsFeedEvent> eventsExprList =
+                ebeanServer.find(NewsFeedEvent.class)
+                    .where()
+                    .or(
+                        Expr.in("t0.user_id", userIdsNotNull),
+                        (userIds == null) ? SQL_TRUE : SQL_FALSE
+                    ).endOr()
+                    // Filter nationalities by given traveller type ids, only if some were given
+                    .or(
+                        Expr.in("t0.dest_id", destIdsNotNull),
+                        (destIds == null) ? SQL_TRUE : SQL_FALSE
+                    ).endOr();
+
+            // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
+            PagedList<NewsFeedEvent> events = eventsExprList.orderBy("time desc")
+            .setFirstRow((pageNum - 1) * pageSize)
+            .setMaxRows(pageSize)
+            .findPagedList();
+
+            return events;
+        });
+    }
+
+    
 }
 
