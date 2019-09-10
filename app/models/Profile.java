@@ -73,8 +73,13 @@ public class Profile extends Model {
     @ManyToOne(cascade = CascadeType.ALL)
     public Photo coverPhoto;
 
-    @ManyToMany(mappedBy = "")
-    public int followingCount;
+    @ManyToMany(mappedBy = "passportProfiles")
+    @JoinTable(
+        name = "FollowerUser",
+        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    )
+    public List<User> following;
 
     /**
      * Calculates age based on the birth date.
