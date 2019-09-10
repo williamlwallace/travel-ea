@@ -16,8 +16,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.FollowerUser;
 import models.Tag;
 import models.User;
+import org.h2.command.dml.Delete;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -326,6 +328,37 @@ public class UserController extends TEABackController {
             Cookie.builder(U_ID, user.id.toString())
                 .withHttpOnly(false)
                 .build());
+    }
+
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> toggleFollowerStatus(Http.Request request, Long userId) {
+
+        Long followerId = request.attrs().get(ActionState.USER).id;
+        if(userId.equals(followerId)) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+
+        return userRepository.findID(userId).thenComposeAsync(usersId -> {
+            if (usersId == null) {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            } else {
+                return userRepository.getFollower(userId, followerId).thenComposeAsync(followerUser -> {
+                    if (followerUser == null) {
+                        FollowerUser newFollowerUser = new FollowerUser();
+                        newFollowerUser.followerId = followerId;
+                        newFollowerUser.userId = userId;
+                        return userRepository.insertFollower(newFollowerUser).thenApplyAsync(guid ->
+                            ok(Json.toJson("followed")));
+                    } else {
+                        return userRepository.deleteFollower(followerUser.guid).thenApplyAsync(delete ->
+                            ok(Json.toJson("unfollowed")));
+                    }
+                });
+
+            }
+        });
+
     }
 
     /**

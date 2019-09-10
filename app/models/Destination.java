@@ -97,13 +97,6 @@ public class Destination extends BaseModel implements Taggable {
             inverseJoinColumns = @JoinColumn(name = "photo_guid", referencedColumnName = "guid"))
     public List<Photo> pendingPrimaryPhotos;
 
-    @ManyToMany(mappedBy = "followingDestinations")
-    @JoinTable(
-        name = "FollowerDestination",
-        joinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"))
-    public List<User> followersDestination;
-
     /**
      * Returns the list of tags associated with the object
      *

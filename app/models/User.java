@@ -49,27 +49,6 @@ public class User extends BaseModel {
     @OneToMany(mappedBy = "user")
     public Set<UsedTag> usedTags;
 
-    @ManyToMany(mappedBy = "following")
-    @JoinTable(
-        name = "FollowerUser",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"))
-    public List<User> followers;
-
-    @ManyToMany(mappedBy = "followers")
-    @JoinTable(
-        name = "FollowerUser",
-        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    public List<User> following;
-
-    @ManyToMany(mappedBy = "followersDestination")
-    @JoinTable(
-        name = "FollowerDestination",
-        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "destination_id", referencedColumnName = "id"))
-    public List<Destination> followingDestinations;
-
     /**
      * Updates this users tags, updating the date of the tag or inserting a new tag. Compares the
      * original object to the new object to find newly added tags.

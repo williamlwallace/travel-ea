@@ -20,10 +20,11 @@ public class FollowerDestination extends BaseModel {
 
     @Constraints.Required
     @Column(name = "destination_id")
-    public Long destinationId;
+    public Destination destination;
 
     @ManyToOne
     @Constraints.Required
-    public Long followerId;
+    @Column(name = "follower_id")
+    public User follower;
 
 }
