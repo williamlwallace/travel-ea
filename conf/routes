@@ -17,6 +17,8 @@ PUT           /api/user/delete                       controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
+PUT           /api/user/:id/follow                   controllers.backend.UserController.toggleFollowerStatus(request:Request, id:Long)
+
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
 POST          /api/logout                            controllers.backend.UserController.logout(request:Request)

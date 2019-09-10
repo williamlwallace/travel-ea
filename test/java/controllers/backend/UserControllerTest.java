@@ -290,4 +290,67 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         assertEquals(BAD_REQUEST, result.status());
     }
 
+    @Test
+    public void followUser() throws IOException {
+        // Create request to follow a user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/2/follow");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("followed", message);
+    }
+
+    @Test
+    public void followUserInvalid() {
+        // Create request to follow a user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/12/follow");
+
+        // Get result and check it failed
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void followUserSelf() {
+        // Create request to follow a user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/1/follow");
+
+        // Get result and check it failed
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void unfollowUserValid() throws IOException {
+        // Create request to un follow a user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/user/1/follow");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("unfollowed", message);
+    }
+
+
 }
