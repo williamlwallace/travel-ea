@@ -2,6 +2,7 @@ package models.strategies.photos.user.concrete;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
+import models.NewsFeedResponseItem;
 import models.strategies.photos.user.UserPhotoStrategy;
 import repository.PhotoRepository;
 import repository.ProfileRepository;
@@ -26,7 +27,7 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
      * @return JSON node containing data that will be sent to front end
      */
     @Override
-    public CompletableFuture<JsonNode> execute() {
+    public CompletableFuture<NewsFeedResponseItem> execute() {
         // getUserProfileAsync() and getReferencedPhotoAsync() will be useful here
 
         return null;

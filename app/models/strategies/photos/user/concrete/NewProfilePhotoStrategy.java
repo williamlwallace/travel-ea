@@ -2,6 +2,7 @@ package models.strategies.photos.user.concrete;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
+import models.NewsFeedResponseItem;
 import models.strategies.photos.user.UserPhotoStrategy;
 import play.libs.Json;
 import repository.PhotoRepository;
@@ -27,10 +28,12 @@ public class NewProfilePhotoStrategy extends UserPhotoStrategy {
      * @return JSON node containing data that will be sent to front end
      */
     @Override
-    public CompletableFuture<JsonNode> execute() {
-        // getUserProfileAsync() and getReferencedPhotoAsync() will be useful here
-        return getUserProfileAsync().thenApplyAsync(profile ->
-            Json.toJson(profile.firstName + " " + profile.lastName + " has a new profile picture"
-            ));
+    public CompletableFuture<NewsFeedResponseItem> execute() {
+        return getReferencedPhotoAsync().thenComposeAsync(photo ->
+            getUserProfileAsync().thenApplyAsync(profile ->
+                new NewsFeedResponseItem(profile.firstName + " " + profile.lastName + " has a new profile picture",
+                    photo)
+            )
+        );
     }
 }

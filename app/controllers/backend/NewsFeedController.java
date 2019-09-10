@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.NewsFeedEvent;
+import models.NewsFeedResponseItem;
 import models.Photo;
 import models.User;
 import models.enums.NewsFeedEventType;
@@ -81,15 +82,25 @@ public class NewsFeedController extends TEABackController {
             Collections.singletonList(loggedInUser.id), null, pageNum, pageSize)
             .thenComposeAsync(events -> {
                 // Collect a list of the completable strategies created for each event
-                List<CompletableFuture<JsonNode>> completableStrategies = events.getList().stream()
+                List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
                     .map(x -> getStrategyForEvent(x).execute())
                     .collect(Collectors.toList());
                 // Wait until all strategies have executed then return paging response
                 return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
-                .thenApplyAsync(v -> ok(Json.toJson(new PagingResponse<>(
-                    completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList()),
-                    requestOrder,
-                    events.getTotalPageCount()))));
+                .thenApplyAsync(v -> {
+                    // Append the correct created time and event type to each complete event
+                    List<NewsFeedResponseItem> completedStrategies = completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList());
+                    for(int i = 0; i < events.getList().size(); i++) {
+                        completedStrategies.get(i).created = events.getList().get(i).created;
+                        completedStrategies.get(i).eventType = events.getList().get(i).eventType;
+                    }
+
+                    // Serialize and return a paging response with all created NewsFeedResponseItems
+                    return ok(Json.toJson(new PagingResponse<>(
+                        completedStrategies,
+                        requestOrder,
+                        events.getTotalPageCount())));
+                });
                 }
             );
     }

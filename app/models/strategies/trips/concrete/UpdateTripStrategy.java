@@ -2,6 +2,7 @@ package models.strategies.trips.concrete;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
+import models.NewsFeedResponseItem;
 import models.strategies.trips.TripStrategy;
 import repository.ProfileRepository;
 import repository.TripRepository;
@@ -26,7 +27,7 @@ public class UpdateTripStrategy extends TripStrategy {
      * @return JSON node containing data that will be sent to front end
      */
     @Override
-    public CompletableFuture<JsonNode> execute() {
+    public CompletableFuture<NewsFeedResponseItem> execute() {
         return null;
     }
 }

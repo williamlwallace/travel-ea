@@ -2,6 +2,7 @@ package models.strategies.photos.destination.concrete;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
+import models.NewsFeedResponseItem;
 import models.strategies.photos.destination.DestinationPhotoStrategy;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
@@ -27,7 +28,7 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
      * @return JSON node containing data that will be sent to front end
      */
     @Override
-    public CompletableFuture<JsonNode> execute() {
+    public CompletableFuture<NewsFeedResponseItem> execute() {
         // getReferencedDestinationAsync() and getReferencedPhotoAsync() will be useful here
         return null;
     }
