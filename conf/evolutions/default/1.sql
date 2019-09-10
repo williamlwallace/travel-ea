@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS FollowerUser
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     follower_id       INT NOT NULL,
+    deleted             BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (guid),
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (follower_id) REFERENCES User(id) ON DELETE CASCADE

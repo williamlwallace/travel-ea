@@ -330,6 +330,12 @@ public class UserController extends TEABackController {
                 .build());
     }
 
+    /**
+     * Toggles the status whether the current user follows a use with given id
+     * @param request Http request contains current users id
+     * @param userId id of the user to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> toggleFollowerStatus(Http.Request request, Long userId) {
 
@@ -337,7 +343,6 @@ public class UserController extends TEABackController {
         if(userId.equals(followerId)) {
             return CompletableFuture.supplyAsync(Results::forbidden);
         }
-
 
         return userRepository.findID(userId).thenComposeAsync(usersId -> {
             if (usersId == null) {
