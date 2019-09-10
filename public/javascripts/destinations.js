@@ -146,12 +146,15 @@ function createDestinationCards(dests) {
         let travellerTypes = "";
 
         $(clone).find("#card-header").append(dest.name);
-        //TODO: need destination primary photo $(clone).find("#card-thumbnail").attr("src",);
-        $(clone).find("#district").append("District: " + dest.district);
-        $(clone).find("#country").append("Country: " + dest.country.name);
-        $(clone).find("#destType").append("Type: " + dest.destType);
+        if (dest.primaryPhoto) {
+            console.log("../user_content/" + dest.primaryPhoto.thumbnailFilename);
+            $(clone).find("#card-thumbnail").attr("src", "../user_content/" + dest.primaryPhoto.thumbnailFilename);
+        }
+        $(clone).find("#district").append(dest.district ? dest.district : "No district");
+        $(clone).find("#country").append(dest.country.name);
+        $(clone).find("#destType").append(dest.destType ? dest.destType : "No type");
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
-        $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
+        $(clone).find("#card-header").attr("id", dest.id.toString());
 
         $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
             location.href = '/destinations/' + $(this).data().id;
@@ -167,8 +170,8 @@ function createDestinationCards(dests) {
         });
         travellerTypes = travellerTypes.slice(0, -2);
 
-        $(clone).find("#travellerTypes").append("Traveller Types: " + travellerTypes);
-        $(clone).find("#tags").append("Tags: " + tags);
+        $(clone).find("#travellerTypes").append(travellerTypes ? travellerTypes : "No traveller types");
+        $(clone).find("#tags").append(tags ? tags : "No tags");
 
         $("#destinationCardList").get(0).appendChild(clone);
     });

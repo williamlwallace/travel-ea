@@ -151,6 +151,16 @@ function getPeopleResults() {
 }
 
 /**
+ * Function to calculate age from date of birth
+ * @param birthday date object
+ */
+function calculateAge(birthday) { // birthday is a date
+    const ageDifMs = Date.now() - birthday.getTime();
+    const ageDate = new Date(ageDifMs); // milliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+}
+
+/**
  * Creates a html people card cloning the template in the people.scala.html
  *
  * @param person is Json profile object
@@ -164,8 +174,8 @@ function createPeopleCard(person) {
     $(clone).find("#card-header").append(`${person.firstName} ${person.lastName}`);
     $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
     $(clone).find("#card-cover-photo").attr("src", person.coverPhoto === null ? "/assets/images/profile-bg.jpg" : "user_content/" + person.coverPhoto.thumbnailFilename);
-    $(clone).find("#age").append("Age: " + person.dateOfBirth);
-    $(clone).find("#gender").append("Gender: " + person.gender);
+    $(clone).find("#age").append(calculateAge(new Date(person.dateOfBirth)) + " years old");
+    $(clone).find("#gender").append(person.gender);
     $(clone).find("#card-header").attr("data-id", person.userId.toString());
 
     person.nationalities.forEach(item => {
@@ -178,8 +188,8 @@ function createPeopleCard(person) {
     });
     travellerTypes = travellerTypes.slice(0, -2);
 
-    $(clone).find("#nationalities").append("Nationalities: " + nationalities);
-    $(clone).find("#traveller-type").append("Traveller Types: " + travellerTypes);
+    $(clone).find("#nationalities").append(nationalities);
+    $(clone).find("#traveller-type").append(travellerTypes);
 
     $("#peopleCardsList").get(0).appendChild(clone);
 }

@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -55,71 +55,38 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Attempts to get all user trips for a given userID.
-     *
-     * @param request the HTTP request
-     * @return JSON object with list of trips that a user has, bad request if user does not exist
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllUserTrips(Http.Request request, Long userId) {
-        User loggedInUser = request.attrs().get(ActionState.USER);
-
-        // Returns all trips if requesting user is owner of trips or an admin
-        if (loggedInUser.admin || loggedInUser.id.equals(userId)) {
-            return tripRepository.getAllUserTrips(userId)
-                .thenApplyAsync(trips -> {
-                    Collections.sort(trips);
-                    try {
-                        return ok(sanitizeJson(Json.toJson(trips)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        } else {
-            return tripRepository.getAllPublicUserTrips(userId)
-                .thenApplyAsync(trips -> {
-                    Collections.sort(trips);
-                    try {
-                        return ok(sanitizeJson(Json.toJson(trips)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
-        }
-    }
-
-    /**
      * Gets all trips if user is admin, otherwise gets all public trips.
      *
      * @return JSON object with list of trips that a user has, bad request if user has no trips
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getAllTrips(Http.Request request,
-                                                Long userId,
-                                                String searchQuery,
-                                                Boolean ascending,
-                                                Integer pageNum,
-                                                Integer pageSize,
-                                                Integer requestOrder) {
+    public CompletableFuture<Result> getAllTrips(Http.Request request, Long userId,
+        String searchQuery, Boolean ascending, Integer pageNum, Integer pageSize,
+        Integer requestOrder) {
+
         User user = request.attrs().get(ActionState.USER);
-        
+
         // By default, only get public trips
         boolean getPrivate = false;
 
         // If user is admin, or getting their own trips, show all results not just public
-        if(user.admin || (userId != -1 && userId == user.id)) {
+        if (user.admin || userId.equals(user.id)) {
             getPrivate = true;
         }
 
-        return tripRepository.searchTrips(userId, user.id, searchQuery, ascending, pageNum, pageSize, getPrivate, userId == -1)
+        return tripRepository
+            .searchTrips(userId, user.id, searchQuery, ascending, pageNum, pageSize, getPrivate,
+                userId == -1)
             .thenApplyAsync(trips -> {
                 try {
                     return ok(sanitizeJson(Json.toJson(
-                        new PagingResponse<>(trips.getList(), requestOrder, trips.getTotalPageCount())
+                        new PagingResponse<>(trips.getList(), requestOrder,
+                            trips.getTotalPageCount())
                     )));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }});
+                }
+            });
     }
 
     /**
@@ -164,7 +131,7 @@ public class TripController extends TEABackController {
      * @return Returns trip id (as json) on success, otherwise bad request
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> updateTrip(Http.Request request) throws IOException {
+    public CompletableFuture<Result> updateTrip(Http.Request request) {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
 
@@ -184,30 +151,53 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
-        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
-        // Transfers ownership of destinations to master admin where necessary
-        transferDestinationsOwnership(trip.userId, trip.tripDataList);
+        try {
+            trip.tags = new HashSet<>(Arrays.asList(
+                Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()),
+                    Tag[].class)));
+        } catch (IOException ex) {
+            trip.tags = new HashSet<>();
+        }
 
-        // Update trip in db
-        return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
-            if (oldTrip == null) {
-                return CompletableFuture
-                    .supplyAsync(() -> notFound(Json.toJson("Trip with provided ID not found")));
-            } else {
-                return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
-                    userRepository.updateUsedTags(user, oldTrip, trip);
-                    trip.tags = existingTags;
-                    return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
-                        if (uploaded) {
-                            return ok(Json.toJson(trip.id));
-                        } else {
-                            return notFound();
-                        }
-                    });
+        // Validates all destinations are public in private trip
+        Set<Long> destinationIds = trip.tripDataList.stream()
+            .map(tripData -> tripData.destination.id).collect(Collectors.toSet());
+
+        return destinationRepository.getDestinationsById(destinationIds)
+            .thenComposeAsync(destinations -> {
+                ErrorResponse destinationValidationResult = new TripValidator(null)
+                    .validateDestinationPrivacy(trip.isPublic, destinations);
+
+                if (destinationValidationResult.error()) {
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(destinationValidationResult.toJson()));
+                }
+
+                // Transfers ownership of destinations to master admin where necessary
+                transferDestinationsOwnership(trip.userId, trip.tripDataList);
+
+                // Update trip in db
+                return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
+                    if (oldTrip == null) {
+                        return CompletableFuture
+                            .supplyAsync(
+                                () -> notFound(Json.toJson("Trip with provided ID not found")));
+                    } else {
+                        return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+                            userRepository.updateUsedTags(user, oldTrip, trip);
+                            trip.tags = existingTags;
+                            return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+                                if (uploaded) {
+                                    return ok(Json.toJson(trip.id));
+                                } else {
+                                    return notFound();
+                                }
+                            });
+                        });
+                    }
                 });
-            }
-        });
+            });
     }
 
     /**
@@ -241,6 +231,17 @@ public class TripController extends TEABackController {
             } else if (!user.admin && !user.id.equals(existingTrip.userId)) {
                 return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
             } else {
+                // Checks trip does not get made public with private destinations
+                List<Destination> destinations = existingTrip.tripDataList.stream()
+                    .map(tripData -> tripData.destination).collect(Collectors.toList());
+                ErrorResponse destinationValidationResult = new TripValidator(null)
+                    .validateDestinationPrivacy(updatedTrip.isPublic, destinations);
+
+                if (destinationValidationResult.error()) {
+                    return CompletableFuture.supplyAsync(() -> badRequest(
+                        Json.toJson("Trip cannot be public as it contains a private destination")));
+                }
+
                 // Update trip in db
                 return tripRepository.updateTrip(updatedTrip).thenApplyAsync(uploaded ->
                     ok(Json.toJson(existingTrip))
@@ -280,10 +281,9 @@ public class TripController extends TEABackController {
      *
      * @param request Request where body is a json object of trip
      * @return JSON object containing id of newly created trip
-     * @throws IOException Thrown by failure deserializing
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> insertTrip(Http.Request request) throws IOException {
+    public CompletableFuture<Result> insertTrip(Http.Request request) {
         // Get the data input by the user as a JSON object
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
@@ -301,17 +301,38 @@ public class TripController extends TEABackController {
         trip.userId = data.get("userId").asLong();
         trip.tripDataList = nodeToTripDataList(data, trip);
         trip.isPublic = data.get(IS_PUBLIC).asBoolean();
-        trip.tags = new HashSet<>(Arrays.asList(Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()), Tag[].class)));
 
-        // Transfers ownership of destinations to master admin where necessary
-        transferDestinationsOwnership(trip.userId, trip.tripDataList);
-        return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
-            userRepository.updateUsedTags(user, trip);
-            trip.tags = existingTags;
-            return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
-                ok(Json.toJson(tripId)));
-        });
+        try {
+            trip.tags = new HashSet<>(Arrays.asList(
+                Json.fromJson(new ObjectMapper().readTree(data.get("tags").toString()),
+                    Tag[].class)));
+        } catch (IOException ex) {
+            trip.tags = new HashSet<>();
+        }
 
+        // Validates all destinations are public in private trip
+        Set<Long> destinationIds = trip.tripDataList.stream()
+            .map(tripData -> tripData.destination.id).collect(Collectors.toSet());
+
+        return destinationRepository.getDestinationsById(destinationIds)
+            .thenComposeAsync(destinations -> {
+                ErrorResponse destinationValidationResult = new TripValidator(null)
+                    .validateDestinationPrivacy(trip.isPublic, destinations);
+
+                if (destinationValidationResult.error()) {
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(destinationValidationResult.toJson()));
+                }
+
+                // Transfers ownership of destinations to master admin where necessary
+                transferDestinationsOwnership(trip.userId, trip.tripDataList);
+                return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
+                    userRepository.updateUsedTags(user, trip);
+                    trip.tags = existingTags;
+                    return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
+                        ok(Json.toJson(tripId)));
+                });
+            });
     }
 
     /**
@@ -387,7 +408,6 @@ public class TripController extends TEABackController {
         return ok(
             JavaScriptReverseRouter.create("tripRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.TripController.deleteTrip(),
-                controllers.backend.routes.javascript.TripController.getAllUserTrips(),
                 controllers.frontend.routes.javascript.TripController.editTrip(),
                 controllers.backend.routes.javascript.TripController.getAllTrips(),
                 controllers.backend.routes.javascript.TripController.getTrip(),

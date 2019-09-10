@@ -6,17 +6,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
+import models.Destination;
 import models.TripData;
 
 /**
  * A class which validates Trip information.
  */
-public class TripValidator extends Validator{
+public class TripValidator extends Validator {
 
     private final JsonNode form;
 
     public TripValidator(JsonNode form) {
-        super(form,  new ErrorResponse());
+        super(form, new ErrorResponse());
         this.form = form;
     }
 
@@ -25,69 +27,74 @@ public class TripValidator extends Validator{
      *
      * @return ErrorResponse object
      */
-    public ErrorResponse validateTrip(boolean isUpdating) throws IOException {
+    public ErrorResponse validateTrip(boolean isUpdating) {
 
         // Validation for trip as a whole
         if (isUpdating) {
             this.required("id", "Trip Id");
         }
+
         this.required("userId", "User Id");
-        // Validation for trip privacy
         this.required("isPublic", "Privacy");
         this.requiredTags("tags", "Tags");
 
         // Validation for TripData objects
         // Now deserialize it to a list of trip data objects, and check each of these
         ObjectMapper mapper = new ObjectMapper();
-        ArrayList tripDataCollection = mapper
-            .readValue(mapper.treeAsTokens(this.form.get("tripDataList")),
-                new TypeReference<ArrayList<TripData>>() {
-                });
 
-        if (tripDataCollection.size() < 2) {
-            this.getErrorResponse().map("A trip must contain at least 2 destinations.", "trip");
-        }
+        try {
+            ArrayList tripDataCollection = mapper
+                .readValue(mapper.treeAsTokens(this.form.get("tripDataList")),
+                    new TypeReference<ArrayList<TripData>>() {
+                    });
 
-        Long lastDestinationID = 0L;
-        LocalDateTime mostRecentDateTime = null;
-
-        for (Object obj : tripDataCollection) {
-            TripData trip = (TripData) obj;
-
-            // Checks for destination errors
-            String errorString = checkDestinationData(trip, lastDestinationID);
-
-            // Checks for date/time errors
-            if (errorString.equals("")) {
-                errorString = checkArrivalDepartureData(trip, mostRecentDateTime);
+            if (tripDataCollection.size() < 2) {
+                this.getErrorResponse().map("A trip must contain at least 2 destinations.", "trip");
             }
 
-            // Checks for position errors
-            if (errorString.equals("") && trip.position == null) {
-                errorString = "Position of destination not found.";
-                trip.position = -1L;
-            }
+            Long lastDestinationID = 0L;
+            LocalDateTime mostRecentDateTime = null;
 
-            // Sets most recent date time value
-            if (trip.arrivalTime != null && (mostRecentDateTime == null || trip.arrivalTime
-                .isAfter(mostRecentDateTime))) {
-                mostRecentDateTime = trip.arrivalTime;
-            }
+            for (Object obj : tripDataCollection) {
+                TripData trip = (TripData) obj;
 
-            if (trip.departureTime != null && (mostRecentDateTime == null || trip.departureTime
-                .isAfter(mostRecentDateTime))) {
-                mostRecentDateTime = trip.departureTime;
-            }
+                // Checks for destination errors
+                String errorString = checkDestinationData(trip, lastDestinationID);
 
-            // Sets last destination ID value
-            if (trip.destination != null && trip.destination.id != null) {
-                lastDestinationID = trip.destination.id;
-            }
+                // Checks for date/time errors
+                if (errorString.equals("")) {
+                    errorString = checkArrivalDepartureData(trip, mostRecentDateTime);
+                }
 
-            // If any errors were added to string, add this to error response map
-            if (!errorString.equals("")) {
-                this.getErrorResponse().map(errorString, trip.position.toString());
+                // Checks for position errors
+                if (errorString.equals("") && trip.position == null) {
+                    errorString = "Position of destination not found.";
+                    trip.position = -1L;
+                }
+
+                // Sets most recent date time value
+                if (trip.arrivalTime != null && (mostRecentDateTime == null || trip.arrivalTime
+                    .isAfter(mostRecentDateTime))) {
+                    mostRecentDateTime = trip.arrivalTime;
+                }
+
+                if (trip.departureTime != null && (mostRecentDateTime == null || trip.departureTime
+                    .isAfter(mostRecentDateTime))) {
+                    mostRecentDateTime = trip.departureTime;
+                }
+
+                // Sets last destination ID value
+                if (trip.destination != null && trip.destination.id != null) {
+                    lastDestinationID = trip.destination.id;
+                }
+
+                // If any errors were added to string, add this to error response map
+                if (!errorString.equals("")) {
+                    this.getErrorResponse().map(errorString, trip.position.toString());
+                }
             }
+        } catch (IOException ex) {
+            this.getErrorResponse().map("Trip data could not be deserialized", "trip");
         }
 
         return this.getErrorResponse();
@@ -104,6 +111,27 @@ public class TripValidator extends Validator{
 
         // Validation for trip privacy
         this.required("isPublic", "Privacy");
+
+        return this.getErrorResponse();
+    }
+
+    /**
+     * Validates a trip is not public with private destinations
+     *
+     * @param isPublic Privacy of trip
+     * @param destinations List of destination objects in trip
+     * @return Error response containing error messages
+     */
+    public ErrorResponse validateDestinationPrivacy(boolean isPublic,
+        List<Destination> destinations) {
+        if (isPublic) {
+            for (int i = 0; i < destinations.size(); i++) {
+                if (!destinations.get(i).isPublic) {
+                    this.getErrorResponse().map("Public trip cannot have private destination.",
+                        Integer.toString(i + 1));
+                }
+            }
+        }
 
         return this.getErrorResponse();
     }

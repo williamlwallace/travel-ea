@@ -12,6 +12,7 @@ $(document).ready(function () {
     tripTagDisplay = new TagDisplay("trip-tag-display");
     getUserId().then(userId => {
         onPageLoad(userId);
+        $("#users-tab").click();
     });
 
     const errorRes = json => {
@@ -113,8 +114,6 @@ function createUserCard(user) {
     }
 
     const admin = (user.admin ? "True" : "False");
-    const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
-    const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
 
     $(clone).find("#card-thumbnail").attr("src",
         "/assets/images/default-profile-picture.jpg");
@@ -126,14 +125,7 @@ function createUserCard(user) {
     $(clone).find("#adminBtn").append(adminBtn);
     $(clone).find("#deleteBtn").append(deleteUser);
 
-    if (user.admin) {
-        $(clone).find("#card-thumbnail-div").css("padding-right", "0rem");
-        $(clone).find(".card-header").css("padding-right", "0rem");
-        $(clone).find("#card-thumbnail-div-body").html(adminIcon);
-    } else {
-        $(clone).find(".card-header").css("padding-right", "1.55rem");
-        $(clone).find("#card-thumbnail-div-body").html(nonAdminIcon);
-    }
+    setAdminIcon($(clone), user.admin);
 
     $("#userCardsList").get(0).appendChild(clone);
 }
@@ -165,10 +157,18 @@ function getUserResults() {
 
                     //Set click handler for toggle admin using data-id
                     $(".admin").click(event => {
+                        event.stopImmediatePropagation()
                         toggleAdmin(event.target, $(event.target).data().id);
                     });
                     $(".user-delete").click(event => {
+                        event.stopImmediatePropagation()
                         deleteUser(event.target, $(event.target).data().delete);
+                    });
+
+                    $(".user-card").click(event => {
+                        location.href = `/profile/${$(
+                            event.currentTarget).find(
+                            "#toggleAdminBtn").data().id}`;
                     });
                 }
             }
@@ -206,16 +206,16 @@ function toggleAdmin(button, id) {
             this.initialToggle = false;
         }
         if (status === 200) {
-            this.button.innerHTML = button.innerHTML.trim().startsWith('Revoke')
-                ? 'Grant admin' : 'Revoke admin';
+            const admin = $(this.button).html().trim().startsWith('Grant');
 
-            const adminLabel = $(button).closest('div').siblings("#admin");
+            $(this.button).html(!admin ? 'Grant admin' : 'Revoke admin');
+            
+            const adminLabel = $(this.button).closest('div').siblings("#admin");
             const adminIcon = "<em class=\"fas fa-user-shield\"\"></em>";
 
-            adminLabel.text(adminLabel.text() === "Admin: True" ? "Admin: False"
-                : "Admin: True");
+            adminLabel.text(!admin ? "Admin: False" : "Admin: True");
             adminLabel.html(adminIcon + adminLabel.text());
-
+            setAdminIcon($(this.button).closest('#inner-card'), admin);
         }
     }.bind({button, initialToggle});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
@@ -223,54 +223,24 @@ function toggleAdmin(button, id) {
 }
 
 /**
- * Inserts users into admin table
- *
- * @param {Object} json - data table object
+ * Sets the correct user icon if admin
+ * @param {object} card Jquery object of card
+ * @param {boolean} admin is user admin
  */
-function populateUsers(json) {
-    const rows = [];
-    for (const user in json) {
-        const id = json[user].id;
-        const username = json[user].username;
-        let admin = "Master";
-        let deleteUser = "Master";
-        if (id !== 1) {
-            admin = "<button class=\"btn btn-secondary\">"
-                + ((json[user].admin) ? "Revoke admin"
-                    : "Grant admin") + "</button>";
-            deleteUser = "<button class=\"btn btn-danger\">Delete</button>"
-        }
+function setAdminIcon(card, admin) {
+    const nonAdminIcon = "<em class=\"fas fa-user fa-8x\ style=\"vertical-align:middle\"></em>";
+    const adminIcon = "<em class=\"fas fa-user-shield fa-8x\ style=\"vertical-align:middle\"><em>";
 
-        rows.push([id, username, admin, deleteUser])
+    if (admin) {
+        card.find("#card-thumbnail-div").css("padding-right", "0rem");
+        card.find(".card-header").css("padding-right", "0rem");
+        card.find("#card-thumbnail-div-body").html(adminIcon);
+    } else {
+        card.find(".card-header").css("padding-right", "1.5rem");
+        card.find("#card-thumbnail-div-body").html(nonAdminIcon);
     }
-    return rows
 }
 
-/**
- * Insert trip data into table
- *
- * @param {Object} json - data table object
- */
-function populateTrips(json) {
-    const rows = [];
-    for (const trip in json) {
-        const id = json[trip].id;
-        const tripDataList = json[trip].tripDataList;
-        const startDest = tripDataList[0].destination.name;
-        const endDest = tripDataList[(tripDataList.length
-            - 1)].destination.name;
-        const tripLength = tripDataList.length;
-        const editURL = tripRouter.controllers.frontend.TripController.editTrip(
-            id).url;
-
-        let update = "<a href=\"" + editURL
-            + "\" class=\"btn btn-secondary\">Update</a>";
-        let removeTrip = "<button class=\"btn btn-danger\">Delete</button>";
-        rows.push([id, startDest, endDest, tripLength, update,
-            removeTrip]);
-    }
-    return rows;
-}
 let destPhoto;
 let photoId;
 

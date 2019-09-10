@@ -68,7 +68,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> addNewDestination(Http.Request request) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
-        System.out.println(data);
+
         // Sends the received data to the validator for checking, if error returns bad request
         ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(false);
         if (validatorResult.error()) {

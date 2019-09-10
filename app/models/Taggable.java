@@ -4,5 +4,5 @@ import java.util.Set;
 
 public interface Taggable {
 
-    public Set<Tag> getTagsList();
+    public Set<Tag> getTagsSet();
 }
