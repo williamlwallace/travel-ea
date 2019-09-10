@@ -1,13 +1,16 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
+import static play.mvc.Http.Status.OK;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.PagedList;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -17,6 +20,8 @@ import javax.inject.Singleton;
 import models.*;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
+import play.mvc.Http;
+import play.mvc.Result;
 
 /**
  * A repository that executes database operations for the News feed events table.

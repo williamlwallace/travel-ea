@@ -18,6 +18,7 @@ import models.Tag;
 import models.User;
 import models.NewsFeedEvent;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
@@ -30,8 +31,8 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
         applyEvolutions("test/destination/");
     }
 
-    @Before
-    public void instantiateRepository() {
+    @BeforeClass
+    public static void instantiateRepository() {
         newsFeedEventRepository = fakeApp.injector().instanceOf(NewsFeedEventRepository.class);
     }
 
@@ -39,7 +40,7 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
         assertEquals(Long.valueOf(1), newsFeedEvent.guid);
         assertEquals(Long.valueOf(1), newsFeedEvent.userId);
         assertEquals(null, newsFeedEvent.destId);
-        assertEquals("NEW_PROFILE_PHOTO", newsFeedEvent.type);
+        assertEquals("NEW_PROFILE_PHOTO", newsFeedEvent.eventType);
         assertEquals(Long.valueOf(1), newsFeedEvent.refId);
 
         return true;
@@ -52,7 +53,7 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
         NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
         newsFeedEvent.userId = 1L;
         newsFeedEvent.destId = 1L;
-        newsFeedEvent.type = "LINK_DESTINATION_PHOTO";
+        newsFeedEvent.eventType = "LINK_DESTINATION_PHOTO";
         newsFeedEvent.refId = 2L;
 
         return newsFeedEvent;
