@@ -32,7 +32,14 @@
 - You should now be viewing the TravelEA website
 - Login or sign up to use TravelEA
 
-## Admin credentials
+## Admin and Test User credentials
 To log on as the main administrator for TravelEA, use the following credentials:
-- Username: 'admin@travelea.co.nz'
-- Password: 'admin'
+- Username: `admin@travelea.co.nz`
+- Password: `admin`
+
+To log on as test users for TravelEA, use the following:
+- Username: `testUser@email.com`
+- Password: `admin`
+
+- Username: `testUser2@email.com`
+- Password: `admin`

@@ -272,7 +272,22 @@ CREATE TABLE IF NOT EXISTS UsedTag
     PRIMARY KEY (guid)
   );
 
+-- Specifies the news feed event table
+CREATE TABLE IF NOT EXISTS NewsFeedEvent
+  (
+    guid                    INT NOT NULL AUTO_INCREMENT,
+    event_type              VARCHAR(30) NOT NULL,
+    user_id                 INT,
+    dest_id                 INT,
+    ref_id                  INT,
+    created                 DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (dest_id) REFERENCES Destination(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
 -- !Downs
+DROP TABLE NewsFeedEvent;
 DROP TABLE UsedTag;
 DROP TABLE PhotoTag;
 DROP TABLE TripTag;

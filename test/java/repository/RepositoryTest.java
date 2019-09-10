@@ -69,8 +69,5 @@ public abstract class RepositoryTest extends WithApplication {
     public void cleanupEvolutions() {
         Evolutions.cleanupEvolutions(db);
     }
-
-    @Before
-    public abstract void instantiateRepository();
 }
 

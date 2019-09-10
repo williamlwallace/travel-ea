@@ -5,9 +5,11 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import models.NewsFeedEvent;
 import models.User;
 import models.enums.NewsFeedEventType;
@@ -21,8 +23,22 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import repository.NewsFeedEventRepository;
+import util.objects.PagingResponse;
 
 public class NewsFeedController extends TEABackController {
+
+    // Repository for interacting with NewsFeedEvents table
+    NewsFeedEventRepository newsFeedEventRepository;
+
+    /**
+     * Constructor to instantiate repository
+     * @param newsFeedEventRepository Repository for interacting with NewsFeedEvents table
+     */
+    @Inject
+    public NewsFeedController(NewsFeedEventRepository newsFeedEventRepository) {
+        this.newsFeedEventRepository = newsFeedEventRepository;
+    }
 
     /**
      * Endpoint to fetch all personal news feed items for the currently logged in user
@@ -38,21 +54,22 @@ public class NewsFeedController extends TEABackController {
         // Get the user who is currently logged in
         User loggedInUser = request.attrs().get(ActionState.USER);
 
-        // Create list to store all strategies so that they can all be completed in parallel
-        List<CompletableFuture<JsonNode>> completableStrategies = new ArrayList<>();
-        ArrayList<NewsFeedEvent> events = new ArrayList<>();
-        for(NewsFeedEvent event : events) { // TODO: Replace events with repo call
-            completableStrategies.add(getStrategyForEvent(event).execute());
-        }
-
-        // Execute strategies in parallel and return response
-        return CompletableFuture.supplyAsync(() ->
-            ok(Json.toJson(CompletableFuture.allOf(completableStrategies.toArray(
-                new CompletableFuture[0])).thenApply(v ->
-                completableStrategies.stream()
-                .map(CompletableFuture::join)
-                .collect(Collectors.toList()))
-            )));
+        // Perform repository call
+        return newsFeedEventRepository.getPagedEvents(
+            Collections.singletonList(loggedInUser.id), null, pageNum, pageSize)
+            .thenComposeAsync(events -> {
+                // Collect a list of the completable strategies created for each event
+                List<CompletableFuture<JsonNode>> completableStrategies = events.getList().stream()
+                    .map(x -> getStrategyForEvent(x).execute())
+                    .collect(Collectors.toList());
+                // Wait until all strategies have executed then return paging response
+                return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
+                .thenApplyAsync(v -> ok(Json.toJson(new PagingResponse<>(
+                    completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList()),
+                    requestOrder,
+                    events.getTotalPageCount()))));
+                }
+            );
     }
 
     /**
@@ -62,7 +79,7 @@ public class NewsFeedController extends TEABackController {
      * @return Strategy applicable to specific event
      */
     private NewsFeedStrategy getStrategyForEvent(NewsFeedEvent event) {
-        switch (NewsFeedEventType.valueOf(event.type)) {
+        switch (NewsFeedEventType.valueOf(event.eventType)) {
             case NEW_PROFILE_PHOTO:
                 return new NewProfilePhotoStrategy(event.refId, event.userId);
 

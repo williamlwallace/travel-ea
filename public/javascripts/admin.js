@@ -12,6 +12,7 @@ $(document).ready(function () {
     tripTagDisplay = new TagDisplay("trip-tag-display");
     getUserId().then(userId => {
         onPageLoad(userId);
+        $("#users-tab").click();
     });
 
     const errorRes = json => {

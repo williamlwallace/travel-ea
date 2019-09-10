@@ -13,7 +13,7 @@
 .parent {
     overflow: auto;
     min-height: 240px;
-    max-height:770px;
+    max-height:40rem;
 }
 
 /*
@@ -48,6 +48,7 @@
     overflow-y: scroll;
     height: -webkit-fill-available;
     overflow-x: hidden;
+    max-height: 40rem;
 }
 
 /*

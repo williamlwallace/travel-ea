@@ -55,8 +55,8 @@ public class User extends BaseModel {
      * @param newTaggable The new tagged object after this user's changes
      */
     public void updateUserTags(Taggable oldTaggable, Taggable newTaggable) {
-        Set<Tag> oldTags = oldTaggable.getTagsList();
-        Set<Tag> newTags = new HashSet<>(newTaggable.getTagsList());
+        Set<Tag> oldTags = oldTaggable.getTagsSet();
+        Set<Tag> newTags = new HashSet<>(newTaggable.getTagsSet());
 
         newTags.removeAll(oldTags);
 
@@ -84,7 +84,7 @@ public class User extends BaseModel {
      * @param taggable The tagged object
      */
     public void updateUserTags(Taggable taggable) {
-        Set<Tag> tags = taggable.getTagsList();
+        Set<Tag> tags = taggable.getTagsSet();
 
         for (UsedTag usedTag : usedTags) {
             if (tags.contains(usedTag.tag)) {
