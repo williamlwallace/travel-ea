@@ -73,6 +73,8 @@ PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backen
 
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
 
+PUT           /api/destination/:destId/follow        controllers.backend.DestinationController.toggleFollowerStatus(request:Request, destId:Long)
+
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)
