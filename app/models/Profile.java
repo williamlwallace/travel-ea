@@ -73,6 +73,9 @@ public class Profile extends Model {
     @ManyToOne(cascade = CascadeType.ALL)
     public Photo coverPhoto;
 
+    @ManyToMany(mappedBy = "")
+    public int followingCount;
+
     /**
      * Calculates age based on the birth date.
      *
