@@ -24,6 +24,13 @@ public enum NewsFeedEventType {
      * A new public picture has been uploaded by a user
      * reference ID = ID of photo
      */
-    UPLOADED_USER_PHOTO
+    UPLOADED_USER_PHOTO,
+
+    // Trip events
+    /**
+     * A new public trip has been created by a user
+     * reference ID = ID of trip just created
+     */
+    CREATED_NEW_TRIP
     ;
 }
