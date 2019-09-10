@@ -3,16 +3,22 @@ package models.strategies.photos.destination.concrete;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.strategies.photos.destination.DestinationPhotoStrategy;
+import repository.DestinationRepository;
+import repository.PhotoRepository;
 
 public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy {
 
     /**
-     * Constructor to instantiate an event for setting a new primary photo for a destination
+     * Constructor to instantiate an event involving setting new primary photo of destination
      * @param photoId ID of photo referenced in event
      * @param destinationId ID of destination referenced in event
+     * @param photoRepository Instance of photoRepository
+     * @param destinationRepository Instance of destinationRepository
      */
-    public NewPrimaryDestinationPhotoStrategy(Long photoId, Long destinationId) {
-        super(photoId, destinationId);
+    public NewPrimaryDestinationPhotoStrategy(Long photoId, Long destinationId,
+        PhotoRepository photoRepository,
+        DestinationRepository destinationRepository) {
+        super(photoId, destinationId, photoRepository, destinationRepository);
     }
 
     /**

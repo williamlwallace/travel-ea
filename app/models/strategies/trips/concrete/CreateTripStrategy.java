@@ -3,16 +3,21 @@ package models.strategies.trips.concrete;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.strategies.trips.TripStrategy;
+import repository.ProfileRepository;
+import repository.TripRepository;
 
 public class CreateTripStrategy extends TripStrategy {
 
     /**
-     * Constructor to call super class
-     * @param tripId ID of trip being referenced
-     * @param userId ID of user performing the event
+     * Constructor to instantiate both required fields
+     * @param tripId ID of trip the news feed event is about
+     * @param userId ID of the user who has performed the event
+     * @param profileRepository Instance of profileRepository
+     * @param tripRepository Instance of tripRepository
      */
-    public CreateTripStrategy(Long tripId, Long userId) {
-        super(tripId, userId);
+    public CreateTripStrategy(Long tripId, Long userId, ProfileRepository profileRepository,
+        TripRepository tripRepository) {
+        super(tripId, userId, profileRepository, tripRepository);
     }
 
     /**

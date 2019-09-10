@@ -3,16 +3,21 @@ package models.strategies.photos.user.concrete;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.strategies.photos.user.UserPhotoStrategy;
+import repository.PhotoRepository;
+import repository.ProfileRepository;
 
 public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
 
     /**
-     * Constructor to instantiate an event for some user uploading a new photo
-     * @param photoId ID of photo used for profile picture
-     * @param userId ID of user who updated their profile picture
+     * Constructor to instantiate an event involving a user uploading a new photo
+     * @param photoId ID of photo referenced in event
+     * @param userId ID of user referenced in event
+     * @param photoRepository Instance of photoRepository
+     * @param profileRepository Instance of profileRepository
      */
-    public UploadedUserPhotoStrategy(Long photoId, Long userId) {
-        super(photoId, userId);
+    public UploadedUserPhotoStrategy(Long photoId, Long userId,
+        PhotoRepository photoRepository, ProfileRepository profileRepository) {
+        super(photoId, userId, photoRepository, profileRepository);
     }
 
     /**

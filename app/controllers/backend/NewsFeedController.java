@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.NewsFeedEvent;
+import models.Photo;
 import models.User;
 import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
@@ -23,21 +24,41 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import repository.DestinationRepository;
 import repository.NewsFeedEventRepository;
+import repository.PhotoRepository;
+import repository.ProfileRepository;
+import repository.TripRepository;
 import util.objects.PagingResponse;
 
 public class NewsFeedController extends TEABackController {
 
     // Repository for interacting with NewsFeedEvents table
-    NewsFeedEventRepository newsFeedEventRepository;
+    private NewsFeedEventRepository newsFeedEventRepository;
+
+    // All other repositories required by strategies (they get injected here then passed down)
+    DestinationRepository destinationRepository;
+    ProfileRepository profileRepository;
+    TripRepository tripRepository;
+    PhotoRepository photoRepository;
 
     /**
-     * Constructor to instantiate repository
-     * @param newsFeedEventRepository Repository for interacting with NewsFeedEvents table
+     *  Constructor which handles injecting of all needed dependencies
+     * @param newsFeedEventRepository Instance of NewsFeedRepository
+     * @param destinationRepository Instance of DestinationRepository
+     * @param profileRepository Instance of ProfileRepository
+     * @param tripRepository Instance of TripRepository
+     * @param photoRepository Instance of PhotoRepository
      */
     @Inject
-    public NewsFeedController(NewsFeedEventRepository newsFeedEventRepository) {
+    public NewsFeedController(NewsFeedEventRepository newsFeedEventRepository,
+        DestinationRepository destinationRepository, ProfileRepository profileRepository,
+        TripRepository tripRepository, PhotoRepository photoRepository) {
         this.newsFeedEventRepository = newsFeedEventRepository;
+        this.destinationRepository = destinationRepository;
+        this.profileRepository = profileRepository;
+        this.tripRepository = tripRepository;
+        this.photoRepository = photoRepository;
     }
 
     /**
@@ -81,16 +102,16 @@ public class NewsFeedController extends TEABackController {
     private NewsFeedStrategy getStrategyForEvent(NewsFeedEvent event) {
         switch (NewsFeedEventType.valueOf(event.eventType)) {
             case NEW_PROFILE_PHOTO:
-                return new NewProfilePhotoStrategy(event.refId, event.userId);
+                return new NewProfilePhotoStrategy(event.refId, event.userId, photoRepository,profileRepository);
 
             case UPLOADED_USER_PHOTO:
-                return new UploadedUserPhotoStrategy(event.refId, event.userId);
+                return new UploadedUserPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
             case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId);
+                return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
 
             case NEW_PRIMARY_DESTINATION_PHOTO:
-                return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId);
+                return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
 
             default:
                 throw new NotImplementedException("Event type to specified in strategy pattern selector.");

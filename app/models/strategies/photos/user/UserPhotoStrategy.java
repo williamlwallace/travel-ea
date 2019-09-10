@@ -1,9 +1,12 @@
 package models.strategies.photos.user;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import models.Profile;
 import models.strategies.photos.PhotoStrategy;
+import repository.PhotoRepository;
 import repository.ProfileRepository;
 
 public abstract class UserPhotoStrategy extends PhotoStrategy {
@@ -11,17 +14,19 @@ public abstract class UserPhotoStrategy extends PhotoStrategy {
     private Long userId;
 
     // Reference to profile repo singleton for fetching profile data
-    @Inject
     private ProfileRepository profileRepository;
 
     /**
-     * Constructor to instantiate an event involving some photo and some destination
+     * Constructor to instantiate an event involving some photo and some user
      * @param photoId ID of photo referenced in event
      * @param userId ID of user referenced in event
+     * @param photoRepository Instance of photoRepository
+     * @param profileRepository Instance of profileRepository
      */
-    public UserPhotoStrategy(Long photoId, Long userId) {
-        super(photoId);
+    public UserPhotoStrategy(Long photoId, Long userId, PhotoRepository photoRepository, ProfileRepository profileRepository) {
+        super(photoId, photoRepository);
         this.userId = userId;
+        this.profileRepository = profileRepository;
     }
 
     /**
