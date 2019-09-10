@@ -71,9 +71,13 @@ public class NewsFeedEventRepository {
     }
 
     /**
-     * Gets all the profiles in the database except the given user id.
-     *
-     * @return A list of all profiles
+     * Gets all the events in a pgaed fashion. Can filter by user or destination ids.
+     * 
+     * @param userIds list of users to filter by, null for no filtering
+     * @param destIds List of destinations to filter by, null for no filtering
+     * @param pageNum page number
+     * @param pageSize length of page
+     * @return List of Events
      */
     public CompletableFuture<PagedList<NewsFeedEvent>> getPagedEvents(List<Long> userIds, // Possibly null
         List<Long> destIds,
