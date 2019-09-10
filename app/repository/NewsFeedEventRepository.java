@@ -91,16 +91,21 @@ public class NewsFeedEventRepository {
                     .where()
                     .or(
                         Expr.in("t0.user_id", userIdsNotNull),
-                        (userIds == null) ? SQL_TRUE : SQL_FALSE
+                        (userIds != null && destIds == null) ? SQL_FALSE : SQL_TRUE
                     ).endOr()
                     // Filter nationalities by given traveller type ids, only if some were given
                     .or(
                         Expr.in("t0.dest_id", destIdsNotNull),
-                        (destIds == null) ? SQL_TRUE : SQL_FALSE
-                    ).endOr();
-
+                        (destIds != null && userIds == null) ? SQL_FALSE : SQL_TRUE
+                    ).endOr()
+                    .or()
+                        .in("t0.dest_id", destIdsNotNull)
+                        .in("t0.user_id", userIdsNotNull)
+                        .raw((destIds != null && userIds != null) ? "false" : "true")
+                    .endOr();
+                    
             // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
-            PagedList<NewsFeedEvent> events = eventsExprList.orderBy("time desc")
+            PagedList<NewsFeedEvent> events = eventsExprList.orderBy("created desc")
             .setFirstRow((pageNum - 1) * pageSize)
             .setMaxRows(pageSize)
             .findPagedList();

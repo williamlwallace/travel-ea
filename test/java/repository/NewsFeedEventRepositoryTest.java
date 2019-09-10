@@ -96,8 +96,31 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
         PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(users, null, 1, 10).join();
         assertEquals(2, eventFeed.getList().size());
         for (NewsFeedEvent event : eventFeed.getList()) {
-           assertEquals(Long.valueOf(1), event.userId);
+           assertEquals(Long.valueOf(2), event.userId);
         }
+    }
+
+    @Test
+    public void destEventFeed() {
+        List<Long> trips = new ArrayList<Long>();
+        trips.add(2L);
+        PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(null, trips, 1, 10).join();
+        assertEquals(1, eventFeed.getList().size());
+        for (NewsFeedEvent event : eventFeed.getList()) {
+           assertEquals(Long.valueOf(2), event.destId);
+        }
+    }
+
+    @Test
+    public void homeEventFeed() {
+        List<Long> dests = new ArrayList<Long>();
+        dests.add(2L);
+        List<Long> users = new ArrayList<Long>();
+        users.add(2L);
+        users.add(1L);
+        PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(users, dests, 1, 10).join();
+        assertEquals(3, eventFeed.getList().size());
+        assertTrue(checkFirstEvent(eventFeed.getList().get(2)));
     }
 
     @Test
