@@ -87,7 +87,7 @@ public class Photo extends Model implements Taggable {
      * @return a list of Tags
      */
     @JsonIgnore
-    public Set<Tag> getTagsList() {
+    public Set<Tag> getTagsSet() {
         return tags;
     }
 
