@@ -2,6 +2,8 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,10 +32,8 @@ public class NewsFeedEvent extends BaseModel {
 
     public Long destId;
 
-    @Constraints.Required
     public Long refId;
 
-    @Constraints.Required
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime time;
 }
