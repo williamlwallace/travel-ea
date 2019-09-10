@@ -1,6 +1,4 @@
 .filterButton {
-    margin-bottom: 10px;
-    float:right;
     display:block;
 }
 
@@ -53,7 +51,7 @@ div.profile-main {
  * Text paragraph styling
  */
 p {
-    font-family: 'Roboto', sans-serif;
+
     font-size: 20px;
     font-weight: 400;
 }
@@ -62,7 +60,6 @@ p {
  * Section titles
  */
 p.heading {
-    font-family: 'Roboto', sans-serif;
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 2px;
@@ -313,10 +310,10 @@ section#timeline article:nth-child(2n+2) div.inner h2:after {
     left: -5px;
 }
 section#timeline article:nth-child(n) div.inner h2 {
-    background: #5283B7;
+    background: #107DF1;
 }
 section#timeline article:nth-child(n) div.inner h2:after {
-    background: #5283B7;
+    background: #107DF1;
 }
 section#timeline a {
     color: #FFFFFF;
@@ -336,6 +333,46 @@ section#timeline a {
     padding: 5px;
     border-radius: 5px;
 }
+
 .edit-button:hover {
     color: #000000 !important;
+}
+
+/* Tab panel buttons */
+.profile-nav{display:block;padding:0 1.5rem 0;color: #000000;}
+.profile-nav:focus,.profile-nav:hover{text-decoration:none}
+.profile-nav.active{border-bottom: 1px solid #495057;}
+.profile-nav:hover{color:#495057}
+.profile-nav{margin-bottom:2rem}
+.profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
+.profile-nav-text{font-weight: 600; font-size: 22px}
+
+
+.tab-buttons {
+    padding: 0 2.5rem 0 1.5rem;
+}
+
+#tripCardsList {
+    padding: 40px 2.5rem 40px 1.5rem;
+    min-height: 76%;
+}
+
+#closeButton {
+    float: left;
+}
+
+#applyButton {
+    float: right;
+}
+
+#filterItemDiv {
+    margin: 0 5px 10px 5px;
+}
+
+.tripsCollapse {
+    padding: 0 1.5rem;
+}
+
+.tripsFilterCard {
+    max-width: 36rem;
 }

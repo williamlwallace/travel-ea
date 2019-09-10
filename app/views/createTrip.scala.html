@@ -183,12 +183,6 @@
                     </div>
                 </div>
                 @* The destinations cards *@
-                <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-destinations pt-3">
-                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                    </ul>
-                </nav>
                 @modules.destinationCards()
                 <div id="destinationCardList"></div>
                 <nav aria-label="Page navigation">
@@ -259,6 +253,11 @@
         onPageLoad(@ownerId);
         getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
         const createTripTagPicker = new TagPicker(@user.id, "create-trip-tag");
+        if (@trip.tags.size() != 0) {
+            @for(i <- trip.getTagsList().indices) {
+                createTripTagPicker.insertTag("@trip.getTagsList()(i).name");
+            }
+        }
         $( function() {
             $( "#list" ).disableSelection().sortable({
                 scroll: true,

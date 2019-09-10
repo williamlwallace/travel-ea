@@ -1,12 +1,11 @@
 -- !Ups
 
 -- Add countries
-INSERT INTO CountryDefinition (id, name) VALUES
-(1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
+INSERT INTO CountryDefinition (id, name) VALUES (1, 'Russian Federation'),(2, 'Finland'),(3, 'Kazakhstan');
 
 INSERT INTO CountryDefinition (id, name) VALUES (496, 'Mongolia');
 
---Add traveller types for testing
+-- Add traveller types for testing
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Test TravellerType 1');
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Backpacker');
 INSERT INTO TravellerTypeDefinition (description) VALUES ('Ollie');
@@ -66,7 +65,12 @@ INSERT INTO TripData (trip_id, position, destination_id, arrival_time, departure
 INSERT INTO Tag (name) VALUES ('NZ'), ('sports'), ('music');
 INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (2, 4), (3, 1);
 
+INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id) VALUES (1, null, 'NEW_PROFILE_PHOTO', 1);
+INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id) VALUES (2, null, 'NEW_PROFILE_PHOTO', 2);
+INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id) VALUES (2, 2, 'LINK_DESTINATION_PHOTO', 3);
+
 -- !Downs
+DELETE FROM NewsFeedEvent;
 DELETE FROM UsedTag;
 DELETE FROM PhotoTag;
 DELETE FROM TripTag;
