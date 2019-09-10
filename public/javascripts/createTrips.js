@@ -43,9 +43,9 @@ function createDestinationCards(dests) {
         if (dest.primaryPhoto) {
             $(clone).find("#card-thumbnail").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
         }
-        $(clone).find("#district").append("District: " + dest.district);
-        $(clone).find("#country").append("Country: " + dest.country.name);
-        $(clone).find("#destType").append("Type: " + dest.destType);
+        $(clone).find("#district").append(dest.district ? dest.district : "No district");
+        $(clone).find("#country").append(dest.country.name);
+        $(clone).find("#destType").append(dest.destType ? dest.destType : "No type");
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
         $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
 
@@ -72,8 +72,8 @@ function createDestinationCards(dests) {
         });
         travellerTypes = travellerTypes.slice(0, -2);
 
-        $(clone).find("#travellerTypes").append("Traveller Types: " + travellerTypes);
-        $(clone).find("#tags").append("Tags: " + tags);
+        $(clone).find("#travellerTypes").append(travellerTypes ? travellerTypes : "No traveller types");
+        $(clone).find("#tags").append(tags ? tags : "No tags");
 
         $("#destinationCardList").get(0).appendChild(clone);
     });

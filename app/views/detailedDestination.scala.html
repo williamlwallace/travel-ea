@@ -129,23 +129,44 @@
                 </div>
             </div>
             <div class="col-12 col-md-8">
+
                 @* Body Content *@
                 <div class="destination-main">
                     <div>
-                        <div class="section-title">
-                            <p>
-                            <span class="section-title" style="padding-right: 15px">Destination Photos</span>
-                            <select name="tagFilter" id="tagFilter"  data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
-                            <a class="button-secondary" id="upload-gallery-image-button" >
-                                <span class="destination-button" style="float: right; padding-left:10px;">Link Photo</span>
-                            </a>
-                            <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
-                            accept="image/jpeg, image/png" style="display: none;" multiple/>
-                            </p>
+                        @* Tabs *@
+                        <ul class="nav" id="dest-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="dest-nav" id="feed-tab" data-toggle="tab" href="#feed" role="tab" aria-controls="feed"><p><span class="dest-nav-text">Feed</span></p></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="dest-nav" id="photos-tab" data-toggle="tab" href="#photos" role="tab" aria-controls="photos"><p><span class="dest-nav-text">Photos</span></p></a>
+                            </li>
+                        </ul>
+
+                            <!-- Tab Panes -->
+                        <div class="tab-content">
+
+                                <!-- News Feed Tab -->
+                            <div class="tab-pane" id="feed" role="tabpanel" aria-labelledby="feed-tab">
+                                <div class="text-center">
+                                    <p>Nothing in the news feed!</p>
+                                </div>
+                            </div>
+
+                                <!-- Photo Tab -->
+                            <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
+                                <div class="tab-buttons">
+                                    <select name="tagFilter" id="tagFilter"  data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                                    <a class="button-secondary" id="upload-gallery-image-button" >
+                                        <span class="destination-button" style="float: right; padding-left:10px;">Link Photo</span>
+                                    </a>
+                                    <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto("@controllers.backend.routes.PhotoController.upload()")'
+                                    accept="image/jpeg, image/png" style="display: none;" multiple/>
+                                </div>
+                                    <!-- Call gallery modal, true indicating we want title -->
+                                @modules.gallery(false, false, "main-gallery", "page-selection", false, "destination-photos-pagination")
+                            </div>
                         </div>
-                        @* Photo Gallery *
-                        @*Gallery modal, false as we want no titles and no add photo button*@
-                        @modules.gallery(false, false, "main-gallery", "page-selection", false, "destination-photos-pagination")
                     </div>
                 </div>
             </div>

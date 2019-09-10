@@ -13,7 +13,26 @@ $(document).ready(function() {
     profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
     mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
-    profileLoadTrips()
+    profileLoadTrips();
+    $("#feed-tab").click();
+});
+
+/**
+ * On click handler to change tab panel on profile page
+ */
+$('#profile-tabs a').on('click', function(event) {
+    event.preventDefault();
+    $(this).tab('show');
+    let activeTab = $('#profile-tabs a.active').attr('id');
+    if (activeTab === "photos-tab") {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $("#main-gallery").offset().top
+        }, 500);
+    } else if (activeTab === "trips-tab") {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $("#tripCardsList").offset().top
+        }, 500);
+    }
 });
 
 /**
@@ -64,22 +83,34 @@ function fillProfileData(email) {
                 arrayToCountryString(profile.nationalities, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
-                    document.getElementById(
-                        "summary_nationalities").innerHTML = out;
+                    const nationalities = out.split(",");
+                    for (let i=0; i < nationalities.length; i++) {
+                        document.getElementById(
+                            "summary_nationalities").innerHTML += '<li>' + nationalities[i].trim() + '</li>';
+                    }
                 });
                 arrayToCountryString(profile.passports, 'name',
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
                     // If passports were cleared, update html text to None: Fix for Issue #36
-                    document.getElementById("summary_passports").innerHTML = out
-                    === ""
-                        ? "None" : out;
+                    if (out === "") {
+                        document.getElementById("summary_passports").innerHTML = "None"
+                    } else {
+                        const passports = out.split(",");
+                        for (let i=0; i < passports.length; i++) {
+                            document.getElementById(
+                                "summary_passports").innerHTML += '<li>' + passports[i].trim() + '</li>';
+                        }
+                    }
                 });
                 arrayToString(profile.travellerTypes, 'description',
                     profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
                 .then(out => {
-                    document.getElementById(
-                        "summary_travellerTypes").innerHTML = out;
+                    const travellerTypes = out.split(",");
+                    for (let i=0; i < travellerTypes.length; i++) {
+                        document.getElementById(
+                            "summary_travellerTypes").innerHTML += '<li>' + travellerTypes[i].trim() + '</li>';
+                    }
                 });
             }
         })

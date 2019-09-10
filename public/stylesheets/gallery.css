@@ -26,6 +26,10 @@
     max-height: 500px;
 }
 
+#main-gallery, #cover-photo-gallery {
+    min-height: 72%
+}
+
 #caption,
 #update-caption,
 #update-tags,
@@ -34,3 +38,20 @@
     max-height:40px;
 }
 
+.img-wrap #editPhoto {
+    position: absolute;
+    right: 0;
+    z-index: 100;
+    cursor: pointer;
+    color: grey !important;
+    background-color: white;
+    margin: 5px 20px;
+}
+
+#editPhoto:hover {
+    color: #000000 !important;
+}
+
+.no-photos {
+    padding: 150px;
+}

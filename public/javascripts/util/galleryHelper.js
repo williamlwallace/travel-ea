@@ -315,11 +315,8 @@ function createGalleryObjects(hasFullSizeLinks, pageHelper, withLinkButton = fal
 
             }
             if (canDelete === true) {
-                // Create delete button
-                // const deleteButton = createDeleteButton();
-                // tile.appendChild(deleteButton);
-                const editCaptionButton = createEditButton();
-                tile.appendChild(editCaptionButton)
+                const editPhotoButton = createEditButton();
+                tile.appendChild(editPhotoButton)
 
             }
 
@@ -417,13 +414,13 @@ function createLinkButton(isLinked, guid, destinationId) {
  * @returns {HTMLElement}
  */
 function createEditButton() {
-    const editCaptionButton = document.createElement("span");
-    const editCaptionIcon = document.createElement("i");
-    editCaptionButton.setAttribute("id", "editCaption");
-    editCaptionButton.setAttribute("class", "close");
-    editCaptionIcon.setAttribute("class", "fas fa-pen fa-1x");
-    editCaptionButton.appendChild(editCaptionIcon);
-    return editCaptionButton;
+    const editPhotoButton = document.createElement("span");
+    const editPhotoIcon = document.createElement("i");
+    editPhotoButton.setAttribute("id", "editPhoto");
+    editPhotoButton.setAttribute("class", "close");
+    editPhotoIcon.setAttribute("class", "fas fa-pen fa-1x");
+    editPhotoButton.appendChild(editPhotoIcon);
+    return editPhotoButton;
 }
 
 /**
@@ -449,7 +446,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
             populateEditPhoto(guid, filename);
         });
     } else {
-        $(galleryId).html("There are no photos!");
+        $(galleryId).html("<p class='no-photos'>There are no photos!</p>");
     }
 }
 
@@ -505,6 +502,6 @@ $('#upload-gallery-image-file').on('change', function handleImage(e) {
 /**
  * Opens edit photo modal when clicking on edit icon in photo thumbnail
  */
-$('#editCaption').on('click', function () {
+$('#editPhoto').on('click', function () {
     $('#upload-modal').show();
 });
