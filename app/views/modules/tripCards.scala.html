@@ -1,7 +1,7 @@
 <template id="tripCardTemplate">
-    <div id="card" class="card" style="cursor: pointer">
-        <div id="inner-card" class="card flex-row">
-            <div id ="card-thumbnail-div">
+    <div id="card-trips" class="card" style="cursor: pointer">
+        <div id="inner-card-trips" class="card flex-row">
+            <div id ="card-thumbnail-div-trips">
 
             </div>
             <div class="card-body font-weight-bold" id="card-body">
@@ -20,10 +20,10 @@
                 </div>
                 <span class="underline" style="margin-bottom: 1rem;"></span>
                 <p class="card-text" id="destinations">
-                    <i class="fas fa-route" style="padding-right: 3px"></i>
+                    <i class="fas fa-route" data-toggle="tooltip" data-placement="top" title="Number of destinations" style="padding-right: 3px"></i>
                 </p>
                 <p class="card-text" id="date">
-                    <i class="fas fa-calendar-alt" style="padding-right: 3px"></i>
+                    <i class="fas fa-calendar-alt" data-toggle="tooltip" data-placement="top" title="Date" style="padding-right: 3px"></i>
                 </p>
             </div>
         </div>

@@ -89,8 +89,8 @@ function createTripCard(trip) {
 
     $(clone).find("#start-location").append(startDestination);
     $(clone).find("#end-location").append(endDestination);
-    $(clone).find("#destinations").append("No. of Destinations: " + tripLength);
-    $(clone).find("#date").append("Date: " + firstDate);
+    $(clone).find("#destinations").append(tripLength + " destinations");
+    $(clone).find("#date").append(firstDate);
     $(clone).find(".title").attr("data-id", trip.id.toString());
 
     $("#tripCardsList").get(0).appendChild(clone);
@@ -105,7 +105,7 @@ let i = 0; // Global counter for carousel data-id
  * @param trip is the trip data
  */
 function initCarousel(clone, trip) {
-    $(clone).find("#card-thumbnail-div").append(
+    $(clone).find("#card-thumbnail-div-trips").append(
         `<div id=tripCarousel-${i} class="carousel slide carousel-fade" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class=carousel-inner data-id=carousel-inner-${i}></div></div>`
     );
     let photo = null;
@@ -138,12 +138,13 @@ function initCarousel(clone, trip) {
                 <span class=carousel-control-prev-icon aria-hidden=true></span>
                 <span class=sr-only>Previous</span>
                 </a>
-                <a class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
+                <a id=next-button class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
                 <span class=carousel-control-next-icon aria-hidden=true></span>
                 <span class=sr-only>Next</span>
                 </a>`
             );
         }
+        $('#next-button').click()
     }
     i++;
 }

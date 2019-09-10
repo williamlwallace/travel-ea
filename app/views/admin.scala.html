@@ -15,6 +15,7 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/admin.css")">
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/profile.css")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/tripCards.css")">
 
     <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
         @* Tabs *@
@@ -85,74 +86,68 @@
 
             <div class="tab-pane" id="trips" role="tabpanel" aria-labelledby="trips-tab">
                 @* Trip Table *@
-                <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
-                    <label class="error-messages" id="adminError"></label>
-                    <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
-                    aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
+                <label class="error-messages" id="adminError"></label>
+                <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
+                aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
 
-                    @* The Trips Table *@
-                    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
+                @* The Trips Table *@
+                <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
-                    <div class="tripsCollapse collapse" id="collapseExample">
-                        <div class="card card-body" id="card-body">
-                            <div class="row">
-                                <div id="filterItemDiv">
-                                    <label for="tripPageSize">Results per page</label>
-                                    <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" required/>
-                                </div>
-                                <div id="filterItemDiv">
-                                    <label for="tripSearch">Search</label>
-                                    <input type=text id="tripSearch" class="form-control"/>
-                                </div>
-                                <div id="filterItemDiv">
-                                    <label for="tripAscending">Order by</label>
-                                    <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
-                                        <option value="true">Ascending</option>
-                                        <option value="false">Descending</option>
-                                    </select>
-                                </div>
+                <div class="tripsCollapse collapse" id="collapseExample">
+                    <div class="card card-body" id="card-body">
+                        <div class="row">
+                            <div id="filterItemDiv">
+                                <label for="tripPageSize">Results per page</label>
+                                <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" required/>
                             </div>
-                            <div class="text-center" id="buttonDiv">
-                                <div id="closeButton">
-                                    <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
-                                </div>
-                                <div id="applyButton">
-                                    <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
-                                    <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
-                                </div>
+                            <div id="filterItemDiv">
+                                <label for="tripSearch">Search</label>
+                                <input type=text id="tripSearch" class="form-control"/>
+                            </div>
+                            <div id="filterItemDiv">
+                                <label for="tripAscending">Order by</label>
+                                <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
+                                    <option value="true">Ascending</option>
+                                    <option value="false">Descending</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center" id="buttonDiv">
+                            <div id="closeButton">
+                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                            </div>
+                            <div id="applyButton">
+                                <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                                <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    @modules.tripCards()
+                @modules.tripCards()
 
-                    <div id="tripCardsList"></div>
-                    </div>
+                <div id="tripCardsList"></div>
             </div>
 
             <div class="tab-pane" id="requests" role="tabpanel" aria-labelledby="requests-tab">
 
-                @* Destination Modification Table *@
-                <div class="col-xl-8 offset-xl-2 col-lg-10 offset-lg-1">
-                    <label class="error-messages" id="adminError"></label>
-                    <table id="dtTravellerTypeModifications" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                        <thead>
-                            <tr>
-                                <th class="th-sm">Destination Id</th>
-                                <th class="th-sm">Name</th>
-                                <th class="th-sm">Modification</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                    <div class="col-md-11">
-                    </div>
+            @* Destination Modification Table *@
+                <label class="error-messages" id="adminError"></label>
+                <table id="dtTravellerTypeModifications" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="th-sm">Destination Id</th>
+                            <th class="th-sm">Name</th>
+                            <th class="th-sm">Modification</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="col-md-11">
                 </div>
-
-                @modules.tripModal()
-
             </div>
+            @modules.tripModal()
         </div>
 
         @* Destination traveller type modification request modal *@

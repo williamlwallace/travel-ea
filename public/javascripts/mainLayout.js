@@ -14,11 +14,3 @@ $(document).ready(function () {
         }
     });
 });
-
-// $('.collapse').on('show.bs.collapse', function () {
-//     $('#navbar').css('background-color', 'rgba(0,0,0,.5)');
-// });
-//
-// $('.collapse').on('hide.bs.collapse', function () {
-//     $('#navbar').css('background-color', 'transparent');
-// });
