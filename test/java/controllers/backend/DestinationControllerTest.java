@@ -863,7 +863,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     public void unfollowDestinationValid() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
-            .cookie(adminAuthCookie)
+            .cookie(nonAdminAuthCookie)
             .uri(DEST_URL_SLASH + "9/follow");
 
         Result result = route(fakeApp, request);
