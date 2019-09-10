@@ -154,9 +154,9 @@ function createDestinationCards(dests) {
         $(clone).find("#country").append(dest.country.name);
         $(clone).find("#destType").append(dest.destType ? dest.destType : "No type");
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
-        $(clone).find("#card-header").attr("id", dest.id.toString());
+        $(clone).find("#card-header").attr("id", "destinationCard-" + dest.id.toString());
 
-        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
+        $($(clone).find('#destinationCard-' + dest.id.toString())).click(function () {
             location.href = '/destinations/' + $(this).data().id;
         });
 
