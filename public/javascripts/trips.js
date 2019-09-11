@@ -240,6 +240,17 @@ function createTimeline(trip) {
             });
         }
 
+        $("#copy-href").remove();
+        if (trip.userId !== currentUserId) {
+            const copyButton = $(
+                "<a id=\"copy-href\" href=\"\"><button id=\"copyTrip\" type=\"button\" class=\"btn btn-primary\">Copy This Trip</button></a>");
+            $("#copy-trip-wrapper").append(copyButton);
+
+            // $('#copy-href').attr("href",
+            //     tripRouter.controllers.frontend.TripController.copyTrip(
+            //         trip.id).url);
+        }
+
         const promises = [];
         for (let dest of trip.tripDataList) {
             promises.push(checkCountryValidity(dest.destination.country.name,
@@ -317,6 +328,10 @@ function deleteTrip(tripId, userId) {
     }.bind({initialDelete});
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+function copyTrip(tipId, userId) {
+
 }
 
 /**
