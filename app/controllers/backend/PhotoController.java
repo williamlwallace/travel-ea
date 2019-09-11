@@ -652,9 +652,10 @@ public class PhotoController extends TEABackController {
         Long currentUserId = user.id;
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
             Photo existingPhoto = photo;
-            Boolean oldStatus = existingPhoto.isPublic;
+            Boolean oldStatus;
             if (photo != null) {
                 photo.isPublic = !photo.isPublic;
+                oldStatus = existingPhoto.isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
