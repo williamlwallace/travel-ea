@@ -376,3 +376,8 @@ section#timeline a {
 .tripsFilterCard {
     max-width: 36rem;
 }
+
+#follow-btn-parent {
+    margin-left: auto;
+}
+

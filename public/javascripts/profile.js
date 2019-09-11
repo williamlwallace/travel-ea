@@ -573,3 +573,44 @@ function getProfilePicturesForGallery() {
     url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
     fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
 }
+
+let following = true; // delete
+
+/**
+ * Sets the follow button depending if you follow this user or not
+ */
+function loadFollowBtn() {
+    // const following = true; // Change to api call
+    const profileId = window.location.href.split("/").pop();
+    getUserId().then(userId => {
+        if (userId !== profileId) {
+            let followBtn =
+                "<button id=\"follow-btn\" class=\"btn btn-primary\" onclick=\"followToggle()\">\n"
+                + "<i class=\"fas fa-user-friends\"></i>  Follow\n"
+                + "</button>\n";
+
+            let followingBtn =
+                "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle()\">\n"
+                + "Following  <i class=\"fas fa-check\"></i>\n"
+                + "</button>";
+
+            if (following) {
+                $('#follow-btn-parent').html(followingBtn);
+            } else {
+                $('#follow-btn-parent').html(followBtn);
+            }
+        }
+    });
+}
+
+/**
+ * Follow/Unfollow a user
+ */
+function followToggle() {
+    const userId = getUserId();
+    const profileId = window.location.href.split("/").pop();
+
+    // api call to toggle follow (remember undo/redo)
+
+    loadFollowBtn();
+}

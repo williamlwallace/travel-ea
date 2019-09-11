@@ -156,6 +156,8 @@ pre {
     font-size: 7rem;
     opacity: 1;
     text-shadow: 2px 2px 7px #0000008a;
+    line-height: 1.9;
+    margin-bottom:0; /* might fuck something up */
 }
 
 .title-text-wrap {
@@ -366,4 +368,29 @@ pre {
 
 .control-label {
     margin-bottom: 5px;
+}
+
+.follow-div {
+    display: inline-block;
+    margin-left:10px;
+    margin-right:10px;
+}
+
+.follow-count {
+    font-size: 3rem;
+    margin-bottom: 0;
+    line-height:0.8;
+}
+
+.follow-label {
+    font-size: 0.85rem;
+    display: block;
+}
+
+.follow-line {
+    width:1px;
+    height: 60px;
+    border-left: 1px solid rgb(255, 255, 255);
+    display: inline-block;
+    box-shadow: 2px 2px 7px #0000008a;
 }
