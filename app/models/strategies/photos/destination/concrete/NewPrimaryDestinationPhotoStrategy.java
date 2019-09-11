@@ -30,7 +30,7 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
     public CompletableFuture<NewsFeedResponseItem> execute() {
         return getReferencedDestinationAsync().thenComposeAsync(destination ->
             getReferencedPhotoAsync().thenApplyAsync(photo ->
-                new NewsFeedResponseItem(String.format("A new photo has been linked to the '%s' destination", destination.name),
+                new NewsFeedResponseItem(String.format("The destination '%s' has a new primary photo", destination.name),
                     photo)
             )
         );
