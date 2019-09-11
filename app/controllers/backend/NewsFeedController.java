@@ -126,7 +126,7 @@ public class NewsFeedController extends TEABackController {
                 return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
             case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
+                return new LinkDestinationPhotoStrategy(event.refId, event.destId, event.userId, photoRepository, destinationRepository, profileRepository);
 
             case NEW_PRIMARY_DESTINATION_PHOTO:
                 return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);

@@ -720,10 +720,19 @@ public class PhotoController extends TEABackController {
                                     if (photo == null) {
                                         return CompletableFuture.supplyAsync(Results::notFound);
                                     }
+                                    //Link photo to destination
                                     destination.destinationPhotos.add(photo);
                                     return destinationRepository.updateDestination(destination)
-                                        .thenApplyAsync(
-                                            dest -> ok(Json.toJson("Succesfully Updated")));
+                                        .thenApplyAsync(dest -> {
+                                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                            newsFeedEvent.refId = photoId;
+                                            newsFeedEvent.destId = destId;
+                                            newsFeedEvent.userId = userId;
+                                            newsFeedEvent.eventType = NewsFeedEventType.LINK_DESTINATION_PHOTO.name();
+
+                                            newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent);
+                                            return ok(Json.toJson("Succesfully Updated"));
+                                        });
                                 }
                                 return CompletableFuture.supplyAsync(Results::notFound);
                             } else {

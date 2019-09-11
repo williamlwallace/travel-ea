@@ -433,4 +433,46 @@ public class DestinationRepository {
                 , executionContext);
         }
     }
+
+    /**
+     * Gets the followerUser object from the database where the two given ids match the relevant columns
+     *
+     * @param destId the id of the destination which is being followed
+     * @param followerId the id of the user following
+     * @return the FollowUser object if it exists, null otherwise
+     */
+    public CompletableFuture<FollowerDestination> getFollower(Long destId, Long followerId) {
+        return supplyAsync(() ->
+            ebeanServer.find(FollowerDestination.class)
+                .where().and(
+                Expr.eq("destination_id", destId),
+                Expr.eq("follower_id", followerId))
+                .findOneOrEmpty()
+                .orElse(null));
+    }
+
+    /**
+     * Inserts a follower destination pair
+     *
+     * @param followerDestination the object to add
+     * @return the guid of the inserted followerUser
+     */
+    public CompletableFuture<Long> insertFollower(FollowerDestination followerDestination) {
+        return supplyAsync(() -> {
+            ebeanServer.insert(followerDestination);
+            return followerDestination.guid;
+        }, executionContext);
+    }
+
+    /**
+     * Deletes a destination follower pair
+     *
+     * @param id guid of the FollowerDestination to delete
+     * @return the number of rows that were deleted
+     */
+    public CompletableFuture<Long> deleteFollower(Long id) {
+        return supplyAsync(() ->
+                Long.valueOf(ebeanServer.delete(FollowerDestination.class, id))
+            , executionContext);
+    }
 }
