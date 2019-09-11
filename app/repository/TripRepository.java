@@ -7,7 +7,6 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.PagedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;

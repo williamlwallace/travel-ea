@@ -336,19 +336,34 @@ public class TripController extends TEABackController {
                     userRepository.updateUsedTags(user, trip);
                     trip.tags = existingTags;
                     return tripRepository.insertTrip(trip).thenComposeAsync(tripId -> {
-                        if(trip.isPublic) {
-                            NewsFeedEvent event = new NewsFeedEvent();
-                            event.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
-                            event.refId = tripId;
-                            event.userId = trip.userId;
-                            return newsFeedEventRepository.addNewsFeedEvent(event)
-                                .thenApplyAsync(id -> ok(Json.toJson(tripId)));
-                        } else {
-                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(tripId)));
-                        }}
+                            if (trip.isPublic) {
+                                NewsFeedEvent event = new NewsFeedEvent();
+                                event.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
+                                event.refId = tripId;
+                                event.userId = trip.userId;
+                                return newsFeedEventRepository.addNewsFeedEvent(event)
+                                    .thenApplyAsync(id -> ok(Json.toJson(tripId)));
+                            } else {
+                                return CompletableFuture.supplyAsync(() -> ok(Json.toJson(tripId)));
+                            }
+                        }
                     );
                 });
             });
+    }
+
+    /**
+     * Copies one user's trip into another users trips.
+     *
+     * @param request The HTTP request
+     * @param tripId The id of the trip to copy
+     * @return 201 if successful, 403 if the user is not authorise to copy the trip, 404 if the trip
+     * or the user does not exist
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> copyTrip(Http.Request request, Long tripId) {
+        //Should block non-admins from copying a private trip
+        return null;
     }
 
     /**
