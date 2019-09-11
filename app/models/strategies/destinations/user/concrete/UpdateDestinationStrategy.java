@@ -33,8 +33,9 @@ public class UpdateDestinationStrategy extends UserDestinationStrategy {
         return getUserProfileAsync().thenComposeAsync(profile ->
             getReferencedDestinationAsync().thenApplyAsync(destination ->
                 new NewsFeedResponseItem(
-                    String.format("%s %s has updated the destination '%s'",
-                        profile.firstName, profile.lastName, destination.name),
+                    String.format("has updated the destination '%s'", destination.name),
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto.thumbnailFilename,
                     destination
                 )
             )

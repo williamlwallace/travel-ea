@@ -30,11 +30,12 @@ public class UpdateTripStrategy extends TripStrategy {
         return getReferencedTripAsync().thenComposeAsync(trip ->
             getUserProfileAsync().thenApplyAsync(profile ->
                 new NewsFeedResponseItem(
-                    String.format("%s %s has updated their trip from %s to %s",
-                        profile.firstName, profile.lastName,
+                    String.format("has updated their trip from %s to %s",
                         trip.tripDataList.get(0).destination.name,
                         trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name
                     ),
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto.thumbnailFilename,
                     trip)
                 )
             );
