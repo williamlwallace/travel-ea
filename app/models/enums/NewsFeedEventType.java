@@ -25,6 +25,11 @@ public enum NewsFeedEventType {
      * reference ID = ID of photo
      */
     UPLOADED_USER_PHOTO,
+    /**
+     * A user has updated their cover picture
+     * reference ID = ID of photo
+     */
+    NEW_PROFILE_COVER_PHOTO,
 
     // Trip events
     /**

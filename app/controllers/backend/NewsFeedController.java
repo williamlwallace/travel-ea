@@ -18,6 +18,7 @@ import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
 import models.strategies.photos.destination.concrete.LinkDestinationPhotoStrategy;
 import models.strategies.photos.destination.concrete.NewPrimaryDestinationPhotoStrategy;
+import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.photos.user.concrete.UploadedUserPhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
@@ -118,6 +119,9 @@ public class NewsFeedController extends TEABackController {
 
             case UPLOADED_USER_PHOTO:
                 return new UploadedUserPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
+
+            case NEW_PROFILE_COVER_PHOTO:
+                return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
             case LINK_DESTINATION_PHOTO:
                 return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
