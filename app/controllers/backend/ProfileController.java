@@ -126,7 +126,7 @@ public class ProfileController extends TEABackController {
                     errorResponse.map("Profile for that user not found", ERR_OTHER);
                     return notFound(errorResponse.toJson());
                 } else {
-                    System.out.println(profile.following.size());
+                    System.out.println(profile.followingUsers.size());
                     try {
                         return ok(sanitizeJson(Json.toJson(profile)));
                     } catch (IOException e) {
