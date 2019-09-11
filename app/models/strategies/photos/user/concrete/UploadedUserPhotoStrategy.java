@@ -33,6 +33,7 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
                 new NewsFeedResponseItem("has added a public photo",
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     photo)
             )
         );

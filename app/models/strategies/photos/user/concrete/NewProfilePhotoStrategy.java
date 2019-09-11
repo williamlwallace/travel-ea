@@ -34,6 +34,7 @@ public class NewProfilePhotoStrategy extends UserPhotoStrategy {
                 new NewsFeedResponseItem("has a new profile picture",
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     photo)
             )
         );

@@ -376,3 +376,7 @@ section#timeline a {
 .tripsFilterCard {
     max-width: 36rem;
 }
+
+#feed {
+    width: 80%;
+}

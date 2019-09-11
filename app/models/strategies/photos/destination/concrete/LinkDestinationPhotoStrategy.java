@@ -42,6 +42,7 @@ public class LinkDestinationPhotoStrategy extends UserDestinationPhotoStrategy {
                         destination.name),
                         String.format("%s %s", profile.firstName, profile.lastName),
                         profile.profilePhoto.thumbnailFilename,
+                        profile.userId,
                         photo)
                 )
             )

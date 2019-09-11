@@ -9,6 +9,7 @@ public class NewsFeedResponseItem {
     public String message;
     public String name;
     public String thumbnail;
+    public Long eventerId;
     public Object data;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -21,10 +22,11 @@ public class NewsFeedResponseItem {
      * @param message Message to show to user
      * @param data Data involved with the event
      */
-    public NewsFeedResponseItem(String message, String name, String thumbnail, Object data) {
+    public NewsFeedResponseItem(String message, String name, String thumbnail, Long eventerId, Object data) {
         this.message = message;
         this.name = name;
         this.thumbnail = thumbnail;
+        this.eventerId = eventerId;
         this.data = data;
     }
 }

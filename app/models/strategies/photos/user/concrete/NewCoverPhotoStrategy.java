@@ -31,6 +31,7 @@ public class NewCoverPhotoStrategy extends UserPhotoStrategy {
                 new NewsFeedResponseItem("has updated their cover photo",
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     photo)
             )
         );

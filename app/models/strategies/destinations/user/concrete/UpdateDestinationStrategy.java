@@ -36,6 +36,7 @@ public class UpdateDestinationStrategy extends UserDestinationStrategy {
                     String.format("has updated the destination '%s'", destination.name),
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     destination
                 )
             )

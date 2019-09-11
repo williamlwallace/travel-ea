@@ -35,6 +35,7 @@ public class CreateDestinationStrategy extends UserDestinationStrategy {
                     String.format("has created a new destination: '%s'", destination.name),
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     destination
                 )
             )

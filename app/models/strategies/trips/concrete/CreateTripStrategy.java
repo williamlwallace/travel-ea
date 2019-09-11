@@ -37,6 +37,7 @@ public class CreateTripStrategy extends TripStrategy {
                     trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     trip)
         ));
     }

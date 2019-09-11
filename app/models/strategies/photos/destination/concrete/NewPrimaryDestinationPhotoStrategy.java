@@ -33,6 +33,7 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
                 new NewsFeedResponseItem("has a new primary photo",
                     destination.name,
                     destination.primaryPhoto.thumbnailFilename,
+                    destination.id,
                     photo)
             )
         );

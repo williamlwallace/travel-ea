@@ -146,7 +146,7 @@ const NewsFeedEventTypes = {
      * New profile picture has been set for a user
      * reference ID = ID of photo
      */
-    NEW_PROFILE_PHOTO: 'NEW_PROFILE_PHOTO',
+    NEW_PROFILE_PHOTO: newProfilePhotoCard,
 
     /**
      * A new public picture has been uploaded by a user
@@ -171,7 +171,7 @@ const NewsFeedEventTypes = {
      * An existing trip that is public has been updated, or a private trip has been set to public
      * reference ID = ID of trip updated or made public
      */
-    UPDATED_EXISTING_TRIP: 'UPDATED_EXISTING_TRIP'
+    UPDATED_EXISTING_TRIP: updatedExistingTripCard
 }
 
 /******************************
@@ -210,8 +210,7 @@ function formatDate(date) {
  * @param {object} event newsfeed event item data
  */
 function createdDestinationWrapperCard(event) {
-    const id = 1; //testing
-    const message = `<a href="${"/destination/" + id}">
+    const message = `The destination <a href="${"/destination/" + event.eventerId}"> 
                         ${event.name}
                     </a>
                     ${event.message}`;
@@ -225,7 +224,7 @@ function createdDestinationWrapperCard(event) {
  */
 function createdUserWrapperCard(event) {
     const id = 1; //testing
-    const message = `<a href="${"/profile/" + id}">
+    const message = `<a href="${"/profile/" + event.eventerId}"> 
                         ${event.name}
                     </a>
                     ${event.message}`;
@@ -241,5 +240,33 @@ function createdNewTripCard(event) {
     const card = createdUserWrapperCard(event);
     const tripCard = createTripCard(event.data);
     card.find('.wrapper-body').append(tripCard);
+    return card;
+}
+
+/**
+ * Creates news Feed card for updating a trip
+ *
+ * @param {object} event newsfeed event item data
+ */
+function updatedExistingTripCard(event) {
+    //Because its the same as creating a trip card
+    return createdNewTripCard(event);
+}
+
+/**
+ * Creates news Feed card for creating a trip
+ *
+ * @param {object} event newsfeed event item data
+ */
+function newProfilePhotoCard(event) {
+    const card = createdUserWrapperCard(event);
+
+    const template = $("#profile-photo-card-template").get(0);
+    const photoCard = $(template.content.cloneNode(true));
+
+    photoCard.find('.profile-photo-caption').text(event.data.caption);
+    photoCard.find('.profile-photo-picture').attr("src", "../user_content/" + event.data.filename);
+
+    card.find('.wrapper-body').append(photoCard);
     return card;
 }
