@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
 import models.NewsFeedEvent;
+import models.FollowerDestination;
+import models.NewsFeedEvent;
 import models.User;
 import models.enums.NewsFeedEventType;
 import play.libs.Json;
@@ -21,6 +23,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
@@ -46,6 +49,7 @@ public class DestinationController extends TEABackController {
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
     private final NewsFeedEventRepository newsFeedEventRepository;
+
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
@@ -461,8 +465,14 @@ public class DestinationController extends TEABackController {
                     else if (photo == null || photo.userId.equals(user.id)) {
                         // If request already exists
                         if (destination.hasPhotoPending(photoId)) {
-                            return CompletableFuture
-                                .supplyAsync(() -> ok(Json.toJson(oldPhoto)));
+                            // Create a new news feed event in the database
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.destId = destination.id;
+                            newsFeedEvent.refId = photoId;
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name();
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+
                         } else {
                             destination.addPendingDestinationProfilePhoto(photoId);
                         }
@@ -471,7 +481,15 @@ public class DestinationController extends TEABackController {
                             "You do not have permission to set this photo as the destination primary photo")));
                     }
                     return destinationRepository.updateDestination(destination)
-                        .thenApplyAsync(rows -> ok(Json.toJson(oldPhoto)));
+                        .thenComposeAsync(rows -> {
+                            // Create a new news feed event in the database
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.destId = destination.id;
+                            newsFeedEvent.refId = photoId;
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name();
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+                        });
                 });
         });
     }
@@ -617,6 +635,72 @@ public class DestinationController extends TEABackController {
     }
 
     /**
+     * Toggles the status whether the current user follows a destination with given id
+     *
+     * @param request Http request contains current users id
+     * @param destId id of the destination to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> toggleFollowerStatus(Http.Request request, Long destId) {
+        Long followerId = request.attrs().get(ActionState.USER).id;
+
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId) ){
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            } else {
+                return destinationRepository.getFollower(destId, followerId).thenComposeAsync(followerDestination -> {
+                    if (followerDestination == null) {
+                        FollowerDestination newFollowerDestination = new FollowerDestination();
+                        newFollowerDestination.followerId = followerId;
+                        newFollowerDestination.destinationId = destId;
+                        return destinationRepository.insertFollower(newFollowerDestination).thenApplyAsync(guid ->
+                            ok(Json.toJson("followed")));
+                    } else {
+                        return destinationRepository.deleteFollower(followerDestination.guid).thenApplyAsync(delete ->
+                            ok(Json.toJson("unfollowed")));
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    /**
+     * Gets the following status of the user for a destination
+     *
+     * @param request Http request contains current users id
+     * @param destId id of the destination to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getFollowerStatus(Http.Request request, Long destId) {
+        Long followerId = request.attrs().get(ActionState.USER).id;
+
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId) ){
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            } else {
+                return destinationRepository.getFollower(destId, followerId).thenComposeAsync(followerDestination -> {
+                    if (followerDestination == null) {
+                        //Not following
+                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                    } else {
+                        //Following
+                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                    }
+                });
+            }
+        });
+
+    }
+
+    /**
      * Gets the google api key
      *
      * @return an ok message with the google api key
@@ -627,8 +711,7 @@ public class DestinationController extends TEABackController {
         WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
         request.addQueryParameter("key", apiKey);
 
-        return request.execute()
-            .thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
+        return request.execute().thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
     }
 
     /**

@@ -24,6 +24,7 @@ import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.photos.user.concrete.UploadedUserPhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
+import models.strategies.trips.concrete.UpdateTripStrategy;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Json;
 import play.mvc.Http;
@@ -82,7 +83,9 @@ public class NewsFeedController extends TEABackController {
 
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(
-            Collections.singletonList(loggedInUser.id), null, pageNum, pageSize)
+            Collections.singletonList(loggedInUser.id), // TODO: Replace this with users followed by logged in user
+            Collections.singletonList(51L), // TODO: Replace this with destinations followed by logged in user
+            pageNum, pageSize)
             .thenComposeAsync(events -> {
                 // Collect a list of the completable strategies created for each event
                 List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
@@ -126,13 +129,16 @@ public class NewsFeedController extends TEABackController {
                 return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
             case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
+                return new LinkDestinationPhotoStrategy(event.refId, event.destId, event.userId, photoRepository, destinationRepository, profileRepository);
 
             case NEW_PRIMARY_DESTINATION_PHOTO:
                 return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
 
             case CREATED_NEW_TRIP:
                 return new CreateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
+
+            case UPDATED_EXISTING_TRIP:
+                return new UpdateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
 
             case CREATED_NEW_DESTINATION:
                 return new CreateDestinationStrategy(event.refId, destinationRepository, event.userId, profileRepository);

@@ -4,11 +4,13 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
+import io.ebean.Expr;
 import io.ebean.PagedList;
 import java.time.LocalDateTime;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.FollowerUser;
 import models.Tag;
 import models.Taggable;
 import models.UsedTag;
@@ -189,5 +191,47 @@ public class UserRepository {
             }
         }
         ebeanServer.saveAll(user.usedTags);
+    }
+
+    /**
+     * Gets the followerUser object from the database where the two given ids match the relevant columns
+     *
+     * @param userId the id of the user who is being followed
+     * @param followerId the id of the user following
+     * @return the FollowUser object if it exists, null otherwise
+     */
+    public CompletableFuture<FollowerUser> getFollower(Long userId, Long followerId) {
+        return supplyAsync(() ->
+            ebeanServer.find(FollowerUser.class)
+                .where().and(
+                    Expr.eq("user_id", userId),
+                    Expr.eq("follower_id", followerId))
+                .findOneOrEmpty()
+                .orElse(null));
+    }
+
+    /**
+     * Inserts a follower followee pair
+     *
+     * @param followerUser the object to add
+     * @return the guid of the inserted followerUser
+     */
+    public CompletableFuture<Long> insertFollower(FollowerUser followerUser) {
+        return supplyAsync(() -> {
+            ebeanServer.insert(followerUser);
+            return followerUser.guid;
+        }, executionContext);
+    }
+
+    /**
+     * Deletes a user follower pair
+     *
+     * @param id guid of the FollowerUser to delete
+     * @return the number of rows that were deleted
+     */
+    public CompletableFuture<Long> deleteFollower(Long id) {
+        return supplyAsync(() ->
+                Long.valueOf(ebeanServer.delete(FollowerUser.class, id))
+            , executionContext);
     }
 }

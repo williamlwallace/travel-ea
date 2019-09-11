@@ -17,6 +17,10 @@ PUT           /api/user/delete                       controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
+PUT           /api/user/:id/follow                   controllers.backend.UserController.toggleFollowerStatus(request:Request, id:Long)
+
+GET           /api/user/:id/follow                   controllers.backend.UserController.getFollowerStatus(request:Request, id:Long)
+
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
 POST          /api/logout                            controllers.backend.UserController.logout(request:Request)
@@ -70,6 +74,10 @@ PUT           /api/destination/:destId/photo/:photoId/reject  controllers.backen
 PUT           /api/destination/:destId/photo/:photoId/accept  controllers.backend.DestinationController.acceptDestinationPrimaryPhoto(request:Request, destId:Long, photoId:Long)
 
 PUT           /api/destination/makePublic/:id        controllers.backend.DestinationController.makeDestinationPublic(request:Request, id:Long)
+
+PUT           /api/destination/:destId/follow        controllers.backend.DestinationController.toggleFollowerStatus(request:Request, destId:Long)
+
+GET           /api/destination/:destId/follow        controllers.backend.DestinationController.getFollowerStatus(request:Request, destId:Long)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
