@@ -13,7 +13,9 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.NewsFeedEvent;
 import models.User;
+import models.enums.NewsFeedEventType;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -22,6 +24,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.NewsFeedEventRepository;
 import repository.TagRepository;
 import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
@@ -42,19 +45,20 @@ public class DestinationController extends TEABackController {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
-
+    private final NewsFeedEventRepository newsFeedEventRepository;
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
         TagRepository tagRepository, UserRepository userRepository,
-        PhotoRepository photoRepository) {
+        PhotoRepository photoRepository, NewsFeedEventRepository newsFeedEventRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
         this.ws = ws;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.photoRepository = photoRepository;
+        this.newsFeedEventRepository = newsFeedEventRepository;
     }
 
     /**
@@ -98,12 +102,19 @@ public class DestinationController extends TEABackController {
             userRepository.updateUsedTags(user, newDestination);
             newDestination.tags = existingTags;
             return destinationRepository.addDestination(newDestination)
-                .thenApplyAsync(id -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(id)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
+                .thenComposeAsync(id -> {
+                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                    newsFeedEvent.refId = id;
+                    newsFeedEvent.userId = user.id;
+                    newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_DESTINATION.name();
+
+                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> {
+                        try {
+                            return ok(sanitizeJson(Json.toJson(id)));
+                        } catch (IOException e) {
+                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                        }
+                    });
                 });
         });
     }
@@ -121,18 +132,18 @@ public class DestinationController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationRepository.getDestination(id).thenApplyAsync(destination -> {
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             // Check for 404, i.e the destination to make public doesn't exist
             if (destination == null) {
-                return notFound(Json.toJson("No such destination exists"));
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
             }
             // Check if user owns the destination (or is an admin)
             if (!destination.user.id.equals(user.id) && !user.admin) {
-                return forbidden(Json.toJson("You are not allowed to perform this action"));
+                return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
             // Check if destination was already public
             if (destination.isPublic) {
-                return badRequest(Json.toJson("Destination was already public"));
+                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Destination was already public")));
             }
 
             destinationRepository.setDestinationToPublicInDatabase(destination.id);
@@ -162,8 +173,22 @@ public class DestinationController extends TEABackController {
                 destinationRepository.deleteDestination(simId);
             }
 
-            return ok("Successfully made destination public, and re-referenced " + rowsChanged
-                + " to new public destination");
+            if(destination.isPublic) {
+                // Create news feed event for updating destination
+                NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                newsFeedEvent.userId = user.id;
+                newsFeedEvent.refId = destination.id;
+                newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name();
+
+                return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                    .thenApplyAsync(
+                        eventId -> ok(Json.toJson(destination.id))
+                    );
+            } else {
+                final int rows = rowsChanged;
+                return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully made destination public, and re-referenced " + rows
+                    + " to new public destination")));
+            }
         });
     }
 
@@ -236,11 +261,20 @@ public class DestinationController extends TEABackController {
                         userRepository.updateUsedTags(user, destination, editedDestination);
                         editedDestination.tags = existingTags;
                         return destinationRepository.updateDestination(editedDestination)
-                            .thenApplyAsync(updatedDestination -> {
-                                try {
-                                    return ok(sanitizeJson(Json.toJson(destination)));
-                                } catch (IOException e) {
-                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            .thenComposeAsync(updatedDestination -> {
+                                if(updatedDestination.isPublic) {
+                                    // Create news feed event for updating destination
+                                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                    newsFeedEvent.userId = user.id;
+                                    newsFeedEvent.refId = updatedDestination.id;
+                                    newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name();
+
+                                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                        .thenApplyAsync(
+                                            eventId -> ok(Json.toJson(destination))
+                                        );
+                                } else {
+                                    return CompletableFuture.supplyAsync(() -> ok(Json.toJson(destination)));
                                 }
                             });
                     });

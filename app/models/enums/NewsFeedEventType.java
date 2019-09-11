@@ -13,6 +13,16 @@ public enum NewsFeedEventType {
      * reference ID = ID of photo
      */
     NEW_PRIMARY_DESTINATION_PHOTO,
+    /**
+     * A public destination has been created
+     * reference ID = ID of destination
+     */
+    CREATED_NEW_DESTINATION,
+    /**
+     * Existing destination has been updated, or set from private to public
+     * reference ID = ID of destination
+     */
+    UPDATED_EXISTING_DESTINATION,
 
     // User photo events
     /**
