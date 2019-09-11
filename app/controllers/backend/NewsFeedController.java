@@ -22,6 +22,7 @@ import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.photos.user.concrete.UploadedUserPhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
+import models.strategies.trips.concrete.UpdateTripStrategy;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Json;
 import play.mvc.Http;
@@ -133,6 +134,9 @@ public class NewsFeedController extends TEABackController {
 
             case CREATED_NEW_TRIP:
                 return new CreateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
+
+            case UPDATED_EXISTING_TRIP:
+                return new UpdateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
 
             default:
                 throw new NotImplementedException("Event type to specified in strategy pattern selector.");
