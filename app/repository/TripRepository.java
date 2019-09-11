@@ -4,10 +4,9 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import io.ebean.PagedList;
 import io.ebean.Expr;
 import io.ebean.Expression;
-import java.util.List;
+import io.ebean.PagedList;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -23,8 +22,8 @@ import play.db.ebean.EbeanConfig;
 @Singleton
 public class TripRepository {
 
-    private final Expression SQL_FALSE = Expr.raw("false");
-    private final Expression SQL_TRUE = Expr.raw("true");
+    private static final Expression SQL_FALSE = Expr.raw("false");
+    private static final Expression SQL_TRUE = Expr.raw("true");
 
     private final EbeanServer ebeanServer;
     private final DatabaseExecutionContext executionContext;
@@ -105,6 +104,7 @@ public class TripRepository {
             ebeanServer.find(Trip.class)
                 .fetch("tripDataList.destination")
                 .where()
+                .eq("deleted", false)
                 // Search where name fits search query
                 .or(
                     Expr.eq("t0.user_id", userId),
@@ -157,5 +157,24 @@ public class TripRepository {
             .idEq(tripId)
             .findOneOrEmpty()
             .orElse(null), executionContext);
+    }
+
+    /**
+     * Copies a trip and changes the user who owns the new trip
+     *
+     * @param trip The trip to copy
+     * @param newUserId The user to own the copied trip
+     * @return The id of the trip
+     */
+    public CompletableFuture<Long> copyTrip(Trip trip, Long newUserId) {
+        trip.userId = newUserId;
+        trip.id = null;
+        trip.isPublic = false;
+
+        for (TripData tripData : trip.tripDataList) {
+            tripData.guid = null;
+        }
+
+        return insertTrip(trip);
     }
 }

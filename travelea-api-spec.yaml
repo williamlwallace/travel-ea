@@ -11,26 +11,26 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 
 tags:
-  - name: Admin
-    description: Admin calls
-  - name: Users
-    description: User account calls
-  - name: Profiles
-    description: Profile calls
-  - name: Destinations
-    description: Destination calls
-  - name: Trips
-    description: Trip calls
-  - name: Photos
-    description: Photo calls
-  - name: Treasure Hunts
-    description: Treasure hunt calls
-  - name: Countries
-    description: Country calls
-  - name: News Feed
-    description: New feed calls, personal, profile, and destination
-  - name: Other
-    description: Miscellaneous calls
+- name: Admin
+  description: Admin calls
+- name: Users
+  description: User account calls
+- name: Profiles
+  description: Profile calls
+- name: Destinations
+  description: Destination calls
+- name: Trips
+  description: Trip calls
+- name: Photos
+  description: Photo calls
+- name: Treasure Hunts
+  description: Treasure hunt calls
+- name: Countries
+  description: Country calls
+- name: News Feed
+  description: New feed calls, personal, profile, and destination
+- name: Other
+  description: Miscellaneous calls
 
 paths:
   '/user':
@@ -542,6 +542,44 @@ paths:
             application/json:
               schema:
                 type: integer
+                minimum: 1
+                example: 1
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: No such trip found
+
+  '/trip/{id}/copy':
+    post:
+      tags:
+      - Trips
+      summary: Copies an existing trip to the user
+      security:
+      - UserToken: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        description: The ID of the trip to copy
+        schema:
+          type: integer
+          minimum: 1
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      responses:
+        '201':
+          description: Successfully copied trip
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: New trip ID
                 minimum: 1
                 example: 1
         '401':
@@ -4532,39 +4570,39 @@ paths:
   '/newsFeed':
     get:
       tags:
-        - News Feed
+      - News Feed
       summary: "Gets personal news feed for whoever is currently logged in"
       description: "Gets personal news feed for whoever is currently logged in"
       security:
-        - UserToken: []
+      - UserToken: []
       parameters:
-        - in: header
-          name: JWT-Auth
-          required: true
-          description: Authentication cookie.
-          schema:
-            type: string
-        - in: query
-          name: pageNum
-          description: Number of page to view
-          schema:
-            type: integer
-            minimum: 1
-            example: 3
-        - in: query
-          name: pageSize
-          description: Number of results to show per page
-          schema:
-            type: integer
-            minimum: 1
-            example: 20
-        - in: query
-          name: requestOrder
-          description: The order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
-          schema:
-            type: integer
-            minimum: 1
-            example: 5
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: The order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
       responses:
         '200':
           description: Retrieved successfully
