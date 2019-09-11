@@ -1,6 +1,5 @@
 package models.strategies.photos.destination.concrete;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
 import models.strategies.photos.destination.DestinationPhotoStrategy;
@@ -23,13 +22,17 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
     }
 
     /**
-     * The method that handles executing whatever relevant code for any news feed strategy
+     * Execution method to handle the event where a destination has its primary photo updated
      *
-     * @return JSON node containing data that will be sent to front end
+     * @return NewsFeedResponseItem containing a user friendly message, and the photo object that has been set as primary
      */
     @Override
     public CompletableFuture<NewsFeedResponseItem> execute() {
-        // getReferencedDestinationAsync() and getReferencedPhotoAsync() will be useful here
-        return null;
+        return getReferencedDestinationAsync().thenComposeAsync(destination ->
+            getReferencedPhotoAsync().thenApplyAsync(photo ->
+                new NewsFeedResponseItem(String.format("A new photo has been linked to the '%s' destination", destination.name),
+                    photo)
+            )
+        );
     }
 }

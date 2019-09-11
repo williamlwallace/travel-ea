@@ -428,7 +428,8 @@ public class DestinationController extends TEABackController {
                         // If request already exists
                         if (destination.hasPhotoPending(photoId)) {
                             return CompletableFuture
-                                .supplyAsync(() -> ok(Json.toJson(oldPhoto)));
+                                .supplyAsync(() -> { ok(Json.toJson(oldPhoto))
+                                });
                         } else {
                             destination.addPendingDestinationProfilePhoto(photoId);
                         }
