@@ -249,9 +249,19 @@ public class PhotoController extends TEABackController {
         // Update cover photo, and get the prior photo id
         try {
             return profileRepository.updateCoverPhotoAndReturnExistingId(id, newPhotoId)
-                .thenApplyAsync(returnedId ->
-                    returnedId != null ? ok(Json.toJson(returnedId))
-                        : ok(Json.newObject().nullNode())
+                .thenComposeAsync(returnedId -> {
+                    // Create news feed event for profile update
+                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                    newsFeedEvent.userId = id;
+                    newsFeedEvent.refId = newPhotoId;
+                    newsFeedEvent.eventType = NewsFeedEventType.NEW_PROFILE_COVER_PHOTO.name();
+
+                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                        .thenApplyAsync(eventId ->
+                            returnedId != null ? ok(Json.toJson(returnedId))
+                                : ok(Json.newObject().nullNode())
+                        );
+                    }
                 );
         } catch (NullPointerException e) {
             return CompletableFuture
