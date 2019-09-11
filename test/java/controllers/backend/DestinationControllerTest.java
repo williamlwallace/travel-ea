@@ -875,4 +875,70 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals("unfollowed", message);
     }
 
+    @Test
+    public void checkFollowingTrue() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "9/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+                .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("true", message);
+    }
+
+    @Test
+    public void checkFollowingFalse() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(adminAuthCookie)
+                .uri(DEST_URL_SLASH + "10/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+                .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("false", message);
+    }
+
+    @Test
+    public void checkFollowingPrivateDest() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "2/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void checkFollowingOwnDest() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "2/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void checkFollowingInvalidDest() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "99/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
+
+
 }

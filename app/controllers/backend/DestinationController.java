@@ -586,14 +586,13 @@ public class DestinationController extends TEABackController {
 
     /**
      * Toggles the status whether the current user follows a destination with given id
+     *
      * @param request Http request contains current users id
      * @param destId id of the destination to follow/unfollow
      * @return a result contain a Json of follow or unfollow
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> toggleFollowerStatus(Http.Request request, Long destId) {
-        System.out.println("HELLLLLLO");
-
         Long followerId = request.attrs().get(ActionState.USER).id;
 
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
@@ -620,6 +619,36 @@ public class DestinationController extends TEABackController {
 
     }
 
+    /**
+     * Gets the following status of the user for a destination
+     *
+     * @param request Http request contains current users id
+     * @param destId id of the destination to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getFollowerStatus(Http.Request request, Long destId) {
+        Long followerId = request.attrs().get(ActionState.USER).id;
+
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId) ){
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            } else {
+                return destinationRepository.getFollower(destId, followerId).thenComposeAsync(followerDestination -> {
+                    if (followerDestination == null) {
+                        //Not following
+                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                    } else {
+                        //Following
+                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                    }
+                });
+            }
+        });
+
+    }
 
     /**
      * Gets the google api key
@@ -632,8 +661,7 @@ public class DestinationController extends TEABackController {
         WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
         request.addQueryParameter("key", apiKey);
 
-        return request.execute()
-            .thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
+        return request.execute().thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
     }
 
     /**

@@ -3,6 +3,7 @@ package controllers.backend;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.FORBIDDEN;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.BAD_REQUEST;
 import static play.test.Helpers.GET;
@@ -318,7 +319,7 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
 
         // Get result and check it failed
         Result result = route(fakeApp, request);
-        assertEquals(FORBIDDEN, result.status());
+        assertEquals(NOT_FOUND, result.status());
     }
 
     @Test
@@ -352,5 +353,59 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
         assertEquals("unfollowed", message);
     }
 
+    @Test
+    public void checkFollowingTrue() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/user/1/follow");
 
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("true", message);
+    }
+
+    @Test
+    public void checkFollowingFalse() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(adminAuthCookie)
+                .uri("/api/user/2/follow");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+                .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("false", message);
+    }
+
+    @Test
+    public void checkFollowingSelf() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri("/api/user/2/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void checkFollowingInvalidUser() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri("/api/user/222/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
 }

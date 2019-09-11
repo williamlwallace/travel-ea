@@ -332,6 +332,7 @@ public class UserController extends TEABackController {
 
     /**
      * Toggles the status whether the current user follows a use with given id
+     *
      * @param request Http request contains current users id
      * @param userId id of the user to follow/unfollow
      * @return a result contain a Json of follow or unfollow
@@ -346,7 +347,7 @@ public class UserController extends TEABackController {
 
         return userRepository.findID(userId).thenComposeAsync(usersId -> {
             if (usersId == null) {
-                return CompletableFuture.supplyAsync(Results::forbidden);
+                return CompletableFuture.supplyAsync(Results::notFound);
             } else {
                 return userRepository.getFollower(userId, followerId).thenComposeAsync(followerUser -> {
                     if (followerUser == null) {
@@ -364,6 +365,38 @@ public class UserController extends TEABackController {
             }
         });
 
+    }
+
+    /**
+     * Gets the following status of a user.
+     *
+     * @param request Http request contains current users id
+     * @param userId id of the user to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getFollowerStatus(Http.Request request, Long userId) {
+
+        Long followerId = request.attrs().get(ActionState.USER).id;
+        if(userId.equals(followerId)) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+        return userRepository.findID(userId).thenComposeAsync(usersId -> {
+            if (usersId == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                return userRepository.getFollower(userId, followerId).thenComposeAsync(followerUser -> {
+                    if (followerUser == null) {
+                        //Not following
+                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                    } else {
+                        //Following
+                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                    }
+                });
+            }
+        });
     }
 
     /**
