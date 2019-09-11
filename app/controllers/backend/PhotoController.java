@@ -648,15 +648,34 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
             Photo existingPhoto = photo;
+            Boolean oldStatus = existingPhoto.isPublic;
             if (photo != null) {
                 photo.isPublic = !photo.isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
-            return photoRepository.updatePhoto(photo)
-                .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
+            if (oldStatus) {
+                // Photo was public, making it prrivate, no newsfeed event
+                return photoRepository.updatePhoto(photo)
+                    .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
+            }
+            return  photoRepository.updatePhoto(photo)
+                .thenComposeAsync(rows -> {
+                    // Create news feed event for public photo added
+                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                    newsFeedEvent.userId = currentUserId;
+                    newsFeedEvent.refId = id;
+                    newsFeedEvent.eventType = NewsFeedEventType.UPLOADED_USER_PHOTO.name();
+
+                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                        .thenApplyAsync(eventId ->
+                            ok(Json.toJson(existingPhoto))
+                        );
+                });
         });
     }
 
