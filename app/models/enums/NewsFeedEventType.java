@@ -13,6 +13,16 @@ public enum NewsFeedEventType {
      * reference ID = ID of photo
      */
     NEW_PRIMARY_DESTINATION_PHOTO,
+    /**
+     * A public destination has been created
+     * reference ID = ID of destination
+     */
+    CREATED_NEW_DESTINATION,
+    /**
+     * Existing destination has been updated, or set from private to public
+     * reference ID = ID of destination
+     */
+    UPDATED_EXISTING_DESTINATION,
 
     // User photo events
     /**
@@ -36,6 +46,11 @@ public enum NewsFeedEventType {
      * A new public trip has been created by a user
      * reference ID = ID of trip just created
      */
-    CREATED_NEW_TRIP
+    CREATED_NEW_TRIP,
+    /**
+     * An existing trip that is public has been updated, or a private trip has been set to public
+     * reference ID = ID of trip updated or made public
+     */
+    UPDATED_EXISTING_TRIP
     ;
 }

@@ -16,12 +16,15 @@ import models.Photo;
 import models.User;
 import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
+import models.strategies.destinations.user.concrete.CreateDestinationStrategy;
+import models.strategies.destinations.user.concrete.UpdateDestinationStrategy;
 import models.strategies.photos.destination.concrete.LinkDestinationPhotoStrategy;
 import models.strategies.photos.destination.concrete.NewPrimaryDestinationPhotoStrategy;
 import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.photos.user.concrete.UploadedUserPhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
+import models.strategies.trips.concrete.UpdateTripStrategy;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Json;
 import play.mvc.Http;
@@ -126,13 +129,22 @@ public class NewsFeedController extends TEABackController {
                 return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
             case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
+                return new LinkDestinationPhotoStrategy(event.refId, event.destId, event.userId, photoRepository, destinationRepository, profileRepository);
 
             case NEW_PRIMARY_DESTINATION_PHOTO:
                 return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
 
             case CREATED_NEW_TRIP:
                 return new CreateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
+
+            case UPDATED_EXISTING_TRIP:
+                return new UpdateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
+
+            case CREATED_NEW_DESTINATION:
+                return new CreateDestinationStrategy(event.refId, destinationRepository, event.userId, profileRepository);
+
+            case UPDATED_EXISTING_DESTINATION:
+                return new UpdateDestinationStrategy(event.refId, destinationRepository, event.userId, profileRepository);
 
             default:
                 throw new NotImplementedException("Event type to specified in strategy pattern selector.");
