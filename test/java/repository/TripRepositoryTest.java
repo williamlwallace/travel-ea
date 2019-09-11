@@ -53,6 +53,13 @@ public class TripRepositoryTest extends repository.RepositoryTest {
         return true;
     }
 
+    /**
+     * Gets and constructs a list of trips from the database.
+     *
+     * @param tripIds The list of trip ids to get from the database
+     * @return A list of trips
+     * @throws SQLException if the SQL query fails
+     */
     private List<Trip> getTripsFromDatabase(List<Long> tripIds) throws SQLException {
         List<Trip> trips = new ArrayList<>();
 
