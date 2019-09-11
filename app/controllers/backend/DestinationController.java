@@ -107,18 +107,28 @@ public class DestinationController extends TEABackController {
             newDestination.tags = existingTags;
             return destinationRepository.addDestination(newDestination)
                 .thenComposeAsync(id -> {
-                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
-                    newsFeedEvent.refId = id;
-                    newsFeedEvent.userId = user.id;
-                    newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_DESTINATION.name();
+                    if(newDestination.isPublic) {
+                        NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                        newsFeedEvent.refId = id;
+                        newsFeedEvent.userId = user.id;
+                        newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_DESTINATION.name();
 
-                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> {
-                        try {
-                            return ok(sanitizeJson(Json.toJson(id)));
-                        } catch (IOException e) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    });
+                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> {
+                            try {
+                                return ok(sanitizeJson(Json.toJson(id)));
+                            } catch (IOException e) {
+                                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            }
+                        });
+                    } else {
+                        return CompletableFuture.supplyAsync(() -> {
+                            try {
+                                return ok(sanitizeJson(Json.toJson(id)));
+                            } catch (IOException e) {
+                                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            }
+                        });
+                    }
                 });
         });
     }
@@ -177,22 +187,19 @@ public class DestinationController extends TEABackController {
                 destinationRepository.deleteDestination(simId);
             }
 
-            if(destination.isPublic) {
-                // Create news feed event for updating destination
-                NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
-                newsFeedEvent.userId = user.id;
-                newsFeedEvent.refId = destination.id;
-                newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name();
+            // Create news feed event for updating destination
+            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+            newsFeedEvent.userId = user.id;
+            newsFeedEvent.refId = destination.id;
+            newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name();
 
-                return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
-                    .thenApplyAsync(
-                        eventId -> ok(Json.toJson(destination.id))
-                    );
-            } else {
-                final int rows = rowsChanged;
-                return CompletableFuture.supplyAsync(() -> ok(Json.toJson("Successfully made destination public, and re-referenced " + rows
-                    + " to new public destination")));
-            }
+            final int rows = rowsChanged;
+            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                .thenApplyAsync(
+                    eventId -> ok(Json.toJson("Successfully made destination public, and re-referenced " + rows
+                        + " to new public destination"))
+                );
+
         });
     }
 
