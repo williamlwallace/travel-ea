@@ -28,9 +28,12 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
      */
     @Override
     public CompletableFuture<NewsFeedResponseItem> execute() {
-        // getUserProfileAsync() and getReferencedPhotoAsync() will be useful here
-
-        return null;
+        return getReferencedPhotoAsync().thenComposeAsync(photo ->
+            getUserProfileAsync().thenApplyAsync(profile ->
+                new NewsFeedResponseItem(profile.firstName + " " + profile.lastName + " has added a public photo",
+                    photo)
+            )
+        );
     }
 
 }
