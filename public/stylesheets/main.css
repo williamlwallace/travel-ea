@@ -140,6 +140,9 @@ pre {
     min-height: 25rem;
     align-items: center;
     position: relative;
+    /*position: fixed;*/
+    top: 0px;
+    overflow: hidden;
 }
 
 .title-bg {
@@ -366,4 +369,9 @@ pre {
 
 .control-label {
     margin-bottom: 5px;
+}
+
+#header-div, #header-img {
+    position: sticky;
+    z-index: 100;
 }

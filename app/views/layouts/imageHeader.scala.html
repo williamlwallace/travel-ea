@@ -3,10 +3,10 @@
 
 @main(title, user, scripts) {
     @* The title section with background image *@
-    <div class="title-frame" id="title-frame">
-        <div class="title-bg" style="background-image: url(@routes.Assets.at(imagePath))">
+    <div id="header-div" class="title-frame" id="title-frame">
+        <div id="header-img" class="title-bg" style="background-image: url(@routes.Assets.at(imagePath))">
             <div class="title-text-wrap">
-                <p class="title-text">@title</p>
+                <p id="header-text" class="title-text">@title</p>
             </div>
         </div>
     </div>

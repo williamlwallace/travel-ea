@@ -12,6 +12,35 @@ $(document).ready(function() {
 });
 
 /**
+ * Function to collapse header image into navbar when scrolling
+ */
+let shown = false;
+$(window).scroll(function () {
+    if ($(window).scrollTop() ===0) {
+        $('#header-div').animate({
+            height: "30vh",
+            minHeight: "25rem"
+        }, 300);
+        $('#header-text').fadeIn(200);
+        $('#navbar').animate({
+            backgroundColor: "transparent"
+        });
+        shown = false
+    } else if ($(window).scrollTop() > 0 && !shown) {
+        $('#header-div').animate({
+            height: "3.8rem",
+            minHeight: "0rem"
+
+        }, 300);
+        $('#header-text').hide();
+        $('#navbar').animate({
+            backgroundColor: "rgba(0,0,0,.3)"
+        });
+        shown = true
+    }
+});
+
+/**
  * Capitalise first letter of string
  * @param {String} string - input string to capitalise
  */
