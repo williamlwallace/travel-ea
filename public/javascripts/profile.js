@@ -7,11 +7,14 @@ let tripPaginationHelper;
  * Runs when the page is loaded. Initialises the paginationHelper object and
  * runs the getPictures method.
  */
-$(document).ready(function() {
-    paginationHelper = new PaginationHelper(1, 1,  getPictures);
-    coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');
-    profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
-    mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
+$(document).ready(function () {
+    paginationHelper = new PaginationHelper(1, 1, getPictures);
+    coverPhotoPaginationHelper = new PaginationHelper(1, 1, getCoverPictures,
+        'cover-photo-pagination');
+    profilePhotoPaginationHelper = new PaginationHelper(1, 1,
+        getProfilePicturesForGallery, 'profile-picture-pagination');
+    mainGalleryPaginationHelper = new PaginationHelper(1, 1, getPictures,
+        'main-gallery-pagination');
     getPictures();
     profileLoadTrips();
     $("#feed-tab").click();
@@ -20,7 +23,7 @@ $(document).ready(function() {
 /**
  * On click handler to change tab panel on profile page
  */
-$('#profile-tabs a').on('click', function(event) {
+$('#profile-tabs a').on('click', function (event) {
     event.preventDefault();
     $(this).tab('show');
     let activeTab = $('#profile-tabs a.active').attr('id');
@@ -50,7 +53,9 @@ function profileLoadTrips() {
  * Gets url and sets id for populating trips
  */
 function getProfileTripResults() {
-    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    const url = new URL(
+        tripRouter.controllers.backend.TripController.getAllTrips().url,
+        window.location.origin);
     url.searchParams.append("userId", profileId);
     getAndCreateTrips(url, tripPaginationHelper);
 }
@@ -84,9 +89,10 @@ function fillProfileData(email) {
                     countryRouter.controllers.backend.CountryController.getAllCountries().url)
                 .then(out => {
                     const nationalities = out.split(",");
-                    for (let i=0; i < nationalities.length; i++) {
+                    for (let i = 0; i < nationalities.length; i++) {
                         document.getElementById(
-                            "summary_nationalities").innerHTML += '<li>' + nationalities[i].trim() + '</li>';
+                            "summary_nationalities").innerHTML += '<li>'
+                            + nationalities[i].trim() + '</li>';
                     }
                 });
                 arrayToCountryString(profile.passports, 'name',
@@ -94,12 +100,14 @@ function fillProfileData(email) {
                 .then(out => {
                     // If passports were cleared, update html text to None: Fix for Issue #36
                     if (out === "") {
-                        document.getElementById("summary_passports").innerHTML = "None"
+                        document.getElementById(
+                            "summary_passports").innerHTML = "None"
                     } else {
                         const passports = out.split(",");
-                        for (let i=0; i < passports.length; i++) {
+                        for (let i = 0; i < passports.length; i++) {
                             document.getElementById(
-                                "summary_passports").innerHTML += '<li>' + passports[i].trim() + '</li>';
+                                "summary_passports").innerHTML += '<li>'
+                                + passports[i].trim() + '</li>';
                         }
                     }
                 });
@@ -107,9 +115,10 @@ function fillProfileData(email) {
                     profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
                 .then(out => {
                     const travellerTypes = out.split(",");
-                    for (let i=0; i < travellerTypes.length; i++) {
+                    for (let i = 0; i < travellerTypes.length; i++) {
                         document.getElementById(
-                            "summary_travellerTypes").innerHTML += '<li>' + travellerTypes[i].trim() + '</li>';
+                            "summary_travellerTypes").innerHTML += '<li>'
+                            + travellerTypes[i].trim() + '</li>';
                     }
                 });
             }
@@ -279,33 +288,35 @@ function uploadProfilePicture() {
             profileId).url;
 
         postMultipartWithProgress(photoPostURL, formData,
-                (e) => { }, // Progress handler
-                (e) => { }, // End upload handler
-                (status, response) => { // On finished handler
-                    // Read response from server, which will be a json object
-                    const data = JSON.parse(response);
-                    if (status === 201) {
-                        const photoFilename = data["filename"];
-                        const photoId = data["guid"];
+            (e) => {
+            }, // Progress handler
+            (e) => {
+            }, // End upload handler
+            (status, response) => { // On finished handler
+                // Read response from server, which will be a json object
+                const data = JSON.parse(response);
+                if (status === 201) {
+                    const photoFilename = data["filename"];
+                    const photoId = data["guid"];
 
-                        $("#ProfilePicture").attr("src", photoFilename);
+                    $("#ProfilePicture").attr("src", photoFilename);
 
-                        // Create reversible request to update profile photo to this new photo
-                        const handler = (status, json) => {
-                            if (status === 200) {
-                                getProfileAndCoverPicture();
-                                toast("Changes saved!",
-                                    "Profile picture changes saved successfully");
-                            } else {
-                                toast("Error",
-                                    "Unable to update profile picture", "danger");
-                            }
-                        };
-                        const requestData = new ReqData(requestTypes["UPDATE"],
-                            profilePicUpdateURL, handler, photoId);
-                        undoRedo.sendAndAppend(requestData);
+                    // Create reversible request to update profile photo to this new photo
+                    const handler = (status, json) => {
+                        if (status === 200) {
+                            getProfileAndCoverPicture();
+                            toast("Changes saved!",
+                                "Profile picture changes saved successfully");
+                        } else {
+                            toast("Error",
+                                "Unable to update profile picture", "danger");
+                        }
+                    };
+                    const requestData = new ReqData(requestTypes["UPDATE"],
+                        profilePicUpdateURL, handler, photoId);
+                    undoRedo.sendAndAppend(requestData);
 
-                    }
+                }
             });
     });
 
@@ -380,7 +391,7 @@ function updatePhotoCaptionAndTags(guid) {
     const url = photoRouter.controllers.backend.PhotoController.updatePhotoDetails(
         guid).url;
     const initialUpdate = true;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (this.initialUpdate) {
             if (status !== 200) {
                 toast("Update failed", json, "danger", 5000);
@@ -393,8 +404,11 @@ function updatePhotoCaptionAndTags(guid) {
 
         if (status === 200) {
             $('[data-id="' + guid + '"]').attr("data-caption", caption);
-            getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
-            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+            getAndFillDD(
+                tagRouter.controllers.backend.TagController.getAllUserPhotoTags(
+                    profileId).url, ["tagFilter"], "name", false, "name");
+            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection',
+                mainGalleryPaginationHelper);
 
         }
     }.bind({initialUpdate});
@@ -415,11 +429,14 @@ function deletePhoto(route) {
         response.json().then(data => {
             if (response.status === 200) {
                 $('#edit-modal').modal('hide');
-                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection',
+                    mainGalleryPaginationHelper);
                 toast("Picture deleted!",
                     "The photo will no longer be displayed in the gallery");
                 getProfileAndCoverPicture();
-                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+                getAndFillDD(
+                    tagRouter.controllers.backend.TagController.getAllUserPhotoTags(
+                        profileId).url, ["tagFilter"], "name", false, "name");
                 undoRedo.undoStack.clear();
                 undoRedo.redoStack.clear();
                 updateUndoRedoButtons();
@@ -485,11 +502,14 @@ function getProfileAndCoverPicture() {
  * Retrieves the users pictures. Then uses them to fill the gallery.
  */
 function getPictures() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", mainGalleryPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        mainGalleryPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'main-gallery', 'page-selection',
+        mainGalleryPaginationHelper);
 }
-
 
 /**
  * Sets the users cover photo given a specific photoID
@@ -557,11 +577,15 @@ $("#editProfilePictureButton").click(function () {
  * is paginated
  */
 function getCoverPictures() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", coverPhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillSelectionGallery(url, "cover-photo-gallery", "current-page", function () {
-        setCoverPhoto(this.getAttribute("data-id"))
-    }, coverPhotoPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        coverPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "cover-photo-gallery", "current-page",
+        function () {
+            setCoverPhoto(this.getAttribute("data-id"))
+        }, coverPhotoPaginationHelper);
 }
 
 /**
@@ -569,48 +593,11 @@ function getCoverPictures() {
  * is paginated
  */
 function getProfilePicturesForGallery() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
-}
-
-let following = true; // delete
-
-/**
- * Sets the follow button depending if you follow this user or not
- */
-function loadFollowBtn() {
-    // const following = true; // Change to api call
-    const profileId = window.location.href.split("/").pop();
-    getUserId().then(userId => {
-        if (userId !== profileId) {
-            let followBtn =
-                "<button id=\"follow-btn\" class=\"btn btn-primary\" onclick=\"followToggle()\">\n"
-                + "<i class=\"fas fa-user-friends\"></i>  Follow\n"
-                + "</button>\n";
-
-            let followingBtn =
-                "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle()\">\n"
-                + "Following  <i class=\"fas fa-check\"></i>\n"
-                + "</button>";
-
-            if (following) {
-                $('#follow-btn-parent').html(followingBtn);
-            } else {
-                $('#follow-btn-parent').html(followBtn);
-            }
-        }
-    });
-}
-
-/**
- * Follow/Unfollow a user
- */
-function followToggle() {
-    const userId = getUserId();
-    const profileId = window.location.href.split("/").pop();
-
-    // api call to toggle follow (remember undo/redo)
-
-    loadFollowBtn();
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        profilePhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture',
+        profilePhotoPaginationHelper);
 }

@@ -412,7 +412,8 @@ public class DestinationController extends TEABackController {
                             () -> notFound(Json.toJson("Photo with provided ID not found")));
                     }
 
-                    JsonNode oldPhoto = (destination.primaryPhoto == null) ? Json.toJson(0) : Json.toJson(destination.primaryPhoto.guid);
+                    JsonNode oldPhoto = (destination.primaryPhoto == null) ? Json.toJson(0)
+                        : Json.toJson(destination.primaryPhoto.guid);
 
                     // Currently a photo can only be set/requested to set as the destination primary
                     // photo by the owner of the photo or an admin. This is because if a user requests
@@ -423,7 +424,8 @@ public class DestinationController extends TEABackController {
                     // photo or an admin to set/request the photo to become destination primary photo.
 
                     // If user is destination owner and photo owner, or if user is admin, set the photo
-                    if ((destination.user.id.equals(user.id) && (photo == null || photo.userId.equals(user.id)))
+                    if ((destination.user.id.equals(user.id) && (photo == null || photo.userId
+                        .equals(user.id)))
                         || user.admin) {
                         destination.primaryPhoto = photo;
                         if (destination.hasPhotoPending(photoId)) {
@@ -438,9 +440,11 @@ public class DestinationController extends TEABackController {
                             NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                             newsFeedEvent.destId = destination.id;
                             newsFeedEvent.refId = photoId;
-                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name();
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO
+                                .name();
 
-                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                .thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
 
                         } else {
                             destination.addPendingDestinationProfilePhoto(photoId);
@@ -455,9 +459,11 @@ public class DestinationController extends TEABackController {
                             NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                             newsFeedEvent.destId = destination.id;
                             newsFeedEvent.refId = photoId;
-                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name();
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO
+                                .name();
 
-                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                .thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
                         });
                 });
         });
@@ -494,11 +500,13 @@ public class DestinationController extends TEABackController {
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending photo destination combo")));
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("No pending photo destination combo")));
             } else {
                 return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
                     if (photo == null) {
-                        return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Photo not found")));
+                        return CompletableFuture
+                            .supplyAsync(() -> notFound(Json.toJson("Photo not found")));
                     }
                     JsonNode oldDestination = Json.toJson(destination);
                     destination.primaryPhoto = photo;
@@ -547,8 +555,8 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets a paged list of destinations that are visible to the currently logged in user
-     * This means any public destinations, or private destinations that they own
+     * Gets a paged list of destinations that are visible to the currently logged in user This means
+     * any public destinations, or private destinations that they own
      *
      * @param request Http request
      * @param searchQuery Query to search all fields for
@@ -578,29 +586,33 @@ public class DestinationController extends TEABackController {
         Long userId = request.attrs().get(ActionState.USER).id;
 
         // Constrain sortBy to a set, default to creation date
-        if(sortBy == null ||
-            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude", "country.name").contains(sortBy)) {
+        if (sortBy == null ||
+            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude",
+                "country.name").contains(sortBy)) {
             sortBy = "id";
         }
 
-        return destinationRepository.getPagedDestinations(userId, searchQuery, onlyGetMine, sortBy, ascending, pageNum, pageSize)
-            .thenApplyAsync(destinations -> ok(Json.toJson(new PagingResponse<>(destinations.getList(), requestOrder, destinations.getTotalPageCount()))));
+        return destinationRepository
+            .getPagedDestinations(userId, searchQuery, onlyGetMine, sortBy, ascending, pageNum,
+                pageSize)
+            .thenApplyAsync(destinations -> ok(Json.toJson(
+                new PagingResponse<>(destinations.getList(), requestOrder,
+                    destinations.getTotalPageCount()))));
     }
 
     /**
      * Gets all the destination traveller type modification request
-     *
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> getAllDestinationsWithRequests(Http.Request request) {
         return destinationRepository.getAllDestinationsWithRequests()
-                .thenApplyAsync(destinations -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(destinations)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
+            .thenApplyAsync(destinations -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(destinations)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
     }
 
     /**
@@ -617,21 +629,24 @@ public class DestinationController extends TEABackController {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture.supplyAsync(Results::notFound);
-            } else if (!destination.isPublic && !destination.user.id.equals(followerId) ){
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId)) {
                 return CompletableFuture.supplyAsync(Results::forbidden);
             } else {
-                return destinationRepository.getFollower(destId, followerId).thenComposeAsync(followerDestination -> {
-                    if (followerDestination == null) {
-                        FollowerDestination newFollowerDestination = new FollowerDestination();
-                        newFollowerDestination.followerId = followerId;
-                        newFollowerDestination.destinationId = destId;
-                        return destinationRepository.insertFollower(newFollowerDestination).thenApplyAsync(guid ->
-                            ok(Json.toJson("followed")));
-                    } else {
-                        return destinationRepository.deleteFollower(followerDestination.guid).thenApplyAsync(delete ->
-                            ok(Json.toJson("unfollowed")));
-                    }
-                });
+                return destinationRepository.getFollower(destId, followerId)
+                    .thenComposeAsync(followerDestination -> {
+                        if (followerDestination == null) {
+                            FollowerDestination newFollowerDestination = new FollowerDestination();
+                            newFollowerDestination.followerId = followerId;
+                            newFollowerDestination.destinationId = destId;
+                            return destinationRepository.insertFollower(newFollowerDestination)
+                                .thenApplyAsync(guid ->
+                                    ok(Json.toJson("followed")));
+                        } else {
+                            return destinationRepository.deleteFollower(followerDestination.guid)
+                                .thenApplyAsync(delete ->
+                                    ok(Json.toJson("unfollowed")));
+                        }
+                    });
 
             }
         });
@@ -652,18 +667,19 @@ public class DestinationController extends TEABackController {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture.supplyAsync(Results::notFound);
-            } else if (!destination.isPublic && !destination.user.id.equals(followerId) ){
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId)) {
                 return CompletableFuture.supplyAsync(Results::forbidden);
             } else {
-                return destinationRepository.getFollower(destId, followerId).thenComposeAsync(followerDestination -> {
-                    if (followerDestination == null) {
-                        //Not following
-                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
-                    } else {
-                        //Following
-                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
-                    }
-                });
+                return destinationRepository.getFollower(destId, followerId)
+                    .thenComposeAsync(followerDestination -> {
+                        if (followerDestination == null) {
+                            //Not following
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                        } else {
+                            //Following
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                        }
+                    });
             }
         });
 
@@ -680,7 +696,8 @@ public class DestinationController extends TEABackController {
         WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
         request.addQueryParameter("key", apiKey);
 
-        return request.execute().thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
+        return request.execute()
+            .thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
     }
 
     /**
@@ -703,10 +720,16 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController
                     .toggleRejectTravellerType(),
                 controllers.backend.routes.javascript.DestinationController.addNewDestination(),
-                controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.rejectDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.getAllDestinationsWithRequests()
+                controllers.backend.routes.javascript.DestinationController
+                    .changeDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController
+                    .rejectDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController
+                    .acceptDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getAllDestinationsWithRequests(),
+                controllers.backend.routes.javascript.DestinationController.getFollowerStatus(),
+                controllers.backend.routes.javascript.DestinationController.toggleFollowerStatus()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

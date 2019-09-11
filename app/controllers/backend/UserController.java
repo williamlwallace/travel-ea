@@ -420,7 +420,9 @@ public class UserController extends TEABackController {
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
                 controllers.backend.routes.javascript.UserController.userSearch(),
-                controllers.backend.routes.javascript.UserController.getUser()
+                controllers.backend.routes.javascript.UserController.getUser(),
+                controllers.backend.routes.javascript.UserController.getFollowerStatus(),
+                controllers.backend.routes.javascript.UserController.toggleFollowerStatus()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
