@@ -69,6 +69,9 @@ INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id) VALUES (1, null
 INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id) VALUES (2, null, 'NEW_PROFILE_PHOTO', 2);
 INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id) VALUES (2, 2, 'LINK_DESTINATION_PHOTO', 3);
 
+-- Add following of a destination for testing
+INSERT INTO FollowerDestination(destination_id, follower_id) VALUES (9, 2);
+
 -- !Downs
 DELETE FROM NewsFeedEvent;
 DELETE FROM UsedTag;
@@ -83,6 +86,7 @@ DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM DestinationTravellerTypePending;
 DELETE FROM DestinationTravellerType;
+DELETE FROM FollowerDestination;
 DELETE FROM Destination;
 DELETE FROM TravellerType;
 DELETE FROM TravellerTypeDefinition;

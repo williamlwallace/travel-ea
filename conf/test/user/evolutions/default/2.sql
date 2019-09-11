@@ -13,6 +13,9 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1), (2, 2);
 
+-- Add a follower to first user
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (1,2);
+
 -- !Downs
 -- Now delete all rows from tables (DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE)
 DELETE FROM UsedTag;
@@ -27,6 +30,7 @@ DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM DestinationTravellerTypePending;
 DELETE FROM DestinationTravellerType;
+DELETE FROM FollowerUser;
 DELETE FROM Destination;
 DELETE FROM TravellerType;
 DELETE FROM TravellerTypeDefinition;

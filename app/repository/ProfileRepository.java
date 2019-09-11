@@ -28,7 +28,6 @@ public class ProfileRepository {
     private final Expression SQL_FALSE = Expr.raw("false");
     private final Expression SQL_TRUE = Expr.raw("true");
 
-
     @Inject
     public ProfileRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext executionContext) {
         this.ebeanServer = Ebean.getServer(ebeanConfig.defaultServer());
