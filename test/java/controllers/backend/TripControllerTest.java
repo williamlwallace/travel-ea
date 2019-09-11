@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.CREATED;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.DELETE;
@@ -897,6 +898,47 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     public void copyTrip() throws IOException {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/trips/2");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, getResult.status());
+
+        JsonNode trips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResult), JsonNode.class);
+        assertEquals(1, trips.size());
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/1/copy");
+
+        Result result = route(fakeApp, request);
+        assertEquals(CREATED, result.status());
+
+        Result getResultConfirm = route(fakeApp, getRequest);
+        assertEquals(OK, getResultConfirm.status());
+
+        JsonNode newTrips = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResultConfirm), JsonNode.class);
+        assertEquals(2, newTrips.size());
+    }
+
+    @Test
+    public void copyTripForbidden() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip/1/copy");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void copyTripSameUser() throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
             .cookie(nonAdminAuthCookie)
             .uri("/api/user/trips/2");
 
@@ -923,5 +965,13 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         assertEquals(2, newTrips.size());
     }
 
+    @Test
+    public void copyTripPrivateTripAsAdmin() {
 
+    }
+
+    @Test
+    public void copyTripDoesNotExist() {
+
+    }
 }

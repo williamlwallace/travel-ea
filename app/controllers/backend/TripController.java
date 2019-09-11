@@ -320,12 +320,12 @@ public class TripController extends TEABackController {
     }
 
     /**
-     * Copies one user's trip into another users trips
+     * Copies one user's trip into another users trips.
      *
      * @param request The HTTP request
      * @param tripId The id of the trip to copy
-     * @return 201 if successful, 400 if the trip data is invalid, 403 if the user is not authorised
-     * to copy the trip, 404 if the trip or the user does not exist
+     * @return 201 if successful, 403 if the user is not authorise to copy the trip, 404 if the trip
+     * or the user does not exist
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> copyTrip(Http.Request request, Long tripId) {
