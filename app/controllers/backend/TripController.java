@@ -25,6 +25,7 @@ import models.enums.NewsFeedEventType;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
@@ -85,10 +86,9 @@ public class TripController extends TEABackController {
                 userId == -1)
             .thenApplyAsync(trips -> {
                 try {
-                    return ok(sanitizeJson(Json.toJson(
-                        new PagingResponse<>(trips.getList(), requestOrder,
-                            trips.getTotalPageCount())
-                    )));
+                    PagingResponse<Trip> toReturn = new PagingResponse<>(trips.getList(),
+                        requestOrder, trips.getTotalPageCount());
+                    return ok(sanitizeJson(Json.toJson(toReturn)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
@@ -357,13 +357,28 @@ public class TripController extends TEABackController {
      *
      * @param request The HTTP request
      * @param tripId The id of the trip to copy
-     * @return 201 if successful, 403 if the user is not authorise to copy the trip, 404 if the trip
-     * or the user does not exist
+     * @return 201 if successful, 401 if the user is not logged in, 403 if the user is not
+     * authorised to copy the trip, 404 if the trip does not exist
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> copyTrip(Http.Request request, Long tripId) {
-        //Should block non-admins from copying a private trip
-        return null;
+        User user = request.attrs().get(ActionState.USER);
+        return tripRepository.getTripById(tripId).thenComposeAsync(trip -> {
+            if (trip == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (user.admin || trip.isPublic || user.id.equals(trip.userId)) {
+                trip.tripDataList.size(); //This forces ebean to resolve the tripDataList
+                return tripRepository.copyTrip(trip, user.id).thenApplyAsync(newTripId -> {
+                    try {
+                        return created(sanitizeJson(Json.toJson(newTripId)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+            } else {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            }
+        });
     }
 
     /**

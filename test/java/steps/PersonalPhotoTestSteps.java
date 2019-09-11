@@ -33,12 +33,14 @@ import util.objects.Pair;
 
 public class PersonalPhotoTestSteps {
 
+    private static final String API_USER_1_PHOTO = "/api/user/1/photo";
+
     @Given("I have no photos")
     public void i_have_no_photos() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result result = route(fakeApp, request);
         ObjectMapper mapper = new ObjectMapper();
@@ -51,7 +53,6 @@ public class PersonalPhotoTestSteps {
         List<Photo> photos = response.data;
 
         for (int i = 0; i < photos.size(); i++) {
-            System.out.println(photos.get(i).guid);
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
                 .method(DELETE)
                 .cookie(adminAuthCookie)
@@ -64,7 +65,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
 
@@ -123,7 +124,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result result = route(fakeApp, request);
         Assert.assertEquals(OK, result.status());
@@ -146,7 +147,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result result = route(fakeApp, request);
         JsonNode photos = new ObjectMapper()

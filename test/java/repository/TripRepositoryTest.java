@@ -267,7 +267,6 @@ public class TripRepositoryTest extends repository.RepositoryTest {
     public void getAllTrips() {
         List<Trip> trips = tripRepository.searchTrips(1L, 1L, "", true, 1, 10, false, true).join()
             .getList();
-        ;
 
         assertEquals(3, trips.size());
         assertTrue(checkSecondTrip(trips.get(1)));
@@ -298,14 +297,14 @@ public class TripRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getDeletedTripNotDeleted() {
-        Trip trip = tripRepository.getTripById(2L).join();
+        Trip trip = tripRepository.getDeletedTrip(2L).join();
 
         assertTrue(checkSecondTrip(trip));
     }
 
     @Test
     public void getDeletedTripInvalidId() {
-        Trip trip = tripRepository.getTripById(99999L).join();
+        Trip trip = tripRepository.getDeletedTrip(99999L).join();
 
         assertNull(trip);
     }
@@ -322,7 +321,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
         Long firstTripData = trip.tripDataList.get(0).guid;
 
         Long newTripId = tripRepository.copyTrip(trip, 3L).join();
-        assertEquals((Long) 4L, newTripId);
+        assertEquals((Long) 5L, newTripId);
 
         List<Long> copiedIds = new ArrayList<>();
         copiedIds.add(newTripId);
@@ -330,7 +329,7 @@ public class TripRepositoryTest extends repository.RepositoryTest {
         assertEquals(1, copiedTrips.size());
         Trip copiedTrip = copiedTrips.get(0);
 
-        assertEquals((Long) 4L, copiedTrip.id);
+        assertEquals((Long) 5L, copiedTrip.id);
         assertEquals((Long) 3L, copiedTrip.userId);
         assertEquals(trip.isPublic, copiedTrip.isPublic);
         assertEquals(trip.tripDataList.size(), copiedTrip.tripDataList.size());
