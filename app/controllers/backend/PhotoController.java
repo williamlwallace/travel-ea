@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,9 +28,8 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import models.NewsFeedEvent;
 import models.Photo;
-import models.User;
 import models.Tag;
-import java.time.LocalDateTime;
+import models.User;
 import models.enums.NewsFeedEventType;
 import play.libs.Files;
 import play.libs.Json;
@@ -194,7 +194,8 @@ public class PhotoController extends TEABackController {
                 if (photo == null) {
                     return CompletableFuture.supplyAsync(() -> notFound("Photo does not exist"));
                 } else if (!photo.userId.equals(loggedInUser.id) && !loggedInUser.admin) {
-                    return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to make this photo a profile picture"));
+                    return CompletableFuture.supplyAsync(() -> forbidden(
+                        "You do not have permission to make this photo a profile picture"));
                 }
 
                 // Store old profile photo ID to send in response
@@ -210,17 +211,18 @@ public class PhotoController extends TEABackController {
                     newsFeedEvent.refId = photoId;
                     newsFeedEvent.eventType = NewsFeedEventType.NEW_PROFILE_PHOTO.name();
 
-                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(id -> {
-                        if (oldProfilePhoto == null) {
-                            return ok(Json.newObject().nullNode());
-                        }
+                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                        .thenApplyAsync(id -> {
+                            if (oldProfilePhoto == null) {
+                                return ok(Json.newObject().nullNode());
+                            }
 
-                        try {
-                            return ok(sanitizeJson(Json.toJson(oldProfilePhoto.guid)));
-                        } catch (IOException ex) {
-                            return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                        }
-                    });
+                            try {
+                                return ok(sanitizeJson(Json.toJson(oldProfilePhoto.guid)));
+                            } catch (IOException ex) {
+                                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            }
+                        });
                 });
             });
         });
@@ -250,17 +252,17 @@ public class PhotoController extends TEABackController {
         try {
             return profileRepository.updateCoverPhotoAndReturnExistingId(id, newPhotoId)
                 .thenComposeAsync(returnedId -> {
-                    // Create news feed event for profile update
-                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
-                    newsFeedEvent.userId = id;
-                    newsFeedEvent.refId = newPhotoId;
-                    newsFeedEvent.eventType = NewsFeedEventType.NEW_PROFILE_COVER_PHOTO.name();
+                        // Create news feed event for profile update
+                        NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                        newsFeedEvent.userId = id;
+                        newsFeedEvent.refId = newPhotoId;
+                        newsFeedEvent.eventType = NewsFeedEventType.NEW_PROFILE_COVER_PHOTO.name();
 
-                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
-                        .thenApplyAsync(eventId ->
-                            returnedId != null ? ok(Json.toJson(returnedId))
-                                : ok(Json.newObject().nullNode())
-                        );
+                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                            .thenApplyAsync(eventId ->
+                                returnedId != null ? ok(Json.toJson(returnedId))
+                                    : ok(Json.newObject().nullNode())
+                            );
                     }
                 );
         } catch (NullPointerException e) {
@@ -363,7 +365,6 @@ public class PhotoController extends TEABackController {
         String[] photoCaptions =
             (formKeys.get(CAPTION) == null) ? new String[]{""} : formKeys.get(CAPTION);
 
-
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
         ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>>
@@ -403,13 +404,15 @@ public class PhotoController extends TEABackController {
                     }
                 } else {
                     // If any uploads fail, return bad request immediately
-                    return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Missing file")));
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(Json.toJson("Missing file")));
                 }
             }
 
             // If no photos were actually found, and no other error has been thrown, throw it now
             if (photos.isEmpty()) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest(Json.toJson("No files given")));
             } else {
                 try {
                     return saveMultiplePhotos(photos, loggedInUser, profilePhotoFilename != null);
@@ -461,9 +464,9 @@ public class PhotoController extends TEABackController {
             return photoRepository.addPhotos(photosToAdd, user).thenApplyAsync(addedPhotos -> {
                 // Return filename of photo that was just added
                 addedPhotos.get(0).thumbnailFilename =
-                        "../user_content/" + addedPhotos.get(0).thumbnailFilename;
+                    "../user_content/" + addedPhotos.get(0).thumbnailFilename;
                 addedPhotos.get(0).filename = "../user_content/" + addedPhotos.get(0).filename;
-                return  created(Json.toJson(addedPhotos.get(0)));
+                return created(Json.toJson(addedPhotos.get(0)));
             });
 
         } else {
@@ -723,8 +726,7 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Gets destination photos based on logged in user.
-     * Desttination photos not currently paginated
+     * Gets destination photos based on logged in user. Desttination photos not currently paginated
      *
      * @param request Request containing authentication information
      * @param destId id of destination

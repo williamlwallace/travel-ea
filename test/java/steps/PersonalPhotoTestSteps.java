@@ -42,8 +42,10 @@ public class PersonalPhotoTestSteps {
 
         Result result = route(fakeApp, request);
         ObjectMapper mapper = new ObjectMapper();
-        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> response = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> photos = response.data;
@@ -67,8 +69,10 @@ public class PersonalPhotoTestSteps {
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
 
         ObjectMapper newMapper = new ObjectMapper();
-        PagingResponse<Photo> emptyResponse =  newMapper.convertValue(mapper.readTree(Helpers.contentAsString(checkEmptyResult)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> emptyResponse = newMapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(checkEmptyResult)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> checkEmptyPhotos = emptyResponse.data;
@@ -125,8 +129,10 @@ public class PersonalPhotoTestSteps {
         Assert.assertEquals(OK, result.status());
 
         ObjectMapper mapper = new ObjectMapper();
-        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> response = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> photos = response.data;
