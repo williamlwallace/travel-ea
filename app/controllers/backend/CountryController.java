@@ -39,7 +39,7 @@ public class CountryController extends TEABackController {
     }
 
     /**
-     * Gets a country by id
+     * Gets a country by id.
      *
      * @param id the id of the country to retrieve
      * @return The country if found, or an error if not
@@ -59,7 +59,7 @@ public class CountryController extends TEABackController {
     }
 
     /**
-     * Adds a country to the database
+     * Adds a country to the database.
      *
      * @param request The request containing the country id and name
      * @return Ok with the country id if successful or an error if not
