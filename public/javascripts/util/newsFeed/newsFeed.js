@@ -10,8 +10,10 @@ class NewsFeed {
      * @param {String} id - ID for instance of class to define differences per page
      * @param {String} URL - URL of the newsfeed
      */
-    construtor(userId, id, URL) {
+    constructor(userId, id, URL) {
         this.PAGE_SIZE = 10;
+        this.EMPTY_NEWS_FEED = 'Nothing in the news feed!';
+        this.NO_MORE_LOAD = 'Nothing more to load!';
         this.userId = userId;
         this.id = id;
         this.URL = URL;
@@ -25,23 +27,23 @@ class NewsFeed {
      * gets next page of data
      */
     getPage() {
-        url = this.createURL();
+        const url = this.createURL();
         get(url)
         .then(response => {
-            response.json().then(json => {
-                if (response.status !== 200) {
-                    toast("Error", "Error loading news feed", "primary")
-                    return;
-                }
-                if (json.totalNumberPages <= this.pageNumber) {
-                    noMorePages();
-                    return;
-                }
-                if (this.insertData(json.requestOrder, json.data)) {
-                    this.createCards(json.data);
-                    this.pageNumber++;
-                }
-            });
+            if (response.status !== 200) {
+                toast("Error", "Error loading news feed", "primary")
+            }
+            return response.json()
+        })
+        .then(json => {
+            if (response.status !== 200 || json.totalNumberPages <= this.pageNumber) {
+                noMorePages();
+                return;
+            }
+            if (this.insertData(json.requestOrder, json.data)) {
+                this.createCards(json.data);
+                this.pageNumber++;
+            }
         });
     }
 
@@ -79,8 +81,7 @@ class NewsFeed {
      * Shows no more pages to be loaded
      */
     noMorePages() {
-        //Do something
-        return;
+        this.feed.find('#feed-bottom-message').text(this.pageNumber ? this.NO_MORE_LOAD : this.EMPTY_NEWS_FEED);
     }
 
     /**
