@@ -195,6 +195,14 @@ function createWrapperCard(thumbnail, message, time) {
     return clone;
 }
 
+function addTags(card, tags) {
+    const list = card.find('.wrapper-tags');
+    const tagsDisplay = new TagDisplay('fakeId');
+    tagsDisplay.list = list;
+    console.log(tagsDisplay);
+    tagsDisplay.populateTags(tags);
+}
+
 /**
 * Reformats date list into string
 *
@@ -240,6 +248,7 @@ function createdNewTripCard(event) {
     const card = createdUserWrapperCard(event);
     const tripCard = createTripCard(event.data);
     card.find('.wrapper-body').append(tripCard);
+    addTags(card, event.data.tags);
     return card;
 }
 
@@ -261,11 +270,10 @@ function updatedExistingTripCard(event) {
 function newProfilePhotoCard(event) {
     const card = createdUserWrapperCard(event);
 
-    const template = $("#profile-photo-card-template").get(0);
+    const template = $("#photo-card-template").get(0);
     const photoCard = $(template.content.cloneNode(true));
 
-    photoCard.find('.profile-photo-caption').text(event.data.caption);
-    photoCard.find('.profile-photo-picture').attr("src", "../user_content/" + event.data.filename);
+    photoCard.find('.photo-picture').attr("src", "../user_content/" + event.data.filename);
 
     card.find('.wrapper-body').append(photoCard);
     return card;

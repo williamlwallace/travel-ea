@@ -11,7 +11,8 @@
 }
 
 .wrapper-picture {
-    height: 70px;
+    height: 60px;
+    width: 60px;
 }
 
 .wrapper-title {
@@ -24,15 +25,31 @@
 }
 
 .wrapper-body {
-    margin-top: 20px;
+    margin-top: 14px;
+}
 
+.wrapper-body > * {
+    box-shadow: none !important;
+}
+
+.wrapper-tags li {
+    font-family: "Liberation Mono";
+    background-color: #107DF1;
+    color: #fff;
+    border-radius: 3px;
+    margin: 8px 3px 0px 3px;
+    font-size: 14px;
+    max-height: 25px;
+    line-height: 16px;
+    padding:4px;
+    display: table
 }
 
 .wrapper-footer {
-
+    padding: 15px;
 }
 
-.profile-photo-picture {
+.photo-picture {
     height: 200px;
     width: 200px;
 }
