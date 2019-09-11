@@ -62,7 +62,7 @@ public class DestinationTestSteps {
         assertEquals(OK, result.status());
 
         // Get id of destination
-        assertSame(5L, new ObjectMapper()
+        assertSame(6L, new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class));
     }
 
@@ -72,7 +72,7 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/makePublic/" + 5);
+            .uri("/api/destination/makePublic/" + 6);
 
         // Get result and check it was successfully
         Result result = route(fakeApp, request);
@@ -106,7 +106,7 @@ public class DestinationTestSteps {
         assertEquals(OK, result.status());
 
         // Get id of destination
-        assertSame(6L, new ObjectMapper()
+        assertSame(7L, new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Long.class));
 
         // Create request to make destination public
@@ -125,10 +125,11 @@ public class DestinationTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/" + 5);
+            .uri("/api/destination/" + 6);
 
         // Check destination is public
         Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
 
         // Deserialize result to list of destinations
         Destination destinations = new ObjectMapper()
@@ -137,14 +138,12 @@ public class DestinationTestSteps {
         assertTrue(destinations.isPublic);
     }
 
-
-
     @Then("My private destination is automatically merged with the public one")
     public void my_private_destination_is_automatically_merged_with_the_public_one() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(nonAdminAuthCookie)
-            .uri("/api/destination/" + 5);
+            .uri("/api/destination/" + 7);
 
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());

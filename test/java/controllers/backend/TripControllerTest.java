@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import util.objects.PagingResponse;
 
 public class TripControllerTest extends controllers.backend.ControllersTest {
 
@@ -259,6 +261,44 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             assertNull(tripData.arrivalTime);
             assertNull(tripData.departureTime);
         }
+    }
+
+    @Test
+    public void updateTripPublicWithPrivateDest() throws IOException {
+        // Creates trip object
+        int[] destinations = new int[]{1, 2, 5};
+        String[] arrivalTimes = new String[]{null, null, null};
+        String[] departureTimes = new String[]{null, null, null};
+        Set<Tag> tripTags = new HashSet<>();
+
+        Trip trip = createTestTripObject(true, destinations, arrivalTimes, departureTimes,
+            tripTags);
+
+        trip.id = 4L;
+        JsonNode node = Json.toJson(trip);
+
+        // Update trip object inserted in evolutions script
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        Result result = route(fakeApp, request);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Get error response
+        HashMap<String, String> response = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result),
+                new TypeReference<HashMap<String, String>>() {
+                });
+
+        // Expected error messages
+        HashMap<String, String> expectedMessages = new HashMap<>();
+        expectedMessages.put("3", "Public trip cannot have private destination.");
+
+        assertEquals(1, response.size());
+        assertEquals(expectedMessages, response);
     }
 
     @Test
@@ -578,6 +618,59 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
     }
 
     @Test
+    public void updateTripPrivacy() throws IOException {
+        Trip trip = new Trip();
+        trip.id = 1L;
+        trip.userId = 1L;
+        trip.isPublic = true;
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(trip))
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/privacy");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result result = route(fakeApp, insertRequest);
+        assertEquals(OK, result.status());
+
+        // Check result has old privacy status of false
+        JsonNode data = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        Trip oldTrip = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(data), new TypeReference<Trip>() {
+            });
+
+        assertFalse(oldTrip.isPublic);
+    }
+
+    @Test
+    public void makeTripPublicHasPrivateDestinations() throws IOException {
+        Trip trip = new Trip();
+        trip.id = 4L;
+        trip.userId = 1L;
+        trip.isPublic = true;
+
+        // Create request to insert trip
+        Http.RequestBuilder insertRequest = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(trip))
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/privacy");
+
+        // Get result, check it was successful and retrieve trip ID
+        Result result = route(fakeApp, insertRequest);
+        assertEquals(BAD_REQUEST, result.status());
+
+        // Check result message is correct
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+        assertEquals("Trip cannot be public as it contains a private destination", message);
+    }
+
+    @Test
     public void transferDestinationOwnershipByTrip() throws IOException {
         // Check destination 4 is public and owned by user 2
         Http.RequestBuilder initGetRequest = Helpers.fakeRequest()
@@ -667,15 +760,22 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        JsonNode trips = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(1, trips.size());    // Because 1 trip inserted in evolutions
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
+        assertEquals(2, trips.size());    // Because 1 trip inserted in evolutions
     }
 
     @Test
@@ -683,16 +783,22 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/100");
+            .uri("/api/trip?userId=100");
 
         // Get result and check no trips were returned
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        JsonNode trips = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
-        assertEquals(0, trips.size());
 
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
+        assertEquals(0, trips.size());
     }
 
     @Test
@@ -700,23 +806,30 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Deletes trip added in evolutions
         Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
             .method(PUT)
-            .cookie(adminAuthCookie)
-            .uri("/api/trip/1/delete");
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip/2/delete");
 
         Result deleteResult = route(fakeApp, deleteRequest);
         assertEquals(OK, deleteResult.status());
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip?userId=2");
 
         // Get result and check no trips were returned
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        JsonNode trips = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), JsonNode.class);
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        List<Trip> trips = pagingResponse.data;
         assertEquals(0, trips.size());
     }
 
@@ -754,16 +867,20 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, getResult.status());
 
-        JsonNode tripsJson = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(getResult), JsonNode.class);
-        trips = new ObjectMapper()
-            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {
-            });
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        trips = pagingResponse.data;
         assertFalse(trips.isEmpty());
 
         for (int i = 0; i < trips.size() - 1; i++) {
@@ -814,28 +931,28 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/trips/1");
+            .uri("/api/trip?userId=1");
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, getResult.status());
 
-        JsonNode tripsJson = new ObjectMapper()
+        JsonNode json = new ObjectMapper()
             .readValue(Helpers.contentAsString(getResult), JsonNode.class);
-        trips = new ObjectMapper()
-            .readValue(new ObjectMapper().treeAsTokens(tripsJson), new TypeReference<List<Trip>>() {
-            });
+
+        PagingResponse<Trip> pagingResponse = new ObjectMapper()
+            .readValue(new ObjectMapper().treeAsTokens(json),
+                new TypeReference<PagingResponse<Trip>>() {
+                });
+
+        trips = pagingResponse.data;
         assertFalse(trips.isEmpty());
 
         for (int i = 0; i < trips.size() - 1; i++) {
-            // If both not null, check index i date is after index i+1 date
+            // If two consecutive trips have dates, the first should be more recent of equal to the second
             if (trips.get(i).findFirstTripDateAsDate() != null
                 && trips.get(i + 1).findFirstTripDateAsDate() != null) {
                 assertTrue(trips.get(i).findFirstTripDateAsDate()
                     .compareTo(trips.get(i).findFirstTripDateAsDate()) <= 0);
-            }
-            // Else ensure index i+1 date is null, if this is not null then index i will be null and it will not be ordered correctly
-            else {
-                assertNull(trips.get(i + 1).findFirstTripDateAsDate());
             }
         }
     }

@@ -56,7 +56,7 @@ div.destination-main {
  * Text paragraph styling
  */
 p {
-    font-family: 'Roboto', sans-serif;
+
     font-size: 20px;
     font-weight: 400;
 }
@@ -65,7 +65,7 @@ p {
  * Section titles
  */
 p.heading {
-    font-family: 'Roboto', sans-serif;
+
     font-size: 20px;
     font-weight: 600;
     margin-bottom: 2px;
@@ -312,4 +312,16 @@ section#timeline article:nth-child(n) div.inner h2 {
 }
 section#timeline article:nth-child(n) div.inner h2:after {
     background: #5283B7;
+}
+
+/* Tab panel buttons */
+.dest-nav{display:block;padding:0 1.5rem 0;color: #000000;}
+.dest-nav:focus,.dest-nav:hover{text-decoration:none}
+.dest-nav.active{border-bottom: 1px solid #495057;}
+.dest-nav:hover{color:#495057}
+.dest-nav{margin-bottom:2rem}
+.dest-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
+.dest-nav-text{font-weight: 600; font-size: 22px}
+.tab-buttons {
+    padding: 0 2.5rem 0 1.5rem;
 }

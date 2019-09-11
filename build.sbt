@@ -35,4 +35,6 @@ libraryDependencies += "io.cucumber" % "cucumber-jvm" % "4.2.0" % " test "
 libraryDependencies += "io.cucumber" % "cucumber-junit" % "4.2.0" % " test "
 libraryDependencies += "io.cucumber" % "cucumber-java" % "4.2.0"
 
+javaOptions in Test += "-Dconfig.file=conf/application.test.conf"
+
 

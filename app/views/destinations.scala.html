@@ -34,8 +34,6 @@
             <div id="createDestinationPopOut" class="col-md-0 hideCreateDestinationPopOut">
                 <div class="tab-content pt-2" id="myTabContent">
 
-                    <H2>Destinations</H2>
-
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         <li class="nav-item">
                             <a class="black-nav nav-link active" id="card-tab" data-toggle="tab" href="#cardsTab" role="tab" aria-controls="tableTab" aria-selected="false">View</a>
@@ -159,21 +157,11 @@
                                 </div>
                             </div>
                         </form>
-                        <div>Country
-                            <em class="fas prefix grey-text"></em>
-                            <select id="countryDropDown" name="countryId"
-                            class="form-control validate selectpicker"
-                            data-live-search="true"
-                            data-size="5"></select>
-                            <label id="countryError" class="error-messages"></label>
-                        </div>
-                        <br/>
                         <div>
                             @modules.tagPicker("destinations-tag")
                         </div>
                     </div>
                 </form>
-
                         <div class="modal-footer d-flex justify-content-center">
                             <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
                             </button>

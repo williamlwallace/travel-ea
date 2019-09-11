@@ -341,7 +341,7 @@ public class DestinationController extends TEABackController {
      * @param request The request
      * @param destId The id of the destination
      * @param travellerTypeId The id of the traveller type
-     * @return ok is traveller type request toggled, forbidden if user not admin, not found if
+     * @return ok is traveller type request togglenatured, forbidden if user not admin, not found if
      * destination or traveller type does not exist
      */
     @With({Admin.class, Authenticator.class})
@@ -589,7 +589,7 @@ public class DestinationController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletionStage<Result> googleMapsHelper() {
-        String apiKey = "AIzaSyC9Z1g5p2rQtS0nHgDudzCCXVl2HJl3NPI";
+        String apiKey = "";
         WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
         request.addQueryParameter("key", apiKey);
 

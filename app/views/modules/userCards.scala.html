@@ -1,5 +1,5 @@
 <template id="userCardTemplate">
-    <div id="card" class="card" style="cursor: pointer">
+    <div id="card" class="card user-card" style="cursor: pointer">
         <div id="inner-card" class="card flex-row">
             <div class="card-header" style="background-color: #f1f1f1">
                 <div id ="card-thumbnail-div" class="card-header border-0" style="display:table;background-color: #f1f1f1";">
@@ -11,18 +11,24 @@
             </div>
             <div class="card-body font-weight-bold">
                 <div class="card">
-                    <div class="card-body">
-                        <p class="card-text" id="username">
-                            <em class="fas fa-envelope"></em>
-                        </p>
-                        <p class="card-text" id="id">
-                            <em class="fas fa-id-card"></em>
-                        </p>
-                        <p class="admin-label card-text" id="admin">
-                            <em class="fas fa-user-shield"></em>
-                        </p>
-                        <div id="adminBtn"></div>
-                        <div id="deleteBtn"></div>
+                    <div class="card-body row">
+                        <div class="col-md-8">
+                            <p class="card-text" id="username">
+                                <em class="fas fa-envelope"></em>
+                            </p>
+                            <p class="card-text" id="id">
+                                <em class="fas fa-id-card"></em>
+                            </p>
+                            <p class="admin-label card-text" id="admin">
+                                <em class="fas fa-user-shield"></em>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="adminBtn" class="user-card-button"></div>
+                        <!-- </div>
+                        <div class="col-lg-4 text-center"> -->
+                            <div id="deleteBtn" class="user-card-button"></div>
+                        </div>
                     </div>
                 </div>
             </div>

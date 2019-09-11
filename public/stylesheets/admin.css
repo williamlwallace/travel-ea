@@ -1,20 +1,3 @@
-@font-face {
-    font-family: 'Roboto';
-    src: url(../font/roboto/Roboto-Regular.eot) format('embedded-opentype'),
-         url(../font/roboto/Roboto-Regular.ttf) format('truetype'),
-         url(../font/roboto/Roboto-Regular.woff) format('woff'),
-         url(../font/roboto/Roboto-Regular.woff2) format('woff2');
-}
-
-@font-face {
-    font-family: 'Roboto';
-    src: url(../font/roboto/Roboto-Bold.eot) format('embedded-opentype'),
-         url(../font/roboto/Roboto-Bold.ttf) format('truetype'),
-         url(../font/roboto/Roboto-Bold.woff) format('woff'),
-         url(../font/roboto/Roboto-Bold.woff2) format('woff2');
-    font-weight: bold;
-}
-
 body {
     padding-top: 80px;
     background-color: #ffffff;
@@ -22,7 +5,7 @@ body {
 }
 
 body > .container {
-    font-family: 'Roboto', sans-serif;
+
     padding: 60px 15px 0;
 }
 
@@ -54,39 +37,6 @@ code {
     text-decoration: none;
     border-bottom: 1px solid currentColor;
     padding-bottom: 12px;
-}
-
-/**
-* Style for Primary button
- */
-.btn-primary {
-    font-family: 'Roboto', sans-serif;
-    background-color: #5283B7;
-    border-radius: 8px;
-    border: 2px solid #5283B7;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-}
-
-.btn-primary:hover {
-    background-color: white;
-    color: #5283B7;
-    border: 2px solid #5283B7;
-}
-
-.btn-popup {
-    font-family: 'Roboto', sans-serif;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 2px solid #ebebeb;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-}
-
-.btn-popup:hover {
-    background-color: #ebebeb;
-    color: #000000;
-    border: 2px solid #cbcbcb;
 }
 
 .error-messages {

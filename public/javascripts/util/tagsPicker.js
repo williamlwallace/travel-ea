@@ -20,8 +20,16 @@ class TagPicker {
 
         this.input.bind({
             keydown: this.keyDown.bind(this),
-            keyup: this.keyUp.bind(this)
+            keyup: this.keyUp.bind(this),
+            focusin: this.focusin.bind(this),
+            focusout: this.focusout.bind(this)
         });
+        //Focus input no matter where you click
+        $(`#${this.id}`).click(function(input) {
+            input.focus();
+        }.bind(null, this.input));
+
+        this.userId = userId;
         this.fillTagSuggestions(userId);
     }
 
@@ -77,6 +85,20 @@ class TagPicker {
             this.overlay.html(sugTag);
         }
     };
+
+    /**
+     * Focus in handler
+     */
+    focusin(e) {
+        $(`#${this.id}`).attr('class', 'row tags focus-glow')
+    }
+
+    /**
+     * Focus out handler
+     */
+    focusout(e) {
+        $(`#${this.id}`).attr('class', 'row tags')
+    }
 
     /**
      * Inserts a tag with given name into the tag input field
@@ -170,5 +192,6 @@ class TagPicker {
     clearTags() {
         this.list.empty();
         this.list.append(this.spacer);
+        this.fillTagSuggestions(this.userId);
     }
 }

@@ -17,8 +17,6 @@ PUT           /api/user/delete                       controllers.backend.UserCon
 
 POST          /api/user                              controllers.backend.UserController.addNewUser(request:Request)
 
-GET           /api/user/trips/:id                    controllers.backend.TripController.getAllUserTrips(request:Request, id:Long)
-
 POST          /api/login                             controllers.backend.UserController.login(request:Request)
 
 POST          /api/logout                            controllers.backend.UserController.logout(request:Request)
@@ -119,7 +117,10 @@ GET           /api/maps                              controllers.backend.Destina
 
 GET           /api/tag/                              controllers.backend.TagController.getTags(request:Request, name:String ?= null, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
 
-GET          /api/tag/:id                       controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+GET           /api/tag/:id                           controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
+#personal news feed
+GET           /api/newsFeed                          controllers.backend.NewsFeedController.getPersonalNewsFeed(request:Request, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
 # ~~~~~~frontend~~~~~~~
 # Start page

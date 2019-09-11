@@ -263,12 +263,10 @@ $("#changePrimaryPhotoButton").click(function () {
 
 /**
  * Sets the destination primary photo given a specific photoID
- * @Param {Number} photoId the id of the photo to set as the cover photo
+ * @Param {Number} photoId the id of the photo to set as the primary photo
  */
 function setPrimaryPhoto(photoId) {
     const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
-        DESTINATIONID).url;
-    const destinationURL =  destinationRouter.controllers.backend.DestinationController.getDestination(
         DESTINATIONID).url;
 
 
@@ -382,15 +380,33 @@ $(document).ready(function() {
     linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
     primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
     getDestinationPhotos();
+    $("#feed-tab").click();
 });
 
 /**
- * Takes a url for the backend controller method to get the users pictures. Then uses this to fill the gallery.
+ * On click handler to change tab panel on profile page
+ */
+$('#dest-tabs a').on('click', function(event) {
+    event.preventDefault();
+    $(this).tab('show');
+    let activeTab = $('#dest-tabs a.active').attr('id');
+    if (activeTab === "photos-tab") {
+        $([document.documentElement, document.body]).animate({
+            scrollTop: $("#main-gallery").offset().top
+        }, 500);
+    }
+});
+
+/**
+ Gets a users photos and adds them to the gallery in the modal for setting a primary photo
+ * is paginated
  */
 function getPictures() {
     const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", mainGalleryPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+    url.searchParams.append("pageNum", primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "primary-photo-gallery", "current-page", function () {
+        setPrimaryPhoto(this.getAttribute("data-id"))
+    }, primaryPhotoPaginationHelper);
 }
 
 /**
