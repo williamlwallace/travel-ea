@@ -18,6 +18,7 @@ import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
 import models.strategies.photos.destination.concrete.LinkDestinationPhotoStrategy;
 import models.strategies.photos.destination.concrete.NewPrimaryDestinationPhotoStrategy;
+import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.photos.user.concrete.UploadedUserPhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
@@ -79,7 +80,9 @@ public class NewsFeedController extends TEABackController {
 
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(
-            Collections.singletonList(loggedInUser.id), null, pageNum, pageSize)
+            Collections.singletonList(loggedInUser.id), // TODO: Replace this with users followed by logged in user
+            Collections.singletonList(51L), // TODO: Replace this with destinations followed by logged in user
+            pageNum, pageSize)
             .thenComposeAsync(events -> {
                 // Collect a list of the completable strategies created for each event
                 List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
@@ -119,8 +122,11 @@ public class NewsFeedController extends TEABackController {
             case UPLOADED_USER_PHOTO:
                 return new UploadedUserPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
+            case NEW_PROFILE_COVER_PHOTO:
+                return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
+
             case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
+                return new LinkDestinationPhotoStrategy(event.refId, event.destId, event.userId, photoRepository, destinationRepository, profileRepository);
 
             case NEW_PRIMARY_DESTINATION_PHOTO:
                 return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);

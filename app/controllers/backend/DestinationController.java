@@ -14,7 +14,9 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
 import models.FollowerDestination;
+import models.NewsFeedEvent;
 import models.User;
+import models.enums.NewsFeedEventType;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -24,6 +26,7 @@ import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.NewsFeedEventRepository;
 import repository.TagRepository;
 import repository.PhotoRepository;
 import repository.TravellerTypeDefinitionRepository;
@@ -44,19 +47,21 @@ public class DestinationController extends TEABackController {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
+    private final NewsFeedEventRepository newsFeedEventRepository;
 
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
         TagRepository tagRepository, UserRepository userRepository,
-        PhotoRepository photoRepository) {
+        PhotoRepository photoRepository, NewsFeedEventRepository newsFeedEventRepository) {
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
         this.ws = ws;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.photoRepository = photoRepository;
+        this.newsFeedEventRepository = newsFeedEventRepository;
     }
 
     /**
@@ -429,8 +434,14 @@ public class DestinationController extends TEABackController {
                     else if (photo == null || photo.userId.equals(user.id)) {
                         // If request already exists
                         if (destination.hasPhotoPending(photoId)) {
-                            return CompletableFuture
-                                .supplyAsync(() -> ok(Json.toJson(oldPhoto)));
+                            // Create a new news feed event in the database
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.destId = destination.id;
+                            newsFeedEvent.refId = photoId;
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name();
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+
                         } else {
                             destination.addPendingDestinationProfilePhoto(photoId);
                         }
@@ -439,7 +450,15 @@ public class DestinationController extends TEABackController {
                             "You do not have permission to set this photo as the destination primary photo")));
                     }
                     return destinationRepository.updateDestination(destination)
-                        .thenApplyAsync(rows -> ok(Json.toJson(oldPhoto)));
+                        .thenComposeAsync(rows -> {
+                            // Create a new news feed event in the database
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.destId = destination.id;
+                            newsFeedEvent.refId = photoId;
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name();
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+                        });
                 });
         });
     }
