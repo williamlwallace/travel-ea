@@ -12,6 +12,7 @@ import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -51,6 +52,7 @@ public class NewsFeedEventRepository {
      */
     public CompletableFuture<Long> addNewsFeedEvent(NewsFeedEvent newsFeedEvent) {
         return supplyAsync(() -> {
+            newsFeedEvent.created = LocalDateTime.now();
             ebeanServer.insert(newsFeedEvent);
             return newsFeedEvent.guid;
         }, executionContext);

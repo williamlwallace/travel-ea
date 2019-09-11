@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import models.Destination;
 import models.strategies.photos.PhotoStrategy;
 import repository.DestinationRepository;
+import repository.PhotoRepository;
 
 public abstract class DestinationPhotoStrategy extends PhotoStrategy {
 
@@ -12,17 +13,19 @@ public abstract class DestinationPhotoStrategy extends PhotoStrategy {
     private Long destinationId;
 
     // Reference to destination repo singleton for fetching destination data
-    @Inject
     private DestinationRepository destinationRepository;
 
     /**
      * Constructor to instantiate an event involving some photo and some destination
      * @param photoId ID of photo referenced in event
      * @param destinationId ID of destination referenced in event
+     * @param photoRepository Instance of photoRepository
+     * @param destinationRepository Instance of destinationRepository
      */
-    public DestinationPhotoStrategy(Long photoId, Long destinationId) {
-        super(photoId);
+    public DestinationPhotoStrategy(Long photoId, Long destinationId, PhotoRepository photoRepository, DestinationRepository destinationRepository) {
+        super(photoId, photoRepository);
         this.destinationId = destinationId;
+        this.destinationRepository = destinationRepository;
     }
 
     /**

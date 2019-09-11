@@ -16,16 +16,19 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.NewsFeedEvent;
 import models.Tag;
 import models.Trip;
 import models.TripData;
 import models.User;
+import models.enums.NewsFeedEventType;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.NewsFeedEventRepository;
 import repository.TagRepository;
 import repository.TripRepository;
 import repository.UserRepository;
@@ -43,15 +46,18 @@ public class TripController extends TEABackController {
     private final DestinationRepository destinationRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final NewsFeedEventRepository newsFeedEventRepository;
 
     @Inject
     public TripController(TripRepository tripRepository, TagRepository tagRepository,
-        DestinationRepository destinationRepository, UserRepository userRepository) {
+        DestinationRepository destinationRepository, UserRepository userRepository,
+        NewsFeedEventRepository newsFeedEventRepository) {
 
         this.tripRepository = tripRepository;
         this.destinationRepository = destinationRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
+        this.newsFeedEventRepository = newsFeedEventRepository;
     }
 
     /**
@@ -329,8 +335,18 @@ public class TripController extends TEABackController {
                 return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
                     userRepository.updateUsedTags(user, trip);
                     trip.tags = existingTags;
-                    return tripRepository.insertTrip(trip).thenApplyAsync(tripId ->
-                        ok(Json.toJson(tripId)));
+                    return tripRepository.insertTrip(trip).thenComposeAsync(tripId -> {
+                        if(trip.isPublic) {
+                            NewsFeedEvent event = new NewsFeedEvent();
+                            event.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
+                            event.refId = tripId;
+                            event.userId = trip.userId;
+                            return newsFeedEventRepository.addNewsFeedEvent(event)
+                                .thenApplyAsync(id -> ok(Json.toJson(tripId)));
+                        } else {
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(tripId)));
+                        }}
+                    );
                 });
             });
     }

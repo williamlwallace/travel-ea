@@ -17,21 +17,23 @@ public abstract class TripStrategy extends NewsFeedStrategy {
     private Long userId;
 
     // Reference to profile repo singleton for fetching profile data
-    @Inject
     private ProfileRepository profileRepository;
 
     // Reference to trip repo singleton for fetching trip data
-    @Inject
     private TripRepository tripRepository;
 
     /**
      * Constructor to instantiate both required fields
      * @param tripId ID of trip the news feed event is about
      * @param userId ID of the user who has performed the event
+     * @param profileRepository Instance of profileRepository
+     * @param tripRepository Instance of tripRepository
      */
-    public TripStrategy(Long tripId, Long userId) {
+    public TripStrategy(Long tripId, Long userId, ProfileRepository profileRepository, TripRepository tripRepository) {
         this.tripId = tripId;
         this.userId = userId;
+        this.profileRepository = profileRepository;
+        this.tripRepository = tripRepository;
     }
 
     /**
