@@ -80,7 +80,9 @@ public class NewsFeedController extends TEABackController {
 
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(
-            Collections.singletonList(loggedInUser.id), null, pageNum, pageSize)
+            Collections.singletonList(loggedInUser.id), // TODO: Replace this with users followed by logged in user
+            Collections.singletonList(51L), // TODO: Replace this with destinations followed by logged in user
+            pageNum, pageSize)
             .thenComposeAsync(events -> {
                 // Collect a list of the completable strategies created for each event
                 List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
@@ -124,7 +126,7 @@ public class NewsFeedController extends TEABackController {
                 return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
 
             case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
+                return new LinkDestinationPhotoStrategy(event.refId, event.destId, event.userId, photoRepository, destinationRepository, profileRepository);
 
             case NEW_PRIMARY_DESTINATION_PHOTO:
                 return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
