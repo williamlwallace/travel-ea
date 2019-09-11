@@ -21,13 +21,7 @@ class NewsFeed {
         this.pageNumber = 0;
         this.data = {};
         this.getPage();
-         $(window).scroll(function() {
-            console.log($(document).height());
-            console.log($(window).scrollTop() + $(window).height());
-            if($(window).scrollTop() + $(window).height() == $(document).height()) {
-                alert("bottom!");
-            }
-        });
+        $(window).scroll(this.scrollHandler.bind(this));
     }
 
     /*
@@ -122,5 +116,14 @@ class NewsFeed {
      */
     formatDate(date) {
         return `${date[2]}/${date[1]}/${date[0]} ${date[3]}:${date[4]}`
+    }
+
+    /**
+     * Handles window scroll event and adds new pages when at bottom
+     */
+    scrollHandler() {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            this.getPage();
+        }
     }
 }
