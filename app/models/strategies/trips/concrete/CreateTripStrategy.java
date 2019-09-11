@@ -32,11 +32,12 @@ public class CreateTripStrategy extends TripStrategy {
         return getUserProfileAsync().thenComposeAsync(profile ->
            getReferencedTripAsync().thenApplyAsync(trip ->
                new NewsFeedResponseItem(
-                   String.format("%s %s just created a new trip with %d destinations! The trip begins in %s and ends in %s.",
-                   profile.firstName, profile.lastName, trip.tripDataList.size(),
-                   trip.tripDataList.get(0).destination.name,
-                   trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
-                   trip)
+                    String.format("just created a new trip with %d destinations! The trip begins in %s and ends in %s.", trip.tripDataList.size(),
+                    trip.tripDataList.get(0).destination.name,
+                    trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto.thumbnailFilename,
+                    trip)
         ));
     }
 }

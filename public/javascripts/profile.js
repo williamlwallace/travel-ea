@@ -10,8 +10,7 @@ let profileFeed;
  */
 $(document).ready(function() {
     getUserId().then(userId => {
-        console.log("yeret")
-        profileFeed = new NewsFeed(userId, 'profile-feed', '/api/getmyfeed/');
+        profileFeed = new NewsFeed(userId, 'profile-feed', newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(profileId).url);
     });
     paginationHelper = new PaginationHelper(1, 1,  getPictures);
     coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');

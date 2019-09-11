@@ -30,7 +30,9 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
     public CompletableFuture<NewsFeedResponseItem> execute() {
         return getReferencedPhotoAsync().thenComposeAsync(photo ->
             getUserProfileAsync().thenApplyAsync(profile ->
-                new NewsFeedResponseItem(profile.firstName + " " + profile.lastName + " has added a public photo",
+                new NewsFeedResponseItem("has added a public photo",
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto.thumbnailFilename,
                     photo)
             )
         );

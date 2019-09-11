@@ -38,8 +38,11 @@ public class LinkDestinationPhotoStrategy extends UserDestinationPhotoStrategy {
             getReferencedPhotoAsync().thenComposeAsync(photo ->
                 getReferencedDestinationAsync().thenApplyAsync(destination ->
                     new NewsFeedResponseItem(
-                        String.format("%s %s just linked a photo to the destination %s!",
-                        profile.firstName, profile.lastName, destination.name), photo)
+                        String.format("just linked a photo to the destination %s!",
+                        destination.name),
+                        String.format("%s %s", profile.firstName, profile.lastName),
+                        profile.profilePhoto.thumbnailFilename,
+                        photo)
                 )
             )
         );

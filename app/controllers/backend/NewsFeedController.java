@@ -27,6 +27,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.NewsFeedEventRepository;
 import repository.PhotoRepository;
@@ -65,7 +66,7 @@ public class NewsFeedController extends TEABackController {
     }
 
     /**
-     * Endpoint to fetch all personal news feed items for the currently logged in user
+     * Endpoint to fetch all profile news feed data
      *
      * @param request HTTP request containing user auth
      * @param pageNum Page number to retrieve
@@ -74,20 +75,30 @@ public class NewsFeedController extends TEABackController {
      * @return Paging response with all JsonNode values needed to create cards for each event
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getPersonalNewsFeed(Http.Request request, Integer pageNum, Integer pageSize, Integer requestOrder) {
-        // Get the user who is currently logged in
-        User loggedInUser = request.attrs().get(ActionState.USER);
+    public CompletableFuture<Result> getProfileNewsFeed(Http.Request request, Long userId, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return getNewsFeedData(Collections.singletonList(userId), null, pageNum, pageSize, requestOrder);
+    }
 
+    /**
+     * Gets the news feed data
+     * 
+     * @param userIds list of userIds
+     * @param destIds list of destIds
+     * @param pageNum page number
+     * @param pageSize page size
+     */
+    private CompletableFuture<Result> getNewsFeedData(List<Long> userIds, // Possibly null
+                                                        List<Long> destIds,
+                                                        Integer pageNum,
+                                                        Integer pageSize,
+                                                        Integer requestOrder) {
         // Perform repository call
-        return newsFeedEventRepository.getPagedEvents(
-            Collections.singletonList(loggedInUser.id), // TODO: Replace this with users followed by logged in user
-            Collections.singletonList(51L), // TODO: Replace this with destinations followed by logged in user
-            pageNum, pageSize)
-            .thenComposeAsync(events -> {
-                // Collect a list of the completable strategies created for each event
-                List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
-                    .map(x -> getStrategyForEvent(x).execute())
-                    .collect(Collectors.toList());
+        return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
+        .thenComposeAsync(events -> {
+            // Collect a list of the completable strategies created for each event
+            List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
+                .map(x -> getStrategyForEvent(x).execute())
+                .collect(Collectors.toList());
                 // Wait until all strategies have executed then return paging response
                 return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
                 .thenApplyAsync(v -> {
@@ -104,8 +115,9 @@ public class NewsFeedController extends TEABackController {
                         requestOrder,
                         events.getTotalPageCount())));
                 });
-                }
-            );
+            }
+        );
+        
     }
 
     /**
@@ -139,4 +151,17 @@ public class NewsFeedController extends TEABackController {
         }
     }
 
+
+    /**
+     * Lists routes to put in JS router for use from frontend.
+     *
+     * @return JSRouter Play result
+     */
+    public Result newsFeedRoutes(Http.Request request) {
+        return ok(
+            JavaScriptReverseRouter.create("newsFeedRouter", "jQuery.ajax", request.host(),
+                controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed()
+            )
+        ).as(Http.MimeTypes.JAVASCRIPT);
+    }
 }
