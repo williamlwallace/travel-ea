@@ -119,7 +119,10 @@ GET           /api/maps                              controllers.backend.Destina
 
 GET           /api/tag/                              controllers.backend.TagController.getTags(request:Request, name:String ?= null, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
 
-GET          /api/tag/:id                       controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+GET           /api/tag/:id                           controllers.backend.TagController.getUserTags(request:Request, id:Long, pageNum:Integer ?= 1, pageSize:Integer ?= 5)
+
+#personal news feed
+GET           /api/newsFeed                          controllers.backend.NewsFeedController.getPersonalNewsFeed(request:Request, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
 # ~~~~~~frontend~~~~~~~
 # Start page
