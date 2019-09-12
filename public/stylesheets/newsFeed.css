@@ -1,27 +1,32 @@
 .news-feed-wrapper {
     width: 100%;
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    border: 1px solid rgba(0,0,0,.125);
     margin-bottom: 15px;
-    border-radius: 0px;
+    border-radius: 0;
 }
 
 .wrapper-header {
-    height: 70px;
-    padding: 5px 10px;
+    height: 5rem;
+    padding: 1rem 2rem;
 }
 
 .wrapper-picture {
-    height: 60px;
-    width: 60px;
+    height: 4rem;
+    width: 4rem;
+    border: 1px solid rgba(0,0,0,.125);
+    max-width: none !important;
 }
 
 .wrapper-title {
-    font-size: 20px;
-    padding-left: 50px;
+    font-size: 1.25rem;
+    padding-left: 0;
 }
 
 .wrapper-date {
     text-align: right;
+    font-family: "Roboto Condensed", sans-serif;
+    color: #afafaf;
 }
 
 .wrapper-body {
