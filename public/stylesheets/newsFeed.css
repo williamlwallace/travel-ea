@@ -1,31 +1,53 @@
 .news-feed-wrapper {
     width: 100%;
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    border: 1px solid rgba(0,0,0,.125);
     margin-bottom: 15px;
-    border-radius: 0px;
+    border-radius: 0;
 }
 
 .wrapper-header {
-    height: 70px;
-    padding: 5px 10px;
+    height: 5rem;
+    padding: 1rem 2rem;
 }
 
 .wrapper-picture {
-    height: 60px;
-    width: 60px;
+    width: 4rem;
+    border: 1px solid rgba(0,0,0,.125);
+    max-width: none !important;
 }
 
 .wrapper-title {
-    font-size: 20px;
-    padding-left: 50px;
+    font-size: 1.25rem;
+    padding-left: 0;
+}
+
+.wrapper-title a {
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.wrapper-title a:hover{
+    color: #107DF1
+}
+
+.wrapper-line {
+    margin: 1rem 0;
+    height: 1px;
+    background: #afafaf;
+    background: -webkit-gradient(linear, 0 0, 100% 0, from(white), to(white), color-stop(50%, #afafaf));
 }
 
 .wrapper-date {
     text-align: right;
+    font-family: "Roboto Condensed", sans-serif;
+    color: #afafaf;
 }
 
 .wrapper-body {
-    margin-top: 14px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .wrapper-body > * {
@@ -33,7 +55,7 @@
 }
 
 .wrapper-tags li {
-    font-family: "Liberation Mono";
+    font-family: "Liberation Mono", sans-serif;
     background-color: #107DF1;
     color: #fff;
     border-radius: 3px;
@@ -42,14 +64,27 @@
     max-height: 25px;
     line-height: 16px;
     padding:4px;
-    display: table
+    display: inline-block;
 }
 
 .wrapper-footer {
-    padding: 15px;
+    padding: 0 1rem 2rem 1rem;
 }
 
+/* Photo card css */
 .photo-picture {
-    height: 200px;
-    width: 200px;
+    height: 250px;
+    transition: 0.2s ease-in-out;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
 }
+
+.photo-picture:hover {
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.photo-row {
+    align-items: center;
+    justify-content: center;
+}
+/* Photo card css end */
