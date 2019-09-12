@@ -1,30 +1,27 @@
 package controllers.backend;
 
-import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.BaseNewsFeedEvent;
+import models.GroupedNewsFeedEvent;
 import models.NewsFeedEvent;
 import models.NewsFeedResponseItem;
-import models.Photo;
-import models.User;
 import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
 import models.strategies.destinations.user.concrete.CreateDestinationStrategy;
 import models.strategies.destinations.user.concrete.UpdateDestinationStrategy;
-import models.strategies.photos.destination.concrete.LinkDestinationPhotoStrategy;
 import models.strategies.photos.destination.concrete.NewPrimaryDestinationPhotoStrategy;
 import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
-import models.strategies.photos.user.concrete.UploadedUserPhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
-import models.strategies.trips.concrete.UpdateTripStrategy;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Json;
 import play.mvc.Http;
@@ -37,6 +34,7 @@ import repository.PhotoRepository;
 import repository.ProfileRepository;
 import repository.TripRepository;
 import util.objects.PagingResponse;
+import util.objects.Pair;
 
 public class NewsFeedController extends TEABackController {
 
@@ -48,6 +46,11 @@ public class NewsFeedController extends TEABackController {
     ProfileRepository profileRepository;
     TripRepository tripRepository;
     PhotoRepository photoRepository;
+
+    private static final List<NewsFeedEventType> GROUP_EVENT_TYPES = Arrays.asList(
+        NewsFeedEventType.UPLOADED_USER_PHOTO,
+        NewsFeedEventType.UPDATED_EXISTING_TRIP,
+        NewsFeedEventType.LINK_DESTINATION_PHOTO);
 
     /**
      *  Constructor which handles injecting of all needed dependencies
@@ -97,30 +100,46 @@ public class NewsFeedController extends TEABackController {
                                                         Integer requestOrder) {
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
-        .thenComposeAsync(events -> {
-            // Collect a list of the completable strategies created for each event
-            List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.getList().stream()
+        .thenComposeAsync(pagedEvents -> {
+            // Modify returned events list to only include singular events, and create a new list of grouped events
+            Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(pagedEvents.getList());
+            List<NewsFeedEvent> events = pair.getKey();
+            List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
+
+            // Collect a list of the completable strategies created for each event, singular and grouped
+            List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.stream()
                 .map(x -> getStrategyForEvent(x).execute())
                 .collect(Collectors.toList());
-                // Wait until all strategies have executed then return paging response
-                return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
+
+            completableStrategies.addAll(groupedEvents.stream()
+                .map(x -> getStrategyForEvent(x).execute())
+                .collect(Collectors.toList()));
+
+
+            // Wait until all strategies have executed then return paging response
+            return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
                 .thenApplyAsync(v -> {
                     // Append the correct created time and event type to each complete event
                     List<NewsFeedResponseItem> completedStrategies = completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList());
-                    for(int i = 0; i < events.getList().size(); i++) {
-                        completedStrategies.get(i).created = events.getList().get(i).created;
-                        completedStrategies.get(i).eventType = events.getList().get(i).eventType;
+                    // Single events
+                    for(int i = 0; i < events.size(); i++) {
+                        completedStrategies.get(i).created = events.get(i).created;
+                        completedStrategies.get(i).eventType = events.get(i).eventType;
+                    }
+                    // Grouped events
+                    for(int i = events.size(); i < groupedEvents.size() + events.size(); i++){
+                        completedStrategies.get(i).created = groupedEvents.get(i - events.size()).created;
+                        completedStrategies.get(i).eventType = groupedEvents.get(i - events.size()).eventType;
                     }
 
                     // Serialize and return a paging response with all created NewsFeedResponseItems
                     return ok(Json.toJson(new PagingResponse<>(
                         completedStrategies,
                         requestOrder,
-                        events.getTotalPageCount())));
+                        pagedEvents.getTotalPageCount())));
                 });
             }
         );
-        
     }
 
     /**
@@ -129,39 +148,96 @@ public class NewsFeedController extends TEABackController {
      * @param event Object representing the news feed event
      * @return Strategy applicable to specific event
      */
-    private NewsFeedStrategy getStrategyForEvent(NewsFeedEvent event) {
-        switch (NewsFeedEventType.valueOf(event.eventType)) {
-            case NEW_PROFILE_PHOTO:
-                return new NewProfilePhotoStrategy(event.refId, event.userId, photoRepository,profileRepository);
+    private NewsFeedStrategy getStrategyForEvent(BaseNewsFeedEvent event) {
+        // Singular events
+        if(event instanceof NewsFeedEvent) {
+            NewsFeedEvent singleEvent = (NewsFeedEvent)event;
+            switch (NewsFeedEventType.valueOf(event.eventType)) {
+                case NEW_PROFILE_PHOTO:
+                    return new NewProfilePhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository,profileRepository);
 
-            case UPLOADED_USER_PHOTO:
-                return new UploadedUserPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
+                case NEW_PROFILE_COVER_PHOTO:
+                    return new NewCoverPhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository, profileRepository);
 
-            case NEW_PROFILE_COVER_PHOTO:
-                return new NewCoverPhotoStrategy(event.refId, event.userId, photoRepository, profileRepository);
+                case NEW_PRIMARY_DESTINATION_PHOTO:
+                    return new NewPrimaryDestinationPhotoStrategy(singleEvent.refId, singleEvent.destId, photoRepository, destinationRepository);
 
-            case LINK_DESTINATION_PHOTO:
-                return new LinkDestinationPhotoStrategy(event.refId, event.destId, event.userId, photoRepository, destinationRepository, profileRepository);
+                case CREATED_NEW_TRIP:
+                    return new CreateTripStrategy(singleEvent.refId, singleEvent.userId, profileRepository, tripRepository);
 
-            case NEW_PRIMARY_DESTINATION_PHOTO:
-                return new NewPrimaryDestinationPhotoStrategy(event.refId, event.destId, photoRepository, destinationRepository);
+                case CREATED_NEW_DESTINATION:
+                    return new CreateDestinationStrategy(singleEvent.refId, destinationRepository, singleEvent.userId, profileRepository);
 
-            case CREATED_NEW_TRIP:
-                return new CreateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
+                case UPDATED_EXISTING_DESTINATION:
+                    return new UpdateDestinationStrategy(singleEvent.refId, destinationRepository, singleEvent.userId, profileRepository);
 
-            case UPDATED_EXISTING_TRIP:
-                return new UpdateTripStrategy(event.refId, event.userId, profileRepository, tripRepository);
+                default:
+                    throw new NotImplementedException("Event type not specified in strategy pattern selector.");
+            }
+        }
+        // Grouped events
+        else {
+            GroupedNewsFeedEvent groupedEvent = (GroupedNewsFeedEvent)event;
+            switch (NewsFeedEventType.valueOf(groupedEvent.eventType)) {
+                case MULTIPLE_GALLERY_PHOTOS:
+                    return null;
 
-            case CREATED_NEW_DESTINATION:
-                return new CreateDestinationStrategy(event.refId, destinationRepository, event.userId, profileRepository);
+                case GROUPED_TRIP_UPDATES:
+                    return new CreateDestinationStrategy(1L, destinationRepository, 1L, profileRepository);
 
-            case UPDATED_EXISTING_DESTINATION:
-                return new UpdateDestinationStrategy(event.refId, destinationRepository, event.userId, profileRepository);
-
-            default:
-                throw new NotImplementedException("Event type to specified in strategy pattern selector.");
+                default:
+                    throw new NotImplementedException("Event type not specified in strategy pattern selector.");
+            }
         }
     }
+
+    /**
+     * Sorts through a list, and where a group of like events are found, removes them from the eventList,
+     * and adds them to a new list. This new list is made of groupedEvents, where the created values and
+     * referenced ids are decided from the events they are made up of
+     *
+     * The creation date assigned to a grouped event is the latest of the creation dates of all grouped events.
+     *
+     * Only objects within a 12 hour range (from most recent) will be grouped
+     *
+     * @param eventList List of events to filter
+     * @return Pair containing the singular events list and grouped events list
+     */
+    private Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> filterOutGroupedEvents(List<NewsFeedEvent> eventList) {
+        List<NewsFeedEvent> singularEventList = new ArrayList<>();
+        List<GroupedNewsFeedEvent> groupedEventsList = new ArrayList<>();
+        for (final NewsFeedEvent event : eventList) {
+            final NewsFeedEventType eventType = NewsFeedEventType.valueOf(event.eventType);
+            if (!GROUP_EVENT_TYPES.contains(eventType)) {
+                singularEventList.add(event);
+            } else {
+                switch (NewsFeedEventType.valueOf(event.eventType)) {
+                    case UPDATED_EXISTING_TRIP:
+                        final Optional<GroupedNewsFeedEvent> matchedEvent = groupedEventsList.stream()
+                            .filter(x -> x.eventType.equals(NewsFeedEventType.GROUPED_TRIP_UPDATES.name()))
+                            .filter(x -> x.created.minusHours(12).isBefore(event.created))
+                            .filter(x -> x.tripId.equals(event.refId))
+                            .findFirst();
+
+                        if(matchedEvent.isPresent()) {
+                            groupedEventsList.get(groupedEventsList.indexOf(matchedEvent.get())).refIds.add(event.destId);
+                        } else {
+                            GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
+                            newGroupEvent.refIds = new ArrayList<>();
+                            newGroupEvent.refIds.add(event.destId);
+                            newGroupEvent.created = event.created;
+                            newGroupEvent.tripId = event.refId;
+                            newGroupEvent.eventType = NewsFeedEventType.GROUPED_TRIP_UPDATES.name();
+                            groupedEventsList.add(newGroupEvent);
+                        }
+                        break;
+                }
+            }
+        }
+
+        return new Pair<>(singularEventList, groupedEventsList);
+    }
+
 
 
     /**

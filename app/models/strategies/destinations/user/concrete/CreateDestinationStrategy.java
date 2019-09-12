@@ -34,7 +34,7 @@ public class CreateDestinationStrategy extends UserDestinationStrategy {
                 new NewsFeedResponseItem(
                     String.format("has created a new destination: '%s'", destination.name),
                     profile.firstName + " " + profile.lastName,
-                    profile.profilePhoto.thumbnailFilename,
+                    (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
                     profile.userId,
                     destination
                 )

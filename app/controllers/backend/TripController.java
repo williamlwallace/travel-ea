@@ -185,6 +185,8 @@ public class TripController extends TEABackController {
 
                 // Update trip in db
                 return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
+                    // Do not remove this, it is to fix a stupid ebean race condition
+                    Json.toJson(oldTrip.tripDataList.stream().map(x -> x.destination.id).collect(Collectors.toList()));
                     if (oldTrip == null) {
                         return CompletableFuture
                             .supplyAsync(
@@ -195,17 +197,41 @@ public class TripController extends TEABackController {
                             trip.tags = existingTags;
                             return tripRepository.updateTrip(trip).thenComposeAsync(uploaded -> {
                                 if (uploaded) {
-                                    if(trip.isPublic) {
+                                    if(trip.isPublic && !oldTrip.isPublic) {
                                         // Create new newsFeedEvent
                                         NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
-                                        newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP
-                                            .name();
                                         newsFeedEvent.refId = trip.id;
                                         newsFeedEvent.userId = trip.userId;
+                                        newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
 
                                         return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
                                             eventId -> ok(Json.toJson(trip.id)));
-                                    } else {
+                                    } else if(trip.isPublic) {
+                                        // Make newsFeedEvents for all new destination
+                                        List<NewsFeedEvent> newsFeedEvents = new ArrayList<>();
+                                        for(TripData tripData : trip.tripDataList) {
+                                            if(!oldTrip.tripDataList.stream()
+                                                .map(td -> td.destination.id)
+                                                .collect(Collectors.toList())
+                                                .contains(tripData.destination.id)) {
+                                                // Create new newsFeedEvent
+                                                NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                                newsFeedEvent.refId = trip.id;
+                                                newsFeedEvent.destId = tripData.destination.id;
+                                                newsFeedEvent.userId = trip.userId;
+                                                newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP.name();
+                                                newsFeedEvents.add(newsFeedEvent);
+                                            }
+                                        }
+
+                                        // Add all to repo concurrently and return ok
+                                        return CompletableFuture.allOf(newsFeedEvents.stream()
+                                            .map(newsFeedEventRepository::addNewsFeedEvent)
+                                            .toArray(CompletableFuture[]::new)
+                                        ).thenApplyAsync(v -> ok(Json.toJson(trip.id)));
+                                    }
+
+                                    else {
                                         return CompletableFuture.supplyAsync(() -> ok(Json.toJson(trip.id)));
                                     }
                                 } else {
@@ -267,7 +293,7 @@ public class TripController extends TEABackController {
                         if(updatedTrip.isPublic) {
                             // Create new newsFeedEvent
                             NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
-                            newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP.name();
+                            newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
                             newsFeedEvent.refId = updatedTrip.id;
                             newsFeedEvent.userId = updatedTrip.userId;
 
