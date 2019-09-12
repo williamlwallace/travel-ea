@@ -30,7 +30,7 @@ public class NewCoverPhotoStrategy extends UserPhotoStrategy {
             getUserProfileAsync().thenApplyAsync(profile ->
                 new NewsFeedResponseItem("has updated their cover photo",
                     profile.firstName + " " + profile.lastName,
-                    profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     photo)
             )
