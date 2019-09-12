@@ -49,7 +49,20 @@
     padding: 15px;
 }
 
+/* Photo card css */
 .photo-picture {
-    height: 200px;
-    width: 200px;
+    height: 250px;
+    transition: 0.2s ease-in-out;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
 }
+
+.photo-picture:hover {
+    cursor: pointer;
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.photo-row {
+    align-items: center;
+    justify-content: center;
+}
+/* Photo card css end */
