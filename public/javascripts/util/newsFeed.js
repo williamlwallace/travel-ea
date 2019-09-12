@@ -195,7 +195,10 @@ function createWrapperCard(thumbnail, message, time) {
     const clone = $(template.content.cloneNode(true));
 
     clone.find('.wrapper-title').html(message);
-    clone.find('.wrapper-picture').attr("src", "../user_content/" + thumbnail);
+    if (thumbnail != null) {
+        clone.find('.wrapper-picture').attr("src", "../user_content/" + thumbnail);
+    }
+
     clone.find('.wrapper-date').text(time);
     return clone;
 }
@@ -333,8 +336,51 @@ function uploadedUserPhotoCard(event) {
  * @param {object} event newsfeed event item data
  */
 function createdNewDestinationCard(event) {
-    createUserWrapperCard(event);
-    //TODO: The card
+    const card = createUserWrapperCard(event);
+
+    const template = $("#destinationCardTemplate").get(0);
+    const destinationCard = $(template.content.cloneNode(true));
+
+    const dest = event.data;
+
+    let tags = "";
+    let travellerTypes = "";
+
+    $(destinationCard).find("#card-header").append(dest.name);
+    if (dest.primaryPhoto) {
+        $(destinationCard).find("#card-thumbnail").attr("src",
+            "../user_content/" + dest.primaryPhoto.thumbnailFilename);
+    }
+    $(destinationCard).find("#district").append(
+        dest.district ? dest.district : "No district");
+    $(destinationCard).find("#country").append(dest.country.name);
+    $(destinationCard).find("#destType").append(
+        dest.destType ? dest.destType : "No type");
+    $(destinationCard).find("#card-header").attr("data-id", dest.id.toString());
+    $(destinationCard).find("#card-header").attr("id",
+        "destinationCard-" + dest.id.toString());
+
+    $($(destinationCard).find('#destinationCard-' + dest.id.toString())).click(
+        function () {
+            location.href = '/destinations/' + $(this).data().id;
+        });
+
+    dest.tags.forEach(item => {
+        tags += item.name + ", ";
+    });
+    tags = tags.slice(0, -2);
+
+    dest.travellerTypes.forEach(item => {
+        travellerTypes += item.description + ", ";
+    });
+    travellerTypes = travellerTypes.slice(0, -2);
+
+    $(destinationCard).find("#destinatonCardTravellerTypes").append(
+        travellerTypes ? travellerTypes : "No traveller types");
+    $(destinationCard).find("#tags").append(tags ? tags : "No tags");
+
+    card.find('.wrapper-body').append(destinationCard);
+
     return card
 }
 
@@ -344,9 +390,7 @@ function createdNewDestinationCard(event) {
  * @param {object} event newsfeed event item data
  */
 function updatedExistingDestinationCard(event) {
-    createUserWrapperCard(event);
-    //TODO: The card
-    return card
+    return createdNewDestinationCard(event);
 }
 
 /**

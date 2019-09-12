@@ -1,6 +1,5 @@
 package models.strategies.photos.user.concrete;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
 import models.strategies.photos.user.UserPhotoStrategy;
@@ -32,7 +31,7 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
             getUserProfileAsync().thenApplyAsync(profile ->
                 new NewsFeedResponseItem("has added a public photo",
                     profile.firstName + " " + profile.lastName,
-                    profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     photo)
             )

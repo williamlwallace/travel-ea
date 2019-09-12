@@ -35,7 +35,7 @@ public class UpdateTripStrategy extends TripStrategy {
                         trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name
                     ),
                     profile.firstName + " " + profile.lastName,
-                    profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     trip)
                 )
