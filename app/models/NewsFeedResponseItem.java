@@ -22,10 +22,10 @@ public class NewsFeedResponseItem {
      * @param message Message to show to user
      * @param data Data involved with the event
      */
-    public NewsFeedResponseItem(String message, String name, String thumbnail, Long eventerId, Object data) {
+    public NewsFeedResponseItem(String message, String name, Photo photo, Long eventerId, Object data) {
         this.message = message;
         this.name = name;
-        this.thumbnail = thumbnail;
+        this.thumbnail = photo != null ? photo.thumbnailFilename : null;
         this.eventerId = eventerId;
         this.data = data;
     }

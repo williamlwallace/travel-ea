@@ -2,7 +2,6 @@ package models.strategies.photos.destination.concrete;
 
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
-import models.strategies.photos.destination.DestinationPhotoStrategy;
 import models.strategies.photos.destination.UserDestinationPhotoStrategy;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
@@ -41,7 +40,7 @@ public class LinkDestinationPhotoStrategy extends UserDestinationPhotoStrategy {
                         String.format("just linked a photo to the destination %s!",
                         destination.name),
                         String.format("%s %s", profile.firstName, profile.lastName),
-                        profile.profilePhoto.thumbnailFilename,
+                        profile.profilePhoto,
                         profile.userId,
                         photo)
                 )

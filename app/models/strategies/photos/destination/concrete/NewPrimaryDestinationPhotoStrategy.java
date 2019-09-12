@@ -32,7 +32,7 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
             getReferencedPhotoAsync().thenApplyAsync(photo ->
                 new NewsFeedResponseItem("has a new primary photo",
                     destination.name,
-                    destination.primaryPhoto.thumbnailFilename,
+                    destination.primaryPhoto,
                     destination.id,
                     photo)
             )

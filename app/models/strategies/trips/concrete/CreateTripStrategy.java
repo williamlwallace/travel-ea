@@ -1,10 +1,8 @@
 package models.strategies.trips.concrete;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
 import models.strategies.trips.TripStrategy;
-import play.libs.Json;
 import repository.ProfileRepository;
 import repository.TripRepository;
 
@@ -36,7 +34,7 @@ public class CreateTripStrategy extends TripStrategy {
                     trip.tripDataList.get(0).destination.name,
                     trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
                     profile.firstName + " " + profile.lastName,
-                    profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     trip)
         ));

@@ -35,7 +35,7 @@ public class UpdateDestinationStrategy extends UserDestinationStrategy {
                 new NewsFeedResponseItem(
                     String.format("has updated the destination '%s'", destination.name),
                     profile.firstName + " " + profile.lastName,
-                    profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     destination
                 )
