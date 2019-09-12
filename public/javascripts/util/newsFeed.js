@@ -121,25 +121,25 @@ const NewsFeedEventTypes = {
      * A public photo has been linked to a public destination
      * reference ID = ID of photo
      */
-    LINK_DESTINATION_PHOTO: 'LINK_DESTINATION_PHOTO',
+    LINK_DESTINATION_PHOTO: linkDestinationPhotoCard,
 
     /**
      * A public destination has had its primary photo updated
      * reference ID = ID of photo
      */
-    NEW_PRIMARY_DESTINATION_PHOTO: 'NEW_PRIMARY_DESTINATION_PHOTO',
+    NEW_PRIMARY_DESTINATION_PHOTO: newPrimaryPhotoCard,
 
     /**
      * A public destination has been created
      * reference ID = ID of destination
      */
-    CREATED_NEW_DESTINATION: 'CREATED_NEW_DESTINATION',
+    CREATED_NEW_DESTINATION: createdNewDestinationCard,
 
     /**
      * Existing destination has been updated, or set from private to public
      * reference ID = ID of destination
      */
-    UPDATED_EXISTING_DESTINATION: 'UPDATED_EXISTING_DESTINATION',
+    UPDATED_EXISTING_DESTINATION: updatedExistingDestinationCard,
 
     // User photo events
     /**
@@ -152,13 +152,13 @@ const NewsFeedEventTypes = {
      * A new public picture has been uploaded by a user
      * reference ID = ID of photo
      */
-    UPLOADED_USER_PHOTO: 'UPLOADED_USER_PHOTO',
+    UPLOADED_USER_PHOTO: uploadedUserPhotoCard,
 
     /**
      * A user has updated their cover picture
      * reference ID = ID of photo
      */
-    NEW_PROFILE_COVER_PHOTO: 'NEW_PROFILE_COVER_PHOTO',
+    NEW_PROFILE_COVER_PHOTO: newProfileCoverPhotoCard,
 
     // Trip events
     /**
@@ -175,7 +175,7 @@ const NewsFeedEventTypes = {
 }
 
 /******************************
-    News feed card creation
+    News feed card creation - Helpers
 *******************************/
 
 /**
@@ -217,7 +217,7 @@ function formatDate(date) {
  *
  * @param {object} event newsfeed event item data
  */
-function createdDestinationWrapperCard(event) {
+function createDestinationWrapperCard(event) {
     const message = `The destination <a href="${"/destination/" + event.eventerId}"> 
                         ${event.name}
                     </a>
@@ -230,7 +230,7 @@ function createdDestinationWrapperCard(event) {
  *
  * @param {object} event newsfeed event item data
  */
-function createdUserWrapperCard(event) {
+function createUserWrapperCard(event) {
     const id = 1; //testing
     const message = `<a href="${"/profile/" + event.eventerId}"> 
                         ${event.name}
@@ -239,13 +239,17 @@ function createdUserWrapperCard(event) {
     return createWrapperCard(event.thumbnail, message, this.formatDate(event.created));
 }
 
+/******************************
+    News feed card creation - Custom
+*******************************/
+
 /**
  * Creates news Feed card for creating a trip
  *
  * @param {object} event newsfeed event item data
  */
 function createdNewTripCard(event) {
-    const card = createdUserWrapperCard(event);
+    const card = createUserWrapperCard(event);
     const tripCard = createTripCard(event.data);
     card.find('.wrapper-body').append(tripCard);
     addTags(card, event.data.tags);
@@ -268,7 +272,7 @@ function updatedExistingTripCard(event) {
  * @param {object} event newsfeed event item data
  */
 function newProfilePhotoCard(event) {
-    const card = createdUserWrapperCard(event);
+    const card = createUserWrapperCard(event);
 
     const template = $("#photo-card-template").get(0);
     const photoCard = $(template.content.cloneNode(true));
@@ -277,4 +281,70 @@ function newProfilePhotoCard(event) {
 
     card.find('.wrapper-body').append(photoCard);
     return card;
+}
+
+/**
+ * Creates news Feed card for photo linked to destination
+ *
+ * @param {object} event newsfeed event item data
+ */
+function linkDestinationPhotoCard(event) {
+    createUserWrapperCard(event);
+    //TODO: The card
+    return card
+}
+
+/**
+ * Creates news Feed card for destination primary photo change
+ *
+ * @param {object} event newsfeed event item data
+ */
+function newPrimaryPhotoCard(event) {
+    createDestinationWrapperCard(event);
+    //TODO: The card
+    return card
+}
+
+/**
+ * Creates news Feed card for user uploading photo
+ *
+ * @param {object} event newsfeed event item data
+ */
+function uploadedUserPhotoCard(event) {
+    createUserWrapperCard(event);
+    //TODO: The card
+    return card
+}
+
+/**
+ * Creates news Feed card for user creating new destination
+ *
+ * @param {object} event newsfeed event item data
+ */
+function createdNewDestinationCard(event) {
+    createUserWrapperCard(event);
+    //TODO: The card
+    return card
+}
+
+/**
+ * Creates news Feed card for user updateing destination
+ *
+ * @param {object} event newsfeed event item data
+ */
+function updatedExistingDestinationCard(event) {
+    createUserWrapperCard(event);
+    //TODO: The card
+    return card
+}
+
+/**
+ * Creates news Feed card for user changing cover photo
+ *
+ * @param {object} event newsfeed event item data
+ */
+function newProfileCoverPhotoCard(event) {
+    createUserWrapperCard(event);
+    //TODO: The card
+    return card
 }
