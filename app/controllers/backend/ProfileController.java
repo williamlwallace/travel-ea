@@ -4,16 +4,12 @@ import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.PagedList;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import models.CountryDefinition;
 import models.Profile;
-import models.TravellerTypeDefinition;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
@@ -173,17 +169,16 @@ public class ProfileController extends TEABackController {
                     final Profile oldProfile = profile.copy();
                     if (profile == null) {
                         errorResponse.map("Profile for that user not found", ERR_OTHER);
-                        return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
+                        return CompletableFuture
+                            .supplyAsync(() -> badRequest(errorResponse.toJson()));
                     } else {
                         Profile updatedProfile = Json.fromJson(data, Profile.class);
                         updatedProfile.userId = userId;
 
                         return profileRepository.updateProfile(updatedProfile)
-                            .thenApplyAsync(updatedUserId -> {
-                                return ok(Json.toJson(oldProfile));
-                            });
+                            .thenApplyAsync(updatedUserId -> ok(Json.toJson(oldProfile)));
                     }
-                });     
+                });
         }
     }
 
@@ -200,7 +195,8 @@ public class ProfileController extends TEABackController {
      * @param ascending Whether or not to sort ascendingly
      * @param pageNum Number of page we are currently showing
      * @param pageSize Number of results to show per page
-     * @param requestOrder The order that this request has, allows frontend to determine what results to take
+     * @param requestOrder The order that this request has, allows frontend to determine what
+     * results to take
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
@@ -220,8 +216,9 @@ public class ProfileController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Constrain sortBy to a set, default to creation date
-        if(sortBy == null ||
-            !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth", "gender", "creation_date").contains(sortBy)) {
+        if (sortBy == null ||
+            !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth",
+                "gender", "creation_date").contains(sortBy)) {
             sortBy = "creation_date";
         }
 
@@ -230,7 +227,8 @@ public class ProfileController extends TEABackController {
             .thenApplyAsync(profiles -> {
                 try {
                     return ok(sanitizeJson(Json.toJson(
-                        new PagingResponse<>(profiles.getList(), requestOrder, profiles.getTotalPageCount())
+                        new PagingResponse<>(profiles.getList(), requestOrder,
+                            profiles.getTotalPageCount())
                     )));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson("Failed to serialize response"));

@@ -48,7 +48,7 @@ public class TreasureHuntSteps extends WithApplication {
         treasureHunt.endDate = LocalDate.of(2040, 07, 31);
         treasureHunt.riddle = "This is a riddle";
 
-        JsonNode node =  Json.toJson(treasureHunt);
+        JsonNode node = Json.toJson(treasureHunt);
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
@@ -68,16 +68,16 @@ public class TreasureHuntSteps extends WithApplication {
             .cookie(nonAdminAuthCookie)
             .uri("/api/treasurehunt");
 
-        Result result  = route(fakeApp, request);
+        Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
         JsonNode treasureHunts = new ObjectMapper()
-            .readValue(Helpers.contentAsString(result),  JsonNode.class);
+            .readValue(Helpers.contentAsString(result), JsonNode.class);
         assertNotNull(treasureHunts.get(0));
         assertEquals("\"This is a riddle\"", treasureHunts.get(0).get("riddle").toString());
     }
 
-    private List<TreasureHunt> getTreasureHunts() throws IOException  {
-        Http.RequestBuilder getRequest =  Helpers.fakeRequest()
+    private List<TreasureHunt> getTreasureHunts() throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(nonAdminAuthCookie)
             .uri("/api/treasurehunt");
@@ -88,7 +88,8 @@ public class TreasureHuntSteps extends WithApplication {
             return null;
         } else {
             return Arrays.asList(
-                new ObjectMapper().readValue(Helpers.contentAsString(getResult), TreasureHunt[].class));
+                new ObjectMapper()
+                    .readValue(Helpers.contentAsString(getResult), TreasureHunt[].class));
         }
     }
 
@@ -133,7 +134,7 @@ public class TreasureHuntSteps extends WithApplication {
         treasureHunt.endDate = LocalDate.of(2040, 07, 31);
         treasureHunt.riddle = "An admins riddle";
 
-        JsonNode node =  Json.toJson(treasureHunt);
+        JsonNode node = Json.toJson(treasureHunt);
 
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(POST)
@@ -147,7 +148,8 @@ public class TreasureHuntSteps extends WithApplication {
     }
 
     @Then("I can view a list of treasure hunts with both my hunt and the other hunt")
-    public void i_can_view_a_list_of_treasure_hunts_with_both_my_hunt_and_the_other_hunt() throws IOException {
+    public void i_can_view_a_list_of_treasure_hunts_with_both_my_hunt_and_the_other_hunt()
+        throws IOException {
         List<TreasureHunt> treasureHunts = getTreasureHunts();
         assertNotNull(treasureHunts);
 

@@ -1,32 +1,21 @@
 package steps;
 
-import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.route;
 import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import models.Photo;
 import models.Profile;
 import org.junit.Assert;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
-import util.objects.Pair;
 
 public class ProfilePhotoTestSteps {
 

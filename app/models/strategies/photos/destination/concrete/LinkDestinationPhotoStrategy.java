@@ -2,7 +2,6 @@ package models.strategies.photos.destination.concrete;
 
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
-import models.strategies.photos.destination.DestinationPhotoStrategy;
 import models.strategies.photos.destination.UserDestinationPhotoStrategy;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
@@ -38,8 +37,12 @@ public class LinkDestinationPhotoStrategy extends UserDestinationPhotoStrategy {
             getReferencedPhotoAsync().thenComposeAsync(photo ->
                 getReferencedDestinationAsync().thenApplyAsync(destination ->
                     new NewsFeedResponseItem(
-                        String.format("%s %s just linked a photo to the destination %s!",
-                        profile.firstName, profile.lastName, destination.name), photo)
+                        String.format("just linked a photo to the destination %s!",
+                        destination.name),
+                        String.format("%s %s", profile.firstName, profile.lastName),
+                        profile.profilePhoto,
+                        profile.userId,
+                        photo)
                 )
             )
         );

@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import play.data.validation.Constraints;
 
 /**
- * A class that models the Tag table from the database
+ * A class that models the Tag table from the database.
  */
 @Entity
 @Table(name = "Tag")
@@ -59,7 +59,7 @@ public class Tag extends Model {
     public Set<UsedTag> usedTags;
 
     /**
-     * Constructor, this is mainly for ease and conciseness of testing
+     * Constructor, this is mainly for ease and conciseness of testing.
      *
      * I have made it so you must instantiate a Tag with a name, this is because the hashCode method
      * hashes based only on name
@@ -69,7 +69,7 @@ public class Tag extends Model {
     }
 
     /**
-     * Constructor, this is mainly for ease and conciseness of testing
+     * Constructor, this is mainly for ease and conciseness of testing.
      *
      * I have made it so you must instantiate a Tag with a name, this is because the hashCode method
      * hashes based only on name
