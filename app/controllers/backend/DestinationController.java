@@ -30,9 +30,10 @@ import repository.DestinationRepository;
 import repository.NewsFeedEventRepository;
 import repository.TagRepository;
 import repository.PhotoRepository;
+import repository.TagRepository;
 import repository.TravellerTypeDefinitionRepository;
-import util.objects.PagingResponse;
 import repository.UserRepository;
+import util.objects.PagingResponse;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -392,7 +393,6 @@ public class DestinationController extends TEABackController {
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> toggleRejectTravellerType(Http.Request request, Long destId,
         Long travellerTypeId) {
-        User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(dest -> {
             if (dest == null) {
                 return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
