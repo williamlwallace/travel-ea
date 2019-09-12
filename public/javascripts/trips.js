@@ -45,7 +45,7 @@ function getAndCreateTrips(url, paginationHelper) {
                     $("#tripCardsList").html("");
                     tripsLastRecievedRequestOrder = json.requestOrder;
                     json.data.forEach((item) => {
-                        createTripCard(item);
+                        $("#tripCardsList").append(createTripCard(item));
                     });
 
                     $(".card-body").click((element) => {
@@ -93,7 +93,7 @@ function createTripCard(trip) {
     $(clone).find("#date").append(firstDate);
     $(clone).find(".title").attr("data-id", trip.id.toString());
 
-    $("#tripCardsList").get(0).appendChild(clone);
+    return $(clone);
 }
 
 let i = 0; // Global counter for carousel data-id

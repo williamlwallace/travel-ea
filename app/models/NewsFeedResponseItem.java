@@ -7,7 +7,9 @@ import java.time.LocalDateTime;
 public class NewsFeedResponseItem {
 
     public String message;
-
+    public String name;
+    public String thumbnail;
+    public Long eventerId;
     public Object data;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
@@ -18,10 +20,16 @@ public class NewsFeedResponseItem {
     /**
      * Constructor to initialize all fields
      * @param message Message to show to user
+     * @param name The name of the destination/profile
+     * @param photo The photo to display as a thumbnail
+     * @param eventerId The id of the initiating object (either a destination or user)
      * @param data Data involved with the event
      */
-    public NewsFeedResponseItem(String message, Object data) {
+    public NewsFeedResponseItem(String message, String name, Photo photo, Long eventerId, Object data) {
         this.message = message;
+        this.name = name;
+        this.thumbnail = photo != null ? photo.thumbnailFilename : null;
+        this.eventerId = eventerId;
         this.data = data;
     }
 }
