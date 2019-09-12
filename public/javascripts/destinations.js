@@ -158,8 +158,6 @@ function createDestinationCards(dests) {
 
         $(clone).find("#card-header").append(dest.name);
         if (dest.primaryPhoto) {
-            console.log(
-                "../user_content/" + dest.primaryPhoto.thumbnailFilename);
             $(clone).find("#card-thumbnail").attr("src",
                 "../user_content/" + dest.primaryPhoto.thumbnailFilename);
         }
@@ -187,7 +185,7 @@ function createDestinationCards(dests) {
         });
         travellerTypes = travellerTypes.slice(0, -2);
 
-        $(clone).find("#travellerTypes").append(
+        $(clone).find("#destinatonCardTravellerTypes").append(
             travellerTypes ? travellerTypes : "No traveller types");
         $(clone).find("#tags").append(tags ? tags : "No tags");
 
