@@ -31,7 +31,10 @@ public class NewProfilePhotoStrategy extends UserPhotoStrategy {
     public CompletableFuture<NewsFeedResponseItem> execute() {
         return getReferencedPhotoAsync().thenComposeAsync(photo ->
             getUserProfileAsync().thenApplyAsync(profile ->
-                new NewsFeedResponseItem(profile.firstName + " " + profile.lastName + " has a new profile picture",
+                new NewsFeedResponseItem("has a new profile picture",
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     photo)
             )
         );

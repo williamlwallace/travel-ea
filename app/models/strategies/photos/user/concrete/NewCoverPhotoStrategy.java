@@ -28,7 +28,10 @@ public class NewCoverPhotoStrategy extends UserPhotoStrategy {
     public CompletableFuture<NewsFeedResponseItem> execute() {
         return getReferencedPhotoAsync().thenComposeAsync(photo ->
             getUserProfileAsync().thenApplyAsync(profile ->
-                new NewsFeedResponseItem(profile.firstName + " " + profile.lastName + " has updated their cover photo",
+                new NewsFeedResponseItem("has updated their cover photo",
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
                     photo)
             )
         );

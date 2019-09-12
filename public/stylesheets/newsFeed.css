@@ -1,0 +1,55 @@
+.news-feed-wrapper {
+    width: 100%;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    margin-bottom: 15px;
+    border-radius: 0px;
+}
+
+.wrapper-header {
+    height: 70px;
+    padding: 5px 10px;
+}
+
+.wrapper-picture {
+    height: 60px;
+    width: 60px;
+}
+
+.wrapper-title {
+    font-size: 20px;
+    padding-left: 50px;
+}
+
+.wrapper-date {
+    text-align: right;
+}
+
+.wrapper-body {
+    margin-top: 14px;
+}
+
+.wrapper-body > * {
+    box-shadow: none !important;
+}
+
+.wrapper-tags li {
+    font-family: "Liberation Mono";
+    background-color: #107DF1;
+    color: #fff;
+    border-radius: 3px;
+    margin: 8px 3px 0px 3px;
+    font-size: 14px;
+    max-height: 25px;
+    line-height: 16px;
+    padding:4px;
+    display: table
+}
+
+.wrapper-footer {
+    padding: 15px;
+}
+
+.photo-picture {
+    height: 200px;
+    width: 200px;
+}
