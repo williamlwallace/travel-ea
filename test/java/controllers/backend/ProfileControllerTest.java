@@ -1,6 +1,7 @@
 package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
@@ -12,13 +13,10 @@ import static play.test.Helpers.UNAUTHORIZED;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import models.CountryDefinition;
@@ -33,7 +31,7 @@ import play.test.Helpers;
 import util.objects.PagingResponse;
 
 @SuppressWarnings("unchecked")
-public class ProfileControllerTest extends ControllersTest {
+public class ProfileControllerTest extends controllers.backend.ControllersTest {
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
@@ -195,30 +193,37 @@ public class ProfileControllerTest extends ControllersTest {
     }
 
     @Test
-    public void getMyProfileNoAuth() throws IOException {
+    public void getMyProfileNoAuth() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .uri("/api/profile");
+            .uri("/api/profile/1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
 
-        //Check that user was redirected due to lack of auth token
+        // Check that user was redirected due to lack of auth token
         assertEquals(UNAUTHORIZED, result.status());
     }
 
     @Test
-    public void getMyProfileAuth() throws IOException {
+    public void getMyProfile() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(adminAuthCookie)
-            .uri("/api/profile");
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/profile/2");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
 
-        //Check that the request was successful
+        // Check that the request was successful
         assertEquals(OK, result.status());
+
+        // Get response
+        Profile profile = new ObjectMapper().readValue(Helpers.contentAsString(result), Profile.class);
+
+        // Check profile has follower details
+        assertNotNull(profile.followerUsersCount);
+        assertNotNull(profile.followingUsersCount);
     }
 
     private List<Profile> searchProfiles(String parameters) throws IOException {

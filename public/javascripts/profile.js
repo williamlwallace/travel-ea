@@ -2,6 +2,7 @@ let coverPhotoPaginationHelper;
 let profilePhotoPaginationHelper;
 let mainGalleryPaginationHelper;
 let tripPaginationHelper;
+let profileFeed;
 
 /**
  * Runs when the page is loaded. Initialises the paginationHelper object and
@@ -63,7 +64,7 @@ function getProfileTripResults() {
 /**
  * The JavaScript method to fill the initial profile data
  *
- * @param {String} email the email of the logged in user, which may or may not be displayed
+ * @param {String} email - The email of the logged in user, which may or may not be displayed
  */
 function fillProfileData(email) {
     if (document.getElementById("summary_email")) {

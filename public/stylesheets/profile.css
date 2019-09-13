@@ -380,3 +380,6 @@ section#timeline a {
     max-width: 36rem;
 }
 
+#feed {
+    padding: 2rem 6rem 0 6rem;
+}

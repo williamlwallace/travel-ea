@@ -5,18 +5,20 @@
         <script src="@routes.Assets.at("javascripts/profile.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/util/followers.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/util/newsFeed.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/cropper.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
 
-        <script src="@controllers.backend.routes.PhotoController.photoRoutes()" type="text/javascript"></script>
-        <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
-        <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
-        <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
-        <script src="@controllers.backend.routes.UserController.userRoutes()" type="text/javascript"></script>
-        <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
-        <script src="@controllers.backend.routes.TagController.tagRoutes()" type="text/javascript"></script>
-    }
+    <script src="@controllers.backend.routes.PhotoController.photoRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.ProfileController.profileRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.UserController.userRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.CountryController.countryRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TagController.tagRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.NewsFeedController.newsFeedRoutes()" type="text/javascript"></script>
+}
 
     @layouts.main("Profile", loggedUser, scripts) {
 
@@ -112,12 +114,12 @@
                             <!-- Tab Panes -->
                         <div class="tab-content">
 
-                                <!-- News Feed Tab -->
-                            <div class="tab-pane" id="feed" role="tabpanel" aria-labelledby="feed-tab">
-                                <div class="text-center">
-                                    <p>Nothing in the news feed!</p>
-                                </div>
+                        <!-- News Feed Tab -->
+                        <div class="tab-pane row" id="feed" role="tabpanel" aria-labelledby="feed-tab">
+                            <div class="col-md-12">
+                                @modules.newsFeed("profile-feed")
                             </div>
+                        </div>
 
                                 <!-- Photo Tab -->
                             <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
@@ -413,13 +415,10 @@
     setPermissions("@loggedUser.id", "@user.id");
     fillProfileData("@user.username");
     getProfileAndCoverPicture();
-    getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()",
-        ["travellerTypes"], "description");
-    getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)",
-        ["tagFilter"], "name", false, "name");
-    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode",
-        true).then(() => {
-        populateProfileData("@controllers.backend.routes.ProfileController.getMyProfile()");
+    getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
+    getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)", ["tagFilter"], "name", false, "name");
+    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true).then(() => {
+        populateProfileData("@controllers.backend.routes.ProfileController.getProfile(user.id)");
     });
     const type_ = "profile";
     loadFollowBtn(type_);

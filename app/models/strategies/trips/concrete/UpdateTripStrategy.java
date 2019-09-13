@@ -1,6 +1,5 @@
 package models.strategies.trips.concrete;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
 import models.strategies.trips.TripStrategy;
@@ -28,6 +27,18 @@ public class UpdateTripStrategy extends TripStrategy {
      */
     @Override
     public CompletableFuture<NewsFeedResponseItem> execute() {
-        return null;
+        return getReferencedTripAsync().thenComposeAsync(trip ->
+            getUserProfileAsync().thenApplyAsync(profile ->
+                new NewsFeedResponseItem(
+                    String.format("has updated their trip from %s to %s",
+                        trip.tripDataList.get(0).destination.name,
+                        trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name
+                    ),
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto,
+                    profile.userId,
+                    trip)
+                )
+            );
     }
 }

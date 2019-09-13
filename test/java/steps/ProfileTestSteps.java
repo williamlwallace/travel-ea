@@ -5,87 +5,35 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
+import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.appendUri;
+import static steps.GenericTestSteps.db;
+import static steps.GenericTestSteps.fakeApp;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import models.Profile;
 import org.junit.Assert;
-import play.Application;
-import play.db.Database;
 import play.db.evolutions.Evolutions;
 import play.libs.Json;
 import play.mvc.Http;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.Helpers;
 import util.objects.PagingResponse;
 
+
 public class ProfileTestSteps {
 
-    URI searchURI;
+    private URI searchURI;
 
-    PagingResponse<Profile> response;
-
-    protected static Application fakeApp;
-    static Database db;
-    public static Http.Cookie adminAuthCookie;
-    public static Http.Cookie nonAdminAuthCookie;
-
-    static Long userId = 1L;
-
-    /**
-     * Configures system to use trip database, and starts a fake app
-     */
-    @Before
-    public static void setUp() {
-        // Create custom settings that change the database to use test database instead of production
-        Map<String, String> settings = new HashMap<>();
-        settings.put("db.default.driver", "org.h2.Driver");
-        settings.put("db.default.url", "jdbc:h2:mem:testdb;MODE=MySQL;");
-
-        adminAuthCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw")
-            .withPath("/").build();
-        nonAdminAuthCookie = Cookie.builder("JWT-Auth",
-            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6Mn0.sGyO22MrNoNrH928NpSK8PJXmE88_DhivVWgCl3faJ4")
-            .withPath("/").build();
-
-        // Create a fake app that we can query just like we would if it was running
-        fakeApp = Helpers.fakeApplication(settings);
-        db = fakeApp.injector().instanceOf(Database.class);
-
-        Helpers.start(fakeApp);
-    }
-
-    /**
-     * Stop the fake app
-     */
-    private static void stopApp() {
-        // Stop the fake app running
-        Helpers.stop(fakeApp);
-    }
-
-    /**
-     * Cleans up trips after each test, to allow for them to be re-run for next test
-     */
-    @After
-    public void cleanupEvolutions() {
-        Evolutions.cleanupEvolutions(db);
-        stopApp();
-    }
+    private PagingResponse<Profile> response;
 
     @Given("I am logged in and some profiles exist")
     public void i_am_logged_in_and_some_profiles_exist() throws URISyntaxException {
@@ -121,8 +69,9 @@ public class ProfileTestSteps {
         Result result = route(fakeApp, request);
         ObjectMapper mapper = new ObjectMapper();
 
-        response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Profile>>(){});
+        response = mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Profile>>() {
+            });
     }
 
     @Given("Get page number {int}")
@@ -137,21 +86,21 @@ public class ProfileTestSteps {
 
     @Given("Get nationalities with ids {string}")
     public void get_nationalities_with_ids(String string) throws URISyntaxException {
-        for(String part : string.split(",")) {
+        for (String part : string.split(",")) {
             searchURI = appendUri(searchURI.toASCIIString(), "nationalityIds=" + part);
         }
     }
 
     @Given("Get traveller types with ids {string}")
     public void get_traveller_types_with_ids(String string) throws URISyntaxException {
-        for(String part : string.split(",")) {
+        for (String part : string.split(",")) {
             searchURI = appendUri(searchURI.toASCIIString(), "travellerTypeIds=" + part);
         }
     }
 
     @Given("Get genders {string}")
     public void get_genders(String string) throws URISyntaxException {
-        for(String part : string.split(",")) {
+        for (String part : string.split(",")) {
             searchURI = appendUri(searchURI.toASCIIString(), "genders=" + part);
         }
     }
@@ -183,7 +132,7 @@ public class ProfileTestSteps {
 
     @Then("I get {int} results")
     public void i_get_results(Integer int1) {
-        Assert.assertEquals((int)int1, response.data.size());
+        Assert.assertEquals((int) int1, response.data.size());
     }
 
     @Then("There are {int} total pages")

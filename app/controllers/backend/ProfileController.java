@@ -3,17 +3,14 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import akka.http.javadsl.model.HttpRequest;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.PagedList;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
-import models.CountryDefinition;
 import models.Profile;
-import models.TravellerTypeDefinition;
 import models.User;
 import play.libs.Json;
 import play.mvc.Http;
@@ -65,52 +62,35 @@ public class ProfileController extends TEABackController {
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
      * badRequest if profile already exists
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
-        // Get json parameters
-        JsonNode data = request.body().asJson();
+        User user = request.attrs().get(ActionState.USER);
 
-        // Run the Validator
+        // Get profile data from request body and perform validation
+        JsonNode data = request.body().asJson();
         ErrorResponse validatorResult = new UserValidator(data).profile();
 
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        } else {
-            //We are assuming that the json is sent perfectly,
-            // object may have to be hand-created later
+        }
+        else {
             Profile newProfile = Json.fromJson(data, Profile.class);
 
-            return profileRepository.findID(newProfile.userId)
-                .thenComposeAsync(userId -> {
-                    if (userId != null) {   //If the profile for the user exists (is not null)
-                        return null;
-                    } else {                //Else insert the profile
-                        return profileRepository.addProfile(newProfile);
-                    }
-                })
-                .thenApplyAsync(insertedId -> {
-                    if (insertedId == null) {
-                        validatorResult.map("Profile already created for this user", ERR_OTHER);
-                        return badRequest(validatorResult.toJson());
-                    } else {
-                        return created(Json.toJson(insertedId));
-                    }
-                });
+            if (!user.id.equals(newProfile.userId) && !user.admin) {
+                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to create a profile for this user"));
+            }
+
+            return profileRepository.findID(newProfile.userId).thenApplyAsync(profile -> {
+                // If a profile already exists for this user
+                if (profile != null) {
+                    return badRequest(Json.toJson("A profile for this user already exists"));
+                } else {
+                    profileRepository.addProfile(newProfile);
+                    return created(Json.toJson(newProfile.userId));
+                }
+            });
         }
     }
-
-
-    /**
-     * Gets a profile based on the userID specified in auth.
-     *
-     * @return Ok with profile json object if profile found, badRequest if request malformed or
-     * profile not found
-     */
-    @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> getMyProfile(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-        return getProfile(user.id);
-    }
-
 
     /**
      * Gets a profile based on the userID specified in the request.
@@ -119,21 +99,24 @@ public class ProfileController extends TEABackController {
      * @return Ok with profile json object if profile found, badRequest if request malformed or
      * profile not found
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getProfile(Long userId) {
-        return profileRepository.findID(userId)
-            .thenApplyAsync(profile -> {
-                if (profile == null) {
-                    ErrorResponse errorResponse = new ErrorResponse();
-                    errorResponse.map("Profile for that user not found", ERR_OTHER);
-                    return notFound(errorResponse.toJson());
-                } else {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(profile)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
+        return profileRepository.findID(userId).thenComposeAsync(profile -> {
+            if (profile == null) {
+                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Profile for that user not found")));
+            }
+
+            return profileRepository.getProfileFollowerCounts(profile.userId).thenApplyAsync(profileWithCounts -> {
+                profile.followingUsersCount = profileWithCounts.followingUsersCount;
+                profile.followerUsersCount = profileWithCounts.followerUsersCount;
+
+                try {
+                    return ok(sanitizeJson(Json.toJson(profile)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
             });
+        });
     }
 
     /**
@@ -141,49 +124,35 @@ public class ProfileController extends TEABackController {
      * passports and traveller types.
      *
      * @param request Contains the HTTP request info
+     * @param userId ID of profile to update
      * @return Ok if updated successfully, badRequest if profile json malformed
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> updateProfile(Http.Request request, Long userId) {
         User user = request.attrs().get(ActionState.USER);
-        if (userId.equals(user.id) || user.admin) {
-            // Get json parameters
-            JsonNode data = request.body().asJson();
-            return updateProfileHelper(data, userId);
-        } else {
-            return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
-        }
-    }
 
-    /**
-     * Updates the profile received in the body of the request as well as the related nationalities,
-     * passports and traveller types.
-     *
-     * @return Ok if updated successfully, badRequest if profile json malformed
-     */
-    private CompletableFuture<Result> updateProfileHelper(JsonNode data, Long userId) {
-        // Run the Validator
+        // Retrieves the data from the request body and performs validation
+        JsonNode data = request.body().asJson();
         ErrorResponse errorResponse = new UserValidator(data).profile();
 
         if (errorResponse.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
         } else {
-            return profileRepository.findID(userId)
-                .thenComposeAsync(profile -> {
+            return profileRepository.findID(userId).thenComposeAsync(profile -> {
+                if (profile == null) {
+                    return CompletableFuture
+                        .supplyAsync(() -> notFound(Json.toJson("This profile does not exist")));
+                } else if (!userId.equals(user.id) && !user.admin) {
+                    return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
+                } else {
                     final Profile oldProfile = profile.copy();
-                    if (profile == null) {
-                        errorResponse.map("Profile for that user not found", ERR_OTHER);
-                        return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
-                    } else {
-                        Profile updatedProfile = Json.fromJson(data, Profile.class);
-                        updatedProfile.userId = userId;
+                    Profile updatedProfile = Json.fromJson(data, Profile.class);
+                    updatedProfile.userId = userId;
 
-                        return profileRepository.updateProfile(updatedProfile)
-                            .thenApplyAsync(updatedUserId -> {
-                                return ok(Json.toJson(oldProfile));
-                            });
-                    }
-                });     
+                    return profileRepository.updateProfile(updatedProfile)
+                        .thenApplyAsync(updatedUserId -> ok(Json.toJson(oldProfile)));
+                }
+            });
         }
     }
 
@@ -200,7 +169,8 @@ public class ProfileController extends TEABackController {
      * @param ascending Whether or not to sort ascendingly
      * @param pageNum Number of page we are currently showing
      * @param pageSize Number of results to show per page
-     * @param requestOrder The order that this request has, allows frontend to determine what results to take
+     * @param requestOrder The order that this request has, allows frontend to determine what
+     * results to take
      * @return List of profiles within requested parameters
      */
     @With({Everyone.class, Authenticator.class})
@@ -220,8 +190,9 @@ public class ProfileController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
 
         // Constrain sortBy to a set, default to creation date
-        if(sortBy == null ||
-            !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth", "gender", "creation_date").contains(sortBy)) {
+        if (sortBy == null ||
+            !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth",
+                "gender", "creation_date").contains(sortBy)) {
             sortBy = "creation_date";
         }
 
@@ -230,7 +201,8 @@ public class ProfileController extends TEABackController {
             .thenApplyAsync(profiles -> {
                 try {
                     return ok(sanitizeJson(Json.toJson(
-                        new PagingResponse<>(profiles.getList(), requestOrder, profiles.getTotalPageCount())
+                        new PagingResponse<>(profiles.getList(), requestOrder,
+                            profiles.getTotalPageCount())
                     )));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson("Failed to serialize response"));

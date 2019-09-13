@@ -2,7 +2,7 @@
 -- Create test users
 INSERT INTO User (username, password, salt, admin) VALUES ('dave@gmail.com', 'kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=', 'L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=', 1);
 INSERT INTO User (username, password, salt, admin) VALUES ('bob@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
-INSERT INTO User (username, password, salt, admin) VALUES ('tester1@gmail.com', 'password', 'salt', 1);
+INSERT INTO User (username, password, salt, admin) VALUES ('tester12@gmail.com', 'password', 'salt', 1);
 INSERT INTO User (username, password, salt, admin) VALUES ('tester2@gmail.com', 'password', 'salt', 1);
 
 -- Create profile for tester1@gmail.com
@@ -20,7 +20,7 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (2, 'London Eye', 'Monument', 'London', 56.3453, 23.94883, 1, 1);
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Sydney Harbour Bridge', 'Bridge', 'Sydney', 56.3453, 23.94883, 1, 0);
 
--- Create 2 Trips for testing
+-- Create Trips for testing
 INSERT INTO Trip (user_id) VALUES (1);
 INSERT INTO Trip (user_id, is_public) VALUES (2, 1);
 INSERT INTO Trip (user_id, deleted) VALUES (2, 1);

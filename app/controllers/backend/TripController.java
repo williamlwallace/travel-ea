@@ -25,6 +25,7 @@ import models.enums.NewsFeedEventType;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
@@ -85,10 +86,9 @@ public class TripController extends TEABackController {
                 userId == -1)
             .thenApplyAsync(trips -> {
                 try {
-                    return ok(sanitizeJson(Json.toJson(
-                        new PagingResponse<>(trips.getList(), requestOrder,
-                            trips.getTotalPageCount())
-                    )));
+                    PagingResponse<Trip> toReturn = new PagingResponse<>(trips.getList(),
+                        requestOrder, trips.getTotalPageCount());
+                    return ok(sanitizeJson(Json.toJson(toReturn)));
                 } catch (IOException e) {
                     return internalServerError(Json.toJson(SANITIZATION_ERROR));
                 }
@@ -193,11 +193,23 @@ public class TripController extends TEABackController {
                         return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
                             userRepository.updateUsedTags(user, oldTrip, trip);
                             trip.tags = existingTags;
-                            return tripRepository.updateTrip(trip).thenApplyAsync(uploaded -> {
+                            return tripRepository.updateTrip(trip).thenComposeAsync(uploaded -> {
                                 if (uploaded) {
-                                    return ok(Json.toJson(trip.id));
+                                    if(trip.isPublic) {
+                                        // Create new newsFeedEvent
+                                        NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                        newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP
+                                            .name();
+                                        newsFeedEvent.refId = trip.id;
+                                        newsFeedEvent.userId = trip.userId;
+
+                                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
+                                            eventId -> ok(Json.toJson(trip.id)));
+                                    } else {
+                                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(trip.id)));
+                                    }
                                 } else {
-                                    return notFound();
+                                    return CompletableFuture.supplyAsync(Results::notFound);
                                 }
                             });
                         });
@@ -249,8 +261,22 @@ public class TripController extends TEABackController {
                 }
 
                 // Update trip in db
-                return tripRepository.updateTrip(updatedTrip).thenApplyAsync(uploaded ->
-                    ok(Json.toJson(existingTrip))
+                return tripRepository.updateTrip(updatedTrip).thenComposeAsync(uploaded ->
+                    {
+                        // if the trip was made public, add a newsFeedEvent for it
+                        if(updatedTrip.isPublic) {
+                            // Create new newsFeedEvent
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP.name();
+                            newsFeedEvent.refId = updatedTrip.id;
+                            newsFeedEvent.userId = updatedTrip.userId;
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
+                                eventId -> ok(Json.toJson(existingTrip)));
+                        } else {
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(existingTrip)));
+                        }
+                    }
                 );
             }
         });
@@ -336,19 +362,49 @@ public class TripController extends TEABackController {
                     userRepository.updateUsedTags(user, trip);
                     trip.tags = existingTags;
                     return tripRepository.insertTrip(trip).thenComposeAsync(tripId -> {
-                        if(trip.isPublic) {
-                            NewsFeedEvent event = new NewsFeedEvent();
-                            event.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
-                            event.refId = tripId;
-                            event.userId = trip.userId;
-                            return newsFeedEventRepository.addNewsFeedEvent(event)
-                                .thenApplyAsync(id -> ok(Json.toJson(tripId)));
-                        } else {
-                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(tripId)));
-                        }}
+                            if (trip.isPublic) {
+                                NewsFeedEvent event = new NewsFeedEvent();
+                                event.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
+                                event.refId = tripId;
+                                event.userId = trip.userId;
+                                return newsFeedEventRepository.addNewsFeedEvent(event)
+                                    .thenApplyAsync(id -> ok(Json.toJson(tripId)));
+                            } else {
+                                return CompletableFuture.supplyAsync(() -> ok(Json.toJson(tripId)));
+                            }
+                        }
                     );
                 });
             });
+    }
+
+    /**
+     * Copies one user's trip into another users trips.
+     *
+     * @param request The HTTP request
+     * @param tripId The id of the trip to copy
+     * @return 201 if successful, 401 if the user is not logged in, 403 if the user is not
+     * authorised to copy the trip, 404 if the trip does not exist
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> copyTrip(Http.Request request, Long tripId) {
+        User user = request.attrs().get(ActionState.USER);
+        return tripRepository.getTripById(tripId).thenComposeAsync(trip -> {
+            if (trip == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (user.admin || trip.isPublic || user.id.equals(trip.userId)) {
+                trip.tripDataList.size(); //This forces ebean to resolve the tripDataList
+                return tripRepository.copyTrip(trip, user.id).thenApplyAsync(newTripId -> {
+                    try {
+                        return created(sanitizeJson(Json.toJson(newTripId)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
+            } else {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            }
+        });
     }
 
     /**
