@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS Profile
     creation_date       DATETIME DEFAULT CURRENT_TIMESTAMP,
     profile_photo_guid  INT,
     cover_photo_guid    INT,
+    deleted             BOOLEAN DEFAULT false,
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (profile_photo_guid) REFERENCES Photo(guid),
