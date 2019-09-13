@@ -119,7 +119,7 @@ CREATE TABLE IF NOT EXISTS Destination
     primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
-    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE SET NULL,
     PRIMARY KEY (id)
   );
 
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS FollowerDestination
     deleted           BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (guid),
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    FOREIGN KEY (follower_id) REFERENCES Profile(user_id) ON DELETE CASCADE
+    FOREIGN KEY (follower_id) REFERENCES User(id) ON DELETE CASCADE
   );
 
 -- Create DestinationTravellerType table, which specifies the traveller types of users
