@@ -1,6 +1,7 @@
 package models.strategies.trips;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import javax.inject.Inject;
 import models.Profile;
 import models.Trip;
@@ -29,7 +30,8 @@ public abstract class TripStrategy extends NewsFeedStrategy {
      * @param profileRepository Instance of profileRepository
      * @param tripRepository Instance of tripRepository
      */
-    public TripStrategy(Long tripId, Long userId, ProfileRepository profileRepository, TripRepository tripRepository) {
+    public TripStrategy(Long tripId, Long userId, ProfileRepository profileRepository, TripRepository tripRepository, List<Long> eventIds) {
+        super(eventIds);
         this.tripId = tripId;
         this.userId = userId;
         this.profileRepository = profileRepository;

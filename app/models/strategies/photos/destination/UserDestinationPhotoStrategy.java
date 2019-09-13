@@ -1,6 +1,7 @@
 package models.strategies.photos.destination;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.Profile;
 import repository.DestinationRepository;
 import repository.PhotoRepository;
@@ -24,8 +25,8 @@ public abstract class UserDestinationPhotoStrategy extends DestinationPhotoStrat
      * @param profileRepository Instance of profileRepository
      */
     public UserDestinationPhotoStrategy(Long photoId, Long destinationId, Long userId, PhotoRepository photoRepository,
-        DestinationRepository destinationRepository, ProfileRepository profileRepository) {
-        super(photoId, destinationId, photoRepository, destinationRepository);
+        DestinationRepository destinationRepository, ProfileRepository profileRepository, List<Long> eventIds) {
+        super(photoId, destinationId, photoRepository, destinationRepository, eventIds);
         this.userId = userId;
         this.profileRepository = profileRepository;
     }

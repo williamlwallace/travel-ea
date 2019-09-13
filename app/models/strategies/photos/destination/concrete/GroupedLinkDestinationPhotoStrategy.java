@@ -19,9 +19,9 @@ public class GroupedLinkDestinationPhotoStrategy extends UserDestinationPhotoStr
     public GroupedLinkDestinationPhotoStrategy(Long destinationId, Long userId,
         PhotoRepository photoRepository,
         DestinationRepository destinationRepository,
-        ProfileRepository profileRepository, List<Long> photoIds) {
+        ProfileRepository profileRepository, List<Long> photoIds, List<Long> eventIds) {
         super(null, destinationId, userId, photoRepository, destinationRepository,
-            profileRepository);
+            profileRepository, eventIds);
         this.photoIds = photoIds;
     }
 

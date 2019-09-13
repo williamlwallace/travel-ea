@@ -1,6 +1,7 @@
 package models.strategies.photos.user.concrete;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.NewsFeedResponseItem;
 import models.strategies.photos.user.UserPhotoStrategy;
 import repository.PhotoRepository;
@@ -15,8 +16,8 @@ public class NewCoverPhotoStrategy extends UserPhotoStrategy {
      * @param profileRepository Instance of profileRepository
      */
     public NewCoverPhotoStrategy(Long photoId, Long userId,
-        PhotoRepository photoRepository, ProfileRepository profileRepository) {
-        super(photoId, userId, photoRepository, profileRepository);
+        PhotoRepository photoRepository, ProfileRepository profileRepository, List<Long> eventIds) {
+        super(photoId, userId, photoRepository, profileRepository, eventIds);
     }
 
     /**

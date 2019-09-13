@@ -28,8 +28,8 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
      */
     public MultipleUpdateTripStrategy(Long tripId, Long userId,
         ProfileRepository profileRepository, TripRepository tripRepository,
-        List<Long> newDestIds) {
-        super(tripId, userId, profileRepository, tripRepository);
+        List<Long> newDestIds, List<Long> eventIds) {
+        super(tripId, userId, profileRepository, tripRepository, eventIds);
         this.newDestIds = newDestIds;
     }
 

@@ -7,7 +7,7 @@ import models.strategies.trips.TripStrategy;
 import repository.ProfileRepository;
 import repository.TripRepository;
 
-public class CreateTripStrategy extends TripStrategy {
+public class UpdateTripStrategy extends TripStrategy {
 
     /**
      * Constructor to instantiate both required fields
@@ -16,7 +16,7 @@ public class CreateTripStrategy extends TripStrategy {
      * @param profileRepository Instance of profileRepository
      * @param tripRepository Instance of tripRepository
      */
-    public CreateTripStrategy(Long tripId, Long userId, ProfileRepository profileRepository,
+    public UpdateTripStrategy(Long tripId, Long userId, ProfileRepository profileRepository,
         TripRepository tripRepository, List<Long> eventIds) {
         super(tripId, userId, profileRepository, tripRepository, eventIds);
     }
@@ -28,16 +28,18 @@ public class CreateTripStrategy extends TripStrategy {
      */
     @Override
     public CompletableFuture<NewsFeedResponseItem> execute() {
-        return getUserProfileAsync().thenComposeAsync(profile ->
-           getReferencedTripAsync().thenApplyAsync(trip ->
-               new NewsFeedResponseItem(
-                    String.format("just created a new trip with %d destinations! The trip begins in %s and ends in %s.", trip.tripDataList.size(),
-                    trip.tripDataList.get(0).destination.name,
-                    trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
+        return getReferencedTripAsync().thenComposeAsync(trip ->
+            getUserProfileAsync().thenApplyAsync(profile ->
+                new NewsFeedResponseItem(
+                    String.format("has updated their trip from %s to %s",
+                        trip.tripDataList.get(0).destination.name,
+                        trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name
+                    ),
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
                     trip)
-        ));
+                )
+            );
     }
 }
