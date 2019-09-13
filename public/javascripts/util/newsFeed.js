@@ -46,6 +46,30 @@ class NewsFeed {
                     this.createCards(json.data);
                     this.pageNumber++;
                 }
+                $('.upflight-icon').click(() => {
+                    if ($('.upflight-icon').hasClass("far")) {
+                        $('.upflight-icon').addClass("rotate-top");
+                        $('.upflight-counter').text(parseInt($('.upflight-counter').text()) + 1);
+                        setTimeout(() => {
+                            $('.upflight-icon').removeClass("fas-in");
+                            $('.upflight-icon').removeClass("rotate-top");
+                            $('.upflight-icon').removeClass("far");
+                            $('.upflight-icon').addClass("fas");
+                            $('.upflight-icon').addClass("fas-in");
+                        }, 500);
+                        setTimeout(() => {
+                            $('.upflight-icon').removeClass("fas-in");
+                        }, 700);
+
+                    } else {
+                        $('.upflight-counter').text(parseInt($('.upflight-counter').text()) - 1);
+                        $('.upflight-icon').removeClass("fas");
+                        $('.upflight-icon').addClass("far");
+                        $('.upflight-icon').addClass("fas-in");
+                    }
+                    
+                    
+                })
             });
         });
     }
