@@ -9,7 +9,6 @@ let tripsPaginationHelper;
 function onPageLoad(userId) {
     tripsPaginationHelper = new PaginationHelper(1, 1, getTripResults,
         "tripPagination");
-    console.log(tripsPaginationHelper);
     getTripResults();
 }
 
@@ -324,7 +323,11 @@ function deleteTrip(tripId, userId) {
         const getTripURL = tripRouter.controllers.backend.TripController.getAllTrips(
             userId).url;
         $('#trip-modal').modal('hide');
-        getTripResults();
+        if (window.location.href.includes("/profile/")) {
+            profileLoadTrips();
+        } else {
+            getTripResults();
+        }
     }.bind({initialDelete});
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
@@ -342,10 +345,15 @@ function copyTrip(tripId, userId) {
         if (response.status !== 201) {
             toast("Failed to copy trip", "danger");
         } else {
-            toast("Successfully copied trip", "The trip will now appear in your trips");
+            toast("Successfully copied trip",
+                "The trip will now appear in your trips");
         }
         $('#trip-modal').modal('hide');
-        getTripResults();
+        if (window.location.href.includes("/profile/")) {
+            profileLoadTrips();
+        } else {
+            getTripResults();
+        }
     });
 }
 
