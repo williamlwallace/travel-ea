@@ -9,7 +9,8 @@
 }
 
 .card-header-destinations {
-    background: white;
+    color: white;
+    background-image: linear-gradient(40deg, #007bff, #5dbef4);
     font-weight: 900;
     font-size: 1.75rem;
     text-align: center;
