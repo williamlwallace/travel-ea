@@ -15,20 +15,11 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "NewsFeedEvent")
-public class NewsFeedEvent extends Model {
+public class NewsFeedEvent extends BaseNewsFeedEvent {
 
     @Id
     public Long guid;
 
-    @Constraints.Required
-    public String eventType;
-
-    public Long userId;
-
-    public Long destId;
-
     public Long refId;
 
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    public LocalDateTime created;
 }
