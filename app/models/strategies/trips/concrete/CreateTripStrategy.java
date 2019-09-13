@@ -1,10 +1,8 @@
 package models.strategies.trips.concrete;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import models.NewsFeedResponseItem;
 import models.strategies.trips.TripStrategy;
-import play.libs.Json;
 import repository.ProfileRepository;
 import repository.TripRepository;
 
@@ -32,13 +30,13 @@ public class CreateTripStrategy extends TripStrategy {
         return getUserProfileAsync().thenComposeAsync(profile ->
            getReferencedTripAsync().thenApplyAsync(trip ->
                new NewsFeedResponseItem(
-                   String.format("just created a new trip with %d destinations! The trip begins in %s and ends in %s.", trip.tripDataList.size(),
-                       trip.tripDataList.get(0).destination.name,
-                       trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
-                   profile.firstName + " " + profile.lastName,
-                   (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
-                   profile.userId,
-                   trip)
+                    String.format("just created a new trip with %d destinations! The trip begins in %s and ends in %s.", trip.tripDataList.size(),
+                    trip.tripDataList.get(0).destination.name,
+                    trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
+                    profile.firstName + " " + profile.lastName,
+                    profile.profilePhoto,
+                    profile.userId,
+                    trip)
         ));
     }
 }

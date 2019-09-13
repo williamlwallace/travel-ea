@@ -40,6 +40,7 @@ public class ViewMyTripsTestSteps extends WithApplication {
         // Create request to view profile
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/profile/" + userId);
 
         // Get result and check it was successful

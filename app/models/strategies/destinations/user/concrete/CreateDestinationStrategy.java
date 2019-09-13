@@ -32,9 +32,9 @@ public class CreateDestinationStrategy extends UserDestinationStrategy {
         return getUserProfileAsync().thenComposeAsync(profile ->
             getReferencedDestinationAsync().thenApplyAsync(destination ->
                 new NewsFeedResponseItem(
-                    String.format("has created a new destination: '%s'", destination.name),
+                    "has created a new destination",
                     profile.firstName + " " + profile.lastName,
-                    (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     destination
                 )
