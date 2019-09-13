@@ -475,4 +475,19 @@ public class DestinationRepository {
                 Long.valueOf(ebeanServer.delete(FollowerDestination.class, id))
             , executionContext);
     }
+
+    /**
+     * Retrieves the count of users following a destination
+     *
+     * @param destinationId ID of destination to retrieve follower count for
+     * @return Number of users following the destination
+     */
+    public CompletableFuture<Long> getDestinationFollowerCount(Long destinationId) {
+        return supplyAsync(() ->
+            Long.valueOf(ebeanServer.find(FollowerDestination.class)
+                .where()
+                .eq("destination_id", destinationId)
+                .findCount())
+            , executionContext);
+    }
 }
