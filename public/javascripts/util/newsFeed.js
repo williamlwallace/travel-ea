@@ -207,7 +207,6 @@ function addTags(card, tags) {
     const list = card.find('.wrapper-tags');
     const tagsDisplay = new TagDisplay('fakeId');
     tagsDisplay.list = list;
-    console.log(tagsDisplay);
     tagsDisplay.populateTags(tags);
 }
 

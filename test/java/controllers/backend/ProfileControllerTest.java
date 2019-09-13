@@ -44,7 +44,7 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
 
     @Test
     public void createProfile() {
-        //Create the profile
+        // Create the profile
         Profile newProfile = new Profile();
 
         newProfile.userId = 5L;
@@ -158,6 +158,7 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
     public void getProfileId() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/profile/1");
 
         // Get result and check it was successful
@@ -185,6 +186,7 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
     public void getProfileIdDoesntExist() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/profile/5");
 
         // Get result and check it was not successful
@@ -209,8 +211,8 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
     public void getMyProfile() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
-            .cookie(nonAdminAuthCookie)
-            .uri("/api/profile/2");
+            .cookie(adminAuthCookie)
+            .uri("/api/profile/1");
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -222,8 +224,8 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
         Profile profile = new ObjectMapper().readValue(Helpers.contentAsString(result), Profile.class);
 
         // Check profile has follower details
-        assertNotNull(profile.followerUsersCount);
-        assertNotNull(profile.followingUsersCount);
+        assertEquals(Long.valueOf(2), profile.followerUsersCount);
+        assertEquals(Long.valueOf(1), profile.followingUsersCount);
     }
 
     private List<Profile> searchProfiles(String parameters) throws IOException {
