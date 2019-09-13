@@ -1,29 +1,18 @@
 package repository;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletionException;
-import models.CountryDefinition;
-import models.Destination;
-import models.Tag;
 import models.User;
 import models.NewsFeedEvent;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import io.ebean.ExpressionList;
 import io.ebean.PagedList;
-import io.ebean.Expression;
 
 public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
 
@@ -42,7 +31,7 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
     private boolean checkFirstEvent(NewsFeedEvent newsFeedEvent) {
         assertEquals(Long.valueOf(1), newsFeedEvent.guid);
         assertEquals(Long.valueOf(1), newsFeedEvent.userId);
-        assertEquals(null, newsFeedEvent.destId);
+        assertNull(newsFeedEvent.destId);
         assertEquals("NEW_PROFILE_PHOTO", newsFeedEvent.eventType);
         assertEquals(Long.valueOf(1), newsFeedEvent.refId);
 
@@ -91,7 +80,7 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void personalEventFeed() {
-        List<Long> users = new ArrayList<Long>();
+        List<Long> users = new ArrayList<>();
         users.add(2L);
         PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(users, null, 1, 10).join();
         assertEquals(2, eventFeed.getList().size());
@@ -102,7 +91,7 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void destEventFeed() {
-        List<Long> trips = new ArrayList<Long>();
+        List<Long> trips = new ArrayList<>();
         trips.add(2L);
         PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(null, trips, 1, 10).join();
         assertEquals(1, eventFeed.getList().size());
@@ -113,9 +102,9 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void homeEventFeed() {
-        List<Long> dests = new ArrayList<Long>();
+        List<Long> dests = new ArrayList<>();
         dests.add(2L);
-        List<Long> users = new ArrayList<Long>();
+        List<Long> users = new ArrayList<>();
         users.add(2L);
         users.add(1L);
         PagedList<NewsFeedEvent> eventFeed = newsFeedEventRepository.getPagedEvents(users, dests, 1, 10).join();
