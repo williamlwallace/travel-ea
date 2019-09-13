@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import views.html.destinations;
+import play.libs.Json;
 
 /**
  * This controller contains an action to handle HTTP requests to the application's destinations
@@ -86,6 +87,7 @@ public class DestinationController extends TEAFrontController {
         Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
+            System.out.println(Json.toJson(destination));
             if (destination.user == null) {
                 return notFound();
             } else {
