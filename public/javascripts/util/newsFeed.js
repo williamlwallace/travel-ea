@@ -115,28 +115,6 @@ class NewsFeed {
     }
 }
 
-/**
- * Sets the like button style to be liked or unliked for a given event
- * @param {Number} eventId the id of the event to like/unlike
- * @param {Boolean} isLiked a boolean for if the event is liked, true is liked
- */
-function setLikedButton(eventId, isLiked) {
-    //TODO Find the correct like button DOM element for the eventId
-    //TODO Set the button to be liked/unliked
-
-}
-
-/**
- * TODO: DOC
- * @param eventId
- * @param setLiked
- */
-function likeUnlikeEvent(eventId, setLiked) {
-    //TODO send put request to the like endpoint for the event
-    //TODO call setLikedButton to display the change
-    //TODO change the follower count if needed
-}
-
 /****************************
  News Feed event types
  *****************************/
@@ -211,9 +189,11 @@ const NewsFeedEventTypes = {
  * @param {string} thumbnail address of thumbnail
  * @param {string} message event message
  * @param {string} time string timestamp
- * TODO
+ * @param {number} eventId the guid of the event being displayed
  */
 function createWrapperCard(thumbnail, message, time, eventId) {
+    eventId = 1; //TODO: remove when eventId is correctly send to frontend
+
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
 
@@ -223,12 +203,61 @@ function createWrapperCard(thumbnail, message, time, eventId) {
     }
 
     clone.find('.wrapper-date').text(time);
-    clone.find('.likes-button').attr('data-event-id', eventId);
+    const likeButton = clone.find('.likes-button');
+    likeButton.attr('id', 'like-event-id' + eventId);
+    likeButton.attr('data-event-id', eventId);
+
+    $("#like-event-id" + eventId).click(function() {
+        likeUnlikeEvent(eventId, $(this).attr('data-liked') === "false");
+    });
 
     return clone;
 }
 
-//TODO: DOC
+/**
+ * Sends request to like and unlike events. Updates data attribute of liked
+ * button to the result.
+ * @param {number} eventId the id of the event being liked/unliked
+ * @param {boolean} setLiked true to set to liked, false to unlike event
+ */
+function likeUnlikeEvent(eventId, setLiked) {
+    //TODO send put request to the like endpoint for the event
+    //TODO change the follower count if needed
+    const eventLikeButton = $("#like-event-id" + eventId);
+
+    if (setLiked) {
+        eventLikeButton.attr('data-liked', "true");
+    } else {
+        eventLikeButton.attr('data-liked', "false");
+    }
+
+    updateLikeButton(eventId);
+}
+
+/**
+ * Sets the like button style to be liked or unliked for a given event
+ * @param {Number} eventId the id of the event to like/unlike
+ */
+function updateLikeButton(eventId) {
+    const eventLikeButton = $("#like-event-id" + eventId);
+
+    if (eventLikeButton.attr('data-liked') === "true") {
+        // Set to look liked
+        eventLikeButton.removeClass('far');
+        eventLikeButton.addClass('fas');
+    } else {
+        // Set to look unliked
+        eventLikeButton.removeClass('fas');
+        eventLikeButton.addClass('far');
+    }
+
+}
+
+/**
+ * Adds tags to a card for the newsfeed
+ * @param card the dom element to add tags to
+ * @param tags a list of tags to add to the card
+ */
 function addTags(card, tags) {
     const list = card.find('.wrapper-tags');
     const tagsDisplay = new TagDisplay('fakeId');
