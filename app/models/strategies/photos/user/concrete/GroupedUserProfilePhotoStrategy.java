@@ -19,6 +19,8 @@ public class GroupedUserProfilePhotoStrategy extends UserPhotoStrategy {
         PhotoRepository photoRepository, ProfileRepository profileRepository,
         List<Long> photoIds, List<Long> eventIds) {
         super(null, userId, photoRepository, profileRepository, eventIds);
+        System.out.println(photoIds);
+        System.out.println(userId);
         this.photoIds = photoIds;
     }
 
@@ -30,9 +32,12 @@ public class GroupedUserProfilePhotoStrategy extends UserPhotoStrategy {
     public CompletableFuture<NewsFeedResponseItem> execute() {
         return getReferencedPhotos().thenComposeAsync(photos ->
             getUserProfileAsync().thenApplyAsync(profile -> {
+                System.out.println(eventIds);
                 ObjectNode returnObject = new ObjectNode(new JsonNodeFactory(false));
                 returnObject.set("profile", Json.toJson(profile));
                 returnObject.set("photos", Json.toJson(photos));
+
+                System.out.println(eventIds);
 
                 return new NewsFeedResponseItem(
                     String.format("just added %d photo%s!",
