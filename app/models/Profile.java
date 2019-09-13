@@ -2,7 +2,6 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.ebean.Model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -25,11 +24,11 @@ import play.data.validation.Constraints;
  */
 @Entity
 @Table(name = "Profile")
-public class Profile extends Model {
+public class Profile extends BaseModel {
 
     @Id
     @Constraints.Required
-    public Long userId; //Unique user id
+    public Long userId;
 
     @Constraints.Required
     public String firstName;

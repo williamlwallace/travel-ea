@@ -84,6 +84,22 @@ public class ProfileRepository {
     }
 
     /**
+     * Retrieves a profile even if it is soft deleted
+     *
+     * @param userId ID of profile to retrieve
+     * @return Profile object found or else null
+     */
+    public CompletableFuture<Profile> getDeletedProfile(Long userId) {
+        return supplyAsync(() -> ebeanServer.find(Profile.class)
+            .setIncludeSoftDeletes()
+            .where()
+            .idEq(userId)
+            .findOneOrEmpty()
+            .orElse(null)
+        );
+    }
+
+    /**
      * Gets all the profiles in the database.
      *
      * @return A list of all profiles
