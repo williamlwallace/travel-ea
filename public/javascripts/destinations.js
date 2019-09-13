@@ -372,7 +372,6 @@ $('#CreateDestinationCancelButton').click(function () {
  */
 $('#createNewDestinationButton').click(function () {
     getUserId().then(userId => {
-        console.log(userId);
         addDestination(
             destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
             "/", userId)
