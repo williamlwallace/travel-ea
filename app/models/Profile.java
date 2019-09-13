@@ -79,37 +79,30 @@ public class Profile extends Model {
     @ManyToOne(cascade = CascadeType.ALL)
     public Photo coverPhoto;
 
-    @JsonManagedReference()
-    @ManyToMany(mappedBy = "followerUsers")
-    @JoinTable(
-        name = "FollowerUser",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id")
-    )
-    public List<Profile> followingUsers;
-
-    @JsonBackReference()
-    @ManyToMany(mappedBy = "followingUsers")
-    @JoinTable(
-        name = "FollowerUser",
-        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id")
-    )
-    public List<Profile> followerUsers;
-
-//    @JsonInclude()
-//    @Transient
-//    public Long followingUsersCount;
+//    @ManyToMany(mappedBy = "followerUsers")
+//    @JoinTable(
+//        name = "FollowerUser",
+//        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+//        inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id")
+//    )
+//    public List<Profile> followingUsers;
 //
-//    @JsonInclude()
-//    @Transient
-//    public Long followerUsersCount;
-//
-//    @PostConstruct
-//    private void init() {
-//        followingUsersCount = (long) followingUsers.size();
-//        followerUsersCount = (long) followerUsers.size();
-//    }
+//    @JsonBackReference("followingUsers-reference")
+//    @ManyToMany(mappedBy = "followingUsers")
+//    @JoinTable(
+//        name = "FollowerUser",
+//        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id"),
+//        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+//    )
+//    public List<Profile> followerUsers;
+
+    @JsonInclude()
+    @Transient
+    public Long followingUsersCount;
+
+    @JsonInclude()
+    @Transient
+    public Long followerUsersCount;
 
     /**
      * Calculates age based on the birth date.

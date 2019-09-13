@@ -1,11 +1,7 @@
 package models;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.ebean.annotation.Aggregation;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
 
@@ -25,13 +21,5 @@ public class FollowerUser extends BaseModel {
 
     @Constraints.Required
     public Long followerId;
-
-    @JsonInclude()
-    @Aggregation("count(*)")
-    public Long followingUsersCount;
-
-    @JsonInclude()
-    @Aggregation("count(*)")
-    public Long followerUsersCount;
 
 }
