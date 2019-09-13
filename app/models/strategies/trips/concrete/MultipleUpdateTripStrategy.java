@@ -1,9 +1,14 @@
 package models.strategies.trips.concrete;
 
+import util.StreamHelper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import models.NewsFeedResponseItem;
 import models.strategies.trips.TripStrategy;
+import play.libs.Json;
 import repository.ProfileRepository;
 import repository.TripRepository;
 
@@ -33,6 +38,25 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
      */
     @Override
     public CompletableFuture<NewsFeedResponseItem> execute() {
-        return null;
+        return getUserProfileAsync().thenComposeAsync(profile ->
+            getReferencedTripAsync().thenApplyAsync(trip -> {
+
+                // Create response object which has the trip and the newly added destinations
+                ObjectNode returnObject = new ObjectNode(new JsonNodeFactory(false));
+                returnObject.set("trip", Json.toJson(trip));
+                returnObject.set("newDestinations", Json.toJson(trip.tripDataList.stream()
+                    .filter(x -> newDestIds.contains(x.destination.id)) // Take a subset of trips sets, which are newly added destinations
+                    .map(x -> x.destination) // Convert the trip data to destinations
+                    .filter(StreamHelper.distinctByKey(x -> x.id)) // Get distinct destinations (if a dest added twice, only show once)
+                    .collect(Collectors.toList()))
+                );
+
+                return new NewsFeedResponseItem(
+                    String.format("added %d new destinations to their trip!", trip.tripDataList.size()),
+                    profile.firstName + " " + profile.lastName,
+                    (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
+                    profile.userId,
+                    returnObject);
+            }));
     }
 }

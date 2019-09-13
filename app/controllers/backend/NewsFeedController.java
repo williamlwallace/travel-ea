@@ -5,6 +5,7 @@ import actions.roles.Everyone;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -22,6 +23,7 @@ import models.strategies.photos.destination.concrete.NewPrimaryDestinationPhotoS
 import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
+import models.strategies.trips.concrete.MultipleUpdateTripStrategy;
 import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Json;
 import play.mvc.Http;
@@ -132,6 +134,9 @@ public class NewsFeedController extends TEABackController {
                         completedStrategies.get(i).eventType = groupedEvents.get(i - events.size()).eventType;
                     }
 
+                    // Sort all completed strategies by creation date (most recent first)
+                    completedStrategies.sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
+
                     // Serialize and return a paging response with all created NewsFeedResponseItems
                     return ok(Json.toJson(new PagingResponse<>(
                         completedStrategies,
@@ -183,7 +188,7 @@ public class NewsFeedController extends TEABackController {
                     return null;
 
                 case GROUPED_TRIP_UPDATES:
-                    return new CreateDestinationStrategy(1L, destinationRepository, 1L, profileRepository);
+                    return new MultipleUpdateTripStrategy(groupedEvent.tripId, groupedEvent.userId, profileRepository, tripRepository, groupedEvent.refIds);
 
                 default:
                     throw new NotImplementedException("Event type not specified in strategy pattern selector.");
@@ -227,6 +232,7 @@ public class NewsFeedController extends TEABackController {
                             newGroupEvent.refIds.add(event.destId);
                             newGroupEvent.created = event.created;
                             newGroupEvent.tripId = event.refId;
+                            newGroupEvent.userId = event.userId;
                             newGroupEvent.eventType = NewsFeedEventType.GROUPED_TRIP_UPDATES.name();
                             groupedEventsList.add(newGroupEvent);
                         }
