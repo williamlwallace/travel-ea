@@ -306,7 +306,7 @@ public class UserRepositoryTest extends repository.RepositoryTest {
     }
 
     @Test
-    public void updateUserTagsNoNewTags() throws SQLException {
+    public void updateUserTagsNoNewTags() throws SQLException, InterruptedException {
         User originalUser = userRepository.findID(2L).join();
 
         assertNotNull(originalUser);
@@ -317,6 +317,9 @@ public class UserRepositoryTest extends repository.RepositoryTest {
         ResultSet originalResultSet = getTagsForUserFromDatabase(2L);
         originalResultSet.next();
         Timestamp originalTimestamp = originalResultSet.getTimestamp("time_used");
+
+        // Sleep for one second to ensure timestamp changes
+        Thread.sleep(1000);
 
         Destination originalDestination = new Destination();
         Tag originalTag = new Tag("Russia");

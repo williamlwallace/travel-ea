@@ -240,6 +240,16 @@ function createTimeline(trip) {
             });
         }
 
+        $("#copy-href").remove();
+        const copyButton = $(
+            "<a id=\"copy-href\"><button id=\"copyTrip\" type=\"button\" class=\"btn btn-primary\">Copy This Trip</button></a>");
+        $("#copy-trip-wrapper").append(copyButton);
+
+        $('#copy-href').click(function () {
+            $('#trip-modal').modal('toggle');
+            copyTrip(trip.id, currentUserId);
+        });
+
         const promises = [];
         for (let dest of trip.tripDataList) {
             promises.push(checkCountryValidity(dest.destination.country.name,
@@ -312,11 +322,39 @@ function deleteTrip(tripId, userId) {
 
         const getTripURL = tripRouter.controllers.backend.TripController.getAllTrips(
             userId).url;
-        getTripResults();
         $('#trip-modal').modal('hide');
+        if (window.location.href.includes("/profile/")) {
+            profileLoadTrips();
+        } else {
+            getTripResults();
+        }
     }.bind({initialDelete});
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Copies a trip
+ * @param {Number} tripId ID of the trip to copy
+ * @param {Number} userId ID of the user copying the trip
+ */
+function copyTrip(tripId, userId) {
+    const URL = tripRouter.controllers.backend.TripController.copyTrip(
+        tripId).url;
+    post(URL, {}).then(response => {
+        if (response.status !== 201) {
+            toast("Failed to copy trip", "danger");
+        } else {
+            toast("Successfully copied trip",
+                "The trip will now appear in your trips");
+        }
+        $('#trip-modal').modal('hide');
+        if (window.location.href.includes("/profile/")) {
+            profileLoadTrips();
+        } else {
+            getTripResults();
+        }
+    });
 }
 
 /**

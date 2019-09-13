@@ -286,4 +286,10 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
 
         assertTrue(destinations.isEmpty());
     }
+
+    @Test
+    public void getDestinationFollowerCount() {
+        Long count = destinationRepository.getDestinationFollowerCount(1L).join();
+        assertEquals(Long.valueOf(2), count);
+    }
 }

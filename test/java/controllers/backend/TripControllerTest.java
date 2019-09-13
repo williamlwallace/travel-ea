@@ -680,6 +680,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Check destination 4 is public and owned by user 2
         Http.RequestBuilder initGetRequest = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
@@ -720,6 +721,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Check destination 4 is now owned by master admin and is public
         Http.RequestBuilder finalGetRequest = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful

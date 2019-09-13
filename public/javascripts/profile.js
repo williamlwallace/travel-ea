@@ -62,7 +62,7 @@ function getProfileTripResults() {
 /**
  * The JavaScript method to fill the initial profile data
  *
- * @param {String} email the email of the logged in user, which may or may not be displayed
+ * @param {String} email - The email of the logged in user, which may or may not be displayed
  */
 function fillProfileData(email) {
     if (document.getElementById("summary_email")) {
@@ -76,6 +76,7 @@ function fillProfileData(email) {
             if (response.status !== 200) {
                 showErrors(profile);
             } else {
+                console.log(profile);
                 document.getElementById(
                     "summary_name").innerText = profile.firstName + ' '
                     + profile.lastName;

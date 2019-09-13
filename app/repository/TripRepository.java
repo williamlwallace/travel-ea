@@ -7,6 +7,8 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.PagedList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -171,9 +173,19 @@ public class TripRepository {
         trip.id = null;
         trip.isPublic = false;
 
+        List<TripData> newTripDataList = new ArrayList<>();
+
         for (TripData tripData : trip.tripDataList) {
-            tripData.guid = null;
+            TripData newTripData = new TripData();
+            newTripData.arrivalTime = tripData.arrivalTime;
+            newTripData.departureTime = tripData.departureTime;
+            newTripData.destination = tripData.destination;
+            newTripData.position = tripData.position;
+            newTripData.trip = trip;
+            newTripDataList.add(newTripData);
         }
+
+        trip.tripDataList = newTripDataList;
 
         return insertTrip(trip);
     }

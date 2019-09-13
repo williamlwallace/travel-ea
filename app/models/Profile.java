@@ -1,6 +1,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.ebean.Model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,10 +15,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.CascadeType;
+import javax.persistence.Transient;
 import play.data.validation.Constraints;
 
 /**
@@ -73,6 +73,31 @@ public class Profile extends Model {
     @ManyToOne(cascade = CascadeType.ALL)
     public Photo coverPhoto;
 
+//    @ManyToMany(mappedBy = "followerUsers")
+//    @JoinTable(
+//        name = "FollowerUser",
+//        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+//        inverseJoinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id")
+//    )
+//    public List<Profile> followingUsers;
+//
+//    @JsonBackReference("followingUsers-reference")
+//    @ManyToMany(mappedBy = "followingUsers")
+//    @JoinTable(
+//        name = "FollowerUser",
+//        joinColumns = @JoinColumn(name = "follower_id", referencedColumnName = "user_id"),
+//        inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+//    )
+//    public List<Profile> followerUsers;
+
+    @JsonInclude()
+    @Transient
+    public Long followingUsersCount;
+
+    @JsonInclude()
+    @Transient
+    public Long followerUsersCount;
+
     /**
      * Calculates age based on the birth date.
      *
@@ -98,9 +123,9 @@ public class Profile extends Model {
         copy.dateOfBirth = this.dateOfBirth;
         copy.creationDate = this.creationDate;
         copy.gender = this.gender;
-        copy.travellerTypes = new ArrayList<TravellerTypeDefinition>(this.travellerTypes);
-        copy.nationalities = new ArrayList<CountryDefinition>(this.nationalities);
-        copy.passports = new ArrayList<CountryDefinition>(this.passports);
+        copy.travellerTypes = new ArrayList<>(this.travellerTypes);
+        copy.nationalities = new ArrayList<>(this.nationalities);
+        copy.passports = new ArrayList<>(this.passports);
         return copy;
     }
 }
