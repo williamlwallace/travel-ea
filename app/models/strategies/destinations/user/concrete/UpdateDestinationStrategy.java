@@ -38,7 +38,8 @@ public class UpdateDestinationStrategy extends UserDestinationStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    destination
+                    destination,
+                    eventIds
                 )
             )
         );

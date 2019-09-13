@@ -59,7 +59,8 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    returnObject); 
+                    returnObject,
+                    eventIds); 
             }));
     }
 }

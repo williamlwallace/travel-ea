@@ -37,7 +37,8 @@ public class CreateDestinationStrategy extends UserDestinationStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    destination
+                    destination,
+                    eventIds
                 )
             )
         );

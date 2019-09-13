@@ -35,7 +35,8 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
                     destination.name,
                     destination.primaryPhoto,
                     destination.id,
-                    photo)
+                    photo,
+                    eventIds)
             )
         );
     }

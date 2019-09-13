@@ -33,7 +33,8 @@ public class NewCoverPhotoStrategy extends UserPhotoStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    photo)
+                    photo,
+                    eventIds)
             )
         );
     }

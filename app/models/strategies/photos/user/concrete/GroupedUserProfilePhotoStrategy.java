@@ -40,7 +40,8 @@ public class GroupedUserProfilePhotoStrategy extends UserPhotoStrategy {
                     String.format("%s %s", profile.firstName, profile.lastName),
                     profile.profilePhoto,
                     profile.userId,
-                    returnObject);
+                    returnObject,
+                    eventIds);
 
             }));
     }

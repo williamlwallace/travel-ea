@@ -43,7 +43,8 @@ public class LinkDestinationPhotoStrategy extends UserDestinationPhotoStrategy {
                         String.format("%s %s", profile.firstName, profile.lastName),
                         profile.profilePhoto,
                         profile.userId,
-                        photo)
+                        photo,
+                        eventIds)
                 )
             )
         );

@@ -45,7 +45,8 @@ public class GroupedLinkDestinationPhotoStrategy extends UserDestinationPhotoStr
                         String.format("%s %s", profile.firstName, profile.lastName),
                         profile.profilePhoto,
                         profile.userId,
-                        returnObject);
+                        returnObject,
+                        eventIds);
 
                 })));
     }

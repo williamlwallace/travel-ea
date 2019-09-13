@@ -38,7 +38,8 @@ public class UpdateTripStrategy extends TripStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    trip)
+                    trip,
+                    eventIds)
                 )
             );
     }

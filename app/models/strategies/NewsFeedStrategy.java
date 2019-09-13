@@ -7,7 +7,7 @@ import models.NewsFeedResponseItem;
 
 public abstract class NewsFeedStrategy {
 
-    List<Long> eventIds;
+    protected List<Long> eventIds;
 
     /**
      * Constructor to instantiate both required fields
