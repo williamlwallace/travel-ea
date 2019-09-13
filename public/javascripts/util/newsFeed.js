@@ -123,10 +123,11 @@ const NewsFeedEventTypes = {
     // Destinations events
 
     /**
-     * A public photo has been linked to a public destination
+     * Grouped event for multiple photos being linked to a destination by the same person
      * reference ID = ID of photo
+     * dest ID = ID of destination
      */
-    LINK_DESTINATION_PHOTO: linkDestinationPhotoCard,
+    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleDestinationPhotoLinks,
 
     /**
      * A public destination has had its primary photo updated
@@ -154,10 +155,10 @@ const NewsFeedEventTypes = {
     NEW_PROFILE_PHOTO: newProfilePhotoCard,
 
     /**
-     * A new public picture has been uploaded by a user
-     * reference ID = ID of photo
+     * A user has uploaded multiple new gallery photos, that have been grouped into one news feed event
+     *
      */
-    UPLOADED_USER_PHOTO: uploadedUserPhotoCard,
+    MULTIPLE_GALLERY_PHOTOS: multipleGalleryPhotos,
 
     /**
      * A user has updated their cover picture
@@ -176,8 +177,8 @@ const NewsFeedEventTypes = {
      * An existing trip that is public has been updated, or a private trip has been set to public
      * reference ID = ID of trip updated or made public
      */
-    UPDATED_EXISTING_TRIP: updatedExistingTripCard
-}
+    GROUPED_TRIP_UPDATES: groupedTripUpdates
+};
 
 /******************************
  News feed card creation - Helpers
@@ -267,16 +268,6 @@ function createdNewTripCard(event) {
 }
 
 /**
- * Creates news Feed card for updating a trip
- *
- * @param {object} event newsfeed event item data
- */
-function updatedExistingTripCard(event) {
-    //Because its the same as creating a trip card
-    return createdNewTripCard(event);
-}
-
-/**
  * Creates news Feed card for creating a trip
  *
  * @param {object} event newsfeed event item data
@@ -297,37 +288,52 @@ function newProfilePhotoCard(event) {
 }
 
 /**
- * Creates news Feed card for photo linked to destination
- *
- * @param {object} event newsfeed event item data
- */
-function linkDestinationPhotoCard(event) {
-    createUserWrapperCard(event);
-    //TODO: The card
-    return card
-}
-
-/**
  * Creates news Feed card for destination primary photo change
  *
  * @param {object} event newsfeed event item data
  */
 function newPrimaryPhotoCard(event) {
-    createDestinationWrapperCard(event);
+    const card = createDestinationWrapperCard(event);
     //TODO: The card
     return card
 }
 
 /**
- * Creates news Feed card for user uploading photo
+ * Creates news Feed card for groupes of trip photos
  *
  * @param {object} event newsfeed event item data
  */
-function uploadedUserPhotoCard(event) {
-    createUserWrapperCard(event);
+function groupedTripUpdates(event) {
+    const card = createUserWrapperCard(event);
     //TODO: The card
-    return card
+    return card;
 }
+
+
+/**
+ * Creates news Feed card for groupes of destination photos
+ *
+ * @param {object} event newsfeed event item data
+ */
+function multipleDestinationPhotoLinks(event) {
+    const card = createUserWrapperCard(event);
+    //TODO: The card
+    return card;
+}
+
+
+/**
+ * Creates news Feed card for groups of gallery photos
+ *
+ * @param {object} event newsfeed event item data
+ */
+function multipleGalleryPhotos(event) {
+    const card = createUserWrapperCard(event);
+    //TODO: The card
+    return card;
+}
+
+
 
 /**
  * Creates news Feed card for user creating new destination

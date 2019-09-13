@@ -186,12 +186,13 @@ public class TripController extends TEABackController {
                 // Update trip in db
                 return tripRepository.getTripById(trip.id).thenComposeAsync(oldTrip -> {
                     // Do not remove this, it is to fix a stupid ebean race condition
-                    Json.toJson(oldTrip.tripDataList.stream().map(x -> x.destination.id).collect(Collectors.toList()));
+
                     if (oldTrip == null) {
                         return CompletableFuture
                             .supplyAsync(
                                 () -> notFound(Json.toJson("Trip with provided ID not found")));
                     } else {
+                        Json.toJson(oldTrip.tripDataList.stream().map(x -> x.destination.id).collect(Collectors.toList()));
                         return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
                             userRepository.updateUsedTags(user, oldTrip, trip);
                             trip.tags = existingTags;
