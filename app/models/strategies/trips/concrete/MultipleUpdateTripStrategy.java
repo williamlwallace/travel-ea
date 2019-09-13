@@ -33,6 +33,16 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
      */
     @Override
     public CompletableFuture<NewsFeedResponseItem> execute() {
-        return null;
+        return getUserProfileAsync().thenComposeAsync(profile ->
+           getReferencedTripAsync().thenApplyAsync(trip ->
+               new NewsFeedResponseItem(
+                   String.format("just created a new trip with %d destinations! The trip begins in %s and ends in %s.", trip.tripDataList.size(),
+                       trip.tripDataList.get(0).destination.name,
+                       trip.tripDataList.get(trip.tripDataList.size() - 1).destination.name),
+                   profile.firstName + " " + profile.lastName,
+                   (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
+                   profile.userId,
+                   new Pair<>(trip, this.newDestIds))
+        ));
     }
 }
