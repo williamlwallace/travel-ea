@@ -104,14 +104,19 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void getDestinationById() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .uri(DEST_URL_SLASH + "1");
+    public void getDestination() throws IOException {
+        // Retrieve destination and check response was OK
+        Destination destination = getDestination(1);
+        assertNotNull(destination);
 
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        // Check destination data is as expected
+        assertEquals("Eiffel Tower", destination.name);
+        assertEquals("Monument", destination.destType);
+        assertEquals("Paris", destination.district);
+        assertEquals(Double.valueOf(48.8583), destination.latitude);
+        assertEquals(Double.valueOf(2.2945), destination.longitude);
+        assertEquals(Long.valueOf(1), destination.country.id);
+        assertEquals(Long.valueOf(2), destination.followerCount);
     }
 
     @Test
@@ -908,7 +913,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void checkFollowingPrivateDest() throws IOException {
+    public void checkFollowingPrivateDest() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(nonAdminAuthCookie)
@@ -919,7 +924,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void checkFollowingOwnDest() throws IOException {
+    public void checkFollowingOwnDest() {
         Http.RequestBuilder request = Helpers.fakeRequest()
                 .method(GET)
                 .cookie(nonAdminAuthCookie)

@@ -49,6 +49,9 @@ INSERT INTO DestinationPhoto (photo_id, destination_id) VALUES (1, 2);
 INSERT INTO PendingDestinationPhoto (photo_guid, dest_id) VALUES (2, 2);
 INSERT INTO PendingDestinationPhoto (photo_guid, dest_id) VALUES (1, 2);
 
+-- Add followers to destinations
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 1);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 2);
 
 -- Add traveller types to destination
 INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id) VALUES (1, 1);
