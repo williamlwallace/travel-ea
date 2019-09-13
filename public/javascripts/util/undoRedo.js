@@ -189,7 +189,6 @@ class UndoRedo {
                     return sponse.json().then(json => {
                         const inverseData = new ReqData(requestTypes['TOGGLE'],
                             `${reqData.URL}/${json}/delete`, inverseHandler);
-                        console.log(`${reqData.URL}/${json}/delete`);
                         return {status: sponse.status, json, inverseData};
                     });
                 });
