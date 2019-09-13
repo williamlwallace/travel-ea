@@ -2,7 +2,6 @@ let coverPhotoPaginationHelper;
 let profilePhotoPaginationHelper;
 let mainGalleryPaginationHelper;
 let tripPaginationHelper;
-let profileFeed;
 
 /**
  * Runs when the page is loaded. Initialises the paginationHelper object and

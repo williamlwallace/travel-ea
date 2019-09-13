@@ -44,16 +44,33 @@ function loadFollowBtn(type) {
  * @param type is type of thing to get count from eg. "profile", "destination"
  */
 function updateFollowerCount(profileId, type) {
-    // get and set follower and followers count using profileId
-    let followers = 564987;
-    followers = followerCountFormatter(followers);
-    $('#followers-count').html(followers);
-
+    let url = null;
     if (type === "profile") {
-        let following = 1324;
-        following = followerCountFormatter(following);
-        $('#following-count').html(following);
+        url = profileRouter.controllers.backend.ProfileController.getProfile(
+            profileId).url;
+    } else if (type === "destination") {
+        url = null;
     }
+    get(url)
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to retrieve followers/following count",
+                    "danger", 5000);
+            } else {
+                let followers = data.followerUsersCount;
+                followers = followerCountFormatter(followers);
+                $('#followers-count').html(followers);
+
+                if (type === "profile") {
+                    let following = data.followingUsersCount
+                    following = followerCountFormatter(following);
+                    $('#following-count').html(following);
+                }
+            }
+        })
+    })
 }
 
 /**
@@ -82,15 +99,16 @@ function followToggle(type) {
         URL = destinationRouter.controllers.backend.DestinationController.toggleFollowerStatus(
             id).url;
     }
-
     const handler = (status, json) => {
         if (status !== 200) {
-            toast("Error", "Unable to toggle follow", "danger", 5000);
+            toast("Error", "Unable to toggle follow", "danger",
+                5000);
         } else {
             loadFollowBtn(type);
             updateFollowerCount(id, type);
         }
     };
-    const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
+    const reqData = new ReqData(requestTypes["TOGGLE"], URL,
+        handler);
     undoRedo.sendAndAppend(reqData);
 }
