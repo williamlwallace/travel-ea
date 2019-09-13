@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS Destination
     primary_photo_guid  INT,
     FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
     FOREIGN KEY (country_id) REFERENCES CountryDefinition(id) ON DELETE CASCADE,
-    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE CASCADE,
+    FOREIGN KEY (primary_photo_guid) REFERENCES Photo(guid) ON DELETE SET NULL,
     PRIMARY KEY (id)
   );
 
