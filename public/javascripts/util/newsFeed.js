@@ -115,6 +115,28 @@ class NewsFeed {
     }
 }
 
+/**
+ * Sets the like button style to be liked or unliked for a given event
+ * @param {Number} eventId the id of the event to like/unlike
+ * @param {Boolean} isLiked a boolean for if the event is liked, true is liked
+ */
+function setLikedButton(eventId, isLiked) {
+    //TODO Find the correct like button DOM element for the eventId
+    //TODO Set the button to be liked/unliked
+
+}
+
+/**
+ * TODO: DOC
+ * @param eventId
+ * @param setLiked
+ */
+function likeUnlikeEvent(eventId, setLiked) {
+    //TODO send put request to the like endpoint for the event
+    //TODO call setLikedButton to display the change
+    //TODO change the follower count if needed
+}
+
 /****************************
  News Feed event types
  *****************************/
@@ -177,7 +199,7 @@ const NewsFeedEventTypes = {
      * reference ID = ID of trip updated or made public
      */
     UPDATED_EXISTING_TRIP: updatedExistingTripCard
-}
+};
 
 /******************************
  News feed card creation - Helpers
@@ -189,8 +211,9 @@ const NewsFeedEventTypes = {
  * @param {string} thumbnail address of thumbnail
  * @param {string} message event message
  * @param {string} time string timestamp
+ * TODO
  */
-function createWrapperCard(thumbnail, message, time) {
+function createWrapperCard(thumbnail, message, time, eventId) {
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
 
@@ -200,9 +223,12 @@ function createWrapperCard(thumbnail, message, time) {
     }
 
     clone.find('.wrapper-date').text(time);
+    clone.find('.likes-button').attr('data-event-id', eventId);
+
     return clone;
 }
 
+//TODO: DOC
 function addTags(card, tags) {
     const list = card.find('.wrapper-tags');
     const tagsDisplay = new TagDisplay('fakeId');
@@ -231,7 +257,7 @@ function createDestinationWrapperCard(event) {
                     </a>
                     ${event.message}`;
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created));
+        this.formatDate(event.created), event.id);
 }
 
 /**
@@ -246,8 +272,9 @@ function createUserWrapperCard(event) {
             ${event.name}
         </a>
         ${event.message}`;
+
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created));
+        this.formatDate(event.created), event.id);
 }
 
 /******************************
