@@ -242,10 +242,11 @@ function createDestinationWrapperCard(event) {
  */
 function createUserWrapperCard(event) {
     const id = 1; //testing
-    const message = `<a href="${"/profile/" + event.eventerId}"> 
-                        ${event.name}
-                    </a>
-                    ${event.message}`;
+    const message = `
+        <a href="${"/profile/" + event.eventerId}"> 
+            ${event.name}
+        </a>
+        ${event.message}`;
     return createWrapperCard(event.thumbnail, message,
         this.formatDate(event.created));
 }
@@ -377,9 +378,12 @@ function createdNewDestinationCard(event) {
 
     $(destinationCard).find("#destinatonCardTravellerTypes").append(
         travellerTypes ? travellerTypes : "No traveller types");
-    $(destinationCard).find("#tags").append(tags ? tags : "No tags");
+
+    $(destinationCard).find("#tags").remove();
 
     card.find('.wrapper-body').append(destinationCard);
+
+    addTags(card, dest.tags);
 
     return card
 }
