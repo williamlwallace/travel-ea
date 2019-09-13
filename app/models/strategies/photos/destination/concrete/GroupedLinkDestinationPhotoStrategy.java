@@ -43,7 +43,7 @@ public class GroupedLinkDestinationPhotoStrategy extends UserDestinationPhotoStr
                         String.format("just linked %d photo%s to the destination %s!",
                             photos.size(), photos.size() == 1 ? "" : "s", destination.name),
                         String.format("%s %s", profile.firstName, profile.lastName),
-                        (profile.profilePhoto == null ) ? null : profile.profilePhoto.thumbnailFilename,
+                        profile.profilePhoto,
                         profile.userId,
                         returnObject);
 

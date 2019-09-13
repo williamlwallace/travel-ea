@@ -38,7 +38,7 @@ public class GroupedUserProfilePhotoStrategy extends UserPhotoStrategy {
                     String.format("just added %d photo%s!",
                         photos.size(), photos.size() == 1 ? "" : "s"),
                     String.format("%s %s", profile.firstName, profile.lastName),
-                    (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     returnObject);
 

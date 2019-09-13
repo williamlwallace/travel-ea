@@ -57,7 +57,7 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
                 return new NewsFeedResponseItem(
                     String.format("added %d new destination%s to their trip!", newDestinations.size(), newDestinations.size() == 1 ? "" : "s"),
                     profile.firstName + " " + profile.lastName,
-                    (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
+                    profile.profilePhoto,
                     profile.userId,
                     returnObject); 
             }));
