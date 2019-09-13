@@ -9,6 +9,12 @@ public enum NewsFeedEventType {
      */
     LINK_DESTINATION_PHOTO,
     /**
+     * Grouped event for multiple photos being linked to a destination by the same person
+     * reference ID = ID of photo
+     * dest ID = ID of destination
+     */
+    MULTIPLE_DESTINATION_PHOTO_LINKS,
+    /**
      * A public destination has had its primary photo updated
      * reference ID = ID of photo
      */

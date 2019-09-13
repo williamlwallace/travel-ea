@@ -56,7 +56,7 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
                     profile.firstName + " " + profile.lastName,
                     (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
                     profile.userId,
-                    returnObject);
+                    returnObject); 
             }));
     }
 }

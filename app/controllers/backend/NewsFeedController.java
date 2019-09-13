@@ -19,7 +19,9 @@ import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
 import models.strategies.destinations.user.concrete.CreateDestinationStrategy;
 import models.strategies.destinations.user.concrete.UpdateDestinationStrategy;
+import models.strategies.photos.destination.concrete.GroupedLinkDestinationPhotoStrategy;
 import models.strategies.photos.destination.concrete.NewPrimaryDestinationPhotoStrategy;
+import models.strategies.photos.user.concrete.GroupedUserProfilePhotoStrategy;
 import models.strategies.photos.user.concrete.NewCoverPhotoStrategy;
 import models.strategies.photos.user.concrete.NewProfilePhotoStrategy;
 import models.strategies.trips.concrete.CreateTripStrategy;
@@ -185,10 +187,14 @@ public class NewsFeedController extends TEABackController {
             GroupedNewsFeedEvent groupedEvent = (GroupedNewsFeedEvent)event;
             switch (NewsFeedEventType.valueOf(groupedEvent.eventType)) {
                 case MULTIPLE_GALLERY_PHOTOS:
-                    return null;
+                    return new GroupedUserProfilePhotoStrategy(groupedEvent.userId, photoRepository, profileRepository, groupedEvent.refIds);
 
                 case GROUPED_TRIP_UPDATES:
                     return new MultipleUpdateTripStrategy(groupedEvent.tripId, groupedEvent.userId, profileRepository, tripRepository, groupedEvent.refIds);
+
+                case MULTIPLE_DESTINATION_PHOTO_LINKS:
+                    return new GroupedLinkDestinationPhotoStrategy(groupedEvent.destId, groupedEvent.userId, photoRepository,
+                        destinationRepository, profileRepository, groupedEvent.refIds);
 
                 default:
                     throw new NotImplementedException("Event type not specified in strategy pattern selector.");
@@ -218,14 +224,14 @@ public class NewsFeedController extends TEABackController {
             } else {
                 switch (NewsFeedEventType.valueOf(event.eventType)) {
                     case UPDATED_EXISTING_TRIP:
-                        final Optional<GroupedNewsFeedEvent> matchedEvent = groupedEventsList.stream()
+                        final Optional<GroupedNewsFeedEvent> matchedTripUpdates = groupedEventsList.stream()
                             .filter(x -> x.eventType.equals(NewsFeedEventType.GROUPED_TRIP_UPDATES.name()))
                             .filter(x -> x.created.minusHours(12).isBefore(event.created))
                             .filter(x -> x.tripId.equals(event.refId))
                             .findFirst();
 
-                        if(matchedEvent.isPresent()) {
-                            groupedEventsList.get(groupedEventsList.indexOf(matchedEvent.get())).refIds.add(event.destId);
+                        if(matchedTripUpdates.isPresent()) {
+                            groupedEventsList.get(groupedEventsList.indexOf(matchedTripUpdates.get())).refIds.add(event.destId);
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
                             newGroupEvent.refIds = new ArrayList<>();
@@ -234,6 +240,48 @@ public class NewsFeedController extends TEABackController {
                             newGroupEvent.tripId = event.refId;
                             newGroupEvent.userId = event.userId;
                             newGroupEvent.eventType = NewsFeedEventType.GROUPED_TRIP_UPDATES.name();
+                            groupedEventsList.add(newGroupEvent);
+                        }
+                        break;
+
+                    case UPLOADED_USER_PHOTO:
+                        final Optional<GroupedNewsFeedEvent> matchedUserPhotos = groupedEventsList.stream()
+                            .filter(x -> x.eventType.equals(NewsFeedEventType.MULTIPLE_GALLERY_PHOTOS.name()))
+                            .filter(x -> x.created.minusHours(12).isBefore(event.created))
+                            .filter(x -> x.userId.equals(event.userId))
+                            .findFirst();
+
+                        if(matchedUserPhotos.isPresent()) {
+                            groupedEventsList.get(groupedEventsList.indexOf(matchedUserPhotos.get())).refIds.add(event.refId);
+                        } else {
+                            GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
+                            newGroupEvent.refIds = new ArrayList<>();
+                            newGroupEvent.refIds.add(event.refId);
+                            newGroupEvent.created = event.created;
+                            newGroupEvent.userId = event.userId;
+                            newGroupEvent.eventType = NewsFeedEventType.MULTIPLE_GALLERY_PHOTOS.name();
+                            groupedEventsList.add(newGroupEvent);
+                        }
+                        break;
+
+                    case LINK_DESTINATION_PHOTO:
+                        final Optional<GroupedNewsFeedEvent> matchedDestinationPhotoLinks = groupedEventsList.stream()
+                            .filter(x -> x.eventType.equals(NewsFeedEventType.MULTIPLE_DESTINATION_PHOTO_LINKS.name()))
+                            .filter(x -> x.created.minusHours(12).isBefore(event.created))
+                            .filter(x -> x.userId.equals(event.userId))
+                            .filter(x -> x.destId.equals(event.destId))
+                            .findFirst();
+
+                        if(matchedDestinationPhotoLinks.isPresent()) {
+                            groupedEventsList.get(groupedEventsList.indexOf(matchedDestinationPhotoLinks.get())).refIds.add(event.refId);
+                        } else {
+                            GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
+                            newGroupEvent.refIds = new ArrayList<>();
+                            newGroupEvent.refIds.add(event.refId);
+                            newGroupEvent.created = event.created;
+                            newGroupEvent.destId = event.destId;
+                            newGroupEvent.userId = event.userId;
+                            newGroupEvent.eventType = NewsFeedEventType.MULTIPLE_DESTINATION_PHOTO_LINKS.name();
                             groupedEventsList.add(newGroupEvent);
                         }
                         break;
