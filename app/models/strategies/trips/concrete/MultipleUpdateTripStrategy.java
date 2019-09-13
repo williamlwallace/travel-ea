@@ -1,16 +1,17 @@
 package models.strategies.trips.concrete;
 
-import util.StreamHelper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import models.Destination;
 import models.NewsFeedResponseItem;
 import models.strategies.trips.TripStrategy;
 import play.libs.Json;
 import repository.ProfileRepository;
 import repository.TripRepository;
+import util.StreamHelper;
 
 public class MultipleUpdateTripStrategy extends TripStrategy {
 
@@ -41,18 +42,20 @@ public class MultipleUpdateTripStrategy extends TripStrategy {
         return getUserProfileAsync().thenComposeAsync(profile ->
             getReferencedTripAsync().thenApplyAsync(trip -> {
 
-                // Create response object which has the trip and the newly added destinations
-                ObjectNode returnObject = new ObjectNode(new JsonNodeFactory(false));
-                returnObject.set("trip", Json.toJson(trip));
-                returnObject.set("newDestinations", Json.toJson(trip.tripDataList.stream()
+                // Get destinations newly added
+                List<Destination> newDestinations = trip.tripDataList.stream()
                     .filter(x -> newDestIds.contains(x.destination.id)) // Take a subset of trips sets, which are newly added destinations
                     .map(x -> x.destination) // Convert the trip data to destinations
                     .filter(StreamHelper.distinctByKey(x -> x.id)) // Get distinct destinations (if a dest added twice, only show once)
-                    .collect(Collectors.toList()))
-                );
+                    .collect(Collectors.toList());
+
+                // Create response object which has the trip and the newly added destinations
+                ObjectNode returnObject = new ObjectNode(new JsonNodeFactory(false));
+                returnObject.set("trip", Json.toJson(trip));
+                returnObject.set("newDestinations", Json.toJson(newDestinations));
 
                 return new NewsFeedResponseItem(
-                    String.format("added %d new destinations to their trip!", trip.tripDataList.size()),
+                    String.format("added %d new destination%s to their trip!", newDestinations.size(), newDestinations.size() == 1 ? "" : "s"),
                     profile.firstName + " " + profile.lastName,
                     (profile.profilePhoto == null) ? null : profile.profilePhoto.thumbnailFilename,
                     profile.userId,
