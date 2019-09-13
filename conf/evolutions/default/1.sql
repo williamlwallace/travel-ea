@@ -131,8 +131,8 @@ CREATE TABLE IF NOT EXISTS FollowerUser
     follower_id       INT NOT NULL,
     deleted           BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (guid),
-    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
-    FOREIGN KEY (follower_id) REFERENCES User(id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES Profile(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (follower_id) REFERENCES Profile(user_id) ON DELETE CASCADE
   );
 
 -- Create Follower table for destinations

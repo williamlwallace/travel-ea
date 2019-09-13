@@ -27,8 +27,6 @@ POST          /api/logout                            controllers.backend.UserCon
 
 POST          /api/profile                           controllers.backend.ProfileController.addNewProfile(request:Request)
 
-GET           /api/profile                           controllers.backend.ProfileController.getMyProfile(request:Request)
-
 PUT           /api/profile/:id                       controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
 GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityIds: java.util.List[java.lang.Long] ?= null, travellerTypeIds: java.util.List[java.lang.Long] ?= null, genders: java.util.List[String] ?= null, minAge: Integer ?= null, maxAge: Integer ?= null, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)

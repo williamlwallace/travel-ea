@@ -1,7 +1,7 @@
 -- !Ups
 -- Create test users
-INSERT INTO User (username, password, salt) VALUES ('tester1@gmail.com', 'password', 'salt');
-INSERT INTO User (username, password, salt) VALUES ('tester2@gmail.com', 'password', 'salt');
+INSERT INTO User (username, password, salt, admin) VALUES ('dave@gmail.com', 'kI9dTQEMsmcbqxn9SBk/jUDHNz7dOBWg/rxxE2xv3cE=', 'L9vI0DLY0cmnLrXrPNKe81IHvGw5NpZ5DgxMcuAkoh4=', 1);
+INSERT INTO User (username, password, salt, admin) VALUES ('bob@gmail.com', 'password', 'salt', 0);
 INSERT INTO User (username, password, salt) VALUES ('tester3@gmail.com', 'password', 'salt');
 INSERT INTO User (username, password, salt) VALUES ('tester4@gmail.com', 'password', 'salt');
 INSERT INTO User (username, password, salt) VALUES ('tester5@gmail.com', 'password', 'salt');
@@ -44,6 +44,11 @@ INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (2, 1);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (3, 2);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (4, 1);
 
+-- Add followers to profiles
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 2);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 3);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (2, 1);
+
 -- !Downs
 DELETE FROM UsedTag;
 DELETE FROM PhotoTag;
@@ -57,6 +62,8 @@ DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM DestinationTravellerTypePending;
 DELETE FROM DestinationTravellerType;
+DELETE FROM FollowerDestination;
+DELETE FROM FollowerUser;
 DELETE FROM Destination;
 DELETE FROM TravellerType;
 DELETE FROM TravellerTypeDefinition;

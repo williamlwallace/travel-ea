@@ -195,7 +195,7 @@ public class TripController extends TEABackController {
                             trip.tags = existingTags;
                             return tripRepository.updateTrip(trip).thenComposeAsync(uploaded -> {
                                 if (uploaded) {
-                                    if(trip.isPublic) {
+                                    if (trip.isPublic) {
                                         // Create new newsFeedEvent
                                         NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                                         newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP
@@ -203,10 +203,12 @@ public class TripController extends TEABackController {
                                         newsFeedEvent.refId = trip.id;
                                         newsFeedEvent.userId = trip.userId;
 
-                                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
-                                            eventId -> ok(Json.toJson(trip.id)));
+                                        return newsFeedEventRepository
+                                            .addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
+                                                eventId -> ok(Json.toJson(trip.id)));
                                     } else {
-                                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(trip.id)));
+                                        return CompletableFuture
+                                            .supplyAsync(() -> ok(Json.toJson(trip.id)));
                                     }
                                 } else {
                                     return CompletableFuture.supplyAsync(Results::notFound);
@@ -264,15 +266,16 @@ public class TripController extends TEABackController {
                 return tripRepository.updateTrip(updatedTrip).thenComposeAsync(uploaded ->
                     {
                         // if the trip was made public, add a newsFeedEvent for it
-                        if(updatedTrip.isPublic) {
+                        if (updatedTrip.isPublic) {
                             // Create new newsFeedEvent
                             NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                             newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP.name();
                             newsFeedEvent.refId = updatedTrip.id;
                             newsFeedEvent.userId = updatedTrip.userId;
 
-                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
-                                eventId -> ok(Json.toJson(existingTrip)));
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                .thenApplyAsync(
+                                    eventId -> ok(Json.toJson(existingTrip)));
                         } else {
                             return CompletableFuture.supplyAsync(() -> ok(Json.toJson(existingTrip)));
                         }
@@ -485,6 +488,7 @@ public class TripController extends TEABackController {
                 controllers.backend.routes.javascript.TripController.getTrip(),
                 controllers.backend.routes.javascript.TripController.updateTripPrivacy(),
                 controllers.backend.routes.javascript.TripController.updateTrip(),
+                controllers.backend.routes.javascript.TripController.copyTrip(),
                 controllers.backend.routes.javascript.TripController.insertTrip()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
