@@ -12,7 +12,7 @@
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
  </head> 
  <body class="text-center bg">
-    <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
+    <div id="start-page" class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column">
         <div class="cover-container d-flex w-100 h-100 p-3 mx-auto flex-column parent">
             <main role="main" class="child cover" id="main">
                 <img alt="TravelEA" src="@routes.Assets.at("images/travelEA.png")" style="width: 500px">
@@ -117,44 +117,38 @@
      <div style="height: 100%;" id="about-page">
          <p class="about">About</p>
          <div>
-             <h5>
+             <h3>
                  Travel EA is your one-stop shop for travel inspiration.
-             </h5>
+             </h3>
          </div>
          <div class="d-flex justify-content-around images">
              <div>
                  <img class="circle-photo" src="@routes.Assets.at("images/trip.png")" alt="Trips" width="250" height="250">
                  <h2>Trips</h2>
                  <p class="description">
-                     By selecting a location on the map, you can add a unique destination.
-                     Add a primary photo to a destination as well as linking relevant photos.
-                     To share your creation with the world, simply make the destination public.
-                     From all public destination you can create a custom trip, specifying departure and arrival dates.
-                     You can even copy public trips from other people who you follow. This adds it to your profile, and you can make changes.
+                     Though destinations and trips you can visualise your next adventure and get inspiration from what others have done.
                  </p>
              </div>
              <div>
                  <img class="circle-photo" src="@routes.Assets.at("images/social.png")" alt="Social" width="250" height="250">
                  <h2>Social</h2>
                  <p class="description">
-                     On the home-page you will find you main news feed, containing all public activity of those you follow.
-                     You can find new people to follow though the people tab, or using the explore version of the news feed.
-                     On a users profile, you will see there personal news feed.
-                     If you like what you see, you can follow them, adding this content to your main feed.
-                     The more people you follow, the more dynamic your news feed, and the more inspiration.
+                     You can follow people and destinations to add their content to your main news feed and keep up to date with changes and exciting new additions.
                  </p>
              </div>
              <div>
                  <img class="circle-photo" src="@routes.Assets.at("images/more.png")" alt="More" width="250" height="250">
                  <h2>More</h2>
                  <p class="description">
-                     Follow other travellers and destinations to put a spark back into your travel planning.
+                     TravelEA will put a spark back into your travel planning, so
+                     what are you waiting for,
                  </p>
-                 <p class="description">
-                     Features such as tags and traveller types help you to find relevant content.
-                     Photos add interest to a destination and let you make your profile unique and appealing.
-                     With a high-end display and intuitive navigation, TravelEA is a pleasure to use.
-                 </p>
+                 <a href="#start-page">
+                     <p class="description">
+                     Get Started!
+                     </p>
+                 </a>
+
              </div>
          </div>
      </div>
