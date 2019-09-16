@@ -211,6 +211,29 @@ public class ProfileController extends TEABackController {
     }
 
     /**
+     * Retrieves a paginated list of the users (profiles) that a user is following
+     *
+     * @param request Http request with auth data
+     * @param profileId ID of user to get who they are following
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @param requestOrder What order of request this is
+     * @return Pagination response with profiles of users who this user is following
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getPaginatedFollowingUsers(Http.Request request,
+        Long profileId,
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
+
+        return profileRepository.getUserFollowingProfiles(profileId, pageNum, pageSize).thenApplyAsync(pagedResults ->
+            ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())))
+        );
+
+    }
+
+    /**
      * Lists routes to put in JS router for use from frontend.
      *
      * @return JSRouter Play result
@@ -221,7 +244,8 @@ public class ProfileController extends TEABackController {
                 controllers.backend.routes.javascript.ProfileController.getAllTravellerTypes(),
                 controllers.backend.routes.javascript.ProfileController.searchProfilesJson(),
                 controllers.backend.routes.javascript.ProfileController.getProfile(),
-                controllers.frontend.routes.javascript.ProfileController.index()
+                controllers.frontend.routes.javascript.ProfileController.index(),
+                controllers.backend.routes.javascript.ProfileController.getPaginatedFollowingUsers()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
