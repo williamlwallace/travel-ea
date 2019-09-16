@@ -164,21 +164,25 @@
                                     <label class="custom-control-label" id="destinationPrivacy" for="destinationPrivacyStatus">Private</label>
                                 </div>
 
+                                <div>
+                                @modules.tagPicker("destinations-tag")
+                                </div>
+
+                                <div class="modal-footer d-flex justify-content-center">
+                                    <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
+                                    </button>
+                                    <button class="btn btn-primary" id="createNewDestinationButton">
+                                        Create
+                                    </button>
+                                    <label id="otherError"></label>
+                                </div>
+
                             </div>
                         </form>
-                        <div>
-                            @modules.tagPicker("destinations-tag")
-                        </div>
+
                     </div>
                 </form>
-                        <div class="modal-footer d-flex justify-content-center">
-                            <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
-                            </button>
-                            <button class="btn btn-primary" id="createNewDestinationButton">
-                                Create
-                            </button>
-                            <label id="otherError"></label>
-                        </div>
+
                     </div>
 
                 </div>
