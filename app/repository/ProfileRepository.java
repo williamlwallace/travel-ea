@@ -7,8 +7,10 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.ExpressionList;
+import io.ebean.OrderBy;
 import io.ebean.PagedList;
 import io.ebean.Query;
+import io.ebean.RawSqlBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -296,5 +298,33 @@ public class ProfileRepository {
 
             return profile;
         });
+    }
+
+    /**
+     * Retrieves a paginated list of the users (profiles) that a user is following
+     *
+     * @param profileId ID of user to get who they are following
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @return Paged list of profiles found
+     */
+    public CompletableFuture<PagedList<Profile>> getUserFollowingProfiles(
+        Long profileId,
+        Integer pageNum,
+        Integer pageSize) {
+
+        return supplyAsync(() -> {
+
+            String sql = "SELECT * FROM Profile "
+                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE user_id=" + profileId + ") "
+                + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
+
+            return ebeanServer.findNative(Profile.class, sql)
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
+
+        });
+
     }
 }
