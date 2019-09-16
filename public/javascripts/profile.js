@@ -7,18 +7,19 @@ let tripPaginationHelper;
  * Runs when the page is loaded. Initialises the paginationHelper object and
  * runs the getPictures method.
  */
-$(document).ready(function () {
-    paginationHelper = new PaginationHelper(1, 1, getPictures);
-    coverPhotoPaginationHelper = new PaginationHelper(1, 1, getCoverPictures,
-        'cover-photo-pagination');
-    profilePhotoPaginationHelper = new PaginationHelper(1, 1,
-        getProfilePicturesForGallery, 'profile-picture-pagination');
-    mainGalleryPaginationHelper = new PaginationHelper(1, 1, getPictures,
-        'main-gallery-pagination');
+$(document).ready(function() {
+    getUserId().then(userId => {
+        profileFeed = new NewsFeed(userId, 'profile-feed', newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(profileId).url);
+    });
+    paginationHelper = new PaginationHelper(1, 1,  getPictures);
+    coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');
+    profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
+    mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
     profileLoadTrips();
     $("#feed-tab").click();
 });
+
 
 /**
  * On click handler to change tab panel on profile page
