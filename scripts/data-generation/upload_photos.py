@@ -1,4 +1,5 @@
 import json, requests, sys, getopt, os
+from PIL import Image
 
 """
 Script to populate photos into the database, which is done by making requests
@@ -16,11 +17,15 @@ def import_photos_dict(photos_filename):
         return json.loads(file.read())
 
 def get_photo_data(URL):
-    print("getting photo")
     response = requests.get(URL)
+    basesize = 150 #pixels
     if response.status_code == 200:
         open("tempImage.jpeg", "wb").write(response.content)
+        img = Image.open("tempImage.jpeg")
+        img = img.resize((basesize, basesize), Image.BICUBIC)
+        img.save("tempImage.jpeg")
         
+    
     return response.status_code
 
 def post_photo(cookie, data, port):
@@ -49,18 +54,29 @@ def get_and_post_photos(photos_dict, port, cookie, num_existing_photos):
     for photo in photos_dict:
         data["profilePhotoFileName"] = ("", photo)
         data["publicPhotoFileNames"] = ("", "[" + photo + "]")
+        print("Retrieving photo..")        
         if get_photo_data(photo) == 200:
+            print("Photo retrieved")
             data["files"] = (photo, open('tempImage.jpeg', 'rb'), "image/jpeg")
-            for user in [photos_dict[photo][0]]: #Remove 0 and brackets
+            
+            for user in photos_dict[photo]:
                 data["userUploadId"] = ("", str(1))
+                print("POSTing photo to TravelEA..")
                 if post_photo(cookie, data, port) == 201:
+                    print("Successfully POSTed photo to TravelEA")
                     photo_id += 1
+                    print("Attempting to make uploaded photo the user's profile picture")
                     if make_profile_picture(user, photo_id, port, cookie) != 200:
+                        print("Failed to make uploaded photo the user's profile picture")
                         failed.append(("Failed to make profile picture", photo, user))
+                    else:
+                        print("Successfully made the uploaded photo the user's profile picture")
                 else:
+                    print("Failed to POST photo to TravelEA")                
                     failed.append(("Failed to upload photo", photo, user))
                         
         else:
+            print("Failed to retrieve photo")            
             failed.append(("Failed to get photo", photo))
             
     return failed
