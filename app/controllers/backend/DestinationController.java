@@ -28,6 +28,7 @@ import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
 import repository.NewsFeedEventRepository;
 import repository.PhotoRepository;
+import repository.ProfileRepository;
 import repository.TagRepository;
 import repository.TravellerTypeDefinitionRepository;
 import repository.UserRepository;
@@ -48,13 +49,16 @@ public class DestinationController extends TEABackController {
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
     private final NewsFeedEventRepository newsFeedEventRepository;
+    private final ProfileRepository profileRepository;
 
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
         TagRepository tagRepository, UserRepository userRepository,
-        PhotoRepository photoRepository, NewsFeedEventRepository newsFeedEventRepository) {
+        PhotoRepository photoRepository, NewsFeedEventRepository newsFeedEventRepository,
+        ProfileRepository profileRepository) {
+
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
         this.ws = ws;
@@ -62,6 +66,7 @@ public class DestinationController extends TEABackController {
         this.userRepository = userRepository;
         this.photoRepository = photoRepository;
         this.newsFeedEventRepository = newsFeedEventRepository;
+        this.profileRepository = profileRepository;
     }
 
     /**
@@ -763,6 +768,34 @@ public class DestinationController extends TEABackController {
     }
 
     /**
+     * Retrieves a paged list of profiles following a destination
+     *
+     * @param request Http request containing authentication information
+     * @param destId ID of destination to retrieve followers for
+     * @param name Name of user searched by frontend
+     * @param pageNum Page number of results to retrieve
+     * @param pageSize Number of results to retrieve
+     * @param requestOrder Order of requests for use by frontend display
+     * @return If destination exists, ok with PagingResponse, otherwise notFound
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationFollowers(Http.Request request, Long destId,
+        String name, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("This destination does not exist"));
+            }
+
+            return profileRepository.getUsersFollowingDestination(destId, name, pageNum, pageSize)
+                .thenApplyAsync(pagedFollowers ->
+                    ok(Json.toJson(new PagingResponse<>(pagedFollowers.getList(), requestOrder,
+                        pagedFollowers.getTotalPageCount())))
+                );
+        });
+    }
+
+    /**
      * Gets the google api key
      *
      * @return an ok message with the google api key
@@ -804,7 +837,9 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController
                     .acceptDestinationPrimaryPhoto(),
                 controllers.backend.routes.javascript.DestinationController
-                    .getAllDestinationsWithRequests()
+                    .getAllDestinationsWithRequests(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getDestinationFollowers()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

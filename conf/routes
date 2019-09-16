@@ -79,6 +79,8 @@ PUT           /api/destination/:destId/follow        controllers.backend.Destina
 
 GET           /api/destination/:destId/follow        controllers.backend.DestinationController.getFollowerStatus(request:Request, destId:Long)
 
+GET           /api/destination/:destId/getFollowers  controllers.backend.DestinationController.getDestinationFollowers(request:Request, destId:Long, name: String ?= null, pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
+
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
 PUT           /api/trip                              controllers.backend.TripController.updateTrip(request:Request)

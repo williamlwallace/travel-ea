@@ -316,7 +316,8 @@ public class ProfileRepository {
         return supplyAsync(() -> {
 
             String sql = "SELECT * FROM Profile "
-                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE follower_id=" + profileId + ") "
+                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE follower_id="
+                + profileId + ") "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
@@ -326,5 +327,31 @@ public class ProfileRepository {
 
         });
 
+    }
+
+    /**
+     * Retrieves a paginated list of the users (profiles) that are following a destination
+     *
+     * @param destinationId ID of destination to get following users of
+     * @param name Name of user to find searched from frontend
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @return Paged list of profiles found
+     */
+    public CompletableFuture<PagedList<Profile>> getUsersFollowingDestination(Long destinationId,
+        String name, Integer pageNum, Integer pageSize) {
+
+        return supplyAsync(() -> {
+
+            String sql = "SELECT * FROM Profile "
+                + "WHERE user_id IN (SELECT follower_id FROM FollowerDestination WHERE "
+                + "destination_id=" + destinationId + ") "
+                + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
+
+            return ebeanServer.findNative(Profile.class, sql)
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
+        });
     }
 }
