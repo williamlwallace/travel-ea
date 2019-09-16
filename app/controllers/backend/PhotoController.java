@@ -654,20 +654,20 @@ public class PhotoController extends TEABackController {
         User user = request.attrs().get(ActionState.USER);
         Long currentUserId = user.id;
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
-            Photo existingPhoto = photo;
-            Boolean oldStatus;
+            final Photo existingPhoto = photo;
+            final Boolean oldStatus;
             if (photo != null) {
                 photo.isPublic = !photo.isPublic;
                 oldStatus = existingPhoto.isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
-            if (oldStatus) {
+            if (!oldStatus) {
                 // Photo was public, making it prrivate, no newsfeed event
                 return photoRepository.updatePhoto(photo)
                     .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
             }
-            return  photoRepository.updatePhoto(photo)
+            return photoRepository.updatePhoto(photo)
                 .thenComposeAsync(rows -> {
                     // Create news feed event for public photo added
                     NewsFeedEvent newsFeedEvent = new NewsFeedEvent();

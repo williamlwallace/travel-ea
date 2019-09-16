@@ -182,7 +182,7 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
     countryId, primaryPhoto=null) {
     let cards = $("#list").sortable('toArray');
     let cardId = 0;
-    let image = "https://www.ctvnews.ca/polopoly_fs/1.1439646.1378303991!/httpImage/image.jpg_gen/derivatives/landscape_620/image.jpg";
+    let image = "/assets/images//default-destination-primary.png";
     if (primaryPhoto) {
          image = "../../user_content/" + primaryPhoto.thumbnailFilename;
     }

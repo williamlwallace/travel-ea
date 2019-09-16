@@ -2,6 +2,7 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import play.data.validation.Constraints;
 
 /**
@@ -96,6 +98,10 @@ public class Destination extends BaseModel implements Taggable {
             joinColumns = @JoinColumn(name = "dest_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "photo_guid", referencedColumnName = "guid"))
     public List<Photo> pendingPrimaryPhotos;
+
+    @JsonInclude
+    @Transient
+    public Long followerCount;
 
     /**
      * Returns the list of tags associated with the object
