@@ -206,3 +206,7 @@ h2 {
     top: 97%;
     transform: translate(-50%, -50%);
 }
+
+.down-arrow:hover {
+    cursor: pointer;
+}
