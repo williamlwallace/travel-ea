@@ -45,10 +45,20 @@ INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (2, 1);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (3, 2);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (4, 1);
 
+-- Add destinations
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 1);
+
 -- Add followers to profiles
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 2);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 3);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (2, 1);
+
+-- Add followers to destinations
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 1);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (2, 1);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (3, 1);
 
 -- !Downs
 DELETE FROM UsedTag;

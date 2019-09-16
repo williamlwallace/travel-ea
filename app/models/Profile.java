@@ -48,7 +48,8 @@ public class Profile extends BaseModel {
     @ManyToMany(mappedBy = "travellerTypes")
     @JoinTable(
         name = "TravellerType",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+        joinColumns = @JoinColumn(name = "user_id"
+, referencedColumnName = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "traveller_type_id", referencedColumnName = "id"))
     public List<TravellerTypeDefinition> travellerTypes;
 
@@ -96,6 +97,10 @@ public class Profile extends BaseModel {
     @JsonInclude()
     @Transient
     public Long followerUsersCount;
+
+    @JsonInclude()
+    @Transient
+    public Long followingDestinationsCount;
 
     /**
      * Calculates age based on the birth date.

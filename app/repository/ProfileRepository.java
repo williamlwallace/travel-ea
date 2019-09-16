@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.FollowerDestination;
 import models.FollowerUser;
 import models.Photo;
 import models.Profile;
@@ -290,6 +291,11 @@ public class ProfileRepository {
                 .findCount();
 
             profile.followingUsersCount = (long) ebeanServer.find(FollowerUser.class)
+                .where()
+                .eq("follower_id", userId)
+                .findCount();
+
+            profile.followingDestinationsCount = (long) ebeanServer.find(FollowerDestination.class)
                 .where()
                 .eq("follower_id", userId)
                 .findCount();
