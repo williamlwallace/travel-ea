@@ -361,13 +361,34 @@ public class ProfileRepository {
         });
     }
 
+    /**
+     * Gets a list of all ids of users that someone follows
+     * @param followerId ID of person to get who they follow
+     * @return List of IDs of users followed
+     */
     public CompletableFuture<List<Long>> getUserIdsFollowedBy(Long followerId) {
-        return ebeanServer.find(FollowerUser.class)
-            .where()
-            .eq("follower_id", followerId)
-            .select("user_id")
-            .findSingleAttributeList();
+        return supplyAsync(() ->
+            ebeanServer.find(FollowerUser.class)
+                .where()
+                .eq("follower_id", followerId)
+                .select("userId")
+                .findSingleAttributeList()
+            );
     }
 
+    /**
+     * Gets a list of all ids of users that someone follows
+     * @param followerId ID of person to get who they follow
+     * @return List of IDs of users followed
+     */
+    public CompletableFuture<List<Long>> getDestinationIdsFollowedBy(Long followerId) {
+        return supplyAsync(() ->
+            ebeanServer.find(FollowerDestination.class)
+                .where()
+                .eq("follower_id", followerId)
+                .select("destinationId")
+                .findSingleAttributeList()
+            );
+    }
 
 }

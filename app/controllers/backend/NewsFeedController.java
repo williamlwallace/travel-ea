@@ -46,9 +46,6 @@ public class NewsFeedController extends TEABackController {
     // Repository for interacting with NewsFeedEvents table
     private NewsFeedEventRepository newsFeedEventRepository;
 
-    // Repository to get followers for main news feed
-    private
-
     // All other repositories required by strategies (they get injected here then passed down)
     private DestinationRepository destinationRepository;
     private ProfileRepository profileRepository;
@@ -87,7 +84,7 @@ public class NewsFeedController extends TEABackController {
      * @param pageNum Page number to retrieve
      * @param pageSize Number of results to give per page
      * @param requestOrder The order of the request we are showing
-     * @return Paging response with all JsonNode values needed to create cards for each event
+     * @return Paging response with all values needed to create cards for each event
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getProfileNewsFeed(Http.Request request, Long userId, Integer pageNum, Integer pageSize, Integer requestOrder) {
@@ -102,7 +99,7 @@ public class NewsFeedController extends TEABackController {
      * @param pageNum Page number to retrieve
      * @param pageSize Number of results to give per page
      * @param requestOrder The order of the request we are showing
-     * @return Paging response with all JsonNode values needed to create cards for each event
+     * @return Paging response with all values needed to create cards for each event
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getDestinationNewsFeed(Http.Request request, Long destinationId, Integer pageNum, Integer pageSize, Integer requestOrder) {
@@ -110,25 +107,25 @@ public class NewsFeedController extends TEABackController {
     }
 
     /**
-     * Endpoint to fetch all destination news feed data
+     * Endpoint to fetch all news feed data for destinations and users they follow
      *
      * @param request HTTP request containing user auth
      * @param pageNum Page number to retrieve
      * @param pageSize Number of results to give per page
      * @param requestOrder The order of the request we are showing
-     * @return Paging response with all JsonNode values needed to create cards for each event
+     * @return Paging response with all values needed to create cards for each event
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getMainNewsFeed(Http.Request request, Integer pageNum, Integer pageSize, Integer requestOrder) {
         // Get id of currently logged in user
         Long id = request.attrs().get(ActionState.USER).id;
 
-        profileRepository.
-
-        return getNewsFeedData(null, Collections.singletonList(destinationId), pageNum, pageSize, requestOrder);
+        return profileRepository.getDestinationIdsFollowedBy(id).thenComposeAsync(destIds ->
+            profileRepository.getUserIdsFollowedBy(id).thenComposeAsync(userIds ->
+                getNewsFeedData(userIds, destIds, pageNum, pageSize, requestOrder)
+            )
+        );
     }
-
-
 
     /**
      * Gets the news feed data
@@ -343,7 +340,9 @@ public class NewsFeedController extends TEABackController {
     public Result newsFeedRoutes(Http.Request request) {
         return ok(
             JavaScriptReverseRouter.create("newsFeedRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed()
+                controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
+                controllers.backend.routes.javascript.NewsFeedController.getDestinationNewsFeed(),
+                controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
