@@ -1,0 +1,12 @@
+
+.follower-tab {
+    padding: 2rem;
+}
+
+.search-bar {
+    display: flex;
+}
+
+.search-bar-item-div {
+    margin: 0 5px 10px 5px;
+}
