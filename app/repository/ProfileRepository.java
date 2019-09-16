@@ -359,6 +359,15 @@ public class ProfileRepository {
                 .findPagedList();
 
         });
-
     }
+
+    public CompletableFuture<List<Long>> getUserIdsFollowedBy(Long followerId) {
+        return ebeanServer.find(FollowerUser.class)
+            .where()
+            .eq("follower_id", followerId)
+            .select("user_id")
+            .findSingleAttributeList();
+    }
+
+
 }

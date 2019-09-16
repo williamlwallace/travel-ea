@@ -1,5 +1,6 @@
 package controllers.backend;
 
+import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
 import java.util.ArrayList;
@@ -45,11 +46,14 @@ public class NewsFeedController extends TEABackController {
     // Repository for interacting with NewsFeedEvents table
     private NewsFeedEventRepository newsFeedEventRepository;
 
+    // Repository to get followers for main news feed
+    private
+
     // All other repositories required by strategies (they get injected here then passed down)
-    DestinationRepository destinationRepository;
-    ProfileRepository profileRepository;
-    TripRepository tripRepository;
-    PhotoRepository photoRepository;
+    private DestinationRepository destinationRepository;
+    private ProfileRepository profileRepository;
+    private TripRepository tripRepository;
+    private PhotoRepository photoRepository;
 
     private static final List<NewsFeedEventType> GROUP_EVENT_TYPES = Arrays.asList(
         NewsFeedEventType.UPLOADED_USER_PHOTO,
@@ -79,6 +83,7 @@ public class NewsFeedController extends TEABackController {
      * Endpoint to fetch all profile news feed data
      *
      * @param request HTTP request containing user auth
+     * @param userId ID of user to get profile news feed for
      * @param pageNum Page number to retrieve
      * @param pageSize Number of results to give per page
      * @param requestOrder The order of the request we are showing
@@ -88,6 +93,42 @@ public class NewsFeedController extends TEABackController {
     public CompletableFuture<Result> getProfileNewsFeed(Http.Request request, Long userId, Integer pageNum, Integer pageSize, Integer requestOrder) {
         return getNewsFeedData(Collections.singletonList(userId), null, pageNum, pageSize, requestOrder);
     }
+
+    /**
+     * Endpoint to fetch all destination news feed data
+     *
+     * @param request HTTP request containing user auth
+     * @param destinationId ID of destination to get news feed for
+     * @param pageNum Page number to retrieve
+     * @param pageSize Number of results to give per page
+     * @param requestOrder The order of the request we are showing
+     * @return Paging response with all JsonNode values needed to create cards for each event
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationNewsFeed(Http.Request request, Long destinationId, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return getNewsFeedData(null, Collections.singletonList(destinationId), pageNum, pageSize, requestOrder);
+    }
+
+    /**
+     * Endpoint to fetch all destination news feed data
+     *
+     * @param request HTTP request containing user auth
+     * @param pageNum Page number to retrieve
+     * @param pageSize Number of results to give per page
+     * @param requestOrder The order of the request we are showing
+     * @return Paging response with all JsonNode values needed to create cards for each event
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getMainNewsFeed(Http.Request request, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        // Get id of currently logged in user
+        Long id = request.attrs().get(ActionState.USER).id;
+
+        profileRepository.
+
+        return getNewsFeedData(null, Collections.singletonList(destinationId), pageNum, pageSize, requestOrder);
+    }
+
+
 
     /**
      * Gets the news feed data
