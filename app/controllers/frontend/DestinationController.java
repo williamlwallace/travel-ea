@@ -60,7 +60,12 @@ public class DestinationController extends TEAFrontController {
         Long destinationId) {
         String url = "http://" + request.host() + controllers.backend.routes.DestinationController
             .getDestination(destinationId);
-        CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
+        CompletableFuture<WSResponse> res = ws
+            .url(url)
+            .addHeader("Cookie",
+                String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
+            .get()
+            .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
