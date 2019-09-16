@@ -17,6 +17,38 @@ $('#down-arrow-button').on('click', function(event) {
     }, 500);
 });
 
+$(document).on('click', "#get-started-btn", function(event) {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#start-page").offset().top
+    }, 400);
+});
+
+$('#signUpBtn').on('click', function(event) {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#start-page").offset().top
+    }, 400);
+    $('#down-arrow-button').hide()
+});
+
+$('#loginBtn').on('click', function(event) {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#start-page").offset().top
+    }, 400);
+});
+
+$('#cancelBtn1').on('click', function(event) {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#start-page").offset().top
+    }, 400);
+    $('#down-arrow-button').show();
+});
+
+$('#cancelBtn2').on('click', function(event) {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#start-page").offset().top
+    }, 400);
+});
+
 /**
  * Processes a client logging in
  *
