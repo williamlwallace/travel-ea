@@ -46,30 +46,30 @@ class NewsFeed {
                     this.createCards(json.data);
                     this.pageNumber++;
                 }
-                $('.upflight-icon').click(() => {
-                    if ($('.upflight-icon').hasClass("far")) {
-                        $('.upflight-icon').addClass("rotate-top");
-                        $('.upflight-counter').text(parseInt($('.upflight-counter').text()) + 1);
-                        setTimeout(() => {
-                            $('.upflight-icon').removeClass("fas-in");
-                            $('.upflight-icon').removeClass("rotate-top");
-                            $('.upflight-icon').removeClass("far");
-                            $('.upflight-icon').addClass("fas");
-                            $('.upflight-icon').addClass("fas-in");
-                        }, 500);
-                        setTimeout(() => {
-                            $('.upflight-icon').removeClass("fas-in");
-                        }, 700);
+                // $('.upflight-icon').click(() => {
+                //     if ($('.upflight-icon').hasClass("far")) {
+                //         $('.upflight-icon').addClass("rotate-top");
+                //         $('.upflight-counter').text(parseInt($('.upflight-counter').text()) + 1);
+                //         setTimeout(() => {
+                //             $('.upflight-icon').removeClass("fas-in");
+                //             $('.upflight-icon').removeClass("rotate-top");
+                //             $('.upflight-icon').removeClass("far");
+                //             $('.upflight-icon').addClass("fas");
+                //             $('.upflight-icon').addClass("fas-in");
+                //         }, 500);
+                //         setTimeout(() => {
+                //             $('.upflight-icon').removeClass("fas-in");
+                //         }, 700);
 
-                    } else {
-                        $('.upflight-counter').text(parseInt($('.upflight-counter').text()) - 1);
-                        $('.upflight-icon').removeClass("fas");
-                        $('.upflight-icon').addClass("far");
-                        $('.upflight-icon').addClass("fas-in");
-                    }
+                //     } else {
+                //         $('.upflight-counter').text(parseInt($('.upflight-counter').text()) - 1);
+                //         $('.upflight-icon').removeClass("fas");
+                //         $('.upflight-icon').addClass("far");
+                //         $('.upflight-icon').addClass("fas-in");
+                //     }
                     
                     
-                })
+                // })
             });
         });
     }
@@ -214,8 +214,11 @@ const NewsFeedEventTypes = {
  * @param {string} thumbnail address of thumbnail
  * @param {string} message event message
  * @param {string} time string timestamp
+ * @param {number} eventId the guid of the event being displayed
  */
-function createWrapperCard(thumbnail, message, time) {
+function createWrapperCard(thumbnail, message, time, eventId) {
+    eventId = 1; //TODO: remove when eventId is correctly send to frontend
+
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
 
@@ -225,9 +228,68 @@ function createWrapperCard(thumbnail, message, time) {
     }
 
     clone.find('.wrapper-date').text(time);
+    const likeButton = clone.find('.likes-button');
+    likeButton.attr('data-event-id', eventId);
+    likeButton.attr('data-liked', "false");
+
+    likeButton.click(likeUnlikeEvent);
+
     return clone;
 }
 
+/**
+ * Sends request to like and unlike events. Updates data attribute of liked
+ * button to the result.
+ */
+function likeUnlikeEvent() {
+    const eventLikeButton = $(this);
+    const likeCounter= eventLikeButton.next();
+    const setLiked = eventLikeButton.attr('data-liked') === "false";
+    //TODO send put request to the like endpoint for the event
+    //TODO change the follower count if needed
+
+    if (setLiked) {
+        eventLikeButton.attr('data-liked', "true");
+        likeCounter.text(parseInt(likeCounter.text()) + 1);
+    } else {
+        eventLikeButton.attr('data-liked', "false");
+        likeCounter.text(parseInt(likeCounter.text()) - 1);
+    }
+
+    updateLikeButton(eventLikeButton);
+}
+
+/**
+ * Sets the like button style to be liked or unliked for a given event
+ * @param {Object} eventLikeButton jquery object of target button
+ */
+function updateLikeButton(eventLikeButton) {
+    if (eventLikeButton.attr('data-liked') === "true") {
+        eventLikeButton.addClass("rotate-top");
+        setTimeout(() => {
+            eventLikeButton.removeClass("fas-in");
+            eventLikeButton.removeClass("rotate-top");
+            eventLikeButton.removeClass("far");
+            eventLikeButton.addClass("fas");
+            eventLikeButton.addClass("fas-in");
+        }, 500);
+        setTimeout(() => {
+            eventLikeButton.removeClass("fas-in");
+        }, 700);
+
+    } else {
+        
+        eventLikeButton.removeClass("fas");
+        eventLikeButton.addClass("far");
+        eventLikeButton.addClass("fas-in");
+    }
+}
+
+/**
+ * Adds tags to a card for the newsfeed
+ * @param card the dom element to add tags to
+ * @param tags a list of tags to add to the card
+ */
 function addTags(card, tags) {
     const list = card.find('.wrapper-tags');
     const tagsDisplay = new TagDisplay('fakeId');
@@ -256,7 +318,7 @@ function createDestinationWrapperCard(event) {
                     </a>
                     ${event.message}`;
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created));
+        this.formatDate(event.created), event.id);
 }
 
 /**
@@ -266,12 +328,14 @@ function createDestinationWrapperCard(event) {
  */
 function createUserWrapperCard(event) {
     const id = 1; //testing
-    const message = `<a href="${"/profile/" + event.eventerId}"> 
-                        ${event.name}
-                    </a>
-                    ${event.message}`;
+    const message = `
+        <a href="${"/profile/" + event.eventerId}"> 
+            ${event.name}
+        </a>
+        ${event.message}`;
+
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created));
+        this.formatDate(event.created), event.id);
 }
 
 /******************************
@@ -406,9 +470,12 @@ function createdNewDestinationCard(event) {
 
     $(destinationCard).find("#destinatonCardTravellerTypes").append(
         travellerTypes ? travellerTypes : "No traveller types");
-    $(destinationCard).find("#tags").append(tags ? tags : "No tags");
+
+    $(destinationCard).find("#tags").remove();
 
     card.find('.wrapper-body').append(destinationCard);
+
+    addTags(card, dest.tags);
 
     return card
 }
