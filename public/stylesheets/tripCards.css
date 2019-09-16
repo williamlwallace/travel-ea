@@ -42,12 +42,3 @@
 .carousel-control-next-icon {
     margin-right: 25px;
 }
-
-.underline{
-    display:block;
-    border:none;
-    color:white;
-    height:1px;
-    background:black;
-    background: linear-gradient(90deg, #161616, #ffffff);
-}
