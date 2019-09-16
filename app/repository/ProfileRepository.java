@@ -316,7 +316,7 @@ public class ProfileRepository {
         return supplyAsync(() -> {
 
             String sql = "SELECT * FROM Profile "
-                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE user_id=" + profileId + ") "
+                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE follower_id=" + profileId + ") "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
