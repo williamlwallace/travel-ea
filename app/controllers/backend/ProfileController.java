@@ -109,6 +109,7 @@ public class ProfileController extends TEABackController {
             return profileRepository.getProfileFollowerCounts(profile.userId).thenApplyAsync(profileWithCounts -> {
                 profile.followingUsersCount = profileWithCounts.followingUsersCount;
                 profile.followerUsersCount = profileWithCounts.followerUsersCount;
+                profile.followingDestinationsCount = profileWithCounts.followingDestinationsCount;
 
                 try {
                     return ok(sanitizeJson(Json.toJson(profile)));

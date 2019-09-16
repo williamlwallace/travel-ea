@@ -221,11 +221,13 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
         assertEquals(OK, result.status());
 
         // Get response
-        Profile profile = new ObjectMapper().readValue(Helpers.contentAsString(result), Profile.class);
+        Profile profile = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Profile.class);
 
         // Check profile has follower details
         assertEquals(Long.valueOf(2), profile.followerUsersCount);
         assertEquals(Long.valueOf(1), profile.followingUsersCount);
+        assertEquals(Long.valueOf(3), profile.followingDestinationsCount);
     }
 
     private List<Profile> searchProfiles(String parameters) throws IOException {
@@ -237,8 +239,10 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
         Result result = route(fakeApp, request);
         ObjectMapper mapper = new ObjectMapper();
 
-        PagingResponse<Profile> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Profile>>(){});
+        PagingResponse<Profile> response = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<Profile>>() {
+                });
 
         return response.data;
     }
