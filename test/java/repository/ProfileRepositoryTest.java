@@ -1,6 +1,9 @@
 package repository;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import models.Profile;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +20,13 @@ public class ProfileRepositoryTest extends repository.RepositoryTest {
     @Before
     public void instantiateRepository() {
         profileRepository = fakeApp.injector().instanceOf(ProfileRepository.class);
+    }
+
+    @Test
+    public void getDeletedProfile() {
+        Profile profile = profileRepository.getDeletedProfile(6L).join();
+        assertNotNull(profile);
+        assertTrue(profile.deleted);
     }
 
     @Test

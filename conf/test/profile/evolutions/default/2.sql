@@ -5,6 +5,7 @@ INSERT INTO User (username, password, salt, admin) VALUES ('bob@gmail.com', 'pas
 INSERT INTO User (username, password, salt) VALUES ('tester3@gmail.com', 'password', 'salt');
 INSERT INTO User (username, password, salt) VALUES ('tester4@gmail.com', 'password', 'salt');
 INSERT INTO User (username, password, salt) VALUES ('tester5@gmail.com', 'password', 'salt');
+INSERT INTO User (username, password, salt, deleted) VALUES ('tester6@gmail.com', 'password', 'salt', 1);
 
 
 -- Insert traveller types for testing
@@ -21,7 +22,7 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female', '2002-01-01');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (3, 'Jim', 'Jimmy', 'Bob', '2001-11-05', 'Other', '2001-01-01');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (4, 'YA BOI', 'Jimmy', 'SKINNY P', '1997-10-19', 'Male', '2000-01-01');
-
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date, deleted) VALUES (6, 'YA BOI 2', 'Jimmy', 'SKINNY P', '1997-10-19', 'Male', '2000-01-01', 1);
 
 -- Add nationalities to profile
 INSERT INTO Nationality (user_id, country_id) VALUES (1, 1);
