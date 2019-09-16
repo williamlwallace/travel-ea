@@ -333,4 +333,32 @@ public class ProfileRepository {
         });
 
     }
+
+    /**
+     * Retrieves a paginated list of the users (profiles) that follow some user
+     *
+     * @param profileId ID of user to get who is following them
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @return Paged list of profiles found
+     */
+    public CompletableFuture<PagedList<Profile>> getUserFollowerProfiles(
+        Long profileId,
+        Integer pageNum,
+        Integer pageSize) {
+
+        return supplyAsync(() -> {
+
+            String sql = "SELECT * FROM Profile "
+                + "WHERE user_id IN (SELECT follower_id FROM FollowerUser WHERE user_id=" + profileId + ") "
+                + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
+
+            return ebeanServer.findNative(Profile.class, sql)
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
+
+        });
+
+    }
 }
