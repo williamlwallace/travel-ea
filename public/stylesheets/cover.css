@@ -160,10 +160,13 @@ div.field-container {
 
 /* Formatting for the about page */
 
-div.about-page {
+.about-page {
   text-shadow: none;
   height: 100%;
   color: black;
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .circle-photo {
