@@ -325,7 +325,7 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE follower_id=" + profileId + ") "
-                + "AND (LOWER(first_name) + ' ' + LOWER(last_name)) LIKE @searchQuery "
+                + "AND (LOWER(first_name) + ' ' + LOWER(last_name)) LIKE LOWER(@searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
@@ -357,7 +357,7 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT follower_id FROM FollowerUser WHERE user_id=" + profileId + ") "
-                + "AND (LOWER(first_name) + ' ' + LOWER(last_name)) LIKE @searchQuery "
+                + "AND (LOWER(first_name) + ' ' + LOWER(last_name)) LIKE LOWER(@searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
