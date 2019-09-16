@@ -11,6 +11,12 @@ $('#password, #confirm_password').on('keyup', function () {
     }
 });
 
+$('#down-arrow-button').on('click', function(event) {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#about-page").offset().top
+    }, 500);
+});
+
 /**
  * Processes a client logging in
  *
