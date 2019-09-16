@@ -157,7 +157,7 @@ pre {
     opacity: 1;
     text-shadow: 2px 2px 7px #0000008a;
     line-height: 1;
-    margin-bottom: 0; /* might fuck something up */
+    margin-bottom: 0; /* might mess something up */
 }
 
 .title-text-wrap {
@@ -397,4 +397,13 @@ pre {
 
 #follow-btn-parent {
     margin-left: auto;
+}
+
+.underline{
+    display:block;
+    border:none;
+    color:white;
+    height:1px;
+    background:black;
+    background: linear-gradient(90deg, #161616, #ffffff);
 }

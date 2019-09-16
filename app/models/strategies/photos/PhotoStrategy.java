@@ -12,7 +12,7 @@ public abstract class PhotoStrategy extends NewsFeedStrategy {
     private Long photoId;
 
     // Reference to photo repo singleton for fetching photo data
-    private PhotoRepository photoRepository;
+    protected PhotoRepository photoRepository;
 
     /**
      * Constructor to instantiate new photo related strategy

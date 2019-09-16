@@ -601,22 +601,33 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets a destination with a given id. Returns a json with destination object.
+     * Gets a destination with a given id. Returns json of destination object.
      *
-     * @param getId ID of wanted destination
-     * @return OK with a destination, notFound if destination does not exist
+     * @param destinationId ID of wanted destination
+     * @return OK with destination in response or appropriate error code
      */
-    public CompletableFuture<Result> getDestination(long getId) {
-        return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestination(Http.Request request, Long destinationId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destinationId).thenComposeAsync(destination -> {
             if (destination == null) {
-                return notFound(Json.toJson(getId));
-            } else {
-                try {
-                    return ok(sanitizeJson(Json.toJson(destination)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("This destination does not exist"));
+            } else if (!destination.isPublic && !user.id.equals(destination.user.id)
+                && !user.admin) {
+                return CompletableFuture.supplyAsync(
+                    () -> forbidden("You do not have permission to retrieve this destination"));
             }
+
+            return destinationRepository.getDestinationFollowerCount(destination.id)
+                .thenApplyAsync(followerCount -> {
+                    destination.followerCount = followerCount;
+                    try {
+                        return ok(sanitizeJson(Json.toJson(destination)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
         });
     }
 

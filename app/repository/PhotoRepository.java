@@ -58,6 +58,20 @@ public class PhotoRepository {
     }
 
     /**
+     * Gets multiple photos by multiple ids
+     *
+     * @param ids Ids of photos to get
+     * @return Photos with given ids
+     */
+    public CompletableFuture<List<Photo>> getPhotosByIds(Collection<Long> ids) {
+        return supplyAsync(() ->
+            ebeanServer.find(Photo.class).where()
+            .in("guid", ids)
+            .findList()
+        );
+    }
+
+    /**
      * Clears any existing profile photo for a user, and returns filenames of old files.
      *
      * @param userID user ID to clear profile photo of
