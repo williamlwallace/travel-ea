@@ -64,9 +64,6 @@ INSERT INTO FollowerUser (user_id, follower_id) VALUES (4, 3);
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 1);
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 2);
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 4);
-
--- Add followers to destinations
-INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 1);
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (2, 1);
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (3, 1);
 

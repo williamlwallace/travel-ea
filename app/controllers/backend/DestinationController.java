@@ -772,7 +772,7 @@ public class DestinationController extends TEABackController {
      *
      * @param request Http request containing authentication information
      * @param destId ID of destination to retrieve followers for
-     * @param name Name of user searched by frontend
+     * @param searchQuery Name of user searched by frontend
      * @param pageNum Page number of results to retrieve
      * @param pageSize Number of results to retrieve
      * @param requestOrder Order of requests for use by frontend display
@@ -780,14 +780,14 @@ public class DestinationController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getDestinationFollowers(Http.Request request, Long destId,
-        String name, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        String searchQuery, Integer pageNum, Integer pageSize, Integer requestOrder) {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null) {
                 return CompletableFuture
                     .supplyAsync(() -> notFound("This destination does not exist"));
             }
 
-            return profileRepository.getUsersFollowingDestination(destId, name, pageNum, pageSize)
+            return profileRepository.getUsersFollowingDestination(destId, searchQuery, pageNum, pageSize)
                 .thenApplyAsync(pagedFollowers ->
                     ok(Json.toJson(new PagingResponse<>(pagedFollowers.getList(), requestOrder,
                         pagedFollowers.getTotalPageCount())))

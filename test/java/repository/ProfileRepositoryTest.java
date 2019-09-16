@@ -4,8 +4,6 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import io.ebean.PagedList;
-import java.util.Arrays;
 import java.util.List;
 import models.Profile;
 import org.junit.Before;
@@ -42,10 +40,17 @@ public class ProfileRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void getUsersFollowingDestination() {
-        List<Profile> profiles = profileRepository.getUsersFollowingDestination(1L, null, 1, 20).join().getList();
+        List<Profile> profiles = profileRepository.getUsersFollowingDestination(1L, "", 1, 20).join().getList();
         assertEquals(3, profiles.size());
 
         // Test that profiles are ordered by follower count, should be 2 last as 1 and 4 have more than 2
         assertEquals(Long.valueOf(2), profiles.get(profiles.size()-1).userId);
+    }
+
+    @Test
+    public void getUsersFollowingDestinationByName() {
+        List<Profile> profiles = profileRepository.getUsersFollowingDestination(1L, "YA BOI SKINNY P", 1, 20).join().getList();
+        assertEquals(1, profiles.size());
+        assertEquals(Long.valueOf(4), profiles.get(0).userId);
     }
 }

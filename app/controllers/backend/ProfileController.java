@@ -98,7 +98,6 @@ public class ProfileController extends TEABackController {
      * @return Ok with profile json object if profile found, badRequest if request malformed or
      * profile not found
      */
-    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getProfile(Long userId) {
         return profileRepository.findID(userId).thenComposeAsync(profile -> {
             if (profile == null) {
