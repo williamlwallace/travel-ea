@@ -215,6 +215,7 @@ public class ProfileController extends TEABackController {
      *
      * @param request Http request with auth data
      * @param profileId ID of user to get who they are following
+     * @param searchQuery Criteria that profile name must match
      * @param pageNum What page of data to return
      * @param pageSize Number of results per page
      * @param requestOrder What order of request this is
@@ -223,11 +224,12 @@ public class ProfileController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getPaginatedFollowingUsers(Http.Request request,
         Long profileId,
+        String searchQuery,
         Integer pageNum,
         Integer pageSize,
         Integer requestOrder) {
 
-        return profileRepository.getUserFollowingProfiles(profileId, pageNum, pageSize).thenApplyAsync(pagedResults ->
+        return profileRepository.getUserFollowingProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults ->
             ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())))
         );
 
@@ -238,6 +240,7 @@ public class ProfileController extends TEABackController {
      *
      * @param request Http request with auth data
      * @param profileId ID of user to get who is following them
+     * @param searchQuery Criteria that profile name must match
      * @param pageNum What page of data to return
      * @param pageSize Number of results per page
      * @param requestOrder What order of request this is
@@ -246,11 +249,12 @@ public class ProfileController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getPaginatedFollowerUsers(Http.Request request,
         Long profileId,
+        String searchQuery,
         Integer pageNum,
         Integer pageSize,
         Integer requestOrder) {
 
-        return profileRepository.getUserFollowerProfiles(profileId, pageNum, pageSize).thenApplyAsync(pagedResults ->
+        return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults ->
             ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())))
         );
 
