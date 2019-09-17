@@ -1,18 +1,19 @@
 /**
  * Sets the follow button depending if you follow this user/destination or not
  *
- * @param type is type of thing to follow/unfollow eg. "profile", "destination"
+ * @param type - Type of thing to follow/unfollow eg. "profile", "destination"
+ * @param id - ID of object to follow/unfollow
  */
-function loadFollowBtn(type) {
+function loadFollowBtn(type, id) {
     let followBtn =
-        "<button id=\"follow-btn\" class=\"btn btn-primary\" onclick=\"followToggle(type_)\">\n"
+        "<button id=\"follow-btn\" class=\"btn btn-primary\" onclick=\"followToggle(type_, id)\">\n"
         + "<i class=\"fas fa-user-friends\"></i>  Follow\n"
         + "</button>\n";
 
     let followingBtn =
-        "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle(type_)\">Following  <i class=\"fas fa-check\"></i></button>";
+        "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle(type_, id)\">Following  <i class=\"fas fa-check\"></i></button>";
 
-    const id = window.location.href.split("/").pop();
+    // const id = window.location.href.split("/").pop();
     getUserId().then(userId => {
         let url = null;
         if (type === "profile") {
@@ -90,10 +91,10 @@ function followerCountFormatter(num) {
 /**
  * Follow/unfollow a destination/user
  *
- * @param type is type of thing to follow/unfollow eg. "profile", "destination"
+ * @param type - Type of thing to follow/unfollow eg. "profile", "destination"
+ * @param id - ID of profile or destination object
  */
-function followToggle(type) {
-    const id = window.location.href.split("/").pop();
+function followToggle(type, id) {
     let URL = null;
     if (type === "profile") {
         URL = userRouter.controllers.backend.UserController.toggleFollowerStatus(
@@ -107,7 +108,7 @@ function followToggle(type) {
             toast("Error", "Unable to toggle follow", "danger",
                 5000);
         } else {
-            loadFollowBtn(type);
+            loadFollowBtn(type, id);
             updateFollowerCount(id, type);
         }
     };
