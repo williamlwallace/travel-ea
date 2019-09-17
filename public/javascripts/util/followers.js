@@ -13,7 +13,6 @@ function loadFollowBtn(type, id) {
     let followingBtn =
         "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle(type_, id)\">Following  <i class=\"fas fa-check\"></i></button>";
 
-    // const id = window.location.href.split("/").pop();
     getUserId().then(userId => {
         let url = null;
         if (type === "profile") {
