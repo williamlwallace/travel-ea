@@ -244,24 +244,9 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
     }
 
     @Test
-    public void updateDestinationNewTag() {
-        Destination destination = destinationRepository.getDestination(1L).join();
-        assertNotNull(destination);
-
-        Tag newTag = new Tag("New Tag");
-
-        destination.tags.add(newTag);
-
-        destinationRepository.updateDestination(destination);
-
-        Destination updatedDestination = destinationRepository.getDestination(1L).join();
-        for (Tag tag : updatedDestination.tags) {
-        }
-    }
-
-    @Test
     public void getDestinationTravellerTypeRequest() {
-        List<Destination> destinations = destinationRepository.getAllDestinationsWithRequests().join();
+        List<Destination> destinations = destinationRepository.getAllDestinationsWithRequests()
+            .join();
 
         assertEquals(2, destinations.size());
         assertEquals(2, destinations.get(0).travellerTypesPending.size());
@@ -270,7 +255,8 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
     @Test
     public void getDestinationsById() {
         Set<Long> destinationIds = new HashSet<>(Arrays.asList(1L, 3L, 5L));
-        List<Destination> destinations = destinationRepository.getDestinationsById(destinationIds).join();
+        List<Destination> destinations = destinationRepository.getDestinationsById(destinationIds)
+            .join();
 
         assertEquals(3, destinations.size());
 
@@ -282,7 +268,8 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
     @Test
     public void getDestinationsByIdEmpty() {
         Set<Long> destinationIds = new HashSet<>();
-        List<Destination> destinations = destinationRepository.getDestinationsById(destinationIds).join();
+        List<Destination> destinations = destinationRepository.getDestinationsById(destinationIds)
+            .join();
 
         assertTrue(destinations.isEmpty());
     }
@@ -291,5 +278,22 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
     public void getDestinationFollowerCount() {
         Long count = destinationRepository.getDestinationFollowerCount(1L).join();
         assertEquals(Long.valueOf(2), count);
+    }
+
+    @Test
+    public void getDestinationsFollowedByUser() {
+        List<Destination> destinations = destinationRepository
+            .getDestinationsFollowedByUser(1L, "", 1, 20).join().getList();
+        assertEquals(3, destinations.size());
+
+        // Check destination with ID 2 is last in list, to justify sorting my most followers
+        assertEquals(Long.valueOf(2), destinations.get(destinations.size()-1).id);
+    }
+
+    @Test
+    public void getFilteredDestinationFollowedByUser() {
+        List<Destination> destinations = destinationRepository
+            .getDestinationsFollowedByUser(1L, "The Eiffel Tower", 1, 20).join().getList();
+        assertEquals(1, destinations.size());
     }
 }
