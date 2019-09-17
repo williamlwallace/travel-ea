@@ -367,3 +367,12 @@ pre {
 .control-label {
     margin-bottom: 5px;
 }
+
+.underline{
+    display:block;
+    border:none;
+    color:white;
+    height:1px;
+    background:black;
+    background: linear-gradient(90deg, #161616, #ffffff);
+}

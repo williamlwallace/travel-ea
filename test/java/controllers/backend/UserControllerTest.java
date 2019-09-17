@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import models.Profile;
 import models.UsedTag;
 import models.User;
 import org.junit.Before;
@@ -287,6 +288,71 @@ public class UserControllerTest extends controllers.backend.ControllersTest {
             .uri("/api/user/12/delete");
 
         // Get result and check it failed
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
+
+    @Test
+    public void deleteUserWithProfile() {
+        // Create request to delete user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/2/delete");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Attempt to retrieve deleted profile
+        Http.RequestBuilder getProfileRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/profile/2");
+
+        // Get result and check it was not found
+        Result getProfileResult = route(fakeApp, getProfileRequest);
+        assertEquals(NOT_FOUND, getProfileResult.status());
+    }
+
+    @Test
+    public void deleteUserMaintainsProfile() throws IOException {
+        // Create request to un-delete user
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/3/delete");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Attempt to retrieve deleted profile
+        Http.RequestBuilder getProfileRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/profile/3");
+
+        // Get result and check it was successful
+        Result getProfileResult = route(fakeApp, getProfileRequest);
+        assertEquals(OK, getProfileResult.status());
+
+        // Get profile data and check it remains the same
+        Profile profile = new ObjectMapper().readValue(Helpers.contentAsString(getProfileResult), Profile.class);
+
+        assertEquals(Long.valueOf(3), profile.userId);
+        assertEquals("Jimmy", profile.firstName);
+        assertEquals("Steve", profile.middleName);
+    }
+
+    @Test
+    public void deleteMasterAdmin() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri("/api/user/1/delete");
+
+        // Get result and check it was successful
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
     }
