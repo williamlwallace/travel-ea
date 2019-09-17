@@ -105,14 +105,10 @@ public class NewsFeedController extends TEABackController {
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
         .thenComposeAsync(pagedEvents -> {
-            System.out.println("1");
             // Modify returned events list to only include singular events, and create a new list of grouped events
             Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(pagedEvents.getList());
-            System.out.println("2");
             List<NewsFeedEvent> events = pair.getKey();
-            System.out.println("3");
             List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
-            System.out.println("4");
             // Collect a list of the completable strategies created for each event, singular and grouped
             List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.stream()
                 .map(x -> getStrategyForEvent(x).execute())
@@ -121,12 +117,10 @@ public class NewsFeedController extends TEABackController {
             completableStrategies.addAll(groupedEvents.stream()
                 .map(x -> getStrategyForEvent(x).execute())
                 .collect(Collectors.toList()));
-            System.out.println("5");
 
             // Wait until all strategies have executed then return paging response
             return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
                 .thenApplyAsync(v -> {
-                    System.out.println("6");
                     // Append the correct created time and event type to each complete event
                     List<NewsFeedResponseItem> completedStrategies = completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList());
                     // Single events

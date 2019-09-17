@@ -87,7 +87,6 @@ public class DestinationController extends TEAFrontController {
         Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
-            System.out.println(Json.toJson(destination));
             if (destination.user == null) {
                 return notFound();
             } else {
