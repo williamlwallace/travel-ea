@@ -944,6 +944,4 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
     }
-
-
 }

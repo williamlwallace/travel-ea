@@ -1,7 +1,9 @@
 package controllers.backend;
 
+import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,10 +13,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import models.BaseNewsFeedEvent;
-import models.GroupedNewsFeedEvent;
-import models.NewsFeedEvent;
-import models.NewsFeedResponseItem;
+
+import models.*;
 import models.enums.NewsFeedEventType;
 import models.strategies.NewsFeedStrategy;
 import models.strategies.destinations.user.concrete.CreateDestinationStrategy;
@@ -30,6 +30,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
@@ -52,22 +53,23 @@ public class NewsFeedController extends TEABackController {
     PhotoRepository photoRepository;
 
     private static final List<NewsFeedEventType> GROUP_EVENT_TYPES = Arrays.asList(
-        NewsFeedEventType.UPLOADED_USER_PHOTO,
-        NewsFeedEventType.UPDATED_EXISTING_TRIP,
-        NewsFeedEventType.LINK_DESTINATION_PHOTO);
+            NewsFeedEventType.UPLOADED_USER_PHOTO,
+            NewsFeedEventType.UPDATED_EXISTING_TRIP,
+            NewsFeedEventType.LINK_DESTINATION_PHOTO);
 
     /**
-     *  Constructor which handles injecting of all needed dependencies
+     * Constructor which handles injecting of all needed dependencies
+     *
      * @param newsFeedEventRepository Instance of NewsFeedRepository
-     * @param destinationRepository Instance of DestinationRepository
-     * @param profileRepository Instance of ProfileRepository
-     * @param tripRepository Instance of TripRepository
-     * @param photoRepository Instance of PhotoRepository
+     * @param destinationRepository   Instance of DestinationRepository
+     * @param profileRepository       Instance of ProfileRepository
+     * @param tripRepository          Instance of TripRepository
+     * @param photoRepository         Instance of PhotoRepository
      */
     @Inject
     public NewsFeedController(NewsFeedEventRepository newsFeedEventRepository,
-        DestinationRepository destinationRepository, ProfileRepository profileRepository,
-        TripRepository tripRepository, PhotoRepository photoRepository) {
+                              DestinationRepository destinationRepository, ProfileRepository profileRepository,
+                              TripRepository tripRepository, PhotoRepository photoRepository) {
         this.newsFeedEventRepository = newsFeedEventRepository;
         this.destinationRepository = destinationRepository;
         this.profileRepository = profileRepository;
@@ -78,9 +80,9 @@ public class NewsFeedController extends TEABackController {
     /**
      * Endpoint to fetch all profile news feed data
      *
-     * @param request HTTP request containing user auth
-     * @param pageNum Page number to retrieve
-     * @param pageSize Number of results to give per page
+     * @param request      HTTP request containing user auth
+     * @param pageNum      Page number to retrieve
+     * @param pageSize     Number of results to give per page
      * @param requestOrder The order of the request we are showing
      * @return Paging response with all JsonNode values needed to create cards for each event
      */
@@ -91,77 +93,78 @@ public class NewsFeedController extends TEABackController {
 
     /**
      * Gets the news feed data
-     * 
-     * @param userIds list of userIds
-     * @param destIds list of destIds
-     * @param pageNum page number
+     *
+     * @param userIds  list of userIds
+     * @param destIds  list of destIds
+     * @param pageNum  page number
      * @param pageSize page size
      */
     private CompletableFuture<Result> getNewsFeedData(List<Long> userIds, // Possibly null
-                                                        List<Long> destIds,
-                                                        Integer pageNum,
-                                                        Integer pageSize,
-                                                        Integer requestOrder) {
+                                                      List<Long> destIds,
+                                                      Integer pageNum,
+                                                      Integer pageSize,
+                                                      Integer requestOrder) {
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
-        .thenComposeAsync(pagedEvents -> {
-            // Modify returned events list to only include singular events, and create a new list of grouped events
-            Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(pagedEvents.getList());
-            List<NewsFeedEvent> events = pair.getKey();
-            List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
+                .thenComposeAsync(pagedEvents -> {
+                            // Modify returned events list to only include singular events, and create a new list of grouped events
+                            Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(pagedEvents.getList());
+                            List<NewsFeedEvent> events = pair.getKey();
+                            List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
 
-            // Collect a list of the completable strategies created for each event, singular and grouped
-            List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.stream()
-                .map(x -> getStrategyForEvent(x).execute())
-                .collect(Collectors.toList());
+                            // Collect a list of the completable strategies created for each event, singular and grouped
+                            List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.stream()
+                                    .map(x -> getStrategyForEvent(x).execute())
+                                    .collect(Collectors.toList());
 
-            completableStrategies.addAll(groupedEvents.stream()
-                .map(x -> getStrategyForEvent(x).execute())
-                .collect(Collectors.toList()));
+                            completableStrategies.addAll(groupedEvents.stream()
+                                    .map(x -> getStrategyForEvent(x).execute())
+                                    .collect(Collectors.toList()));
 
 
-            // Wait until all strategies have executed then return paging response
-            return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
-                .thenApplyAsync(v -> {
-                    // Append the correct created time and event type to each complete event
-                    List<NewsFeedResponseItem> completedStrategies = completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList());
-                    // Single events
-                    for(int i = 0; i < events.size(); i++) {
-                        completedStrategies.get(i).created = events.get(i).created;
-                        completedStrategies.get(i).eventType = events.get(i).eventType;
-                    }
-                    // Grouped events
-                    for(int i = events.size(); i < groupedEvents.size() + events.size(); i++){
-                        completedStrategies.get(i).created = groupedEvents.get(i - events.size()).created;
-                        completedStrategies.get(i).eventType = groupedEvents.get(i - events.size()).eventType;
-                    }
+                            // Wait until all strategies have executed then return paging response
+                            return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
+                                    .thenApplyAsync(v -> {
+                                        // Append the correct created time and event type to each complete event
+                                        List<NewsFeedResponseItem> completedStrategies = completableStrategies.stream().map(CompletableFuture::join).collect(Collectors.toList());
+                                        // Single events
+                                        for (int i = 0; i < events.size(); i++) {
+                                            completedStrategies.get(i).created = events.get(i).created;
+                                            completedStrategies.get(i).eventType = events.get(i).eventType;
+                                        }
+                                        // Grouped events
+                                        for (int i = events.size(); i < groupedEvents.size() + events.size(); i++) {
+                                            completedStrategies.get(i).created = groupedEvents.get(i - events.size()).created;
+                                            completedStrategies.get(i).eventType = groupedEvents.get(i - events.size()).eventType;
+                                        }
 
-                    // Sort all completed strategies by creation date (most recent first)
-                    completedStrategies.sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
+                                        // Sort all completed strategies by creation date (most recent first)
+                                        completedStrategies.sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
 
-                    // Serialize and return a paging response with all created NewsFeedResponseItems
-                    return ok(Json.toJson(new PagingResponse<>(
-                        completedStrategies,
-                        requestOrder,
-                        pagedEvents.getTotalPageCount())));
-                });
-            }
-        );
+                                        // Serialize and return a paging response with all created NewsFeedResponseItems
+                                        return ok(Json.toJson(new PagingResponse<>(
+                                                completedStrategies,
+                                                requestOrder,
+                                                pagedEvents.getTotalPageCount())));
+                                    });
+                        }
+                );
     }
 
     /**
      * When given some news feed event, the correct strategy will be time and returned
      * From there all that needs to happen is to call strategy.execute() and handle the response asynchronously
+     *
      * @param event Object representing the news feed event
      * @return Strategy applicable to specific event
      */
     private NewsFeedStrategy getStrategyForEvent(BaseNewsFeedEvent event) {
         // Singular events
-        if(event instanceof NewsFeedEvent) {
-            NewsFeedEvent singleEvent = (NewsFeedEvent)event;
+        if (event instanceof NewsFeedEvent) {
+            NewsFeedEvent singleEvent = (NewsFeedEvent) event;
             switch (NewsFeedEventType.valueOf(event.eventType)) {
                 case NEW_PROFILE_PHOTO:
-                    return new NewProfilePhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository,profileRepository);
+                    return new NewProfilePhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository, profileRepository);
 
                 case NEW_PROFILE_COVER_PHOTO:
                     return new NewCoverPhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository, profileRepository);
@@ -184,7 +187,7 @@ public class NewsFeedController extends TEABackController {
         }
         // Grouped events
         else {
-            GroupedNewsFeedEvent groupedEvent = (GroupedNewsFeedEvent)event;
+            GroupedNewsFeedEvent groupedEvent = (GroupedNewsFeedEvent) event;
             switch (NewsFeedEventType.valueOf(groupedEvent.eventType)) {
                 case MULTIPLE_GALLERY_PHOTOS:
                     return new GroupedUserProfilePhotoStrategy(groupedEvent.userId, photoRepository, profileRepository, groupedEvent.refIds);
@@ -194,7 +197,7 @@ public class NewsFeedController extends TEABackController {
 
                 case MULTIPLE_DESTINATION_PHOTO_LINKS:
                     return new GroupedLinkDestinationPhotoStrategy(groupedEvent.destId, groupedEvent.userId, photoRepository,
-                        destinationRepository, profileRepository, groupedEvent.refIds);
+                            destinationRepository, profileRepository, groupedEvent.refIds);
 
                 default:
                     throw new NotImplementedException("Event type not specified in strategy pattern selector.");
@@ -206,9 +209,9 @@ public class NewsFeedController extends TEABackController {
      * Sorts through a list, and where a group of like events are found, removes them from the eventList,
      * and adds them to a new list. This new list is made of groupedEvents, where the created values and
      * referenced ids are decided from the events they are made up of
-     *
+     * <p>
      * The creation date assigned to a grouped event is the latest of the creation dates of all grouped events.
-     *
+     * <p>
      * Only objects within a 12 hour range (from most recent) will be grouped
      *
      * @param eventList List of events to filter
@@ -225,12 +228,12 @@ public class NewsFeedController extends TEABackController {
                 switch (NewsFeedEventType.valueOf(event.eventType)) {
                     case UPDATED_EXISTING_TRIP:
                         final Optional<GroupedNewsFeedEvent> matchedTripUpdates = groupedEventsList.stream()
-                            .filter(x -> x.eventType.equals(NewsFeedEventType.GROUPED_TRIP_UPDATES.name()))
-                            .filter(x -> x.created.minusHours(12).isBefore(event.created))
-                            .filter(x -> x.tripId.equals(event.refId))
-                            .findFirst();
+                                .filter(x -> x.eventType.equals(NewsFeedEventType.GROUPED_TRIP_UPDATES.name()))
+                                .filter(x -> x.created.minusHours(12).isBefore(event.created))
+                                .filter(x -> x.tripId.equals(event.refId))
+                                .findFirst();
 
-                        if(matchedTripUpdates.isPresent()) {
+                        if (matchedTripUpdates.isPresent()) {
                             groupedEventsList.get(groupedEventsList.indexOf(matchedTripUpdates.get())).refIds.add(event.destId);
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
@@ -246,12 +249,12 @@ public class NewsFeedController extends TEABackController {
 
                     case UPLOADED_USER_PHOTO:
                         final Optional<GroupedNewsFeedEvent> matchedUserPhotos = groupedEventsList.stream()
-                            .filter(x -> x.eventType.equals(NewsFeedEventType.MULTIPLE_GALLERY_PHOTOS.name()))
-                            .filter(x -> x.created.minusHours(12).isBefore(event.created))
-                            .filter(x -> x.userId.equals(event.userId))
-                            .findFirst();
+                                .filter(x -> x.eventType.equals(NewsFeedEventType.MULTIPLE_GALLERY_PHOTOS.name()))
+                                .filter(x -> x.created.minusHours(12).isBefore(event.created))
+                                .filter(x -> x.userId.equals(event.userId))
+                                .findFirst();
 
-                        if(matchedUserPhotos.isPresent()) {
+                        if (matchedUserPhotos.isPresent()) {
                             groupedEventsList.get(groupedEventsList.indexOf(matchedUserPhotos.get())).refIds.add(event.refId);
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
@@ -266,13 +269,13 @@ public class NewsFeedController extends TEABackController {
 
                     case LINK_DESTINATION_PHOTO:
                         final Optional<GroupedNewsFeedEvent> matchedDestinationPhotoLinks = groupedEventsList.stream()
-                            .filter(x -> x.eventType.equals(NewsFeedEventType.MULTIPLE_DESTINATION_PHOTO_LINKS.name()))
-                            .filter(x -> x.created.minusHours(12).isBefore(event.created))
-                            .filter(x -> x.userId.equals(event.userId))
-                            .filter(x -> x.destId.equals(event.destId))
-                            .findFirst();
+                                .filter(x -> x.eventType.equals(NewsFeedEventType.MULTIPLE_DESTINATION_PHOTO_LINKS.name()))
+                                .filter(x -> x.created.minusHours(12).isBefore(event.created))
+                                .filter(x -> x.userId.equals(event.userId))
+                                .filter(x -> x.destId.equals(event.destId))
+                                .findFirst();
 
-                        if(matchedDestinationPhotoLinks.isPresent()) {
+                        if (matchedDestinationPhotoLinks.isPresent()) {
                             groupedEventsList.get(groupedEventsList.indexOf(matchedDestinationPhotoLinks.get())).refIds.add(event.refId);
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
@@ -292,6 +295,70 @@ public class NewsFeedController extends TEABackController {
         return new Pair<>(singularEventList, groupedEventsList);
     }
 
+    /**
+     * Toggles the status whether the current user likes a news feed event with given id
+     *
+     * @param request Http request contains current users id
+     * @param eventId id of the news feed event to like/unlike
+     * @return a result contain a Json of like or unlike
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> toggleLikeStatus(Http.Request request, Long eventId) {
+
+        Long userId = request.attrs().get(ActionState.USER).id;
+
+        return newsFeedEventRepository.getEvent(eventId).thenComposeAsync(event -> {
+            if (event == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                return newsFeedEventRepository.getLikes(eventId, userId)
+                        .thenComposeAsync(likes -> {
+                            if (likes == null) {
+                                Likes newLikes = new Likes();
+                                newLikes.eventId = eventId;
+                                newLikes.userId = userId;
+                                return newsFeedEventRepository.insertLike(newLikes)
+                                        .thenApplyAsync(guid ->
+                                                ok(Json.toJson("liked")));
+                            } else {
+                                return newsFeedEventRepository.deleteLike(likes.guid)
+                                        .thenApplyAsync(delete ->
+                                                ok(Json.toJson("unliked")));
+                            }
+                        });
+            }
+        });
+
+    }
+
+    /**
+     * Gets the like status of a news feed event.
+     *
+     * @param request Http request contains current users id
+     * @param eventId id of the user to like/unlike
+     * @return a result contain a Json of like or unlike
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getLikeStatus(Http.Request request, Long eventId) {
+        Long userId = request.attrs().get(ActionState.USER).id;
+
+        return newsFeedEventRepository.getEvent(eventId).thenComposeAsync(event -> {
+            if (event == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                return newsFeedEventRepository.getLikes(eventId, userId)
+                        .thenComposeAsync(likes -> {
+                            if (likes == null) {
+                                //Not liked
+                                return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                            } else {
+                                //Liked
+                                return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                            }
+                        });
+            }
+        });
+    }
 
 
     /**
@@ -301,9 +368,11 @@ public class NewsFeedController extends TEABackController {
      */
     public Result newsFeedRoutes(Http.Request request) {
         return ok(
-            JavaScriptReverseRouter.create("newsFeedRouter", "jQuery.ajax", request.host(),
-                controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed()
-            )
+                JavaScriptReverseRouter.create("newsFeedRouter", "jQuery.ajax", request.host(),
+                        controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
+                        controllers.backend.routes.javascript.NewsFeedController.toggleLikeStatus(),
+                        controllers.backend.routes.javascript.NewsFeedController.getLikeStatus()
+                )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
 }
