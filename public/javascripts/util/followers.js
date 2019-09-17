@@ -40,34 +40,38 @@ function loadFollowBtn(type) {
 /**
  * Updates the follower count on front-end by getting the follower/following count from database
  *
- * @param profileId is profile id of profile to get count for
+ * @param id is profile id of profile to get count for
  * @param type is type of thing to get count from eg. "profile", "destination"
  */
-function updateFollowerCount(profileId, type) {
+function updateFollowerCount(id, type) {
     let url = null;
     if (type === "profile") {
         url = profileRouter.controllers.backend.ProfileController.getProfile(
-            profileId).url;
+            id).url;
     } else if (type === "destination") {
-        url = null;
+        url = destinationRouter.controllers.backend.DestinationController.getDestination(id).url;
     }
     get(url)
     .then(response => {
         response.json()
         .then(data => {
+            console.log(data);
             if (response.status !== 200) {
                 toast("Error", "Unable to retrieve followers/following count",
                     "danger", 5000);
             } else {
-                let followers = data.followerUsersCount;
-                followers = followerCountFormatter(followers);
-                $('#followers-count').html(followers);
-
+                // Set follower count here
+                let followers = 0;
                 if (type === "profile") {
                     let following = data.followingUsersCount
                     following = followerCountFormatter(following);
                     $('#following-count').html(following);
+                    followers = data.followerUsersCount;
+                } else if (type === "destination") {
+                    followers = data.followerCount;
                 }
+                followers = followerCountFormatter(followers);
+                $('#followers-count').html(followers);
             }
         })
     })

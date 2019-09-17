@@ -868,8 +868,7 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController
                     .getAllDestinationsWithRequests(),
                 controllers.backend.routes.javascript.DestinationController.getFollowerStatus(),
-                controllers.backend.routes.javascript.DestinationController.toggleFollowerStatus()
-                    .getAllDestinationsWithRequests(),
+                controllers.backend.routes.javascript.DestinationController.toggleFollowerStatus(),
                 controllers.backend.routes.javascript.DestinationController
                     .getDestinationFollowers(),
                 controllers.backend.routes.javascript.DestinationController
