@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import models.Destination;
 import models.NewsFeedEvent;
 import models.Photo;
 import models.enums.NewsFeedEventType;
@@ -72,7 +73,7 @@ public class NewsFeedEventRepository {
      * For some photo, removes any event that were associated with it
      *
      * @param photo The photo to clean up events from
-     * @return Number of events cleaned up
+     * @return Number of events cleaned up (removed)
      */
     public CompletableFuture<Integer> cleanUpPhotoEvents(Photo photo) {
         Collection<String> relevantTypes = Arrays.asList(
@@ -88,6 +89,29 @@ public class NewsFeedEventRepository {
             .eq("ref_id", photo.guid)
             .in("event_type", relevantTypes)
             .delete()
+        );
+    }
+
+    /**
+     * Cleans up all the news feed events related to some destination
+     *
+     * @param destination The destination that has been deleted
+     * @return Number of events cleaned up (removed)
+     */
+    public CompletableFuture<Integer> cleanUpDestinationEvents(Destination destination) {
+        Collection<String> relevantTypes = Arrays.asList(
+            NewsFeedEventType.LINK_DESTINATION_PHOTO.name(),
+            NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name(),
+            NewsFeedEventType.CREATED_NEW_DESTINATION.name(),
+            NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name()
+        );
+
+        return supplyAsync(() ->
+            ebeanServer.find(NewsFeedEvent.class)
+                .where()
+                .eq("dest_id", destination.id)
+                .in("event_type", relevantTypes)
+                .delete()
         );
     }
 

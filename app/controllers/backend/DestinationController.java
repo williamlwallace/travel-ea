@@ -252,10 +252,11 @@ public class DestinationController extends TEABackController {
             } else if (destination.user.id.equals(user.id) || user.admin) {
                 destination.deleted = !destination.deleted;
                 return destinationRepository.updateDestination(destination)
-                    .thenApplyAsync(upId -> ok(
-                        Json.toJson(
-                            "Successfully toggled destination deletion of destination with id: "
-                                + upId)));
+                    .thenComposeAsync(upId ->
+                        newsFeedEventRepository.cleanUpDestinationEvents(destination).thenApplyAsync(rows ->
+                            ok(Json.toJson("Successfully toggled destination deletion of destination with id: "+ upId)))
+                    );
+
             } else {
                 return CompletableFuture.supplyAsync(() -> forbidden("Forbidden"));
             }
