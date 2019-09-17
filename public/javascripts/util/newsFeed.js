@@ -24,8 +24,8 @@ class NewsFeed {
         $(window).scroll(this.scrollHandler.bind(this));
     }
 
-    /*
-     * gets next page of data
+    /**
+     * Gets next page of data
      */
     getPage() {
         const url = this.createURL();
@@ -270,7 +270,7 @@ function createdNewTripCard(event) {
 /**
  * Creates news Feed card for creating a trip
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newProfilePhotoCard(event) {
     const card = createUserWrapperCard(event);
@@ -290,7 +290,7 @@ function newProfilePhotoCard(event) {
 /**
  * Creates news Feed card for destination primary photo change
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newPrimaryPhotoCard(event) {
     const card = createDestinationWrapperCard(event);
@@ -299,21 +299,59 @@ function newPrimaryPhotoCard(event) {
 }
 
 /**
- * Creates news Feed card for groupes of trip photos
+ * Creates news Feed card for groups of trip photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function groupedTripUpdates(event) {
     const card = createUserWrapperCard(event);
-    //TODO: The card
+    const template = $("#multipleDestinationCardTemplate").get(0);
+    const destinationCard = $(template.content.cloneNode(true));
+    const destinations = event.data.newDestinations;
+    const eventId = event.id;
+    const destinationCardId = "multiple-destination-carousel-" + eventId;
+    // const photoThumbnails = photoCard.find('.photo-thumbnails');
+    const destinationObjects = destinationCard.find('.carousel-inner');
+
+    for (let i = 0; i < destinations.length; i++) {
+        destinationCard.find(".main-carousel").attr("id", destinationCardId);
+        destinationCard.find(".carousel-control-prev").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-control-next").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-inner").attr("id", "inner-" + destinationCardId);
+
+        const destination = destinations[i];
+        console.log(destination);
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " + (i === 0 ? "active" : ""));
+
+        // const baguetteWrapper = document.createElement("A");
+        // baguetteWrapper.setAttribute("class", "baguette-image");
+        // baguetteWrapper.setAttribute("href", "../user_content/" + photo.filename);
+        //
+        // const imageWrapper = document.createElement("IMG");
+        // imageWrapper.setAttribute("src", "../user_content/" + photo.thumbnailFilename);
+        // imageWrapper.setAttribute("class", "d-block w-100");
+        //
+        // baguetteWrapper.append(imageWrapper);
+
+
+
+
+        carouselWrapper.append(baguetteWrapper);
+        destinationObjects.append(carouselWrapper);
+    }
+
+    // setTimeout(() => baguetteBox.run('#inner-' + photoCardId), 10);
+    card.find('.wrapper-body').append(destinationCard);
+
     return card;
 }
 
 
 /**
- * Creates news Feed card for groupes of destination photos
+ * Creates news Feed card for groups of destination photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function multipleDestinationPhotoLinks(event) {
     const card = createUserWrapperCard(event);
@@ -325,7 +363,7 @@ function multipleDestinationPhotoLinks(event) {
 /**
  * Creates news Feed card for groups of gallery photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function multipleGalleryPhotos(event) {
     const card = createUserWrapperCard(event);
@@ -338,7 +376,7 @@ function multipleGalleryPhotos(event) {
 /**
  * Creates news Feed card for user creating new destination
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function createdNewDestinationCard(event) {
     const card = createUserWrapperCard(event);
@@ -390,9 +428,9 @@ function createdNewDestinationCard(event) {
 }
 
 /**
- * Creates news Feed card for user updateing destination
+ * Creates news Feed card for user updating destination
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function updatedExistingDestinationCard(event) {
     return createdNewDestinationCard(event);
@@ -401,7 +439,7 @@ function updatedExistingDestinationCard(event) {
 /**
  * Creates news Feed card for user changing cover photo
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newProfileCoverPhotoCard(event) {
     return newProfilePhotoCard(event);
