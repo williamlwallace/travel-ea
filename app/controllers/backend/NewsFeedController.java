@@ -109,7 +109,6 @@ public class NewsFeedController extends TEABackController {
             Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(pagedEvents.getList());
             List<NewsFeedEvent> events = pair.getKey();
             List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
-
             // Collect a list of the completable strategies created for each event, singular and grouped
             List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events.stream()
                 .map(x -> getStrategyForEvent(x).execute())
@@ -118,7 +117,6 @@ public class NewsFeedController extends TEABackController {
             completableStrategies.addAll(groupedEvents.stream()
                 .map(x -> getStrategyForEvent(x).execute())
                 .collect(Collectors.toList()));
-
 
             // Wait until all strategies have executed then return paging response
             return CompletableFuture.allOf(completableStrategies.toArray(new CompletableFuture[0]))
@@ -161,22 +159,22 @@ public class NewsFeedController extends TEABackController {
             NewsFeedEvent singleEvent = (NewsFeedEvent)event;
             switch (NewsFeedEventType.valueOf(event.eventType)) {
                 case NEW_PROFILE_PHOTO:
-                    return new NewProfilePhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository,profileRepository);
+                    return new NewProfilePhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository,profileRepository, Arrays.asList(singleEvent.guid));
 
                 case NEW_PROFILE_COVER_PHOTO:
-                    return new NewCoverPhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository, profileRepository);
+                    return new NewCoverPhotoStrategy(singleEvent.refId, singleEvent.userId, photoRepository, profileRepository, Arrays.asList(singleEvent.guid));
 
                 case NEW_PRIMARY_DESTINATION_PHOTO:
-                    return new NewPrimaryDestinationPhotoStrategy(singleEvent.refId, singleEvent.destId, photoRepository, destinationRepository);
+                    return new NewPrimaryDestinationPhotoStrategy(singleEvent.refId, singleEvent.destId, photoRepository, destinationRepository, Arrays.asList(singleEvent.guid));
 
                 case CREATED_NEW_TRIP:
-                    return new CreateTripStrategy(singleEvent.refId, singleEvent.userId, profileRepository, tripRepository);
+                    return new CreateTripStrategy(singleEvent.refId, singleEvent.userId, profileRepository, tripRepository, Arrays.asList(singleEvent.guid));
 
                 case CREATED_NEW_DESTINATION:
-                    return new CreateDestinationStrategy(singleEvent.refId, destinationRepository, singleEvent.userId, profileRepository);
+                    return new CreateDestinationStrategy(singleEvent.refId, destinationRepository, singleEvent.userId, profileRepository, Arrays.asList(singleEvent.guid));
 
                 case UPDATED_EXISTING_DESTINATION:
-                    return new UpdateDestinationStrategy(singleEvent.refId, destinationRepository, singleEvent.userId, profileRepository);
+                    return new UpdateDestinationStrategy(singleEvent.refId, destinationRepository, singleEvent.userId, profileRepository, Arrays.asList(singleEvent.guid));
 
                 default:
                     throw new NotImplementedException("Event type not specified in strategy pattern selector.");
@@ -187,14 +185,14 @@ public class NewsFeedController extends TEABackController {
             GroupedNewsFeedEvent groupedEvent = (GroupedNewsFeedEvent)event;
             switch (NewsFeedEventType.valueOf(groupedEvent.eventType)) {
                 case MULTIPLE_GALLERY_PHOTOS:
-                    return new GroupedUserProfilePhotoStrategy(groupedEvent.userId, photoRepository, profileRepository, groupedEvent.refIds);
+                    return new GroupedUserProfilePhotoStrategy(groupedEvent.userId, photoRepository, profileRepository, groupedEvent.refIds, groupedEvent.eventIds);
 
                 case GROUPED_TRIP_UPDATES:
-                    return new MultipleUpdateTripStrategy(groupedEvent.tripId, groupedEvent.userId, profileRepository, tripRepository, groupedEvent.refIds);
+                    return new MultipleUpdateTripStrategy(groupedEvent.tripId, groupedEvent.userId, profileRepository, tripRepository, groupedEvent.refIds, groupedEvent.eventIds);
 
                 case MULTIPLE_DESTINATION_PHOTO_LINKS:
                     return new GroupedLinkDestinationPhotoStrategy(groupedEvent.destId, groupedEvent.userId, photoRepository,
-                        destinationRepository, profileRepository, groupedEvent.refIds);
+                        destinationRepository, profileRepository, groupedEvent.refIds, groupedEvent.eventIds);
 
                 default:
                     throw new NotImplementedException("Event type not specified in strategy pattern selector.");
@@ -231,11 +229,17 @@ public class NewsFeedController extends TEABackController {
                             .findFirst();
 
                         if(matchedTripUpdates.isPresent()) {
-                            groupedEventsList.get(groupedEventsList.indexOf(matchedTripUpdates.get())).refIds.add(event.destId);
+                            int eventIndex = groupedEventsList.indexOf(matchedTripUpdates.get());
+                            if (!groupedEventsList.get(eventIndex).refIds.contains(event.destId)) {
+                                groupedEventsList.get(eventIndex).refIds.add(event.destId);
+                                groupedEventsList.get(eventIndex).eventIds.add(event.guid);
+                            }
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
                             newGroupEvent.refIds = new ArrayList<>();
+                            newGroupEvent.eventIds = new ArrayList<>();
                             newGroupEvent.refIds.add(event.destId);
+                            newGroupEvent.eventIds.add(event.guid);
                             newGroupEvent.created = event.created;
                             newGroupEvent.tripId = event.refId;
                             newGroupEvent.userId = event.userId;
@@ -252,11 +256,17 @@ public class NewsFeedController extends TEABackController {
                             .findFirst();
 
                         if(matchedUserPhotos.isPresent()) {
-                            groupedEventsList.get(groupedEventsList.indexOf(matchedUserPhotos.get())).refIds.add(event.refId);
+                            int eventIndex = groupedEventsList.indexOf(matchedUserPhotos.get());
+                            if (!groupedEventsList.get(eventIndex).refIds.contains(event.refId)) {
+                                groupedEventsList.get(eventIndex).refIds.add(event.refId);
+                                groupedEventsList.get(eventIndex).eventIds.add(event.guid);
+                            }
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
                             newGroupEvent.refIds = new ArrayList<>();
+                            newGroupEvent.eventIds = new ArrayList<>();
                             newGroupEvent.refIds.add(event.refId);
+                            newGroupEvent.eventIds.add(event.guid);
                             newGroupEvent.created = event.created;
                             newGroupEvent.userId = event.userId;
                             newGroupEvent.eventType = NewsFeedEventType.MULTIPLE_GALLERY_PHOTOS.name();
@@ -273,11 +283,17 @@ public class NewsFeedController extends TEABackController {
                             .findFirst();
 
                         if(matchedDestinationPhotoLinks.isPresent()) {
-                            groupedEventsList.get(groupedEventsList.indexOf(matchedDestinationPhotoLinks.get())).refIds.add(event.refId);
+                            int eventIndex = groupedEventsList.indexOf(matchedDestinationPhotoLinks.get());
+                            if (!groupedEventsList.get(eventIndex).refIds.contains(event.refId)) {
+                                groupedEventsList.get(eventIndex).refIds.add(event.refId);
+                                groupedEventsList.get(eventIndex).eventIds.add(event.guid);
+                            }
                         } else {
                             GroupedNewsFeedEvent newGroupEvent = new GroupedNewsFeedEvent();
                             newGroupEvent.refIds = new ArrayList<>();
+                            newGroupEvent.eventIds = new ArrayList<>();
                             newGroupEvent.refIds.add(event.refId);
+                            newGroupEvent.eventIds.add(event.guid);
                             newGroupEvent.created = event.created;
                             newGroupEvent.destId = event.destId;
                             newGroupEvent.userId = event.userId;

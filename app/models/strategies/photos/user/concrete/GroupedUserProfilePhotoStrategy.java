@@ -17,8 +17,8 @@ public class GroupedUserProfilePhotoStrategy extends UserPhotoStrategy {
 
     public GroupedUserProfilePhotoStrategy(Long userId,
         PhotoRepository photoRepository, ProfileRepository profileRepository,
-        List<Long> photoIds) {
-        super(null, userId, photoRepository, profileRepository);
+        List<Long> photoIds, List<Long> eventIds) {
+        super(null, userId, photoRepository, profileRepository, eventIds);
         this.photoIds = photoIds;
     }
 
@@ -40,7 +40,8 @@ public class GroupedUserProfilePhotoStrategy extends UserPhotoStrategy {
                     String.format("%s %s", profile.firstName, profile.lastName),
                     profile.profilePhoto,
                     profile.userId,
-                    returnObject);
+                    returnObject,
+                    eventIds);
 
             }));
     }

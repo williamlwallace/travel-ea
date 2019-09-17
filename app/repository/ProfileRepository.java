@@ -310,22 +310,27 @@ public class ProfileRepository {
      * Retrieves a paginated list of the users (profiles) that a user is following
      *
      * @param profileId ID of user to get who they are following
+     * @param searchQuery Criteria that profile name must match
      * @param pageNum What page of data to return
      * @param pageSize Number of results per page
      * @return Paged list of profiles found
      */
     public CompletableFuture<PagedList<Profile>> getUserFollowingProfiles(
         Long profileId,
+        String searchQuery,
         Integer pageNum,
         Integer pageSize) {
 
         return supplyAsync(() -> {
 
             String sql = "SELECT * FROM Profile "
-                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE follower_id=" + profileId + ") "
+                + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE "
+                + "follower_id=" + profileId + ") "
+                + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
+                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
@@ -338,27 +343,58 @@ public class ProfileRepository {
      * Retrieves a paginated list of the users (profiles) that follow some user
      *
      * @param profileId ID of user to get who is following them
+     * @param searchQuery Criteria that profile name must match
      * @param pageNum What page of data to return
      * @param pageSize Number of results per page
      * @return Paged list of profiles found
      */
     public CompletableFuture<PagedList<Profile>> getUserFollowerProfiles(
         Long profileId,
+        String searchQuery,
         Integer pageNum,
         Integer pageSize) {
 
         return supplyAsync(() -> {
 
             String sql = "SELECT * FROM Profile "
-                + "WHERE user_id IN (SELECT follower_id FROM FollowerUser WHERE user_id=" + profileId + ") "
+                + "WHERE user_id IN (SELECT follower_id FROM FollowerUser WHERE "
+                + "user_id=" + profileId + ") "
+                + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
+                .setParameter("searchQuery", "%" + searchQuery + "%")
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
-
         });
+    }
 
+    /**
+     * Retrieves a paginated list of the users (profiles) that are following a destination
+     *
+     * @param destinationId ID of destination to get following users of
+     * @param searchQuery Name of user to find searched from frontend
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @return Paged list of profiles found
+     */
+    public CompletableFuture<PagedList<Profile>> getUsersFollowingDestination(Long destinationId,
+        String searchQuery, Integer pageNum, Integer pageSize) {
+
+        return supplyAsync(() -> {
+
+            String sql = "SELECT * FROM Profile "
+                + "WHERE user_id IN (SELECT follower_id FROM FollowerDestination WHERE "
+                + "destination_id=" + destinationId + ") "
+                + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
+                + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
+
+            return ebeanServer.findNative(Profile.class, sql)
+                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
+        });
     }
 }

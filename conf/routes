@@ -29,9 +29,11 @@ POST          /api/profile                           controllers.backend.Profile
 
 PUT           /api/profile/:id                       controllers.backend.ProfileController.updateProfile(request:Request, id:Long)
 
-GET           /api/profile/:id/getFollowing          controllers.backend.ProfileController.getPaginatedFollowingUsers(request:Request, id:Long, pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
+GET           /api/profile/:id/getFollowing          controllers.backend.ProfileController.getPaginatedFollowingUsers(request:Request, id:Long, searchQuery: String ?= "", pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
 
-GET           /api/profile/:id/getFollowers          controllers.backend.ProfileController.getPaginatedFollowerUsers(request:Request, id:Long, pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
+GET           /api/profile/:id/getFollowers          controllers.backend.ProfileController.getPaginatedFollowerUsers(request:Request, id:Long, searchQuery: String ?= "", pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
+
+GET           /api/profile/:userId/getFollowingDestinations  controllers.backend.DestinationController.getDestinationsFollowedByUser(request: Request, userId: Long, searchQuery: String ?= "", pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
 
 GET           /api/profile/search                    controllers.backend.ProfileController.searchProfilesJson(request:Request, nationalityIds: java.util.List[java.lang.Long] ?= null, travellerTypeIds: java.util.List[java.lang.Long] ?= null, genders: java.util.List[String] ?= null, minAge: Integer ?= null, maxAge: Integer ?= null, searchQuery: String ?= null, sortBy: String ?= null, ascending: Boolean ?= false, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
@@ -80,6 +82,8 @@ PUT           /api/destination/makePublic/:id        controllers.backend.Destina
 PUT           /api/destination/:destId/follow        controllers.backend.DestinationController.toggleFollowerStatus(request:Request, destId:Long)
 
 GET           /api/destination/:destId/follow        controllers.backend.DestinationController.getFollowerStatus(request:Request, destId:Long)
+
+GET           /api/destination/:destId/getFollowers  controllers.backend.DestinationController.getDestinationFollowers(request: Request, destId: Long, searchQuery: String ?= "", pageNum: Integer ?= 1, pageSize: Integer ?= 20, requestOrder: Integer ?= 1)
 
 POST          /api/trip                              controllers.backend.TripController.insertTrip(request:Request)
 
