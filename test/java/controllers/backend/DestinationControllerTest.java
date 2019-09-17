@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Profile;
 import models.Tag;
 import models.TripData;
 import models.User;
@@ -943,5 +944,51 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
 
         Result result = route(fakeApp, request);
         assertEquals(NOT_FOUND, result.status());
+    }
+
+    @Test
+    public void getDestinationFollowers() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1/getFollowers");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Long> expectedFollowers = Arrays.asList(1L, 2L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Profile> profiles =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Profile>>(){});
+
+        assertEquals(expectedFollowers.size(), profiles.data.size());
+
+        for (Profile profile : profiles.data) {
+            assertTrue(expectedFollowers.contains(profile.userId));
+        }
+    }
+
+    @Test
+    public void getDestinationsFollowedByUser() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/profile/1/getFollowingDestinations");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Long> expectedDestinations = Arrays.asList(1L, 2L, 3L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Destination> destinations =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Destination>>(){});
+
+        assertEquals(expectedDestinations.size(), destinations.data.size());
+
+        for (Destination destination : destinations.data) {
+            assertTrue(expectedDestinations.contains(destination.id));
+        }
     }
 }

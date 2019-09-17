@@ -1,6 +1,7 @@
 package models.strategies.destinations;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.Destination;
 import models.Photo;
 import models.strategies.NewsFeedStrategy;
@@ -21,7 +22,8 @@ public abstract class DestinationStrategy extends NewsFeedStrategy {
      * @param destId ID of destination in event
      * @param destinationRepository Reference to the destination repository
      */
-    public DestinationStrategy(Long destId, DestinationRepository destinationRepository) {
+    public DestinationStrategy(Long destId, DestinationRepository destinationRepository, List<Long> eventIds) {
+        super(eventIds);
         this.destId = destId;
         this.destinationRepository = destinationRepository;
     }

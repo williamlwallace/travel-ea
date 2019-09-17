@@ -490,4 +490,33 @@ public class DestinationRepository {
                 .findCount())
             , executionContext);
     }
+
+    /**
+     * Retrieves a paginated list of the destinations that a user is following
+     *
+     * @param userId ID of user to retrieve destinations followed by
+     * @param searchQuery Name of destination to filter from frontend
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @return Paged list of destinations found sorted by most followers
+     */
+    public CompletableFuture<PagedList<Destination>> getDestinationsFollowedByUser(Long userId,
+        String searchQuery, Integer pageNum, Integer pageSize) {
+
+        return supplyAsync(() -> {
+
+            String sql = "SELECT * FROM Destination "
+                + "WHERE id IN (SELECT destination_id FROM FollowerDestination "
+                + "WHERE follower_id=" + userId + ") "
+                + "AND LOWER(name) LIKE LOWER(:searchQuery) "
+                + "ORDER BY (SELECT COUNT(*) FROM FollowerDestination "
+                + "WHERE destination_id=Destination.id) desc";
+
+            return ebeanServer.findNative(Destination.class, sql)
+                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
+        });
+    }
 }
