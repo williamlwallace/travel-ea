@@ -16,7 +16,7 @@ function loadFollowBtn(type) {
     getUserId().then(userId => {
         let url = null;
         if (type === "profile") {
-            if (userId === profileId) {
+            if (userId === id) {
                 return;
             }
             url = userRouter.controllers.backend.UserController.getFollowerStatus(
