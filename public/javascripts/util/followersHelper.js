@@ -11,3 +11,13 @@ $('#users-following-btn').on('click', function() {
     document.getElementById('users-following-btn').className = "btn btn-primary";
     document.getElementById('dests-following-btn').className = "btn btn-outline-primary";
 });
+
+
+function populate() {
+
+
+}
+
+function createFollowerCard(followers) {
+    $("#followersCardList").html("");
+}

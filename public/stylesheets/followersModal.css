@@ -10,3 +10,32 @@
 .search-bar-item-div {
     margin: 0 5px 10px 5px;
 }
+
+.picture {
+    width: 4rem;
+    border: 1px solid rgba(0,0,0,.125);
+    max-width: none !important;
+}
+
+.name {
+    font-size: 1.25rem;
+    margin: 1rem;
+}
+
+.follower-card {
+    display: flex;
+}
+
+/* Tab panel buttons */
+.follower-nav{display:block;padding:0 1.5rem 0;color: #000000;}
+.follower-nav:focus,.profile-nav:hover{text-decoration:none}
+.follower-nav.active{border-bottom: 1px solid #495057;}
+.follower-nav:hover{color:#495057}
+
+.follower-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
+.follower-nav-text{font-weight: 600; font-size: 22px}
+
+
+.search-input {
+    width: 260px;
+}
