@@ -3,18 +3,22 @@ $('#createProfileForm').modal('show');
 
 /**
  * The JavaScript function to process a client signing up
+ * @param {Number} userId - ID of user to create a profile for
  * @param {string} uri - The route/uri to send the request to
  * @param {string} redirect - The page to redirect to if no errors are found
  */
-function signUp(id, uri, redirect) {
+function signUp(userId, uri, redirect) {
     // Read data from destination form
     const formData = new FormData(document.getElementById("signUp"));
-    formData.append("userId", id);
+
     // Convert data to json object
     const data = Array.from(formData.entries()).reduce((memo, pair) => ({
         ...memo,
         [pair[0]]: pair[1],
     }), {});
+
+    // Sets userId
+    data.userId = userId;
 
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
@@ -38,5 +42,4 @@ function signUp(id, uri, redirect) {
             });
         });
     });
-
 }
