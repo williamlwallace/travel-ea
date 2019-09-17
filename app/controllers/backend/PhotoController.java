@@ -595,28 +595,31 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deletePhoto(Long id) {
-        return photoRepository.deletePhoto(id).thenApplyAsync(photoDeleted -> {
+        return photoRepository.deletePhoto(id).thenComposeAsync(photoDeleted -> {
             if (photoDeleted == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.map("Photo not found", "other");
-                return badRequest(errorResponse.toJson());
+                return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
             } else {
-                // Mark the files for deletion
-                File thumbFile = new File(savePath + photoDeleted.thumbnailFilename);
-                File mainFile = new File(savePath + photoDeleted.filename);
-                if (!thumbFile.delete()) {
-                    // If file fails to delete immediately,
-                    // mark file for deletion when VM shuts down
-                    thumbFile.deleteOnExit();
-                }
-                if (!mainFile.delete()) {
-                    // If file fails to delete immediately,
-                    // mark file for deletion when VM shuts down
-                    mainFile.deleteOnExit();
-                }
+                // Delete any newsfeed events related to that photo
+                return newsFeedEventRepository.cleanUpPhotoEvents(photoDeleted).thenApplyAsync(rows -> {
+                    // Mark the files for deletion
+                    File thumbFile = new File(savePath + photoDeleted.thumbnailFilename);
+                    File mainFile = new File(savePath + photoDeleted.filename);
+                    if (!thumbFile.delete()) {
+                        // If file fails to delete immediately,
+                        // mark file for deletion when VM shuts down
+                        thumbFile.deleteOnExit();
+                    }
+                    if (!mainFile.delete()) {
+                        // If file fails to delete immediately,
+                        // mark file for deletion when VM shuts down
+                        mainFile.deleteOnExit();
+                    }
 
-                // Return number of photos deleted
-                return ok(Json.toJson(1));
+                    // Return number of photos deleted
+                    return ok(Json.toJson(1));
+                });
             }
         });
     }

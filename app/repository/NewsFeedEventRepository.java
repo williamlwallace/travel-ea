@@ -1,29 +1,25 @@
 package repository;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
-import static play.mvc.Http.Status.OK;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import models.*;
-import org.apache.commons.text.similarity.LevenshteinDistance;
+import models.NewsFeedEvent;
+import models.Photo;
+import models.enums.NewsFeedEventType;
 import play.db.ebean.EbeanConfig;
-import play.mvc.Http;
-import play.mvc.Result;
 
 /**
  * A repository that executes database operations for the News feed events table.
@@ -70,6 +66,29 @@ public class NewsFeedEventRepository {
             .idEq(id)
             .findOneOrEmpty()
             .orElse(null), executionContext);
+    }
+
+    /**
+     * For some photo, removes any event that were associated with it
+     *
+     * @param photo The photo to clean up events from
+     * @return Number of events cleaned up
+     */
+    public CompletableFuture<Integer> cleanUpPhotoEvents(Photo photo) {
+        Collection<String> relevantTypes = Arrays.asList(
+            NewsFeedEventType.LINK_DESTINATION_PHOTO.name(),
+            NewsFeedEventType.NEW_PROFILE_COVER_PHOTO.name(),
+            NewsFeedEventType.UPLOADED_USER_PHOTO.name(),
+            NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name()
+        );
+
+        return supplyAsync(() ->
+            ebeanServer.find(NewsFeedEvent.class)
+            .where()
+            .eq("ref_id", photo.guid)
+            .in("event_type", relevantTypes)
+            .delete()
+        );
     }
 
     /**
