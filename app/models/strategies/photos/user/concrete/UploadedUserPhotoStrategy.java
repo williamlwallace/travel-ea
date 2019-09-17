@@ -1,6 +1,7 @@
 package models.strategies.photos.user.concrete;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.NewsFeedResponseItem;
 import models.strategies.photos.user.UserPhotoStrategy;
 import repository.PhotoRepository;
@@ -16,8 +17,8 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
      * @param profileRepository Instance of profileRepository
      */
     public UploadedUserPhotoStrategy(Long photoId, Long userId,
-        PhotoRepository photoRepository, ProfileRepository profileRepository) {
-        super(photoId, userId, photoRepository, profileRepository);
+        PhotoRepository photoRepository, ProfileRepository profileRepository, List<Long> eventIds) {
+        super(photoId, userId, photoRepository, profileRepository, eventIds);
     }
 
     /**
@@ -33,7 +34,8 @@ public class UploadedUserPhotoStrategy extends UserPhotoStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    photo)
+                    photo,
+                    eventIds)
             )
         );
     }

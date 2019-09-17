@@ -3,6 +3,7 @@ package models;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class NewsFeedResponseItem {
 
@@ -11,6 +12,7 @@ public class NewsFeedResponseItem {
     public String thumbnail;
     public Long eventerId;
     public Object data;
+    public List<Long> eventIds;
 
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     public LocalDateTime created;
@@ -25,11 +27,12 @@ public class NewsFeedResponseItem {
      * @param eventerId The id of the initiating object (either a destination or user)
      * @param data Data involved with the event
      */
-    public NewsFeedResponseItem(String message, String name, Photo photo, Long eventerId, Object data) {
+    public NewsFeedResponseItem(String message, String name, Photo photo, Long eventerId, Object data, List<Long> eventIds) {
         this.message = message;
         this.name = name;
         this.thumbnail = photo != null ? photo.thumbnailFilename : null;
         this.eventerId = eventerId;
         this.data = data;
+        this.eventIds = eventIds;
     }
 }

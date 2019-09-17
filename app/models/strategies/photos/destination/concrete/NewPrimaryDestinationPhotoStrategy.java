@@ -1,6 +1,7 @@
 package models.strategies.photos.destination.concrete;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.NewsFeedResponseItem;
 import models.strategies.photos.destination.DestinationPhotoStrategy;
 import repository.DestinationRepository;
@@ -17,8 +18,8 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
      */
     public NewPrimaryDestinationPhotoStrategy(Long photoId, Long destinationId,
         PhotoRepository photoRepository,
-        DestinationRepository destinationRepository) {
-        super(photoId, destinationId, photoRepository, destinationRepository);
+        DestinationRepository destinationRepository, List<Long> eventIds) {
+        super(photoId, destinationId, photoRepository, destinationRepository, eventIds);
     }
 
     /**
@@ -34,7 +35,8 @@ public class NewPrimaryDestinationPhotoStrategy extends DestinationPhotoStrategy
                     destination.name,
                     destination.primaryPhoto,
                     destination.id,
-                    photo)
+                    photo,
+                    eventIds)
             )
         );
     }
