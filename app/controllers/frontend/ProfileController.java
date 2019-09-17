@@ -45,7 +45,7 @@ public class ProfileController extends TEAFrontController {
     @With({Everyone.class, Authenticator.class})
     public Result createProfileIndex(Http.Request request) {
         User user = request.attrs().get(ActionState.USER);
-        return ok(createProfile.render(user, user.id));
+        return ok(createProfile.render(user));
     }
 
     /**
