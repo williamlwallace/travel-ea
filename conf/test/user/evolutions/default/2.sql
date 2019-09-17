@@ -8,6 +8,7 @@ INSERT INTO User (username, password, salt, admin, deleted) VALUES ('deleted@gma
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (3, 'Jimmy', 'Steve', 'Ben', '1486-11-05', 'Male');
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
