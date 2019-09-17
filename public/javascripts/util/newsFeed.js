@@ -300,7 +300,7 @@ function newPrimaryPhotoCard(event) {
 }
 
 /**
- * Creates news Feed card for groupes of trip photos
+ * Creates news Feed card for groups of trip photos
  *
  * @param {object} event newsfeed event item data
  */
@@ -330,10 +330,43 @@ function multipleDestinationPhotoLinks(event) {
  */
 function multipleGalleryPhotos(event) {
     const card = createUserWrapperCard(event);
-    //TODO: The card
+    const template = $("#multiplePhotoCardTemplate").get(0);
+    const photoCard = $(template.content.cloneNode(true));
+    const photos = event.data.photos;
+    const eventId = 1; //TODO: get eventId from event
+    const photoCardId = "multiple-photo-carousel-" + eventId;
+    const photoThumbnails = photoCard.find('.photo-thumbnails');
+
+    for (const i in photos) {
+        photoCard.find(".main-carousel").attr("id", photoCardId);
+        photoCard.find(".carousel-control-prev").attr("href", "#" + photoCardId);
+        photoCard.find(".carousel-control-next").attr("href", "#" + photoCardId);
+        photoCard.find(".carousel-inner").attr("id", "inner-" + photoCardId);
+
+        const photo = photos[i];
+        console.log(photo);
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " +
+            (i == 0 ? "active" : ""));
+
+        const baguetteWrapper = document.createElement("A");
+        baguetteWrapper.setAttribute("class", "baguette-image");
+        baguetteWrapper.setAttribute("href", "../user_content/" + photo.filename);
+
+        const imageWrapper = document.createElement("IMG");
+        imageWrapper.setAttribute("src", "../user_content/" + photo.thumbnailFilename);
+        imageWrapper.setAttribute("class", "d-block w-100");
+
+        baguetteWrapper.append(imageWrapper);
+        carouselWrapper.append(baguetteWrapper);
+        photoThumbnails.append(carouselWrapper);
+    }
+
+    setTimeout(() => baguetteBox.run('#inner-' + photoCardId), 10);
+    card.find('.wrapper-body').append(photoCard);
+
     return card;
 }
-
 
 
 /**
