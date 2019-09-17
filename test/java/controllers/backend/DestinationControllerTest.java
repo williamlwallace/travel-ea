@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Profile;
 import models.Tag;
 import models.TripData;
 import models.User;
@@ -945,5 +946,26 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(NOT_FOUND, result.status());
     }
 
+    @Test
+    public void getDestinationFollowers() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1/getFollowers");
 
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Long> expectedFollowers = Arrays.asList(1L, 2L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Profile> profiles =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Profile>>(){});
+
+        assertEquals(expectedFollowers.size(), profiles.data.size());
+
+        for (Profile profile : profiles.data) {
+            assertTrue(expectedFollowers.contains(profile.userId));
+        }
+    }
 }
