@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import views.html.destinations;
+import play.libs.Json;
 
 /**
  * This controller contains an action to handle HTTP requests to the application's destinations
