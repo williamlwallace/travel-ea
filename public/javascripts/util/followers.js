@@ -55,7 +55,6 @@ function updateFollowerCount(id, type) {
     .then(response => {
         response.json()
         .then(data => {
-            console.log(data);
             if (response.status !== 200) {
                 toast("Error", "Unable to retrieve followers/following count",
                     "danger", 5000);
