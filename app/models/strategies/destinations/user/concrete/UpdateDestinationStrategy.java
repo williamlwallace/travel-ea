@@ -1,6 +1,7 @@
 package models.strategies.destinations.user.concrete;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.NewsFeedResponseItem;
 import models.strategies.destinations.user.UserDestinationStrategy;
 import repository.DestinationRepository;
@@ -19,8 +20,8 @@ public class UpdateDestinationStrategy extends UserDestinationStrategy {
      */
     public UpdateDestinationStrategy(Long destId,
         DestinationRepository destinationRepository, Long userId,
-        ProfileRepository profileRepository) {
-        super(destId, destinationRepository, userId, profileRepository);
+        ProfileRepository profileRepository, List<Long> eventIds) {
+        super(destId, destinationRepository, userId, profileRepository, eventIds);
     }
 
     /**
@@ -37,7 +38,8 @@ public class UpdateDestinationStrategy extends UserDestinationStrategy {
                     profile.firstName + " " + profile.lastName,
                     profile.profilePhoto,
                     profile.userId,
-                    destination
+                    destination,
+                    eventIds
                 )
             )
         );

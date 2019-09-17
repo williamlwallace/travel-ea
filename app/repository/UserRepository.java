@@ -211,7 +211,7 @@ public class UserRepository {
     }
 
     /**
-     * Inserts a follower followee pair
+     * Inserts a follower follower pair
      *
      * @param followerUser the object to add
      * @return the guid of the inserted followerUser

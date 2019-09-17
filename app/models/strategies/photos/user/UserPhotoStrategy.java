@@ -3,6 +3,7 @@ package models.strategies.photos.user;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import javax.inject.Inject;
 import models.Profile;
 import models.strategies.photos.PhotoStrategy;
@@ -23,8 +24,8 @@ public abstract class UserPhotoStrategy extends PhotoStrategy {
      * @param photoRepository Instance of photoRepository
      * @param profileRepository Instance of profileRepository
      */
-    public UserPhotoStrategy(Long photoId, Long userId, PhotoRepository photoRepository, ProfileRepository profileRepository) {
-        super(photoId, photoRepository);
+    public UserPhotoStrategy(Long photoId, Long userId, PhotoRepository photoRepository, ProfileRepository profileRepository, List<Long> eventIds) {
+        super(photoId, photoRepository, eventIds);
         this.userId = userId;
         this.profileRepository = profileRepository;
     }
