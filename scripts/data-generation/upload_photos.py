@@ -18,11 +18,16 @@ def import_photos_dict(photos_filename):
 
 def get_photo_data(URL):
     response = requests.get(URL)
-    basesize = 150 #pixels
+    #size = 400, 266 #pixels
+    baseheight = 350
     if response.status_code == 200:
         open("tempImage.jpeg", "wb").write(response.content)
         img = Image.open("tempImage.jpeg")
-        img = img.resize((basesize, basesize), Image.BICUBIC)
+        #hpercent = (baseheight / float(img.size[1]))
+        #wsize = int((float(img.size[0]) * float(hpercent)))
+        #img = img.resize((wsize, baseheight), Image.ANTIALIAS)
+        #img.thumbnail(size, Image.ANTIALIAS)
+        img = img.resize((baseheight, baseheight), Image.ANTIALIAS)
         img.save("tempImage.jpeg")
         
     
@@ -31,9 +36,9 @@ def get_photo_data(URL):
 def post_photo(cookie, data, port):
     URL = "http://localhost:" + port + "/api/photo"
     headers = {"cookie": "JWT-Auth=" + cookie}
-    
     response = requests.post(URL, files=data, headers=headers)
-    
+    #response = requests.post('http://httpbin.org/post', files=data, headers=headers)
+    #print(response.json())
     return response.status_code
     
     
@@ -52,27 +57,26 @@ def get_and_post_photos(photos_dict, port, cookie, num_existing_photos):
     photo_id = num_existing_photos
     
     for photo in photos_dict:
-        data["profilePhotoFileName"] = ("", photo)
-        data["publicPhotoFileNames"] = ("", "[" + photo + "]")
+        data["profilePhotoName"] = ("", photo)
+        #data["publicPhotoFileNames"] = ("", "[" + photo + "]")
         print("Retrieving photo..")        
         if get_photo_data(photo) == 200:
-            print("Photo retrieved")
-            data["files"] = (photo, open('tempImage.jpeg', 'rb'), "image/jpeg")
-            
+            #print("Photo retrieved")
             for user in photos_dict[photo]:
-                data["userUploadId"] = ("", str(1))
-                print("POSTing photo to TravelEA..")
+                data["userUploadId"] = ("", str(1)) #Think this should be user
+                data["files"] = (photo, open('tempImage.jpeg', 'rb'), "image/jpeg")
+                #print("POSTing photo to TravelEA..")
                 if post_photo(cookie, data, port) == 201:
-                    print("Successfully POSTed photo to TravelEA")
+                    #print("Successfully POSTed photo to TravelEA")
                     photo_id += 1
-                    print("Attempting to make uploaded photo the user's profile picture")
+                    #print("Attempting to make uploaded photo the user's profile picture")
                     if make_profile_picture(user, photo_id, port, cookie) != 200:
                         print("Failed to make uploaded photo the user's profile picture")
                         failed.append(("Failed to make profile picture", photo, user))
                     else:
                         print("Successfully made the uploaded photo the user's profile picture")
                 else:
-                    print("Failed to POST photo to TravelEA")                
+                    print("Failed to POST photo to TravelEA: ")                
                     failed.append(("Failed to upload photo", photo, user))
                         
         else:
