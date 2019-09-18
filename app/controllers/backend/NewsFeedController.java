@@ -445,6 +445,7 @@ public class NewsFeedController extends TEABackController {
             JavaScriptReverseRouter.create("newsFeedRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.toggleLikeStatus(),
+                controllers.backend.routes.javascript.NewsFeedController.getLikeCount(),
                 controllers.backend.routes.javascript.NewsFeedController.getLikeStatus()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
