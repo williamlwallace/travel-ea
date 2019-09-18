@@ -421,7 +421,7 @@
         populateProfileData("@controllers.backend.routes.ProfileController.getProfile(user.id)");
     });
     const type_ = "profile";
-    loadFollowBtn(type_, @profile.userId);
+    loadFollowBtn(type_);
     updateFollowerCount(@user.id, type_);
     const tripTagDisplay = new TagDisplay("trip-tag-display");
     const uploadTagPicker = new TagPicker(@user.id, "upload-picker");

@@ -234,8 +234,8 @@ let canDelete;
 
 /**
  * Sets the permissions used for creating the gallery
- * @param {Object} loggedUser - Logged in user
- * @param {Object} user - Owner of profile page
+ * @param {User} loggedUser
+ * @param {User} user
  */
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);

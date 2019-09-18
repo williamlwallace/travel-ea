@@ -326,7 +326,7 @@
     populateDestinationDetails(@destinationId);
     getPrimaryPicture();
     const type_ = "destination";
-    loadFollowBtn(type_, @destinationId);
+    loadFollowBtn(type_);
     updateFollowerCount(@destinationId, type_);
     const tagPicker = new TagPicker(@loggedUser.id, "detailed-destination-tag");
     const tagDisplay = new TagDisplay("detailed-destination-tag-display");

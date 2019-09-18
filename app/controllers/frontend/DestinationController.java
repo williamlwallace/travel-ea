@@ -55,7 +55,7 @@ public class DestinationController extends TEAFrontController {
      *
      * @param request the http request.
      * @param destinationId the id of the destination to retrieve
-     * @return Destination object or null
+     * @return List of destinations wrapped in completable future
      */
     private CompletableFuture<Destination> getDestination(Http.Request request,
         Long destinationId) {
@@ -74,7 +74,7 @@ public class DestinationController extends TEAFrontController {
                     new TypeReference<Destination>() {
                     });
             } catch (Exception e) {
-                return null;
+                return new Destination();
             }
         });
     }
@@ -92,7 +92,7 @@ public class DestinationController extends TEAFrontController {
         Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
         return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
-            if (destination == null) {
+            if (destination.user == null) {
                 return notFound();
             } else {
                 boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
