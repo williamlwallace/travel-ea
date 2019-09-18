@@ -198,6 +198,7 @@ function createWrapperCard(thumbnail, message, time, eventIds) {
 
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
+    const likeCounter = $(clone.find('.likes-number'));
 
     clone.find('.wrapper-title').html(message);
     if (thumbnail != null) {
@@ -220,6 +221,7 @@ function createWrapperCard(thumbnail, message, time, eventIds) {
                     } else {
                         likeButton.attr('data-liked', data);
                         updateLikeButton(likeButton, true);
+                        updateLikeNumber(likeCounter, eventId);
                     }
                 })
         });
@@ -244,11 +246,13 @@ function likeUnlikeEvent(eventId) {
                 "danger", 5000);
         } else {
             if (json === "liked") {
+                likeCounter.data('likes', likeCounter.data('likes') + 1);
                 eventLikeButton.attr('data-liked', "true");
-                likeCounter.text(parseInt(likeCounter.text()) + 1);
+                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
             } else {
+                likeCounter.data('likes', likeCounter.data('likes') - 1);
                 eventLikeButton.attr('data-liked', "false");
-                likeCounter.text(parseInt(likeCounter.text()) - 1);
+                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
             }
             updateLikeButton(eventLikeButton);
         }
@@ -287,6 +291,29 @@ function updateLikeButton(eventLikeButton, noAnimation=false) {
         eventLikeButton.addClass("far");
         eventLikeButton.addClass("fas-in");
     }
+}
+
+/**
+ * Updates the like counter on an event with the number from the backend
+ * @param {Object} likeCounter the JQuery html object of the card like number field
+ * @param {Number} eventId the id of the event to get the like count for
+ */
+function updateLikeNumber(likeCounter, eventId) {
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.getLikeCount(eventId).url;
+    get(url)
+        .then(response => {
+            response.json()
+                .then(data => {
+                    if (response.status !== 200) {
+                        toast("Error", "Unable to get like count for an event" ,
+                            "danger", 5000);
+                    } else {
+                        const numberOfLikes = data.likeCount;
+                        likeCounter.data('likes', numberOfLikes);
+                        likeCounter.text(followerCountFormatter(numberOfLikes));
+                    }
+                })
+        });
 }
 
 /**
