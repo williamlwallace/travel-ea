@@ -8,7 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "jest ./test/public"
+    "test": "jest ./test/public",
+    "upload-photos": "node ./scripts/data-generation/upload_photos.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,9 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "form-data": "^2.5.1",
     "jest": "^24.8.0",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "xhr": "^2.5.0"
   }
 }
