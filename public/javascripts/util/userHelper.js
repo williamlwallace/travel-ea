@@ -22,6 +22,28 @@ function getUserId() {
 }
 
 /**
+ * Gets a user from the API.
+ *
+ * @param {Number} userId The id of the user to retrieve
+ * @returns {Object} A promise containing either the user as JSON or null if
+ * the requesting user does not have permission to view the requested
+ * information
+ */
+function getUser(userId) {
+    return get(
+        userRouter.controllers.backend.UserController.getUser(userId).url).then(
+        userResponse => {
+            if (userResponse.status === 200) {
+                return userResponse.json().then(userJson => {
+                    return userJson;
+                });
+            } else {
+                return null;
+            }
+        });
+}
+
+/**
  * return boolean of if the user is an admin
  */
 function isUserAdmin() {
