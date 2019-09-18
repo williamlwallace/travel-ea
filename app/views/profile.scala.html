@@ -410,7 +410,7 @@
         </body>
     }
 
-    <script type="text/javascript">
+<script type="text/javascript">
     setProfileId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
     fillProfileData("@user.username");
@@ -424,6 +424,6 @@
     loadFollowBtn(type_);
     updateFollowerCount(@user.id, type_);
     const tripTagDisplay = new TagDisplay("trip-tag-display");
-    const uploadTagPicker = new TagPicker(@user.id, "upload-picker");
-    const editTagPicker = new TagPicker(@user.id, "edit-picker");
+    const uploadTagPicker = new TagPicker(@loggedUser.id, "upload-picker");
+    const editTagPicker = new TagPicker(@loggedUser.id, "edit-picker");
 </script>
