@@ -357,7 +357,6 @@ public class NewsFeedController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> toggleLikeStatus(Http.Request request, Long eventId) {
-
         Long userId = request.attrs().get(ActionState.USER).id;
 
         return newsFeedEventRepository.getEvent(eventId).thenComposeAsync(event -> {

@@ -47,9 +47,17 @@
     color: #afafaf;
 }
 
+.wrapper-body-wrapper {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .wrapper-body {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 .wrapper-body > * {
@@ -70,7 +78,17 @@
 }
 
 .wrapper-footer {
-    padding: 0 1rem 2rem 1rem;
+    padding: 0 1rem 1rem 1rem;
+}
+
+.wrapper-tags {
+    margin-left: 2rem;
+}
+
+.wrapper-likes {
+    margin-left: auto;
+    padding-right: 2rem;
+    font-size: 1.3rem;
 }
 
 /* Photo card css */
@@ -90,3 +108,50 @@
     justify-content: center;
 }
 /* Photo card css end */
+
+
+/* Upflights (likes) */
+.upflight-icon {
+    font-size: 20;
+
+}
+.upflight-counter {
+    margin-left: 4px;
+}
+
+.fas-in {
+	animation: fas-in 0.2s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+@keyframes fas-in {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+.rotate-top {
+	animation: rotate-top 0.5s cubic-bezier(0.455, 0.030, 0.515, 0.955) both;
+}
+
+
+@keyframes rotate-top {
+  0% {
+    transform: rotate(0);
+    transform-origin: left;
+  }
+  100% {
+    transform: rotate(-360deg);
+    transform-origin: -100% -100%;
+  }
+}
+/* Upflights (likes) ends */
