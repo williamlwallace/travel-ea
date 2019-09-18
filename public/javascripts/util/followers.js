@@ -62,7 +62,7 @@ function updateFollowerCount(id, type) {
                 // Set follower count here
                 let followers = 0;
                 if (type === "profile") {
-                    let following = data.followingUsersCount
+                    let following = data.followingUsersCount;
                     following = followerCountFormatter(following);
                     $('#following-count').html(following);
                     followers = data.followerUsersCount;
