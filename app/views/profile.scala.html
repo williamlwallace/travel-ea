@@ -293,7 +293,7 @@
 
                                 <pre id="nationality" class="control-label">Nationalities</pre>
                                 <div>
-                                    <select name="nationalities" class="selectpicker" id="nationalities"
+                                    <select name="nationalities[]" class="selectpicker" id="nationalities"
                                     data-live-search="true" data-size="5" multiple required>
                                         <option value="" disabled hidden>Select Nationalities</option>
                                     </select>
@@ -303,7 +303,7 @@
 
                                 <pre class="control-label">Traveller Types</pre>
                                 <div>
-                                    <select name="travellerTypes" id="travellerTypes" multiple required>
+                                    <select name="travellerTypes[]" id="travellerTypes" multiple required>
                                         <option value="" data-live-search="true" disabled hidden>
                                             Select Traveller Type</option>
                                     </select>
@@ -313,7 +313,7 @@
                                 <pre id="country" class="control-label">
                                     Passports <span class="badge badge-secondary">Optional</span></pre>
                                 <div>
-                                    <select name="passports" id="passports" class="selectpicker"
+                                    <select name="passports[]" id="passports" class="selectpicker"
                                     data-live-search="true" data-size="5" multiple>
                                         <option value="" disabled hidden>Select Passports</option>
                                     </select>
@@ -413,7 +413,7 @@
 <script type="text/javascript">
     setProfileId(@user.id);
     setPermissions("@loggedUser.id", "@user.id");
-    fillProfileData("@user.username");
+    fillProfileData("@user.id");
     getProfileAndCoverPicture();
     getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description");
     getAndFillDD("@controllers.backend.routes.TagController.getAllUserPhotoTags(user.id)", ["tagFilter"], "name", false, "name");
