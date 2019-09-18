@@ -8,14 +8,18 @@ let profileFeed;
  * Runs when the page is loaded. Initialises the paginationHelper object and
  * runs the getPictures method.
  */
-$(document).ready(function() {
+$(document).ready(function () {
     getUserId().then(userId => {
-        profileFeed = new NewsFeed(userId, 'profile-feed', newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(profileId).url);
+        profileFeed = new NewsFeed(userId, 'profile-feed',
+            newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(
+                profileId).url);
     });
-    paginationHelper = new PaginationHelper(1, 1,  getPictures);
-    coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');
-    profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
-    mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
+    coverPhotoPaginationHelper = new PaginationHelper(1, 1, getCoverPictures,
+        'cover-photo-pagination');
+    profilePhotoPaginationHelper = new PaginationHelper(1, 1,
+        getProfilePicturesForGallery, 'profile-picture-pagination');
+    mainGalleryPaginationHelper = new PaginationHelper(1, 1, getPictures,
+        'main-gallery-pagination');
     getPictures();
     profileLoadTrips();
     $("#feed-tab").click();
@@ -215,8 +219,8 @@ let canDelete;
 
 /**
  * Sets the permissions used for creating the gallery
- * @param {User} loggedUser
- * @param {User} user
+ * @param {Object} loggedUser
+ * @param {Object} user
  */
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);
