@@ -21,25 +21,6 @@ $(document).ready(function() {
     $("#feed-tab").click();
 });
 
-
-/**
- * On click handler to change tab panel on profile page
- */
-$('#profile-tabs a').on('click', function (event) {
-    event.preventDefault();
-    $(this).tab('show');
-    let activeTab = $('#profile-tabs a.active').attr('id');
-    if (activeTab === "photos-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#main-gallery").offset().top
-        }, 500);
-    } else if (activeTab === "trips-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#tripCardsList").offset().top
-        }, 500);
-    }
-});
-
 /**
  * Initializes trip table and calls method to populate
  */
