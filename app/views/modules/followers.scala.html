@@ -2,7 +2,7 @@
 if its false then its a two tab following modal on the profile page
 Id is the id of the relevant thing, ie destination or user*@
 
-@(destination: Boolean, id: Long)
+@(destination: Boolean)
 
 <link rel="stylesheet" href="@routes.Assets.at("stylesheets/followersModal.css")">
 
@@ -40,7 +40,7 @@ Id is the id of the relevant thing, ie destination or user*@
                             <a class="follower-nav" id="following-tab" data-toggle="tab" href="#following" role="tab" aria-controls="following"><p><span class="follower-nav-text">Following</span></p></a>
                         </li>
                         <li class="nav-item">
-                            <a class="follower-nav" id="destinations-tab" data-toggle="tab" href="#followers" role="tab" aria-controls="followers"><p><span class="follower-nav-text">Followers</span></p></a>
+                            <a class="follower-nav" id="follower-tab" data-toggle="tab" href="#followers" role="tab" aria-controls="followers"><p><span class="follower-nav-text">Followers</span></p></a>
                         </li>
                     </ul>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -64,9 +64,9 @@ Id is the id of the relevant thing, ie destination or user*@
                                     </div>
                                 </div>
                                 <br/>
-                                <div id="followers-list">
-                                   @modules.followerCard()
-                                </div>
+                                @* The destinations cards *@
+                                @modules.followerCard()
+                                <div id="followersCardList"></div>
                             </div>
                         </div>
                         <!-- Followers tab -->

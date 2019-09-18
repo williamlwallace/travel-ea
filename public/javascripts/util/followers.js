@@ -115,3 +115,91 @@ function followToggle(type) {
         handler);
     undoRedo.sendAndAppend(reqData);
 }
+
+$("#following-summary").on('click', function() {
+    $("#following-modal").modal("show");
+    $("#following-tab").click();
+    const id = window.location.href.split("/").pop();
+    populateFollowingUsers(id);
+});
+
+$('#follower-summary').on('click', function() {
+    $("#following-modal").modal("show");
+    $("#follower-tab").click();
+});
+
+/**
+ * On click handler to change the selected buttons on followers tabs
+ */
+$('#dests-following-btn').on('click', function() {
+    document.getElementById('dests-following-btn').className = "btn btn-primary";
+    document.getElementById('users-following-btn').className = "btn btn-outline-primary";
+    const id = window.location.href.split("/").pop();
+    populateFollowingDestinations(id);
+
+});
+
+$('#users-following-btn').on('click', function() {
+    document.getElementById('users-following-btn').className = "btn btn-primary";
+    document.getElementById('dests-following-btn').className = "btn btn-outline-primary";
+    const id = window.location.href.split("/").pop();
+    populateFollowingUsers(id);
+});
+
+function populateFollowingUsers(userId) {
+    get(profileRouter.controllers.backend.ProfileController.getPaginatedFollowingUsers(
+        userId).url)
+    .then(response => {
+        response.json()
+        .then(followers => {
+            if (response.status !== 200) {
+                showErrors(followers);
+            } else {
+                createUserFollowerCard(followers.data);
+            }
+        });
+    });
+}
+
+function populateFollowingDestinations(userId) {
+    get(destinationRouter.controllers.backend.DestinationController.getDestinationsFollowedByUser(
+        userId).url)
+    .then(response => {
+        response.json()
+        .then(followers => {
+            if (response.status !== 200) {
+                showErrors(followers);
+            } else {
+                createDestinationFollowerCard(followers.data);
+            }
+        });
+    });
+}
+
+function createUserFollowerCard(users) {
+    $("#followersCardList").html("");
+    users.forEach((user) => {
+        const template = $("#followerCardTemplate").get(0);
+        const clone = template.content.cloneNode(true);
+
+        $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+        if (user.profilePhoto) {
+            $(clone).find("#picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
+        }
+        $("#followersCardList").get(0).appendChild(clone);
+    });
+}
+
+function createDestinationFollowerCard(destinations) {
+    $("#followersCardList").html("");
+    destinations.forEach((dest) => {
+        const template = $("#followerCardTemplate").get(0);
+        const clone = template.content.cloneNode(true);
+
+        $(clone).find("#name").append(dest.name);
+        if (dest.primaryPhoto) {
+            $(clone).find("#picture").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
+        }
+        $("#followersCardList").get(0).appendChild(clone);
+    });
+}

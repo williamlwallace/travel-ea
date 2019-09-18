@@ -159,6 +159,9 @@ pre {
     line-height: 1;
     margin-bottom: 0; /* might mess something up */
 }
+.title-text:hover {
+    cursor: default;
+}
 
 .title-text-wrap {
     max-width: 130rem;
@@ -177,7 +180,6 @@ pre {
     bottom: 0;
     width: auto;
     z-index: 10;
-    pointer-events: none;
 }
 
 .upload-btn-wrapper {
@@ -376,6 +378,11 @@ pre {
     margin-right: 10px;
 }
 
+.follow-div:hover {
+    cursor: pointer;
+    height: 9%;
+}
+
 .follow-count {
     font-size: 3rem;
     margin-bottom: 0;
@@ -385,6 +392,11 @@ pre {
 .follow-label {
     font-size: 0.85rem;
     display: block;
+}
+
+.follow-label:hover {
+    cursor: pointer;
+    height: 9%;
 }
 
 .follow-line {

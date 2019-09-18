@@ -24,6 +24,7 @@
 
 .follower-card {
     display: flex;
+    padding: 5px
 }
 
 /* Tab panel buttons */

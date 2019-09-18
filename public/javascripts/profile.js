@@ -19,7 +19,6 @@ $(document).ready(function() {
     getPictures();
     profileLoadTrips();
     $("#feed-tab").click();
-    $("#following-modal").modal("show");
 });
 
 
