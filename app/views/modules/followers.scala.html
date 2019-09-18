@@ -76,9 +76,9 @@ Id is the id of the relevant thing, ie destination or user*@
                                     <input type="text" id="search" placeholder="Search" class="form-control">
                                 </div>
                                 <br/>
-                                <div id="following-list">
-                                    No Followers
-                                </div>
+                                @* The destinations cards *@
+                                @modules.followerCard()
+                                <div id="followedByCardList"></div>
                             </div>
                         </div>
                     </div>
