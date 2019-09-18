@@ -35,12 +35,12 @@
                     <div>
                         <p id="summary_name" class="title-text"></p>
                         <div>
-                            <div class="follow-div">
+                            <div class="follow-div" id="following-summary">
                                 <p id="following-count" class="follow-count title-text"></p>
                                 <p class="follow-label title-text">Following</p>
                             </div>
                             <div class="follow-line"></div>
-                            <div class="follow-div">
+                            <div class="follow-div" id="follower-summary">
                                 <p id="followers-count" class="follow-count title-text"></p>
                                 <p class="follow-label title-text">Followers</p>
                             </div>
@@ -93,7 +93,7 @@
                     <!-- Body Content -->
                 <div class="col-12 col-md-9">
                     <div class="profile-main">
-
+                        @modules.followers(false)
                         @* Tabs *@
                         <ul class="nav" id="profile-tabs" role="tablist">
                             <li class="nav-item">
