@@ -1,18 +1,18 @@
 /**
  * Sets the follow button depending if you follow this user/destination or not
  *
- * @param type - Type of thing to follow/unfollow eg. "profile", "destination"
- * @param id - ID of object to follow/unfollow
+ * @param type is type of thing to follow/unfollow eg. "profile", "destination"
  */
-function loadFollowBtn(type, id) {
+function loadFollowBtn(type) {
     let followBtn =
-        "<button id=\"follow-btn\" class=\"btn btn-primary\" onclick=\"followToggle(type_, id)\">\n"
+        "<button id=\"follow-btn\" class=\"btn btn-primary\" onclick=\"followToggle(type_)\">\n"
         + "<i class=\"fas fa-user-friends\"></i>  Follow\n"
         + "</button>\n";
 
     let followingBtn =
-        "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle(type_, id)\">Following  <i class=\"fas fa-check\"></i></button>";
+        "<button id=\"following-btn\" class=\"btn btn-success\" onclick=\"followToggle(type_)\">Following  <i class=\"fas fa-check\"></i></button>";
 
+    const id = window.location.href.split("/").pop();
     getUserId().then(userId => {
         let url = null;
         if (type === "profile") {
@@ -90,10 +90,10 @@ function followerCountFormatter(num) {
 /**
  * Follow/unfollow a destination/user
  *
- * @param type - Type of thing to follow/unfollow eg. "profile", "destination"
- * @param id - ID of profile or destination object
+ * @param type is type of thing to follow/unfollow eg. "profile", "destination"
  */
-function followToggle(type, id) {
+function followToggle(type) {
+    const id = window.location.href.split("/").pop();
     let URL = null;
     if (type === "profile") {
         URL = userRouter.controllers.backend.UserController.toggleFollowerStatus(
@@ -107,7 +107,7 @@ function followToggle(type, id) {
             toast("Error", "Unable to toggle follow", "danger",
                 5000);
         } else {
-            loadFollowBtn(type, id);
+            loadFollowBtn(type);
             updateFollowerCount(id, type);
         }
     };
