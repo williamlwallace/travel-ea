@@ -380,13 +380,16 @@ pre {
 
 .follow-div:hover {
     cursor: pointer;
-    height: 9%;
 }
 
 .follow-count {
     font-size: 3rem;
     margin-bottom: 0;
     line-height: 0.8;
+}
+
+.follow-count:hover {
+    cursor: pointer;
 }
 
 .follow-label {
@@ -396,7 +399,6 @@ pre {
 
 .follow-label:hover {
     cursor: pointer;
-    height: 9%;
 }
 
 .follow-line {
