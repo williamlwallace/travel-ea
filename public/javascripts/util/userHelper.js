@@ -7,7 +7,7 @@ function getUserId() {
     if (value !== "") {
         return Promise.resolve(value);
     }
-    return get(userRouter.controllers.backend.UserController.setId().url)
+    return get('api/user/setid')
     .then(response => {
         //need access to response status, so cant return promise
         return response.json()

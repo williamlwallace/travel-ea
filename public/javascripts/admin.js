@@ -101,10 +101,6 @@ function getSearchQuery() {
     return $('#searchQuery').val();
 }
 
-/**
- * Creates a user card
- * @param {Object} user - Details of user to put in card
- */
 function createUserCard(user) {
     const template = $("#userCardTemplate").get(0);
     const clone = template.content.cloneNode(true);
@@ -134,9 +130,6 @@ function createUserCard(user) {
     $("#userCardsList").get(0).appendChild(clone);
 }
 
-/**
- * Gets results from user search and creates card objects
- */
 function getUserResults() {
     const url = new URL(
         userRouter.controllers.backend.UserController.userSearch().url,

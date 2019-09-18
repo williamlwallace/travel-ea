@@ -435,8 +435,7 @@ public class UserController extends TEABackController {
                 controllers.backend.routes.javascript.UserController.userSearch(),
                 controllers.backend.routes.javascript.UserController.getUser(),
                 controllers.backend.routes.javascript.UserController.getFollowerStatus(),
-                controllers.backend.routes.javascript.UserController.toggleFollowerStatus(),
-                controllers.backend.routes.javascript.UserController.setId()
+                controllers.backend.routes.javascript.UserController.toggleFollowerStatus()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }
