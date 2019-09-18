@@ -214,10 +214,11 @@ const NewsFeedEventTypes = {
  * @param {string} thumbnail address of thumbnail
  * @param {string} message event message
  * @param {string} time string timestamp
- * @param {number} eventId the guid of the event being displayed
+ * @param {number} eventIds the guids of the events being displayed
  */
-function createWrapperCard(thumbnail, message, time, eventId) {
-    eventId = 1; //TODO: remove when eventId is correctly send to frontend
+function createWrapperCard(thumbnail, message, time, eventIds) {
+    console.log(eventIds); //TODO handle cards with multiple events
+    const eventId = eventIds[0];
 
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
@@ -230,9 +231,23 @@ function createWrapperCard(thumbnail, message, time, eventId) {
     clone.find('.wrapper-date').text(time);
     const likeButton = clone.find('.likes-button');
     likeButton.attr('data-event-id', eventId);
-    likeButton.attr('data-liked', "false");
+    likeButton.attr('id', 'event-id-' + eventId);
 
-    likeButton.click(likeUnlikeEvent);
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
+    get(url)
+        .then(response => {
+            response.json()
+                .then(data => {
+                    if (response.status !== 200) {
+                        toast("Error", "Unable to get like status",
+                            "danger", 5000);
+                    } else {
+                        likeButton.attr('data-liked', data);
+                        updateLikeButton(likeButton, true);
+                    }
+                })
+        });
+    likeButton.click(function() {likeUnlikeEvent(eventId)});
 
     return clone;
 }
@@ -240,45 +255,58 @@ function createWrapperCard(thumbnail, message, time, eventId) {
 /**
  * Sends request to like and unlike events. Updates data attribute of liked
  * button to the result.
+ * @param {Number} eventId the id of the event to like/unlike
  */
-function likeUnlikeEvent() {
-    const eventLikeButton = $(this);
-    const likeCounter= eventLikeButton.next();
-    const setLiked = eventLikeButton.attr('data-liked') === "false";
-    //TODO send put request to the like endpoint for the event
-    //TODO change the follower count if needed
+function likeUnlikeEvent(eventId) {
+    const eventLikeButton = $("#event-id-" + eventId);
+    const likeCounter = eventLikeButton.next();
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
 
-    if (setLiked) {
-        eventLikeButton.attr('data-liked', "true");
-        likeCounter.text(parseInt(likeCounter.text()) + 1);
-    } else {
-        eventLikeButton.attr('data-liked', "false");
-        likeCounter.text(parseInt(likeCounter.text()) - 1);
-    }
+    const handler = (status, json) => {
+        if (status !== 200) {
+            toast("Error", "Unable to like event",
+                "danger", 5000);
+        } else {
+            if (json === "liked") {
+                eventLikeButton.attr('data-liked', "true");
+                likeCounter.text(parseInt(likeCounter.text()) + 1);
+            } else {
+                eventLikeButton.attr('data-liked', "false");
+                likeCounter.text(parseInt(likeCounter.text()) - 1);
+            }
+            updateLikeButton(eventLikeButton);
+        }
+    };
+    const reqData = new ReqData(requestTypes["TOGGLE"], url,
+        handler);
 
-    updateLikeButton(eventLikeButton);
+    undoRedo.sendAndAppend(reqData);
 }
 
 /**
  * Sets the like button style to be liked or unliked for a given event
  * @param {Object} eventLikeButton jquery object of target button
+ * @param {boolean} noAnimation set to true to disable flight animation, false by default, used for on first load
  */
-function updateLikeButton(eventLikeButton) {
+function updateLikeButton(eventLikeButton, noAnimation=false) {
     if (eventLikeButton.attr('data-liked') === "true") {
-        eventLikeButton.addClass("rotate-top");
-        setTimeout(() => {
-            eventLikeButton.removeClass("fas-in");
-            eventLikeButton.removeClass("rotate-top");
-            eventLikeButton.removeClass("far");
-            eventLikeButton.addClass("fas");
-            eventLikeButton.addClass("fas-in");
-        }, 500);
-        setTimeout(() => {
-            eventLikeButton.removeClass("fas-in");
-        }, 700);
+        if (!noAnimation) {
+            eventLikeButton.addClass("rotate-top");
+            setTimeout(() => {
+                eventLikeButton.removeClass("fas-in");
+                eventLikeButton.removeClass("rotate-top");
+                eventLikeButton.removeClass("far");
+                eventLikeButton.addClass("fas");
+                eventLikeButton.addClass("fas-in");
+            }, 500);
+            setTimeout(() => {
+                eventLikeButton.removeClass("fas-in");
+            }, 700);
 
+        } else {
+            eventLikeButton.addClass("fas");
+        }
     } else {
-        
         eventLikeButton.removeClass("fas");
         eventLikeButton.addClass("far");
         eventLikeButton.addClass("fas-in");
@@ -318,7 +346,7 @@ function createDestinationWrapperCard(event) {
                     </a>
                     ${event.message}`;
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created), event.id);
+        this.formatDate(event.created), event.eventIds);
 }
 
 /**
@@ -327,7 +355,6 @@ function createDestinationWrapperCard(event) {
  * @param {object} event newsfeed event item data
  */
 function createUserWrapperCard(event) {
-    const id = 1; //testing
     const message = `
         <a href="${"/profile/" + event.eventerId}"> 
             ${event.name}
@@ -335,7 +362,7 @@ function createUserWrapperCard(event) {
         ${event.message}`;
 
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created), event.id);
+        this.formatDate(event.created), event.eventIds);
 }
 
 /******************************
