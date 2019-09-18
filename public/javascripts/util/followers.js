@@ -65,11 +65,10 @@ function updateFollowerCount(id, type) {
                     let followingUsers = data.followingUsersCount;
                     let followingDests = data.followingDestinationsCount;
                     followers = data.followerUsersCount;
-                    followingUsers = followerCountFormatter(followingUsers);
-                    followingDests = followerCountFormatter(followingDests);
+                    let following = followerCountFormatter(followingUsers + followingDests);
 
                     // Set following count to be sum of followed users and destinations
-                    $('#following-count').html(followingUsers + followingDests);
+                    $('#following-count').html(following);
                 } else if (type === "destination") {
                     followers = data.followerCount;
                 }

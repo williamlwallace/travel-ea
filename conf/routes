@@ -139,6 +139,8 @@ GET           /api/user/:id/newsfeed                 controllers.backend.NewsFee
 PUT           /api/newsfeed/:id/like                 controllers.backend.NewsFeedController.toggleLikeStatus(request:Request, id:Long)
 
 GET           /api/newsfeed/:id/like                 controllers.backend.NewsFeedController.getLikeStatus(request:Request, id:Long)
+
+GET           /api/newsfeed/:id/likecount            controllers.backend.NewsFeedController.getLikeCount(request:Request, id:Long)
 # ~~~~~~frontend~~~~~~~
 # Start page
 GET           /                      controllers.frontend.ApplicationController.cover(request:Request)

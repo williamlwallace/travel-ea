@@ -46,7 +46,6 @@ class NewsFeed {
                     this.createCards(json.data);
                     this.pageNumber++;
                 }
-
             });
         });
     }

@@ -3,6 +3,8 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -387,8 +389,8 @@ public class NewsFeedController extends TEABackController {
      * Gets the like status of a news feed event.
      *
      * @param request Http request contains current users id
-     * @param eventId id of the user to like/unlike
-     * @return a result contain a Json of like or unlike
+     * @param eventId id of the event to like/unlike
+     * @return a result containing a Json object of liked or unliked
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getLikeStatus(Http.Request request, Long eventId) {
@@ -408,6 +410,26 @@ public class NewsFeedController extends TEABackController {
                             return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
                         }
                     });
+            }
+        });
+    }
+
+    /**
+     * Gets the number of likes on a news feed event.
+     *
+     * @param request Http request
+     * @param eventId id of the event to get like count of
+     * @return a result containing a Json object of the like count
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getLikeCount(Http.Request request, Long eventId) {
+        return newsFeedEventRepository.getEventLikeCounts(eventId).thenComposeAsync(count -> {
+            if (count == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                ObjectNode returnObject = new ObjectNode(new JsonNodeFactory(false));
+                returnObject.set("likeCount", Json.toJson(count));
+                return CompletableFuture.supplyAsync(() -> ok(returnObject));
             }
         });
     }
