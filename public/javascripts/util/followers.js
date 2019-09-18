@@ -121,6 +121,7 @@ $("#following-summary").on('click', function() {
     $("#following-tab").click();
     const id = window.location.href.split("/").pop();
     populateFollowingUsers(id);
+    populateFollowers(id);
 });
 
 $('#follower-summary').on('click', function() {
@@ -128,14 +129,15 @@ $('#follower-summary').on('click', function() {
     $("#follower-tab").click();
     const id = window.location.href.split("/").pop();
     populateFollowers(id);
+    populateFollowingUsers(id);
 });
 
 /**
  * On click handler to change the selected buttons to destination on the following tabs
  */
 $('#dests-following-btn').on('click', function() {
-    document.getElementById('dests-following-btn').className = "btn btn-primary";
-    document.getElementById('users-following-btn').className = "btn btn-outline-primary";
+    $('#dests-following-btn').attr('class', 'btn btn-primary');
+    $('#users-following-btn').attr('class', 'btn btn-outline-primary');
     const id = window.location.href.split("/").pop();
     populateFollowingDestinations(id);
 });
@@ -144,8 +146,8 @@ $('#dests-following-btn').on('click', function() {
  * On click handler to change the selected buttons to users on the following tabs
  */
 $('#users-following-btn').on('click', function() {
-    document.getElementById('users-following-btn').className = "btn btn-primary";
-    document.getElementById('dests-following-btn').className = "btn btn-outline-primary";
+    $('#dests-following-btn').attr('class', 'btn btn-outline-primary');
+    $('#users-following-btn').attr('class', 'btn btn-primary');
     const id = window.location.href.split("/").pop();
     populateFollowingUsers(id);
 });
@@ -219,7 +221,7 @@ function createUserFollowerCard(users) {
 
         $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
         if (user.profilePhoto) {
-            $(clone).find("#picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
+            $(clone).find("#follower-picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
         }
         $("#followersCardList").get(0).appendChild(clone);
     });
@@ -237,7 +239,7 @@ function createUserFollowedByCard(users) {
 
         $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
         if (user.profilePhoto) {
-            $(clone).find("#picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
+            $(clone).find("#follower-picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
         }
         $("#followedByCardList").get(0).appendChild(clone);
     });
@@ -255,7 +257,7 @@ function createDestinationFollowerCard(destinations) {
 
         $(clone).find("#name").append(dest.name);
         if (dest.primaryPhoto) {
-            $(clone).find("#picture").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
+            $(clone).find("#follower-picture").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
         }
         $("#followersCardList").get(0).appendChild(clone);
     });
