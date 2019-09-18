@@ -162,6 +162,23 @@ public class NewsFeedEventRepository {
                 , executionContext);
     }
 
+    /**
+     * Retrieves the number of likes a news feed event has
+     *
+     * @param eventId ID of the news feed event to retrieve likes count for
+     * @return A news feed event object with only the like count field populated
+     */
+    public CompletableFuture<Long> getEventLikeCounts(Long eventId) {
+
+        return supplyAsync(() -> {
+            return (long) ebeanServer.find(Likes.class)
+                .where()
+                .eq("event_id", eventId)
+                .findCount();
+
+        });
+    }
+
 
 
 }

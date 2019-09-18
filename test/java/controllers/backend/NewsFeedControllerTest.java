@@ -8,6 +8,7 @@ import static play.test.Helpers.PUT;
 import static play.test.Helpers.route;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 
 import org.junit.Before;
@@ -128,6 +129,50 @@ public class NewsFeedControllerTest extends controllers.backend.ControllersTest 
                 .readValue(Helpers.contentAsString(result), String.class);
 
         assertEquals("false", message);
+    }
+
+    @Test
+    public void getLikeCount() throws IOException {
+        // Create request to get the like count of news feed event
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/newsfeed/2/likecount");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check if content is correct
+        ObjectNode message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), ObjectNode.class);
+
+        Long count = new ObjectMapper()
+            .readValue(message.get("likeCount").toString(), Long.class);
+
+        assertEquals(1L, count.longValue());
+    }
+
+    @Test
+    public void getLikeCountInvalid() throws IOException {
+        // Create request to get the like count of news feed event
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/newsfeed/7/likecount");
+
+        // Get result and check it succeeded
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check if content is correct
+        ObjectNode message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), ObjectNode.class);
+
+        Long count = new ObjectMapper()
+            .readValue(message.get("likeCount").toString(), Long.class);
+
+        assertEquals(0L, count.longValue());
     }
 
 }

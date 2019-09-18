@@ -2307,6 +2307,33 @@ paths:
         '404':
           description: No such news feed event with ID found
 
+  '/newsfeed/{id}/likecount':
+    get:
+      tags:
+      - News Feed
+      summary: "Gets the like count of a news feed event"
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the news feed event we are checking the like count of.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: User not authenticated
+        '404':
+          description: No such news feed event with ID found
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
 components:
