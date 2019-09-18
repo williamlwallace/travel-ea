@@ -1,5 +1,5 @@
 $('#dismiss-modal').on('click', function () {
-    const progressBarHolder = $('#progressBarHolder')
+    const progressBarHolder = $('#progressBarHolder');
     progressBarHolder.attr('style', 'display:none;');
 
     $('#upload-modal').modal('hide');
@@ -48,33 +48,45 @@ $('#upload-img').on('click', function () {
             progressBarHolder.attr('style', 'display:block;height:32px');
             const percent = Math.round((e.loaded / e.total) * 100);
             progressBar.text(`${percent}%`);
-            progressBar.attr('style', `width:${percent}%;font-size:16px;height:32px;`);
+            progressBar.attr('style',
+                `width:${percent}%;font-size:16px;height:32px;`);
             progressBar.attr('aria-valuenow', percent);
             progressBar.attr('class', 'progress-bar');
         },
         () => { // End upload handler
-            progressBar.attr('class', 'progress-bar progress-bar-animated progress-bar-striped bg-success');
-            progressBar.html("Processing image, this may take a few seconds...");
+            progressBar.attr('class',
+                'progress-bar progress-bar-animated progress-bar-striped bg-success');
+            progressBar.html(
+                "Processing image, this may take a few seconds...");
             $('#modal-footer').prop('disabled', true);
         },
         (status, response) => { // On finished handler
             // Read response from server, which will be a json object
-            const data = JSON.parse(response);
             if (status === 201) {
-                fillGallery(getAllPhotosUrl, galleryId, pageId, mainGalleryPaginationHelper, () => {
-                    $('#upload-modal').modal('hide');
-                    progressBarHolder.attr('style', 'display:none');
-                    // Re-enable footer buttons
-                    $('#upload-img').prop('disabled', false);
-                    $('#dismiss-modal').prop('disabled', false);
-                });
+                fillGallery(getAllPhotosUrl, galleryId, pageId,
+                    mainGalleryPaginationHelper, () => {
+                        $('#upload-modal').modal('hide');
+                        progressBarHolder.attr('style', 'display:none');
+                        // Re-enable footer buttons
+                        $('#upload-img').prop('disabled', false);
+                        $('#dismiss-modal').prop('disabled', false);
+                        $('#upload-gallery-image-file').val('');
+                    });
 
                 toast("Photo Added!",
                     "The new photo will appear in the photo gallery",
                     "success");
-                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+                getAndFillDD(
+                    tagRouter.controllers.backend.TagController.getAllUserPhotoTags(
+                        profileId).url, ["tagFilter"], "name", false, "name");
+            } else {
+                progressBarHolder.attr('style', 'display:none');
+                $('#upload-img').prop('disabled', false);
+                $('#dismiss-modal').prop('disabled', false);
+                $('#upload-gallery-image-file').val('');
             }
         });
+
 });
 
 let usersPhotos = [];
@@ -94,13 +106,15 @@ function setProfileId(profileID) {
 /**
  * Function to filter gallery by tags
  */
-$('#tagFilter').on('change', function() {
+$('#tagFilter').on('change', function () {
     const tags = $(this).val();
     const galleryId = "main-gallery";
     const pageId = "page-selection";
 
-    fillGallery(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
-        profileId).url, galleryId, pageId, mainGalleryPaginationHelper, null, tags);
+    fillGallery(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, galleryId, pageId, mainGalleryPaginationHelper,
+        null, tags);
 
 });
 
@@ -115,7 +129,8 @@ $('#tagFilter').on('change', function() {
  * @param {function} callback Callback to run after gallery has filled
  * @param {Object} filters the list of tags to filter the gallery by
  */
-function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, callback=null, filters=null) {
+function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper,
+    callback = null, filters = null) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -148,7 +163,9 @@ function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, callback=null,
             }
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
 
-            if(callback !== null) { callback(); }
+            if (callback !== null) {
+                callback();
+            }
         });
     });
 }
@@ -162,7 +179,8 @@ function fillGallery(getPhotosUrl, galleryId, pageId, pageHelper, callback=null,
  * @param {Number} destinationId the id of the destination to link the photos to
  * @param {paginationHelper} pageHelper pagination helper for the specific gallery
  */
-function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHelper) {
+function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId,
+    pageHelper) {
     // Run a get request to fetch all users photos
     get(getPhotosUrl)
     // Get the response of the request
@@ -184,7 +202,8 @@ function fillLinkGallery(getPhotosUrl, galleryId, pageId, destinationId, pageHel
                         usersPhotos[i] = photos.data[i];
                     }
                     pageHelper.setTotalNumberOfPages(photos.totalNumberPages);
-                    const galleryObjects = createGalleryObjects(false, pageHelper, true,
+                    const galleryObjects = createGalleryObjects(false,
+                        pageHelper, true,
                         destinationId);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
@@ -226,7 +245,8 @@ function fillDestinationGallery(getDestinationPhotosUrl, getUserPhotosUrl,
                         }
                         usersPhotos[i] = destinationPhotos[i];
                     }
-                    const galleryObjects = createGalleryObjects(true, pageHelper);
+                    const galleryObjects = createGalleryObjects(true,
+                        pageHelper);
                     addPhotos(galleryObjects, $("#" + galleryId),
                         $('#' + pageId));
                 })
@@ -261,7 +281,8 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
                 usersPhotos.push(photo);
             }
             pageHelper.setTotalNumberOfPages(data.totalNumberPages);
-            const galleryObjects = createGalleryObjects(false, pageHelper, false, null, selectionFunction);
+            const galleryObjects = createGalleryObjects(false, pageHelper,
+                false, null, selectionFunction);
             addPhotos(galleryObjects, $("#" + galleryId), $('#' + pageId));
         });
     });
@@ -277,7 +298,8 @@ function fillSelectionGallery(getPhotosUrl, galleryId, pageId,
  * @param {function} clickFunction the function that will be called when a photo is clicked
  * @returns {Array} the array of photo gallery objects
  */
-function createGalleryObjects(hasFullSizeLinks, pageHelper, withLinkButton = false,
+function createGalleryObjects(hasFullSizeLinks, pageHelper,
+    withLinkButton = false,
     destinationId = null, clickFunction = null) {
     let galleryObjects = [];
     if (usersPhotos.length === 0) {
@@ -436,7 +458,8 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
         $(galleryId).html(galleryObjects[0]);
         baguetteBox.run('.tz-gallery', {
             captions: function (element) {
-                return `${$(element).attr('data-caption')} - ${$(element).attr('data-tags')}`;
+                return `${$(element).attr('data-caption')} - ${$(element).attr(
+                    'data-tags')}`;
             }
         });
         $('.img-wrap .close').on('click', function () {
