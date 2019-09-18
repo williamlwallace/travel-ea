@@ -1,6 +1,7 @@
 package models.strategies.destinations.user;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import models.Profile;
 import models.strategies.destinations.DestinationStrategy;
 import repository.DestinationRepository;
@@ -23,8 +24,8 @@ public abstract class UserDestinationStrategy extends DestinationStrategy {
      * @param profileRepository Reference to profile repository
      */
     public UserDestinationStrategy(Long destId, DestinationRepository destinationRepository,
-        Long userId, ProfileRepository profileRepository) {
-        super(destId, destinationRepository);
+        Long userId, ProfileRepository profileRepository, List<Long> eventIds) {
+        super(destId, destinationRepository, eventIds);
         this.userId = userId;
         this.profileRepository = profileRepository;
     }

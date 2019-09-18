@@ -8,40 +8,17 @@ let profileFeed;
  * Runs when the page is loaded. Initialises the paginationHelper object and
  * runs the getPictures method.
  */
-$(document).ready(function () {
+$(document).ready(function() {
     getUserId().then(userId => {
-        profileFeed = new NewsFeed(userId, 'profile-feed',
-            newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(
-                profileId).url);
+        profileFeed = new NewsFeed(userId, 'profile-feed', newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(profileId).url);
     });
-    paginationHelper = new PaginationHelper(1, 1, getPictures);
-    coverPhotoPaginationHelper = new PaginationHelper(1, 1, getCoverPictures,
-        'cover-photo-pagination');
-    profilePhotoPaginationHelper = new PaginationHelper(1, 1,
-        getProfilePicturesForGallery, 'profile-picture-pagination');
-    mainGalleryPaginationHelper = new PaginationHelper(1, 1, getPictures,
-        'main-gallery-pagination');
+    paginationHelper = new PaginationHelper(1, 1,  getPictures);
+    coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');
+    profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
+    mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
     getPictures();
     profileLoadTrips();
     $("#feed-tab").click();
-});
-
-/**
- * On click handler to change tab panel on profile page
- */
-$('#profile-tabs a').on('click', function (event) {
-    event.preventDefault();
-    $(this).tab('show');
-    let activeTab = $('#profile-tabs a.active').attr('id');
-    if (activeTab === "photos-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#main-gallery").offset().top
-        }, 500);
-    } else if (activeTab === "trips-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#tripCardsList").offset().top
-        }, 500);
-    }
 });
 
 /**

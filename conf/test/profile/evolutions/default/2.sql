@@ -24,6 +24,9 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date) VALUES (4, 'YA BOI', 'Jimmy', 'SKINNY P', '1997-10-19', 'Male', '2000-01-01');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender, creation_date, deleted) VALUES (6, 'YA BOI 2', 'Jimmy', 'SKINNY P', '1997-10-19', 'Male', '2000-01-01', 1);
 
+-- Add destinations
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 0);
+
 -- Add nationalities to profile
 INSERT INTO Nationality (user_id, country_id) VALUES (1, 1);
 INSERT INTO Nationality (user_id, country_id) VALUES (1, 2);
@@ -45,10 +48,24 @@ INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (2, 1);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (3, 2);
 INSERT INTO TravellerType (user_id, traveller_type_id) VALUES (4, 1);
 
+-- Add destinations
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8583, 2.2945, 1, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 1);
+INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES (1, 'The Eiffel Tower', 'Monument', 'Paris', 48.8586, 2.2947, 1, 1);
+
 -- Add followers to profiles
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 2);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 3);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (2, 1);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (4, 6);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (4, 3);
+
+-- Add followers to destinations
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 1);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 2);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 4);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (2, 1);
+INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (3, 1);
 
 -- !Downs
 DELETE FROM UsedTag;

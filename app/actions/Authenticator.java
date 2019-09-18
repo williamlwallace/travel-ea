@@ -66,7 +66,7 @@ public class Authenticator extends Action.Simple {
     }
 
     /**
-     * Action entry point. Should only let users pass that have benn authenticated to the correct
+     * Action entry point. Should only let users pass that have been authenticated to the correct
      * degree otherwise redirect or return forbidden
      *
      * @param request HTTP request
