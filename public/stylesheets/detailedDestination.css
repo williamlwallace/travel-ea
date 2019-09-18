@@ -325,3 +325,7 @@ section#timeline article:nth-child(n) div.inner h2:after {
 .tab-buttons {
     padding: 0 2.5rem 0 1.5rem;
 }
+
+.can-modify {
+    display: none;
+}
