@@ -216,7 +216,7 @@ function createTimeline(trip) {
             }
 
             $("#privacy-img").click(function () {
-                updateTripPrivacy(
+                updateTripPrivacy( 
                     tripRouter.controllers.backend.TripController.updateTripPrivacy().url,
                     "/assets/images/public.png", "/assets/images/private.png",
                     trip.id)

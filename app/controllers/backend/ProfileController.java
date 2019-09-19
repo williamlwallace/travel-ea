@@ -61,10 +61,7 @@ public class ProfileController extends TEABackController {
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
      * badRequest if profile already exists
      */
-    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-
         // Get profile data from request body and perform validation
         JsonNode data = request.body().asJson();
         ErrorResponse validatorResult = new UserValidator(data).profile();
@@ -74,10 +71,6 @@ public class ProfileController extends TEABackController {
         }
         else {
             Profile newProfile = Json.fromJson(data, Profile.class);
-
-            if (!user.id.equals(newProfile.userId) && !user.admin) {
-                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to create a profile for this user"));
-            }
 
             return profileRepository.findID(newProfile.userId).thenApplyAsync(profile -> {
                 // If a profile already exists for this user
@@ -215,6 +208,7 @@ public class ProfileController extends TEABackController {
      *
      * @param request Http request with auth data
      * @param profileId ID of user to get who they are following
+     * @param searchQuery Criteria that profile name must match
      * @param pageNum What page of data to return
      * @param pageSize Number of results per page
      * @param requestOrder What order of request this is
@@ -223,11 +217,37 @@ public class ProfileController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getPaginatedFollowingUsers(Http.Request request,
         Long profileId,
+        String searchQuery,
         Integer pageNum,
         Integer pageSize,
         Integer requestOrder) {
 
-        return profileRepository.getUserFollowingProfiles(profileId, pageNum, pageSize).thenApplyAsync(pagedResults ->
+        return profileRepository.getUserFollowingProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults ->
+            ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())))
+        );
+
+    }
+
+    /**
+     * Retrieves a paginated list of the users (profiles) that follow some user
+     *
+     * @param request Http request with auth data
+     * @param profileId ID of user to get who is following them
+     * @param searchQuery Criteria that profile name must match
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @param requestOrder What order of request this is
+     * @return Pagination response with profiles of users who follow this user
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getPaginatedFollowerUsers(Http.Request request,
+        Long profileId,
+        String searchQuery,
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
+
+        return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults ->
             ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())))
         );
 
@@ -245,7 +265,8 @@ public class ProfileController extends TEABackController {
                 controllers.backend.routes.javascript.ProfileController.searchProfilesJson(),
                 controllers.backend.routes.javascript.ProfileController.getProfile(),
                 controllers.frontend.routes.javascript.ProfileController.index(),
-                controllers.backend.routes.javascript.ProfileController.getPaginatedFollowingUsers()
+                controllers.backend.routes.javascript.ProfileController.getPaginatedFollowingUsers(),
+                controllers.backend.routes.javascript.ProfileController.getPaginatedFollowerUsers()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

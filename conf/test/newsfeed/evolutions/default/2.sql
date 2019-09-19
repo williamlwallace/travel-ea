@@ -52,9 +52,6 @@ INSERT INTO PendingDestinationPhoto (photo_guid, dest_id) VALUES (1, 2);
 -- Add followers to destinations
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 1);
 INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (1, 2);
-INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (2, 1);
-INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (3, 1);
-INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (3, 2);
 
 -- Add traveller types to destination
 INSERT INTO DestinationTravellerType(dest_id, traveller_type_definition_id) VALUES (1, 1);
@@ -78,7 +75,11 @@ INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES
 -- Add following of a destination for testing
 INSERT INTO FollowerDestination(destination_id, follower_id) VALUES (9, 2);
 
+-- Add like on news feed event for testing
+INSERT INTO Likes(event_id, user_id) VALUES (2, 1)
+
 -- !Downs
+DELETE FROM Likes;
 DELETE FROM NewsFeedEvent;
 DELETE FROM UsedTag;
 DELETE FROM PhotoTag;

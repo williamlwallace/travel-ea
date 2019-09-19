@@ -1195,7 +1195,6 @@ paths:
         '404':
           description: No such destination id found
 
-
     get:
       tags:
       - Destinations
@@ -1229,6 +1228,62 @@ paths:
           description: Forbidden
         '404':
           description: No such user id found
+
+  '/destination/{destinationId}/getFollowers':
+    get:
+      tags:
+      - Destinations
+      summary: Retrieves a paginated list of profiles following a destination
+      security:
+      - UserToken: []
+      parameters:
+      - in: path
+        name: destinationId
+        required: True
+        description: ID of destination to retrieve followers of
+        schema:
+          type: integer
+          minimum: 1
+          example: 34
+      - in: query
+        name: searchQuery
+        description: Profile name to search for (WHERE ('fName ' + 'mName ' + 'lname' LIKE searchQuery) OR ('fName ' + 'lname' LIKE searchQuery))
+        schema:
+          type: string
+          example: 'Matthew Mi'
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: he order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profile'
+        '400':
+          description: Not Found
+
 
   '/profile/getTravellerTypes/':
     get:
@@ -1480,6 +1535,61 @@ paths:
           description: Forbidden
         '404':
           description: No profile found for that user
+
+  '/profile/{userId}/getFollowingDestinations':
+    get:
+      tags:
+      - Profiles
+      summary: Retrieves a paginated list of destinations a uesr is following
+      security:
+      - UserToken: []
+      parameters:
+      - in: path
+        name: userId
+        required: True
+        description: ID of user to retrieve destinations they are following
+        schema:
+          type: integer
+          minimum: 1
+          example: 34
+      - in: query
+        name: searchQuery
+        description: Destination name to search for (WHERE ('name' LIKE searchQuery))
+        schema:
+          type: string
+          example: 'New Yo'
+      - in: query
+        name: pageNum
+        description: Number of page to view
+        schema:
+          type: integer
+          minimum: 1
+          example: 3
+      - in: query
+        name: pageSize
+        description: Number of results to show per page
+        schema:
+          type: integer
+          minimum: 1
+          example: 20
+      - in: query
+        name: requestOrder
+        description: he order this request was sent in, keeps track of which request is most recent, higher number is a request sent after a lower number
+        schema:
+          type: integer
+          minimum: 1
+          example: 5
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Destination'
+        '400':
+          description: Not Found
 
   '/user/{id}/admin':
     put:
@@ -2137,6 +2247,93 @@ paths:
         '401':
           description: User not authenticated
 
+  '/newsfeed/{id}/like':
+    put:
+      tags:
+      - News Feed
+      summary: Toggles a user's like status on a news feed event
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the news feed event being liked/unliked
+        schema:
+          type: integer
+          minimum: 1
+      responses:
+        '200':
+          description: 'Successfully toggled liked status of the news feed event'
+        '401':
+          description: User not authenticated
+        '404':
+          description: No such event id found
+
+    get:
+      tags:
+      - News Feed
+      summary: "Gets the like status (liked/unliked) of a news feed event for a user"
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the news feed event we are checking the like status of.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '401':
+          description: User not authenticated
+        '404':
+          description: No such news feed event with ID found
+
+  '/newsfeed/{id}/likecount':
+    get:
+      tags:
+      - News Feed
+      summary: "Gets the like count of a news feed event"
+      security:
+      - UserToken: []
+      parameters:
+      - in: header
+        name: JWT-Auth
+        required: true
+        description: Authentication cookie.
+        schema:
+          type: string
+      - in: path
+        name: id
+        required: true
+        description: The ID of the news feed event we are checking the like count of.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: User not authenticated
+        '404':
+          description: No such news feed event with ID found
 servers:
 - url: 'http://csse-s302g4.canterbury.ac.nz:8080/api'
 components:
@@ -2384,7 +2581,6 @@ components:
           description: Generated automatically when the destination is first uploaded
         user:
           $ref: '#/components/schemas/User'
-          description: The user that owns this destination. If marked as private, this will be whichever user uploaded the destination, otherwise if marked as public (and has been used by another user) then this will be the master admin.
         isPublic:
           type: boolean
           example: false

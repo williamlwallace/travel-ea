@@ -12,65 +12,65 @@ function populateDestinationDetails(destinationId) {
         response.json()
         .then(destination => {
             if (response.status !== 200) {
-                showErrors(destination);
+                return showErrors(destination);
+            };
+            canModify(destination.user.id);
+            document.getElementById(
+                "summary_name").innerText = destination.name;
+            document.getElementById(
+                "destination_name").innerText = destination.name;
+            document.getElementById(
+                "summary_type").innerText = destination.destType;
+            document.getElementById(
+                "summary_district").innerText = destination.district;
+            document.getElementById(
+                "summary_country").innerText = destination.country.name;
+            checkCountryValidity(destination.country.name,
+                destination.country.id)
+            .then(result => {
+                if (result === false) {
+                    document.getElementById(
+                        "summary_country").innerText = destination.country.name
+                        + ' (invalid)';
+                }
+            });
+            document.getElementById(
+                "summary_latitude").innerText = destination.latitude.toFixed(
+                2);
+            document.getElementById(
+                "summary_longitude").innerText = destination.longitude.toFixed(
+                2);
+
+            if (destination.travellerTypes.length > 0) {
+                let travellerTypes = "";
+                for (let i = 0; i < destination.travellerTypes.length;
+                    i++) {
+                    travellerTypes += ", "
+                        + destination.travellerTypes[i].description;
+                }
+                document.getElementById(
+                    "heading_traveller_types").style.display = "block";
+                document.getElementById(
+                    "summary_traveller_types").innerText = travellerTypes.substr(
+                    2);
             } else {
                 document.getElementById(
-                    "summary_name").innerText = destination.name;
+                    "heading_traveller_types").style.display = "none";
                 document.getElementById(
-                    "destination_name").innerText = destination.name;
-                document.getElementById(
-                    "summary_type").innerText = destination.destType;
-                document.getElementById(
-                    "summary_district").innerText = destination.district;
-                document.getElementById(
-                    "summary_country").innerText = destination.country.name;
-                checkCountryValidity(destination.country.name,
-                    destination.country.id)
-                .then(result => {
-                    if (result === false) {
-                        document.getElementById(
-                            "summary_country").innerText = destination.country.name
-                            + ' (invalid)';
-                    }
-                });
-                document.getElementById(
-                    "summary_latitude").innerText = destination.latitude.toFixed(
-                    2);
-                document.getElementById(
-                    "summary_longitude").innerText = destination.longitude.toFixed(
-                    2);
-
-                if (destination.travellerTypes.length > 0) {
-                    let travellerTypes = "";
-                    for (let i = 0; i < destination.travellerTypes.length;
-                        i++) {
-                        travellerTypes += ", "
-                            + destination.travellerTypes[i].description;
-                    }
-                    document.getElementById(
-                        "heading_traveller_types").style.display = "block";
-                    document.getElementById(
-                        "summary_traveller_types").innerText = travellerTypes.substr(
-                        2);
-                } else {
-                    document.getElementById(
-                        "heading_traveller_types").style.display = "none";
-                    document.getElementById(
-                        "summary_traveller_types").innerText = "";
-                }
-
-                // Populates tags
-                tagDisplay.populateTags(destination.tags);
-                if (destination.tags.length > 0) {
-                    document.getElementById(
-                        "heading_tags").style.display = "block";
-                } else {
-                    document.getElementById(
-                        "heading_tags").style.display = "none";
-                }
-
-                createPrivacyButton(destination.isPublic);
+                    "summary_traveller_types").innerText = "";
             }
+
+            // Populates tags
+            tagDisplay.populateTags(destination.tags);
+            if (destination.tags.length > 0) {
+                document.getElementById(
+                    "heading_tags").style.display = "block";
+            } else {
+                document.getElementById(
+                    "heading_tags").style.display = "none";
+            }
+
+            createPrivacyButton(destination.isPublic);
         })
     })
 }
@@ -92,6 +92,29 @@ function deleteDestination(destinationId, redirect) {
         destinationId).url;
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Shows details if logged in user has wrights to modify
+ *
+ * @param {number} userId userId of destination owner
+ */
+function canModify(userId) {
+    getUserId().then(loggedUserid => {
+        return (userId === loggedUserid || isUserAdmin());
+    })
+    .then(canModify => {
+        if (canModify) {
+            $(".can-modify").css("display", "inline");
+            $("#destinationTTButton").text("Edit Traveller Types");
+            $("#dest-primary-h4").text("Change Primary Photo");
+            $("#dest-tt-submit-button").text("Submit");
+        } else {
+            $("#destinationTTButton").text("Suggest Traveller Types");
+            $("#dest-primary-h4").text("Suggest Primary Photo");
+            $("#dest-tt-submit-button").text("Suggest changes");
+        }
+    });
 }
 
 /**
