@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test": "jest ./test/public",
-    "upload-photos": "node ./scripts/data-generation/upload_photos.js"
+    "upload-photos": "node ./scripts/data-generation/upload_photos.js",
+    "clear-storage": "bash ./scripts/clear-storage.sh"
   },
   "repository": {
     "type": "git",
