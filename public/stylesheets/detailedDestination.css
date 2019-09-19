@@ -32,6 +32,10 @@ div.destination {
     display: none;
 }
 
+.photoLink {
+    opacity: 0.5;
+}
+
 /**
  * The destination details on the left
  */
