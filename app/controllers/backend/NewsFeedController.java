@@ -483,7 +483,7 @@ public class NewsFeedController extends TEABackController {
                 controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.toggleLikeStatus(),
                 controllers.backend.routes.javascript.NewsFeedController.getLikeCount(),
-                controllers.backend.routes.javascript.NewsFeedController.getLikeStatus()
+                controllers.backend.routes.javascript.NewsFeedController.getLikeStatus(),
                 controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.getDestinationNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed()
