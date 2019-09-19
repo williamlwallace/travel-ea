@@ -407,7 +407,7 @@ $(document).ready(function() {
 });
 
 /**
- * On click handler to change tab panel on profile page
+ * On click handler to change tab panel on destination page
  */
 $('#dest-tabs a').on('click', function(event) {
     event.preventDefault();
@@ -636,6 +636,13 @@ function initMap(destinationId) {
                 };
 
                 map = new DestinationMap(options, false);
+                $("#map").click(function() {
+                    console.log("CLICKED");
+                    if ($('#destination-follower-summary:hover')) {
+                        console.log("HOVERING");
+                        displayDestinationFollowers();
+                    }
+                });
 
                 map.setNewMarker(
                     destination.latitude,
