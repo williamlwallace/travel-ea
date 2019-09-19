@@ -69,13 +69,38 @@ function postMultipart(postReq, form) {
     .then(res => {
         return res.json()
         .then(json => {
-            if (res.status !== 200) {
+            if (res.status === 201) {
+                console.log("sucess 1")
+                return setProfilePicture(postReq, json.userId, json.guid);
+            } else {
+                console.log('\n\n######Error######');
+                console.log("Failed to upload photo")
                 console.log(res.statusMessage);
                 console.log(res.status);
                 console.log(json);
+                console.log('\n');
                 return;
             }
-            console.log("success");
         });
+    });
+}
+
+function setProfilePicture(postReq, userId, photoId) {
+    return fetch(`http://${postReq.host}:${postReq.port}${postReq.path}/${userId}/profile`, {
+        method: 'put',
+        headers: postReq.headers,
+        body: photoId
+    })
+    .then(res => {
+        if (res.status !== 200) {
+            console.log('\n\n######Error######');
+            console.log("Failed to set to profile picture")
+            console.log(res.statusMessage);
+            console.log(res.status);
+            // res.json().then(json => console.log(json));
+            console.log('\n');
+        } else {
+            console.log("success 2");
+        }
     });
 }
