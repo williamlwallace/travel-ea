@@ -311,7 +311,20 @@ CREATE TABLE IF NOT EXISTS NewsFeedEvent
     PRIMARY KEY (guid)
   );
 
+-- Create Likes table for news feed events
+CREATE TABLE IF NOT EXISTS Likes
+(
+    guid              INT NOT NULL AUTO_INCREMENT,
+    event_id          INT NOT NULL,
+    user_id           INT NOT NULL,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
+    FOREIGN KEY (event_id) REFERENCES NewsFeedEvent(guid) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+);
+
 -- !Downs
+DROP TABLE Likes;
 DROP TABLE NewsFeedEvent;
 DROP TABLE UsedTag;
 DROP TABLE PhotoTag;

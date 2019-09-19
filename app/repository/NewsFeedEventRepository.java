@@ -120,6 +120,66 @@ public class NewsFeedEventRepository {
         });
     }
 
-    
+    /**
+     * Gets the Likes object from the database where the two given ids match the relevant columns
+     *
+     * @param eventId the id of the news feed event
+     * @param userId the id of the user likes
+     * @return the Likes object if it exists, null otherwise
+     */
+    public CompletableFuture<Likes> getLikes(Long eventId, Long userId) {
+        return supplyAsync(() ->
+                ebeanServer.find(Likes.class)
+                        .where().and(
+                        Expr.eq("event_id", eventId),
+                        Expr.eq("user_id", userId))
+                        .findOneOrEmpty()
+                        .orElse(null));
+    }
+
+    /**
+     * Inserts a news feed event - user id pair
+     *
+     * @param like the Likes object to add
+     * @return the guid of the inserted Likes object
+     */
+    public CompletableFuture<Long> insertLike(Likes like) {
+        return supplyAsync(() -> {
+            ebeanServer.insert(like);
+            return like.guid;
+        }, executionContext);
+    }
+
+    /**
+     * Deletes a news feed event - user id pair
+     *
+     * @param id guid of the Like to delete
+     * @return the number of rows that were deleted
+     */
+    public CompletableFuture<Long> deleteLike(Long id) {
+        return supplyAsync(() ->
+                        Long.valueOf(ebeanServer.delete(Likes.class, id))
+                , executionContext);
+    }
+
+    /**
+     * Retrieves the number of likes a news feed event has
+     *
+     * @param eventId ID of the news feed event to retrieve likes count for
+     * @return A news feed event object with only the like count field populated
+     */
+    public CompletableFuture<Long> getEventLikeCounts(Long eventId) {
+
+        return supplyAsync(() -> {
+            return (long) ebeanServer.find(Likes.class)
+                .where()
+                .eq("event_id", eventId)
+                .findCount();
+
+        });
+    }
+
+
+
 }
 

@@ -968,4 +968,27 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
             assertTrue(expectedFollowers.contains(profile.userId));
         }
     }
+
+    @Test
+    public void getDestinationsFollowedByUser() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/profile/1/getFollowingDestinations");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Long> expectedDestinations = Arrays.asList(1L, 2L, 3L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Destination> destinations =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Destination>>(){});
+
+        assertEquals(expectedDestinations.size(), destinations.data.size());
+
+        for (Destination destination : destinations.data) {
+            assertTrue(expectedDestinations.contains(destination.id));
+        }
+    }
 }

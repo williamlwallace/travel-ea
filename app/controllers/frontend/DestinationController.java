@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import views.html.destinations;
+import play.libs.Json;
 
 /**
  * This controller contains an action to handle HTTP requests to the application's destinations
@@ -50,35 +51,6 @@ public class DestinationController extends TEAFrontController {
     }
 
     /**
-     * Gets a Destination of selected id from api endpoint via get request.
-     *
-     * @param request the http request.
-     * @param destinationId the id of the destination to retrieve
-     * @return List of destinations wrapped in completable future
-     */
-    private CompletableFuture<Destination> getDestination(Http.Request request,
-        Long destinationId) {
-        String url = "http://" + request.host() + controllers.backend.routes.DestinationController
-            .getDestination(destinationId);
-        CompletableFuture<WSResponse> res = ws
-            .url(url)
-            .addHeader("Cookie",
-                String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
-            .get()
-            .toCompletableFuture();
-        return res.thenApply(r -> {
-            JsonNode json = r.getBody(WSBodyReadables.instance.json());
-            try {
-                return new ObjectMapper().readValue(new ObjectMapper().treeAsTokens(json),
-                    new TypeReference<Destination>() {
-                    });
-            } catch (Exception e) {
-                return new Destination();
-            }
-        });
-    }
-
-    /**
      * Displays a selected destinations details. Checks if the logged user is the destination owner
      * or an admin and sets permissions accordingly.
      *
@@ -87,18 +59,11 @@ public class DestinationController extends TEAFrontController {
      * @return displays the detailed destination page for the selected destination.
      */
     @With({Everyone.class, Authenticator.class})
-    public CompletableFuture<Result> detailedDestinationIndex(Http.Request request,
+    public Result detailedDestinationIndex(Http.Request request,
         Long destinationId) {
         User loggedUser = request.attrs().get(ActionState.USER);
-        return this.getDestination(request, destinationId).thenApplyAsync(destination -> {
-            if (destination.user == null) {
-                return notFound();
-            } else {
-                boolean canModify = loggedUser.id.equals(destination.user.id) || loggedUser.admin;
-                return ok(
-                    views.html.detailedDestination.render(destinationId, loggedUser, canModify));
-            }
-        }, httpExecutionContext.current());
+        return ok(
+            views.html.detailedDestination.render(destinationId, loggedUser));
     }
 
 }

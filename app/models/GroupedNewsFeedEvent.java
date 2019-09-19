@@ -8,4 +8,6 @@ public class GroupedNewsFeedEvent extends BaseNewsFeedEvent {
 
     public List<Long> refIds;
 
+    public List<Long> eventIds;
+
 }

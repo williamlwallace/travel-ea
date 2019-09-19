@@ -1,6 +1,7 @@
 package models.strategies.photos;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import javax.inject.Inject;
 import models.Photo;
 import models.strategies.NewsFeedStrategy;
@@ -19,7 +20,8 @@ public abstract class PhotoStrategy extends NewsFeedStrategy {
      * @param photoId The ID of the photo the event is referencing
      * @param photoRepository Instance of photoRepository
      */
-    public PhotoStrategy(Long photoId, PhotoRepository photoRepository) {
+    public PhotoStrategy(Long photoId, PhotoRepository photoRepository, List<Long> eventIds) {
+        super(eventIds);
         this.photoId = photoId;
         this.photoRepository = photoRepository;
     }

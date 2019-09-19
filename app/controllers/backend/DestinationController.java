@@ -787,10 +787,39 @@ public class DestinationController extends TEABackController {
                     .supplyAsync(() -> notFound("This destination does not exist"));
             }
 
-            return profileRepository.getUsersFollowingDestination(destId, searchQuery, pageNum, pageSize)
+            return profileRepository
+                .getUsersFollowingDestination(destId, searchQuery, pageNum, pageSize)
                 .thenApplyAsync(pagedFollowers ->
                     ok(Json.toJson(new PagingResponse<>(pagedFollowers.getList(), requestOrder,
                         pagedFollowers.getTotalPageCount())))
+                );
+        });
+    }
+
+    /**
+     * Retrieves a paged list of destinations followed by a user
+     *
+     * @param request Http request containing authentication information
+     * @param userId ID of user to retrieve following destinations of
+     * @param searchQuery Name of user searched by frontend
+     * @param pageNum Page number of results to retrieve
+     * @param pageSize Number of results to retrieve
+     * @param requestOrder Order of requests for use by frontend display
+     * @return If user exists, ok with PagingResponse of destinations, otherwise notFound
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationsFollowedByUser(Http.Request request,
+        Long userId, String searchQuery, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return userRepository.findID(userId).thenComposeAsync(user -> {
+            if (user == null) {
+                return CompletableFuture.supplyAsync(() -> notFound("This user does not exist"));
+            }
+
+            return destinationRepository
+                .getDestinationsFollowedByUser(userId, searchQuery, pageNum, pageSize)
+                .thenApplyAsync(pagedDestinations ->
+                    ok(Json.toJson(new PagingResponse<>(pagedDestinations.getList(), requestOrder,
+                        pagedDestinations.getTotalPageCount())))
                 );
         });
     }
@@ -838,8 +867,12 @@ public class DestinationController extends TEABackController {
                     .acceptDestinationPrimaryPhoto(),
                 controllers.backend.routes.javascript.DestinationController
                     .getAllDestinationsWithRequests(),
+                controllers.backend.routes.javascript.DestinationController.getFollowerStatus(),
+                controllers.backend.routes.javascript.DestinationController.toggleFollowerStatus(),
                 controllers.backend.routes.javascript.DestinationController
-                    .getDestinationFollowers()
+                    .getDestinationFollowers(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getDestinationsFollowedByUser()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

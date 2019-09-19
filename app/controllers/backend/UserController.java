@@ -17,10 +17,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.FollowerUser;
-import models.Profile;
 import models.Tag;
 import models.User;
-import org.h2.command.dml.Delete;
 import play.libs.Json;
 import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
@@ -435,7 +433,10 @@ public class UserController extends TEABackController {
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
                 controllers.backend.routes.javascript.UserController.userSearch(),
-                controllers.backend.routes.javascript.UserController.getUser()
+                controllers.backend.routes.javascript.UserController.getUser(),
+                controllers.backend.routes.javascript.UserController.getFollowerStatus(),
+                controllers.backend.routes.javascript.UserController.toggleFollowerStatus(),
+                controllers.backend.routes.javascript.UserController.setId()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

@@ -3,22 +3,27 @@
         <!-- Card Header -->
         <div class="wrapper-header row">
             <div class="col-md-1">
-                <img class="wrapper-picture" src="/assets/images/default-profile-picture.jpg"/>
+                <img class="wrapper-picture" src="/assets/images/default-profile-picture.jpg" onerror="this.src='/assets/images/default-profile-picture.jpg';"/>
             </div>
             <div class="col-md-9 wrapper-title"></div>
             <div class="col-md-2 wrapper-date"></div>
         </div>
         <div class="wrapper-line"></div>
         <!-- Card Body -->
-        <div class="row">
-            <div class="wrapper-body col-md-10 offset-md-1">
+        <div class="row wrapper-body-wrapper">
+            <div class="wrapper-body col-md-12">
             </div>
         </div>
         <div class="wrapper-line"></div>
         <!-- Card Footer -->
         <div class="wrapper-footer row">
-            <div class="wrapper-tags offset-md-1">
+            <div class="wrapper-tags offset-md-1 col-md-10">
                 <ul class="tags-display"></ul>
+            </div>
+
+            <div class="wrapper-likes offset-md-1">
+                <em class="likes-button upflight-icon far fa-paper-plane"></em>
+                <label class="likes-number" data-likes="0">0</label>
             </div>
         </div>
     </div>
