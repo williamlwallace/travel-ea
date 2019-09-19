@@ -89,7 +89,6 @@ class DestinationMap {
                     activeInfoWindow.close();
                 }
                 infoWindow.open(map, marker);
-                activeInfoWindow = infoWindow;
             });
         }
     }
