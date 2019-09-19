@@ -48,7 +48,7 @@ function sendPhoto(photo, postReq,  userId) {
             form.append('profilePhotoName', "profilepic.jpg");
             form.append('caption', '');
             form.append('userUploadId', userId);
-            form.append('tags', "[]");
+            form.append('tags', JSON.stringify([]));
             postMultipart(postReq, form).then(resolve);
         });
     });
@@ -86,10 +86,11 @@ function postMultipart(postReq, form) {
 }
 
 function setProfilePicture(postReq, userId, photoId) {
+    console.log(photoId);
     return fetch(`http://${postReq.host}:${postReq.port}${postReq.path}/${userId}/profile`, {
-        method: 'put',
-        headers: postReq.headers,
-        body: photoId
+        method: 'PUT',
+        headers: { ...postReq.headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify(photoId)
     })
     .then(res => {
         if (res.status !== 200) {
