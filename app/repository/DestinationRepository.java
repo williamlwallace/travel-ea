@@ -433,4 +433,90 @@ public class DestinationRepository {
                 , executionContext);
         }
     }
+
+    /**
+     * Gets the followerUser object from the database where the two given ids match the relevant columns
+     *
+     * @param destId the id of the destination which is being followed
+     * @param followerId the id of the user following
+     * @return the FollowUser object if it exists, null otherwise
+     */
+    public CompletableFuture<FollowerDestination> getFollower(Long destId, Long followerId) {
+        return supplyAsync(() ->
+            ebeanServer.find(FollowerDestination.class)
+                .where().and(
+                Expr.eq("destination_id", destId),
+                Expr.eq("follower_id", followerId))
+                .findOneOrEmpty()
+                .orElse(null));
+    }
+
+    /**
+     * Inserts a follower destination pair
+     *
+     * @param followerDestination the object to add
+     * @return the guid of the inserted followerUser
+     */
+    public CompletableFuture<Long> insertFollower(FollowerDestination followerDestination) {
+        return supplyAsync(() -> {
+            ebeanServer.insert(followerDestination);
+            return followerDestination.guid;
+        }, executionContext);
+    }
+
+    /**
+     * Deletes a destination follower pair
+     *
+     * @param id guid of the FollowerDestination to delete
+     * @return the number of rows that were deleted
+     */
+    public CompletableFuture<Long> deleteFollower(Long id) {
+        return supplyAsync(() ->
+                Long.valueOf(ebeanServer.delete(FollowerDestination.class, id))
+            , executionContext);
+    }
+
+    /**
+     * Retrieves the count of users following a destination
+     *
+     * @param destinationId ID of destination to retrieve follower count for
+     * @return Number of users following the destination
+     */
+    public CompletableFuture<Long> getDestinationFollowerCount(Long destinationId) {
+        return supplyAsync(() ->
+            Long.valueOf(ebeanServer.find(FollowerDestination.class)
+                .where()
+                .eq("destination_id", destinationId)
+                .findCount())
+            , executionContext);
+    }
+
+    /**
+     * Retrieves a paginated list of the destinations that a user is following
+     *
+     * @param userId ID of user to retrieve destinations followed by
+     * @param searchQuery Name of destination to filter from frontend
+     * @param pageNum What page of data to return
+     * @param pageSize Number of results per page
+     * @return Paged list of destinations found sorted by most followers
+     */
+    public CompletableFuture<PagedList<Destination>> getDestinationsFollowedByUser(Long userId,
+        String searchQuery, Integer pageNum, Integer pageSize) {
+
+        return supplyAsync(() -> {
+
+            String sql = "SELECT * FROM Destination "
+                + "WHERE id IN (SELECT destination_id FROM FollowerDestination "
+                + "WHERE follower_id=" + userId + ") "
+                + "AND LOWER(name) LIKE LOWER(:searchQuery) "
+                + "ORDER BY (SELECT COUNT(*) FROM FollowerDestination "
+                + "WHERE destination_id=Destination.id) desc";
+
+            return ebeanServer.findNative(Destination.class, sql)
+                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
+        });
+    }
 }

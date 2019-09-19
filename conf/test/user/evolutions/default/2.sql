@@ -8,10 +8,14 @@ INSERT INTO User (username, password, salt, admin, deleted) VALUES ('deleted@gma
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (2, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (3, 'Jimmy', 'Steve', 'Ben', '1486-11-05', 'Male');
 
 -- Add sample tags
 INSERT INTO Tag (name) VALUES ('Russia'), ('sports'), ('#TravelEA');
 INSERT INTO UsedTag (tag_id, user_id) VALUES (3, 1), (2, 1), (1, 1), (2, 2);
+
+-- Add a follower to first user
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (1,2);
 
 -- !Downs
 -- Now delete all rows from tables (DO THIS IN THE RIGHT ORDER, THIS MEANS REVERSE OF CREATION, DON'T MAKE MY MISTAKE)
@@ -27,6 +31,7 @@ DELETE FROM TripData;
 DELETE FROM Trip;
 DELETE FROM DestinationTravellerTypePending;
 DELETE FROM DestinationTravellerType;
+DELETE FROM FollowerUser;
 DELETE FROM Destination;
 DELETE FROM TravellerType;
 DELETE FROM TravellerTypeDefinition;

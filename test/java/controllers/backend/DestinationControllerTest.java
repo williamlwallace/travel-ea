@@ -32,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import models.CountryDefinition;
 import models.Destination;
+import models.Profile;
 import models.Tag;
 import models.TripData;
 import models.User;
@@ -104,14 +105,19 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void getDestinationById() {
-        Http.RequestBuilder request = Helpers.fakeRequest()
-            .method(GET)
-            .uri(DEST_URL_SLASH + "1");
+    public void getDestination() throws IOException {
+        // Retrieve destination and check response was OK
+        Destination destination = getDestination(1);
+        assertNotNull(destination);
 
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(OK, result.status());
+        // Check destination data is as expected
+        assertEquals("Eiffel Tower", destination.name);
+        assertEquals("Monument", destination.destType);
+        assertEquals("Paris", destination.district);
+        assertEquals(Double.valueOf(48.8583), destination.latitude);
+        assertEquals(Double.valueOf(2.2945), destination.longitude);
+        assertEquals(Long.valueOf(1), destination.country.id);
+        assertEquals(Long.valueOf(2), destination.followerCount);
     }
 
     @Test
@@ -766,7 +772,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void rejectPendingDestinaiton() throws IOException {
+    public void rejectPendingDestinaiton() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
@@ -777,7 +783,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void rejectPendingDestinaitonNotAdmin() throws IOException {
+    public void rejectPendingDestinaitonNotAdmin() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
@@ -788,7 +794,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void acceptPendingDestinaiton() throws IOException {
+    public void acceptPendingDestinaiton() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
@@ -799,7 +805,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void acceptPendingDestinaitonNotAdmin() throws IOException {
+    public void acceptPendingDestinaitonNotAdmin() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(nonAdminAuthCookie)
@@ -810,7 +816,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
-    public void acceptPendingDestinaitonNonExisting() throws IOException {
+    public void acceptPendingDestinaitonNonExisting() {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(PUT)
             .cookie(adminAuthCookie)
@@ -820,4 +826,169 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         assertEquals(NOT_FOUND, result.status());
     }
 
+    @Test
+    public void followDestinationValid() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "10/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("followed", message);
+    }
+
+    @Test
+    public void followDestinationInvalidDest() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "22/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+
+    }
+
+    @Test
+    public void followDestinationInvalidPrivateDest() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "2/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void unfollowDestinationValid() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + "9/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("unfollowed", message);
+    }
+
+    @Test
+    public void checkFollowingTrue() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "9/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+                .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("true", message);
+    }
+
+    @Test
+    public void checkFollowingFalse() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(adminAuthCookie)
+                .uri(DEST_URL_SLASH + "10/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        String message = new ObjectMapper()
+                .readValue(Helpers.contentAsString(result), String.class);
+
+        assertEquals("false", message);
+    }
+
+    @Test
+    public void checkFollowingPrivateDest() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "2/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void checkFollowingOwnDest() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "2/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void checkFollowingInvalidDest() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+                .method(GET)
+                .cookie(nonAdminAuthCookie)
+                .uri(DEST_URL_SLASH + "99/follow");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
+    }
+
+    @Test
+    public void getDestinationFollowers() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri(DEST_URL_SLASH + "1/getFollowers");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Long> expectedFollowers = Arrays.asList(1L, 2L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Profile> profiles =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Profile>>(){});
+
+        assertEquals(expectedFollowers.size(), profiles.data.size());
+
+        for (Profile profile : profiles.data) {
+            assertTrue(expectedFollowers.contains(profile.userId));
+        }
+    }
+
+    @Test
+    public void getDestinationsFollowedByUser() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/profile/1/getFollowingDestinations");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        List<Long> expectedDestinations = Arrays.asList(1L, 2L, 3L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        PagingResponse<Destination> destinations =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<PagingResponse<Destination>>(){});
+
+        assertEquals(expectedDestinations.size(), destinations.data.size());
+
+        for (Destination destination : destinations.data) {
+            assertTrue(expectedDestinations.contains(destination.id));
+        }
+    }
 }

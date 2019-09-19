@@ -10,7 +10,8 @@ let paginationHelper;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
+    paginationHelper = new PaginationHelper(1, 1, refreshData,
+        "pagination-destinations");
     const options = {
         zoom: 2.2,
         center: {lat: 0, lng: 0}
@@ -19,7 +20,9 @@ function onPageLoad(userId) {
     refreshData();
 
     google.maps.event.addListener(map.map, 'click', function (event) {
-        if (!map.creativeMode) return;
+        if (!map.creativeMode) {
+            return;
+        }
         if (map.newMarker) {
             map.newMarker.setPosition(event.latLng);
         } else {
@@ -82,11 +85,17 @@ function getAscending() {
  * @returns {object} Returns a promise of the get request sent
  */
 function getDestinations() {
-    const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
+    const url = new URL(
+        destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url,
+        window.location.origin);
 
     // Append non-list params
-    if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
-    if(getOnlyGetMine() !== "") { url.searchParams.append("onlyGetMine", getOnlyGetMine()); }
+    if (getSearchQuery() !== "") {
+        url.searchParams.append("searchQuery", getSearchQuery());
+    }
+    if (getOnlyGetMine() !== "") {
+        url.searchParams.append("onlyGetMine", getOnlyGetMine());
+    }
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
@@ -96,20 +105,22 @@ function getDestinations() {
     url.searchParams.append("requestOrder", requestOrder++);
 
     return get(url)
-        .then(response => {
-            return response.json()
-                .then(json => {
-                    if (response.status !== 200) {
-                        toast("Error with destinations", "Cannot load destinations", "danger")
-                    } else {
-                        if(lastRecievedRequestOrder < json.requestOrder) {
-                            lastRecievedRequestOrder = json.requestOrder;
-                            paginationHelper.setTotalNumberOfPages(json.totalNumberPages);
-                            return json;
-                        }
-                    }
-                });
+    .then(response => {
+        return response.json()
+        .then(json => {
+            if (response.status !== 200) {
+                toast("Error with destinations", "Cannot load destinations",
+                    "danger")
+            } else {
+                if (lastRecievedRequestOrder < json.requestOrder) {
+                    lastRecievedRequestOrder = json.requestOrder;
+                    paginationHelper.setTotalNumberOfPages(
+                        json.totalNumberPages);
+                    return json;
+                }
+            }
         });
+    });
 }
 
 /**
@@ -147,18 +158,22 @@ function createDestinationCards(dests) {
 
         $(clone).find("#card-header").append(dest.name);
         if (dest.primaryPhoto) {
-            console.log("../user_content/" + dest.primaryPhoto.thumbnailFilename);
-            $(clone).find("#card-thumbnail").attr("src", "../user_content/" + dest.primaryPhoto.thumbnailFilename);
+            $(clone).find("#card-thumbnail").attr("src",
+                "../user_content/" + dest.primaryPhoto.thumbnailFilename);
         }
-        $(clone).find("#district").append(dest.district ? dest.district : "No district");
+        $(clone).find("#district").append(
+            dest.district ? dest.district : "No district");
         $(clone).find("#country").append(dest.country.name);
-        $(clone).find("#destType").append(dest.destType ? dest.destType : "No type");
+        $(clone).find("#destType").append(
+            dest.destType ? dest.destType : "No type");
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
-        $(clone).find("#card-header").attr("id", dest.id.toString());
+        $(clone).find("#card-header").attr("id",
+            "destinationCard-" + dest.id.toString());
 
-        $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
-            location.href = '/destinations/' + $(this).data().id;
-        });
+        $($(clone).find('#destinationCard-' + dest.id.toString())).click(
+            function () {
+                location.href = '/destinations/' + $(this).data().id;
+            });
 
         dest.tags.forEach(item => {
             tags += item.name + ", ";
@@ -170,7 +185,8 @@ function createDestinationCards(dests) {
         });
         travellerTypes = travellerTypes.slice(0, -2);
 
-        $(clone).find("#travellerTypes").append(travellerTypes ? travellerTypes : "No traveller types");
+        $(clone).find("#destinatonCardTravellerTypes").append(
+            travellerTypes ? travellerTypes : "No traveller types");
         $(clone).find("#tags").append(tags ? tags : "No tags");
 
         $("#destinationCardList").get(0).appendChild(clone);
@@ -207,8 +223,14 @@ function addDestination(url, redirect, userId) {
     // Convert country id to country object
     data.country = {"id": data.countryId};
 
+    // Privacy
+    const destinationPrivacy = $('#destinationPrivacy').html();
+    data.isPublic = destinationPrivacy === "Public";
+
     const destinationTags = tagPicker.getTags();
-    data.tags = destinationTags.map((tag) => {return {name:tag}});
+    data.tags = destinationTags.map((tag) => {
+        return {name: tag}
+    });
 
     //Create response handler
     const handler = function (status, json) {
@@ -273,6 +295,7 @@ function resetDestinationModal() {
     document.getElementById("addDestinationForm").reset();
     tagPicker.clearTags();
     hideErrors("addDestinationForm");
+    $('#destinationPrivacyStatus').siblings('label').html('Private');
 }
 
 /**
@@ -326,6 +349,17 @@ function toggleDestinationForm() {
 }
 
 /**
+ * Toggles the privacy toggle button text between public and private.
+ */
+function toggleDestinationPrivacy() {
+    if ($('#destinationPrivacyStatus').is(':checked')) {
+        $('#destinationPrivacyStatus').siblings('label').html('Public');
+    } else {
+        $('#destinationPrivacyStatus').siblings('label').html('Private');
+    }
+}
+
+/**
  * On click listener for the create destinations cancel button
  */
 $('#CreateDestinationCancelButton').click(function () {
@@ -338,10 +372,9 @@ $('#CreateDestinationCancelButton').click(function () {
  */
 $('#createNewDestinationButton').click(function () {
     getUserId().then(userId => {
-        console.log(userId);
-            addDestination(
-                destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
-                "/", userId)
+        addDestination(
+            destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
+            "/", userId)
     });
 });
 

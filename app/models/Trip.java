@@ -46,7 +46,7 @@ public class Trip extends BaseModel implements Comparable<Trip>, Taggable {
     public Set<Tag> tags;
 
     /**
-     * Returns the set of tags associated with the object
+     * Returns the set of tags associated with the object.
      *
      * @return a set of Tags
      */
@@ -56,7 +56,7 @@ public class Trip extends BaseModel implements Comparable<Trip>, Taggable {
     }
 
     /**
-     * Returns the list of tags associated with the object
+     * Returns the list of tags associated with the object.
      *
      * @return a list of Tags
      */

@@ -45,7 +45,7 @@ function getAndCreateTrips(url, paginationHelper) {
                     $("#tripCardsList").html("");
                     tripsLastRecievedRequestOrder = json.requestOrder;
                     json.data.forEach((item) => {
-                        createTripCard(item);
+                        $("#tripCardsList").append(createTripCard(item));
                     });
 
                     $(".card-body").click((element) => {
@@ -93,7 +93,7 @@ function createTripCard(trip) {
     $(clone).find("#date").append(firstDate);
     $(clone).find(".title").attr("data-id", trip.id.toString());
 
-    $("#tripCardsList").get(0).appendChild(clone);
+    return $(clone);
 }
 
 let i = 0; // Global counter for carousel data-id
@@ -216,7 +216,7 @@ function createTimeline(trip) {
             }
 
             $("#privacy-img").click(function () {
-                updateTripPrivacy(
+                updateTripPrivacy( 
                     tripRouter.controllers.backend.TripController.updateTripPrivacy().url,
                     "/assets/images/public.png", "/assets/images/private.png",
                     trip.id)
@@ -239,6 +239,16 @@ function createTimeline(trip) {
                 deleteTrip(trip.id, trip.userId);
             });
         }
+
+        $("#copy-href").remove();
+        const copyButton = $(
+            "<a id=\"copy-href\"><button id=\"copyTrip\" type=\"button\" class=\"btn btn-primary\">Copy This Trip</button></a>");
+        $("#copy-trip-wrapper").append(copyButton);
+
+        $('#copy-href').click(function () {
+            $('#trip-modal').modal('toggle');
+            copyTrip(trip.id, currentUserId);
+        });
 
         const promises = [];
         for (let dest of trip.tripDataList) {
@@ -312,11 +322,39 @@ function deleteTrip(tripId, userId) {
 
         const getTripURL = tripRouter.controllers.backend.TripController.getAllTrips(
             userId).url;
-        getTripResults();
         $('#trip-modal').modal('hide');
+        if (window.location.href.includes("/profile/")) {
+            profileLoadTrips();
+        } else {
+            getTripResults();
+        }
     }.bind({initialDelete});
     const reqData = new ReqData(requestTypes["TOGGLE"], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Copies a trip
+ * @param {Number} tripId ID of the trip to copy
+ * @param {Number} userId ID of the user copying the trip
+ */
+function copyTrip(tripId, userId) {
+    const URL = tripRouter.controllers.backend.TripController.copyTrip(
+        tripId).url;
+    post(URL, {}).then(response => {
+        if (response.status !== 201) {
+            toast("Failed to copy trip", "danger");
+        } else {
+            toast("Successfully copied trip",
+                "The trip will now appear in your trips");
+        }
+        $('#trip-modal').modal('hide');
+        if (window.location.href.includes("/profile/")) {
+            profileLoadTrips();
+        } else {
+            getTripResults();
+        }
+    });
 }
 
 /**

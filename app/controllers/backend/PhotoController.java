@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,10 +26,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
+import models.NewsFeedEvent;
 import models.Photo;
-import models.User;
 import models.Tag;
-import java.time.LocalDateTime;
+import models.User;
+import models.enums.NewsFeedEventType;
 import play.libs.Files;
 import play.libs.Json;
 import play.mvc.Http;
@@ -37,6 +39,7 @@ import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
+import repository.NewsFeedEventRepository;
 import repository.PhotoRepository;
 import repository.ProfileRepository;
 import repository.TagRepository;
@@ -71,17 +74,20 @@ public class PhotoController extends TEABackController {
     private ProfileRepository profileRepository;
     private DestinationRepository destinationRepository;
     private TagRepository tagRepository;
+    private NewsFeedEventRepository newsFeedEventRepository;
 
     @Inject
     public PhotoController(DestinationRepository destinationRepository,
         PhotoRepository photoRepository,
         ProfileRepository profileRepository,
-        TagRepository tagRepository) {
+        TagRepository tagRepository,
+        NewsFeedEventRepository newsFeedEventRepository) {
 
         this.destinationRepository = destinationRepository;
         this.photoRepository = photoRepository;
         this.profileRepository = profileRepository;
         this.tagRepository = tagRepository;
+        this.newsFeedEventRepository = newsFeedEventRepository;
 
         // Create photo directories if none exist
         String directoryName = System.getProperty("user.dir");
@@ -188,7 +194,8 @@ public class PhotoController extends TEABackController {
                 if (photo == null) {
                     return CompletableFuture.supplyAsync(() -> notFound("Photo does not exist"));
                 } else if (!photo.userId.equals(loggedInUser.id) && !loggedInUser.admin) {
-                    return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to make this photo a profile picture"));
+                    return CompletableFuture.supplyAsync(() -> forbidden(
+                        "You do not have permission to make this photo a profile picture"));
                 }
 
                 // Store old profile photo ID to send in response
@@ -197,16 +204,25 @@ public class PhotoController extends TEABackController {
                 // Update profile photo and return previous profile photo ID
                 profile.profilePhoto = photo;
 
-                return profileRepository.updateProfile(profile).thenApplyAsync(profileId -> {
-                    if (oldProfilePhoto == null) {
-                        return ok(Json.newObject().nullNode());
-                    }
+                return profileRepository.updateProfile(profile).thenComposeAsync(profileId -> {
+                    // Create news feed event for profile update
+                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                    newsFeedEvent.userId = userId;
+                    newsFeedEvent.refId = photoId;
+                    newsFeedEvent.eventType = NewsFeedEventType.NEW_PROFILE_PHOTO.name();
 
-                    try {
-                        return ok(sanitizeJson(Json.toJson(oldProfilePhoto.guid)));
-                    } catch (IOException ex) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
+                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                        .thenApplyAsync(id -> {
+                            if (oldProfilePhoto == null) {
+                                return ok(Json.newObject().nullNode());
+                            }
+
+                            try {
+                                return ok(sanitizeJson(Json.toJson(oldProfilePhoto.guid)));
+                            } catch (IOException ex) {
+                                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            }
+                        });
                 });
             });
         });
@@ -235,9 +251,19 @@ public class PhotoController extends TEABackController {
         // Update cover photo, and get the prior photo id
         try {
             return profileRepository.updateCoverPhotoAndReturnExistingId(id, newPhotoId)
-                .thenApplyAsync(returnedId ->
-                    returnedId != null ? ok(Json.toJson(returnedId))
-                        : ok(Json.newObject().nullNode())
+                .thenComposeAsync(returnedId -> {
+                        // Create news feed event for profile update
+                        NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                        newsFeedEvent.userId = id;
+                        newsFeedEvent.refId = newPhotoId;
+                        newsFeedEvent.eventType = NewsFeedEventType.NEW_PROFILE_COVER_PHOTO.name();
+
+                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                            .thenApplyAsync(eventId ->
+                                returnedId != null ? ok(Json.toJson(returnedId))
+                                    : ok(Json.newObject().nullNode())
+                            );
+                    }
                 );
         } catch (NullPointerException e) {
             return CompletableFuture
@@ -339,7 +365,6 @@ public class PhotoController extends TEABackController {
         String[] photoCaptions =
             (formKeys.get(CAPTION) == null) ? new String[]{""} : formKeys.get(CAPTION);
 
-
         // Store photos in a list to allow them all to
         // be uploaded at the end if all are read successfully
         ArrayList<Pair<Photo, Http.MultipartFormData.FilePart<Files.TemporaryFile>>>
@@ -379,13 +404,15 @@ public class PhotoController extends TEABackController {
                     }
                 } else {
                     // If any uploads fail, return bad request immediately
-                    return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("Missing file")));
+                    return CompletableFuture
+                        .supplyAsync(() -> badRequest(Json.toJson("Missing file")));
                 }
             }
 
             // If no photos were actually found, and no other error has been thrown, throw it now
             if (photos.isEmpty()) {
-                return CompletableFuture.supplyAsync(() -> badRequest(Json.toJson("No files given")));
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest(Json.toJson("No files given")));
             } else {
                 try {
                     return saveMultiplePhotos(photos, loggedInUser, profilePhotoFilename != null);
@@ -437,9 +464,9 @@ public class PhotoController extends TEABackController {
             return photoRepository.addPhotos(photosToAdd, user).thenApplyAsync(addedPhotos -> {
                 // Return filename of photo that was just added
                 addedPhotos.get(0).thumbnailFilename =
-                        "../user_content/" + addedPhotos.get(0).thumbnailFilename;
+                    "../user_content/" + addedPhotos.get(0).thumbnailFilename;
                 addedPhotos.get(0).filename = "../user_content/" + addedPhotos.get(0).filename;
-                return  created(Json.toJson(addedPhotos.get(0)));
+                return created(Json.toJson(addedPhotos.get(0)));
             });
 
         } else {
@@ -624,15 +651,35 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> togglePhotoPrivacy(Http.Request request, Long id) {
+        User user = request.attrs().get(ActionState.USER);
+        Long currentUserId = user.id;
         return photoRepository.getPhotoById(id).thenComposeAsync(photo -> {
-            Photo existingPhoto = photo;
+            final Photo existingPhoto = photo;
+            final Boolean oldStatus;
             if (photo != null) {
                 photo.isPublic = !photo.isPublic;
+                oldStatus = existingPhoto.isPublic;
             } else {
                 return CompletableFuture.supplyAsync(Results::notFound);
             }
+            if (!oldStatus) {
+                // Photo was public, making it prrivate, no newsfeed event
+                return photoRepository.updatePhoto(photo)
+                    .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
+            }
             return photoRepository.updatePhoto(photo)
-                .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
+                .thenComposeAsync(rows -> {
+                    // Create news feed event for public photo added
+                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                    newsFeedEvent.userId = currentUserId;
+                    newsFeedEvent.refId = id;
+                    newsFeedEvent.eventType = NewsFeedEventType.UPLOADED_USER_PHOTO.name();
+
+                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                        .thenApplyAsync(eventId ->
+                            ok(Json.toJson(existingPhoto))
+                        );
+                });
         });
     }
 
@@ -676,10 +723,19 @@ public class PhotoController extends TEABackController {
                                     if (photo == null) {
                                         return CompletableFuture.supplyAsync(Results::notFound);
                                     }
+                                    //Link photo to destination
                                     destination.destinationPhotos.add(photo);
                                     return destinationRepository.updateDestination(destination)
-                                        .thenApplyAsync(
-                                            dest -> ok(Json.toJson("Succesfully Updated")));
+                                        .thenApplyAsync(dest -> {
+                                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                            newsFeedEvent.refId = photoId;
+                                            newsFeedEvent.destId = destId;
+                                            newsFeedEvent.userId = userId;
+                                            newsFeedEvent.eventType = NewsFeedEventType.LINK_DESTINATION_PHOTO.name();
+
+                                            newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent);
+                                            return ok(Json.toJson("Succesfully Updated"));
+                                        });
                                 }
                                 return CompletableFuture.supplyAsync(Results::notFound);
                             } else {
@@ -699,8 +755,7 @@ public class PhotoController extends TEABackController {
     }
 
     /**
-     * Gets destination photos based on logged in user.
-     * Desttination photos not currently paginated
+     * Gets destination photos based on logged in user. Desttination photos not currently paginated
      *
      * @param request Request containing authentication information
      * @param destId id of destination

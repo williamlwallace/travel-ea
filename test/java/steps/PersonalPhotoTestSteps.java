@@ -33,23 +33,26 @@ import util.objects.Pair;
 
 public class PersonalPhotoTestSteps {
 
+    private static final String API_USER_1_PHOTO = "/api/user/1/photo";
+
     @Given("I have no photos")
     public void i_have_no_photos() throws IOException {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result result = route(fakeApp, request);
         ObjectMapper mapper = new ObjectMapper();
-        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> response = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> photos = response.data;
 
         for (int i = 0; i < photos.size(); i++) {
-            System.out.println(photos.get(i).guid);
             Http.RequestBuilder deleteRequest = Helpers.fakeRequest()
                 .method(DELETE)
                 .cookie(adminAuthCookie)
@@ -62,13 +65,15 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder checkEmptyRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result checkEmptyResult = route(fakeApp, checkEmptyRequest);
 
         ObjectMapper newMapper = new ObjectMapper();
-        PagingResponse<Photo> emptyResponse =  newMapper.convertValue(mapper.readTree(Helpers.contentAsString(checkEmptyResult)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> emptyResponse = newMapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(checkEmptyResult)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> checkEmptyPhotos = emptyResponse.data;
@@ -119,14 +124,16 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result result = route(fakeApp, request);
         Assert.assertEquals(OK, result.status());
 
         ObjectMapper mapper = new ObjectMapper();
-        PagingResponse<Photo> response =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> response = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> photos = response.data;
@@ -140,7 +147,7 @@ public class PersonalPhotoTestSteps {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/user/1/photo");
+            .uri(API_USER_1_PHOTO);
 
         Result result = route(fakeApp, request);
         JsonNode photos = new ObjectMapper()

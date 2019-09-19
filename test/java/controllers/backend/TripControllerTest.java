@@ -2,9 +2,12 @@ package controllers.backend;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.CREATED;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.DELETE;
@@ -38,6 +41,10 @@ import play.test.Helpers;
 import util.objects.PagingResponse;
 
 public class TripControllerTest extends controllers.backend.ControllersTest {
+
+    private static final String GET_ADMIN_TRIPS = "/api/trip?userId=1";
+    private static final String API_TRIP = "/api/trip";
+    private static final String API_TRIP_1 = "/api/trip/1";
 
     /**
      * Runs evolutions before each test These evolutions are found in conf/test/(whatever), and
@@ -119,7 +126,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -142,7 +149,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result and check it was unsuccessful
         Result result = route(fakeApp, request);
@@ -165,7 +172,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result and check it was unsuccessful
         Result result = route(fakeApp, request);
@@ -192,7 +199,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result and check it was unsuccessful
         Result result = route(fakeApp, request);
@@ -225,7 +232,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -235,7 +242,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(GET)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri(API_TRIP_1);
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, result.status());
@@ -280,7 +287,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
@@ -317,7 +324,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -327,7 +334,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(GET)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri(API_TRIP_1);
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, result.status());
@@ -370,7 +377,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -380,7 +387,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(GET)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri(API_TRIP_1);
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, result.status());
@@ -420,7 +427,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -430,7 +437,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(GET)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri(API_TRIP_1);
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, result.status());
@@ -471,7 +478,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
@@ -494,7 +501,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result, check it was successful and retrieve trip ID
         Result insertResult = route(fakeApp, insertRequest);
@@ -516,7 +523,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
@@ -563,7 +570,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result, check it was successful and retrieve trip ID
         Result insertResult = route(fakeApp, insertRequest);
@@ -585,7 +592,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         Result result = route(fakeApp, request);
         assertEquals(BAD_REQUEST, result.status());
@@ -608,7 +615,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(PUT)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -673,6 +680,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Check destination 4 is public and owned by user 2
         Http.RequestBuilder initGetRequest = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
@@ -704,7 +712,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
             .method(POST)
             .bodyJson(node)
             .cookie(adminAuthCookie)
-            .uri("/api/trip");
+            .uri(API_TRIP);
 
         // Get result and check it was successful
         Result insertResult = route(fakeApp, insertRequest);
@@ -713,6 +721,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Check destination 4 is now owned by master admin and is public
         Http.RequestBuilder finalGetRequest = Helpers.fakeRequest()
             .method(GET)
+            .cookie(adminAuthCookie)
             .uri("/api/destination/4");
 
         // Get result and check it was successful
@@ -734,7 +743,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri(API_TRIP_1);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -758,7 +767,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder request = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/trip?userId=1");
+            .uri(GET_ADMIN_TRIPS);
 
         // Get result and check it was successful
         Result result = route(fakeApp, request);
@@ -865,7 +874,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/trip?userId=1");
+            .uri(GET_ADMIN_TRIPS);
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, getResult.status());
@@ -929,7 +938,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder getRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/trip?userId=1");
+            .uri(GET_ADMIN_TRIPS);
 
         Result getResult = route(fakeApp, getRequest);
         assertEquals(OK, getResult.status());
@@ -971,7 +980,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         Http.RequestBuilder checkDeletedRequest = Helpers.fakeRequest()
             .method(GET)
             .cookie(adminAuthCookie)
-            .uri("/api/trip/1");
+            .uri(API_TRIP_1);
 
         // Send request and check trip wasn't found
         Result checkDeletedResult = route(fakeApp, checkDeletedRequest);
@@ -1000,12 +1009,83 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
                 .method(POST)
                 .bodyJson(node)
                 .cookie(adminAuthCookie)
-                .uri("/api/trip");
+                .uri(API_TRIP);
 
             Result insertResult = route(fakeApp, insertRequest);
             statusesOk = (insertResult.status() == OK);
         }
 
         return statusesOk;
+    }
+
+    @Test
+    public void copyTrip() throws IOException {
+        Http.RequestBuilder getRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/2");
+
+        Result getResult = route(fakeApp, getRequest);
+        assertEquals(OK, getResult.status());
+
+        Trip originalTrip = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getResult), Trip.class);
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/2/copy");
+
+        Result result = route(fakeApp, request);
+        assertEquals(CREATED, result.status());
+
+        Long copiedTripId = new ObjectMapper()
+            .readValue(Helpers.contentAsString(result), Long.class);
+
+        Http.RequestBuilder getCopiedRequest = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip/" + copiedTripId);
+
+        Result getCopiedResult = route(fakeApp, getCopiedRequest);
+        assertEquals(OK, getCopiedResult.status());
+
+        Trip copiedTrip = new ObjectMapper()
+            .readValue(Helpers.contentAsString(getCopiedResult), Trip.class);
+
+        assertEquals((Long) 5L, copiedTrip.id);
+        assertNotEquals(originalTrip.id, copiedTrip.id);
+        assertFalse(copiedTrip.isPublic);
+        assertNotEquals(originalTrip.isPublic, copiedTrip.isPublic);
+        assertEquals((Long) 1L, copiedTrip.userId);
+        assertNotEquals(originalTrip.userId, copiedTrip.userId);
+
+        Long firstTripData = originalTrip.tripDataList.get(0).guid;
+
+        for (TripData tripData : copiedTrip.tripDataList) {
+            assert (tripData.guid > firstTripData);
+        }
+    }
+
+    @Test
+    public void copyTripForbidden() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip/1/copy");
+
+        Result result = route(fakeApp, request);
+        assertEquals(FORBIDDEN, result.status());
+    }
+
+    @Test
+    public void copyTripDoesNotExist() {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/trip/99999/copy");
+
+        Result result = route(fakeApp, request);
+        assertEquals(NOT_FOUND, result.status());
     }
 }

@@ -39,38 +39,6 @@ code {
     padding-bottom: 12px;
 }
 
-/**
-* Style for Primary button
- */
-.btn-primary {
-
-    background-color: #5283B7;
-    border-radius: 8px;
-    border: 2px solid #5283B7;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-}
-
-.btn-primary:hover {
-    background-color: white;
-    color: #5283B7;
-    border: 2px solid #5283B7;
-}
-
-.btn-popup {
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 2px solid #ebebeb;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-}
-
-.btn-popup:hover {
-    background-color: #ebebeb;
-    color: #000000;
-    border: 2px solid #cbcbcb;
-}
-
 .error-messages {
     color: #FF1133 !important;
     font-size: 12px;

@@ -25,19 +25,18 @@
 html,
 body {
   height: 100%;
-  background-color: #333;
+  background-color: #ffffff;
 }
 
 body {
   display: -ms-flexbox;
-  display: flex;
-  color: #fff;
-  text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
   box-shadow: inset 0 0 5rem rgba(0, 0, 0, .5);
 }
 
 .cover-container {
   max-width: 42em;
+  color: #fff;
+  text-shadow: 0 .05rem .1rem rgba(0, 0, 0, .5);
 }
 
 /*
@@ -157,4 +156,70 @@ div.field-container {
 .start-field-heading {
   padding-left: 2px;
   margin-bottom: 5px;
+}
+
+/* Formatting for the about page */
+
+.about-page {
+  text-shadow: none;
+  height: 100%;
+  color: black;
+  max-width: 1500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.circle-photo {
+  border-radius: 50%;
+  background: white;
+}
+
+.images {
+  padding-top: 30px;
+}
+
+h2 {
+  padding-top: 10px;
+}
+
+.description {
+  padding: 20px 20px 0 20px;
+  width: 400px;
+  align-items: center;
+  font-size: x-large;
+}
+
+.info {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 10px 80px 0 80px;
+}
+
+.about {
+  display: inline-block;
+  color: black;
+  font-size: 6rem;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.down-arrow {
+    height: 8%;
+    position: absolute;
+    top: 97%;
+    transform: translate(-50%, -50%);
+}
+
+.down-arrow:hover {
+    cursor: pointer;
+    height: 9%;
+}
+
+#get-started-btn {
+    color: #007bff;
+}
+
+#get-started-btn:hover {
+    text-decoration: underline;
+    cursor: pointer;
 }

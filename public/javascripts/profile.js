@@ -2,38 +2,29 @@ let coverPhotoPaginationHelper;
 let profilePhotoPaginationHelper;
 let mainGalleryPaginationHelper;
 let tripPaginationHelper;
+let profileFeed;
 
 /**
  * Runs when the page is loaded. Initialises the paginationHelper object and
  * runs the getPictures method.
  */
-$(document).ready(function() {
-    paginationHelper = new PaginationHelper(1, 1,  getPictures);
-    coverPhotoPaginationHelper = new PaginationHelper(1,1, getCoverPictures, 'cover-photo-pagination');
-    profilePhotoPaginationHelper = new PaginationHelper(1,1, getProfilePicturesForGallery, 'profile-picture-pagination');
-    mainGalleryPaginationHelper = new PaginationHelper(1,1, getPictures, 'main-gallery-pagination');
+$(document).ready(function () {
+    getUserId().then(userId => {
+        profileFeed = new NewsFeed(userId, 'profile-feed',
+            newsFeedRouter.controllers.backend.NewsFeedController.getProfileNewsFeed(
+                profileId).url);
+    });
+    coverPhotoPaginationHelper = new PaginationHelper(1, 1, getCoverPictures,
+        'cover-photo-pagination');
+    profilePhotoPaginationHelper = new PaginationHelper(1, 1,
+        getProfilePicturesForGallery, 'profile-picture-pagination');
+    mainGalleryPaginationHelper = new PaginationHelper(1, 1, getPictures,
+        'main-gallery-pagination');
     getPictures();
     profileLoadTrips();
     $("#feed-tab").click();
 });
 
-/**
- * On click handler to change tab panel on profile page
- */
-$('#profile-tabs a').on('click', function(event) {
-    event.preventDefault();
-    $(this).tab('show');
-    let activeTab = $('#profile-tabs a.active').attr('id');
-    if (activeTab === "photos-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#main-gallery").offset().top
-        }, 500);
-    } else if (activeTab === "trips-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#tripCardsList").offset().top
-        }, 500);
-    }
-});
 
 /**
  * Initializes trip table and calls method to populate
@@ -50,7 +41,9 @@ function profileLoadTrips() {
  * Gets url and sets id for populating trips
  */
 function getProfileTripResults() {
-    const url = new URL(tripRouter.controllers.backend.TripController.getAllTrips().url, window.location.origin);
+    const url = new URL(
+        tripRouter.controllers.backend.TripController.getAllTrips().url,
+        window.location.origin);
     url.searchParams.append("userId", profileId);
     getAndCreateTrips(url, tripPaginationHelper);
 }
@@ -58,63 +51,74 @@ function getProfileTripResults() {
 /**
  * The JavaScript method to fill the initial profile data
  *
- * @param {String} email the email of the logged in user, which may or may not be displayed
+ * @param {Number} userId - The id of the user being viewed
+ * permission to see that information, null if not
  */
-function fillProfileData(email) {
-    if (document.getElementById("summary_email")) {
-        document.getElementById("summary_email").innerText = email;
-    }
-    get(profileRouter.controllers.backend.ProfileController.getProfile(
-        profileId).url)
-    .then(response => {
-        response.json()
-        .then(profile => {
-            if (response.status !== 200) {
-                showErrors(profile);
-            } else {
-                document.getElementById(
-                    "summary_name").innerText = profile.firstName + ' '
-                    + profile.lastName;
-                document.getElementById(
-                    "summary_age").innerHTML = calc_age(
-                    Date.parse(profile.dateOfBirth));
-                document.getElementById(
-                    "summary_gender").innerText = profile.gender;
-                arrayToCountryString(profile.nationalities, 'name',
-                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
-                .then(out => {
-                    const nationalities = out.split(",");
-                    for (let i=0; i < nationalities.length; i++) {
-                        document.getElementById(
-                            "summary_nationalities").innerHTML += '<li>' + nationalities[i].trim() + '</li>';
-                    }
-                });
-                arrayToCountryString(profile.passports, 'name',
-                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
-                .then(out => {
-                    // If passports were cleared, update html text to None: Fix for Issue #36
-                    if (out === "") {
-                        document.getElementById("summary_passports").innerHTML = "None"
-                    } else {
-                        const passports = out.split(",");
-                        for (let i=0; i < passports.length; i++) {
+function fillProfileData(userId) {
+    getUser(userId).then(user => {
+        if (document.getElementById("summary_email") && user.username) {
+            document.getElementById("summary_email").innerText = user.username;
+        }
+        get(profileRouter.controllers.backend.ProfileController.getProfile(
+            profileId).url)
+        .then(response => {
+            response.json().then(profile => {
+                if (response.status !== 200) {
+                    showErrors(profile);
+                } else {
+                    document.getElementById(
+                        "summary_name").innerText = profile.firstName
+                        + ' '
+                        + profile.lastName;
+                    document.getElementById(
+                        "summary_age").innerHTML = calc_age(
+                        Date.parse(profile.dateOfBirth));
+                    document.getElementById(
+                        "summary_gender").innerText = profile.gender;
+                    arrayToCountryString(profile.nationalities, 'name',
+                        countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                    .then(out => {
+                        $("#summary_nationalities").html('');
+                        const nationalities = out.split(",");
+                        for (let i = 0; i < nationalities.length; i++) {
                             document.getElementById(
-                                "summary_passports").innerHTML += '<li>' + passports[i].trim() + '</li>';
+                                "summary_nationalities").innerHTML += '<li>'
+                                + nationalities[i].trim() + '</li>';
                         }
-                    }
-                });
-                arrayToString(profile.travellerTypes, 'description',
-                    profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
-                .then(out => {
-                    const travellerTypes = out.split(",");
-                    for (let i=0; i < travellerTypes.length; i++) {
-                        document.getElementById(
-                            "summary_travellerTypes").innerHTML += '<li>' + travellerTypes[i].trim() + '</li>';
-                    }
-                });
-            }
+                    });
+                    arrayToCountryString(profile.passports, 'name',
+                        countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                    .then(out => {
+                        // If passports were cleared, update html text to None: Fix for Issue #36
+                        if (out === "") {
+                            document.getElementById(
+                                "summary_passports").innerHTML = "None"
+                        } else {
+                            $("#summary_passports").html('');
+                            const passports = out.split(",");
+                            for (let i = 0; i < passports.length; i++) {
+                                document.getElementById(
+                                    "summary_passports").innerHTML += '<li>'
+                                    + passports[i].trim() + '</li>';
+                            }
+                        }
+                    });
+                    arrayToString(profile.travellerTypes, 'description',
+                        profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+                    .then(out => {
+                        $("#summary_travellerTypes").html('');
+                        const travellerTypes = out.split(",");
+                        for (let i = 0; i < travellerTypes.length;
+                            i++) {
+                            document.getElementById(
+                                "summary_travellerTypes").innerHTML += '<li>'
+                                + travellerTypes[i].trim() + '</li>';
+                        }
+                    });
+                }
+            })
         })
-    })
+    });
 }
 
 /**
@@ -131,6 +135,8 @@ function updateProfile(uri, redirect) {
         [pair[0]]: pair[1],
     }), {});
 
+    data["userId"] = profileId;
+
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
@@ -143,14 +149,15 @@ function updateProfile(uri, redirect) {
                 if (status !== 200) {
                     showErrors(json, "updateProfileForm");
                 } else {
-                    updateProfileData(this.data);
                     $("#editProfileModal").modal('hide');
                     toast("Profile Updated!",
                         "The updated information will be displayed on your profile");
+                    fillProfileData(profileId);
                 }
                 this.data = json;
             }.bind({data});
-            const reqData = new ReqData(requestTypes['UPDATE'], uri, handler,
+            const reqData = new ReqData(requestTypes['UPDATE'], uri,
+                handler,
                 data);
             undoRedo.sendAndAppend(reqData);
         });
@@ -198,16 +205,21 @@ function populateProfileData(uri) {
         return response.json();
     })
     .then(json => {
-        const pickMapper = function (id, item) {
-            $(`#${id}`).selectpicker('val', item.id);
+        //Id len is the length of the id for the select picker (3 for countries: "004")
+        const formatIds = function (idLen, itemList) {
+            return itemList.map(item => {
+                let stringId = "000000" + item.id.toString();
+                stringId = stringId.substr(stringId.length - idLen);
+                return stringId
+            });
         };
         //Maps the json data into the pickers
-        json.nationalities.map(pickMapper.bind(null, 'nationalities'));
-        json.passports.map(pickMapper.bind(null, 'passports'));
-        json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
-
+        $("#nationalities").selectpicker("val",
+            formatIds(3, json.nationalities));
+        $("#passports").selectpicker("val", formatIds(3, json.passports));
+        $("#travellerTypes").selectpicker("val",
+            formatIds(1, json.travellerTypes));
         $('#gender').selectpicker('val', json.gender);
-        //tagsPickerTags = json.tags;
     });
 }
 
@@ -223,8 +235,8 @@ let canDelete;
 
 /**
  * Sets the permissions used for creating the gallery
- * @param {User} loggedUser
- * @param {User} user
+ * @param {Object} loggedUser
+ * @param {Object} user
  */
 function setPermissions(loggedUser, user) {
     canEdit = (loggedUser === user);
@@ -279,33 +291,35 @@ function uploadProfilePicture() {
             profileId).url;
 
         postMultipartWithProgress(photoPostURL, formData,
-                (e) => { }, // Progress handler
-                (e) => { }, // End upload handler
-                (status, response) => { // On finished handler
-                    // Read response from server, which will be a json object
-                    const data = JSON.parse(response);
-                    if (status === 201) {
-                        const photoFilename = data["filename"];
-                        const photoId = data["guid"];
+            (e) => {
+            }, // Progress handler
+            (e) => {
+            }, // End upload handler
+            (status, response) => { // On finished handler
+                // Read response from server, which will be a json object
+                const data = JSON.parse(response);
+                if (status === 201) {
+                    const photoFilename = data["filename"];
+                    const photoId = data["guid"];
 
-                        $("#ProfilePicture").attr("src", photoFilename);
+                    $("#ProfilePicture").attr("src", photoFilename);
 
-                        // Create reversible request to update profile photo to this new photo
-                        const handler = (status, json) => {
-                            if (status === 200) {
-                                getProfileAndCoverPicture();
-                                toast("Changes saved!",
-                                    "Profile picture changes saved successfully");
-                            } else {
-                                toast("Error",
-                                    "Unable to update profile picture", "danger");
-                            }
-                        };
-                        const requestData = new ReqData(requestTypes["UPDATE"],
-                            profilePicUpdateURL, handler, photoId);
-                        undoRedo.sendAndAppend(requestData);
+                    // Create reversible request to update profile photo to this new photo
+                    const handler = (status, json) => {
+                        if (status === 200) {
+                            getProfileAndCoverPicture();
+                            toast("Changes saved!",
+                                "Profile picture changes saved successfully");
+                        } else {
+                            toast("Error",
+                                "Unable to update profile picture", "danger");
+                        }
+                    };
+                    const requestData = new ReqData(requestTypes["UPDATE"],
+                        profilePicUpdateURL, handler, photoId);
+                    undoRedo.sendAndAppend(requestData);
 
-                    }
+                }
             });
     });
 
@@ -380,7 +394,7 @@ function updatePhotoCaptionAndTags(guid) {
     const url = photoRouter.controllers.backend.PhotoController.updatePhotoDetails(
         guid).url;
     const initialUpdate = true;
-    const handler = function(status, json) {
+    const handler = function (status, json) {
         if (this.initialUpdate) {
             if (status !== 200) {
                 toast("Update failed", json, "danger", 5000);
@@ -393,8 +407,11 @@ function updatePhotoCaptionAndTags(guid) {
 
         if (status === 200) {
             $('[data-id="' + guid + '"]').attr("data-caption", caption);
-            getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
-            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+            getAndFillDD(
+                tagRouter.controllers.backend.TagController.getAllUserPhotoTags(
+                    profileId).url, ["tagFilter"], "name", false, "name");
+            fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection',
+                mainGalleryPaginationHelper);
 
         }
     }.bind({initialUpdate});
@@ -415,11 +432,14 @@ function deletePhoto(route) {
         response.json().then(data => {
             if (response.status === 200) {
                 $('#edit-modal').modal('hide');
-                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+                fillGallery(getAllPhotosUrl, 'main-gallery', 'page-selection',
+                    mainGalleryPaginationHelper);
                 toast("Picture deleted!",
                     "The photo will no longer be displayed in the gallery");
                 getProfileAndCoverPicture();
-                getAndFillDD(tagRouter.controllers.backend.TagController.getAllUserPhotoTags(profileId).url, ["tagFilter"], "name", false, "name");
+                getAndFillDD(
+                    tagRouter.controllers.backend.TagController.getAllUserPhotoTags(
+                        profileId).url, ["tagFilter"], "name", false, "name");
                 undoRedo.undoStack.clear();
                 undoRedo.redoStack.clear();
                 updateUndoRedoButtons();
@@ -485,11 +505,14 @@ function getProfileAndCoverPicture() {
  * Retrieves the users pictures. Then uses them to fill the gallery.
  */
 function getPictures() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", mainGalleryPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'main-gallery', 'page-selection', mainGalleryPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        mainGalleryPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'main-gallery', 'page-selection',
+        mainGalleryPaginationHelper);
 }
-
 
 /**
  * Sets the users cover photo given a specific photoID
@@ -557,11 +580,15 @@ $("#editProfilePictureButton").click(function () {
  * is paginated
  */
 function getCoverPictures() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", coverPhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillSelectionGallery(url, "cover-photo-gallery", "current-page", function () {
-        setCoverPhoto(this.getAttribute("data-id"))
-    }, coverPhotoPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        coverPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "cover-photo-gallery", "current-page",
+        function () {
+            setCoverPhoto(this.getAttribute("data-id"))
+        }, coverPhotoPaginationHelper);
 }
 
 /**
@@ -569,7 +596,11 @@ function getCoverPictures() {
  * is paginated
  */
 function getProfilePicturesForGallery() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", profilePhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture', profilePhotoPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        profilePhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillGallery(url, 'profile-gallery', 'page-selection-profile-picture',
+        profilePhotoPaginationHelper);
 }

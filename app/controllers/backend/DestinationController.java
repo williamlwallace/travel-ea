@@ -13,20 +13,26 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Destination;
+import models.FollowerDestination;
+import models.NewsFeedEvent;
 import models.User;
+import models.enums.NewsFeedEventType;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.DestinationRepository;
-import repository.TagRepository;
+import repository.NewsFeedEventRepository;
 import repository.PhotoRepository;
+import repository.ProfileRepository;
+import repository.TagRepository;
 import repository.TravellerTypeDefinitionRepository;
-import util.objects.PagingResponse;
 import repository.UserRepository;
+import util.objects.PagingResponse;
 import util.validation.DestinationValidator;
 import util.validation.ErrorResponse;
 
@@ -42,19 +48,25 @@ public class DestinationController extends TEABackController {
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final PhotoRepository photoRepository;
+    private final NewsFeedEventRepository newsFeedEventRepository;
+    private final ProfileRepository profileRepository;
 
 
     @Inject
     public DestinationController(DestinationRepository destinationRepository,
         TravellerTypeDefinitionRepository travellerTypeDefinitionRepository, WSClient ws,
         TagRepository tagRepository, UserRepository userRepository,
-        PhotoRepository photoRepository) {
+        PhotoRepository photoRepository, NewsFeedEventRepository newsFeedEventRepository,
+        ProfileRepository profileRepository) {
+
         this.destinationRepository = destinationRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
         this.ws = ws;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
         this.photoRepository = photoRepository;
+        this.newsFeedEventRepository = newsFeedEventRepository;
+        this.profileRepository = profileRepository;
     }
 
     /**
@@ -94,15 +106,56 @@ public class DestinationController extends TEABackController {
             }
         }
 
+        // Find all similar destinations that need to be merged and collect only their IDs
+        List<Long> similarIds = destinations.stream().map(x -> x.id)
+            .collect(Collectors.toList());
+
+        // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
+        // TripData
+        int rowsChanged = destinationRepository
+            .mergeDestinationsTripData(similarIds, newDestination.id);
+        // Photos
+        rowsChanged += destinationRepository
+            .mergeDestinationsPhotos(similarIds, newDestination.id);
+
+        // If any rows were changed when re-referencing, the destination
+        // has been used by another user and must be transferred to admin ownership
+        if (rowsChanged > 0) {
+            destinationRepository.changeDestinationOwner(newDestination.id, MASTER_ADMIN_ID);
+        }
+
+        // Once all old usages have been re-referenced, delete the found similar destinations
+        for (Long simId : similarIds) {
+            destinationRepository.deleteDestination(simId);
+        }
+
         return tagRepository.addTags(newDestination.tags).thenComposeAsync(existingTags -> {
             userRepository.updateUsedTags(user, newDestination);
             newDestination.tags = existingTags;
             return destinationRepository.addDestination(newDestination)
-                .thenApplyAsync(id -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(id)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                .thenComposeAsync(id -> {
+                    if (newDestination.isPublic) {
+                        NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                        newsFeedEvent.refId = id;
+                        newsFeedEvent.userId = user.id;
+                        newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_DESTINATION.name();
+
+                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                            .thenApplyAsync(eventId -> {
+                                try {
+                                    return ok(sanitizeJson(Json.toJson(id)));
+                                } catch (IOException e) {
+                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                                }
+                            });
+                    } else {
+                        return CompletableFuture.supplyAsync(() -> {
+                            try {
+                                return ok(sanitizeJson(Json.toJson(id)));
+                            } catch (IOException e) {
+                                return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            }
+                        });
                     }
                 });
         });
@@ -121,18 +174,21 @@ public class DestinationController extends TEABackController {
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> makeDestinationPublic(Http.Request request, Long id) {
         User user = request.attrs().get(ActionState.USER);
-        return destinationRepository.getDestination(id).thenApplyAsync(destination -> {
+        return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             // Check for 404, i.e the destination to make public doesn't exist
             if (destination == null) {
-                return notFound(Json.toJson("No such destination exists"));
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
             }
             // Check if user owns the destination (or is an admin)
             if (!destination.user.id.equals(user.id) && !user.admin) {
-                return forbidden(Json.toJson("You are not allowed to perform this action"));
+                return CompletableFuture.supplyAsync(
+                    () -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
             // Check if destination was already public
             if (destination.isPublic) {
-                return badRequest(Json.toJson("Destination was already public"));
+                return CompletableFuture
+                    .supplyAsync(() -> badRequest(Json.toJson("Destination was already public")));
             }
 
             destinationRepository.setDestinationToPublicInDatabase(destination.id);
@@ -162,8 +218,20 @@ public class DestinationController extends TEABackController {
                 destinationRepository.deleteDestination(simId);
             }
 
-            return ok("Successfully made destination public, and re-referenced " + rowsChanged
-                + " to new public destination");
+            // Create news feed event for updating destination
+            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+            newsFeedEvent.userId = user.id;
+            newsFeedEvent.refId = destination.id;
+            newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name();
+
+            final int rows = rowsChanged;
+            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                .thenApplyAsync(
+                    eventId -> ok(Json.toJson(
+                        "Successfully made destination public, and re-referenced " + rows
+                            + " to new public destination"))
+                );
+
         });
     }
 
@@ -236,11 +304,22 @@ public class DestinationController extends TEABackController {
                         userRepository.updateUsedTags(user, destination, editedDestination);
                         editedDestination.tags = existingTags;
                         return destinationRepository.updateDestination(editedDestination)
-                            .thenApplyAsync(updatedDestination -> {
-                                try {
-                                    return ok(sanitizeJson(Json.toJson(destination)));
-                                } catch (IOException e) {
-                                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                            .thenComposeAsync(updatedDestination -> {
+                                if (updatedDestination.isPublic) {
+                                    // Create news feed event for updating destination
+                                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                    newsFeedEvent.userId = user.id;
+                                    newsFeedEvent.refId = updatedDestination.id;
+                                    newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION
+                                        .name();
+
+                                    return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                        .thenApplyAsync(
+                                            eventId -> ok(Json.toJson(destination))
+                                        );
+                                } else {
+                                    return CompletableFuture
+                                        .supplyAsync(() -> ok(Json.toJson(destination)));
                                 }
                             });
                     });
@@ -347,7 +426,6 @@ public class DestinationController extends TEABackController {
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> toggleRejectTravellerType(Http.Request request, Long destId,
         Long travellerTypeId) {
-        User user = request.attrs().get(ActionState.USER);
         return destinationRepository.getDestination(destId).thenComposeAsync(dest -> {
             if (dest == null) {
                 return CompletableFuture.supplyAsync(() -> notFound(Json.toJson(DEST_NOT_FOUND)));
@@ -405,7 +483,8 @@ public class DestinationController extends TEABackController {
                             () -> notFound(Json.toJson("Photo with provided ID not found")));
                     }
 
-                    JsonNode oldPhoto = (destination.primaryPhoto == null) ? Json.toJson(0) : Json.toJson(destination.primaryPhoto.guid);
+                    JsonNode oldPhoto = (destination.primaryPhoto == null) ? Json.toJson(0)
+                        : Json.toJson(destination.primaryPhoto.guid);
 
                     // Currently a photo can only be set/requested to set as the destination primary
                     // photo by the owner of the photo or an admin. This is because if a user requests
@@ -416,7 +495,8 @@ public class DestinationController extends TEABackController {
                     // photo or an admin to set/request the photo to become destination primary photo.
 
                     // If user is destination owner and photo owner, or if user is admin, set the photo
-                    if ((destination.user.id.equals(user.id) && (photo == null || photo.userId.equals(user.id)))
+                    if ((destination.user.id.equals(user.id) && (photo == null || photo.userId
+                        .equals(user.id)))
                         || user.admin) {
                         destination.primaryPhoto = photo;
                         if (destination.hasPhotoPending(photoId)) {
@@ -427,8 +507,16 @@ public class DestinationController extends TEABackController {
                     else if (photo == null || photo.userId.equals(user.id)) {
                         // If request already exists
                         if (destination.hasPhotoPending(photoId)) {
-                            return CompletableFuture
-                                .supplyAsync(() -> ok(Json.toJson(oldPhoto)));
+                            // Create a new news feed event in the database
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.destId = destination.id;
+                            newsFeedEvent.refId = photoId;
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO
+                                .name();
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                .thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+
                         } else {
                             destination.addPendingDestinationProfilePhoto(photoId);
                         }
@@ -437,7 +525,17 @@ public class DestinationController extends TEABackController {
                             "You do not have permission to set this photo as the destination primary photo")));
                     }
                     return destinationRepository.updateDestination(destination)
-                        .thenApplyAsync(rows -> ok(Json.toJson(oldPhoto)));
+                        .thenComposeAsync(rows -> {
+                            // Create a new news feed event in the database
+                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                            newsFeedEvent.destId = destination.id;
+                            newsFeedEvent.refId = photoId;
+                            newsFeedEvent.eventType = NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO
+                                .name();
+
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                .thenApplyAsync(eventId -> ok(Json.toJson(oldPhoto)));
+                        });
                 });
         });
     }
@@ -473,11 +571,13 @@ public class DestinationController extends TEABackController {
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
             if (destination == null || !destination.removePendingDestinationPrimaryPhoto(photoId)) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("No pending photo destination combo")));
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("No pending photo destination combo")));
             } else {
                 return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
                     if (photo == null) {
-                        return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Photo not found")));
+                        return CompletableFuture
+                            .supplyAsync(() -> notFound(Json.toJson("Photo not found")));
                     }
                     JsonNode oldDestination = Json.toJson(destination);
                     destination.primaryPhoto = photo;
@@ -506,28 +606,39 @@ public class DestinationController extends TEABackController {
     }
 
     /**
-     * Gets a destination with a given id. Returns a json with destination object.
+     * Gets a destination with a given id. Returns json of destination object.
      *
-     * @param getId ID of wanted destination
-     * @return OK with a destination, notFound if destination does not exist
+     * @param destinationId ID of wanted destination
+     * @return OK with destination in response or appropriate error code
      */
-    public CompletableFuture<Result> getDestination(long getId) {
-        return destinationRepository.getDestination(getId).thenApplyAsync(destination -> {
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestination(Http.Request request, Long destinationId) {
+        User user = request.attrs().get(ActionState.USER);
+        return destinationRepository.getDestination(destinationId).thenComposeAsync(destination -> {
             if (destination == null) {
-                return notFound(Json.toJson(getId));
-            } else {
-                try {
-                    return ok(sanitizeJson(Json.toJson(destination)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("This destination does not exist"));
+            } else if (!destination.isPublic && !user.id.equals(destination.user.id)
+                && !user.admin) {
+                return CompletableFuture.supplyAsync(
+                    () -> forbidden("You do not have permission to retrieve this destination"));
             }
+
+            return destinationRepository.getDestinationFollowerCount(destination.id)
+                .thenApplyAsync(followerCount -> {
+                    destination.followerCount = followerCount;
+                    try {
+                        return ok(sanitizeJson(Json.toJson(destination)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
         });
     }
 
     /**
-     * Gets a paged list of destinations that are visible to the currently logged in user
-     * This means any public destinations, or private destinations that they own
+     * Gets a paged list of destinations that are visible to the currently logged in user This means
+     * any public destinations, or private destinations that they own
      *
      * @param request Http request
      * @param searchQuery Query to search all fields for
@@ -557,29 +668,160 @@ public class DestinationController extends TEABackController {
         Long userId = request.attrs().get(ActionState.USER).id;
 
         // Constrain sortBy to a set, default to creation date
-        if(sortBy == null ||
-            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude", "country.name").contains(sortBy)) {
+        if (sortBy == null ||
+            !Arrays.asList("id", "user_id", "name", "type", "district", "latitude", "longitude",
+                "country.name").contains(sortBy)) {
             sortBy = "id";
         }
 
-        return destinationRepository.getPagedDestinations(userId, searchQuery, onlyGetMine, sortBy, ascending, pageNum, pageSize)
-            .thenApplyAsync(destinations -> ok(Json.toJson(new PagingResponse<>(destinations.getList(), requestOrder, destinations.getTotalPageCount()))));
+        return destinationRepository
+            .getPagedDestinations(userId, searchQuery, onlyGetMine, sortBy, ascending, pageNum,
+                pageSize)
+            .thenApplyAsync(destinations -> ok(Json.toJson(
+                new PagingResponse<>(destinations.getList(), requestOrder,
+                    destinations.getTotalPageCount()))));
     }
 
     /**
      * Gets all the destination traveller type modification request
-     *
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> getAllDestinationsWithRequests(Http.Request request) {
         return destinationRepository.getAllDestinationsWithRequests()
-                .thenApplyAsync(destinations -> {
-                    try {
-                        return ok(sanitizeJson(Json.toJson(destinations)));
-                    } catch (IOException e) {
-                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                    }
-                });
+            .thenApplyAsync(destinations -> {
+                try {
+                    return ok(sanitizeJson(Json.toJson(destinations)));
+                } catch (IOException e) {
+                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                }
+            });
+    }
+
+    /**
+     * Toggles the status whether the current user follows a destination with given id
+     *
+     * @param request Http request contains current users id
+     * @param destId id of the destination to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> toggleFollowerStatus(Http.Request request, Long destId) {
+        Long followerId = request.attrs().get(ActionState.USER).id;
+
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId)) {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            } else {
+                return destinationRepository.getFollower(destId, followerId)
+                    .thenComposeAsync(followerDestination -> {
+                        if (followerDestination == null) {
+                            FollowerDestination newFollowerDestination = new FollowerDestination();
+                            newFollowerDestination.followerId = followerId;
+                            newFollowerDestination.destinationId = destId;
+                            return destinationRepository.insertFollower(newFollowerDestination)
+                                .thenApplyAsync(guid ->
+                                    ok(Json.toJson("followed")));
+                        } else {
+                            return destinationRepository.deleteFollower(followerDestination.guid)
+                                .thenApplyAsync(delete ->
+                                    ok(Json.toJson("unfollowed")));
+                        }
+                    });
+
+            }
+        });
+
+    }
+
+    /**
+     * Gets the following status of the user for a destination
+     *
+     * @param request Http request contains current users id
+     * @param destId id of the destination to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getFollowerStatus(Http.Request request, Long destId) {
+        Long followerId = request.attrs().get(ActionState.USER).id;
+
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else if (!destination.isPublic && !destination.user.id.equals(followerId)) {
+                return CompletableFuture.supplyAsync(Results::forbidden);
+            } else {
+                return destinationRepository.getFollower(destId, followerId)
+                    .thenComposeAsync(followerDestination -> {
+                        if (followerDestination == null) {
+                            //Not following
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                        } else {
+                            //Following
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                        }
+                    });
+            }
+        });
+
+    }
+
+    /**
+     * Retrieves a paged list of profiles following a destination
+     *
+     * @param request Http request containing authentication information
+     * @param destId ID of destination to retrieve followers for
+     * @param searchQuery Name of user searched by frontend
+     * @param pageNum Page number of results to retrieve
+     * @param pageSize Number of results to retrieve
+     * @param requestOrder Order of requests for use by frontend display
+     * @return If destination exists, ok with PagingResponse, otherwise notFound
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationFollowers(Http.Request request, Long destId,
+        String searchQuery, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
+            if (destination == null) {
+                return CompletableFuture
+                    .supplyAsync(() -> notFound("This destination does not exist"));
+            }
+
+            return profileRepository
+                .getUsersFollowingDestination(destId, searchQuery, pageNum, pageSize)
+                .thenApplyAsync(pagedFollowers ->
+                    ok(Json.toJson(new PagingResponse<>(pagedFollowers.getList(), requestOrder,
+                        pagedFollowers.getTotalPageCount())))
+                );
+        });
+    }
+
+    /**
+     * Retrieves a paged list of destinations followed by a user
+     *
+     * @param request Http request containing authentication information
+     * @param userId ID of user to retrieve following destinations of
+     * @param searchQuery Name of user searched by frontend
+     * @param pageNum Page number of results to retrieve
+     * @param pageSize Number of results to retrieve
+     * @param requestOrder Order of requests for use by frontend display
+     * @return If user exists, ok with PagingResponse of destinations, otherwise notFound
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationsFollowedByUser(Http.Request request,
+        Long userId, String searchQuery, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return userRepository.findID(userId).thenComposeAsync(user -> {
+            if (user == null) {
+                return CompletableFuture.supplyAsync(() -> notFound("This user does not exist"));
+            }
+
+            return destinationRepository
+                .getDestinationsFollowedByUser(userId, searchQuery, pageNum, pageSize)
+                .thenApplyAsync(pagedDestinations ->
+                    ok(Json.toJson(new PagingResponse<>(pagedDestinations.getList(), requestOrder,
+                        pagedDestinations.getTotalPageCount())))
+                );
+        });
     }
 
     /**
@@ -617,10 +859,20 @@ public class DestinationController extends TEABackController {
                 controllers.backend.routes.javascript.DestinationController
                     .toggleRejectTravellerType(),
                 controllers.backend.routes.javascript.DestinationController.addNewDestination(),
-                controllers.backend.routes.javascript.DestinationController.changeDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.rejectDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.acceptDestinationPrimaryPhoto(),
-                controllers.backend.routes.javascript.DestinationController.getAllDestinationsWithRequests()
+                controllers.backend.routes.javascript.DestinationController
+                    .changeDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController
+                    .rejectDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController
+                    .acceptDestinationPrimaryPhoto(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getAllDestinationsWithRequests(),
+                controllers.backend.routes.javascript.DestinationController.getFollowerStatus(),
+                controllers.backend.routes.javascript.DestinationController.toggleFollowerStatus(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getDestinationFollowers(),
+                controllers.backend.routes.javascript.DestinationController
+                    .getDestinationsFollowedByUser()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

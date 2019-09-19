@@ -32,11 +32,15 @@ public class UserValidator extends Validator {
      * @return ErrorResponse object
      */
     public ErrorResponse profile() {
-        if(this.required("firstName", "First Name")){
+        if (!this.required("userId", "User ID")) {
+            this.getErrorResponse().map("ID of user must be provided", "other");
+        }
+
+        if (this.required("firstName", "First Name")){
             this.maxTextLength("firstName", "First Name", 64);
         }
         this.maxTextLength("middleName", "Middle Name", 64);
-        if(this.required("lastName", "Last Name")){
+        if (this.required("lastName", "Last Name")){
             this.maxTextLength("lastName", "Last Name", 64);
         }
 

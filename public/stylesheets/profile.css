@@ -310,10 +310,10 @@ section#timeline article:nth-child(2n+2) div.inner h2:after {
     left: -5px;
 }
 section#timeline article:nth-child(n) div.inner h2 {
-    background: #5283B7;
+    background: #107DF1;
 }
 section#timeline article:nth-child(n) div.inner h2:after {
-    background: #5283B7;
+    background: #107DF1;
 }
 section#timeline a {
     color: #FFFFFF;
@@ -347,6 +347,9 @@ section#timeline a {
 .profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
 .profile-nav-text{font-weight: 600; font-size: 22px}
 
+#profile-tabs{
+    max-width: 70rem;
+}
 
 .tab-buttons {
     padding: 0 2.5rem 0 1.5rem;
@@ -375,4 +378,8 @@ section#timeline a {
 
 .tripsFilterCard {
     max-width: 36rem;
+}
+
+#feed {
+    padding: 2rem 6rem 0 6rem;
 }

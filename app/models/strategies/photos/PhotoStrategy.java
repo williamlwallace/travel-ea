@@ -1,6 +1,7 @@
 package models.strategies.photos;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.List;
 import javax.inject.Inject;
 import models.Photo;
 import models.strategies.NewsFeedStrategy;
@@ -12,15 +13,17 @@ public abstract class PhotoStrategy extends NewsFeedStrategy {
     private Long photoId;
 
     // Reference to photo repo singleton for fetching photo data
-    @Inject
-    private PhotoRepository photoRepository;
+    protected PhotoRepository photoRepository;
 
     /**
      * Constructor to instantiate new photo related strategy
      * @param photoId The ID of the photo the event is referencing
+     * @param photoRepository Instance of photoRepository
      */
-    public PhotoStrategy(Long photoId) {
+    public PhotoStrategy(Long photoId, PhotoRepository photoRepository, List<Long> eventIds) {
+        super(eventIds);
         this.photoId = photoId;
+        this.photoRepository = photoRepository;
     }
 
     /**

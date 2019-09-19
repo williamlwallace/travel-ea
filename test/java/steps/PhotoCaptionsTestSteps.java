@@ -63,8 +63,10 @@ public class PhotoCaptionsTestSteps {
         assertEquals(200, result.status());
 
         ObjectMapper mapper = new ObjectMapper();
-        PagingResponse<Photo> pagedResponse =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
-            new TypeReference<PagingResponse<Photo>>(){});
+        PagingResponse<Photo> pagedResponse = mapper
+            .convertValue(mapper.readTree(Helpers.contentAsString(result)),
+                new TypeReference<PagingResponse<Photo>>() {
+                });
 
         // Deserialize result to list of photos
         List<Photo> response = pagedResponse.data;

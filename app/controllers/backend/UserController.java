@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import models.FollowerUser;
 import models.Tag;
 import models.User;
 import play.libs.Json;
@@ -26,6 +27,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
+import repository.ProfileRepository;
 import repository.UserRepository;
 import util.CryptoManager;
 import util.objects.PagingResponse;
@@ -44,14 +46,18 @@ public class UserController extends TEABackController {
     private static final String IS_ADMIN = "Is-Admin";
     private static final String ERR_OTHER = "other";
     private final UserRepository userRepository;
+    private final ProfileRepository profileRepository;
     private final HttpExecutionContext httpExecutionContext;
     private final Config config;
 
     @Inject
     public UserController(UserRepository userRepository,
+        ProfileRepository profileRepository,
         HttpExecutionContext httpExecutionContext,
         Config config) {
+
         this.userRepository = userRepository;
+        this.profileRepository = profileRepository;
         this.httpExecutionContext = httpExecutionContext;
         this.config = config;
     }
@@ -88,7 +94,7 @@ public class UserController extends TEABackController {
     }
 
     /**
-     * Delete a users account.
+     * Delete the logged in users account.
      *
      * @param request HTTP request
      * @return Ok if user successfully deleted, bad request if no such user found
@@ -107,32 +113,37 @@ public class UserController extends TEABackController {
      */
     @With({Admin.class, Authenticator.class})
     public CompletableFuture<Result> deleteOtherUser(Http.Request request, Long userId) {
-        if (userId != MASTER_ADMIN_ID) { //make sure master user not deleted
-            return deleteUserHelper(userId);
-        } else {
-            return CompletableFuture
-                .supplyAsync(() -> badRequest(Json.toJson("Cannot delete Master user")));
-        }
+        return deleteUserHelper(userId);
     }
 
     /**
      * Delete a user with given uid helper function.
      *
      * @param userId ID of user to delete
-     * @return Ok if user successfully deleted, bad request if no such user found
+     * @return Ok if user soft delete successfully toggled, otherwise appropriate error message
+     * returned
      */
     private CompletableFuture<Result> deleteUserHelper(Long userId) {
         return userRepository.findDeletedID(userId).thenComposeAsync(user -> {
             if (user == null) {
+                return CompletableFuture.supplyAsync(() -> notFound("No user with such uid found"));
+            } else if (userId == MASTER_ADMIN_ID) {
                 return CompletableFuture
-                    .supplyAsync(() -> badRequest("No user with such uid found"));
+                    .supplyAsync(() -> badRequest(Json.toJson("Cannot delete master user")));
             } else {
                 user.deleted = !user.deleted;
-                return userRepository.updateUser(user)
-                    .thenApplyAsync(uid -> ok(
-                        Json.toJson(
-                            "Successfully toggled user deletion of user with uid: " + userId)),
-                        httpExecutionContext.current());
+                return userRepository.updateUser(user).thenComposeAsync(uid ->
+                    profileRepository.getDeletedProfile(uid).thenComposeAsync(profile -> {
+                        if (profile == null) {
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(userId)));
+                        }
+
+                        // Ensures profile soft delete state matches the user state
+                        profile.deleted = user.deleted;
+                        return profileRepository.updateProfile(profile)
+                            .thenApplyAsync(pid -> ok(Json.toJson(userId)));
+                    })
+                );
             }
         });
     }
@@ -329,6 +340,79 @@ public class UserController extends TEABackController {
     }
 
     /**
+     * Toggles the status whether the current user follows a use with given id
+     *
+     * @param request Http request contains current users id
+     * @param userId id of the user to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> toggleFollowerStatus(Http.Request request, Long userId) {
+
+        Long followerId = request.attrs().get(ActionState.USER).id;
+        if (userId.equals(followerId)) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+        return userRepository.findID(userId).thenComposeAsync(usersId -> {
+            if (usersId == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                return userRepository.getFollower(userId, followerId)
+                    .thenComposeAsync(followerUser -> {
+                        if (followerUser == null) {
+                            FollowerUser newFollowerUser = new FollowerUser();
+                            newFollowerUser.followerId = followerId;
+                            newFollowerUser.userId = userId;
+                            return userRepository.insertFollower(newFollowerUser)
+                                .thenApplyAsync(guid ->
+                                    ok(Json.toJson("followed")));
+                        } else {
+                            return userRepository.deleteFollower(followerUser.guid)
+                                .thenApplyAsync(delete ->
+                                    ok(Json.toJson("unfollowed")));
+                        }
+                    });
+
+            }
+        });
+
+    }
+
+    /**
+     * Gets the following status of a user.
+     *
+     * @param request Http request contains current users id
+     * @param userId id of the user to follow/unfollow
+     * @return a result contain a Json of follow or unfollow
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getFollowerStatus(Http.Request request, Long userId) {
+
+        Long followerId = request.attrs().get(ActionState.USER).id;
+        if (userId.equals(followerId)) {
+            return CompletableFuture.supplyAsync(Results::forbidden);
+        }
+
+        return userRepository.findID(userId).thenComposeAsync(usersId -> {
+            if (usersId == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                return userRepository.getFollower(userId, followerId)
+                    .thenComposeAsync(followerUser -> {
+                        if (followerUser == null) {
+                            //Not following
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(false)));
+                        } else {
+                            //Following
+                            return CompletableFuture.supplyAsync(() -> ok(Json.toJson(true)));
+                        }
+                    });
+            }
+        });
+    }
+
+    /**
      * Create Token and update user with it.
      *
      * @param user User object to be updated
@@ -349,7 +433,10 @@ public class UserController extends TEABackController {
             JavaScriptReverseRouter.create("userRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.UserController.deleteOtherUser(),
                 controllers.backend.routes.javascript.UserController.userSearch(),
-                controllers.backend.routes.javascript.UserController.getUser()
+                controllers.backend.routes.javascript.UserController.getUser(),
+                controllers.backend.routes.javascript.UserController.getFollowerStatus(),
+                controllers.backend.routes.javascript.UserController.toggleFollowerStatus(),
+                controllers.backend.routes.javascript.UserController.setId()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

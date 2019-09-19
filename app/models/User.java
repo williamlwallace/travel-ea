@@ -3,11 +3,16 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import play.data.validation.Constraints;
@@ -43,7 +48,6 @@ public class User extends BaseModel {
 
     @OneToMany(mappedBy = "user")
     public Set<UsedTag> usedTags;
-
 
     /**
      * Updates this users tags, updating the date of the tag or inserting a new tag. Compares the
