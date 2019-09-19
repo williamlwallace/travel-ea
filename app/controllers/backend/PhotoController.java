@@ -750,6 +750,9 @@ public class PhotoController extends TEABackController {
                                 }
                             }
                             deletedPhoto.deleted = !deletedPhoto.deleted;
+                            if(deletedPhoto.deleted) {
+                                // This is where we need to delete thee news feed event
+                            }
                             return photoRepository.updatePhoto(photo)
                                 .thenApplyAsync(rows -> ok(Json.toJson(deletedPhoto.guid)));
                         });
