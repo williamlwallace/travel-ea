@@ -149,14 +149,10 @@ $('#follower-summary').on('click', function () {
  * Click listener to display and populate and display followers modal on destination page
  */
 $('#destination-follower-summary').on('click', function () {
-    displayDestinationFollowers();
-});
-
-function displayDestinationFollowers() {
     $("#followers-modal").modal("show");
     const id = parseInt(window.location.href.split("/").pop());
     populateDestinationFollowers(id);
-}
+});
 
 /**
  * On click handler to change the selected buttons to destination on the following tabs

@@ -483,6 +483,8 @@ function getDestinationLinkPhotos() {
  */
 function closeEdit() {
     map.creativeMode = false;
+    $(".title-text-wrap").attr("class", "title-text-wrap");
+    $("#destination-follower-summary").show(1000);
     $('#destDeets').css('display', 'inline');
     $('#destEdit').css('display', 'none');
     $("#summary_name").animate({"opacity": "1"}, 700);
@@ -497,6 +499,8 @@ function closeEdit() {
  */
 function openEdit() {
     map.creativeMode = true;
+    $(".title-text-wrap").attr("class", "title-text-wrap clickable-div");
+    $("#destination-follower-summary").hide(1000);
     $('#destDeets').css('display', 'none');
     $('#destEdit').css('display', 'inline');
     $("#summary_name").animate({"opacity": "0"}, 700);
@@ -636,13 +640,6 @@ function initMap(destinationId) {
                 };
 
                 map = new DestinationMap(options, false);
-                $("#map").click(function() {
-                    console.log("CLICKED");
-                    if ($('#destination-follower-summary:hover')) {
-                        console.log("HOVERING");
-                        displayDestinationFollowers();
-                    }
-                });
 
                 map.setNewMarker(
                     destination.latitude,

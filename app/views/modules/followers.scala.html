@@ -21,12 +21,15 @@ Id is the id of the relevant thing, ie destination or user*@
                 </div>
                 <div class="tab-pane row" id="followers" role="tabpanel" aria-labelledby="followers-tab">
                     <div class="follower-tab">
-                        <div>
-                            <input type="text" id="search" placeholder="Search" class="form-control">
-                            <label id="destination-no-followers"></label>
+                        <div class="search-bar">
+                            <div class="search-bar-item-div">
+                                <input type="text" id="search" placeholder="Search" class="form-control">
+                                <label id="destination-no-followers"></label>
+                            </div>
                         </div>
                         <br/>
                         @* Placeholder for profile cards *@
+                        @modules.followerCard()
                         <div id="followedByCardList"></div>
                     </div>
                 </div>
