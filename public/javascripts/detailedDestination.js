@@ -10,10 +10,13 @@ let primaryPhotoPaginationHelper;
 /**
  * Runs when the page is loaded. Initialises the paginationHelper objects and loads feed
  */
-$(document).ready(function() {
-    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,  getDestinationPhotos, "destination-photos-pagination");
-    linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
-    primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
+$(document).ready(function () {
+    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,
+        getDestinationPhotos, "destination-photos-pagination");
+    linkPhotosPaginationHelper = new PaginationHelper(1, 1,
+        getDestinationLinkPhotos, "link-destination-photo-pagination");
+    primaryPhotoPaginationHelper = new PaginationHelper(1, 1, getPictures,
+        "destination-primary-photo-pagination");
     getDestinationPhotos();
     $("#feed-tab").click();
     destinationFeed = new NewsFeed(DESTINATIONID, 'destination-feed',
@@ -36,7 +39,7 @@ function populateDestinationDetails(destinationId) {
         .then(destination => {
             if (response.status !== 200) {
                 return showErrors(destination);
-            };
+            }
             canModify(destination.user.id);
             document.getElementById(
                 "summary_name").innerText = destination.name;
@@ -284,7 +287,8 @@ function populateEditDestination(destinationId) {
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
                 // Fills country picker
-                $('#countryDropDown').selectpicker('val', destination.country.id);
+                $('#countryDropDown').selectpicker('val',
+                    destination.country.id);
                 // Fills tag input field
                 tagPicker.populateTags(destination.tags);
             }
@@ -299,10 +303,14 @@ function populateEditDestination(destinationId) {
  */
 $("#changePrimaryPhotoButton").click(function () {
     $("#changePrimaryPhotoModal").modal('show');
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
-    url.searchParams.append("pageNum", primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
 
-    fillSelectionGallery(url, "primary-photo-gallery", "current-page", function () {
+    fillSelectionGallery(url, "primary-photo-gallery", "current-page",
+        function () {
             setPrimaryPhoto(this.getAttribute("data-id"))
         }, primaryPhotoPaginationHelper);
 });
@@ -315,14 +323,13 @@ function setPrimaryPhoto(photoId) {
     const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
         DESTINATIONID).url;
 
-
     // Create reversible request to update primary photo to this new photo
     const handler = (status, json) => {
         if (status === 200) {
             getUserId().then(userId => {
                 getPrimaryPicture();
                 $("#changePrimaryPhotoModal").modal('hide');
-                if(isUserAdmin() ) {
+                if (isUserAdmin()) {
                     toast("Changes saved!",
                         "Primary photo changes saved successfully");
                 } else {
@@ -409,11 +416,10 @@ function fillTravellerTypeInfo() {
     });
 }
 
-
 /**
  * On click handler to change tab panel on destination page
  */
-$('#dest-tabs a').on('click', function(event) {
+$('#dest-tabs a').on('click', function (event) {
     event.preventDefault();
     $(this).tab('show');
     let activeTab = $('#dest-tabs a.active').attr('id');
@@ -429,11 +435,15 @@ $('#dest-tabs a').on('click', function(event) {
  * is paginated
  */
 function getPictures() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillSelectionGallery(url, "primary-photo-gallery", "current-page", function () {
-        setPrimaryPhoto(this.getAttribute("data-id"))
-    }, primaryPhotoPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "primary-photo-gallery", "current-page",
+        function () {
+            setPrimaryPhoto(this.getAttribute("data-id"))
+        }, primaryPhotoPaginationHelper);
 }
 
 /**
@@ -461,12 +471,15 @@ $("#upload-gallery-image-button").click(function () {
  *  Gets all photos for a destination
  */
 function getDestinationPhotos() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
-        DESTINATIONID).url, window.location.origin);
-    url.searchParams.append("pageNum", destinationPhotosPaginationHelper.getCurrentPageNumber().toString());
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+            DESTINATIONID).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        destinationPhotosPaginationHelper.getCurrentPageNumber().toString());
 
     fillDestinationGallery(url,
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url,
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url,
         "main-gallery", "page-selection", destinationPhotosPaginationHelper,
         DESTINATIONID)
 }
@@ -476,9 +489,13 @@ function getDestinationPhotos() {
  * to allow a user to link to a photo to a destination
  */
 function getDestinationLinkPhotos() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
-    url.searchParams.append("pageNum", linkPhotosPaginationHelper.getCurrentPageNumber().toString());
-    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID, linkPhotosPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        linkPhotosPaginationHelper.getCurrentPageNumber().toString());
+    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID,
+        linkPhotosPaginationHelper);
 
 }
 
@@ -514,7 +531,6 @@ function openEdit() {
  * Cancel edit button on click listener
  */
 $("#cancelEditButton").click(closeEdit);
-
 
 /**
  * Function to toggle the linked status of a photo.
@@ -552,7 +568,9 @@ function toggleLinked(guid, newLinked, destinationId) {
                 sendUserIdAndDestinationId(id, destinationId);
                 getDestinationPhotos();
             });
-            getAndFillDD(tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(destinationId).url, ["tagFilter"], "name", false, "name");
+            getAndFillDD(
+                tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(
+                    destinationId).url, ["tagFilter"], "name", false, "name");
 
             this.newLinked = !this.newLinked;
         }

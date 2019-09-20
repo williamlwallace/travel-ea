@@ -246,7 +246,6 @@ function populateDestinationFollowers(destinationId) {
             } else {
                 const searchInput = $("#search");
                 const noFollowersLabel = $("#destination-no-followers");
-                console.log(followers.data);
                 if (followers.data.length === 0) {
                     searchInput.attr({type:"hidden"});
                     noFollowersLabel.text("No users are following this destination.");
