@@ -1,3 +1,26 @@
+let USERID;
+let DESTINATIONID;
+let canEdit = true;
+let canDelete = false;
+
+let destinationPhotosPaginationHelper;
+let linkPhotosPaginationHelper;
+let primaryPhotoPaginationHelper;
+
+/**
+ * Runs when the page is loaded. Initialises the paginationHelper objects and loads feed
+ */
+$(document).ready(function() {
+    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,  getDestinationPhotos, "destination-photos-pagination");
+    linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
+    primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
+    getDestinationPhotos();
+    $("#feed-tab").click();
+    destinationFeed = new NewsFeed(DESTINATIONID, 'destination-feed',
+        newsFeedRouter.controllers.backend.NewsFeedController.getDestinationNewsFeed(
+            DESTINATIONID).url);
+});
+
 /**
  * Function to get the relevant destination and fill the HTML
  *
@@ -386,25 +409,6 @@ function fillTravellerTypeInfo() {
     });
 }
 
-let USERID;
-let DESTINATIONID;
-let canEdit = true;
-let canDelete = false;
-
-let destinationPhotosPaginationHelper;
-let linkPhotosPaginationHelper;
-let primaryPhotoPaginationHelper;
-
-/**
- * Runs when the page is loaded. Initialises the paginationHelper objects
- */
-$(document).ready(function() {
-    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,  getDestinationPhotos, "destination-photos-pagination");
-    linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
-    primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
-    getDestinationPhotos();
-    $("#feed-tab").click();
-});
 
 /**
  * On click handler to change tab panel on destination page
