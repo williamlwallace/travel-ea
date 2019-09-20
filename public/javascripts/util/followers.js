@@ -49,7 +49,8 @@ function updateFollowerCount(id, type) {
         url = profileRouter.controllers.backend.ProfileController.getProfile(
             id).url;
     } else if (type === "destination") {
-        url = destinationRouter.controllers.backend.DestinationController.getDestination(id).url;
+        url = destinationRouter.controllers.backend.DestinationController.getDestination(
+            id).url;
     }
     get(url)
     .then(response => {
@@ -65,7 +66,8 @@ function updateFollowerCount(id, type) {
                     let followingUsers = data.followingUsersCount;
                     let followingDests = data.followingDestinationsCount;
                     followers = data.followerUsersCount;
-                    let following = followerCountFormatter(followingUsers + followingDests);
+                    let following = followerCountFormatter(
+                        followingUsers + followingDests);
 
                     // Set following count to be sum of followed users and destinations
                     $('#following-count').html(following);
@@ -119,50 +121,105 @@ function followToggle(type) {
     undoRedo.sendAndAppend(reqData);
 }
 
-$("#following-summary").on('click', function() {
+$("#following-summary").on('click', function () {
     $("#following-modal").modal("show");
     $("#following-tab").click();
     const id = window.location.href.split("/").pop();
-    populateFollowingUsers(id);
-    populateFollowers(id);
+    populateFollowingUsers(id, "");
+    populateFollowers(id, "");
 });
 
-$('#follower-summary').on('click', function() {
+$('#follower-summary').on('click', function () {
     $("#following-modal").modal("show");
     $("#follower-tab").click();
     const id = window.location.href.split("/").pop();
-    populateFollowers(id);
-    populateFollowingUsers(id);
+    populateFollowers(id, "");
+    populateFollowingUsers(id, "");
 });
 
 /**
  * On click handler to change the selected buttons to destination on the following tabs
  */
-$('#dests-following-btn').on('click', function() {
+$('#dests-following-btn').on('click', function () {
     $('#dests-following-btn').attr('class', 'btn btn-primary');
     $('#users-following-btn').attr('class', 'btn btn-outline-primary');
     const id = window.location.href.split("/").pop();
-    populateFollowingDestinations(id);
+    populateFollowingDestinations(id, "");
 });
 
 /**
  * On click handler to change the selected buttons to users on the following tabs
  */
-$('#users-following-btn').on('click', function() {
+$('#users-following-btn').on('click', function () {
     $('#dests-following-btn').attr('class', 'btn btn-outline-primary');
     $('#users-following-btn').attr('class', 'btn btn-primary');
     const id = window.location.href.split("/").pop();
-    populateFollowingUsers(id);
+    populateFollowingUsers(id, "");
 });
 
 /**
- * Function to populate the followers modal with users that the given user is following
- * @param userId {Number} Id of user whos profile is being viewed
+ * Handler to handle the user typing in the search box
  */
-function populateFollowingUsers(userId) {
-    get(profileRouter.controllers.backend.ProfileController.getPaginatedFollowingUsers(
-        userId).url)
-    .then(response => {
+$('#followingSearch').on('keyup', function (e) {
+    if (e.keyCode === 13) { //Enter
+        searchFollowing($(this).val());
+    } else if (e.keyCode === 8 || e.keyCode === 46) { //Backspace or delete
+        if ($(this).val() === "") {
+            searchFollowing($(this).val());
+        }
+    }
+});
+
+/**
+ * Handler to handle the user typing in the search box
+ */
+$('#followersSearch').on('keyup', function (e) {
+    if (e.keyCode === 13) { //Enter
+        searchFollowers($(this).val());
+    } else if (e.keyCode === 8 || e.keyCode === 46) { //Backspace or delete
+        if ($(this).val() === "") {
+            searchFollowers($(this).val());
+        }
+    }
+});
+
+/**
+ * Calls the function to populate the followers section using searched text
+ * @param textInput The text to search by
+ */
+function searchFollowers(textInput) {
+    const id = parseInt(window.location.href.split("/").pop());
+    populateFollowers(id, textInput);
+}
+
+/**
+ * Calls the function to populate the following section using searched text
+ * @param textInput
+ */
+function searchFollowing(textInput) {
+    const id = parseInt(window.location.href.split("/").pop());
+    if ($('#users-following-btn').hasClass('btn-primary')) {
+        populateFollowingUsers(id, textInput);
+    } else {
+        populateFollowingDestinations(id, textInput);
+    }
+}
+
+/**
+ * Function to populate the followers modal with users that the given user is following
+ * @param {Number} userId Id of user who's profile is being viewed
+ * @param {String} searchQuery The name to search by
+ */
+function populateFollowingUsers(userId, searchQuery) {
+    const url = new URL(
+        profileRouter.controllers.backend.ProfileController.getPaginatedFollowingUsers(
+            userId).url, window.location.origin);
+
+    if (searchQuery) {
+        url.searchParams.append("searchQuery", searchQuery);
+    }
+
+    get(url).then(response => {
         response.json()
         .then(followers => {
             if (response.status !== 200) {
@@ -176,12 +233,19 @@ function populateFollowingUsers(userId) {
 
 /**
  * Function to populate the followers modal with destinations that the given user is following
- * @param userId {Number} Id of user whos profile is being viewed
+ * @param {Number} userId Id of user who's profile is being viewed
+ * @param {String} searchQuery The name to search by
  */
-function populateFollowingDestinations(userId) {
-    get(destinationRouter.controllers.backend.DestinationController.getDestinationsFollowedByUser(
-        userId).url)
-    .then(response => {
+function populateFollowingDestinations(userId, searchQuery) {
+    const url = new URL(
+        destinationRouter.controllers.backend.DestinationController.getDestinationsFollowedByUser(
+            userId).url, window.location.origin);
+
+    if (searchQuery) {
+        url.searchParams.append("searchQuery", searchQuery);
+    }
+
+    get(url).then(response => {
         response.json()
         .then(followers => {
             if (response.status !== 200) {
@@ -195,12 +259,19 @@ function populateFollowingDestinations(userId) {
 
 /**
  * Function to populate the followers modal with users that the given user is followed by
- * @param userId {Number} Id of user whos profile is being viewed
+ * @param {Number} userId Id of user who's profile is being viewed
+ * @param {String} searchQuery The name to search by
  */
-function populateFollowers(userId) {
-    get(profileRouter.controllers.backend.ProfileController.getPaginatedFollowerUsers(
-        userId).url)
-    .then(response => {
+function populateFollowers(userId, searchQuery) {
+    const url = new URL(
+        profileRouter.controllers.backend.ProfileController.getPaginatedFollowerUsers(
+            userId).url, window.location.origin);
+
+    if (searchQuery) {
+        url.searchParams.append("searchQuery", searchQuery);
+    }
+
+    get(url).then(response => {
         response.json()
         .then(followers => {
             if (response.status !== 200) {
@@ -214,7 +285,7 @@ function populateFollowers(userId) {
 
 /**
  * Create follower cards for users that a user is following
- * @param users {List} List of all users that need to be made into cards
+ * @param users {Array} List of all users that need to be made into cards
  */
 function createUserFollowerCard(users) {
     $("#followersCardList").html("");
@@ -224,15 +295,24 @@ function createUserFollowerCard(users) {
 
         $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
         if (user.profilePhoto) {
-            $(clone).find("#follower-picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
+            $(clone).find("#follower-picture").attr("src",
+                "../../user_content/" + user.profilePhoto.thumbnailFilename);
         }
+        $(clone).find("#follower-card").attr("data-id", user.userId.toString());
         $("#followersCardList").get(0).appendChild(clone);
+
+        $(".follower-card").click((element) => {
+            const data = $(element.currentTarget).data();
+            if (data !== undefined) {
+                location.href = `/profile/${data.id}`;
+            }
+        });
     });
 }
 
 /**
  * Create follower cards for users that are following a user
- * @param users {List} List of all users that need to be made into cards
+ * @param users {Array} List of all users that need to be made into cards
  */
 function createUserFollowedByCard(users) {
     $("#followedByCardList").html("");
@@ -242,15 +322,24 @@ function createUserFollowedByCard(users) {
 
         $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
         if (user.profilePhoto) {
-            $(clone).find("#follower-picture").attr("src", "../../user_content/" + user.profilePhoto.thumbnailFilename);
+            $(clone).find("#follower-picture").attr("src",
+                "../../user_content/" + user.profilePhoto.thumbnailFilename);
         }
+        $(clone).find("#follower-card").attr("data-id", user.userId.toString());
         $("#followedByCardList").get(0).appendChild(clone);
+
+        $(".follower-card").click((element) => {
+            const data = $(element.currentTarget).data();
+            if (data !== undefined) {
+                location.href = `/profile/${data.id}`;
+            }
+        });
     });
 }
 
 /**
  * Create follower cards for destinations that a user is following
- * @param destinations {List} List of all destinations that need to be made into cards
+ * @param destinations {Array} List of all destinations that need to be made into cards
  */
 function createDestinationFollowerCard(destinations) {
     $("#followersCardList").html("");
@@ -260,8 +349,17 @@ function createDestinationFollowerCard(destinations) {
 
         $(clone).find("#name").append(dest.name);
         if (dest.primaryPhoto) {
-            $(clone).find("#follower-picture").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
+            $(clone).find("#follower-picture").attr("src",
+                "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
         }
+        $(clone).find("#follower-card").attr("data-id", dest.id.toString());
         $("#followersCardList").get(0).appendChild(clone);
+
+        $(".follower-card").click((element) => {
+            const data = $(element.currentTarget).data();
+            if (data !== undefined) {
+                location.href = `/destinations/${data.id}`;
+            }
+        });
     });
 }

@@ -1,4 +1,3 @@
-
 .follower-tab {
     padding: 2rem;
 }
@@ -24,7 +23,8 @@
 
 .follower-card {
     display: flex;
-    padding: 5px
+    padding: 5px;
+    cursor: pointer;
 }
 
 /* Tab panel buttons */
