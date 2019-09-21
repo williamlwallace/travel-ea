@@ -4,6 +4,8 @@ const fetch = require('node-fetch');
 
 const ADMIN_COOKIE = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUcmF2ZWxFQSIsInVzZXJJZCI6MX0.85pxdAoiT8xkO-39PUD_XNit5R8jmavTFfPSOVcPFWw';
 
+let successCounter = 0;
+let failureCounter = 0;
 
 const commandArgs = process.argv.slice(2);
 
@@ -19,22 +21,30 @@ const postReq = {
     path: '/api/photo',
     headers: {'Cookie': 'JWT-Auth='+ADMIN_COOKIE}
 }
+console.log("Loading data...");
 const photos = require(`./${commandArgs[1]}`); // read json
+console.log("Data loaded\n");
 createReqs();
 
 
 async function createReqs() {
     let promises = [];
+    console.log("Creating Requests...");
     for (key of Object.keys(photos)) {
         //create list of promises and limit too a certain size to not overload server
         promises = promises.concat(photos[key].map(sendPhoto.bind(null, key, postReq)));
         //Limit number to send to 50
-        if (promises.length >= 50) {
+        if (promises.length >= 100) {
+            console.log("Sending Requests...");
             await Promise.all(promises);
             promises = [];
+            console.log("Creating Requests...");
         }
-        
     }
+    console.log("\N#####All Photos Loaded#####");
+    console.log("Profile Pictures succesfully added: " + successCounter);
+    console.log("Profile Pictures failed to add: " + failureCounter);
+
 }
 
 
@@ -42,7 +52,6 @@ async function createReqs() {
 function sendPhoto(photo, postReq,  userId) {
     return new Promise((resolve, reject) => {
         const form = new FormData();
-        console.log('ya');
         https.get(photo, (res) => {
             form.append('file', res, photo);
             form.append('profilePhotoName', "profilepic.jpg");
@@ -67,26 +76,18 @@ function postMultipart(postReq, form) {
         body: form
     })
     .then(res => {
+        if (res.status !== 201) {
+            failureCounter += 1;
+            return;
+        }
         return res.json()
         .then(json => {
-            if (res.status === 201) {
-                console.log("sucess 1")
-                return setProfilePicture(postReq, json.userId, json.guid);
-            } else {
-                console.log('\n\n######Error######');
-                console.log("Failed to upload photo")
-                console.log(res.statusMessage);
-                console.log(res.status);
-                console.log(json);
-                console.log('\n');
-                return;
-            }
+            return setProfilePicture(postReq, json.userId, json.guid);
         });
     });
 }
 
 function setProfilePicture(postReq, userId, photoId) {
-    console.log(photoId);
     return fetch(`http://${postReq.host}:${postReq.port}${postReq.path}/${userId}/profile`, {
         method: 'PUT',
         headers: { ...postReq.headers, 'Content-Type': 'application/json' },
@@ -94,14 +95,9 @@ function setProfilePicture(postReq, userId, photoId) {
     })
     .then(res => {
         if (res.status !== 200) {
-            console.log('\n\n######Error######');
-            console.log("Failed to set to profile picture")
-            console.log(res.statusMessage);
-            console.log(res.status);
-            // res.json().then(json => console.log(json));
-            console.log('\n');
+            failureCounter += 1;
         } else {
-            console.log("success 2");
+            successCounter += 1;
         }
     });
 }
