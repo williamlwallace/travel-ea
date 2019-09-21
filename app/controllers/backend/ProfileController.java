@@ -61,6 +61,7 @@ public class ProfileController extends TEABackController {
      * @return Returns CompletableFuture type: ok if profile created and added successfully,
      * badRequest if profile already exists
      */
+    @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
         // Get profile data from request body and perform validation
         JsonNode data = request.body().asJson();
