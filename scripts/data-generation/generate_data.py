@@ -169,7 +169,7 @@ def generate_users(num_users, num_existing_users, photos_filename):
     for key in photos:
         photos[key] = random.choices(photos[key], k=5)
         
-    with open("photo_urls_and_users.json", 'w', newline='') as file:
+    with open("./scripts/data-generation/photo_urls_and_users.json", 'w', newline='') as file:
         file.writelines(json.dumps(photos))
         
     # Make the last commas semi-codes instead, with a newline for formatting    
@@ -194,7 +194,7 @@ def generate_destinations(countries):
     destinations = ["INSERT INTO Destination(user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES\n"]
     destination_info = []
     
-    with open('Destinations.csv', newline='') as csvfile:
+    with open('./scripts/data-generation/Destinations.csv', newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             # Replace all Kosovo codes with Serbia, since Kosovo doesn't have an
@@ -214,7 +214,7 @@ def generate_destinations(countries):
             row[3] = "'" + row[3].replace("'", "''") + "'"
             
             # Add is_public field
-            row.append(random.randint(0, 1)) 
+            row.append(str(random.randint(0, 1))) 
             
             # Convert the list to a string and add to destinations
             destinations.append("(" + ','.join(row) + "),\n")
@@ -504,21 +504,7 @@ def main():
     
     print("Done\nGeneration complete!\nPopulating file...")
     
-    filename = "../../conf/evolutions/default/" + evolutions_num + ".sql"
-    
-    drops = """DELETE FROM TripTag;
-DELETE FROM DestinationTag;
-DELETE FROM Tag;
-DELETE FROM TreasureHunt;
-DELETE FROM TripData;
-DELETE FROM Trip;
-DELETE FROM Destination;
-DELETE FROM TravellerType;
-DELETE FROM Passport;
-DELETE FROM Nationality;
-DELETE FROM Profile;
-DELETE FROM User;
-DELETE FROM CountryDefinition;"""
+    filename = "./conf/evolutions/default/" + evolutions_num + ".sql"
     
     # Wipes existing example data files
     if os.path.exists(filename):
@@ -540,7 +526,6 @@ DELETE FROM CountryDefinition;"""
         file.writelines(trip_data)
         file.writelines(treasure_hunts)
         file.writelines(tags)
-        file.writelines(["\n-- !Downs\n" + drops])
     
     print("Complete!")
 
