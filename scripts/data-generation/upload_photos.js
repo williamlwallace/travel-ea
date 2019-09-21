@@ -22,6 +22,7 @@ const stream = fs.createWriteStream(EVOLUTION_FILE, {flags:'a'});
 let photoId = 1;
 
 console.log("\nDownloading profile pictures...");
+
 createProfileReqs()
 .then(() => {
     console.log("profile photos completed\n")
