@@ -1,6 +1,4 @@
-const FormData = require('form-data');
-const https = require('https');
-const fetch = require('node-fetch');                              
+const https = require('https');                          
 const fs = require('fs');
 const { resolve } = require('path');
 const photos = require('./photo_urls_and_users.json'); // read json
