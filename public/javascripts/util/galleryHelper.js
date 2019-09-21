@@ -413,7 +413,7 @@ function createToggleButton(isPublic, guid) {
 function createLinkButton(isLinked, guid, destinationId) {
     const linkButton = document.createElement("span");
     const linkLabel = document.createElement("input");
-    linkLabel.setAttribute("class", "privacy");
+    linkLabel.setAttribute("class", "privacy photoLink");
     linkLabel.setAttribute("id", guid + "linked");
     linkLabel.setAttribute("type", "image");
 

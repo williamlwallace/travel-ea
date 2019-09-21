@@ -25,6 +25,7 @@ $(document).ready(function () {
     $("#feed-tab").click();
 });
 
+
 /**
  * Initializes trip table and calls method to populate
  */
@@ -50,67 +51,74 @@ function getProfileTripResults() {
 /**
  * The JavaScript method to fill the initial profile data
  *
- * @param {String} email - The email of the logged in user, which may or may not be displayed
+ * @param {Number} userId - The id of the user being viewed
+ * permission to see that information, null if not
  */
-function fillProfileData(email) {
-    if (document.getElementById("summary_email")) {
-        document.getElementById("summary_email").innerText = email;
-    }
-    get(profileRouter.controllers.backend.ProfileController.getProfile(
-        profileId).url)
-    .then(response => {
-        response.json()
-        .then(profile => {
-            if (response.status !== 200) {
-                showErrors(profile);
-            } else {
-                document.getElementById(
-                    "summary_name").innerText = profile.firstName + ' '
-                    + profile.lastName;
-                document.getElementById(
-                    "summary_age").innerHTML = calc_age(
-                    Date.parse(profile.dateOfBirth));
-                document.getElementById(
-                    "summary_gender").innerText = profile.gender;
-                arrayToCountryString(profile.nationalities, 'name',
-                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
-                .then(out => {
-                    const nationalities = out.split(",");
-                    for (let i = 0; i < nationalities.length; i++) {
-                        document.getElementById(
-                            "summary_nationalities").innerHTML += '<li>'
-                            + nationalities[i].trim() + '</li>';
-                    }
-                });
-                arrayToCountryString(profile.passports, 'name',
-                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
-                .then(out => {
-                    // If passports were cleared, update html text to None: Fix for Issue #36
-                    if (out === "") {
-                        document.getElementById(
-                            "summary_passports").innerHTML = "None"
-                    } else {
-                        const passports = out.split(",");
-                        for (let i = 0; i < passports.length; i++) {
+function fillProfileData(userId) {
+    getUser(userId).then(user => {
+        if (document.getElementById("summary_email") && user.username) {
+            document.getElementById("summary_email").innerText = user.username;
+        }
+        get(profileRouter.controllers.backend.ProfileController.getProfile(
+            profileId).url)
+        .then(response => {
+            response.json().then(profile => {
+                if (response.status !== 200) {
+                    showErrors(profile);
+                } else {
+                    document.getElementById(
+                        "summary_name").innerText = profile.firstName
+                        + ' '
+                        + profile.lastName;
+                    document.getElementById(
+                        "summary_age").innerHTML = calc_age(
+                        Date.parse(profile.dateOfBirth));
+                    document.getElementById(
+                        "summary_gender").innerText = profile.gender;
+                    arrayToCountryString(profile.nationalities, 'name',
+                        countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                    .then(out => {
+                        $("#summary_nationalities").html('');
+                        const nationalities = out.split(",");
+                        for (let i = 0; i < nationalities.length; i++) {
                             document.getElementById(
-                                "summary_passports").innerHTML += '<li>'
-                                + passports[i].trim() + '</li>';
+                                "summary_nationalities").innerHTML += '<li>'
+                                + nationalities[i].trim() + '</li>';
                         }
-                    }
-                });
-                arrayToString(profile.travellerTypes, 'description',
-                    profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
-                .then(out => {
-                    const travellerTypes = out.split(",");
-                    for (let i = 0; i < travellerTypes.length; i++) {
-                        document.getElementById(
-                            "summary_travellerTypes").innerHTML += '<li>'
-                            + travellerTypes[i].trim() + '</li>';
-                    }
-                });
-            }
+                    });
+                    arrayToCountryString(profile.passports, 'name',
+                        countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                    .then(out => {
+                        // If passports were cleared, update html text to None: Fix for Issue #36
+                        if (out === "") {
+                            document.getElementById(
+                                "summary_passports").innerHTML = "None"
+                        } else {
+                            $("#summary_passports").html('');
+                            const passports = out.split(",");
+                            for (let i = 0; i < passports.length; i++) {
+                                document.getElementById(
+                                    "summary_passports").innerHTML += '<li>'
+                                    + passports[i].trim() + '</li>';
+                            }
+                        }
+                    });
+                    arrayToString(profile.travellerTypes, 'description',
+                        profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+                    .then(out => {
+                        $("#summary_travellerTypes").html('');
+                        const travellerTypes = out.split(",");
+                        for (let i = 0; i < travellerTypes.length;
+                            i++) {
+                            document.getElementById(
+                                "summary_travellerTypes").innerHTML += '<li>'
+                                + travellerTypes[i].trim() + '</li>';
+                        }
+                    });
+                }
+            })
         })
-    })
+    });
 }
 
 /**
@@ -127,6 +135,8 @@ function updateProfile(uri, redirect) {
         [pair[0]]: pair[1],
     }), {});
 
+    data["userId"] = profileId;
+
     // Convert nationalities, passports and Traveller Types to Correct JSON appropriate format
     data.nationalities = JSONFromDropDowns("nationalities");
     data.passports = JSONFromDropDowns("passports");
@@ -139,14 +149,15 @@ function updateProfile(uri, redirect) {
                 if (status !== 200) {
                     showErrors(json, "updateProfileForm");
                 } else {
-                    updateProfileData(this.data);
                     $("#editProfileModal").modal('hide');
                     toast("Profile Updated!",
                         "The updated information will be displayed on your profile");
+                    fillProfileData(profileId);
                 }
                 this.data = json;
             }.bind({data});
-            const reqData = new ReqData(requestTypes['UPDATE'], uri, handler,
+            const reqData = new ReqData(requestTypes['UPDATE'], uri,
+                handler,
                 data);
             undoRedo.sendAndAppend(reqData);
         });
@@ -194,16 +205,21 @@ function populateProfileData(uri) {
         return response.json();
     })
     .then(json => {
-        const pickMapper = function (id, item) {
-            $(`#${id}`).selectpicker('val', item.id);
+        //Id len is the length of the id for the select picker (3 for countries: "004")
+        const formatIds = function (idLen, itemList) {
+            return itemList.map(item => {
+                let stringId = "000000" + item.id.toString();
+                stringId = stringId.substr(stringId.length - idLen);
+                return stringId
+            });
         };
         //Maps the json data into the pickers
-        json.nationalities.map(pickMapper.bind(null, 'nationalities'));
-        json.passports.map(pickMapper.bind(null, 'passports'));
-        json.travellerTypes.map(pickMapper.bind(null, 'travellerTypes'));
-
+        $("#nationalities").selectpicker("val",
+            formatIds(3, json.nationalities));
+        $("#passports").selectpicker("val", formatIds(3, json.passports));
+        $("#travellerTypes").selectpicker("val",
+            formatIds(1, json.travellerTypes));
         $('#gender').selectpicker('val', json.gender);
-        //tagsPickerTags = json.tags;
     });
 }
 
