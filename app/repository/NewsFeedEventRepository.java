@@ -102,18 +102,27 @@ public class NewsFeedEventRepository {
     public CompletableFuture<Integer> cleanUpDestinationEvents(Destination destination) {
         Collection<String> relevantTypes = Arrays.asList(
             NewsFeedEventType.LINK_DESTINATION_PHOTO.name(),
+            NewsFeedEventType.MULTIPLE_DESTINATION_PHOTO_LINKS.name(),
             NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name(),
             NewsFeedEventType.CREATED_NEW_DESTINATION.name(),
             NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name()
         );
 
-        return supplyAsync(() ->
-            ebeanServer.find(NewsFeedEvent.class)
+        return supplyAsync(() ->{
+            //this is not pretty but ebean queries to annoying to do in one.
+            Integer rows = ebeanServer.find(NewsFeedEvent.class)
                 .where()
                 .eq("dest_id", destination.id)
                 .in("event_type", relevantTypes)
-                .delete()
-        );
+                .delete();
+
+            rows += ebeanServer.find(NewsFeedEvent.class)
+                .where()
+                .eq("ref_id", destination.id)
+                .eq("event_type", NewsFeedEventType.CREATED_NEW_DESTINATION.name())
+                .delete();
+            return rows;
+        });
     }
 
     /**

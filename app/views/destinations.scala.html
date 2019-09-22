@@ -115,7 +115,7 @@
                     </div>
 
                     <div class="tab-pane fade" id="createTab" role="tabpanel" aria-labelledby="create-tab">
-                        <form id="addDestinationForm" class="pt-2">
+                        <form id="addDestinationForm" onsubmit="createDestination(); return false;" class="pt-2">
                             <div>
                                 <div>Name
                                     <em class="fas prefix grey-text"></em>
@@ -171,17 +171,15 @@
                                 <div class="modal-footer d-flex justify-content-center">
                                     <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
                                     </button>
-                                    <button class="btn btn-primary" id="createNewDestinationButton">
-                                        Create
-                                    </button>
+                                    <input type="submit" class="btn btn-primary" id="createNewDestinationButton" value="Create">
+                                        
                                     <label id="otherError"></label>
                                 </div>
 
                             </div>
                         </form>
 
-                    </div>
-                </form>
+
 
                     </div>
 

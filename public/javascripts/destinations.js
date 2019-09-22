@@ -284,6 +284,7 @@ function addDestination(url, redirect, userId) {
     // Post json data to given url
     addNonExistingCountries([data.country]).then(result => {
         const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
+        console.log('send');
         undoRedo.sendAndAppend(reqData, inverseHandler);
     });
 }
@@ -370,11 +371,11 @@ $('#CreateDestinationCancelButton').click(function () {
 /**
  * Destination button on click
  */
-$('#createNewDestinationButton').click(function () {
+function createDestination() {
     getUserId().then(userId => {
         addDestination(
             destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
             "/", userId)
     });
-});
+}
 
