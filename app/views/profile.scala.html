@@ -54,6 +54,7 @@
         </div>
 
         <body style="margin: auto">
+            @modules.multipleDestinationCard()
             <div class="row profile" id="startchange">
 
                     <!-- Profile Details -->
@@ -66,7 +67,8 @@
                         <div class="profile-details">
                             @if(canModify) {
                                 <p class="heading">
-                                    Email <span id="summary_email" class="user-info"></span></p>
+                                    Email <span id="summary_email" class="user-info"></span>
+                                </p>
                             }
                             <p class="heading">
                                 Age <span id="summary_age" class="user-info"></span></p>
