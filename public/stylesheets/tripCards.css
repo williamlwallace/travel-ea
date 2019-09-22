@@ -16,12 +16,10 @@
     clip-path: polygon(0 0, 100% 0%, 90% 100%, 0% 100%);
 }
 
-.carousel-item img {
+.trip-carousel-item img {
     -webkit-clip-path: polygon(0 0, 100% 0%, 90% 100%, 0% 100%);
     clip-path: polygon(0 0, 100% 0%, 90% 100%, 0% 100%);
 }
-
-
 
 #card-thumbnail-trips {
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
@@ -30,7 +28,7 @@
     max-width: 150px;
 }
 
-.carousel-inner {
+.trip-carousel-inner {
     width: 300px;
     height: 199.5px;
 }
@@ -39,6 +37,6 @@
     font-size: 1.3rem;
 }
 
-.carousel-control-next-icon {
+.trip-carousel-control-next-icon {
     margin-right: 25px;
 }
