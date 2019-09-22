@@ -370,13 +370,13 @@ $('#CreateDestinationCancelButton').click(function () {
 /**
  * Destination button on click
  */
-$('#createNewDestinationButton').click(function () {
+function createDestination() {
     getUserId().then(userId => {
         addDestination(
             destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
             "/", userId);
     });
-});
+}
 
 /**
  * Pressing enter while within the destination filter will search

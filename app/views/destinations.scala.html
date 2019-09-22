@@ -114,7 +114,7 @@
                     </div>
 
                     <div class="tab-pane fade" id="createTab" role="tabpanel" aria-labelledby="create-tab">
-                        <form id="addDestinationForm" class="pt-2">
+                        <form id="addDestinationForm" onsubmit="createDestination(); return false;" class="pt-2">
                             <div>
                                 <div>Name
                                     <em class="fas prefix grey-text"></em>
@@ -176,8 +176,7 @@
                             </div>
                         </form>
 
-                    </div>
-                </form>
+
 
                     </div>
 
