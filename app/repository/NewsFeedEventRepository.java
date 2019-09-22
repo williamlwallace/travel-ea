@@ -21,6 +21,7 @@ import models.NewsFeedEvent;
 import models.Photo;
 import models.enums.NewsFeedEventType;
 import models.Likes;
+import models.Trip;
 import play.db.ebean.EbeanConfig;
 
 /**
@@ -123,6 +124,28 @@ public class NewsFeedEventRepository {
                 .delete();
             return rows;
         });
+    }
+
+    /**
+     * For some trip, removes any event that were associated with it
+     *
+     * @param trip The trip to clean up events from
+     * @return Number of events cleaned up (removed)
+     */
+    public CompletableFuture<Integer> cleanUpTripEvents(Trip trip) {
+        Collection<String> relevantTypes = Arrays.asList(
+            NewsFeedEventType.CREATED_NEW_TRIP.name(),
+            NewsFeedEventType.UPDATED_EXISTING_TRIP.name(),
+            NewsFeedEventType.GROUPED_TRIP_UPDATES.name()
+        );
+
+        return supplyAsync(() ->
+            ebeanServer.find(NewsFeedEvent.class)
+            .where()
+            .eq("ref_id", trip.id)
+            .in("event_type", relevantTypes)
+            .delete()
+        );
     }
 
     /**
