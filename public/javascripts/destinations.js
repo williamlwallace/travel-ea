@@ -284,7 +284,6 @@ function addDestination(url, redirect, userId) {
     // Post json data to given url
     addNonExistingCountries([data.country]).then(result => {
         const reqData = new ReqData(requestTypes['CREATE'], url, handler, data);
-        console.log('send');
         undoRedo.sendAndAppend(reqData, inverseHandler);
     });
 }
