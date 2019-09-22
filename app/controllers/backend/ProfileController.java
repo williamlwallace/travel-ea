@@ -63,8 +63,6 @@ public class ProfileController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> addNewProfile(Http.Request request) {
-        User user = request.attrs().get(ActionState.USER);
-
         // Get profile data from request body and perform validation
         JsonNode data = request.body().asJson();
         ErrorResponse validatorResult = new UserValidator(data).profile();
@@ -74,10 +72,6 @@ public class ProfileController extends TEABackController {
         }
         else {
             Profile newProfile = Json.fromJson(data, Profile.class);
-
-            if (!user.id.equals(newProfile.userId) && !user.admin) {
-                return CompletableFuture.supplyAsync(() -> forbidden("You do not have permission to create a profile for this user"));
-            }
 
             return profileRepository.findID(newProfile.userId).thenApplyAsync(profile -> {
                 // If a profile already exists for this user

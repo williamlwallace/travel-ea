@@ -22,6 +22,10 @@
         <div class="collapse" id="collapseExample">
             <div class="card card-body" id="card-body">
                 <div class="filterItemDiv">
+                    <label for="name">Name</label>
+                    <input id="name" type="text" class="form-control validate" data-style="form-control" multiple placeholder="Name"/>
+                </div>
+                <div class="filterItemDiv">
                     <label for="gender">Gender</label>
                     <select id="gender" class="form-control selectpicker" data-style="form-control" multiple>
                         <option value="Male">Male</option>
@@ -42,18 +46,18 @@
                     <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
                 </div>
                 <div class="filterItemDiv">
-                        <label for="nationalities">Nationality</label>
-                        <select id="nationalities" class="form-control selectpicker" data-style="form-control"
-                        data-live-search="true"
-                        data-size="5" multiple>
-                            <option value="">Select Nationality</option>
-                        </select>
+                    <label for="nationalities">Nationality</label>
+                    <select id="nationalities" class="form-control selectpicker" data-style="form-control"
+                    data-live-search="true"
+                    data-size="5" multiple>
+                        <option value="">Select Nationality</option>
+                    </select>
                 </div>
                 <div class="filterItemDiv">
-                        <label for="travellerTypes">Type of Traveller</label>
-                        <select id="travellerTypes" class="form-control selectpicker" data-style="form-control" multiple>
-                            <option value="">Select Traveller Type</option>
-                        </select>
+                    <label for="travellerTypes">Type of Traveller</label>
+                    <select id="travellerTypes" class="form-control selectpicker" data-style="form-control" multiple>
+                        <option value="">Select Traveller Type</option>
+                    </select>
                 </div>
                 <div class="filterItemDiv">
                     <label for="sortBy">Sort by</label>
@@ -91,6 +95,6 @@
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@
 <script type="text/javascript">
-        getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
-        getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description", true);
+    getAndFillDD(countryApiUrl, ["nationalities", "passports"], "name", false, "numericCode", true);
+    getAndFillDD("@controllers.backend.routes.ProfileController.getAllTravellerTypes()", ["travellerTypes"], "description", true);
 </script>

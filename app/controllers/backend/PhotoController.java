@@ -570,8 +570,11 @@ public class PhotoController extends TEABackController {
             }
         }
 
+        int randomNumber = (int) (Math.random() * 496148154 + 1);
+        String fileName = System.currentTimeMillis() + "_" + randomNumber + ".jpg";
+
         // Create file to store output of thumbnail write
-        File thumbFile = new File(savePath + TEST_PHOTO_DIRECTORY + "tempThumb.jpg");
+        File thumbFile = new File(savePath + TEST_PHOTO_DIRECTORY + fileName);
 
         // Write buffered image to thumbnail file
         ImageIO.write(thumbImage, "jpg", thumbFile);

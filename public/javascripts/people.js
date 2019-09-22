@@ -6,7 +6,7 @@ let paginationHelper;
  * Runs when the page is loaded. Initialises the paginationHelper object and
  * runs the getPeopleResults method.
  */
-$(document).ready(function() {
+$(document).ready(function () {
     paginationHelper = new PaginationHelper(1, 1, getPeopleResults);
     getPeopleResults();
 });
@@ -40,7 +40,8 @@ function getNationalityAndTravellerStrings(people) {
  * @returns {*[]} Array of nationality ids
  */
 function getSelectedNationalityIds() {
-    return JSONFromDropDowns("nationalities").map(nationality => nationality.id);
+    return JSONFromDropDowns("nationalities").map(
+        nationality => nationality.id);
 }
 
 /**
@@ -48,7 +49,16 @@ function getSelectedNationalityIds() {
  * @returns {*[]} Array of traveller type ids
  */
 function getSelectedTravellerTypeIds() {
-    return JSONFromDropDowns("travellerTypes").map(travellerType => travellerType.id);
+    return JSONFromDropDowns("travellerTypes").map(
+        travellerType => travellerType.id);
+}
+
+/**
+ * Gets the name currently entered into the name text bar
+ * @returns {String} The text the user has typed
+ */
+function getSelectedName() {
+    return $('#name').val();
 }
 
 /**
@@ -61,7 +71,7 @@ function getSelectedGenders() {
 
 /**
  * Get the value of the currently selected minAge
- * @returns {*}
+ * @returns {Number}
  */
 function getSelectedMinAge() {
     return $('#minAge').val();
@@ -69,7 +79,7 @@ function getSelectedMinAge() {
 
 /**
  * Get the value of the currently selected maxAge
- * @returns {*}
+ * @returns {Number}
  */
 function getSelectedMaxAge() {
     return $('#maxAge').val();
@@ -77,7 +87,7 @@ function getSelectedMaxAge() {
 
 /**
  * Get the value of the number of results to show per page
- * @returns {number} The number of results shown per page
+ * @returns {Number} The number of results shown per page
  */
 function getPageSize() {
     return $('#pageSize').val();
@@ -85,7 +95,7 @@ function getPageSize() {
 
 /**
  * Returns the name of the db column to search by
- * @returns {string} Name of db column to search by
+ * @returns {String} Name of db column to search by
  */
 function getSortBy() {
     return $('#sortBy').val();
@@ -93,7 +103,7 @@ function getSortBy() {
 
 /**
  * Gets whether or not to sort by ascending
- * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ * @returns {String} Either 'true' or 'false', where true is ascending, false is descending
  */
 function getAscending() {
     return $('#ascending').val();
@@ -103,16 +113,37 @@ function getAscending() {
  * Filters the cards with filtered results
  */
 function getPeopleResults() {
-    const url = new URL(profileRouter.controllers.backend.ProfileController.searchProfilesJson().url, window.location.origin);
+    const url = new URL(
+        profileRouter.controllers.backend.ProfileController.searchProfilesJson().url,
+        window.location.origin);
 
     // Append list params
-    getSelectedNationalityIds().forEach((item) => { if(item !== "") url.searchParams.append("nationalityIds", item) });
-    getSelectedTravellerTypeIds().forEach((item) => { if(item !== "") url.searchParams.append("travellerTypeIds", item) });
-    getSelectedGenders().forEach((item) => { if(item !== "") url.searchParams.append("genders", item) });
+    getSelectedNationalityIds().forEach((item) => {
+        if (item !== "") {
+            url.searchParams.append("nationalityIds", item)
+        }
+    });
+    getSelectedTravellerTypeIds().forEach((item) => {
+        if (item !== "") {
+            url.searchParams.append("travellerTypeIds", item)
+        }
+    });
+    getSelectedGenders().forEach((item) => {
+        if (item !== "") {
+            url.searchParams.append("genders", item)
+        }
+    });
 
     // Append non-list params
-    if(getSelectedMinAge() !== "") { url.searchParams.append("minAge", getSelectedMinAge()); }
-    if(getSelectedMaxAge() !== "") { url.searchParams.append("maxAge", getSelectedMaxAge()); }
+    if (getSelectedMinAge() !== "") {
+        url.searchParams.append("minAge", getSelectedMinAge());
+    }
+    if (getSelectedMaxAge() !== "") {
+        url.searchParams.append("maxAge", getSelectedMaxAge());
+    }
+    if (getSelectedName() !== "") {
+        url.searchParams.append("searchQuery", getSelectedName());
+    }
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
@@ -136,7 +167,8 @@ function getPeopleResults() {
                     });
 
                     $(".card").click((element) => {
-                        if($(element.currentTarget).find("#card-header").data() !== undefined) {
+                        if ($(element.currentTarget).find("#card-header").data()
+                            !== undefined) {
                             location.href = `/profile/${$(
                                 element.currentTarget).find(
                                 "#card-header").data().id}`;
@@ -171,10 +203,16 @@ function createPeopleCard(person) {
     let nationalities = "";
     let travellerTypes = "";
 
-    $(clone).find("#card-header").append(`${person.firstName} ${person.lastName}`);
-    $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null ? "/assets/images/default-profile-picture.jpg" : "user_content/" + person.profilePhoto.thumbnailFilename);
-    $(clone).find("#card-cover-photo").attr("src", person.coverPhoto === null ? "/assets/images/profile-bg.jpg" : "user_content/" + person.coverPhoto.thumbnailFilename);
-    $(clone).find("#age").append(calculateAge(new Date(person.dateOfBirth)) + " years old");
+    $(clone).find("#card-header").append(
+        `${person.firstName} ${person.lastName}`);
+    $(clone).find("#card-thumbnail").attr("src", person.profilePhoto === null
+        ? "/assets/images/default-profile-picture.jpg" : "user_content/"
+        + person.profilePhoto.thumbnailFilename);
+    $(clone).find("#card-cover-photo").attr("src",
+        person.coverPhoto === null ? "/assets/images/profile-bg.jpg"
+            : "user_content/" + person.coverPhoto.thumbnailFilename);
+    $(clone).find("#age").append(
+        calculateAge(new Date(person.dateOfBirth)) + " years old");
     $(clone).find("#gender").append(person.gender);
     $(clone).find("#card-header").attr("data-id", person.userId.toString());
 
