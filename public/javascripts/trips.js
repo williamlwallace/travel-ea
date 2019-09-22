@@ -86,6 +86,7 @@ function createTripCard(trip) {
     }
 
     initCarousel(clone, trip);
+    $(clone).find('.carousel').carousel();
 
     $(clone).find("#start-location").append(startDestination);
     $(clone).find("#end-location").append(endDestination);
