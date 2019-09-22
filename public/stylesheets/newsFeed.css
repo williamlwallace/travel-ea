@@ -155,3 +155,19 @@
   }
 }
 /* Upflights (likes) ends */
+
+/*
+ * Multiple Photo Card CSS
+ */
+.photo-thumbnails {
+    background-color: #000;
+    height: 400px;
+}
+
+.photo-thumbnails img {
+    height: 100% !important;
+    width: auto !important;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}

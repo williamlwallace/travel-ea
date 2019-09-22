@@ -70,7 +70,6 @@
                                                     <option value="name">Name</option>
                                                     <option value="type">Type</option>
                                                     <option value="country.name">Country</option>
-                                                    <option value="last_name">Last Name</option>
                                                 </select>
                                             </div>
                                             <div class="filterItemDiv col">
@@ -89,7 +88,7 @@
                                     <div class="text-center pt-3" id="buttonDiv">
                                         <div id="applyButton">
                                             <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
-                                            <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
+                                            <button class="btn btn-primary"  type="submit" onclick='refreshData()'>Apply</button>
                                         </div>
                                     </div>
                                 </div>
@@ -169,10 +168,8 @@
                                 </div>
 
                                 <div class="modal-footer d-flex justify-content-center">
-                                    <button class="btn btn-outline-secondary" id="CreateDestinationCancelButton">Clear<em class="fas fa-paper-plane-o ml-1"></em>
-                                    </button>
-                                    <input type="submit" class="btn btn-primary" id="createNewDestinationButton" value="Create">
-                                        
+                                    <button class="btn btn-outline-secondary" value="Clear" type="button" id="CreateDestinationCancelButton">Clear</button>
+                                    <button class="btn btn-primary" id="createNewDestinationButton">Create</button>
                                     <label id="otherError"></label>
                                 </div>
 
