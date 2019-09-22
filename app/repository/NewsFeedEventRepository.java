@@ -20,6 +20,7 @@ import models.Destination;
 import models.NewsFeedEvent;
 import models.Photo;
 import models.enums.NewsFeedEventType;
+import models.Likes;
 import play.db.ebean.EbeanConfig;
 
 /**
