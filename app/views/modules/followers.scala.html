@@ -1,0 +1,98 @@
+@*If destination is true its a single page followers modal,
+if its false then its a two tab following modal on the profile page
+Id is the id of the relevant thing, ie destination or user*@
+
+@(destination: Boolean)
+
+<link rel="stylesheet" href="@routes.Assets.at("stylesheets/followersModal.css")">
+
+@*Followers Modal*@
+@if(destination) {
+    <div class="modal fade" id="followers-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Followers
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="tab-pane row" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+                    <div class="follower-tab">
+                        <div class="search-bar">
+                            <div class="search-bar-item-div">
+                                <input type="text" id="search" placeholder="Search" class="form-control">
+                                <label id="destination-no-followers"></label>
+                            </div>
+                        </div>
+                        <br/>
+                        @* Placeholder for profile cards *@
+                        @modules.followerCard()
+                        <div id="followedByCardList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@*Following Modal*@
+@if(!destination) {
+    <div class="modal fade" id="following-modal" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    @* Tabs *@
+                    <ul class="nav" id="following-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="follower-nav" id="following-tab" data-toggle="tab" href="#following" role="tab" aria-controls="following"><p><span class="follower-nav-text">Following</span></p></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="follower-nav" id="follower-tab" data-toggle="tab" href="#followers" role="tab" aria-controls="followers"><p><span class="follower-nav-text">Followers</span></p></a>
+                        </li>
+                    </ul>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div>
+                    <!-- Tab Panes -->
+                    <div class="tab-content">
+                        <!-- Following Tab -->
+                        <div class="tab-pane row" id="following" role="tabpanel" aria-labelledby="following-tab">
+                            <div class="follower-tab">
+                                <div class="search-bar">
+                                    <div class="search-bar-item-div">
+                                        <input type="text" id="search" placeholder="Search" class="form-control search-input">
+                                    </div>
+                                    <div class="btn-group search-bar-item-div">
+                                        <button id="users-following-btn" type="button" class="btn btn-primary">Users</button>
+                                        <button id="dests-following-btn" type="button" class="btn btn-outline-primary">Destinations</button>
+                                    </div>
+                                </div>
+                                <br/>
+                                @* The destinations cards *@
+                                @modules.followerCard()
+                                <div id="followersCardList"></div>
+                            </div>
+                        </div>
+                        <!-- Followers tab -->
+                        <div class="tab-pane row" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+                            <div class="follower-tab">
+                                <div>
+                                    <input type="text" id="search" placeholder="Search" class="form-control">
+                                </div>
+                                <br/>
+                                @* The destinations cards *@
+                                <div id="followedByCardList"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

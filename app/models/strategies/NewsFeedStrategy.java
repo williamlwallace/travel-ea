@@ -1,6 +1,5 @@
 package models.strategies;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.concurrent.CompletableFuture;
 import java.util.List;
 import models.NewsFeedResponseItem;

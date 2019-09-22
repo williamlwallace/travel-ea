@@ -3,6 +3,8 @@ package controllers.backend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,10 +51,10 @@ public class NewsFeedController extends TEABackController {
     private NewsFeedEventRepository newsFeedEventRepository;
 
     // All other repositories required by strategies (they get injected here then passed down)
-    DestinationRepository destinationRepository;
-    ProfileRepository profileRepository;
-    TripRepository tripRepository;
-    PhotoRepository photoRepository;
+    private DestinationRepository destinationRepository;
+    private ProfileRepository profileRepository;
+    private TripRepository tripRepository;
+    private PhotoRepository photoRepository;
 
     private static final List<NewsFeedEventType> GROUP_EVENT_TYPES = Arrays.asList(
         NewsFeedEventType.UPLOADED_USER_PHOTO,
@@ -83,16 +85,53 @@ public class NewsFeedController extends TEABackController {
      * Endpoint to fetch all profile news feed data
      *
      * @param request HTTP request containing user auth
+     * @param userId ID of user to get profile news feed for
      * @param pageNum Page number to retrieve
      * @param pageSize Number of results to give per page
      * @param requestOrder The order of the request we are showing
-     * @return Paging response with all JsonNode values needed to create cards for each event
+     * @return Paging response with all values needed to create cards for each event
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getProfileNewsFeed(Http.Request request, Long userId,
         Integer pageNum, Integer pageSize, Integer requestOrder) {
         return getNewsFeedData(Collections.singletonList(userId), null, pageNum, pageSize,
             requestOrder);
+    }
+
+    /**
+     * Endpoint to fetch all destination news feed data
+     *
+     * @param request HTTP request containing user auth
+     * @param destinationId ID of destination to get news feed for
+     * @param pageNum Page number to retrieve
+     * @param pageSize Number of results to give per page
+     * @param requestOrder The order of the request we are showing
+     * @return Paging response with all values needed to create cards for each event
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getDestinationNewsFeed(Http.Request request, Long destinationId, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return getNewsFeedData(null, Collections.singletonList(destinationId), pageNum, pageSize, requestOrder);
+    }
+
+    /**
+     * Endpoint to fetch all news feed data for destinations and users they follow
+     *
+     * @param request HTTP request containing user auth
+     * @param pageNum Page number to retrieve
+     * @param pageSize Number of results to give per page
+     * @param requestOrder The order of the request we are showing
+     * @return Paging response with all values needed to create cards for each event
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getMainNewsFeed(Http.Request request, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        // Get id of currently logged in user
+        Long id = request.attrs().get(ActionState.USER).id;
+
+        return profileRepository.getDestinationIdsFollowedBy(id).thenComposeAsync(destIds ->
+            profileRepository.getUserIdsFollowedBy(id).thenComposeAsync(userIds ->
+                getNewsFeedData(userIds, destIds, pageNum, pageSize, requestOrder)
+            )
+        );
     }
 
     /**
@@ -357,7 +396,6 @@ public class NewsFeedController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> toggleLikeStatus(Http.Request request, Long eventId) {
-
         Long userId = request.attrs().get(ActionState.USER).id;
 
         return newsFeedEventRepository.getEvent(eventId).thenComposeAsync(event -> {
@@ -388,8 +426,8 @@ public class NewsFeedController extends TEABackController {
      * Gets the like status of a news feed event.
      *
      * @param request Http request contains current users id
-     * @param eventId id of the user to like/unlike
-     * @return a result contain a Json of like or unlike
+     * @param eventId id of the event to like/unlike
+     * @return a result containing a Json object of liked or unliked
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getLikeStatus(Http.Request request, Long eventId) {
@@ -413,6 +451,26 @@ public class NewsFeedController extends TEABackController {
         });
     }
 
+    /**
+     * Gets the number of likes on a news feed event.
+     *
+     * @param request Http request
+     * @param eventId id of the event to get like count of
+     * @return a result containing a Json object of the like count
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getLikeCount(Http.Request request, Long eventId) {
+        return newsFeedEventRepository.getEventLikeCounts(eventId).thenComposeAsync(count -> {
+            if (count == null) {
+                return CompletableFuture.supplyAsync(Results::notFound);
+            } else {
+                ObjectNode returnObject = new ObjectNode(new JsonNodeFactory(false));
+                returnObject.set("likeCount", Json.toJson(count));
+                return CompletableFuture.supplyAsync(() -> ok(returnObject));
+            }
+        });
+    }
+
 
     /**
      * Lists routes to put in JS router for use from frontend.
@@ -424,7 +482,11 @@ public class NewsFeedController extends TEABackController {
             JavaScriptReverseRouter.create("newsFeedRouter", "jQuery.ajax", request.host(),
                 controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.toggleLikeStatus(),
-                controllers.backend.routes.javascript.NewsFeedController.getLikeStatus()
+                controllers.backend.routes.javascript.NewsFeedController.getLikeCount(),
+                controllers.backend.routes.javascript.NewsFeedController.getLikeStatus(),
+                controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
+                controllers.backend.routes.javascript.NewsFeedController.getDestinationNewsFeed(),
+                controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

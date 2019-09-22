@@ -10,6 +10,7 @@ class DestinationMap {
         this.markerCluster;
         this.userId = userId;
         this.creativeMode = creativeMode;
+        let markerCluster;
         //Setting public and private marker images, resized
         this.markerPublic = {
             url: 'https://image.flaticon.com/icons/svg/149/149060.svg',
@@ -88,7 +89,6 @@ class DestinationMap {
                     activeInfoWindow.close();
                 }
                 infoWindow.open(map, marker);
-                activeInfoWindow = infoWindow;
             });
         }
     }
@@ -102,7 +102,11 @@ class DestinationMap {
         for (const destination of destinations) {
             this.addDestination(destination);
         }
-        this.clusterMarkers();
+        if (destinations.length >= 30) {
+            this.clusterMarkers();
+        } else if (this.markerCluster) {
+            this.markerCluster.clearMarkers();
+        }
     }
 
     /**
@@ -120,10 +124,13 @@ class DestinationMap {
      * Clusters all of the destination markers on the map.
      */
     clusterMarkers() {
-        const markerCluster = new MarkerClusterer(this.map, this.markers,
+        if (this.markerCluster) {
+            this.markerCluster.clearMarkers();
+        }
+        this.markerCluster = new MarkerClusterer(this.map, this.markers,
             {imagePath: '/assets/images/markerClusterer/m'});
         // add listner to stop marker change on cluster click
-        google.maps.event.addListener(this.map, 'zoom_changed', function() {
+        google.maps.event.addListener(this.map, 'zoom_changed', function () {
             map.creativeMode = false;
             setTimeout(() => {
                 map.creativeMode = true;

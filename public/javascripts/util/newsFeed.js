@@ -190,10 +190,14 @@ const NewsFeedEventTypes = {
  * @param {string} thumbnail address of thumbnail
  * @param {string} message event message
  * @param {string} time string timestamp
+ * @param {number} eventIds the guids of the events being displayed
  */
-function createWrapperCard(thumbnail, message, time) {
+function createWrapperCard(thumbnail, message, time, eventIds) {
+    const eventId = eventIds[0];
+
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
+    const likeCounter = $(clone.find('.likes-number'));
 
     clone.find('.wrapper-title').html(message);
     if (thumbnail != null) {
@@ -201,9 +205,125 @@ function createWrapperCard(thumbnail, message, time) {
     }
 
     clone.find('.wrapper-date').text(time);
+    const likeButton = clone.find('.likes-button');
+    likeButton.attr('data-event-id', eventId);
+    likeButton.attr('id', 'event-id-' + eventId);
+
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
+    get(url)
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to get like status",
+                    "danger", 5000);
+            } else {
+                likeButton.attr('data-liked', data);
+                updateLikeButton(likeButton, true);
+                updateLikeNumber(likeCounter, eventId);
+            }
+        });
+    });
+    likeButton.click(function() {likeUnlikeEvent(eventId)});
+
     return clone;
 }
 
+/**
+ * Sends request to like and unlike events. Updates data attribute of liked
+ * button to the result.
+ * @param {Number} eventId the id of the event to like/unlike
+ */
+
+function likeUnlikeEvent(eventId) {
+    const eventLikeButton = $("#event-id-" + eventId);
+    const likeCounter = eventLikeButton.next();
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
+
+    const handler = (status, json) => {
+        if (status !== 200) {
+            toast("Error", "Unable to like event",
+                "danger", 5000);
+        } else {
+            if (eventLikeButton.data('event-id') !== eventId) {
+                return;
+            }
+            if (json === "liked") {
+                likeCounter.data('likes', likeCounter.data('likes') + 1);
+                eventLikeButton.attr('data-liked', "true");
+                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
+            } else {
+                likeCounter.data('likes', likeCounter.data('likes') - 1);
+                eventLikeButton.attr('data-liked', "false");
+                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
+            }
+            updateLikeButton(eventLikeButton);
+        }
+    };
+    const reqData = new ReqData(requestTypes["TOGGLE"], url,
+        handler);
+
+    undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Sets the like button style to be liked or unliked for a given event
+ * @param {Object} eventLikeButton jquery object of target button
+ * @param {boolean} noAnimation set to true to disable flight animation, false by default, used for on first load
+ */
+function updateLikeButton(eventLikeButton, noAnimation=false) {
+    if (eventLikeButton.attr('data-liked') === "true") {
+        if (!noAnimation) {
+            eventLikeButton.addClass("rotate-top");
+            setTimeout(() => {
+                eventLikeButton.removeClass("fas-in");
+                eventLikeButton.removeClass("rotate-top");
+                eventLikeButton.removeClass("far");
+                eventLikeButton.addClass("fas");
+                eventLikeButton.addClass("fas-in");
+            }, 500);
+            setTimeout(() => {
+                eventLikeButton.removeClass("fas-in");
+            }, 700);
+
+        } else {
+            eventLikeButton.addClass("fas");
+        }
+    } else {
+        eventLikeButton.removeClass("fas");
+        eventLikeButton.addClass("far");
+        eventLikeButton.addClass("fas-in");
+    }
+}
+
+/**
+ * Updates the like counter on an event with the number from the backend
+ * @param {Object} likeCounter the JQuery html object of the card like number field
+ * @param {Number} eventId the id of the event to get the like count for
+ */
+function updateLikeNumber(likeCounter, eventId) {
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.getLikeCount(eventId).url;
+    get(url)
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to get like count for an event" ,
+                    "danger", 5000);
+            } else {
+                const numberOfLikes = data.likeCount;
+                likeCounter.data('likes', numberOfLikes);
+                likeCounter.text(followerCountFormatter(numberOfLikes));
+            }
+        })
+    });
+}
+
+/**
+ * Adds tags to a card for the newsfeed
+ * @param card the dom element to add tags to
+ * @param tags a list of tags to add to the card
+ */
 function addTags(card, tags) {
     const list = card.find('.wrapper-tags');
     const tagsDisplay = new TagDisplay('fakeId');
@@ -232,7 +352,7 @@ function createDestinationWrapperCard(event) {
                     </a>
                     ${event.message}`;
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created));
+        this.formatDate(event.created), event.eventIds);
 }
 
 /**
@@ -241,13 +361,14 @@ function createDestinationWrapperCard(event) {
  * @param {object} event newsfeed event item data
  */
 function createUserWrapperCard(event) {
-    const id = 1; //testing
-    const message = `<a href="${"/profile/" + event.eventerId}"> 
-                        ${event.name}
-                    </a>
-                    ${event.message}`;
+    const message = `
+        <a href="${"/profile/" + event.eventerId}"> 
+            ${event.name}
+        </a>
+        ${event.message}`;
+
     return createWrapperCard(event.thumbnail, message,
-        this.formatDate(event.created));
+        this.formatDate(event.created), event.eventIds);
 }
 
 /******************************
@@ -367,10 +488,102 @@ function multipleDestinationPhotoLinks(event) {
  */
 function multipleGalleryPhotos(event) {
     const card = createUserWrapperCard(event);
-    //TODO: The card
+    const template = $("#multiplePhotoCardTemplate").get(0);
+    const photoCard = $(template.content.cloneNode(true));
+    const photos = event.data.photos;
+    const eventId = event.eventIds[0];
+    const photoCardId = "multiple-photo-carousel-" + eventId;
+    const photoThumbnails = photoCard.find('.photo-thumbnails');
+    const photoDatas = [];
+    for (const i in photos) {
+        photoDatas.push({
+            eventId: event.eventIds[i],
+            tags: photos[i].tags
+        });
+
+        photoCard.find(".main-carousel").attr("id", photoCardId);
+        photoCard.find(".carousel-control-prev").attr("href", "#" + photoCardId);
+        photoCard.find(".carousel-control-next").attr("href", "#" + photoCardId);
+        photoCard.find(".carousel-inner").attr("id", "inner-" + photoCardId);
+
+        const photo = photos[i];
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " + (i == 0 ? "active" : ""));
+
+        const baguetteWrapper = document.createElement("A");
+        baguetteWrapper.setAttribute("class", "baguette-image");
+        baguetteWrapper.setAttribute("href", "../user_content/" + photo.filename);
+
+        const imageWrapper = document.createElement("IMG");
+        imageWrapper.setAttribute("src", "../user_content/" + photo.thumbnailFilename);
+        imageWrapper.setAttribute("class", "d-block w-100");
+
+        baguetteWrapper.append(imageWrapper);
+        carouselWrapper.append(baguetteWrapper);
+        photoThumbnails.append(carouselWrapper);
+    }
+
+    addTags(card, photos[0].tags);
+
+    setTimeout(() => {
+        baguetteBox.run('#inner-' + photoCardId);
+        $('#' + photoCardId).carousel({ interval:false });
+        $('#' + photoCardId).on('slide.bs.carousel', function(e) {
+            updateMultyCard(photoDatas, e.direction, $(this).closest('.news-feed-wrapper'));
+        });
+    }, 100);
+    card.find('.wrapper-body').append(photoCard);
+
     return card;
 }
 
+/**
+ * 
+ * @param {Objecty} photoDatas list of photo data
+ * @param {string} direction direction of scroll
+ * @param {Object} card carousel jquery object
+ */
+function updateMultyCard(photoDatas, direction, card) {
+    const carouselInner = card.find('.carousel-inner');
+    const likeCounter = card.find('.likes-number');
+    const likeButton = card.find('.likes-button');
+    //Update get and update photoId
+    let photoId = parseInt(carouselInner.data('photo-id'));
+    photoId = direction === 'left' ? (photoId + 1) % photoDatas.length : photoId - 1;
+    if (photoId < 0) {
+        photoId = photoDatas.length - 1;
+    }
+    carouselInner.data('photo-id',  photoId);
+
+    //update event-id
+    const eventId = photoDatas[photoId].eventId;
+    likeButton.data('event-id', eventId);
+    likeButton.attr('id', 'event-id-' + eventId);
+    
+    //get and update likes
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
+    get(url)
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to get like status",
+                    "danger", 5000);
+            } else {
+                likeButton.attr('data-liked', data);
+                updateLikeButton(likeButton, true);
+                updateLikeNumber(likeCounter, eventId);
+            }
+        })
+    });
+    likeButton.unbind('click');
+    likeButton.click(function() {likeUnlikeEvent(eventId)});
+
+    //Update tags
+    const tags = photoDatas[photoId].tags;
+    addTags(card, tags);
+
+}
 
 
 /**
@@ -420,9 +633,12 @@ function createdNewDestinationCard(event) {
 
     $(destinationCard).find("#destinatonCardTravellerTypes").append(
         travellerTypes ? travellerTypes : "No traveller types");
-    $(destinationCard).find("#tags").append(tags ? tags : "No tags");
+
+    $(destinationCard).find("#tags").remove();
 
     card.find('.wrapper-body').append(destinationCard);
+
+    addTags(card, dest.tags);
 
     return card
 }
@@ -444,3 +660,4 @@ function updatedExistingDestinationCard(event) {
 function newProfileCoverPhotoCard(event) {
     return newProfilePhotoCard(event);
 }
+
