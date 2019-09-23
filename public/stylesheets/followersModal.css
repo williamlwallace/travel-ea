@@ -28,6 +28,11 @@
     cursor: pointer;
 }
 
+.follower-card:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
 /* Tab panel buttons */
 .follower-nav{display:block;padding:0 1.5rem 0;color: #000000;}
 .follower-nav:focus,.profile-nav:hover{text-decoration:none}
@@ -41,3 +46,16 @@
 .search-input {
     width: 260px;
 }
+
+#followersCardList, #followedByCardList {
+    height: 50%;
+    overflow-y: scroll;
+}
+
+#no-followers, #no-following {
+    margin-left: auto;
+    margin-right: auto;
+    display: table;
+    /*padding-top: 1rem;*/
+}
+

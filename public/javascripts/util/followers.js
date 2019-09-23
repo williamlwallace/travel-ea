@@ -1,3 +1,5 @@
+let followersRequestOrder;
+
 /**
  * Sets the follow button depending if you follow this user/destination or not
  *
@@ -122,15 +124,47 @@ function followToggle(type) {
 }
 
 /**
+ * Handles scroll event for the profile followers/following modal
+ * @param {Boolean} onFollowingTab Whether or not the user is on the following tab
+ * @param {Number} id The id of the profile the user is on
+ * @param {String} searchQuery The query to search by
+ */
+function profileScrollHandler(onFollowingTab, id, searchQuery) {
+    if (($(this).innerHeight() + $(this).scrollTop())
+        >= $(this)[0].scrollHeight - 100) {
+        if (onFollowingTab) {
+            if ($('#users-following-btn').hasClass('btn-primary')) {
+                populateFollowingUsers(id, searchQuery, false).then(() => {
+                    this.data("page-number", this.data("page-number") + 1);
+                });
+            } else {
+                populateFollowingDestinations(id, searchQuery, false);
+            }
+        } else {
+            populateFollowers(id, searchQuery, false);
+        }
+    }
+}
+
+/**
+ * Handles scroll event for the destination followers modal
+ * @param {Number} id The id of the profile the user is on
+ * @param {String} searchQuery The query to search by
+ */
+function destinationPageScrollHandler(id, searchQuery) {
+    if (($(this).innerHeight() + $(this).scrollTop())
+        >= $(this)[0].scrollHeight - 100) {
+        populateDestinationFollowers(id, searchQuery, false);
+    }
+}
+
+/**
  * Click listener to display and populate and display followers modal on profile page.
  * In particular what the user is following.
  */
 $("#following-summary").on('click', function () {
     $("#following-modal").modal("show");
     $("#following-tab").click();
-    const id = parseInt(window.location.href.split("/").pop());
-    populateFollowingUsers(id, "");
-    populateFollowers(id, "");
 });
 
 /**
@@ -140,18 +174,48 @@ $("#following-summary").on('click', function () {
 $('#follower-summary').on('click', function () {
     $("#following-modal").modal("show");
     $("#follower-tab").click();
-    const id = parseInt(window.location.href.split("/").pop());
-    populateFollowers(id, "");
-    populateFollowingUsers(id, "");
 });
 
 /**
- * Click listener to display and populate and display followers modal on destination page
+ * On click listener for the following tab in the modal
+ */
+$("#following-tab").on("click", function () {
+    $('#followingSearch').val("");
+    $('#dests-following-btn').attr('class', 'btn btn-outline-primary');
+    $('#users-following-btn').attr('class', 'btn btn-primary');
+    const id = parseInt(window.location.href.split("/").pop());
+    followersRequestOrder = 1;
+    populateFollowingUsers(id, "", true);
+    const followersCardList = $("#followersCardList");
+    followersCardList.scroll(
+        profileScrollHandler.bind(followersCardList, true, id, ""));
+});
+
+/**
+ * On click listener for the follower tab in the modal
+ */
+$("#follower-tab").on("click", function () {
+    $('#followersSearch').val("");
+    const id = parseInt(window.location.href.split("/").pop());
+    followersRequestOrder = 1;
+    populateFollowers(id, "", true);
+    const followedByCardList = $("#followedByCardList");
+    followedByCardList.scroll(
+        profileScrollHandler.bind(followedByCardList, false, id, ""));
+});
+
+/**
+ * On click listener to display and populate and display followers modal on destination page
  */
 $('#destination-follower-summary').on('click', function () {
+    $('#followersSearch').val("");
     $("#followers-modal").modal("show");
     const id = parseInt(window.location.href.split("/").pop());
-    populateDestinationFollowers(id);
+    followersRequestOrder = 1;
+    populateDestinationFollowers(id, "", true);
+    const followedByCardList = $("#followedByCardList");
+    followedByCardList.scroll(
+        profileScrollHandler.bind(followedByCardList, false, id, ""));
 });
 
 /**
@@ -160,8 +224,14 @@ $('#destination-follower-summary').on('click', function () {
 $('#dests-following-btn').on('click', function () {
     $('#dests-following-btn').attr('class', 'btn btn-primary');
     $('#users-following-btn').attr('class', 'btn btn-outline-primary');
+    $('#followingSearch').val("");
     const id = parseInt(window.location.href.split("/").pop());
-    populateFollowingDestinations(id, "");
+
+    followersRequestOrder = 1;
+    populateFollowingDestinations(id, "", true);
+    const followersCardList = $("#followersCardList");
+    followersCardList.scroll(
+        profileScrollHandler.bind(followersCardList, true, id, ""));
 });
 
 /**
@@ -170,8 +240,10 @@ $('#dests-following-btn').on('click', function () {
 $('#users-following-btn').on('click', function () {
     $('#dests-following-btn').attr('class', 'btn btn-outline-primary');
     $('#users-following-btn').attr('class', 'btn btn-primary');
+    $('#followingSearch').val("");
     const id = parseInt(window.location.href.split("/").pop());
-    populateFollowingUsers(id, "");
+    followersRequestOrder = 1;
+    populateFollowingUsers(id, "", true);
 });
 
 /**
@@ -206,13 +278,21 @@ $('#followersSearch').on('keyup', function (e) {
  */
 function searchFollowers(textInput) {
     const url = window.location.href.split("/");
-    console.log(url);
     const id = parseInt(url.pop());
     const onDestination = url.pop() === "destinations";
+    const followedByCardList = $("#followedByCardList");
+    followersRequestOrder = 1;
+
     if (onDestination) {
-        populateDestinationFollowers(id, textInput);
+        populateDestinationFollowers(id, textInput, true);
+        followedByCardList.scroll(
+            destinationPageScrollHandler.bind(followedByCardList, id,
+                textInput));
     } else {
-        populateFollowers(id, textInput);
+        populateFollowers(id, textInput, true);
+        followedByCardList.scroll(
+            profileScrollHandler.bind(followedByCardList, false, id,
+                textInput));
     }
 }
 
@@ -222,10 +302,16 @@ function searchFollowers(textInput) {
  */
 function searchFollowing(textInput) {
     const id = parseInt(window.location.href.split("/").pop());
+    followersRequestOrder = 1;
+    const followersCardList = $("#followersCardList");
     if ($('#users-following-btn').hasClass('btn-primary')) {
-        populateFollowingUsers(id, textInput);
+        populateFollowingUsers(id, textInput, true);
+        followersCardList.scroll(
+            profileScrollHandler.bind(followersCardList, true, id, textInput));
     } else {
-        populateFollowingDestinations(id, textInput);
+        populateFollowingDestinations(id, textInput, true);
+        followersCardList.scroll(
+            profileScrollHandler.bind(followersCardList, true, id, textInput));
     }
 }
 
@@ -233,23 +319,30 @@ function searchFollowing(textInput) {
  * Function to populate the followers modal with users that the given user is following
  * @param {Number} userId Id of user who's profile is being viewed
  * @param {String} searchQuery The name to search by
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function populateFollowingUsers(userId, searchQuery) {
+function populateFollowingUsers(userId, searchQuery, clearFollowers) {
     const url = new URL(
         profileRouter.controllers.backend.ProfileController.getPaginatedFollowingUsers(
             userId).url, window.location.origin);
+
+    url.searchParams.append("requestOrder", followersRequestOrder);
+    url.searchParams.append("pageNum", followersRequestOrder);
 
     if (searchQuery) {
         url.searchParams.append("searchQuery", searchQuery);
     }
 
-    get(url).then(response => {
-        response.json()
+    return get(url).then(response => {
+        return response.json()
         .then(followers => {
             if (response.status !== 200) {
                 showErrors(followers);
             } else {
-                createUserFollowerCard(followers.data);
+                if (followersRequestOrder === followers.requestOrder) {
+                    followersRequestOrder = followersRequestOrder + 1;
+                    createUserFollowerCard(followers.data, clearFollowers);
+                }
             }
         });
     });
@@ -259,23 +352,31 @@ function populateFollowingUsers(userId, searchQuery) {
  * Function to populate the followers modal with destinations that the given user is following
  * @param {Number} userId Id of user who's profile is being viewed
  * @param {String} searchQuery The name to search by
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function populateFollowingDestinations(userId, searchQuery) {
+function populateFollowingDestinations(userId, searchQuery, clearFollowers) {
     const url = new URL(
         destinationRouter.controllers.backend.DestinationController.getDestinationsFollowedByUser(
             userId).url, window.location.origin);
+
+    url.searchParams.append("requestOrder", followersRequestOrder);
+    url.searchParams.append("pageNum", followersRequestOrder);
 
     if (searchQuery) {
         url.searchParams.append("searchQuery", searchQuery);
     }
 
-    get(url).then(response => {
-        response.json()
+    return get(url).then(response => {
+        return response.json()
         .then(followers => {
             if (response.status !== 200) {
                 showErrors(followers);
             } else {
-                createDestinationFollowerCard(followers.data);
+                if (followersRequestOrder === followers.requestOrder) {
+                    followersRequestOrder = followersRequestOrder + 1;
+                    createDestinationFollowerCard(followers.data,
+                        clearFollowers);
+                }
             }
         });
     });
@@ -285,23 +386,30 @@ function populateFollowingDestinations(userId, searchQuery) {
  * Function to populate the followers modal with users that the given user is followed by
  * @param {Number} userId Id of user who's profile is being viewed
  * @param {String} searchQuery The name to search by
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function populateFollowers(userId, searchQuery) {
+function populateFollowers(userId, searchQuery, clearFollowers) {
     const url = new URL(
         profileRouter.controllers.backend.ProfileController.getPaginatedFollowerUsers(
             userId).url, window.location.origin);
+
+    url.searchParams.append("requestOrder", followersRequestOrder);
+    url.searchParams.append("pageNum", followersRequestOrder);
 
     if (searchQuery) {
         url.searchParams.append("searchQuery", searchQuery);
     }
 
-    get(url).then(response => {
-        response.json()
+    return get(url).then(response => {
+        return response.json()
         .then(followers => {
             if (response.status !== 200) {
                 showErrors(followers);
             } else {
-                createUserFollowedByCard(followers.data);
+                if (followersRequestOrder === followers.requestOrder) {
+                    followersRequestOrder = followersRequestOrder + 1;
+                    createUserFollowedByCard(followers.data, clearFollowers);
+                }
             }
         });
     });
@@ -311,33 +419,31 @@ function populateFollowers(userId, searchQuery) {
  * Populates the followers modal on the destination page with all users following the given destination
  * @param {Number} destinationId - ID of destination displayed on page
  * @param {String} searchQuery The name to search by
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function populateDestinationFollowers(destinationId, searchQuery) {
+function populateDestinationFollowers(destinationId, searchQuery,
+    clearFollowers) {
     const url = new URL(
         destinationRouter.controllers.backend.DestinationController.getDestinationFollowers(
             destinationId).url, window.location.origin);
+
+    url.searchParams.append("requestOrder", followersRequestOrder);
+    url.searchParams.append("pageNum", followersRequestOrder);
 
     if (searchQuery) {
         url.searchParams.append("searchQuery", searchQuery);
     }
 
-    get(url).then(response => {
-        response.json()
+    return get(url).then(response => {
+        return response.json()
         .then(followers => {
             if (response.status !== 200) {
                 showErrors(followers);
             } else {
-                const searchInput = $("#search");
-                const noFollowersLabel = $("#destination-no-followers");
-                if (followers.data.length === 0) {
-                    searchInput.attr({type: "hidden"});
-                    noFollowersLabel.text(
-                        "No followers found.");
-                } else {
-                    searchInput.attr({type: "text"});
-                    noFollowersLabel.text("");
+                if (followersRequestOrder === followers.requestOrder) {
+                    followersRequestOrder = followersRequestOrder + 1;
+                    createUserFollowedByCard(followers.data, clearFollowers);
                 }
-                createUserFollowedByCard(followers.data);
             }
         });
     });
@@ -346,80 +452,112 @@ function populateDestinationFollowers(destinationId, searchQuery) {
 /**
  * Create follower cards for users that a user is following
  * @param {Array} users - List of all users that need to be made into cards
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function createUserFollowerCard(users) {
-    $("#followersCardList").html("");
-    users.forEach((user) => {
-        const template = $("#followerCardTemplate").get(0);
-        const clone = template.content.cloneNode(true);
+function createUserFollowerCard(users, clearFollowers) {
+    if (clearFollowers) {
+        $("#followersCardList").html("");
+    }
 
-        $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
-        if (user.profilePhoto) {
-            $(clone).find("#follower-picture").attr("src",
-                "../../user_content/" + user.profilePhoto.thumbnailFilename);
-        }
-        $(clone).find("#follower-card").attr("data-id", user.userId.toString());
-        $("#followersCardList").get(0).appendChild(clone);
+    if (users.length < 1 && clearFollowers) {
+        $("#followersCardList").html(
+            '<label id="no-following">No users found</label>');
+    } else {
+        users.forEach((user) => {
+            const template = $("#followerCardTemplate").get(0);
+            const clone = template.content.cloneNode(true);
 
-        $(".follower-card").click((element) => {
-            const data = $(element.currentTarget).data();
-            if (data !== undefined) {
-                location.href = `/profile/${data.id}`;
+            $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+            if (user.profilePhoto) {
+                $(clone).find("#follower-picture").attr("src",
+                    "../../user_content/"
+                    + user.profilePhoto.thumbnailFilename);
             }
+            $(clone).find("#follower-card").attr("data-id",
+                user.userId.toString());
+            $("#followersCardList").get(0).appendChild(clone);
+
+            $(".follower-card").click((element) => {
+                const data = $(element.currentTarget).data();
+                if (data !== undefined) {
+                    location.href = `/profile/${data.id}`;
+                }
+            });
         });
-    });
+    }
 }
 
 /**
  * Create follower cards for users that are following a user
  * @param {Array} users - List of all users that need to be made into cards
+ * @param {Boolean} clearFollowing Whether or not to clear the followed already displayed
  */
-function createUserFollowedByCard(users) {
-    $("#followedByCardList").html("");
-    users.forEach((user) => {
-        const template = $("#followerCardTemplate").get(0);
-        const clone = template.content.cloneNode(true);
+function createUserFollowedByCard(users, clearFollowing) {
+    if (clearFollowing) {
+        $("#followedByCardList").html("");
+    }
 
-        $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
-        if (user.profilePhoto) {
-            $(clone).find("#follower-picture").attr("src",
-                "../../user_content/" + user.profilePhoto.thumbnailFilename);
-        }
-        $(clone).find("#follower-card").attr("data-id", user.userId.toString());
-        $("#followedByCardList").get(0).appendChild(clone);
+    if (users.length < 1 && clearFollowing) {
+        $("#followedByCardList").html(
+            '<label id="no-followers">No followers found</label>');
+    } else {
+        users.forEach((user) => {
+            const template = $("#followerCardTemplate").get(0);
+            const clone = template.content.cloneNode(true);
 
-        $(".follower-card").click((element) => {
-            const data = $(element.currentTarget).data();
-            if (data !== undefined) {
-                location.href = `/profile/${data.id}`;
+            $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+            if (user.profilePhoto) {
+                $(clone).find("#follower-picture").attr("src",
+                    "../../user_content/"
+                    + user.profilePhoto.thumbnailFilename);
             }
+            $(clone).find("#follower-card").attr("data-id",
+                user.userId.toString());
+            $("#followedByCardList").get(0).appendChild(clone);
+
+            $(".follower-card").click((element) => {
+                const data = $(element.currentTarget).data();
+                if (data !== undefined) {
+                    location.href = `/profile/${data.id}`;
+                }
+            });
         });
-    });
+    }
 }
 
 /**
  * Create follower cards for destinations that a user is following
  * @param {Array} destinations - List of all destinations that need to be made into cards
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function createDestinationFollowerCard(destinations) {
-    $("#followersCardList").html("");
-    destinations.forEach((dest) => {
-        const template = $("#followerCardTemplate").get(0);
-        const clone = template.content.cloneNode(true);
+function createDestinationFollowerCard(destinations, clearFollowers) {
+    if (clearFollowers) {
+        $("#followersCardList").html("");
+    }
 
-        $(clone).find("#name").append(dest.name);
-        if (dest.primaryPhoto) {
-            $(clone).find("#follower-picture").attr("src",
-                "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
-        }
-        $(clone).find("#follower-card").attr("data-id", dest.id.toString());
-        $("#followersCardList").get(0).appendChild(clone);
+    if (destinations.length < 1 && clearFollowers) {
+        $("#followersCardList").html(
+            '<label id="no-following">No destinations found</label>');
+    } else {
+        destinations.forEach((dest) => {
+            const template = $("#followerCardTemplate").get(0);
+            const clone = template.content.cloneNode(true);
 
-        $(".follower-card").click((element) => {
-            const data = $(element.currentTarget).data();
-            if (data !== undefined) {
-                location.href = `/destinations/${data.id}`;
+            $(clone).find("#name").append(dest.name);
+            if (dest.primaryPhoto) {
+                $(clone).find("#follower-picture").attr("src",
+                    "../../user_content/"
+                    + dest.primaryPhoto.thumbnailFilename);
             }
+            $(clone).find("#follower-card").attr("data-id", dest.id.toString());
+            $("#followersCardList").get(0).appendChild(clone);
+
+            $(".follower-card").click((element) => {
+                const data = $(element.currentTarget).data();
+                if (data !== undefined) {
+                    location.href = `/destinations/${data.id}`;
+                }
+            });
         });
-    });
+    }
 }
