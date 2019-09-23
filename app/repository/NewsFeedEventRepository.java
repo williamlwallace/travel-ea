@@ -19,9 +19,12 @@ import javax.inject.Singleton;
 import models.Destination;
 import models.NewsFeedEvent;
 import models.Photo;
+import models.Profile;
 import models.enums.NewsFeedEventType;
 import models.Likes;
 import models.Trip;
+import models.FollowerUser;
+import models.FollowerDestination;
 import play.db.ebean.EbeanConfig;
 
 /**
@@ -253,6 +256,35 @@ public class NewsFeedEventRepository {
                 .eq("event_id", eventId)
                 .findCount();
 
+        });
+    }
+
+    /**
+     * Retrieves the number of likes a news feed event has
+     *
+     * @param eventId ID of the news feed event to retrieve likes count for
+     * @return A news feed event object with only the like count field populated
+     */
+    public CompletableFuture<List<Profile>> getTrendingUsers() {
+        return supplyAsync(() -> {
+            return (long) ebeanServer.find(FollowerUser.class)
+                .where()
+                .findCount();
+
+        });
+    }
+
+    /**
+     * Retrieves the number of likes a news feed event has
+     *
+     * @param eventId ID of the news feed event to retrieve likes count for
+     * @return A news feed event object with only the like count field populated
+     */
+    public CompletableFuture<List<Long>> getTrendingDestinations() {
+        return supplyAsync(() -> {
+            return (long) ebeanServer.find(FollowerDestination.class)
+                .where()
+                .findCount();
         });
     }
 

@@ -41,3 +41,8 @@
 .search-input {
     width: 260px;
 }
+
+#followedByCardList {
+    height: 50px;
+    overflow-y: scroll;
+}

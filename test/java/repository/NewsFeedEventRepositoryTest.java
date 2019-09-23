@@ -146,4 +146,18 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
         assertEquals(Integer.valueOf(1), rows);
     }
 
+    @Test
+    public void trendingUsers() {
+        List<Profile> profiles = newsFeedEventRepository.getTrendingUsers().join();
+        assertEquals(5, profiles.size());
+        assertEquals(4, profiles.get(0).id);
+    }
+
+    @Test
+    public void trendingDestinations() {
+        List<Destination> destinations = newsFeedEventRepository.getTrendingDestinations().join();
+        assertEquals(5, destinations.size());
+        assertEquals(4, destinations.get(0).id);
+    }
+
 }
