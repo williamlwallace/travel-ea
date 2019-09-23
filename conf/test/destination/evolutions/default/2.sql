@@ -73,7 +73,8 @@ INSERT INTO DestinationTag (tag_id, destination_id) VALUES (2, 1), (2, 4), (3, 1
 
 INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (1, null, 'NEW_PROFILE_PHOTO', 1, '2019-09-01 00:00:00');
 INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (2, null, 'NEW_PROFILE_PHOTO', 2, '2019-09-01 00:00:01');
-INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (2, 2, 'LINK_DESTINATION_PHOTO', 3, '2019-09-01 00:00:02');
+INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (2, 2, 'LINK_DESTINATION_PHOTO', 2, '2019-09-01 00:00:02');
+INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (2, null, 'UPDATED_EXISTING_TRIP', 1, '2019-09-01 00:00:02');
 
 -- Add following of a destination for testing
 INSERT INTO FollowerDestination(destination_id, follower_id) VALUES (9, 2);

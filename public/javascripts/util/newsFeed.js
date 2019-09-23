@@ -127,7 +127,7 @@ const NewsFeedEventTypes = {
      * reference ID = ID of photo
      * dest ID = ID of destination
      */
-    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleDestinationPhotoLinks,
+    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleGalleryPhotos,
 
     /**
      * A public destination has had its primary photo updated
@@ -426,18 +426,6 @@ function newPrimaryPhotoCard(event) {
  */
 function groupedTripUpdates(event) {
     return multipleDestinations(event);
-}
-
-
-/**
- * Creates news Feed card for groups of destination photos
- *
- * @param {object} event - News feed event item data
- */
-function multipleDestinationPhotoLinks(event) {
-    const card = createUserWrapperCard(event);
-    //TODO: The card
-    return card;
 }
 
 /**

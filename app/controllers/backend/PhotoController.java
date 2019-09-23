@@ -598,28 +598,31 @@ public class PhotoController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> deletePhoto(Long id) {
-        return photoRepository.deletePhoto(id).thenApplyAsync(photoDeleted -> {
+        return photoRepository.deletePhoto(id).thenComposeAsync(photoDeleted -> {
             if (photoDeleted == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.map("Photo not found", "other");
-                return badRequest(errorResponse.toJson());
+                return CompletableFuture.supplyAsync(() -> badRequest(errorResponse.toJson()));
             } else {
-                // Mark the files for deletion
-                File thumbFile = new File(savePath + photoDeleted.thumbnailFilename);
-                File mainFile = new File(savePath + photoDeleted.filename);
-                if (!thumbFile.delete()) {
-                    // If file fails to delete immediately,
-                    // mark file for deletion when VM shuts down
-                    thumbFile.deleteOnExit();
-                }
-                if (!mainFile.delete()) {
-                    // If file fails to delete immediately,
-                    // mark file for deletion when VM shuts down
-                    mainFile.deleteOnExit();
-                }
+                // Delete any newsfeed events related to that photo
+                return newsFeedEventRepository.cleanUpPhotoEvents(photoDeleted).thenApplyAsync(rows -> {
+                    // Mark the files for deletion
+                    File thumbFile = new File(savePath + photoDeleted.thumbnailFilename);
+                    File mainFile = new File(savePath + photoDeleted.filename);
+                    if (!thumbFile.delete()) {
+                        // If file fails to delete immediately,
+                        // mark file for deletion when VM shuts down
+                        thumbFile.deleteOnExit();
+                    }
+                    if (!mainFile.delete()) {
+                        // If file fails to delete immediately,
+                        // mark file for deletion when VM shuts down
+                        mainFile.deleteOnExit();
+                    }
 
-                // Return number of photos deleted
-                return ok(Json.toJson(1));
+                    // Return number of photos deleted
+                    return ok(Json.toJson(1));
+                });
             }
         });
     }
@@ -667,8 +670,10 @@ public class PhotoController extends TEABackController {
             }
             if (!oldStatus) {
                 // Photo was public, making it prrivate, no newsfeed event
-                return photoRepository.updatePhoto(photo)
-                    .thenApplyAsync(rows -> ok(Json.toJson(existingPhoto)));
+                return newsFeedEventRepository.cleanUpPhotoEvents(photo).thenComposeAsync(deleted_rows -> {
+                    return photoRepository.updatePhoto(photo)
+                        .thenApplyAsync(updated_rows -> ok(Json.toJson(existingPhoto)));
+                });
             }
             return photoRepository.updatePhoto(photo)
                 .thenComposeAsync(rows -> {
@@ -699,62 +704,65 @@ public class PhotoController extends TEABackController {
         Long photoId) {
         Long userId = request.attrs().get(ActionState.USER).id;
         return photoRepository.getDeletedDestPhoto(photoId, destId)
-            .thenComposeAsync(deletedPhoto -> {
-                return destinationRepository.getDestination(destId)
-                    .thenComposeAsync(destination -> {
-                        return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
-                            if (deletedPhoto == null) {
-                                if (destination != null) {
-                                    if (!destination.isPublic && !destination.user.id
-                                        .equals(userId)) {
-                                        //forbidden if destination is private and user does not own destination
-                                        return CompletableFuture
-                                            .supplyAsync(Results::forbidden);
-                                    }
-                                    if (destination.isPublic && !destination.user.id
-                                        .equals(userId)) {
-                                        //Set destination owner to admin if photo is added from diffrent user
-                                        destinationRepository
-                                            .changeDestinationOwner(destId, MASTER_ADMIN_ID)
-                                            .thenApplyAsync(rows -> rows); //set to master admin
-                                    }
-                                    if (destination.isLinked(photoId)) {
-                                        //if photo is already linked return badrequest
-                                        return CompletableFuture
-                                            .supplyAsync(Results::badRequest);
-                                    }
-                                    if (photo == null) {
-                                        return CompletableFuture.supplyAsync(Results::notFound);
-                                    }
-                                    //Link photo to destination
-                                    destination.destinationPhotos.add(photo);
-                                    return destinationRepository.updateDestination(destination)
-                                        .thenApplyAsync(dest -> {
-                                            NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
-                                            newsFeedEvent.refId = photoId;
-                                            newsFeedEvent.destId = destId;
-                                            newsFeedEvent.userId = userId;
-                                            newsFeedEvent.eventType = NewsFeedEventType.LINK_DESTINATION_PHOTO.name();
-
-                                            newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent);
-                                            return ok(Json.toJson("Succesfully Updated"));
-                                        });
-                                }
-                                return CompletableFuture.supplyAsync(Results::notFound);
-                            } else {
-                                if (photo == null) {
-                                    return CompletableFuture.supplyAsync(Results::notFound);
-                                }
-                                if (!photo.removeDestination(destId)) {
-                                    return CompletableFuture.supplyAsync(Results::notFound);
-                                }
+        .thenComposeAsync(deletedPhoto -> {
+            return destinationRepository.getDestination(destId)
+            .thenComposeAsync(destination -> {
+                return photoRepository.getPhotoById(photoId).thenComposeAsync(photo -> {
+                    if (deletedPhoto == null) {
+                        if (destination != null) {
+                            if (!destination.isPublic && !destination.user.id
+                                .equals(userId)) {
+                                //forbidden if destination is private and user does not own destination
+                                return CompletableFuture
+                                    .supplyAsync(Results::forbidden);
                             }
-                            deletedPhoto.deleted = !deletedPhoto.deleted;
-                            return photoRepository.updatePhoto(photo)
-                                .thenApplyAsync(rows -> ok(Json.toJson(deletedPhoto.guid)));
-                        });
-                    });
+                            if (destination.isPublic && !destination.user.id
+                                .equals(userId)) {
+                                //Set destination owner to admin if photo is added from diffrent user
+                                destinationRepository
+                                    .changeDestinationOwner(destId, MASTER_ADMIN_ID)
+                                    .thenApplyAsync(rows -> rows); //set to master admin
+                            }
+                            if (destination.isLinked(photoId)) {
+                                //if photo is already linked return badrequest
+                                return CompletableFuture
+                                    .supplyAsync(Results::badRequest);
+                            }
+                            if (photo == null) {
+                                return CompletableFuture.supplyAsync(Results::notFound);
+                            }
+                            //Link photo to destination
+                            destination.destinationPhotos.add(photo);
+                            return destinationRepository.updateDestination(destination)
+                                .thenApplyAsync(dest -> {
+                                    NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
+                                    newsFeedEvent.refId = photoId;
+                                    newsFeedEvent.destId = destId;
+                                    newsFeedEvent.userId = userId;
+                                    newsFeedEvent.eventType = NewsFeedEventType.LINK_DESTINATION_PHOTO.name();
+
+                                    newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent);
+                                    return ok(Json.toJson("Succesfully Updated"));
+                                });
+                        }
+                        return CompletableFuture.supplyAsync(Results::notFound);
+                    } else {
+                        if (photo == null) {
+                            return CompletableFuture.supplyAsync(Results::notFound);
+                        }
+                        if (!photo.removeDestination(destId)) {
+                            return CompletableFuture.supplyAsync(Results::notFound);
+                        }
+                    }
+                    deletedPhoto.deleted = !deletedPhoto.deleted;
+                    if(deletedPhoto.deleted) {
+                        newsFeedEventRepository.cleanUpPhotoEvents(photo);
+                    }
+                    return photoRepository.updatePhoto(photo)
+                        .thenApplyAsync(rows -> ok(Json.toJson(deletedPhoto.guid)));
+                });
             });
+        });
     }
 
     /**

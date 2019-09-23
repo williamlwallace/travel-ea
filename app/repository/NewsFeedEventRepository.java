@@ -81,6 +81,7 @@ public class NewsFeedEventRepository {
         Collection<String> relevantTypes = Arrays.asList(
             NewsFeedEventType.LINK_DESTINATION_PHOTO.name(),
             NewsFeedEventType.NEW_PROFILE_COVER_PHOTO.name(),
+            NewsFeedEventType.NEW_PROFILE_PHOTO.name(),
             NewsFeedEventType.UPLOADED_USER_PHOTO.name(),
             NewsFeedEventType.NEW_PRIMARY_DESTINATION_PHOTO.name()
         );
