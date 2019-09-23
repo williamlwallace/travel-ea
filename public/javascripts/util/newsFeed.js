@@ -425,47 +425,7 @@ function newPrimaryPhotoCard(event) {
  * @param {object} event - News feed event item data
  */
 function groupedTripUpdates(event) {
-    const card = createUserWrapperCard(event);
-    const template = $("#multipleDestinationCardTemplate").get(0);
-    const destinationCard = $(template.content.cloneNode(true));
-    const destinations = event.data.newDestinations;
-    const eventId = event.id;
-    const destinationCardId = "multiple-destination-carousel-" + eventId;
-    // const photoThumbnails = photoCard.find('.photo-thumbnails');
-    const destinationObjects = destinationCard.find('.carousel-inner');
-
-    for (let i = 0; i < destinations.length; i++) {
-        destinationCard.find(".main-carousel").attr("id", destinationCardId);
-        destinationCard.find(".carousel-control-prev").attr("href", "#" + destinationCardId);
-        destinationCard.find(".carousel-control-next").attr("href", "#" + destinationCardId);
-        destinationCard.find(".carousel-inner").attr("id", "inner-" + destinationCardId);
-
-        const destination = destinations[i];
-        console.log(destination);
-        const carouselWrapper = document.createElement("DIV");
-        carouselWrapper.setAttribute("class", "carousel-item " + (i === 0 ? "active" : ""));
-
-        // const baguetteWrapper = document.createElement("A");
-        // baguetteWrapper.setAttribute("class", "baguette-image");
-        // baguetteWrapper.setAttribute("href", "../user_content/" + photo.filename);
-        //
-        // const imageWrapper = document.createElement("IMG");
-        // imageWrapper.setAttribute("src", "../user_content/" + photo.thumbnailFilename);
-        // imageWrapper.setAttribute("class", "d-block w-100");
-        //
-        // baguetteWrapper.append(imageWrapper);
-
-
-
-
-        carouselWrapper.append(baguetteWrapper);
-        destinationObjects.append(carouselWrapper);
-    }
-
-    // setTimeout(() => baguetteBox.run('#inner-' + photoCardId), 10);
-    card.find('.wrapper-body').append(destinationCard);
-
-    return card;
+    return multipleDestinations(event);
 }
 
 
@@ -480,6 +440,39 @@ function multipleDestinationPhotoLinks(event) {
     return card;
 }
 
+/**
+ * Creates a news feed card with multiple destinations which is scrollable
+ *
+ * @param {Object} event - News feed event containing destination details
+ * @returns {Object} card - News feed card
+ */
+function multipleDestinations(event) {
+    const card = createUserWrapperCard(event);
+    const template = $("#multipleDestinationCardTemplate").get(0);
+    const destinationCard = $(template.content.cloneNode(true));
+    const destinations = event.data.newDestinations;
+    const eventId = event.id;
+    const destinationCardId = "multiple-destination-carousel-" + eventId;
+    const destinationObjects = destinationCard.find('.carousel-inner');
+
+    for (let i = 0; i < destinations.length; i++) {
+        destinationCard.find(".main-carousel").attr("id", destinationCardId);
+        destinationCard.find(".carousel-control-prev").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-control-next").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-inner").attr("id", "inner-" + destinationCardId);
+
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " + (i === 0 ? "active" : ""));
+
+        const destCard = createDestinationCard(destinations[i]);
+
+        carouselWrapper.append(destCard);
+        destinationObjects.append(carouselWrapper);
+    }
+
+    card.find('.wrapper-body').append(destinationCard);
+    return card;
+}
 
 /**
  * Creates news Feed card for groups of gallery photos
@@ -539,7 +532,7 @@ function multipleGalleryPhotos(event) {
 
 /**
  * 
- * @param {Objecty} photoDatas list of photo data
+ * @param {Object} photoDatas list of photo data
  * @param {string} direction direction of scroll
  * @param {Object} card carousel jquery object
  */
@@ -593,52 +586,9 @@ function updateMultyCard(photoDatas, direction, card) {
  */
 function createdNewDestinationCard(event) {
     const card = createUserWrapperCard(event);
-
-    const template = $("#destinationCardTemplate").get(0);
-    const destinationCard = $(template.content.cloneNode(true));
-
     const dest = event.data;
-
-    let tags = "";
-    let travellerTypes = "";
-
-    $(destinationCard).find("#card-header").append(dest.name);
-    if (dest.primaryPhoto) {
-        $(destinationCard).find("#card-thumbnail").attr("src",
-            "../user_content/" + dest.primaryPhoto.thumbnailFilename);
-    }
-    $(destinationCard).find("#district").append(
-        dest.district ? dest.district : "No district");
-    $(destinationCard).find("#country").append(dest.country.name);
-    $(destinationCard).find("#destType").append(
-        dest.destType ? dest.destType : "No type");
-    $(destinationCard).find("#card-header").attr("data-id", dest.id.toString());
-    $(destinationCard).find("#card-header").attr("id",
-        "destinationCard-" + dest.id.toString());
-
-    $($(destinationCard).find('#destinationCard-' + dest.id.toString())).click(
-        function () {
-            location.href = '/destinations/' + $(this).data().id;
-        });
-
-    dest.tags.forEach(item => {
-        tags += item.name + ", ";
-    });
-    tags = tags.slice(0, -2);
-
-    dest.travellerTypes.forEach(item => {
-        travellerTypes += item.description + ", ";
-    });
-    travellerTypes = travellerTypes.slice(0, -2);
-
-    $(destinationCard).find("#destinatonCardTravellerTypes").append(
-        travellerTypes ? travellerTypes : "No traveller types");
-
-    $(destinationCard).find("#tags").remove();
-
+    const destinationCard = createDestinationCard(dest);
     card.find('.wrapper-body').append(destinationCard);
-
-    addTags(card, dest.tags);
 
     return card
 }
