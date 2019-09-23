@@ -121,20 +121,37 @@ function followToggle(type) {
     undoRedo.sendAndAppend(reqData);
 }
 
+/**
+ * Click listener to display and populate and display followers modal on profile page.
+ * In particular what the user is following.
+ */
 $("#following-summary").on('click', function () {
     $("#following-modal").modal("show");
     $("#following-tab").click();
-    const id = window.location.href.split("/").pop();
+    const id = parseInt(window.location.href.split("/").pop());
     populateFollowingUsers(id, "");
     populateFollowers(id, "");
 });
 
+/**
+ * Click listener to display and populate and display followers modal on profile page.
+ * In particular who is following a user.
+ */
 $('#follower-summary').on('click', function () {
     $("#following-modal").modal("show");
     $("#follower-tab").click();
-    const id = window.location.href.split("/").pop();
+    const id = parseInt(window.location.href.split("/").pop());
     populateFollowers(id, "");
     populateFollowingUsers(id, "");
+});
+
+/**
+ * Click listener to display and populate and display followers modal on destination page
+ */
+$('#destination-follower-summary').on('click', function () {
+    $("#followers-modal").modal("show");
+    const id = parseInt(window.location.href.split("/").pop());
+    populateDestinationFollowers(id);
 });
 
 /**
@@ -143,7 +160,7 @@ $('#follower-summary').on('click', function () {
 $('#dests-following-btn').on('click', function () {
     $('#dests-following-btn').attr('class', 'btn btn-primary');
     $('#users-following-btn').attr('class', 'btn btn-outline-primary');
-    const id = window.location.href.split("/").pop();
+    const id = parseInt(window.location.href.split("/").pop());
     populateFollowingDestinations(id, "");
 });
 
@@ -153,7 +170,7 @@ $('#dests-following-btn').on('click', function () {
 $('#users-following-btn').on('click', function () {
     $('#dests-following-btn').attr('class', 'btn btn-outline-primary');
     $('#users-following-btn').attr('class', 'btn btn-primary');
-    const id = window.location.href.split("/").pop();
+    const id = parseInt(window.location.href.split("/").pop());
     populateFollowingUsers(id, "");
 });
 
@@ -284,8 +301,36 @@ function populateFollowers(userId, searchQuery) {
 }
 
 /**
+ * Populates the followers modal on the destination page with all users following the given destination
+ * @param {Number} destinationId - ID of destination displayed on page
+ */
+function populateDestinationFollowers(destinationId) {
+    get(destinationRouter.controllers.backend.DestinationController.getDestinationFollowers(
+        destinationId).url)
+    .then(response => {
+        response.json()
+        .then(followers => {
+            if (response.status !== 200) {
+                showErrors(followers);
+            } else {
+                const searchInput = $("#search");
+                const noFollowersLabel = $("#destination-no-followers");
+                if (followers.data.length === 0) {
+                    searchInput.attr({type:"hidden"});
+                    noFollowersLabel.text("No users are following this destination.");
+                } else {
+                    searchInput.attr({type:"text"});
+                    noFollowersLabel.text("");
+                }
+                createUserFollowedByCard(followers.data);
+            }
+        });
+    });
+}
+
+/**
  * Create follower cards for users that a user is following
- * @param users {Array} List of all users that need to be made into cards
+ * @param {Array} users - List of all users that need to be made into cards
  */
 function createUserFollowerCard(users) {
     $("#followersCardList").html("");
@@ -312,7 +357,7 @@ function createUserFollowerCard(users) {
 
 /**
  * Create follower cards for users that are following a user
- * @param users {Array} List of all users that need to be made into cards
+ * @param {Array} users - List of all users that need to be made into cards
  */
 function createUserFollowedByCard(users) {
     $("#followedByCardList").html("");
@@ -339,7 +384,7 @@ function createUserFollowedByCard(users) {
 
 /**
  * Create follower cards for destinations that a user is following
- * @param destinations {Array} List of all destinations that need to be made into cards
+ * @param {Array} destinations - List of all destinations that need to be made into cards
  */
 function createDestinationFollowerCard(destinations) {
     $("#followersCardList").html("");

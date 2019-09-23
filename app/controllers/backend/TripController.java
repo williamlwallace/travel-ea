@@ -301,6 +301,7 @@ public class TripController extends TEABackController {
                             return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
                                 eventId -> ok(Json.toJson(existingTrip)));
                         } else {
+                            newsFeedEventRepository.cleanUpTripEvents(updatedTrip); // clean up events if trip was made private
                             return CompletableFuture.supplyAsync(() -> ok(Json.toJson(existingTrip)));
                         }
                     }
@@ -329,8 +330,12 @@ public class TripController extends TEABackController {
             } else {
                 // Toggle deleted boolean and update
                 trip.deleted = !trip.deleted;
-                return tripRepository.updateTrip(trip).thenApplyAsync(updatedTrip ->
-                    ok(Json.toJson(tripId)));
+                return tripRepository.updateTrip(trip).thenApplyAsync(updatedTrip -> {
+                    if (trip.deleted) {
+                        newsFeedEventRepository.cleanUpTripEvents(trip);
+                    }
+                    return ok(Json.toJson(tripId));
+                });
             }
         });
     }

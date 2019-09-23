@@ -86,6 +86,7 @@ function createTripCard(trip) {
     }
 
     initCarousel(clone, trip);
+    $(clone).find('.carousel').carousel();
 
     $(clone).find("#start-location").append(startDestination);
     $(clone).find("#end-location").append(endDestination);
@@ -106,7 +107,7 @@ let i = 0; // Global counter for carousel data-id
  */
 function initCarousel(clone, trip) {
     $(clone).find("#card-thumbnail-div-trips").append(
-        `<div id=tripCarousel-${i} class="carousel slide carousel-fade" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class=carousel-inner data-id=carousel-inner-${i}></div></div>`
+        `<div id=tripCarousel-${i} class="trip-carousel carousel slide trip-carousel-fade carousel-fade" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class= 'trip-carousel-inner carousel-inner' data-id=carousel-inner-${i}></div></div>`
     );
     let photo = null;
     let photoNum = 0;
@@ -120,7 +121,7 @@ function initCarousel(clone, trip) {
         }
         if (photo) {
             $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
-                "<div class=\"carousel-item\">\n"
+                "<div class=\"trip-carousel-item carousel-item\">\n"
                 + "<img src=" + photo
                 + " class=\"d-block w-100\">\n"
                 + "</div>"
@@ -135,11 +136,11 @@ function initCarousel(clone, trip) {
         if (photoNum > 1) {
             $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
                 `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
-                <span class=carousel-control-prev-icon aria-hidden=true></span>
+                <span class='carousel-control-prev-icon trip-carousel-control-prev-icon' aria-hidden=true></span>
                 <span class=sr-only>Previous</span>
                 </a>
                 <a id=next-button class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
-                <span class=carousel-control-next-icon aria-hidden=true></span>
+                <span class='carousel-control-next-icon trip-carousel-control-next-icon' aria-hidden=true></span>
                 <span class=sr-only>Next</span>
                 </a>`
             );

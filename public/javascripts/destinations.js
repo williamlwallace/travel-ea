@@ -132,7 +132,7 @@ function refreshData() {
         map.populateMarkers(dests);
         createDestinationCards(dests);
     }).then(() => {
-        map.addDestinations()
+        map.addDestinations();
     });
 }
 
@@ -370,11 +370,21 @@ $('#CreateDestinationCancelButton').click(function () {
 /**
  * Destination button on click
  */
-$('#createNewDestinationButton').click(function () {
+function createDestination() {
     getUserId().then(userId => {
         addDestination(
             destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
-            "/", userId)
+            "/", userId);
     });
+}
+
+/**
+ * Pressing enter while within the destination filter will search
+ */
+$('#collapseDestinationFilter').keypress(function (e) {
+    const key = e.which;
+    if(key === 13){
+        refreshData();
+    }
 });
 
