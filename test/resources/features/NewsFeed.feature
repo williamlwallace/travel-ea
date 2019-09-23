@@ -15,3 +15,12 @@ Feature: News Feed Events
     When I get the news feed events for profile 1
     Then There will be 1 news feed event
     And The first news feed event will have type 'MULTIPLE_GALLERY_PHOTOS'
+
+  Scenario: Created new trip
+    Given I am logged in
+    And I have created a public trip
+    When I get the news feed events for profile 1
+    Then There will be 1 news feed event
+    And The first news feed event will have type 'CREATED_NEW_TRIP'
+
+  
