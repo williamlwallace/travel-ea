@@ -118,8 +118,13 @@ public class Destination extends BaseModel implements Taggable {
      *
      * @return Rounded latitude value
      */
-    public Double getLatitude() {
-        return Math.round(this.latitude * 100) / 100.0;
+    @JsonIgnore
+    public Double getFormattedLatitude() {
+        if (this.latitude != null) {
+            return Math.round(this.latitude * 100) / 100.0;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -127,8 +132,13 @@ public class Destination extends BaseModel implements Taggable {
      *
      * @return Rounded longitude value
      */
-    public Double getLongitude() {
-        return Math.round(this.longitude * 100) / 100.0;
+    @JsonIgnore
+    public Double getFormattedLongitude() {
+        if (this.longitude != null) {
+            return Math.round(this.longitude * 100) / 100.0;
+        } else {
+            return null;
+        }
     }
 
     /**
