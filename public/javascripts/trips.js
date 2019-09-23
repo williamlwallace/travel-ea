@@ -19,6 +19,7 @@ function getTripResults() {
     const url = new URL(
         tripRouter.controllers.backend.TripController.getAllTrips().url,
         window.location.origin);
+
     getAndCreateTrips(url, tripsPaginationHelper);
 }
 
@@ -34,33 +35,40 @@ function getAndCreateTrips(url, paginationHelper) {
     url.searchParams.append("ascending", $('#tripAscending').val());
     url.searchParams.append("requestOrder", tripsRequestOrder++);
 
-    get(url).then(response => {
-        response.json()
-        .then(json => {
-            if (response.status !== 200) {
-                toast("Error", "Error fetching people data", "danger")
-            } else {
-                if (tripsLastRecievedRequestOrder < json.requestOrder) {
-                    const totalNumberPages = json.totalNumberPages;
-                    $("#tripCardsList").html("");
-                    tripsLastRecievedRequestOrder = json.requestOrder;
-                    json.data.forEach((item) => {
-                        $("#tripCardsList").append(createTripCard(item));
-                    });
+    getUserId().then(userId => {
 
-                    $(".card-body").click((element) => {
-                        if (!$(element.currentTarget).find(
-                            ".title").data()) {
-                            return;
-                        }
-                        populateModal($(element.currentTarget).find(
-                            ".title").data().id);
-                    });
-                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+        if ($("#filterMyTrips").val() === "myTrips") {
+            url.searchParams.append("userId", userId);
+        }
 
+        get(url).then(response => {
+            response.json()
+            .then(json => {
+                if (response.status !== 200) {
+                    toast("Error", "Error fetching people data", "danger")
+                } else {
+                    if (tripsLastRecievedRequestOrder < json.requestOrder) {
+                        const totalNumberPages = json.totalNumberPages;
+                        $("#tripCardsList").html("");
+                        tripsLastRecievedRequestOrder = json.requestOrder;
+                        json.data.forEach((item) => {
+                            $("#tripCardsList").append(createTripCard(item));
+                        });
+
+                        $(".card-body").click((element) => {
+                            if (!$(element.currentTarget).find(
+                                ".title").data()) {
+                                return;
+                            }
+                            populateModal($(element.currentTarget).find(
+                                ".title").data().id);
+                        });
+                        paginationHelper.setTotalNumberOfPages(totalNumberPages);
+
+                    }
                 }
-            }
-        })
+            })
+        });
     });
 }
 
