@@ -3,23 +3,15 @@ package controllers.frontend;
 import actions.ActionState;
 import actions.Authenticator;
 import actions.roles.Everyone;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import models.Destination;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
-import play.libs.ws.WSBodyReadables;
 import play.libs.ws.WSClient;
-import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
 import views.html.destinations;
-import play.libs.Json;
 
 /**
  * This controller contains an action to handle HTTP requests to the application's destinations
@@ -28,12 +20,9 @@ import play.libs.Json;
 @Singleton
 public class DestinationController extends TEAFrontController {
 
-    private final WSClient ws;
-
     @Inject
-    public DestinationController(WSClient ws, HttpExecutionContext httpExecutionContext) {
+    public DestinationController(HttpExecutionContext httpExecutionContext) {
         super(httpExecutionContext);
-        this.ws = ws;
     }
 
     /**
@@ -65,5 +54,4 @@ public class DestinationController extends TEAFrontController {
         return ok(
             views.html.detailedDestination.render(destinationId, loggedUser));
     }
-
 }
