@@ -66,7 +66,7 @@ function updateFollowerCount(id, type) {
                     let followingUsers = data.followingUsersCount;
                     let followingDests = data.followingDestinationsCount;
                     followers = data.followerUsersCount;
-                    let following = followerCountFormatter(
+                    let following = countFormatter(
                         followingUsers + followingDests);
 
                     // Set following count to be sum of followed users and destinations
@@ -74,22 +74,11 @@ function updateFollowerCount(id, type) {
                 } else if (type === "destination") {
                     followers = data.followerCount;
                 }
-                followers = followerCountFormatter(followers);
+                followers = countFormatter(followers);
                 $('#followers-count').html(followers);
             }
         })
     })
-}
-
-/**
- * Shortens numbers by adding a 'k' on the end to represent thousands
- *
- * @param num is number to format
- * @returns {number} formatted number
- */
-function followerCountFormatter(num) {
-    return Math.abs(num) > 999 ? Math.sign(num) * ((Math.abs(num)
-        / 1000).toFixed(1)) + 'k' : Math.sign(num) * Math.abs(num)
 }
 
 /**

@@ -78,3 +78,14 @@ function calc_age(dt1) {
     // Best conversion method without moment etc
     return Math.abs(Math.floor(diff / 365.25));
 }
+
+/**
+ * Shortens numbers by adding a 'k' on the end to represent thousands
+ *
+ * @param num is number to format
+ * @returns {number} formatted number
+ */
+function countFormatter(num) {
+    return Math.abs(num) > 999 ? Math.sign(num) * ((Math.abs(num)
+        / 1000).toFixed(1)) + 'k' : Math.sign(num) * Math.abs(num)
+}
