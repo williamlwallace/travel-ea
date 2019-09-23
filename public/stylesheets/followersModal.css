@@ -1,4 +1,3 @@
-
 .follower-tab {
     padding: 2rem;
 }
@@ -25,7 +24,13 @@
 
 .follower-card {
     display: flex;
-    padding: 5px
+    padding: 5px;
+    cursor: pointer;
+}
+
+.follower-card:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
 }
 
 /* Tab panel buttons */
@@ -41,3 +46,15 @@
 .search-input {
     width: 260px;
 }
+
+#followersCardList, #followedByCardList {
+    height: 50%;
+    overflow-y: scroll;
+}
+
+#no-followers, #no-following {
+    margin-left: auto;
+    margin-right: auto;
+    display: table;
+}
+
