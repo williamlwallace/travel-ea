@@ -251,11 +251,11 @@ function likeUnlikeEvent(eventId) {
             if (json === "liked") {
                 likeCounter.data('likes', likeCounter.data('likes') + 1);
                 eventLikeButton.attr('data-liked', "true");
-                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
+                likeCounter.text(countFormatter(parseInt(likeCounter.data('likes'))));
             } else {
                 likeCounter.data('likes', likeCounter.data('likes') - 1);
                 eventLikeButton.attr('data-liked', "false");
-                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
+                likeCounter.text(countFormatter(parseInt(likeCounter.data('likes'))));
             }
             updateLikeButton(eventLikeButton);
         }
@@ -313,7 +313,7 @@ function updateLikeNumber(likeCounter, eventId) {
             } else {
                 const numberOfLikes = data.likeCount;
                 likeCounter.data('likes', numberOfLikes);
-                likeCounter.text(followerCountFormatter(numberOfLikes));
+                likeCounter.text(countFormatter(numberOfLikes));
             }
         })
     });
@@ -403,7 +403,7 @@ function newProfilePhotoCard(event) {
         "../user_content/" + event.data.filename);
     photoCard.find('.baguette-image').attr("href",
         "../user_content/" + event.data.filename);
-    setTimeout(() => baguetteBox.run('.photo-row'), 10);
+    setTimeout(() => baguetteBox.run('.photo-row'), 100);
     card.find('.wrapper-body').append(photoCard);
     return card;
 }
