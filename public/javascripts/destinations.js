@@ -132,7 +132,7 @@ function refreshData() {
         map.populateMarkers(dests);
         createDestinationCards(dests);
     }).then(() => {
-        map.addDestinations()
+        map.addDestinations();
     });
 }
 
@@ -146,54 +146,66 @@ function clearFilter() {
 
 /**
  * Takes a list of destinations and creates destination cards out of these.
- * @param {Object} an array of destinations to display
+ * @param {Object} dests - An array of destinations to display
  */
 function createDestinationCards(dests) {
     $("#destinationCardList").html("");
     dests.data.forEach((dest) => {
-        const template = $("#destinationCardTemplate").get(0);
-        const clone = template.content.cloneNode(true);
-        let tags = "";
-        let travellerTypes = "";
+        const card = createDestinationCard(dest);
 
-        $(clone).find("#card-header").append(dest.name);
-        if (dest.primaryPhoto) {
-            $(clone).find("#card-thumbnail").attr("src",
-                "../user_content/" + dest.primaryPhoto.thumbnailFilename);
-        }
-        $(clone).find("#district").append(
-            dest.district ? dest.district : "No district");
-        $(clone).find("#country").append(dest.country.name);
-        $(clone).find("#destType").append(
-            dest.destType ? dest.destType : "No type");
-        $(clone).find("#card-header").attr("data-id", dest.id.toString());
-        $(clone).find("#card-header").attr("id",
-            "destinationCard-" + dest.id.toString());
-
-        $($(clone).find('#destinationCard-' + dest.id.toString())).click(
-            function () {
-                location.href = '/destinations/' + $(this).data().id;
-            });
-
-        dest.tags.forEach(item => {
-            tags += item.name + ", ";
-        });
-        tags = tags.slice(0, -2);
-
-        dest.travellerTypes.forEach(item => {
-            travellerTypes += item.description + ", ";
-        });
-        travellerTypes = travellerTypes.slice(0, -2);
-
-        $(clone).find("#destinatonCardTravellerTypes").append(
-            travellerTypes ? travellerTypes : "No traveller types");
-        $(clone).find("#tags").append(tags ? tags : "No tags");
-
-        $("#destinationCardList").get(0).appendChild(clone);
+        $("#destinationCardList").get(0).appendChild(card);
     });
     $('#destinationTags').tagsinput({
         trimValue: true
     });
+}
+
+/**
+ * Creates a destination card out of the destination details provided
+ *
+ * @param {Object} dest - Destination details
+ * @returns {Node | ActiveX.IXMLDOMNode} - ID of destination card
+ */
+function createDestinationCard(dest) {
+    const template = $("#destinationCardTemplate").get(0);
+    const clone = template.content.cloneNode(true);
+    let tags = "";
+    let travellerTypes = "";
+
+    $(clone).find("#card-header").append(dest.name);
+    if (dest.primaryPhoto) {
+        $(clone).find("#card-thumbnail").attr("src",
+            "../user_content/" + dest.primaryPhoto.thumbnailFilename);
+    }
+    $(clone).find("#district").append(
+        dest.district ? dest.district : "No district");
+    $(clone).find("#country").append(dest.country.name);
+    $(clone).find("#destType").append(
+        dest.destType ? dest.destType : "No type");
+    $(clone).find("#card-header").attr("data-id", dest.id.toString());
+    $(clone).find("#card-header").attr("id",
+        "destinationCard-" + dest.id.toString());
+
+    $($(clone).find('#destinationCard-' + dest.id.toString())).click(
+        function () {
+            location.href = '/destinations/' + $(this).data().id;
+        });
+
+    dest.tags.forEach(item => {
+        tags += item.name + ", ";
+    });
+    tags = tags.slice(0, -2);
+
+    dest.travellerTypes.forEach(item => {
+        travellerTypes += item.description + ", ";
+    });
+    travellerTypes = travellerTypes.slice(0, -2);
+
+    $(clone).find("#destinatonCardTravellerTypes").append(
+        travellerTypes ? travellerTypes : "No traveller types");
+    $(clone).find("#tags").append(tags ? tags : "No tags");
+
+    return clone;
 }
 
 /**
@@ -370,11 +382,21 @@ $('#CreateDestinationCancelButton').click(function () {
 /**
  * Destination button on click
  */
-$('#createNewDestinationButton').click(function () {
+function createDestination() {
     getUserId().then(userId => {
         addDestination(
             destinationRouter.controllers.backend.DestinationController.addNewDestination().url,
-            "/", userId)
+            "/", userId);
     });
+}
+
+/**
+ * Pressing enter while within the destination filter will search
+ */
+$('#collapseDestinationFilter').keypress(function (e) {
+    const key = e.which;
+    if(key === 13){
+        refreshData();
+    }
 });
 

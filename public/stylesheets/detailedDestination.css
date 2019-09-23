@@ -22,6 +22,7 @@ div.destination {
     position: -webkit-sticky;
     position: sticky;
     top: 4rem;
+    z-index: 10;
 }
 
 #destEdit {
@@ -30,6 +31,10 @@ div.destination {
 
 #hideDestDeets {
     display: none;
+}
+
+.photoLink {
+    opacity: 0.5;
 }
 
 /**
@@ -324,4 +329,12 @@ section#timeline article:nth-child(n) div.inner h2:after {
 .dest-nav-text{font-weight: 600; font-size: 22px}
 .tab-buttons {
     padding: 0 2.5rem 0 1.5rem;
+}
+
+.can-modify {
+    display: none;
+}
+
+.clickable-div {
+    pointer-events: none !important;
 }

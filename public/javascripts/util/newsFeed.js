@@ -24,8 +24,8 @@ class NewsFeed {
         $(window).scroll(this.scrollHandler.bind(this));
     }
 
-    /*
-     * gets next page of data
+    /**
+     * Gets next page of data
      */
     getPage() {
         const url = this.createURL();
@@ -127,7 +127,7 @@ const NewsFeedEventTypes = {
      * reference ID = ID of photo
      * dest ID = ID of destination
      */
-    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleDestinationPhotoLinks,
+    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleGalleryPhotos,
 
     /**
      * A public destination has had its primary photo updated
@@ -193,11 +193,11 @@ const NewsFeedEventTypes = {
  * @param {number} eventIds the guids of the events being displayed
  */
 function createWrapperCard(thumbnail, message, time, eventIds) {
-    console.log(eventIds); //TODO handle cards with multiple events
     const eventId = eventIds[0];
 
     const template = $("#news-feed-card-wrapper").get(0);
     const clone = $(template.content.cloneNode(true));
+    const likeCounter = $(clone.find('.likes-number'));
 
     clone.find('.wrapper-title').html(message);
     if (thumbnail != null) {
@@ -211,18 +211,19 @@ function createWrapperCard(thumbnail, message, time, eventIds) {
 
     const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
     get(url)
-        .then(response => {
-            response.json()
-                .then(data => {
-                    if (response.status !== 200) {
-                        toast("Error", "Unable to get like status",
-                            "danger", 5000);
-                    } else {
-                        likeButton.attr('data-liked', data);
-                        updateLikeButton(likeButton, true);
-                    }
-                })
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to get like status",
+                    "danger", 5000);
+            } else {
+                likeButton.attr('data-liked', data);
+                updateLikeButton(likeButton, true);
+                updateLikeNumber(likeCounter, eventId);
+            }
         });
+    });
     likeButton.click(function() {likeUnlikeEvent(eventId)});
 
     return clone;
@@ -233,6 +234,7 @@ function createWrapperCard(thumbnail, message, time, eventIds) {
  * button to the result.
  * @param {Number} eventId the id of the event to like/unlike
  */
+
 function likeUnlikeEvent(eventId) {
     const eventLikeButton = $("#event-id-" + eventId);
     const likeCounter = eventLikeButton.next();
@@ -243,12 +245,17 @@ function likeUnlikeEvent(eventId) {
             toast("Error", "Unable to like event",
                 "danger", 5000);
         } else {
+            if (eventLikeButton.data('event-id') !== eventId) {
+                return;
+            }
             if (json === "liked") {
+                likeCounter.data('likes', likeCounter.data('likes') + 1);
                 eventLikeButton.attr('data-liked', "true");
-                likeCounter.text(parseInt(likeCounter.text()) + 1);
+                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
             } else {
+                likeCounter.data('likes', likeCounter.data('likes') - 1);
                 eventLikeButton.attr('data-liked', "false");
-                likeCounter.text(parseInt(likeCounter.text()) - 1);
+                likeCounter.text(followerCountFormatter(parseInt(likeCounter.data('likes'))));
             }
             updateLikeButton(eventLikeButton);
         }
@@ -287,6 +294,29 @@ function updateLikeButton(eventLikeButton, noAnimation=false) {
         eventLikeButton.addClass("far");
         eventLikeButton.addClass("fas-in");
     }
+}
+
+/**
+ * Updates the like counter on an event with the number from the backend
+ * @param {Object} likeCounter the JQuery html object of the card like number field
+ * @param {Number} eventId the id of the event to get the like count for
+ */
+function updateLikeNumber(likeCounter, eventId) {
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.getLikeCount(eventId).url;
+    get(url)
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to get like count for an event" ,
+                    "danger", 5000);
+            } else {
+                const numberOfLikes = data.likeCount;
+                likeCounter.data('likes', numberOfLikes);
+                likeCounter.text(followerCountFormatter(numberOfLikes));
+            }
+        })
+    });
 }
 
 /**
@@ -361,7 +391,7 @@ function createdNewTripCard(event) {
 /**
  * Creates news Feed card for creating a trip
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newProfilePhotoCard(event) {
     const card = createUserWrapperCard(event);
@@ -381,7 +411,7 @@ function newProfilePhotoCard(event) {
 /**
  * Creates news Feed card for destination primary photo change
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newPrimaryPhotoCard(event) {
     const card = createDestinationWrapperCard(event);
@@ -390,103 +420,171 @@ function newPrimaryPhotoCard(event) {
 }
 
 /**
- * Creates news Feed card for groupes of trip photos
+ * Creates news Feed card for groups of trip photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function groupedTripUpdates(event) {
-    const card = createUserWrapperCard(event);
-    //TODO: The card
-    return card;
+    return multipleDestinations(event);
 }
-
 
 /**
- * Creates news Feed card for groupes of destination photos
+ * Creates a news feed card with multiple destinations which is scrollable
  *
- * @param {object} event newsfeed event item data
+ * @param {Object} event - News feed event containing destination details
+ * @returns {Object} card - News feed card
  */
-function multipleDestinationPhotoLinks(event) {
+function multipleDestinations(event) {
     const card = createUserWrapperCard(event);
-    //TODO: The card
+    const template = $("#multipleDestinationCardTemplate").get(0);
+    const destinationCard = $(template.content.cloneNode(true));
+    const destinations = event.data.newDestinations;
+    const eventId = event.id;
+    const destinationCardId = "multiple-destination-carousel-" + eventId;
+    const destinationObjects = destinationCard.find('.carousel-inner');
+
+    for (let i = 0; i < destinations.length; i++) {
+        destinationCard.find(".main-carousel").attr("id", destinationCardId);
+        destinationCard.find(".carousel-control-prev").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-control-next").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-inner").attr("id", "inner-" + destinationCardId);
+
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " + (i === 0 ? "active" : ""));
+
+        const destCard = createDestinationCard(destinations[i]);
+
+        carouselWrapper.append(destCard);
+        destinationObjects.append(carouselWrapper);
+    }
+
+    card.find('.wrapper-body').append(destinationCard);
     return card;
 }
-
 
 /**
  * Creates news Feed card for groups of gallery photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function multipleGalleryPhotos(event) {
     const card = createUserWrapperCard(event);
-    //TODO: The card
+    const template = $("#multiplePhotoCardTemplate").get(0);
+    const photoCard = $(template.content.cloneNode(true));
+    const photos = event.data.photos;
+    const eventId = event.eventIds[0];
+    const photoCardId = "multiple-photo-carousel-" + eventId;
+    const photoThumbnails = photoCard.find('.photo-thumbnails');
+    const photoDatas = [];
+    for (const i in photos) {
+        photoDatas.push({
+            eventId: event.eventIds[i],
+            tags: photos[i].tags
+        });
+
+        photoCard.find(".main-carousel").attr("id", photoCardId);
+        photoCard.find(".carousel-control-prev").attr("href", "#" + photoCardId);
+        photoCard.find(".carousel-control-next").attr("href", "#" + photoCardId);
+        photoCard.find(".carousel-inner").attr("id", "inner-" + photoCardId);
+
+        const photo = photos[i];
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " + (i == 0 ? "active" : ""));
+
+        const baguetteWrapper = document.createElement("A");
+        baguetteWrapper.setAttribute("class", "baguette-image");
+        baguetteWrapper.setAttribute("href", "../user_content/" + photo.filename);
+
+        const imageWrapper = document.createElement("IMG");
+        imageWrapper.setAttribute("src", "../user_content/" + photo.thumbnailFilename);
+        imageWrapper.setAttribute("class", "d-block w-100");
+
+        baguetteWrapper.append(imageWrapper);
+        carouselWrapper.append(baguetteWrapper);
+        photoThumbnails.append(carouselWrapper);
+    }
+
+    addTags(card, photos[0].tags);
+
+    setTimeout(() => {
+        baguetteBox.run('#inner-' + photoCardId);
+        $('#' + photoCardId).carousel({ interval:false });
+        $('#' + photoCardId).on('slide.bs.carousel', function(e) {
+            updateMultyCard(photoDatas, e.direction, $(this).closest('.news-feed-wrapper'));
+        });
+    }, 100);
+    card.find('.wrapper-body').append(photoCard);
+
     return card;
 }
 
+/**
+ * 
+ * @param {Object} photoDatas list of photo data
+ * @param {string} direction direction of scroll
+ * @param {Object} card carousel jquery object
+ */
+function updateMultyCard(photoDatas, direction, card) {
+    const carouselInner = card.find('.carousel-inner');
+    const likeCounter = card.find('.likes-number');
+    const likeButton = card.find('.likes-button');
+    //Update get and update photoId
+    let photoId = parseInt(carouselInner.data('photo-id'));
+    photoId = direction === 'left' ? (photoId + 1) % photoDatas.length : photoId - 1;
+    if (photoId < 0) {
+        photoId = photoDatas.length - 1;
+    }
+    carouselInner.data('photo-id',  photoId);
+
+    //update event-id
+    const eventId = photoDatas[photoId].eventId;
+    likeButton.data('event-id', eventId);
+    likeButton.attr('id', 'event-id-' + eventId);
+    
+    //get and update likes
+    const url = newsFeedRouter.controllers.backend.NewsFeedController.toggleLikeStatus(eventId).url;
+    get(url)
+    .then(response => {
+        response.json()
+        .then(data => {
+            if (response.status !== 200) {
+                toast("Error", "Unable to get like status",
+                    "danger", 5000);
+            } else {
+                likeButton.attr('data-liked', data);
+                updateLikeButton(likeButton, true);
+                updateLikeNumber(likeCounter, eventId);
+            }
+        })
+    });
+    likeButton.unbind('click');
+    likeButton.click(function() {likeUnlikeEvent(eventId)});
+
+    //Update tags
+    const tags = photoDatas[photoId].tags;
+    addTags(card, tags);
+
+}
 
 
 /**
  * Creates news Feed card for user creating new destination
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function createdNewDestinationCard(event) {
     const card = createUserWrapperCard(event);
-
-    const template = $("#destinationCardTemplate").get(0);
-    const destinationCard = $(template.content.cloneNode(true));
-
     const dest = event.data;
-
-    let tags = "";
-    let travellerTypes = "";
-
-    $(destinationCard).find("#card-header").append(dest.name);
-    if (dest.primaryPhoto) {
-        $(destinationCard).find("#card-thumbnail").attr("src",
-            "../user_content/" + dest.primaryPhoto.thumbnailFilename);
-    }
-    $(destinationCard).find("#district").append(
-        dest.district ? dest.district : "No district");
-    $(destinationCard).find("#country").append(dest.country.name);
-    $(destinationCard).find("#destType").append(
-        dest.destType ? dest.destType : "No type");
-    $(destinationCard).find("#card-header").attr("data-id", dest.id.toString());
-    $(destinationCard).find("#card-header").attr("id",
-        "destinationCard-" + dest.id.toString());
-
-    $($(destinationCard).find('#destinationCard-' + dest.id.toString())).click(
-        function () {
-            location.href = '/destinations/' + $(this).data().id;
-        });
-
-    dest.tags.forEach(item => {
-        tags += item.name + ", ";
-    });
-    tags = tags.slice(0, -2);
-
-    dest.travellerTypes.forEach(item => {
-        travellerTypes += item.description + ", ";
-    });
-    travellerTypes = travellerTypes.slice(0, -2);
-
-    $(destinationCard).find("#destinatonCardTravellerTypes").append(
-        travellerTypes ? travellerTypes : "No traveller types");
-
-    $(destinationCard).find("#tags").remove();
-
+    const destinationCard = createDestinationCard(dest);
     card.find('.wrapper-body').append(destinationCard);
-
-    addTags(card, dest.tags);
 
     return card
 }
 
 /**
- * Creates news Feed card for user updateing destination
+ * Creates news Feed card for user updating destination
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function updatedExistingDestinationCard(event) {
     return createdNewDestinationCard(event);
@@ -495,8 +593,9 @@ function updatedExistingDestinationCard(event) {
 /**
  * Creates news Feed card for user changing cover photo
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newProfileCoverPhotoCard(event) {
     return newProfilePhotoCard(event);
 }
+

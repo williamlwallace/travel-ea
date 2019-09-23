@@ -1,3 +1,29 @@
+let USERID;
+let DESTINATIONID;
+let canEdit = true;
+let canDelete = false;
+
+let destinationPhotosPaginationHelper;
+let linkPhotosPaginationHelper;
+let primaryPhotoPaginationHelper;
+
+/**
+ * Runs when the page is loaded. Initialises the paginationHelper objects and loads feed
+ */
+$(document).ready(function () {
+    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,
+        getDestinationPhotos, "destination-photos-pagination");
+    linkPhotosPaginationHelper = new PaginationHelper(1, 1,
+        getDestinationLinkPhotos, "link-destination-photo-pagination");
+    primaryPhotoPaginationHelper = new PaginationHelper(1, 1, getPictures,
+        "destination-primary-photo-pagination");
+    getDestinationPhotos();
+    $("#feed-tab").click();
+    destinationFeed = new NewsFeed(DESTINATIONID, 'destination-feed',
+        newsFeedRouter.controllers.backend.NewsFeedController.getDestinationNewsFeed(
+            DESTINATIONID).url);
+});
+
 /**
  * Function to get the relevant destination and fill the HTML
  *
@@ -12,65 +38,65 @@ function populateDestinationDetails(destinationId) {
         response.json()
         .then(destination => {
             if (response.status !== 200) {
-                showErrors(destination);
+                return showErrors(destination);
+            }
+            canModify(destination.user.id);
+            document.getElementById(
+                "summary_name").innerText = destination.name;
+            document.getElementById(
+                "destination_name").innerText = destination.name;
+            document.getElementById(
+                "summary_type").innerText = destination.destType;
+            document.getElementById(
+                "summary_district").innerText = destination.district;
+            document.getElementById(
+                "summary_country").innerText = destination.country.name;
+            checkCountryValidity(destination.country.name,
+                destination.country.id)
+            .then(result => {
+                if (result === false) {
+                    document.getElementById(
+                        "summary_country").innerText = destination.country.name
+                        + ' (invalid)';
+                }
+            });
+            document.getElementById(
+                "summary_latitude").innerText = destination.latitude.toFixed(
+                2);
+            document.getElementById(
+                "summary_longitude").innerText = destination.longitude.toFixed(
+                2);
+
+            if (destination.travellerTypes.length > 0) {
+                let travellerTypes = "";
+                for (let i = 0; i < destination.travellerTypes.length;
+                    i++) {
+                    travellerTypes += ", "
+                        + destination.travellerTypes[i].description;
+                }
+                document.getElementById(
+                    "heading_traveller_types").style.display = "block";
+                document.getElementById(
+                    "summary_traveller_types").innerText = travellerTypes.substr(
+                    2);
             } else {
                 document.getElementById(
-                    "summary_name").innerText = destination.name;
+                    "heading_traveller_types").style.display = "none";
                 document.getElementById(
-                    "destination_name").innerText = destination.name;
-                document.getElementById(
-                    "summary_type").innerText = destination.destType;
-                document.getElementById(
-                    "summary_district").innerText = destination.district;
-                document.getElementById(
-                    "summary_country").innerText = destination.country.name;
-                checkCountryValidity(destination.country.name,
-                    destination.country.id)
-                .then(result => {
-                    if (result === false) {
-                        document.getElementById(
-                            "summary_country").innerText = destination.country.name
-                            + ' (invalid)';
-                    }
-                });
-                document.getElementById(
-                    "summary_latitude").innerText = destination.latitude.toFixed(
-                    2);
-                document.getElementById(
-                    "summary_longitude").innerText = destination.longitude.toFixed(
-                    2);
-
-                if (destination.travellerTypes.length > 0) {
-                    let travellerTypes = "";
-                    for (let i = 0; i < destination.travellerTypes.length;
-                        i++) {
-                        travellerTypes += ", "
-                            + destination.travellerTypes[i].description;
-                    }
-                    document.getElementById(
-                        "heading_traveller_types").style.display = "block";
-                    document.getElementById(
-                        "summary_traveller_types").innerText = travellerTypes.substr(
-                        2);
-                } else {
-                    document.getElementById(
-                        "heading_traveller_types").style.display = "none";
-                    document.getElementById(
-                        "summary_traveller_types").innerText = "";
-                }
-
-                // Populates tags
-                tagDisplay.populateTags(destination.tags);
-                if (destination.tags.length > 0) {
-                    document.getElementById(
-                        "heading_tags").style.display = "block";
-                } else {
-                    document.getElementById(
-                        "heading_tags").style.display = "none";
-                }
-
-                createPrivacyButton(destination.isPublic);
+                    "summary_traveller_types").innerText = "";
             }
+
+            // Populates tags
+            tagDisplay.populateTags(destination.tags);
+            if (destination.tags.length > 0) {
+                document.getElementById(
+                    "heading_tags").style.display = "block";
+            } else {
+                document.getElementById(
+                    "heading_tags").style.display = "none";
+            }
+
+            createPrivacyButton(destination.isPublic);
         })
     })
 }
@@ -92,6 +118,29 @@ function deleteDestination(destinationId, redirect) {
         destinationId).url;
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
+}
+
+/**
+ * Shows details if logged in user has wrights to modify
+ *
+ * @param {number} userId userId of destination owner
+ */
+function canModify(userId) {
+    getUserId().then(loggedUserid => {
+        return (userId === loggedUserid || isUserAdmin());
+    })
+    .then(canModify => {
+        if (canModify) {
+            $(".can-modify").css("display", "inline");
+            $("#destinationTTButton").text("Edit Traveller Types");
+            $("#dest-primary-h4").text("Change Primary Photo");
+            $("#dest-tt-submit-button").text("Submit");
+        } else {
+            $("#destinationTTButton").text("Suggest Traveller Types");
+            $("#dest-primary-h4").text("Suggest Primary Photo");
+            $("#dest-tt-submit-button").text("Suggest changes");
+        }
+    });
 }
 
 /**
@@ -238,7 +287,8 @@ function populateEditDestination(destinationId) {
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
                 // Fills country picker
-                $('#countryDropDown').selectpicker('val', destination.country.id);
+                $('#countryDropDown').selectpicker('val',
+                    destination.country.id);
                 // Fills tag input field
                 tagPicker.populateTags(destination.tags);
             }
@@ -253,10 +303,14 @@ function populateEditDestination(destinationId) {
  */
 $("#changePrimaryPhotoButton").click(function () {
     $("#changePrimaryPhotoModal").modal('show');
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
-    url.searchParams.append("pageNum", primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
 
-    fillSelectionGallery(url, "primary-photo-gallery", "current-page", function () {
+    fillSelectionGallery(url, "primary-photo-gallery", "current-page",
+        function () {
             setPrimaryPhoto(this.getAttribute("data-id"))
         }, primaryPhotoPaginationHelper);
 });
@@ -269,14 +323,13 @@ function setPrimaryPhoto(photoId) {
     const primaryPicUpdateURL = destinationRouter.controllers.backend.DestinationController.changeDestinationPrimaryPhoto(
         DESTINATIONID).url;
 
-
     // Create reversible request to update primary photo to this new photo
     const handler = (status, json) => {
         if (status === 200) {
             getUserId().then(userId => {
                 getPrimaryPicture();
                 $("#changePrimaryPhotoModal").modal('hide');
-                if(isUserAdmin() ) {
+                if (isUserAdmin()) {
                     toast("Changes saved!",
                         "Primary photo changes saved successfully");
                 } else {
@@ -363,30 +416,10 @@ function fillTravellerTypeInfo() {
     });
 }
 
-let USERID;
-let DESTINATIONID;
-let canEdit = true;
-let canDelete = false;
-
-let destinationPhotosPaginationHelper;
-let linkPhotosPaginationHelper;
-let primaryPhotoPaginationHelper;
-
 /**
- * Runs when the page is loaded. Initialises the paginationHelper objects
+ * On click handler to change tab panel on destination page
  */
-$(document).ready(function() {
-    destinationPhotosPaginationHelper = new PaginationHelper(1, 1,  getDestinationPhotos, "destination-photos-pagination");
-    linkPhotosPaginationHelper = new PaginationHelper(1,1, getDestinationLinkPhotos, "link-destination-photo-pagination");
-    primaryPhotoPaginationHelper = new PaginationHelper(1,1, getPictures, "destination-primary-photo-pagination");
-    getDestinationPhotos();
-    $("#feed-tab").click();
-});
-
-/**
- * On click handler to change tab panel on profile page
- */
-$('#dest-tabs a').on('click', function(event) {
+$('#dest-tabs a').on('click', function (event) {
     event.preventDefault();
     $(this).tab('show');
     let activeTab = $('#dest-tabs a.active').attr('id');
@@ -402,11 +435,15 @@ $('#dest-tabs a').on('click', function(event) {
  * is paginated
  */
 function getPictures() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(profileId).url, window.location.origin);
-    url.searchParams.append("pageNum", primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
-    fillSelectionGallery(url, "primary-photo-gallery", "current-page", function () {
-        setPrimaryPhoto(this.getAttribute("data-id"))
-    }, primaryPhotoPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            profileId).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        primaryPhotoPaginationHelper.getCurrentPageNumber().toString());
+    fillSelectionGallery(url, "primary-photo-gallery", "current-page",
+        function () {
+            setPrimaryPhoto(this.getAttribute("data-id"))
+        }, primaryPhotoPaginationHelper);
 }
 
 /**
@@ -434,12 +471,15 @@ $("#upload-gallery-image-button").click(function () {
  *  Gets all photos for a destination
  */
 function getDestinationPhotos() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
-        DESTINATIONID).url, window.location.origin);
-    url.searchParams.append("pageNum", destinationPhotosPaginationHelper.getCurrentPageNumber().toString());
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getDestinationPhotos(
+            DESTINATIONID).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        destinationPhotosPaginationHelper.getCurrentPageNumber().toString());
 
     fillDestinationGallery(url,
-        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url,
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url,
         "main-gallery", "page-selection", destinationPhotosPaginationHelper,
         DESTINATIONID)
 }
@@ -449,9 +489,13 @@ function getDestinationPhotos() {
  * to allow a user to link to a photo to a destination
  */
 function getDestinationLinkPhotos() {
-    const url = new URL(photoRouter.controllers.backend.PhotoController.getAllUserPhotos(USERID).url, window.location.origin);
-    url.searchParams.append("pageNum", linkPhotosPaginationHelper.getCurrentPageNumber().toString());
-    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID, linkPhotosPaginationHelper);
+    const url = new URL(
+        photoRouter.controllers.backend.PhotoController.getAllUserPhotos(
+            USERID).url, window.location.origin);
+    url.searchParams.append("pageNum",
+        linkPhotosPaginationHelper.getCurrentPageNumber().toString());
+    fillLinkGallery(url, "link-gallery", "link-selection", DESTINATIONID,
+        linkPhotosPaginationHelper);
 
 }
 
@@ -460,6 +504,8 @@ function getDestinationLinkPhotos() {
  */
 function closeEdit() {
     map.creativeMode = false;
+    $(".title-text-wrap").attr("class", "title-text-wrap");
+    $("#destination-follower-summary").show(1000);
     $('#destDeets').css('display', 'inline');
     $('#destEdit').css('display', 'none');
     $("#summary_name").animate({"opacity": "1"}, 700);
@@ -474,6 +520,8 @@ function closeEdit() {
  */
 function openEdit() {
     map.creativeMode = true;
+    $(".title-text-wrap").attr("class", "title-text-wrap clickable-div");
+    $("#destination-follower-summary").hide(1000);
     $('#destDeets').css('display', 'none');
     $('#destEdit').css('display', 'inline');
     $("#summary_name").animate({"opacity": "0"}, 700);
@@ -483,7 +531,6 @@ function openEdit() {
  * Cancel edit button on click listener
  */
 $("#cancelEditButton").click(closeEdit);
-
 
 /**
  * Function to toggle the linked status of a photo.
@@ -521,7 +568,9 @@ function toggleLinked(guid, newLinked, destinationId) {
                 sendUserIdAndDestinationId(id, destinationId);
                 getDestinationPhotos();
             });
-            getAndFillDD(tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(destinationId).url, ["tagFilter"], "name", false, "name");
+            getAndFillDD(
+                tagRouter.controllers.backend.TagController.getAllDestinationPhotoTags(
+                    destinationId).url, ["tagFilter"], "name", false, "name");
 
             this.newLinked = !this.newLinked;
         }

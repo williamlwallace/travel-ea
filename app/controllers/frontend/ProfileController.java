@@ -81,7 +81,12 @@ public class ProfileController extends TEAFrontController {
     private CompletableFuture<Profile> getProfile(Long userId, Http.Request request) {
         String url = HTTP + request.host() + controllers.backend.routes.ProfileController
             .getProfile(userId);
-        CompletableFuture<WSResponse> res = ws.url(url).get().toCompletableFuture();
+        CompletableFuture<WSResponse> res = ws
+            .url(url)
+            .addHeader("Cookie",
+                String.format("JWT-Auth=%s;", Authenticator.getTokenFromCookie(request)))
+            .get()
+            .toCompletableFuture();
         return res.thenApply(r -> {
             JsonNode json = r.getBody(WSBodyReadables.instance.json());
             try {
