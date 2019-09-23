@@ -28,6 +28,7 @@ public class ProfilePhotoTestSteps {
             .bodyJson(Json.toJson(2));
 
         Result updateResult = route(fakeApp, updateRequest);
+
         assertEquals(200, updateResult.status());
     }
 
