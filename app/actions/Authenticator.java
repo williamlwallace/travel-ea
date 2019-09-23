@@ -157,8 +157,10 @@ public class Authenticator extends Action.Simple {
      */
     private CompletionStage<Result> haveProfile(Http.Request request, User user, Boolean matched) {
         return profileRepository.findID(user.id).thenComposeAsync(profile -> {
-            if (!request.uri().equals(
-                controllers.frontend.routes.ProfileController.createProfileIndex().toString())
+            if (!(request.uri().equals(
+                controllers.frontend.routes.ProfileController.createProfileIndex().toString()) ||
+                request.uri().equals(
+                controllers.backend.routes.ProfileController.addNewProfile().toString()))
                 && profile == null) {
                 if (request.uri().contains(API)) {
                     return supplyAsync(() -> forbidden(Json.toJson(FORBIDDEN)));
