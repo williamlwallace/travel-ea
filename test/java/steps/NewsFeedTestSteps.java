@@ -63,4 +63,9 @@ public class NewsFeedTestSteps {
         assertEquals(string, newsFeedPagingResponse.data.get(0).eventType);
     }
 
+    @Then("The news feed event at index {int} will have type {string}")
+    public void the_news_feed_event_at_index_will_have_type(Integer int1, String string) {
+        assertEquals(string, newsFeedPagingResponse.data.get(int1).eventType);
+    }
+
 }
