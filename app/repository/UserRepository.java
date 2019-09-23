@@ -7,6 +7,9 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.PagedList;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -233,5 +236,20 @@ public class UserRepository {
         return supplyAsync(() ->
                 Long.valueOf(ebeanServer.delete(FollowerUser.class, id))
             , executionContext);
+    }
+
+    public Map<Long, Long> getFollowCounts(List<Long> ids) {
+        String sqlQuery = "SELECT user_id, (SELECT COUNT(*) FROM `FollowerUser` FU2 WHERE FU2.user_id = FU1.user_id) AS followCount \n"
+            + "FROM `FollowerUser` FU1 "
+            + "WHERE FU1.user_id in :ids "
+            + "GROUP BY FU1.user_id;";
+
+        Map<Long,Long> results = new HashMap<>();
+
+        ebeanServer.createSqlQuery(sqlQuery).setParameter("ids", ids).findEachRow(((resultSet, rowNum) -> {
+            results.put(resultSet.getLong(1), resultSet.getLong(2));
+        }));
+
+        return results;
     }
 }
