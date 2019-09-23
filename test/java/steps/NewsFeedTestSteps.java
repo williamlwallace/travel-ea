@@ -24,7 +24,8 @@ import util.objects.PagingResponse;
 
 public class NewsFeedTestSteps {
 
-    private PagingResponse<NewsFeedResponseItem> newsFeedPagingResponse;
+    private PagingResponse<NewsFeedResponseItem> profileNewsFeedResponse;
+    private PagingResponse<NewsFeedResponseItem> destinationNewsFeedResponse;
 
     @When("I get the news feed events for profile {int}")
     public void i_get_the_news_feed_events_for_profile(Integer int1) throws IOException {
@@ -38,7 +39,23 @@ public class NewsFeedTestSteps {
         assertEquals(OK, result.status());
 
         // Deserialize result to list of destinations
-        newsFeedPagingResponse = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<PagingResponse<NewsFeedResponseItem>>(){});
+        profileNewsFeedResponse = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<PagingResponse<NewsFeedResponseItem>>(){});
+
+    }
+
+    @When("I get the news feed events for destination {int}")
+    public void i_get_the_news_feed_events_for_destination(Integer int1) throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(GET)
+            .cookie(nonAdminAuthCookie)
+            .uri("/api/destination/" + int1 + "/newsfeed");
+
+        // Check destination is public
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Deserialize result to list of destinations
+        destinationNewsFeedResponse = new ObjectMapper().readValue(Helpers.contentAsString(result), new TypeReference<PagingResponse<NewsFeedResponseItem>>(){});
 
     }
 
@@ -53,19 +70,34 @@ public class NewsFeedTestSteps {
         Assert.assertEquals(OK, result.status());
     }
 
-    @Then("There will be {int} news feed event")
-    public void there_will_be_news_feed_event(Integer int1) {
-        assertEquals(int1, (Integer)newsFeedPagingResponse.data.size());
+    @Then("There will be {int} news feed event for the profile")
+    public void there_will_be_news_feed_event_for_the_profile(Integer int1) {
+        assertEquals(int1, (Integer)profileNewsFeedResponse.data.size());
     }
 
-    @Then("The first news feed event will have type {string}")
+    @Then("The first profile news feed event will have type {string}")
     public void the_first_news_feed_event_will_have_type(String string) {
-        assertEquals(string, newsFeedPagingResponse.data.get(0).eventType);
+        assertEquals(string, profileNewsFeedResponse.data.get(0).eventType);
     }
 
-    @Then("The news feed event at index {int} will have type {string}")
+    @Then("The profile news feed event at index {int} will have type {string}")
     public void the_news_feed_event_at_index_will_have_type(Integer int1, String string) {
-        assertEquals(string, newsFeedPagingResponse.data.get(int1).eventType);
+        assertEquals(string, profileNewsFeedResponse.data.get(int1).eventType);
+    }
+
+    @Then("There will be {int} news feed event for the destination")
+    public void there_will_be_news_feed_event_for_the_destination(Integer int1) {
+        assertEquals(int1, (Integer)destinationNewsFeedResponse.data.size());
+    }
+
+    @Then("The first destination news feed event will have type {string}")
+    public void the_first_dest_news_feed_event_will_have_type(String string) {
+        assertEquals(string, destinationNewsFeedResponse.data.get(0).eventType);
+    }
+
+    @Then("The destination news feed event at index {int} will have type {string}")
+    public void the_dest_news_feed_event_at_index_will_have_type(Integer int1, String string) {
+        assertEquals(string, destinationNewsFeedResponse.data.get(int1).eventType);
     }
 
 }

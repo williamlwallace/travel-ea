@@ -8,6 +8,7 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.POST;
 import static play.test.Helpers.route;
+import static steps.GenericTestSteps.adminAuthCookie;
 import static steps.GenericTestSteps.fakeApp;
 import static steps.GenericTestSteps.nonAdminAuthCookie;
 
@@ -133,5 +134,16 @@ public class DestinationTestSteps {
             .readValue(Helpers.contentAsString(result), Destination.class);
 
         assertTrue(destinations.isPublic);
+    }
+
+    @Given("I link the photo with id {int} to the destination with id {int}")
+    public void i_link_the_photo_with_id_to_the_destination_with_id(Integer int1, Integer int2) {
+        //create request with no body
+        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/" + int2 + "/photo/" + int1)
+            .method("PUT")
+            .cookie(adminAuthCookie);
+        //put and check response
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
     }
 }
