@@ -126,10 +126,9 @@ function deleteDestination(destinationId, redirect) {
  * @param {number} userId userId of destination owner
  */
 function canModify(userId) {
-    getUserId().then(loggedUserid => {
-        return (userId === loggedUserid || isUserAdmin());
-    })
-    .then(canModify => {
+    getUserId().then(loggedUserId => {
+        return (userId === parseInt(loggedUserId) || isUserAdmin());
+    }).then(canModify => {
         if (canModify) {
             $(".can-modify").css("display", "inline");
             $("#destinationTTButton").text("Edit Traveller Types");
