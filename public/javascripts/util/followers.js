@@ -205,13 +205,20 @@ $('#followersSearch').on('keyup', function (e) {
  * @param textInput The text to search by
  */
 function searchFollowers(textInput) {
-    const id = parseInt(window.location.href.split("/").pop());
-    populateFollowers(id, textInput);
+    const url = window.location.href.split("/");
+    console.log(url);
+    const id = parseInt(url.pop());
+    const onDestination = url.pop() === "destinations";
+    if (onDestination) {
+        populateDestinationFollowers(id, textInput);
+    } else {
+        populateFollowers(id, textInput);
+    }
 }
 
 /**
  * Calls the function to populate the following section using searched text
- * @param textInput
+ * @param textInput The text to search by
  */
 function searchFollowing(textInput) {
     const id = parseInt(window.location.href.split("/").pop());
@@ -303,11 +310,18 @@ function populateFollowers(userId, searchQuery) {
 /**
  * Populates the followers modal on the destination page with all users following the given destination
  * @param {Number} destinationId - ID of destination displayed on page
+ * @param {String} searchQuery The name to search by
  */
-function populateDestinationFollowers(destinationId) {
-    get(destinationRouter.controllers.backend.DestinationController.getDestinationFollowers(
-        destinationId).url)
-    .then(response => {
+function populateDestinationFollowers(destinationId, searchQuery) {
+    const url = new URL(
+        destinationRouter.controllers.backend.DestinationController.getDestinationFollowers(
+            destinationId).url, window.location.origin);
+
+    if (searchQuery) {
+        url.searchParams.append("searchQuery", searchQuery);
+    }
+
+    get(url).then(response => {
         response.json()
         .then(followers => {
             if (response.status !== 200) {
@@ -316,10 +330,11 @@ function populateDestinationFollowers(destinationId) {
                 const searchInput = $("#search");
                 const noFollowersLabel = $("#destination-no-followers");
                 if (followers.data.length === 0) {
-                    searchInput.attr({type:"hidden"});
-                    noFollowersLabel.text("No users are following this destination.");
+                    searchInput.attr({type: "hidden"});
+                    noFollowersLabel.text(
+                        "No followers found.");
                 } else {
-                    searchInput.attr({type:"text"});
+                    searchInput.attr({type: "text"});
                     noFollowersLabel.text("");
                 }
                 createUserFollowedByCard(followers.data);
