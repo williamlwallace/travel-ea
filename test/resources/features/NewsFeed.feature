@@ -67,3 +67,4 @@ Feature: News Feed Events
     Then There will be 2 news feed event for the profile
     And The first profile news feed event will have type 'MULTIPLE_DESTINATION_PHOTO_LINKS'
     And There will be 1 news feed event for the destination
+    And The first destination news feed event will have type 'MULTIPLE_DESTINATION_PHOTO_LINKS'
