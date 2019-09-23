@@ -102,7 +102,7 @@ tr.clickable-row {
 }
 
 /**
-* Style for labels that are <pre> so that addiing  errors doesnt clear them
+* Style for labels that are <pre> so that adding errors doesn't clear them
  */
 pre {
     font-size: 20px;
