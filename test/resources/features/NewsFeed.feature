@@ -14,4 +14,4 @@ Feature: News Feed Events
     And I make the photo with id 1 public
     When I get the news feed events for profile 1
     Then There will be 1 news feed event
-    And The first news feed event will have type 'UPLOADED_USER_PHOTO'
+    And The first news feed event will have type 'MULTIPLE_GALLERY_PHOTOS'
