@@ -24,8 +24,8 @@ class NewsFeed {
         $(window).scroll(this.scrollHandler.bind(this));
     }
 
-    /*
-     * gets next page of data
+    /**
+     * Gets next page of data
      */
     getPage() {
         const url = this.createURL();
@@ -127,7 +127,7 @@ const NewsFeedEventTypes = {
      * reference ID = ID of photo
      * dest ID = ID of destination
      */
-    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleDestinationPhotoLinks,
+    MULTIPLE_DESTINATION_PHOTO_LINKS: multipleGalleryPhotos,
 
     /**
      * A public destination has had its primary photo updated
@@ -391,7 +391,7 @@ function createdNewTripCard(event) {
 /**
  * Creates news Feed card for creating a trip
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newProfilePhotoCard(event) {
     const card = createUserWrapperCard(event);
@@ -411,7 +411,7 @@ function newProfilePhotoCard(event) {
 /**
  * Creates news Feed card for destination primary photo change
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newPrimaryPhotoCard(event) {
     const card = createDestinationWrapperCard(event);
@@ -422,31 +422,50 @@ function newPrimaryPhotoCard(event) {
 /**
  * Creates news Feed card for groups of trip photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function groupedTripUpdates(event) {
-    const card = createUserWrapperCard(event);
-    //TODO: The card
-    return card;
+    return multipleDestinations(event);
 }
-
 
 /**
- * Creates news Feed card for groupes of destination photos
+ * Creates a news feed card with multiple destinations which is scrollable
  *
- * @param {object} event newsfeed event item data
+ * @param {Object} event - News feed event containing destination details
+ * @returns {Object} card - News feed card
  */
-function multipleDestinationPhotoLinks(event) {
+function multipleDestinations(event) {
     const card = createUserWrapperCard(event);
-    //TODO: The card
+    const template = $("#multipleDestinationCardTemplate").get(0);
+    const destinationCard = $(template.content.cloneNode(true));
+    const destinations = event.data.newDestinations;
+    const eventId = event.id;
+    const destinationCardId = "multiple-destination-carousel-" + eventId;
+    const destinationObjects = destinationCard.find('.carousel-inner');
+
+    for (let i = 0; i < destinations.length; i++) {
+        destinationCard.find(".main-carousel").attr("id", destinationCardId);
+        destinationCard.find(".carousel-control-prev").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-control-next").attr("href", "#" + destinationCardId);
+        destinationCard.find(".carousel-inner").attr("id", "inner-" + destinationCardId);
+
+        const carouselWrapper = document.createElement("DIV");
+        carouselWrapper.setAttribute("class", "carousel-item " + (i === 0 ? "active" : ""));
+
+        const destCard = createDestinationCard(destinations[i]);
+
+        carouselWrapper.append(destCard);
+        destinationObjects.append(carouselWrapper);
+    }
+
+    card.find('.wrapper-body').append(destinationCard);
     return card;
 }
-
 
 /**
  * Creates news Feed card for groups of gallery photos
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function multipleGalleryPhotos(event) {
     const card = createUserWrapperCard(event);
@@ -501,7 +520,7 @@ function multipleGalleryPhotos(event) {
 
 /**
  * 
- * @param {Objecty} photoDatas list of photo data
+ * @param {Object} photoDatas list of photo data
  * @param {string} direction direction of scroll
  * @param {Object} card carousel jquery object
  */
@@ -551,64 +570,21 @@ function updateMultyCard(photoDatas, direction, card) {
 /**
  * Creates news Feed card for user creating new destination
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function createdNewDestinationCard(event) {
     const card = createUserWrapperCard(event);
-
-    const template = $("#destinationCardTemplate").get(0);
-    const destinationCard = $(template.content.cloneNode(true));
-
     const dest = event.data;
-
-    let tags = "";
-    let travellerTypes = "";
-
-    $(destinationCard).find("#card-header").append(dest.name);
-    if (dest.primaryPhoto) {
-        $(destinationCard).find("#card-thumbnail").attr("src",
-            "../user_content/" + dest.primaryPhoto.thumbnailFilename);
-    }
-    $(destinationCard).find("#district").append(
-        dest.district ? dest.district : "No district");
-    $(destinationCard).find("#country").append(dest.country.name);
-    $(destinationCard).find("#destType").append(
-        dest.destType ? dest.destType : "No type");
-    $(destinationCard).find("#card-header").attr("data-id", dest.id.toString());
-    $(destinationCard).find("#card-header").attr("id",
-        "destinationCard-" + dest.id.toString());
-
-    $($(destinationCard).find('#destinationCard-' + dest.id.toString())).click(
-        function () {
-            location.href = '/destinations/' + $(this).data().id;
-        });
-
-    dest.tags.forEach(item => {
-        tags += item.name + ", ";
-    });
-    tags = tags.slice(0, -2);
-
-    dest.travellerTypes.forEach(item => {
-        travellerTypes += item.description + ", ";
-    });
-    travellerTypes = travellerTypes.slice(0, -2);
-
-    $(destinationCard).find("#destinatonCardTravellerTypes").append(
-        travellerTypes ? travellerTypes : "No traveller types");
-
-    $(destinationCard).find("#tags").remove();
-
+    const destinationCard = createDestinationCard(dest);
     card.find('.wrapper-body').append(destinationCard);
-
-    addTags(card, dest.tags);
 
     return card
 }
 
 /**
- * Creates news Feed card for user updateing destination
+ * Creates news Feed card for user updating destination
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function updatedExistingDestinationCard(event) {
     return createdNewDestinationCard(event);
@@ -617,7 +593,7 @@ function updatedExistingDestinationCard(event) {
 /**
  * Creates news Feed card for user changing cover photo
  *
- * @param {object} event newsfeed event item data
+ * @param {object} event - News feed event item data
  */
 function newProfileCoverPhotoCard(event) {
     return newProfilePhotoCard(event);
