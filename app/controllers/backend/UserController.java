@@ -373,7 +373,6 @@ public class UserController extends TEABackController {
                                     ok(Json.toJson("unfollowed")));
                         }
                     });
-
             }
         });
 

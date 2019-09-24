@@ -456,7 +456,7 @@ function createUserFollowerCard(users, clearFollowers) {
             const template = $("#followerCardTemplate").get(0);
             const clone = template.content.cloneNode(true);
 
-            $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+            $(clone).find("#follower-summary-name").append(user.firstName + ' ' + user.lastName);
             if (user.profilePhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
@@ -464,6 +464,7 @@ function createUserFollowerCard(users, clearFollowers) {
             }
             $(clone).find("#follower-card").attr("data-id",
                 user.userId.toString());
+            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
             $("#followersCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
@@ -494,7 +495,7 @@ function createUserFollowedByCard(users, clearFollowing) {
             const template = $("#followerCardTemplate").get(0);
             const clone = template.content.cloneNode(true);
 
-            $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+            $(clone).find("#follower-summary-name").append(user.firstName + ' ' + user.lastName);
             if (user.profilePhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
@@ -502,6 +503,7 @@ function createUserFollowedByCard(users, clearFollowing) {
             }
             $(clone).find("#follower-card").attr("data-id",
                 user.userId.toString());
+            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
             $("#followedByCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
@@ -532,13 +534,14 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
             const template = $("#followerCardTemplate").get(0);
             const clone = template.content.cloneNode(true);
 
-            $(clone).find("#name").append(dest.name);
+            $(clone).find("#follower-summary-name").append(dest.name);
             if (dest.primaryPhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
                     + dest.primaryPhoto.thumbnailFilename);
             }
             $(clone).find("#follower-card").attr("data-id", dest.id.toString());
+            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
             $("#followersCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
