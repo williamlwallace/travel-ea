@@ -239,26 +239,14 @@ $('#users-following-btn').on('click', function () {
  * Handler to handle the user typing in the search box
  */
 $('#followingSearch').on('keyup', function (e) {
-    if (e.keyCode === 13) { //Enter
-        searchFollowing($(this).val());
-    } else if (e.keyCode === 8 || e.keyCode === 46) { //Backspace or delete
-        if ($(this).val() === "") {
-            searchFollowing($(this).val());
-        }
-    }
+    searchFollowing($(this).val());
 });
 
 /**
  * Handler to handle the user typing in the search box
  */
 $('#followersSearch').on('keyup', function (e) {
-    if (e.keyCode === 13) { //Enter
-        searchFollowers($(this).val());
-    } else if (e.keyCode === 8 || e.keyCode === 46) { //Backspace or delete
-        if ($(this).val() === "") {
-            searchFollowers($(this).val());
-        }
-    }
+    searchFollowers($(this).val());
 });
 
 /**
