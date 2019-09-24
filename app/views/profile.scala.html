@@ -83,7 +83,11 @@
                                 Passports <span id="summary_passports" class="user-info"></span></p>
 
                             @if(canModify) {
-                                <button class="btn btn-secondary" id="edit-profile-button" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
+                                <a data-toggle="modal" data-target="#editProfileModal">
+                                    <span class="profile-button" style="float: left;
+                                        padding-top: 10px;
+                                        padding-bottom: 10px;">Edit Profile</span>
+                                </a>
                             }
                         </div>
                     </div>
