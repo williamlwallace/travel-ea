@@ -541,6 +541,7 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
                     + dest.primaryPhoto.thumbnailFilename);
             }
             $(clone).find("#follower-card").attr("data-id", dest.id.toString());
+            $(clone).find("#follower-summary-follower-count").append(dest.followerCount);
             $("#followersCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
@@ -555,7 +556,7 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
 
 
 /**
- * Create follower cards for destinations that a user is following
+ * Create follower cards for destinations that a user is following for the explore page
  * @param {Array} destinations - List of all destinations that need to be made into cards
  * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
@@ -579,6 +580,7 @@ function createDestinationFollowerCardExplorePage(destinations, clearFollowers) 
                     + dest.primaryPhoto.thumbnailFilename);
             }
             $(clone).find("#follower-card").attr("data-id", dest.id.toString());
+            $(clone).find("#follower-summary-follower-count").append(dest.followerCount);
             $("#followersCardListDestinations").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
