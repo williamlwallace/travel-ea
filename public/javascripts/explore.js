@@ -7,7 +7,7 @@ $(document).ready(function () {
 });
 
 /**
- * //TODO
+ * Adds the current trending users
  */
 function populateTrendingUsers() {
    const url = newsFeedRouter.controllers.backend.NewsFeedController.getTrendingUsers().url;
@@ -24,7 +24,7 @@ function populateTrendingUsers() {
 }
 
 /**
- * //TODO
+ * Adds the current trending destinations
  */
 function populateTrendingDestinations() {
    const url = newsFeedRouter.controllers.backend.NewsFeedController.getTrendingDestinations().url;
