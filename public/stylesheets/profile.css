@@ -349,7 +349,7 @@ section#timeline a {
 .profile-nav-text{font-weight: 600; font-size: 22px}
 
 #profile-tabs{
-    max-width: 70rem;
+    /*max-width: 70rem;*/
 }
 
 .tab-buttons {
@@ -382,5 +382,5 @@ section#timeline a {
 }
 
 #feed {
-    padding: 2rem 6rem 0 6rem;
+    /*padding: 2rem 6rem 0 6rem;*/
 }

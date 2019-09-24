@@ -10,12 +10,12 @@
 
 .follower-summary-name {
     font-size: 1.25rem;
-    margin: 1rem;
+    /*margin: 1rem;*/
 }
 
 .follower-summary-follower-count {
     font-size: 1rem;
-    margin: 1rem;
+    /*margin: 1rem;*/
     text-align: right;
     font-family: "Roboto Condensed", sans-serif;
     color: #afafaf;

@@ -1,7 +1,7 @@
 let followersRequestOrder;
 
 /**
- * Sets the follow button depending if you follow this user/destination or not
+ * Sets the follow button on destination and profile page depending if you follow this user/destination or not
  *
  * @param type is type of thing to follow/unfollow eg. "profile", "destination"
  */
@@ -37,6 +37,16 @@ function loadFollowBtn(type) {
             });
         });
     });
+}
+
+/**
+ * Sets the follow button on the people/destination cards used in modals and explore page
+ *
+ * @param id
+ * @param type
+ */
+function loadFollowBtnCard(id, type) {
+
 }
 
 /**
@@ -444,7 +454,8 @@ function createUserFollowerCard(users, clearFollowers) {
             const template = $("#followerCardTemplate").get(0);
             const clone = template.content.cloneNode(true);
 
-            $(clone).find("#follower-summary-name").append(user.firstName + ' ' + user.lastName);
+            $(clone).find("#follower-summary-name").append(
+                user.firstName + ' ' + user.lastName);
             if (user.profilePhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
@@ -452,7 +463,11 @@ function createUserFollowerCard(users, clearFollowers) {
             }
             $(clone).find("#follower-card").attr("data-id",
                 user.userId.toString());
-            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
+
+            // Set follower count on user card
+            const followerCount = countFormatter(user.followerUsersCount);
+            $(clone).find("#follower-summary-follower-count").append(
+                followerCount + " Followers");
             $("#followersCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
@@ -483,7 +498,8 @@ function createUserFollowedByCard(users, clearFollowing) {
             const template = $("#followerCardTemplate").get(0);
             const clone = template.content.cloneNode(true);
 
-            $(clone).find("#follower-summary-name").append(user.firstName + ' ' + user.lastName);
+            $(clone).find("#follower-summary-name").append(
+                user.firstName + ' ' + user.lastName);
             if (user.profilePhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
@@ -491,7 +507,11 @@ function createUserFollowedByCard(users, clearFollowing) {
             }
             $(clone).find("#follower-card").attr("data-id",
                 user.userId.toString());
-            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
+
+            // Set follower count on user card
+            const followerCount = countFormatter(user.followerUsersCount);
+            $(clone).find("#follower-summary-follower-count").append(
+                followerCount + " Followers");
             $("#followedByCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
@@ -529,7 +549,11 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
                     + dest.primaryPhoto.thumbnailFilename);
             }
             $(clone).find("#follower-card").attr("data-id", dest.id.toString());
-            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
+
+            // Set follower count on destination card
+            const followerCount = countFormatter(dest.followerCount);
+            $(clone).find("#follower-summary-follower-count").append(
+                followerCount + " Followers");
             $("#followersCardList").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
