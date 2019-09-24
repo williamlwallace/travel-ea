@@ -230,7 +230,7 @@ public class NewsFeedEventRepository {
 
             String sql = "SELECT "
                 + "*, "
-                + "(1 / (1 + POWER(:E, ((" + changeInTime + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3))) * (" + numberOfLikes + " / :TRENDING_LIKE_TUNING ) + 1 ) AS weight "
+                + "(1 / (1 + POWER(:E, ((" + changeInTime + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3))) * (" + numberOfLikes + " / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(12,8)) ) + 1 ) AS weight "
                 + "FROM NewsFeedEvent E "
                 + "ORDER BY weight DESC";
             // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
