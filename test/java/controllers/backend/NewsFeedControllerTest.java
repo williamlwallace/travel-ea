@@ -6,11 +6,19 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.PUT;
 import static play.test.Helpers.route;
+import static org.junit.Assert.assertTrue;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 
+import models.Profile;
+import models.Destination;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.Arrays;
+
+import play.libs.Json;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http;
@@ -173,6 +181,53 @@ public class NewsFeedControllerTest extends controllers.backend.ControllersTest 
             .readValue(message.get("likeCount").toString(), Long.class);
 
         assertEquals(0L, count.longValue());
+    }
+
+    @Test
+    public void getTrendingUsers() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+        .method(GET)
+        .cookie(adminAuthCookie)
+        .uri("/api/newsfeed/trending/user");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+        
+        List<Long> expectedTrending = Arrays.asList(1L, 4L, 3L, 7L, 5L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Profile> profiles =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<List<Profile>>(){});
+
+        assertEquals(5, profiles.size());
+
+        for (Profile profile : profiles) {
+            assertTrue(expectedTrending.contains(profile.userId));
+        }
+    }
+
+    @Test
+    public void getTrendingDestinations() throws IOException {
+        Http.RequestBuilder request = Helpers.fakeRequest()
+        .method(GET)
+        .cookie(adminAuthCookie)
+        .uri("/api/newsfeed/trending/destination");
+
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+        
+        List<Long> expectedTrending = Arrays.asList(4L, 1L, 3L, 9L, 5L);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Destination> destinations =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),
+            new TypeReference<List<Destination>>(){});
+
+        assertEquals(5, destinations.size());
+
+        for (Destination destination : destinations) {
+            System.out.println(Json.toJson(destination));
+            assertTrue(expectedTrending.contains(destination.id));
+        }
     }
 
 }

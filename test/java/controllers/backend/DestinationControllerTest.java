@@ -979,7 +979,7 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
         Result result = route(fakeApp, request);
         assertEquals(OK, result.status());
 
-        List<Long> expectedDestinations = Arrays.asList(1L, 2L, 3L);
+        List<Long> expectedDestinations = Arrays.asList(1L, 2L, 3L, 4L);
 
         ObjectMapper mapper = new ObjectMapper();
         PagingResponse<Destination> destinations =  mapper.convertValue(mapper.readTree(Helpers.contentAsString(result)),

@@ -284,7 +284,7 @@ public class DestinationRepositoryTest extends repository.RepositoryTest {
     public void getDestinationsFollowedByUser() {
         List<Destination> destinations = destinationRepository
             .getDestinationsFollowedByUser(1L, "", 1, 20).join().getList();
-        assertEquals(3, destinations.size());
+        assertEquals(4, destinations.size());
 
         // Check destination with ID 2 is last in list, to justify sorting my most followers
         assertEquals(Long.valueOf(2), destinations.get(destinations.size()-1).id);
