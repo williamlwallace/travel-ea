@@ -56,7 +56,7 @@
                 </div>
 
                 <!-- Destination cards -->
-                <div id="tripError"></div>
+                <div id="tripError" class="error-messages"></div>
                     <!-- Destination card deck -->
                 <div id="parent"  style="border:1px solid #cecece; background-color: #ececed;" class="parent">
                     <div id="list" class="list">
@@ -88,10 +88,10 @@
                                                 @trip.tripDataList(i).destination.district
                                                 <br/>
                                                 <strong>Latitude: </strong>
-                                                @trip.tripDataList(i).destination.latitude
+                                                @trip.tripDataList(i).destination.getFormattedLatitude()
                                                 <br/>
                                                 <strong>Longitude: </strong>
-                                                @trip.tripDataList(i).destination.longitude
+                                                @trip.tripDataList(i).destination.getFormattedLongitude()
                                                 <br/>
                                                 <strong>Country: </strong>
                                                 <label id="countryField">@trip.tripDataList(i).destination.country.name</label>
@@ -122,7 +122,7 @@
                                                 </div>
                                             </form>
                                             <div class="text-center">
-                                                <label id="destinationError"></label><br/>
+                                                <label id="destinationError" class="error-messages"></label><br/>
                                             </div>
                                         </div>
                                     </div>
