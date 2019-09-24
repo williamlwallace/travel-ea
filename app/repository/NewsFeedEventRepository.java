@@ -44,8 +44,8 @@ public class NewsFeedEventRepository {
     private final Expression SQL_FALSE = Expr.raw("false");
     private final Expression SQL_TRUE = Expr.raw("true");
 
-    private final Long TRENDING_TIME_TUNING = 100L; // The bigger this gets, the longer it takes for a post to fall off
-    private final Long TRENDING_LIKE_TUNING = 1L; // The bigger this gets, the less influence the amount of likes has
+    private final Double TRENDING_TIME_TUNING = 100.0; // The bigger this gets, the longer it takes for a post to fall off
+    private final Double TRENDING_LIKE_TUNING = 1.0; // The bigger this gets, the less influence the amount of likes has
     private final Double E = 2.718281828459045;
 
 
@@ -222,10 +222,17 @@ public class NewsFeedEventRepository {
         Integer pageSize) {
 
         return supplyAsync(() -> {
-            // ### Explore algoithm ###
-            //  1/(1+e^({changeInTime}/{time_tuner} -3 ))) * ({likes}/{likesTuner} + 1)
+            // ### Explore algorithm ###
+            // (1 / (1+e^({changeInTime}/{time_tuner} -3 ))) * ({likes}/{likesTuner} + 1)
 
-            String sql = "SELECT *, ( ( 1 / ( 1 + POWER(:E, ( ( (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(created)) / :TRENDING_TIME_TUNING) - 3) ) ) ) * ( ( (SELECT COUNT(*) FROM Likes AS L WHERE L.event_id = E.guid) / :TRENDING_LIKE_TUNING ) + 1 ) ) AS weight FROM NewsFeedEvent AS E ORDER BY weight DESC";
+            String changeInTime = " (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(created)) "; // Integer value of seconds
+            String numberOfLikes = " (SELECT COUNT(*) FROM Likes L WHERE L.event_id = E.guid) "; // Integer value of likes
+
+            String sql = "SELECT "
+                + "*, "
+                + "(1 / (1 + POWER(:E, ((" + changeInTime + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3))) * (" + numberOfLikes + " / :TRENDING_LIKE_TUNING ) + 1 ) AS weight "
+                + "FROM NewsFeedEvent E "
+                + "ORDER BY weight DESC";
             // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
             PagedList<NewsFeedEvent> events = ebeanServer.findNative(NewsFeedEvent.class, sql)
             .setParameter("E", this.E)
@@ -235,19 +242,26 @@ public class NewsFeedEventRepository {
             .setMaxRows(pageSize)
             .findPagedList();
 
-            String sql2 = "SELECT ( ( CAST((SELECT COUNT(*) FROM Likes AS L WHERE L.event_id = E.guid) AS DECIMAL(18,4)) / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(18,4)) ) + 1 )  AS weight FROM NewsFeedEvent AS E";
-            // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
-            List<Double> weights = new ArrayList<Double>();
-            ebeanServer.createSqlQuery(sql2)
-            .setParameter("E", this.E)
-            .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
-            .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
-            .findEachRow(((resultSet, rowNum) -> {
-                weights.add(resultSet.getDouble(1));
-            }));
+            ebeanServer.createSqlQuery(sql)
+                .setParameter("E", this.E)
+                .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
+                .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
+                .findEachRow(((resultSet, rowNum) -> {
+                    System.out.println("Weight at row " + rowNum + ": " + resultSet.getDouble(resultSet.findColumn("weight")));
+                }));
 
-            System.out.println(Json.toJson(weights));
-            System.out.println("yeyeyeyeyeyey");
+//            String sql2 = "SELECT ((CAST((SELECT COUNT(*) FROM Likes AS L WHERE L.event_id = E.guid) AS DECIMAL(18,4)) / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(18,4)) ) + 1 )  AS weight FROM NewsFeedEvent AS E";
+//            // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
+//            List<Double> weights = new ArrayList<Double>();
+//            ebeanServer.createSqlQuery(sql2)
+//            .setParameter("E", this.E)
+//            .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
+//            .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
+//            .findEachRow(((resultSet, rowNum) -> {
+//                weights.add(resultSet.getDouble(1));
+//            }));
+//
+//            System.out.println(Json.toJson(weights));
 
             return events;
         });
