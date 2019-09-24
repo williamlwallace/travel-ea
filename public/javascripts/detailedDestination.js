@@ -239,7 +239,7 @@ function editDestination(destinationId) {
             if (this.initialUpdate) {
                 if (status === 200) {
                     toast("Update successful",
-                        "The destination has been updated");    // TODO: Success toast?
+                        "The destination has been updated", "success");    // TODO: Success toast?
                 } else if (status !== 400) {
                     toast("Destination could not be updated", json, "danger",
                         5000);
