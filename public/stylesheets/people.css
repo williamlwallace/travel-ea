@@ -27,6 +27,7 @@ input[type=number] {
 #filterButton {
     margin: auto;
     display: block;
+    float: right;
 }
 
 #collapseExample {
