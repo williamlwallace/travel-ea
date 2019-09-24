@@ -3,8 +3,10 @@ package repository;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
+import play.libs.Json;
 import java.util.List;
 import java.util.concurrent.CompletionException;
 import models.User;
@@ -12,6 +14,9 @@ import models.NewsFeedEvent;
 import models.Destination;
 import models.Photo;
 import models.Trip;
+import models.TrendingUser;
+import models.TrendingDestination;
+import models.Profile;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -147,17 +152,44 @@ public class NewsFeedEventRepositoryTest extends repository.RepositoryTest {
     }
 
     @Test
-    public void trendingUsers() {
-        List<Profile> profiles = newsFeedEventRepository.getTrendingUsers().join();
-        assertEquals(5, profiles.size());
-        assertEquals(4, profiles.get(0).id);
+    public void trendingUsersOrdering() {
+        List<Profile> trendingUsers = newsFeedEventRepository.getTrendingUsers().join();
+        assertEquals(Long.valueOf(1), trendingUsers.get(0).userId);
+        assertEquals(Long.valueOf(5), trendingUsers.get(1).userId);
     }
 
     @Test
-    public void trendingDestinations() {
-        List<Destination> destinations = newsFeedEventRepository.getTrendingDestinations().join();
-        assertEquals(5, destinations.size());
-        assertEquals(4, destinations.get(0).id);
+    public void trendingUsersLength() {
+        List<Profile> trendingUsers = newsFeedEventRepository.getTrendingUsers().join();
+        assertEquals(5, trendingUsers.size());
     }
+
+    @Test
+    public void trendingUsersFollowersCount() {
+        List<Profile> trendingUsers = newsFeedEventRepository.getTrendingUsers().join();
+        assertEquals(Long.valueOf(3), trendingUsers.get(0).followerUsersCount);
+    }
+
+    @Test
+    public void trendingDestinationsOrdering() {
+        List<Destination> trendingDestinations = newsFeedEventRepository.getTrendingDestinations().join();
+        assertEquals(Long.valueOf(3), trendingDestinations.get(0).id);
+        assertEquals(Long.valueOf(1), trendingDestinations.get(1).id);
+    }
+
+    @Test
+    public void trendingDestinationsLength() {
+        List<Destination> trendingDestinations = newsFeedEventRepository.getTrendingDestinations().join();
+        assertEquals(5, trendingDestinations.size());
+    }
+
+    @Test
+    public void trendingDestinationsCount() {
+        List<Destination> trendingDestinations = newsFeedEventRepository.getTrendingDestinations().join();
+        assertEquals(Long.valueOf(3), trendingDestinations.get(0).id);
+        assertEquals(Long.valueOf(1), trendingDestinations.get(1).id);
+        assertEquals(Long.valueOf(2), trendingDestinations.get(0).followerCount);
+    }
+
 
 }

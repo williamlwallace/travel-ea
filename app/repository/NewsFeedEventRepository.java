@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -25,6 +27,8 @@ import models.Likes;
 import models.Trip;
 import models.FollowerUser;
 import models.FollowerDestination;
+import models.TrendingUser;
+import models.TrendingDestination;
 import play.db.ebean.EbeanConfig;
 
 /**
@@ -260,35 +264,49 @@ public class NewsFeedEventRepository {
     }
 
     /**
-     * Retrieves the number of likes a news feed event has
-     *
-     * @param eventId ID of the news feed event to retrieve likes count for
-     * @return A news feed event object with only the like count field populated
+     * Retrieves trending users based on the followers they have recieved in the last week
+     * 
+     * @return A list of 5 trending users
      */
     public CompletableFuture<List<Profile>> getTrendingUsers() {
         return supplyAsync(() -> {
-            return (long) ebeanServer.find(FollowerUser.class)
-                .where()
-                .findCount();
-
+            String sql = "select user_id, COUNT(follower_id) as followerCount from FollowerUser where follow_time >= :time group by user_id order by followerCount desc, user_id desc limit 5";
+            List<Profile> trending = ebeanServer.findNative(TrendingUser.class, sql)
+                .setParameter("time", LocalDateTime.now().minusDays(7))
+                .findList()
+                .stream()
+                .map(tu -> {
+                    tu.user.followerUsersCount = Long.valueOf(ebeanServer.find(FollowerUser.class)
+                        .where().eq("user_id", tu.user.userId)
+                        .findCount());
+                    return tu.user;
+                })
+                .collect(Collectors.toList());
+            return trending;
         });
     }
 
     /**
-     * Retrieves the number of likes a news feed event has
-     *
-     * @param eventId ID of the news feed event to retrieve likes count for
-     * @return A news feed event object with only the like count field populated
+     * Retrieves trending destinations based on the followers they have recieved in the last week
+     * 
+     * @return A list of 5 trending destinations
      */
-    public CompletableFuture<List<Long>> getTrendingDestinations() {
+    public CompletableFuture<List<Destination>> getTrendingDestinations() {
         return supplyAsync(() -> {
-            return (long) ebeanServer.find(FollowerDestination.class)
-                .where()
-                .findCount();
+            String sql = "select destination_id, COUNT(follower_id) as followerCount from FollowerDestination where follow_time >= :time group by destination_id order by followerCount desc, destination_id desc limit 5";
+            List<Destination> trending = ebeanServer.findNative(TrendingDestination.class, sql)
+                .setParameter("time", LocalDateTime.now().minusDays(7))
+                .findList()
+                .stream()
+                .map(td -> {
+                    td.destination.followerCount = Long.valueOf(ebeanServer.find(FollowerDestination.class)
+                        .where().eq("destination_id", td.destination.id)
+                        .findCount());
+                    return td.destination;
+                })
+                .collect(Collectors.toList());
+            return trending;
         });
     }
-
-
-
 }
 

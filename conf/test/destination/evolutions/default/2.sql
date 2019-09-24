@@ -17,6 +17,7 @@ INSERT INTO User (username, password, salt, admin) VALUES ('bob2@gmail.com', '51
 INSERT INTO User (username, password, salt, admin) VALUES ('bob3@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
 INSERT INTO User (username, password, salt, admin) VALUES ('bob4@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
 INSERT INTO User (username, password, salt, admin) VALUES ('bob5@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
+INSERT INTO User (username, password, salt, admin) VALUES ('bob6@gmail.com', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', false);
 
 -- Create profile for tester1@gmail.com
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (1, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
@@ -25,6 +26,7 @@ INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth,
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (4, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (5, 'Dave', 'Jimmy', 'Smith', '1986-11-05', 'Male');
 INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (6, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
+INSERT INTO Profile (user_id, first_name, middle_name, last_name, date_of_birth, gender) VALUES (7, 'Steve', 'Jimmy', 'Alan', '1486-11-05', 'Female');
 
 -- Insert some destinations to test getting
 -- User 1 private destinations
@@ -70,10 +72,17 @@ INSERT INTO FollowerDestination (destination_id, follower_id) VALUES (9, 2);
 -- Add followers
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 2);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 3);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (1, 4);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (2, 1);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (3, 1);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (3, 5);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (4, 1);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (4, 2);
 INSERT INTO FollowerUser (user_id, follower_id) VALUES (5, 1);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (5, 4);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (6, 1);
+INSERT INTO FollowerUser (user_id, follower_id) VALUES (7, 1);
+
 
 
 
