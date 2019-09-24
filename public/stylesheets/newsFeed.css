@@ -112,9 +112,14 @@
 
 /* Upflights (likes) */
 .upflight-icon {
-    font-size: 20;
-
+    font-size: 1.2rem;
 }
+
+.upflight-icon:hover {
+    font-size:1.3rem;
+    cursor: pointer;
+}
+
 .upflight-counter {
     margin-left: 4px;
 }
