@@ -339,3 +339,11 @@ section#timeline article:nth-child(n) div.inner h2:after {
 .tz-gallery {
     margin-top: 0;
 }
+
+#upload-gallery-image-button {
+    float: left;
+}
+
+#tagFilterOuter {
+    float: right;
+}
