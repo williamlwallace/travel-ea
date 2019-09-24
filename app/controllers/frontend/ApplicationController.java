@@ -10,6 +10,7 @@ import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import views.html.explore;
 import views.html.home;
 import views.html.start;
 
@@ -48,5 +49,16 @@ public class ApplicationController extends TEAFrontController {
     @With(Authenticator.class)
     public Result cover(Http.Request request) {
         return ok(start.render());
+    }
+
+    /**
+     * Displays the explore page. Called with the / URL and uses a GET request.
+     *
+     * @return displays the explore page
+     */
+    @With({Everyone.class, Authenticator.class})
+    public Result explore(Http.Request request) {
+        User user = request.attrs().get(ActionState.USER);
+        return ok(explore.render(user));
     }
 }
