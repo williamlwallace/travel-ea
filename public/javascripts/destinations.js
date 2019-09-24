@@ -40,7 +40,7 @@ function onPageLoad(userId) {
 
 /**
  * Returns a boolean of the getonlymine selector tick box
- * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
+ * @returns {Boolean} True if the getonlymine text box it ticked, false otherwise
  */
 function getOnlyGetMine() {
     const currentValue = $('#onlyGetMine').val();
@@ -49,7 +49,7 @@ function getOnlyGetMine() {
 
 /**
  * Returns the string of the searchQuery field.
- * @returns {string} a string of the data in the searchQuery field
+ * @returns {String} a string of the data in the searchQuery field
  */
 function getSearchQuery() {
     return $('#searchQuery').val();
@@ -57,7 +57,7 @@ function getSearchQuery() {
 
 /**
  * Get the value of the number of results to show per page
- * @returns {number} The number of results shown per page
+ * @returns {Number} The number of results shown per page
  */
 function getPageSize() {
     return $('#pageSize').val();
@@ -65,7 +65,7 @@ function getPageSize() {
 
 /**
  * Returns the name of the db column to search by
- * @returns {string} Name of db column to search by
+ * @returns {String} Name of db column to search by
  */
 function getSortBy() {
     return $('#sortBy').val();
@@ -73,7 +73,7 @@ function getSortBy() {
 
 /**
  * Gets whether or not to sort by ascending
- * @returns {string} Either 'true' or 'false', where true is ascending, false is descending
+ * @returns {String} Either 'true' or 'false', where true is ascending, false is descending
  */
 function getAscending() {
     return $('#ascending').val();
@@ -82,7 +82,7 @@ function getAscending() {
 /**
  * Gets the destinations from the database given the query parameters set by the
  * user with the destination filters.
- * @returns {object} Returns a promise of the get request sent
+ * @returns {Object} Returns a promise of the get request sent
  */
 function getDestinations() {
     const url = new URL(
@@ -96,9 +96,16 @@ function getDestinations() {
 
     url.searchParams.append("onlyGetMine", getOnlyGetMine().toString());
 
+    let pageSize = getPageSize();
+    if (pageSize > 100) {
+        toast("Results per page too large", "The maximum results per page is 100, only 100 results will be returned", "warning", 7500);
+    } else if (pageSize < 1) {
+        toast("Results per page too small", "The minimum results per page is 1, 1 result will be returned", "warning", 7500);
+    }
+
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
-    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("pageSize", pageSize.toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
     url.searchParams.append("requestOrder", requestOrder.toString());
@@ -208,8 +215,9 @@ function createDestinationCard(dest) {
 
 /**
  * Add destination to database
- * @param {string} url - API URI to add destination
- * @param {string} redirect - URI of redirect page
+ * @param {String} url - API URI to add destination
+ * @param {String} redirect - URI of redirect page
+ * @param {Number} userId - The id of the user adding the destination
  */
 function addDestination(url, redirect, userId) {
     // Read data from destination form
@@ -259,26 +267,6 @@ function addDestination(url, redirect, userId) {
                 "success");
             $('#createDestinationModal').modal('hide');
             resetDestinationModal();
-
-            // Add row to table
-            const destination = destinationRouter.controllers.frontend.DestinationController.detailedDestinationIndex(
-                json).url;
-            const name = data.name;
-            const type = data.destType;
-            const district = data.district;
-            const latitude = data.latitude;
-            const longitude = data.longitude;
-            let country = data.country.id;
-
-            // Set country name
-            let countries = document.getElementById(
-                "countryDropDown").getElementsByTagName("option");
-            for (let i = 0; i < countries.length; i++) {
-                if (parseInt(countries[i].value) === data.country.id) {
-                    country = countries[i].innerText;
-                    break;
-                }
-            }
 
             refreshData();
             toggled = true;

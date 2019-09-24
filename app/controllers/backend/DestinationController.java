@@ -6,6 +6,7 @@ import actions.roles.Admin;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -662,7 +663,7 @@ public class DestinationController extends TEABackController {
         Integer pageSize,
         Integer requestOrder) {
         // Set hard limit of 100 destinations to return, and minimum 1
-        pageSize = pageSize > 50 ? 50 : pageSize;
+        pageSize = pageSize > 100 ? 100 : pageSize;
         pageSize = pageSize < 1 ? 1 : pageSize;
 
         // Get user id
@@ -835,6 +836,7 @@ public class DestinationController extends TEABackController {
         String apiKey = "";
         WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
         request.addQueryParameter("key", apiKey);
+        request.setRequestTimeout(Duration.ofSeconds(7));
 
         return request.execute()
             .thenApplyAsync(response -> ok(response.getBody()).as("text/javascript"));
