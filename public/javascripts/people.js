@@ -145,9 +145,23 @@ function getPeopleResults() {
         url.searchParams.append("searchQuery", getSelectedName());
     }
 
+    let pageSize = getPageSize();
+    let pageSizeSelector = $("#pageSize");
+    if (pageSize > 100) {
+        pageSizeSelector.val(100);
+        toast("Results per page too large",
+            "The maximum results per page is 100, only 100 results will be returned",
+            "warning", 7500);
+    } else if (pageSize < 1) {
+        pageSizeSelector.val(1);
+        toast("Results per page too small",
+            "The minimum results per page is 1, 1 result will be returned",
+            "warning", 7500);
+    }
+
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
-    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("pageSize", pageSize.toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
     url.searchParams.append("requestOrder", requestOrder++);
@@ -235,18 +249,28 @@ function createPeopleCard(person) {
 /**
  * Clears the filter and repopulates the cards
  */
-function clearFilter() {
-    $('#gender').val('');
+function clearPeopleFilter() {
+    $('#name').val(null);
+    $('#gender').val("default");
+    $('#gender').selectpicker("refresh");
     $('#minAge').val(null);
     $('#maxAge').val(null);
-    $(document.getElementById('nationalities')).selectpicker('val', "");
-    $(document.getElementById('travellerTypes')).selectpicker('val', "");
+    $('#pageSize').val(10);
+    $("#nationalities").val("default");
+    $("#nationalities").selectpicker("refresh");
+    $("#travellerTypes").val("default");
+    $("#travellerTypes").selectpicker("refresh");
+    $("#sortBy").val("creation_date");
+    $("#sortBy").selectpicker("refresh");
+    $("#ascending").val("true");
+    $("#ascending").selectpicker("refresh");
 }
 
 /**
  * Toggles the filter button between being visible and invisible
  */
 function toggleFilterButton() {
-    const toggled = $('#filterButton').css("display") === "block";
-    $('#filterButton').css("display", toggled ? "none" : "block");
+    let peopleFilterButton = $('#peopleFilterButton');
+    const toggled = peopleFilterButton.css("display") === "block";
+    peopleFilterButton.css("display", toggled ? "none" : "block");
 }

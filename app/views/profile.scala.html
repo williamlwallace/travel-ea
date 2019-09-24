@@ -160,43 +160,41 @@
 
                                 <div class="tripsCollapse collapse" id="collapseExample">
                                     <div class="card card-body tripsFilterCard" id="card-body">
-                                        <div class="row">
-                                            <div id="filterItemDiv">
+                                            <div class="filterItemDiv">
                                                 <label for="tripPageSize">Results per page</label>
                                                 <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" required/>
                                             </div>
-                                            <div id="filterItemDiv">
+                                            <div class="filterItemDiv">
                                                 <label for="tripSearch">Search</label>
                                                 <input type=text id="tripSearch" class="form-control"/>
                                             </div>
-                                            <div id="filterItemDiv">
+                                            <div class="filterItemDiv">
                                                 <label for="tripAscending">Order by</label>
                                                 <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
                                                     <option value="true">Ascending</option>
                                                     <option value="false">Descending</option>
                                                 </select>
+                                                <div class="text-center" id="buttonDiv">
+                                                    <div class="closeButton">
+                                                        <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">
+                                                            Close</button>
+                                                    </div>
+                                                    <div id="applyButton">
+                                                        <button class="btn btn-secondary" onclick='clearFilter()'>
+                                                            Clear</button>
+                                                        <button class="btn btn-primary" onclick='getProfileTripResults()'>
+                                                            Apply</button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="text-center" id="buttonDiv">
-                                            <div id="closeButton">
-                                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">
-                                                    Close</button>
-                                            </div>
-                                            <div id="applyButton">
-                                                <button class="btn btn-secondary" onclick='clearFilter()'>
-                                                    Clear</button>
-                                                <button class="btn btn-primary" onclick='getProfileTripResults()'>
-                                                    Apply</button>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
                                 @modules.tripCards()
-
-                                <div id="tripCardsList"></div>
+                                <div id="profileTripCardsList">
+                                    <div id="tripCardsList"></div>
+                                </div>
                             </div>
-
                         </div>
                     </div>
                 </div>

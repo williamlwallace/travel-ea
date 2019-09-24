@@ -409,3 +409,37 @@ pre {
     background:black;
     background: linear-gradient(90deg, #161616, #ffffff);
 }
+
+/*CSS for filter objects*/
+.filterItemDiv {
+    padding: 1rem;
+    display: inline-block;
+    width:15rem;
+    height:7rem;
+}
+
+.closeButton {
+    margin-left: 1rem;
+    float: left;
+    display: inline-block;
+}
+
+.collapse {
+    margin-bottom: 1rem;
+}
+
+.filterControlButtons {
+    float: right;
+    margin-right: 1rem;
+    display: inline-block;
+}
+
+.filterButton {
+    margin: auto;
+    display: block;
+    float: right;
+}
+
+.resultsPerPageDiv {
+    width: 9.5rem;
+}

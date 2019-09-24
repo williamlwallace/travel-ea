@@ -28,7 +28,7 @@ $(document).ready(function () {
         }
     };
 
-    clearFilter();
+    clearUserFilter();
     paginationHelper = new PaginationHelper(1, 1, getUserResults,
         "userPagination");
     getUserResults();
@@ -62,9 +62,14 @@ function deleteUser(button, id) {
     undoRedo.sendAndAppend(reqData);
 }
 
-function clearFilter() {
+/**
+ * Clears the user filter and repopulates the cards
+ */
+function clearUserFilter() {
     $("#searchQuery").val("");
     $("#pageSize").val(5);
+    $("#sortBy").val("id");
+    $("#ascending").val("true");
 }
 
 /**
@@ -139,6 +144,7 @@ function getUserResults() {
     const url = new URL(
         userRouter.controllers.backend.UserController.userSearch().url,
         window.location.origin);
+
     url.searchParams.append("searchQuery", getSearchQuery());
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", getPageSize().toString());
@@ -182,13 +188,23 @@ function getUserResults() {
 }
 
 /**
- * Toggles the filter & create buttons between being visible and invisible
+ * Toggles the user filter & create buttons between being visible and invisible
  */
-function toggleFilterButton() {
-    const filterButton = $("#filterButton");
+function toggleUserFilterButton() {
+    const filterButton = $("#usersFilterButton");
     const toggled = filterButton.css("display") === "block";
     filterButton.css("display", toggled ? "none" : "block");
     $("#addUserButton").css("display", toggled ? "none" : "block");
+}
+
+/**
+ * Toggles the trip filter and create buttons between being visible and invisible
+ */
+function toggleTripFilterButton() {
+    const filterButton = $("#tripsFilterButton");
+    const toggled = filterButton.css("display") === "block";
+    filterButton.css("display", toggled ? "none" : "block");
+    $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
 }
 
 /**
@@ -270,7 +286,6 @@ function populateTravellerTypeRequests(json) {
             const modification = "Photo";
             rows.push([destId, destName, modification])
         }
-
     }
     return rows
 }

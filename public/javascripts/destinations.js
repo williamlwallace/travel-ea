@@ -97,9 +97,12 @@ function getDestinations() {
     url.searchParams.append("onlyGetMine", getOnlyGetMine().toString());
 
     let pageSize = getPageSize();
+    let pageSizeSelector = $('#pageSize');
     if (pageSize > 100) {
+        pageSizeSelector.val(100);
         toast("Results per page too large", "The maximum results per page is 100, only 100 results will be returned", "warning", 7500);
     } else if (pageSize < 1) {
+        pageSizeSelector.val(1);
         toast("Results per page too small", "The minimum results per page is 1, 1 result will be returned", "warning", 7500);
     }
 
@@ -144,9 +147,13 @@ function refreshData() {
 /**
  * Resets the fields of the destinations filter
  */
-function clearFilter() {
-    $('#searchQuery').val('');
-    $('#pageSize').val(10);
+function clearDestinationsFilter() {
+    $("#searchQuery").val("");
+    $("#pageSize").val(10);
+    $("#sortBy").val("name");
+    $("#sortBy").selectpicker("refresh");
+    $("#ascending").val("true");
+    $("#ascending").selectpicker("refresh");
 }
 
 /**

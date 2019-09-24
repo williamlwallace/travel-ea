@@ -28,12 +28,14 @@ function getTripResults() {
  * Filters the cards with filtered results
  */
 function getAndCreateTrips(url, paginationHelper) {
-    let pageSize = $('#tripPageSize').val();
-    if (pageSize > 100) {
+    let pageSize = $('#tripPageSize');
+    if (pageSize.val() > 100) {
+        pageSize.val(100);
         toast("Results per page too large",
             "The maximum results per page is 100, only 100 results will be returned",
             "warning", 7500);
     } else if (pageSize < 1) {
+        pageSize.val(1);
         toast("Results per page too small",
             "The minimum results per page is 1, 1 result will be returned",
             "warning", 7500);
@@ -41,7 +43,7 @@ function getAndCreateTrips(url, paginationHelper) {
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
-    url.searchParams.append("pageSize", pageSize.toString());
+    url.searchParams.append("pageSize", pageSize.val().toString());
     url.searchParams.append("searchQuery", $('#tripSearch').val());
     url.searchParams.append("ascending", $('#tripAscending').val());
     url.searchParams.append("requestOrder", tripsRequestOrder++);
@@ -388,6 +390,10 @@ function toggleFilterButton() {
 /**
  * Clears the filter and repopulates the cards
  */
-function clearFilter() {
-    $('#search').val('');
+function clearTripFilter() {
+    $("#tripSearch").val("");
+    $("#tripPageSize").val(10);
+    $("#tripAscending").val("true");
+    $("#filterMyTrips").val("allTrips");
+    getTripResults();
 }

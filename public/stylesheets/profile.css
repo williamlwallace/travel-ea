@@ -82,7 +82,7 @@ span.user-info {
 }
 
 /**
-* Invalid countrys
+* Invalid countries
  */
 span.invalid-country {
     font-weight: 400;
@@ -356,25 +356,14 @@ section#timeline a {
     padding: 0 2.5rem 0 1.5rem;
 }
 
-#tripCardsList {
+#profileTripCardsList {
     padding: 40px 2.5rem 40px 1.5rem;
     min-height: 76%;
 }
 
-#closeButton {
-    float: left;
-}
 
 #applyButton {
     float: right;
-}
-
-#filterItemDiv {
-    margin: 0 5px 10px 5px;
-}
-
-.tripsCollapse {
-    padding: 0 1.5rem;
 }
 
 .tripsFilterCard {
