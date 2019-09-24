@@ -443,3 +443,8 @@ pre {
 .resultsPerPageDiv {
     width: 9.5rem;
 }
+
+#card-body {
+    display: inline-block;
+    width: -webkit-fill-available;
+}

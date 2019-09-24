@@ -171,3 +171,7 @@
     margin-right: auto;
     display: block;
 }
+
+#feed-bottom-message {
+    margin: 10rem;
+}

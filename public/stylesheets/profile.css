@@ -128,22 +128,6 @@ div.section-title {
     font-weight: 500;
 }
 
-/**
- * Styling for the section buttons
- */
-a.button-secondary {
-    color: #1b1e21;
-}
-
-a.button-secondary:hover {
-    color: #6d6d6e;
-    text-decoration-line: underline;
-}
-
-a.button-secondary:active {
-    color: #1b1e21;
-}
-
 span.profile-button {
     text-decoration: inherit;
     color: inherit;
@@ -352,24 +336,42 @@ section#timeline a {
     max-width: 70rem;
 }
 
-.tab-buttons {
-    padding: 0 2.5rem 0 1.5rem;
+/*#applyButton {*/
+    /*float: right;*/
+/*}*/
+
+#feed {
+    margin-top: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 }
 
-#profileTripCardsList {
-    padding: 40px 2.5rem 40px 1.5rem;
-    min-height: 76%;
+#profileCreateTripButton, #add-photo-button {
+    float: left;
 }
 
-
-#applyButton {
+#tripsFilterButton, #tagFilterOuter {
     float: right;
 }
 
-.tripsFilterCard {
-    max-width: 36rem;
+#profile-trips-tab, #photos {
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
+    min-height: 76%;
 }
 
-#feed {
-    padding: 2rem 6rem 0 6rem;
+.tz-gallery {
+    margin-top: 3rem;
+}
+
+#edit-profile-button {
+    margin-top: 0.3rem;
+}
+
+#no-trips-found {
+    margin: 10rem;
+}
+
+#profileTripCardsList {
+    margin-top: 3rem;
 }

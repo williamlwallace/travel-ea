@@ -28,6 +28,7 @@ function getTripResults() {
  * Filters the cards with filtered results
  */
 function getAndCreateTrips(url, paginationHelper) {
+    console.log(paginationHelper);
     let pageSize = $('#tripPageSize');
     if (pageSize.val() > 100) {
         pageSize.val(100);
@@ -58,27 +59,34 @@ function getAndCreateTrips(url, paginationHelper) {
             response.json()
             .then(json => {
                 if (response.status !== 200) {
-                    toast("Error", "Error fetching people data", "danger")
+                    toast("Error", "Error fetching trip data", "danger")
                 } else {
                     if (tripsLastRecievedRequestOrder < json.requestOrder) {
                         const totalNumberPages = json.totalNumberPages;
                         $("#tripCardsList").html("");
                         tripsLastRecievedRequestOrder = json.requestOrder;
-                        json.data.forEach((item) => {
-                            $("#tripCardsList").append(createTripCard(item));
-                        });
 
-                        $(".card-body").click((element) => {
-                            if (!$(element.currentTarget).find(
-                                ".title").data()) {
-                                return;
-                            }
-                            populateModal($(element.currentTarget).find(
-                                ".title").data().id);
-                        });
+                        if (json.data.length >= 1) {
+                            json.data.forEach((item) => {
+                                $("#tripCardsList").append(
+                                    createTripCard(item));
+                            });
+
+                            $(".card-body").click((element) => {
+                                if (!$(element.currentTarget).find(
+                                    ".title").data()) {
+                                    return;
+                                }
+                                populateModal($(element.currentTarget).find(
+                                    ".title").data().id);
+                            });
+                        } else {
+                            $("#tripCardsList").html(
+                                '<div class="text-center"><p id="no-trips-found">No trips found!</p></div>');
+                        }
+
                         paginationHelper.setTotalNumberOfPages(
                             totalNumberPages);
-
                     }
                 }
             })
@@ -140,7 +148,8 @@ function initCarousel(clone, trip) {
             photoNum += 1;
         }
         if (photo) {
-            $(clone).find(`[data-id="carousel-inner-${carouselDataId}"]`).append(
+            $(clone).find(
+                `[data-id="carousel-inner-${carouselDataId}"]`).append(
                 "<div class=\"trip-carousel-item carousel-item\">\n"
                 + "<img src=" + photo
                 + " class=\"d-block w-100\">\n"

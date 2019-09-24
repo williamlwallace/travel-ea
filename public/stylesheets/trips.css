@@ -14,3 +14,7 @@
 #tripPageSize {
     width: 7.5rem;
 }
+
+#no-trips-found {
+    margin: 10rem;
+}

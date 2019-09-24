@@ -64,11 +64,6 @@ input[type=number] {
     -moz-appearance:textfield; /* Firefox */
 }
 
-#card-body {
-    display: inline-block;
-    width: -webkit-fill-available;
-}
-
 #usersButtonDiv, #tripsButtonDiv{
     overflow: auto;
     display: inline-block;

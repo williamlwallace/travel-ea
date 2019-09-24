@@ -327,9 +327,6 @@ section#timeline article:nth-child(n) div.inner h2:after {
 .dest-nav{margin-bottom:2rem}
 .dest-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
 .dest-nav-text{font-weight: 600; font-size: 22px}
-.tab-buttons {
-    padding: 0 2.5rem 0 1.5rem;
-}
 
 .can-modify {
     display: none;
@@ -337,4 +334,8 @@ section#timeline article:nth-child(n) div.inner h2:after {
 
 .clickable-div {
     pointer-events: none !important;
+}
+
+.tz-gallery {
+    margin-top: 0;
 }

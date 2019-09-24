@@ -8,11 +8,6 @@ input[type=number] {
     -moz-appearance:textfield; /* Firefox */
 }
 
-#card-body {
-    display: inline-block;
-    width: -webkit-fill-available;
-}
-
 #gender {
     width: 150px;
 }

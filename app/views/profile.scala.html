@@ -83,11 +83,7 @@
                                 Passports <span id="summary_passports" class="user-info"></span></p>
 
                             @if(canModify) {
-                                <a data-toggle="modal" data-target="#editProfileModal">
-                                    <span class="profile-button" style="float: left;
-                                        padding-top: 10px;
-                                        padding-bottom: 10px;">Edit Profile</span>
-                                </a>
+                                <button class="btn btn-secondary" id="edit-profile-button" data-toggle="modal" data-target="#editProfileModal">Edit Profile</button>
                             }
                         </div>
                     </div>
@@ -108,7 +104,7 @@
                                     Photos</span></p></a>
                             </li>
                             <li class="nav-item">
-                                <a class="profile-nav" id="trips-tab" data-toggle="tab" href="#trips" role="tab" aria-controls="trips"><p><span class="profile-nav-text">
+                                <a class="profile-nav" id="trips-tab" data-toggle="tab" href="#profile-trips-tab" role="tab" aria-controls="profile-trips-tab"><p><span class="profile-nav-text">
                                     Trips</span></p></a>
                             </li>
                             <li id="follow-btn-parent"></li>
@@ -126,13 +122,12 @@
 
                                 <!-- Photo Tab -->
                             <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
-                                <div class="tab-buttons">
-                                    <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                                <div>
+                                    <div id="tagFilterOuter">
+                                        <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                                    </div>
                                     @if(canModify) {
-                                        <a class="button-secondary" id="upload-gallery-image-button" data-toggle="modal" href="#upload-modal" >
-                                            <span class="profile-button" style="float: right;
-                                                padding-left: 10px;">Add Photo</span>
-                                        </a>
+                                        <button id="add-photo-button" class="btn btn-primary" data-toggle="modal" href="#upload-modal">Add Photo</button>
                                     }
                                 </div>
                                     <!-- Call gallery modal, true indicating we want title -->
@@ -140,53 +135,45 @@
                             </div>
 
                                 <!-- Trips Tab -->
-                            <div class="tab-pane" id="trips" role="tabpanel" aria-labelledby="trips-tab">
-                                <div class="tab-buttons">
-                                    <div style="display: inline-block">
-                                        <a id="tripsFilterButton" class="btn btn-outline-secondary filterButton" role="button" data-toggle="collapse" data-target="#collapseExample"
-                                        aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">
-                                            Filter</a>
-                                    </div>
+                            <div class="tab-pane" id="profile-trips-tab" role="tabpanel" aria-labelledby="trips-tab">
+                                    <button id="profileTripsFilterButton" class="btn btn-secondary filterButton" role="button" data-toggle="collapse" data-target="#profileTripsFilterCollapse"
+                                    aria-expanded="false" aria-controls="profileTripsFilterCollapse" onclick="toggleProfileTripFilterButton()">
+                                        Filter</button>
                                     @if(loggedUser.admin || user.id == loggedUser.id) {
-                                        <a class="button-secondary" href="/trips/create/@user.id" role="button">
-                                            <span class="profile-button" style="float: right;
-                                                padding-left: 10px;">Create New Trip</span>
+                                        <a id="profileCreateTripButton" href="/trips/create/@user.id" role="button">
+                                            <button class="btn btn-primary">Create New Trip</button>
                                         </a>
                                     }
-                                </div>
 
                                     <!-- The Trips Table -->
                                 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
-                                <div class="tripsCollapse collapse" id="collapseExample">
+                                <div class="tripsCollapse collapse" id="profileTripsFilterCollapse">
                                     <div class="card card-body tripsFilterCard" id="card-body">
-                                            <div class="filterItemDiv">
-                                                <label for="tripPageSize">Results per page</label>
-                                                <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" required/>
+                                        <div class="filterItemDiv">
+                                            <label for="tripSearch">Search</label>
+                                            <input type=text id="tripSearch" class="form-control" placeholder="Destination Name"/>
+                                        </div>
+                                        <div class="filterItemDiv resultsPerPageDiv">
+                                            <label for="tripPageSize">Results per page</label>
+                                            <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" max="100" required/>
+                                        </div>
+                                        <div class="filterItemDiv">
+                                            <label for="tripAscending">Order by</label>
+                                            <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
+                                                <option value="true">Ascending</option>
+                                                <option value="false">Descending</option>
+                                            </select>
+                                        </div>
+                                        <div class="text-center" id="buttonDiv">
+                                            <div class="closeButton">
+                                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#profileTripsFilterCollapse" onclick="toggleProfileTripFilterButton()">Close</button>
                                             </div>
-                                            <div class="filterItemDiv">
-                                                <label for="tripSearch">Search</label>
-                                                <input type=text id="tripSearch" class="form-control"/>
+                                            <div class="filterControlButtons">
+                                                <button class="btn btn-secondary" onclick='clearTripFilter()'>Clear</button>
+                                                <button class="btn btn-primary" onclick='getProfileTripResults()'>Apply</button>
                                             </div>
-                                            <div class="filterItemDiv">
-                                                <label for="tripAscending">Order by</label>
-                                                <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
-                                                    <option value="true">Ascending</option>
-                                                    <option value="false">Descending</option>
-                                                </select>
-                                                <div class="text-center" id="buttonDiv">
-                                                    <div class="closeButton">
-                                                        <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">
-                                                            Close</button>
-                                                    </div>
-                                                    <div id="applyButton">
-                                                        <button class="btn btn-secondary" onclick='clearFilter()'>
-                                                            Clear</button>
-                                                        <button class="btn btn-primary" onclick='getProfileTripResults()'>
-                                                            Apply</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
