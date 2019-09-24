@@ -82,16 +82,14 @@ input[type=number] {
 }
 
 #pageSize {
-    /*width: 100px;*/
     width:7.5rem;
 }
 
 #buttonDiv {
-    /*padding-top: 10px;*/
     overflow: auto;
     display: inline-block;
-    /*float: right;*/
     vertical-align: middle;
+    width: 100%;
 }
 
 #closeButton {

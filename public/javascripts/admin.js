@@ -1,13 +1,15 @@
-const MASTER_ADMIN_ID = 1;
 let travellerTypeRequestTable;
-let usersTable;
 let tripsTable;
 let requestOrder = 0;
 let lastRecievedRequestOrder = -1;
 let paginationHelper;
 let tripTagDisplay;
+let destPhoto;
+let photoId;
 
-//Initialises the data table and adds the data
+/**
+ * Listener to set up the whole page
+ */
 $(document).ready(function () {
     tripTagDisplay = new TagDisplay("trip-tag-display");
     getUserId().then(userId => {
@@ -18,9 +20,6 @@ $(document).ready(function () {
     const errorRes = json => {
         document.getElementById('adminError').innerHTML = json;
     };
-    //set table population urls
-    // const tripsGetURL = tripRouter.controllers.backend.TripController.getAllTrips().url;
-    // const ttGetURL = destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url;
     const ttGetURL = destinationRouter.controllers.backend.DestinationController.getAllDestinationsWithRequests().url;
     const ttTableModal = {
         createdRow: function (row, data) {
@@ -47,7 +46,6 @@ $(document).ready(function () {
  * Makes delete request with given user
  *
  * @param {Object} button - Html button element
- * @param {Object} tableAPI - data table api
  * @param {Number} id - user id
  */
 function deleteUser(button, id) {
@@ -101,6 +99,10 @@ function getSearchQuery() {
     return $('#searchQuery').val();
 }
 
+/**
+ * Creates a user card and populates it with the relevant user data
+ * @param {Object} user The user to populate the card data with
+ */
 function createUserCard(user) {
     const template = $("#userCardTemplate").get(0);
     const clone = template.content.cloneNode(true);
@@ -130,6 +132,9 @@ function createUserCard(user) {
     $("#userCardsList").get(0).appendChild(clone);
 }
 
+/**
+ * Gets the paginated list of users to populate into cards
+ */
 function getUserResults() {
     const url = new URL(
         userRouter.controllers.backend.UserController.userSearch().url,
@@ -157,11 +162,11 @@ function getUserResults() {
 
                     //Set click handler for toggle admin using data-id
                     $(".admin").click(event => {
-                        event.stopImmediatePropagation()
+                        event.stopImmediatePropagation();
                         toggleAdmin(event.target, $(event.target).data().id);
                     });
                     $(".user-delete").click(event => {
-                        event.stopImmediatePropagation()
+                        event.stopImmediatePropagation();
                         deleteUser(event.target, $(event.target).data().delete);
                     });
 
@@ -177,18 +182,19 @@ function getUserResults() {
 }
 
 /**
- * Toggles the filter button between being visible and invisible
+ * Toggles the filter & create buttons between being visible and invisible
  */
 function toggleFilterButton() {
-    const toggled = $('#filterButton').css("display") === "block";
-    $('#filterButton').css("display", toggled ? "none" : "block");
+    const filterButton = $("#filterButton");
+    const toggled = filterButton.css("display") === "block";
+    filterButton.css("display", toggled ? "none" : "block");
+    $("#addUserButton").css("display", toggled ? "none" : "block");
 }
 
 /**
  * Adds or removes users admin powers and changes button text
  *
  * @param {Object} button - Html button element
- * @param {Object} tableAPI - data table api
  * @param {Number} id - user id
  */
 function toggleAdmin(button, id) {
@@ -209,7 +215,7 @@ function toggleAdmin(button, id) {
             const admin = $(this.button).html().trim().startsWith('Grant');
 
             $(this.button).html(!admin ? 'Grant admin' : 'Revoke admin');
-            
+
             const adminLabel = $(this.button).closest('div').siblings("#admin");
             const adminIcon = "<em class=\"fas fa-user-shield\"\"></em>";
 
@@ -241,18 +247,15 @@ function setAdminIcon(card, admin) {
     }
 }
 
-let destPhoto;
-let photoId;
-
 /**
  * Populates the traveller type requests table
+ * @param {Object} json The json to populate the requests with
  */
 function populateTravellerTypeRequests(json) {
     const rows = [];
     for (const dest in json) {
         const destId = json[dest].id;
         const destName = json[dest].name;
-
 
         for (const ttRequest in json[dest].travellerTypesPending) {
             const username = "";
@@ -317,7 +320,6 @@ function createUser(URL) {
                 json);
             toast('User error', JSON.stringify(json), 'danger');
         } else {
-            // usersTable.populateTable();
             $('#createUser').modal('hide');
         }
     };
@@ -342,11 +344,12 @@ function showTTSuggestion(destId, ttId) {
             if (response.status !== 200) {
                 toast("Could not retrieve request details", "", "danger", 5000);
             } else {
-                if(!!ttId) {
-                    $('<img style="max-width: 200px" src=' + "user_content/" + destPhoto + '>').appendTo("#modificationDiv");
-                    document.getElementById("modificationType").innerText = "Photo Change";
+                if (!!ttId) {
+                    $('<img style="max-width: 200px" src=' + "user_content/"
+                        + destPhoto + '>').appendTo("#modificationDiv");
+                    document.getElementById(
+                        "modificationType").innerText = "Photo Change";
                     $("#modificationDiv").attr('class', 'text-center');
-
 
                 }
                 document.getElementById(
@@ -409,8 +412,8 @@ function showTTSuggestion(destId, ttId) {
                 rejectButton.setAttribute("class", "btn btn-danger");
                 rejectButton.setAttribute("data-toggle", "modal");
                 rejectButton.setAttribute("data-target", "#modal-destModify");
-                if(!!ttId) {
-                    rejectButton.addEventListener('click', function() {
+                if (!!ttId) {
+                    rejectButton.addEventListener('click', function () {
                         rejectDestinationPrimaryPhoto(destId, photoId)
                     });
                 } else {
@@ -498,7 +501,6 @@ function rejectDestinationPrimaryPhoto(destId, photoId) {
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
-
 
 /**
  * Toggles the acceptance of a request made to change a destination photo.

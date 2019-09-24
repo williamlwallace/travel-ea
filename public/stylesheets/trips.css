@@ -1,9 +1,22 @@
 .filterButton {
-    margin-bottom: 10px;
-    float:right;
-    display:block;
+    float: right;
+    display: block;
 }
 
 .tripsCollapse {
     text-align: center;
+}
+
+#createTripButton {
+    float: left;
+    display: block;
+}
+
+#headerButtonsDiv {
+    padding-left: 1.5rem;
+    padding-right: 2.5rem;
+}
+
+#tripPagination {
+    margin-top: -1.5rem;
 }

@@ -18,8 +18,8 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/tripCards.css")">
 
     <div class="container">
-        <div class="text-center">
-            <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
+        <div class="text-center" id="headerButtonsDiv">
+            <a class="btn btn-primary" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
             @* Filter *@
             <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
             aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
