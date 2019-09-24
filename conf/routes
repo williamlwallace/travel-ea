@@ -162,6 +162,9 @@ GET           /signUp                controllers.frontend.ProfileController.crea
 # Home page
 GET           /home                  controllers.frontend.ApplicationController.home(request: Request)
 
+# Explore page
+GET           /explore              controllers.frontend.ApplicationController.explore(request: Request)
+
 # People page
 GET           /people                controllers.frontend.PeopleController.search(request: Request)
 
