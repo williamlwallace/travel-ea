@@ -114,6 +114,34 @@ public class Destination extends BaseModel implements Taggable {
     }
 
     /**
+     * Returns latitude rounded to 2 dp
+     *
+     * @return Rounded latitude value
+     */
+    @JsonIgnore
+    public Double getFormattedLatitude() {
+        if (this.latitude != null) {
+            return Math.round(this.latitude * 100) / 100.0;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns longitude rounded to 2dp
+     *
+     * @return Rounded longitude value
+     */
+    @JsonIgnore
+    public Double getFormattedLongitude() {
+        if (this.longitude != null) {
+            return Math.round(this.longitude * 100) / 100.0;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Checks if photo is linked to destination.
      *
      * @param photoId id of destination of id

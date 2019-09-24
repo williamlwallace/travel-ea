@@ -43,8 +43,7 @@ function onPageLoad(userId) {
  * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
  */
 function getOnlyGetMine() {
-    const currentValue = $('#onlyGetMine').val();
-    return currentValue === "On";
+    return $('#onlyGetMine').is(":checked");
 }
 
 /**
@@ -93,16 +92,16 @@ function getDestinations() {
     if (getSearchQuery() !== "") {
         url.searchParams.append("searchQuery", getSearchQuery());
     }
-    if (getOnlyGetMine() !== "") {
-        url.searchParams.append("onlyGetMine", getOnlyGetMine());
-    }
+
+    url.searchParams.append("onlyGetMine", getOnlyGetMine().toString());
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", getPageSize().toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
-    url.searchParams.append("requestOrder", requestOrder++);
+    url.searchParams.append("requestOrder", requestOrder.toString());
+    requestOrder++;
 
     return get(url)
     .then(response => {
@@ -128,11 +127,9 @@ function getDestinations() {
  * with this.
  */
 function refreshData() {
-    getDestinations().then((dests) => {
-        map.populateMarkers(dests);
-        createDestinationCards(dests);
-    }).then(() => {
-        map.addDestinations();
+    getDestinations().then(destinations => {
+        map.populateMarkers(destinations);
+        createDestinationCards(destinations);
     });
 }
 
@@ -395,7 +392,7 @@ function createDestination() {
  */
 $('#collapseDestinationFilter').keypress(function (e) {
     const key = e.which;
-    if(key === 13){
+    if (key === 13) {
         refreshData();
     }
 });

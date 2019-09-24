@@ -172,8 +172,17 @@ public class TripController extends TEABackController {
 
         return destinationRepository.getDestinationsById(destinationIds)
             .thenComposeAsync(destinations -> {
+                // Sets all the destination information in the trip data list so it can be validated
+                for (Destination dest : destinations) {
+                    for (TripData tripData : trip.tripDataList) {
+                        if (tripData.destination.id.equals(dest.id)) {
+                            tripData.destination = dest;
+                        }
+                    }
+                }
+
                 ErrorResponse destinationValidationResult = new TripValidator(null)
-                    .validateDestinationPrivacy(trip.isPublic, destinations);
+                    .validateDestinationPrivacy(trip);
 
                 if (destinationValidationResult.error()) {
                     return CompletableFuture
@@ -276,15 +285,13 @@ public class TripController extends TEABackController {
             } else if (!user.admin && !user.id.equals(existingTrip.userId)) {
                 return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
             } else {
-                // Checks trip does not get made public with private destinations
-                List<Destination> destinations = existingTrip.tripDataList.stream()
-                    .map(tripData -> tripData.destination).collect(Collectors.toList());
+                updatedTrip.tripDataList = existingTrip.tripDataList;
                 ErrorResponse destinationValidationResult = new TripValidator(null)
-                    .validateDestinationPrivacy(updatedTrip.isPublic, destinations);
+                    .validateDestinationPrivacy(updatedTrip);
 
                 if (destinationValidationResult.error()) {
                     return CompletableFuture.supplyAsync(() -> badRequest(
-                        Json.toJson("Trip cannot be public as it contains a private destination")));
+                        Json.toJson("Trip cannot be made public as it contains a private destination")));
                 }
 
                 // Update trip in db
@@ -380,8 +387,17 @@ public class TripController extends TEABackController {
 
         return destinationRepository.getDestinationsById(destinationIds)
             .thenComposeAsync(destinations -> {
+                // Sets all the destination information in the trip data list so it can be validated
+                for (Destination dest : destinations) {
+                    for (TripData tripData : trip.tripDataList) {
+                        if (tripData.destination.id.equals(dest.id)) {
+                            tripData.destination = dest;
+                        }
+                    }
+                }
+
                 ErrorResponse destinationValidationResult = new TripValidator(null)
-                    .validateDestinationPrivacy(trip.isPublic, destinations);
+                    .validateDestinationPrivacy(trip);
 
                 if (destinationValidationResult.error()) {
                     return CompletableFuture
