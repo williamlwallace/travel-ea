@@ -239,7 +239,7 @@ function editDestination(destinationId) {
             if (this.initialUpdate) {
                 if (status === 200) {
                     toast("Update successful",
-                        "The destination has been updated");
+                        "The destination has been updated");    // TODO: Success toast?
                 } else if (status !== 400) {
                     toast("Destination could not be updated", json, "danger",
                         5000);
@@ -251,6 +251,8 @@ function editDestination(destinationId) {
                 populateDestinationDetails(this.destinationId);
                 $('#editDestinationModal').modal('hide');
                 closeEdit();
+            } else {
+                showErrors(json);
             }
         }.bind({destinationId, initialUpdate});
         const reqData = new ReqData(requestTypes['UPDATE'], URL, handler,
@@ -285,9 +287,11 @@ function populateEditDestination(destinationId) {
                     "latitudeDeat").value = destination.latitude;
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
-                // Fills country picker
+
+                // Fills country picker, needs to be padded to length 3 with 0's
                 $('#countryDropDown').selectpicker('val',
-                    destination.country.id);
+                    destination.country.id.toString().padStart(3, "0"));
+
                 // Fills tag input field
                 tagPicker.populateTags(destination.tags);
             }
