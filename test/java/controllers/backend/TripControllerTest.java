@@ -300,7 +300,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
 
         // Expected error messages
         HashMap<String, String> expectedMessages = new HashMap<>();
-        expectedMessages.put("3", "Public trip cannot have private destination.");
+        expectedMessages.put("3", "A public trip cannot contain a private destination");
 
         assertEquals(1, response.size());
         assertEquals(expectedMessages, response);
@@ -672,7 +672,7 @@ public class TripControllerTest extends controllers.backend.ControllersTest {
         // Check result message is correct
         String message = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), String.class);
-        assertEquals("Trip cannot be public as it contains a private destination", message);
+        assertEquals("Trip cannot be made public as it contains a private destination", message);
     }
 
     @Test

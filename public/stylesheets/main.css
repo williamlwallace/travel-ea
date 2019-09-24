@@ -75,22 +75,10 @@ tr.clickable-row {
 }
 
 /*
- * Full Screen Background for the home page
+ * Cover photo on home page
  */
-.home-bg {
-    /* The image used */
+#main-cover {
     background-image: url("../images/wakatipu.jpeg");
-
-    /* Default background colour */
-    background-color: #818182;
-
-    /* Full height */
-    height: 100%;
-
-    /* Center and scale the image nicely */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
 .home-main {
@@ -102,7 +90,7 @@ tr.clickable-row {
 }
 
 /**
-* Style for labels that are <pre> so that addiing  errors doesnt clear them
+* Style for labels that are <pre> so that adding errors doesn't clear them
  */
 pre {
     font-size: 20px;

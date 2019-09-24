@@ -95,13 +95,15 @@ class DestinationMap {
 
     /**
      * Goes through all destinations and adds to map
-     * @param {Array} destinations list of destinations
+     *
+     * @param {Array} destinations - List of destinations to add to map
      */
     addDestinations(destinations) {
         // Loop through markers list and add them to the map
         for (const destination of destinations) {
             this.addDestination(destination);
         }
+
         if (destinations.length >= 30) {
             this.clusterMarkers();
         } else if (this.markerCluster) {
