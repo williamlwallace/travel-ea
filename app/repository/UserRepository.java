@@ -238,6 +238,12 @@ public class UserRepository {
             , executionContext);
     }
 
+    /**
+     * Gets the number of followers each user has
+     *
+     * @param ids UserIds of the users for whom to get the follower count for
+     * @return map between a user id and the number of followers they have
+     */
     public Map<Long, Long> getFollowCounts(List<Long> ids) {
         String sqlQuery = "SELECT user_id, (SELECT COUNT(*) FROM `FollowerUser` FU2 WHERE FU2.user_id = FU1.user_id) AS followCount "
             + "FROM `FollowerUser` FU1 "

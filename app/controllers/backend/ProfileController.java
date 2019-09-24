@@ -255,10 +255,10 @@ public class ProfileController extends TEABackController {
         Integer requestOrder) {
 
         return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults -> {
-            List<Long> followerId = pagedResults.getList().stream().map(x -> x.userId).collect(
+            List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
                 Collectors.toList());
 
-            Map<Long, Long> followCounts = userRepository.getFollowCounts(followerId);
+            Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
             for (Profile profile : pagedResults.getList()) {
                 profile.followerUsersCount = followCounts.get(profile.userId);
             }
