@@ -106,7 +106,11 @@ INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES
 INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (2, 2, 'LINK_DESTINATION_PHOTO', 2, '2019-09-01 00:00:02');
 INSERT INTO NewsFeedEvent (user_id, dest_id, event_type, ref_id, created) VALUES (2, null, 'UPDATED_EXISTING_TRIP', 1, '2019-09-01 00:00:02');
 
+-- Add like on news feed event for testing
+INSERT INTO Likes(event_id, user_id) VALUES (2, 1)
+
 -- !Downs
+DELETE FROM Likes;
 DELETE FROM NewsFeedEvent;
 DELETE FROM UsedTag;
 DELETE FROM PhotoTag;
