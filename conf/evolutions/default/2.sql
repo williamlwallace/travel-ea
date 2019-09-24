@@ -72,7 +72,7 @@ INSERT INTO Destination (user_id, name, type, district, latitude, longitude, cou
     (1, 'Cairo', 'City', 'Cairo Region', 30.0, 31.2, 818, 1),
     (1, 'Great Pyramid of Giza', 'Monument', 'Cairo Region', 30.0, 31.1, 818, 1),
     (1, 'Grand Canyon', 'Canyon', 'Arizona', 36.3, -112.6, 840, 1),
-    (1, 'Venice', 'City', 'Veneto', 45,4, 12.3, 380, 1),
+    (1, 'Venice', 'City', 'Veneto', 45.4, 12.3, 380, 1),
     (1, 'Rome', 'City', 'Lazio', 41.9, 12.5, 380, 1),
     (1, 'Prague', 'City', 'Prague Region', 50.0, 14.4, 203, 1),
     (1, 'San Juan', 'City', 'San Juan Region', 18.4, -66.0, 630, 1),
