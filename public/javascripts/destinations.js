@@ -43,8 +43,7 @@ function onPageLoad(userId) {
  * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
  */
 function getOnlyGetMine() {
-    const currentValue = $('#onlyGetMine').val();
-    return currentValue === "on";
+    return $('#onlyGetMine').is(":checked");
 }
 
 /**
