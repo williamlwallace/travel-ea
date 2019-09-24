@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS FollowerUser
     guid              INT NOT NULL AUTO_INCREMENT,
     user_id           INT NOT NULL,
     follower_id       INT NOT NULL,
+    follow_time       DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted           BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (guid),
     FOREIGN KEY (user_id) REFERENCES Profile(user_id) ON DELETE CASCADE,
@@ -142,10 +143,11 @@ CREATE TABLE IF NOT EXISTS FollowerDestination
     guid              INT NOT NULL AUTO_INCREMENT,
     destination_id    INT NOT NULL,
     follower_id       INT NOT NULL,
+    follow_time       DATETIME DEFAULT CURRENT_TIMESTAMP,
     deleted           BOOLEAN NOT NULL DEFAULT false,
     PRIMARY KEY (guid),
     FOREIGN KEY (destination_id) REFERENCES Destination(id) ON DELETE CASCADE,
-    FOREIGN KEY (follower_id) REFERENCES User(id) ON DELETE CASCADE
+    FOREIGN KEY (follower_id) REFERENCES Profile(user_id) ON DELETE CASCADE
   );
 
 -- Create DestinationTravellerType table, which specifies the traveller types of users
@@ -311,7 +313,21 @@ CREATE TABLE IF NOT EXISTS NewsFeedEvent
     PRIMARY KEY (guid)
   );
 
+-- Create Likes table for news feed events
+CREATE TABLE IF NOT EXISTS Likes
+  (
+    guid              INT NOT NULL AUTO_INCREMENT,
+    event_id          INT NOT NULL,
+    user_id           INT NOT NULL,
+    deleted           BOOLEAN NOT NULL DEFAULT false,
+    FOREIGN KEY (event_id) REFERENCES NewsFeedEvent(guid) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES User(id) ON DELETE CASCADE,
+    PRIMARY KEY (guid)
+  );
+
 -- !Downs
+
+DROP TABLE Likes;
 DROP TABLE NewsFeedEvent;
 DROP TABLE UsedTag;
 DROP TABLE PhotoTag;
