@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import io.ebean.PagedList;
 import javax.inject.Inject;
 import models.BaseNewsFeedEvent;
 import models.GroupedNewsFeedEvent;
@@ -135,6 +136,35 @@ public class NewsFeedController extends TEABackController {
     }
 
     /**
+     * Endpoint to fetch all news feed data for explore
+     *
+     * @param request HTTP request containing user auth
+     * @param pageNum Page number to retrieve
+     * @param pageSize Number of results to give per page
+     * @param requestOrder The order of the request we are showing
+     * @return Paging response with all values needed to create cards for each event
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getExploreFeed(Http.Request request, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return getTrendingNewsFeed(pageNum, pageSize, requestOrder);
+    }
+
+    /**
+     * Gets the news feed data of trending
+     *
+     * @param pageNum page number
+     * @param pageSize page size
+     */
+    private CompletableFuture<Result> getTrendingNewsFeed(
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
+        // Perform repository call
+        return newsFeedEventRepository.getPagedTrendingEvents(pageNum, pageSize)
+        .thenComposeAsync((eventList) -> convertEventsToData(eventList, requestOrder));
+    }
+
+    /**
      * Gets the news feed data
      *
      * @param userIds list of userIds
@@ -149,54 +179,55 @@ public class NewsFeedController extends TEABackController {
         Integer requestOrder) {
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
-            .thenComposeAsync(pagedEvents -> {
-                    // Modify returned events list to only include singular events, and create a new list of grouped events
-                    Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(
-                        pagedEvents.getList());
-                    List<NewsFeedEvent> events = pair.getKey();
-                    List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
-                    // Collect a list of the completable strategies created for each event, singular and grouped
-                    List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events
-                        .stream()
-                        .map(x -> getStrategyForEvent(x).execute())
-                        .collect(Collectors.toList());
+            .thenComposeAsync((eventList) -> convertEventsToData(eventList, requestOrder));
+    }
 
-                    completableStrategies.addAll(groupedEvents.stream()
-                        .map(x -> getStrategyForEvent(x).execute())
-                        .collect(Collectors.toList()));
+    private CompletableFuture<Result> convertEventsToData(PagedList<NewsFeedEvent> pagedEvents, Integer requestOrder) {
+        // Modify returned events list to only include singular events, and create a new list of grouped events
+        Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(
+            pagedEvents.getList());
+        List<NewsFeedEvent> events = pair.getKey();
+        List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
+        // Collect a list of the completable strategies created for each event, singular and grouped
+        List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events
+            .stream()
+            .map(x -> getStrategyForEvent(x).execute())
+            .collect(Collectors.toList());
 
-                    // Wait until all strategies have executed then return paging response
-                    return CompletableFuture
-                        .allOf(completableStrategies.toArray(new CompletableFuture[0]))
-                        .thenApplyAsync(v -> {
-                            // Append the correct created time and event type to each complete event
-                            List<NewsFeedResponseItem> completedStrategies = completableStrategies
-                                .stream().map(CompletableFuture::join).collect(Collectors.toList());
-                            // Single events
-                            for (int i = 0; i < events.size(); i++) {
-                                completedStrategies.get(i).created = events.get(i).created;
-                                completedStrategies.get(i).eventType = events.get(i).eventType;
-                            }
-                            // Grouped events
-                            for (int i = events.size(); i < groupedEvents.size() + events.size(); i++) {
-                                completedStrategies.get(i).created = groupedEvents
-                                    .get(i - events.size()).created;
-                                completedStrategies.get(i).eventType = groupedEvents
-                                    .get(i - events.size()).eventType;
-                            }
+        completableStrategies.addAll(groupedEvents.stream()
+            .map(x -> getStrategyForEvent(x).execute())
+            .collect(Collectors.toList()));
 
-                            // Sort all completed strategies by creation date (most recent first)
-                            completedStrategies
-                                .sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
+        // Wait until all strategies have executed then return paging response
+        return CompletableFuture
+        .allOf(completableStrategies.toArray(new CompletableFuture[0]))
+        .thenApplyAsync(v -> {
+            // Append the correct created time and event type to each complete event
+            List<NewsFeedResponseItem> completedStrategies = completableStrategies
+                .stream().map(CompletableFuture::join).collect(Collectors.toList());
+            // Single events
+            for (int i = 0; i < events.size(); i++) {
+                completedStrategies.get(i).created = events.get(i).created;
+                completedStrategies.get(i).eventType = events.get(i).eventType;
+            }
+            // Grouped events
+            for (int i = events.size(); i < groupedEvents.size() + events.size(); i++) {
+                completedStrategies.get(i).created = groupedEvents
+                    .get(i - events.size()).created;
+                completedStrategies.get(i).eventType = groupedEvents
+                    .get(i - events.size()).eventType;
+            }
 
-                            // Serialize and return a paging response with all created NewsFeedResponseItems
-                            return ok(Json.toJson(new PagingResponse<>(
-                                completedStrategies,
-                                requestOrder,
-                                pagedEvents.getTotalPageCount())));
-                        });
-                }
-            );
+            // Sort all completed strategies by creation date (most recent first)
+            completedStrategies
+                .sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
+
+            // Serialize and return a paging response with all created NewsFeedResponseItems
+            return ok(Json.toJson(new PagingResponse<>(
+                completedStrategies,
+                requestOrder,
+                pagedEvents.getTotalPageCount())));
+        });
     }
 
     /**
