@@ -258,11 +258,12 @@ function createUserFollowerCard(users) {
         const template = $("#followerCardTemplate").get(0);
         const clone = template.content.cloneNode(true);
 
-        $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+        $(clone).find("#follower-summary-name").append(user.firstName + ' ' + user.lastName);
         if (user.profilePhoto) {
             $(clone).find("#follower-picture").attr("src",
                 "../../user_content/" + user.profilePhoto.thumbnailFilename);
         }
+        $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
         $("#followersCardList").get(0).appendChild(clone);
     });
 }
@@ -277,11 +278,12 @@ function createUserFollowedByCard(users) {
         const template = $("#followerCardTemplate").get(0);
         const clone = template.content.cloneNode(true);
 
-        $(clone).find("#name").append(user.firstName + ' ' + user.lastName);
+        $(clone).find("#follower-summary-name").append(user.firstName + ' ' + user.lastName);
         if (user.profilePhoto) {
             $(clone).find("#follower-picture").attr("src",
                 "../../user_content/" + user.profilePhoto.thumbnailFilename);
         }
+        $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
         $("#followedByCardList").get(0).appendChild(clone);
     });
 }
@@ -296,7 +298,7 @@ function createDestinationFollowerCard(destinations) {
         const template = $("#followerCardTemplate").get(0);
         const clone = template.content.cloneNode(true);
 
-        $(clone).find("#name").append(dest.name);
+        $(clone).find("#follower-summary-name").append(dest.name);
         if (dest.primaryPhoto) {
             $(clone).find("#follower-picture").attr("src",
                 "../../user_content/" + dest.primaryPhoto.thumbnailFilename);

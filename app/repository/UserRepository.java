@@ -239,13 +239,12 @@ public class UserRepository {
     }
 
     public Map<Long, Long> getFollowCounts(List<Long> ids) {
-        String sqlQuery = "SELECT user_id, (SELECT COUNT(*) FROM `FollowerUser` FU2 WHERE FU2.user_id = FU1.user_id) AS followCount \n"
+        String sqlQuery = "SELECT user_id, (SELECT COUNT(*) FROM `FollowerUser` FU2 WHERE FU2.user_id = FU1.user_id) AS followCount "
             + "FROM `FollowerUser` FU1 "
-            + "WHERE FU1.user_id in :ids "
+            + "WHERE FU1.user_id in (:ids) "
             + "GROUP BY FU1.user_id;";
 
         Map<Long,Long> results = new HashMap<>();
-
         ebeanServer.createSqlQuery(sqlQuery).setParameter("ids", ids).findEachRow(((resultSet, rowNum) -> {
             results.put(resultSet.getLong(1), resultSet.getLong(2));
         }));
