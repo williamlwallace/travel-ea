@@ -471,6 +471,31 @@ public class NewsFeedController extends TEABackController {
         });
     }
 
+    /**
+     * Gets a list of trending user profiles
+     * 
+     * @param request the http request
+     * @return trendingProfiles a result with a list of trending profiles
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrendingUsers(Http.Request request) {
+        return newsFeedEventRepository.getTrendingUsers().thenApplyAsync(trending -> 
+            ok(Json.toJson(trending))
+        );
+    }
+
+    /**
+     * Gets a list of trending destinations
+     * 
+     * @param request the http request
+     * @return trendingDestinations a result with a list of trending destinations
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrendingDestinations(Http.Request request) {
+        return newsFeedEventRepository.getTrendingDestinations().thenApplyAsync(trending ->
+           ok(Json.toJson(trending))
+        );
+    }
 
     /**
      * Lists routes to put in JS router for use from frontend.

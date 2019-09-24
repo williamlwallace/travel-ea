@@ -7,7 +7,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Profile;
 import models.User;
@@ -18,6 +20,7 @@ import play.mvc.With;
 import play.routing.JavaScriptReverseRouter;
 import repository.ProfileRepository;
 import repository.TravellerTypeDefinitionRepository;
+import repository.UserRepository;
 import util.objects.PagingResponse;
 import util.validation.ErrorResponse;
 import util.validation.UserValidator;
@@ -29,13 +32,16 @@ public class ProfileController extends TEABackController {
 
     private final ProfileRepository profileRepository;
     private final TravellerTypeDefinitionRepository travellerTypeDefinitionRepository;
+    private final UserRepository userRepository;
 
     @Inject
     public ProfileController(ProfileRepository profileRepository,
-        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository) {
+        TravellerTypeDefinitionRepository travellerTypeDefinitionRepository,
+        UserRepository userRepository) {
 
         this.profileRepository = profileRepository;
         this.travellerTypeDefinitionRepository = travellerTypeDefinitionRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -254,12 +260,17 @@ public class ProfileController extends TEABackController {
         Integer pageSize,
         Integer requestOrder) {
 
-        return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize)
-            .thenApplyAsync(pagedResults ->
-                ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder,
-                    pagedResults.getTotalPageCount())))
-            );
+        return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults -> {
+            List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
+                Collectors.toList());
 
+            Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
+            for (Profile profile : pagedResults.getList()) {
+                profile.followerUsersCount = followCounts.get(profile.userId);
+            }
+            return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())));
+            }
+        );
     }
 
     /**
