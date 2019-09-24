@@ -28,7 +28,6 @@ function getTripResults() {
  * Filters the cards with filtered results
  */
 function getAndCreateTrips(url, paginationHelper) {
-    console.log(paginationHelper);
     let pageSize = $('#tripPageSize');
     if (pageSize.val() > 100) {
         pageSize.val(100);
