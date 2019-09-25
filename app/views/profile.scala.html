@@ -98,7 +98,7 @@
                     <div class="profile-main">
                         @modules.followers(false)
                         @* Tabs *@
-                        <ul class="nav" id="profile-tabs" role="tablist">
+                        <ul class="nav col-md-11" id="profile-tabs" role="tablist">
                             <li class="nav-item">
                                 <a class="profile-nav" id="feed-tab" data-toggle="tab" href="#feed" role="tab" aria-controls="feed"><p><span class="profile-nav-text">
                                     Feed</span></p></a>
@@ -119,14 +119,14 @@
 
                         <!-- News Feed Tab -->
                         <div class="tab-pane row" id="feed" role="tabpanel" aria-labelledby="feed-tab">
-                            <div class="col-md-12">
+                            <div class="col-md-11">
                                 @modules.newsFeed("profile-feed")
                             </div>
                         </div>
 
                                 <!-- Photo Tab -->
                             <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
-                                <div>
+                                <div class="col-md-11">
                                     <div id="tagFilterOuter">
                                         <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
                                     </div>
@@ -140,6 +140,7 @@
 
                                 <!-- Trips Tab -->
                             <div class="tab-pane" id="profile-trips-tab" role="tabpanel" aria-labelledby="trips-tab">
+                                <div class="col-md-11">
                                     <button id="profileTripsFilterButton" class="btn btn-secondary filterButton" role="button" data-toggle="collapse" data-target="#profileTripsFilterCollapse"
                                     aria-expanded="false" aria-controls="profileTripsFilterCollapse" onclick="toggleProfileTripFilterButton()">
                                         Filter</button>
@@ -184,6 +185,7 @@
                                 @modules.tripCards()
                                 <div id="profileTripCardsList">
                                     <div id="tripCardsList"></div>
+                                </div>
                                 </div>
                             </div>
                         </div>
