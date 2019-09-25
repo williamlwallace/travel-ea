@@ -7,7 +7,8 @@ let paginationHelper;
  * @param {Number} userId - ID of user to get destinations for
  */
 function onPageLoad(userId) {
-    paginationHelper = new PaginationHelper(1, 1, refreshData, "pagination-destinations");
+    paginationHelper = new PaginationHelper(1, 1, refreshData,
+        "pagination-destinations");
 
     refreshData();
 }
@@ -29,11 +30,11 @@ function clearFilter() {
 
 /**
  * Takes a list of destinations and creates destination cards out of these.
- * @param {Object} an array of destinations to display
+ * @param {Object} destinations - An array of destinations to display
  */
-function createDestinationCards(dests) {
+function createDestinationCards(destinations) {
     $("#destinationCardList").html("");
-    dests.data.forEach((dest) => {
+    destinations.data.forEach((dest) => {
         const template = $("#destinationCardTemplate").get(0);
         const clone = template.content.cloneNode(true);
         let tags = "";
@@ -41,30 +42,38 @@ function createDestinationCards(dests) {
 
         $(clone).find("#card-header").append(dest.name);
         if (dest.primaryPhoto) {
-            $(clone).find("#card-thumbnail").attr("src", "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
+            $(clone).find("#card-thumbnail").attr("src",
+                "../../user_content/" + dest.primaryPhoto.thumbnailFilename);
         }
-        $(clone).find("#district").append(dest.district ? dest.district : "No district");
+        $(clone).find("#district").append(
+            dest.district ? dest.district : "No district");
         $(clone).find("#country").append(dest.country.name);
-        $(clone).find("#destType").append(dest.destType ? dest.destType : "No type");
+        $(clone).find("#destType").append(
+            dest.destType ? dest.destType : "No type");
         $(clone).find("#card-header").attr("data-id", dest.id.toString());
-        $(clone).find("#card-header").attr("id", "destinationCard" + dest.id.toString());
+        $(clone).find("#card-header").attr("id",
+            "destinationCard" + dest.id.toString());
 
         if (dest.primaryPhoto) {
-            $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
-                addDestinationToTrip(dest.id, dest.name, dest.destType,
-                    dest.district, dest.latitude, dest.longitude,
-                    dest.country.id, dest.primaryPhoto);
-            });
+            $($(clone).find('#destinationCard' + dest.id.toString())).click(
+                function () {
+                    addDestinationToTrip(dest.id, dest.name, dest.destType,
+                        dest.district, dest.latitude, dest.longitude,
+                        dest.country.id, dest.primaryPhoto);
+                });
         } else {
-            $($(clone).find('#destinationCard' + dest.id.toString())).click(function () {
-                addDestinationToTrip(dest.id, dest.name, dest.destType,
-                    dest.district, dest.latitude, dest.longitude, dest.country.id);
-            });
+            $($(clone).find('#destinationCard' + dest.id.toString())).click(
+                function () {
+                    addDestinationToTrip(dest.id, dest.name, dest.destType,
+                        dest.district, dest.latitude, dest.longitude,
+                        dest.country.id);
+                });
         }
 
         dest.tags.forEach(item => {
             tags += item.name + ", ";
         });
+
         tags = tags.slice(0, -2);
 
         dest.travellerTypes.forEach(item => {
@@ -72,8 +81,22 @@ function createDestinationCards(dests) {
         });
         travellerTypes = travellerTypes.slice(0, -2);
 
-        $(clone).find("#travellerTypes").append(travellerTypes ? travellerTypes : "No traveller types");
+        $(clone).find("#destinatonCardTravellerTypes").append(
+            travellerTypes ? travellerTypes : "No traveller types");
         $(clone).find("#tags").append(tags ? tags : "No tags");
+
+        // Add to trip button
+        const addToTripButton = document.createElement("BUTTON");
+        addToTripButton.classList.add("btn");
+        addToTripButton.classList.add("btn-secondary");
+        addToTripButton.innerText = "Add To Trip";
+        addToTripButton.addEventListener("click", function () {
+            addDestinationToTrip(dest.id, dest.name, dest.destType,
+                dest.district, dest.latitude, dest.longitude, dest.country.id,
+                dest.primaryPhoto.filename)
+        });
+
+        $(clone).find("#addToTrip").append(addToTripButton);
 
         $("#destinationCardList").get(0).appendChild(clone);
     });
@@ -125,10 +148,14 @@ function getAscending() {
  * @returns {object} Returns a promise of the get request sent
  */
 function getDestinations() {
-    const url = new URL(destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url, window.location.origin);
+    const url = new URL(
+        destinationRouter.controllers.backend.DestinationController.getPagedDestinations().url,
+        window.location.origin);
 
     // Append non-list params
-    if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
+    if (getSearchQuery() !== "") {
+        url.searchParams.append("searchQuery", getSearchQuery());
+    }
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
@@ -143,11 +170,13 @@ function getDestinations() {
         return response.json()
         .then(json => {
             if (response.status !== 200) {
-                toast("Error with destinations", "Cannot load destinations", "danger")
+                toast("Error with destinations", "Cannot load destinations",
+                    "danger")
             } else {
-                if(lastRecievedRequestOrder < json.requestOrder) {
+                if (lastRecievedRequestOrder < json.requestOrder) {
                     lastRecievedRequestOrder = json.requestOrder;
-                    paginationHelper.setTotalNumberOfPages(json.totalNumberPages);
+                    paginationHelper.setTotalNumberOfPages(
+                        json.totalNumberPages);
                     return json;
                 }
             }
@@ -156,13 +185,23 @@ function getDestinations() {
 }
 
 /**
- * Hides Create trip button if trip is empty
+ * Hides Create trip button if trip is empty, hides empty trip message if trip is not empty
  */
 function checkTripListEmpty() {
-    if ($("#list").children().length > 1) {
+    const tripLength = $("#list").children().length;
+
+    // Display create trip button if trip has two or more destinations
+    if (tripLength >= 2) {
         $("#createTripButton").css("display", "");
-    } else if ($("#list").children().length <= 1) {
+    } else {
         $("#createTripButton").css("display", "none");
+    }
+
+    // Display emptyTripContainer if trip has no destinations
+    if (tripLength === 0) {
+        $("#emptyTripContainer").css("display", "");
+    } else {
+        $("#emptyTripContainer").css("display", "none");
     }
 }
 
@@ -178,12 +217,12 @@ function checkTripListEmpty() {
  * @param countryId CountryID of the destination
  */
 function addDestinationToTrip(id, name, type, district, latitude, longitude,
-    countryId, primaryPhoto=null) {
+    countryId, primaryPhoto = null) {
     let cards = $("#list").sortable('toArray');
     let cardId = 0;
     let image = "/assets/images//default-destination-primary.png";
     if (primaryPhoto) {
-         image = "../../user_content/" + primaryPhoto.thumbnailFilename;
+        image = "../../user_content/" + primaryPhoto.thumbnailFilename;
     }
 
     // Finds id not used
@@ -200,13 +239,16 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             '<div class="card card-dest-for-trip flex-row" id= ' + id + ' >\n'
             + '                                <label id=' + id + '></label>\n'
             + '                                <div class="card-header border-0" style="height: 100%">\n'
-            + '                                    <img src=' + image + ' style="height: 100%"; alt="Happy travellers">\n'
+            + '                                    <img src=' + image
+            + ' style="height: 100%"; alt="Happy travellers">\n'
             + '                                </div>\n'
             + '\n'
             + '                                <div class="container">\n'
             + '                                    <div id="topCardBlock" class="row">\n'
-            + '                                        <h4 class="card-title card-title-dest-for-trip"> ' + name + ' </h4>\n'
-            + '                                        <div id="removeTrip" onclick="setDestinationToRemove(' + id + ')"></div>\n'
+            + '                                        <h4 class="card-title card-title-dest-for-trip"> '
+            + name + ' </h4>\n'
+            + '                                        <div id="removeTrip" onclick="setDestinationToRemove('
+            + id + ')"></div>\n'
             + '                                    </div>\n'
             + '                                    <div class="card-block card-block-dest-for-trip px-2 row">\n'
             + '                                        <div id="left" class="col-5">\n'
@@ -221,10 +263,12 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             + '                                                ' + latitude + ''
             + '                                                <br/>\n'
             + '                                                <strong>Longitude: </strong>\n'
-            + '                                                ' + longitude + ''
+            + '                                                ' + longitude
+            + ''
             + '                                                <br/>\n'
             + '                                                <strong>Country: </strong>\n'
-            + '                                                <label id="countryField">' + countryName + '</label>\n'
+            + '                                                <label id="countryField">'
+            + countryName + '</label>\n'
             + '                                            </p>\n'
             + '                                        </div>\n'
             + '                                        <div id="right" class="col-7">\n'
@@ -300,14 +344,14 @@ function createTrip(redirect, userId) {
 
     const tripTagObjects = createTripTagPicker.getTags().map((tag) => {
         return {
-            name:tag
+            name: tag
         }
     });
 
     let tripData = {
         "userId": userId,
         "tripDataList": tripDataList,
-        "tags":tripTagObjects
+        "tags": tripTagObjects
     };
 
     const tripPrivacy = $('#tripPrivacy').html();
@@ -401,7 +445,9 @@ function updateTrip(uri, redirect, tripId, userId) {
         tripDataList.push(listItemToTripData(listItemArray[0][i], i));
     }
 
-    const tripTagObjects = createTripTagPicker.getTags().map((tag) => {return {name:tag}});
+    const tripTagObjects = createTripTagPicker.getTags().map((tag) => {
+        return {name: tag}
+    });
 
     let tripData = {
         "id": tripId,
