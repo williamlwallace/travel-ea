@@ -2,7 +2,10 @@
 
 -- Add countries
 INSERT INTO CountryDefinition (id, name) VALUES
-(643, 'Russian Federation'),(246, 'Finland'),(398, 'Kazakhstan'),(496, 'Mongolia');
+  (643, 'Russian Federation'), (246, 'Finland'), (398, 'Kazakhstan'), (496, 'Mongolia'), (764, 'Thailand'), (826, 'United Kingdom'), (250, 'France'), (784, 'United Arab Emirates'),
+  (702, 'Singapore'), (840, 'United States of America'), (458, 'Malaysia'), (392, 'Japan'), (792, 'Turkey'), (410, 'South Korea'), (682, 'Saudi Arabia'), (344, 'Hong Kong'),
+  (484, 'Mexico'), (348, 'Hungary'), (032, 'Argentina'), (710, 'South Africa'), (158, 'Taiwan'), (036, 'Australia'), (554, 'New Zealand'), (208, 'Denmark'), (276, 'Germany'),
+  (818, 'Egypt'), (380, 'Italy'), (203, 'Czech Republic'), (630, 'Puerto Rico'), (124, 'Canada'), (076, 'Brazil'), (156, 'China'), (524, 'Nepal');
 
 -- Add sample user
 INSERT INTO User(username, password, salt, admin) VALUES ('admin@travelea.co.nz', '51i2xJJXKnRNYfO3+UXOveorYfd8bTIDlqUcE8c50lM=', 'tujlegP8Dc8dQ19Ad6ekgVla3d7qbtb9iHiTJ2VRssQ=', true);
@@ -23,86 +26,74 @@ INSERT INTO Nationality (user_id, country_id) VALUES (1,246), (1,643), (2, 246),
 
 -- Add sample data for destination
 INSERT INTO Destination (user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES
-    (1, 'Ust-Tsilemsky Wilderness', 'Wilderness', 'Komi Republic', 66, 52.0, 643, 1),
-    (1, 'Reka Oyvozh', 'River', 'Leshukonsky District', 64.5, 49.0, 643, 1),
-    (1, 'Reka Palkin', 'River', 'Verkhnetoyemskiy Rayon', 63.0, 46.0, 643, 1),
-    (1, 'Velsky Wilderness', 'Wilderness', 'Arkhangelsk Oblast', 61.5, 43.0, 643, 1),
+    (1, 'Bangkok', 'City', 'Central Thailand', 13.7, 100.5, 764, 1),
+    (1, 'London', 'City', 'London Region', 51.3, 0.0, 826, 1),
+    (1, 'Paris', 'City', 'Île-de-France', 48.8, 2.4, 250, 1),
+    (1, 'Dubai', 'City', 'Dubai Region', 25.3, 55.3, 784, 1),
+    (1, 'Singapore', 'City', 'Central Region', 1.3, 103.8, 702, 1),
+    (1, 'New York City', 'City', 'New York', 40.6, -73.8, 840, 1),
+    (1, 'Kuala Lumpur', 'City', 'Selangor', 3.1, 101.6, 458, 1),
+    (1, 'Tokyo', 'City', 'Kanto', 35.6, 139.6, 392, 1),
+    (1, 'Istanbul', 'City', 'Marmara', 41.0, 28.9, 792, 1),
+    (1, 'Seoul', 'City', 'Seoul Capital Area', 37.5, 126.9, 410, 1),
+    (1, 'Phuket', 'City', 'Phuket Province', 8.0, 98.3, 764, 1),
+    (1, 'Mecca', 'City', 'Hejazi', 21.4, 39.8, 682, 1),
+    (1, 'Hong Kong', 'City', 'Southern China', 22.5, 114.3, 344, 1),
+    (1, 'San Antonia', 'City', 'Texas', 29.4, -98.5, 840, 1),
+    (1, 'Pueblo', 'City', 'East Central Mexico', 19.0, -97.9, 484, 1),
+    (1, 'Honolulu', 'City', 'Hawaii', 21.3, -157.8, 840, 1),
+    (1, 'Budapest', 'City', 'Central Hungary', 47.5, 19.0, 348, 1),
+    (1, 'Buenos Aires', 'City', 'Buenos Aires', -34.6, -58.4, 032, 1),
+    (1, 'Cape Town', 'City', 'Western Cape', -33.9, 18.4, 710, 1),
+    (1, 'Moscow', 'City', 'Central Russia', 55.8, 37.7, 643, 1),
+    (1, 'Taipei', 'City', 'Northern Taiwan', 25.0, 121.5, 158, 1),
 
-    (1, 'Kaivulampi', 'Lake', 'Posio', 66, 28.0, 246, 1),
-    (1, 'Goro Kostomuksha', 'Town', 'Republic of Karelia', 64.5, 31.0, 643, 1),
-    (1, 'Reka Kumsa', 'River', 'Republic of Karelia', 63.0, 34.0, 643, 1),
-    (1, 'Vytegorskiy Rayon Wilderness', 'Wilderness', 'Vologda Oblast', 61.5, 37.0, 643, 1),
+    (1, 'Sydney', 'City', 'New South Wales', -33.9, 151.1, 036, 1),
+    (1, 'Gold Coast', 'City', 'Queensland', -28.0, 153.4, 036, 1),
+    (2, 'Melbourne', 'City', 'Victoria', -37.8, 145.0, 036, 1),
+    (1, 'Perth', 'City', 'Western Australia', -32.0, 115.9, 036, 1),
+    (1, 'Brisbane', 'City', 'Queensland', -27.5, 153.0, 036, 1),
+    (1, 'Adelaide', 'City', 'South Australia', -34.9, 138.6, 036, 1),
 
-    (1, 'Reka Kubena', 'River', 'Vologda Oblast', 60.0, 40.0, 643, 1),
-    (1, 'Anan''ino', 'Town', 'Yaroslavl Oblast', 57.5, 40.0, 643, 1),
-    (1, 'Malinovka', 'Town', 'Ryazan Oblast', 55.0, 40.0, 643, 1),
-    (1, 'Gryazi', 'Town', 'Lipetsk Oblast', 52.5, 40.0, 643, 1),
-    (1, 'Tserkov'' Spasa Preobrazheniya', 'Town', 'Voronezh Oblast', 50.0, 40.0, 643, 1),
+    (1, 'Auckland', 'City', 'Auckland', -36.9, 174.8, 554, 1),
+    (1, 'Tauranga', 'City', 'Bay of Plenty', -37.8, 176.1, 554, 1),
+    (1, 'Mount Maunganui', 'Mountain', 'Tauranga', -37.6, 176.2, 554, 1),
+    (1, 'Rotorua', 'City', 'Bay of Plenty', -38.0, 176.2, 554, 1),
+    (1, 'Wellington', 'City', 'Wellington', -41.3, 174.8, 554, 1),
+    (1, 'Christchurch', 'City', 'Canterbury', -43.5, 172.7, 554, 1),
+    (1, 'Dunedin', 'City', 'Otago', -45.9, 170.5, 554, 1),
+    (1, 'Wanaka', 'Town', 'Otago', -44.8, 169.1, 554, 1),
+    (1, 'Queenstown', 'Town', 'Otago', -45.0, 168.7, 554, 1),
+    (1, 'Hamilton', 'City', 'Waikato', -37.8, 175.3, 554, 1),
 
+    (1, 'Miami', 'City', 'Florida', 25.8, -80.1, 840, 1),
+    (1, 'Copenhagen', 'City', 'Copenhagen Region', 55.7, 12.5, 208, 1),
+    (1, 'Berlin', 'City', 'Brandenburg', 52.5, 13.4, 276, 1),
+    (1, 'Cairo', 'City', 'Cairo Region', 30.0, 31.2, 818, 1),
+    (1, 'Great Pyramid of Giza', 'Monument', 'Cairo Region', 30.0, 31.1, 818, 1),
+    (1, 'Grand Canyon', 'Canyon', 'Arizona', 36.3, -112.6, 840, 1),
+    (1, 'Venice', 'City', 'Veneto', 45.4, 12.3, 380, 1),
+    (1, 'Rome', 'City', 'Lazio', 41.9, 12.5, 380, 1),
+    (1, 'Prague', 'City', 'Prague Region', 50.0, 14.4, 203, 1),
+    (1, 'San Juan', 'City', 'San Juan Region', 18.4, -66.0, 630, 1),
+    (1, 'Dublin', 'City', 'Leinster', 53.4, -6.2, 826, 1),
+    (1, 'Toronto', 'City', 'Ontario', 43.7, -79.4, 124, 1),
+    (1, 'Rio de Janeiro', 'City', 'Rio de Janeiro', -25.9, -43.1, 076, 1),
+    (1, 'Las Vegas', 'City', 'Nevada', 36.1, -115.1, 840, 1),
 
-    (1, 'Gorod Inta', 'Town', 'Komi Republic', 66.0, 60.0, 643, 1),
-    (1, 'Ozero Shuryshkarskiy Sor', 'Lake', 'Yamalo-Nenets Autonomous Okrug', 66.0, 65.0, 643, 1),
-    (1, 'Nadymsky Wilderness', 'Wilderness', 'Yamalo-Nenets Autonomous Okrug', 66.0, 70.0, 643, 1),
-    (1, 'Nadymsky Wilderness', 'Wilderness', 'Yamalo-Nenets Autonomous Okrug', 66.0, 75.0, 643, 1),
-    (1, 'Krasnoselkupsky Wilderness', 'Wilderness', 'Yamalo-Nenets Autonomous Okrug', 66.0, 80.0, 643, 1),
-
-    (1, 'Nizhny Tagil', 'City', 'Sverdlovsk Oblast', 58.0, 60.0, 643, 1),
-    (1, 'Reka Bol''shaya Zemlyanaya', 'River', 'Sverdlovsk Oblast', 58.0, 65.0, 643, 1),
-    (1, 'Irtysh River', 'River', 'Tyumen Oblast', 58.0, 70.0, 643, 1),
-    (1, 'Tarsky Wilderness', 'Wilderness', 'Omsk Oblast', 58.0, 75.0, 643, 1),
-
-    (1, 'Karabutak', 'Town', 'Karabutak', 50.0, 60.0, 398, 1),
-    (2, 'Amangeldi Wilderness', 'Wilderness', 'Amangeldi District', 50.0, 65.0, 398, 1),
-    (1, 'Unnamed River', 'River', 'Nura District', 50.0, 70.0, 398, 1),
-    (1, 'Karkaraly Wilderness', 'Wilderness', 'Karkaraly District', 50.0, 75.0, 398, 1),
-    (1, 'Unnamed Riverside', 'Riverside', 'East Kazakhstan Province', 50.0, 80.0, 398, 1),
-
-    (1, 'Beryozovsky Wilderness', 'Wilderness', 'Khanty-Mansi Autonomous Okrug', 63.4, 60.0, 643, 1),
-    (1, 'Reka Talitsa', 'River', 'Sverdlovsk Oblast', 60.8, 60.0, 643, 1),
-    (1, 'Gornoural''skiy Outer Limits', 'City Outer Limits', 'Sverdlovsk Oblast', 58.1, 60.0, 643, 1),
-    (1, 'Reka Bol''shoy Kialim', 'River', 'Chelyabinsk Oblast', 55.4, 60.0, 643, 1),
-    (1, 'Bredinsky Wasteland', 'Wasteland', 'Chelyabinsk Oblast', 52.7, 60.0, 643, 1),
-
-
-    (1, 'Evenkiysky Wilderness', 'Wilderness', 'Krasnoyarsk Krai', 66.0, 90.0, 643, 1),
-    (1, 'Evenkiysky Hills', 'Hills', 'Krasnoyarsk Krai', 66.0, 95.0, 643, 1),
-    (1, 'Evenkiysky Marsh', 'Marsh', 'Krasnoyarsk Krai', 66.0, 100.0, 643, 1),
-    (1, 'Evenkiysky Wilderness', 'Wilderness', 'Krasnoyarsk Krai', 66.0, 105.0, 643, 1),
-    (1, 'Aykhal Outer Limits', 'City Outer Limits', 'Sakha Republic', 66.0, 110.0, 643, 1),
-
-    (1, 'Yeniseysky Forest', 'Forest', 'Krasnoyarsk Krai', 58.0, 90.0, 643, 1),
-    (1, 'Motyginsky Forest', 'Forest', 'Krasnoyarsk Krai', 58.0, 95.0, 643, 1),
-    (1, 'Reka Tarasova-Chudova', 'River', 'Irkutsk Oblast', 58.0, 100.0, 643, 1),
-    (1, 'Katangsky Farmland', 'Farmland', 'Irkutsk Oblast', 58.0, 105.0, 643, 1),
-
-    (1, 'Reka Msgen-Buren', 'River', 'Tuva', 50.0, 90.0, 643, 1),
-    (1, 'Altan Els Desert', 'Desert', 'Altan Els', 50.0, 95.0, 496, 1),
-    (1, 'Alag-Erdene Wasteland', 'Wasteland', 'Alag-Erdene', 50.0, 100.0, 496, 1),
-    (1, 'Tsagaannuur Riverbed', 'Riverbed', 'Tsagaannuur', 50.0, 105.0, 496, 1),
-    (1, 'Krasnochikoyskiy Forest', 'Forest', 'Zabaykalsky Krai', 50.0, 110.0, 643, 1),
-
-    (1, 'Turukhansky Forest', 'Forest', 'Krasnoyarsk Krai', 63.4, 90.0, 643, 1),
-    (1, 'Turukhansky Dense Forest', 'Dense Forest', 'Krasnoyarsk Krai', 60.8, 90.0, 643, 1),
-    (1, 'Reka Seredkina', 'River', 'Krasnoyarsk Krai', 58.1, 90.0, 643, 1),
-    (1, 'Agrofirma Uchumskaya', 'Area', 'Krasnoyarsk Krai', 55.4, 90.0, 643, 1),
-    (1, 'A161 Rest Area', 'Rest Area', 'Republic of Khakassia', 52.7, 90.0, 643, 1),
-
-
-    (1, 'Tian Shan Mountain Range', 'Mountain Range', 'Sakha Republic', 66.0, 140.0, 643, 1),
-    (1, 'Tian Shan Riverbed', 'Sakha Republic', 'Paris', 66.0, 145.0, 643, 1),
-    (1, 'Verkhnekolymsky Hills', 'Hills', 'Sakha Republic', 66.0, 150.0, 643, 1),
-
-    (1, 'Reka Dyanyshka', 'River', 'Sakha Republic', 66.0, 130.0, 643, 1),
-    (1, 'Unnamed Lake', 'Lake', 'Sakha Republic', 66.0, 125.0, 643, 1),
-    (1, 'Reka Allara-Sala', 'River', 'Sakha Republic', 66.0, 120.0, 643, 1),
-
-    (1, 'Verkhoyansky Hills', 'Hills', 'Sakha Republic', 66.0, 135.0, 643, 1),
-    (1, 'Unnamed Tomponskiy River', 'River', 'Sakha Republic', 63.4, 135.0, 643, 1),
-    (1, 'Ust-Maysky Dirt Road', 'Road', 'Sakha Republic', 60.8, 135.0, 643, 1),
-    (1, 'Ayano-Maysky Valley', 'Valley', 'Khabarovsk Krai', 58.1, 135.0, 643, 1),
-    (1, 'Tuguro-Chumikansky Mountains', 'Mountains', 'Khabarovsk Krai', 55.4, 135.0, 643, 1),
-    (1, 'Imeni Poliny Osipenko Mountains', 'Mountains', 'Khabarovsk Krai', 52.7, 135.0, 643, 1),
-    (1, 'Khabarovsky Artic Forest', 'Forest', 'Khabarovsk Krai', 50.0, 135.0, 643, 1);
+    (1, 'Eiffel Tower', 'Monument', 'Île-de-France', 48.8, 2.3, 250, 1),
+    (1, 'Hollywood Sign', 'Landmark', 'Los Angeles', 34.1, -118.3, 840, 1),
+    (1, 'Mount Fuji', 'Volcano', 'Honshu', 35.4, 138.7, 392, 1),
+    (1, 'Big Ben', 'Tower', 'London', 51.1, -0.2, 826, 1),
+    (1, 'Burj Khalifa', 'Skyscraper', 'Dubai', 25.1, 55.3, 784, 1),
+    (1, 'Colosseum', 'Monument', 'Rome', 41.9, 12.5, 380, 1),
+    (1, 'Times Square', 'Landmark', 'New York', 40.8, -74.0, 840, 1),
+    (1, 'Buckingham Palace', 'Palace', 'London', 51.5014, -0.1419, 826, 1),
+    (1, 'Leaning Tower of Pisa', 'Tower', 'Italy', 43.7230, 10.3966, 380, 1),
+    (1, 'Forbidden City', 'Landmark', 'Beijing', 39.9169, 116.3907, 156, 1),
+    (1, 'Sydney Opera House', 'Landmark', 'Sydney', -33.8568, 151.2153, 036, 1),
+    (1, 'Mount Everest', 'Mountain', 'Himalayas', 27.9881, 86.9250, 524, 1),
+    (1, 'Great Wall of China', 'Landmark', 'China', 40.4319, 116.5704, 156, 1);
 
 
 -- Add traveller type to destination
