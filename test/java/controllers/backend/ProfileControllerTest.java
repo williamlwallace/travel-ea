@@ -50,7 +50,7 @@ public class ProfileControllerTest extends controllers.backend.ControllersTest {
         newProfile.userId = 5L;
         newProfile.firstName = "NotDave";
         newProfile.lastName = "DefinitelyNotSmith";
-        newProfile.dateOfBirth = "1186-11-05";
+        newProfile.dateOfBirth = "2001-11-05";
         newProfile.gender = "Male";
 
         CountryDefinition france = new CountryDefinition();

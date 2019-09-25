@@ -33,23 +33,24 @@
 
         <div class="tab-content">
             <div class="tab-pane" id="users" role="tabpanel" aria-labelledby="users-tab">
+                <label class="error-messages" id="adminError"></label>
                 <div>
-                    <button class="btn btn-primary" data-toggle="modal" data-target="#createUser" style="float: left">
+                    <button class="btn btn-primary" id="addUserButton" data-toggle="modal" data-target="#createUser" style="float: left">
                         Add User</button>
-                    <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample"
-                    aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
+                    <button id="usersFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#usersFilterCollapse"
+                    aria-expanded="false" aria-controls="usersFilterCollapse" onclick="toggleUserFilterButton()">Filter</button>
                 </div>
-                <div class="collapse" id="collapseExample">
+                <div class="collapse" id="usersFilterCollapse">
                     <div class="card card-body" id="card-body">
-                        <div id="filterItemDiv">
+                        <div class="filterItemDiv">
                             <label for="searchQuery">Filter by email</label>
                             <input id="searchQuery" type="text" value="" class="form-control validate"/>
                         </div>
-                        <div id="resultsPerPageDiv">
+                        <div class="filterItemDiv resultsPerPageDiv">
                             <label for="pageSize">Results per page</label>
                             <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
                         </div>
-                        <div id="filterItemDiv">
+                        <div class="filterItemDiv">
                             <label for="sortBy">Sort by</label>
                             <select id="sortBy" class="form-control" data-style="form-control selectpicker">
                                 <option value="id">User ID</option>
@@ -58,19 +59,19 @@
                                 <option value="admin">User is admin</option>
                             </select>
                         </div>
-                        <div id="filterItemDiv">
+                        <div class="filterItemDiv">
                             <label for="ascending">Sort by</label>
                             <select id="ascending" class="form-control" data-style="form-control selectpicker">
                                 <option value="true">Ascending</option>
                                 <option value="false">Descending</option>
                             </select>
                         </div>
-                        <div id="buttonDiv">
-                            <div id="closeButton">
-                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                        <div id="usersButtonDiv">
+                            <div class="closeButton">
+                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#usersFilterCollapse" onclick="toggleUserFilterButton()">Close</button>
                             </div>
-                            <div id="applyButton">
-                                <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                            <div class="filterControlButtons">
+                                <button class="btn btn-secondary" onclick='clearUserFilter()'>Clear</button>
                                 <button class="btn btn-primary"  onclick='getUserResults()'>Apply</button>
                             </div>
                         </div>
@@ -87,37 +88,35 @@
             <div class="tab-pane" id="trips" role="tabpanel" aria-labelledby="trips-tab">
                 @* Trip Table *@
                 <label class="error-messages" id="adminError"></label>
-                <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
-                aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
+                <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#tripsFilterCollapse"
+                aria-expanded="false" aria-controls="tripsFilterCollapse" onclick="toggleTripFilterButton()">Filter</button>
 
                 @* The Trips Table *@
                 <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
-                <div class="tripsCollapse collapse" id="collapseExample">
+                <div class="tripsCollapse collapse" id="tripsFilterCollapse">
                     <div class="card card-body" id="card-body">
-                        <div class="row">
-                            <div id="filterItemDiv">
-                                <label for="tripPageSize">Results per page</label>
-                                <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" required/>
-                            </div>
-                            <div id="filterItemDiv">
-                                <label for="tripSearch">Search</label>
-                                <input type=text id="tripSearch" class="form-control"/>
-                            </div>
-                            <div id="filterItemDiv">
-                                <label for="tripAscending">Order by</label>
-                                <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
-                                    <option value="true">Ascending</option>
-                                    <option value="false">Descending</option>
-                                </select>
-                            </div>
+                        <div class="filterItemDiv">
+                            <label for="tripSearch">Search</label>
+                            <input type=text id="tripSearch" class="form-control" placeholder="Destination Name"/>
                         </div>
-                        <div class="text-center" id="buttonDiv">
-                            <div id="closeButton">
-                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
+                        <div class="filterItemDiv resultsPerPageDiv">
+                            <label for="tripPageSize">Results per page</label>
+                            <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" max="100" required/>
+                        </div>
+                        <div class="filterItemDiv">
+                            <label for="tripAscending">Order by</label>
+                            <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
+                                <option value="true">Ascending</option>
+                                <option value="false">Descending</option>
+                            </select>
+                        </div>
+                        <div class="text-center" id="tripsButtonDiv">
+                            <div class="closeButton">
+                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#tripsFilterCollapse" onclick="toggleTripFilterButton()">Close</button>
                             </div>
-                            <div id="applyButton">
-                                <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                            <div class="filterControlButtons">
+                                <button class="btn btn-secondary" onclick='clearTripFilter()'>Clear</button>
                                 <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
                             </div>
                         </div>

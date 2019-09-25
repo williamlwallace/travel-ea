@@ -75,8 +75,7 @@ public class ProfileController extends TEABackController {
 
         if (validatorResult.error()) {
             return CompletableFuture.supplyAsync(() -> badRequest(validatorResult.toJson()));
-        }
-        else {
+        } else {
             Profile newProfile = Json.fromJson(data, Profile.class);
 
             return profileRepository.findID(newProfile.userId).thenApplyAsync(profile -> {
@@ -102,20 +101,22 @@ public class ProfileController extends TEABackController {
     public CompletableFuture<Result> getProfile(Long userId) {
         return profileRepository.findID(userId).thenComposeAsync(profile -> {
             if (profile == null) {
-                return CompletableFuture.supplyAsync(() -> notFound(Json.toJson("Profile for that user not found")));
+                return CompletableFuture
+                    .supplyAsync(() -> notFound(Json.toJson("Profile for that user not found")));
             }
 
-            return profileRepository.getProfileFollowerCounts(profile.userId).thenApplyAsync(profileWithCounts -> {
-                profile.followingUsersCount = profileWithCounts.followingUsersCount;
-                profile.followerUsersCount = profileWithCounts.followerUsersCount;
-                profile.followingDestinationsCount = profileWithCounts.followingDestinationsCount;
+            return profileRepository.getProfileFollowerCounts(profile.userId)
+                .thenApplyAsync(profileWithCounts -> {
+                    profile.followingUsersCount = profileWithCounts.followingUsersCount;
+                    profile.followerUsersCount = profileWithCounts.followerUsersCount;
+                    profile.followingDestinationsCount = profileWithCounts.followingDestinationsCount;
 
-                try {
-                    return ok(sanitizeJson(Json.toJson(profile)));
-                } catch (IOException e) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
-            });
+                    try {
+                        return ok(sanitizeJson(Json.toJson(profile)));
+                    } catch (IOException e) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
         });
     }
 
@@ -189,6 +190,9 @@ public class ProfileController extends TEABackController {
 
         User user = request.attrs().get(ActionState.USER);
 
+        pageSize = pageSize > 100 ? 100 : pageSize;
+        pageSize = pageSize < 1 ? 1 : pageSize;
+
         // Constrain sortBy to a set, default to creation date
         if (sortBy == null ||
             !Arrays.asList("user_id", "first_name", "middle_name", "last_name", "date_of_birth",
@@ -231,15 +235,16 @@ public class ProfileController extends TEABackController {
 
         return profileRepository.getUserFollowingProfiles(profileId, searchQuery, pageNum, pageSize)
             .thenApplyAsync(pagedResults -> {
-            List<Long> userIds = pagedResults.getList().stream().map(x -> x.userId).collect(
-                Collectors.toList());
-            Map<Long, Long> userFollowerCounts = userRepository.getFollowCounts(userIds);
-            for (Profile profile : pagedResults.getList()) {
-                profile.followerUsersCount = userFollowerCounts.get(profile.userId);
-            }
-            return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())));
-            }
-        );
+                    List<Long> userIds = pagedResults.getList().stream().map(x -> x.userId).collect(
+                        Collectors.toList());
+                    Map<Long, Long> userFollowerCounts = userRepository.getFollowCounts(userIds);
+                    for (Profile profile : pagedResults.getList()) {
+                        profile.followerUsersCount = userFollowerCounts.get(profile.userId);
+                    }
+                    return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder,
+                        pagedResults.getTotalPageCount())));
+                }
+            );
     }
 
     /**
@@ -263,15 +268,16 @@ public class ProfileController extends TEABackController {
 
         return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize)
             .thenApplyAsync(pagedResults -> {
-                List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
-                    Collectors.toList());
-                Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
-                for (Profile profile : pagedResults.getList()) {
-                    profile.followerUsersCount = followCounts.get(profile.userId);
+                    List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
+                        Collectors.toList());
+                    Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
+                    for (Profile profile : pagedResults.getList()) {
+                        profile.followerUsersCount = followCounts.get(profile.userId);
+                    }
+                    return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder,
+                        pagedResults.getTotalPageCount())));
                 }
-                return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())));
-                }
-        );
+            );
     }
 
     /**
@@ -286,7 +292,8 @@ public class ProfileController extends TEABackController {
                 controllers.backend.routes.javascript.ProfileController.searchProfilesJson(),
                 controllers.backend.routes.javascript.ProfileController.getProfile(),
                 controllers.frontend.routes.javascript.ProfileController.index(),
-                controllers.backend.routes.javascript.ProfileController.getPaginatedFollowingUsers(),
+                controllers.backend.routes.javascript.ProfileController
+                    .getPaginatedFollowingUsers(),
                 controllers.backend.routes.javascript.ProfileController.getPaginatedFollowerUsers()
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
