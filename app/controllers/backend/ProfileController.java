@@ -229,10 +229,17 @@ public class ProfileController extends TEABackController {
         Integer pageSize,
         Integer requestOrder) {
 
-        return profileRepository.getUserFollowingProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults ->
-            ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())))
+        return profileRepository.getUserFollowingProfiles(profileId, searchQuery, pageNum, pageSize)
+            .thenApplyAsync(pagedResults -> {
+            List<Long> userIds = pagedResults.getList().stream().map(x -> x.userId).collect(
+                Collectors.toList());
+            Map<Long, Long> userFollowerCounts = userRepository.getFollowCounts(userIds);
+            for (Profile profile : pagedResults.getList()) {
+                profile.followerUsersCount = userFollowerCounts.get(profile.userId);
+            }
+            return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())));
+            }
         );
-
     }
 
     /**
@@ -254,16 +261,16 @@ public class ProfileController extends TEABackController {
         Integer pageSize,
         Integer requestOrder) {
 
-        return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize).thenApplyAsync(pagedResults -> {
-            List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
-                Collectors.toList());
-
-            Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
-            for (Profile profile : pagedResults.getList()) {
-                profile.followerUsersCount = followCounts.get(profile.userId);
-            }
-            return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())));
-            }
+        return profileRepository.getUserFollowerProfiles(profileId, searchQuery, pageNum, pageSize)
+            .thenApplyAsync(pagedResults -> {
+                List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
+                    Collectors.toList());
+                Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
+                for (Profile profile : pagedResults.getList()) {
+                    profile.followerUsersCount = followCounts.get(profile.userId);
+                }
+                return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder, pagedResults.getTotalPageCount())));
+                }
         );
     }
 
