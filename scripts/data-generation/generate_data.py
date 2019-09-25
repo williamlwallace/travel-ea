@@ -118,7 +118,6 @@ def generate_users(num_users, num_existing_users, photos_filename):
     users -- a list of strings to be added to the SQL script
     profiles -- a list of strings to be added to the SQL script
     """
-
     URL = "https://randomuser.me/api/?results=" + str(num_users)
     r = requests.get(url=URL)
     data = r.json()["results"]
@@ -368,7 +367,7 @@ def generate_tags(trip_destination_data, destination_info,
     
     tag_template = "({0}, {1}),\n"
        
-    current_tag_id = len(used_tags) + 1
+    current_tag_id = len(used_tags) + 20
     
     for i in range(num_destinations):
         destination_name = destination_info[i][0]
@@ -452,11 +451,11 @@ def main():
     """
     
     # Data existing in the evolutions already
-    num_existing_users = 3
+    num_existing_users = 23
     num_existing_traveller_types = 7
-    num_existing_trips = 1
-    num_existing_destinations = 64
-    existing_tags = {"'Russia'": 1, "'sports'": 2, "'#TravelEA'": 3}
+    num_existing_trips = 50
+    num_existing_destinations = 107
+    existing_tags = {"'Africa'": 21, "'america'": 24, "'Arena'": 61, "'Argentina'": 5, "'asia'": 90, "'Australia'": 13, "'Barcelona'": 55, "'beach'": 32, "'Brazil'": 7, "'cali'": 94, "'Campaign'": 88, "'capital'": 80, "'Catalonia'": 58, "'china'": 79, "'City'": 43, "'cold'": 48, "'Company'": 52, "'dangerous'": 40, "'Definitely legitimate business trip'": 101, "'dubai'": 17, "'egypt'": 33, "'eiffel'": 85, "'europe'": 46, "'exciting'": 39, "'FC Barcelona'": 57, "'Food'": 75, "'Footbal'": 11, "'Football'": 56, "'Genghis Khan'": 92, "'Germany'": 62, "'Google'": 51, "'greece'": 34, "'holiday'": 12, "'hollywood'": 96, "'Holocaust'": 45, "'Home'": 68, "'Hot'": 8, "'House'": 69, "'india'": 18, "'island'": 27, "'italy'": 15, "'japan'": 30, "'korea'": 38, "'la'": 95, "'landmark'": 19, "'london'": 29, "'miami'": 31, "'Mongol Horde'": 87, "'Mongolia'": 89, "'Mountain'": 20, "'New Zealand'": 59, "'North Island'": 35, "'north korea'": 37, "'nyc'": 97, "'philippines'": 25, "'Poland'": 44, "'Putin'": 84, "'Ramen'": 74, "'Rio'": 6, "'road trip'": 23, "'Round the world'": 81, "'Russia'": 1, "'scotland'": 49, "'singapore'": 98, "'snow'": 47, "'Soccer'": 10, "'South America'": 4, "'South Island'": 36, "'Spain'": 9, "'Spooky'": 83, "'sports'": 2, "'Spy Trip'": 100, "'Spying'": 99, "'Stadium'": 54, "'sun'": 14, "'tower'": 86, "'travel'": 16, "'tro'": 103, "'tropical'": 26, "'uk'": 50, "'uruguay'": 64, "'US'": 53, "'usa'": 93, "'vietnam'": 91, "'Warsaw'": 42, "'WW2'": 41}
     
     # New data
     num_users = 5000 # Max 5000
