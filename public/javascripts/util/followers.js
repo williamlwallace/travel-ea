@@ -40,16 +40,6 @@ function loadFollowBtn(type) {
 }
 
 /**
- * Sets the follow button on the people/destination cards used in modals and explore page
- *
- * @param id
- * @param type
- */
-function loadFollowBtnCard(id, type) {
-
-}
-
-/**
  * Updates the follower count on front-end by getting the follower/following count from database
  *
  * @param id is profile id of profile to get count for
