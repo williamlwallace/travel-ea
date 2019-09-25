@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.PagedList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -13,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import io.ebean.PagedList;
 import javax.inject.Inject;
 import models.BaseNewsFeedEvent;
 import models.GroupedNewsFeedEvent;
@@ -161,7 +161,16 @@ public class NewsFeedController extends TEABackController {
         Integer requestOrder) {
         // Perform repository call
         return newsFeedEventRepository.getPagedTrendingEvents(pageNum, pageSize)
-        .thenComposeAsync((eventList) -> convertEventsToData(eventList, requestOrder));
+        .thenComposeAsync(pagedEvents -> {
+            return convertEventsToData(pagedEvents)
+            .thenApplyAsync(completedStrategies -> {
+                // Serialize and return a paging response with all created NewsFeedResponseItems
+                return ok(Json.toJson(new PagingResponse<>(
+                    completedStrategies,
+                    requestOrder,
+                    pagedEvents.getTotalPageCount())));
+            });
+        });
     }
 
     /**
@@ -179,10 +188,30 @@ public class NewsFeedController extends TEABackController {
         Integer requestOrder) {
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
-            .thenComposeAsync((eventList) -> convertEventsToData(eventList, requestOrder));
+        .thenComposeAsync(pagedEvents -> {
+            return convertEventsToData(pagedEvents)
+            .thenApplyAsync(completedStrategies -> {
+                // Sort all completed strategies by creation date (most recent first)
+                completedStrategies
+                    .sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
+
+                // Serialize and return a paging response with all created NewsFeedResponseItems
+                return ok(Json.toJson(new PagingResponse<>(
+                    completedStrategies,
+                    requestOrder,
+                    pagedEvents.getTotalPageCount())));
+            });
+        });
     }
 
-    private CompletableFuture<Result> convertEventsToData(PagedList<NewsFeedEvent> pagedEvents, Integer requestOrder) {
+    /**
+     * Takes a paged list of newsfeedevents and converts them to a list of newsfeed response items
+     * for the frontend.
+     *
+     * @param pagedEvents a PagedList of newsfeedevents
+     * @return completedStrategies
+     */
+    private CompletableFuture<List<NewsFeedResponseItem>> convertEventsToData(PagedList<NewsFeedEvent> pagedEvents) {
         // Modify returned events list to only include singular events, and create a new list of grouped events
         Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(
             pagedEvents.getList());
@@ -217,16 +246,7 @@ public class NewsFeedController extends TEABackController {
                 completedStrategies.get(i).eventType = groupedEvents
                     .get(i - events.size()).eventType;
             }
-
-            // Sort all completed strategies by creation date (most recent first)
-            completedStrategies
-                .sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
-
-            // Serialize and return a paging response with all created NewsFeedResponseItems
-            return ok(Json.toJson(new PagingResponse<>(
-                completedStrategies,
-                requestOrder,
-                pagedEvents.getTotalPageCount())));
+            return completedStrategies;
         });
     }
 

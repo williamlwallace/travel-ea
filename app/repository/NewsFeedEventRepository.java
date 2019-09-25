@@ -13,24 +13,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.Collectors;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.Destination;
+import models.FollowerDestination;
+import models.FollowerUser;
+import models.Likes;
 import models.NewsFeedEvent;
 import models.Photo;
 import models.Profile;
-import models.enums.NewsFeedEventType;
-import models.Likes;
-import models.Trip;
-import models.FollowerUser;
-import models.FollowerDestination;
-import models.TrendingUser;
 import models.TrendingDestination;
+import models.TrendingUser;
+import models.Trip;
+import models.enums.NewsFeedEventType;
 import play.db.ebean.EbeanConfig;
-import play.libs.Json;
 
 /**
  * A repository that executes database operations for the News feed events table.
@@ -44,7 +42,7 @@ public class NewsFeedEventRepository {
     private final Expression SQL_FALSE = Expr.raw("false");
     private final Expression SQL_TRUE = Expr.raw("true");
 
-    private final Double TRENDING_TIME_TUNING = 100.0; // The bigger this gets, the longer it takes for a post to fall off
+    private final Double TRENDING_TIME_TUNING = 1000.0; // The bigger this gets, the longer it takes for a post to fall off
     private final Double TRENDING_LIKE_TUNING = 1.0; // The bigger this gets, the less influence the amount of likes has
     private final Double E = 2.718281828459045;
 
@@ -226,11 +224,11 @@ public class NewsFeedEventRepository {
             // (1 / (1+e^({changeInTime}/{time_tuner} -3 ))) * ({likes}/{likesTuner} + 1)
 
             String changeInTime = " (UNIX_TIMESTAMP(NOW()) - UNIX_TIMESTAMP(created)) "; // Integer value of seconds
-            String numberOfLikes = " (SELECT COUNT(*) FROM Likes L WHERE L.event_id = E.guid) "; // Integer value of likes
+            String numberOfLikes = " (SELECT COUNT(*) FROM Likes L WHERE L.event_id = E.guid AND deleted = 0) "; // Integer value of likes
 
             String sql = "SELECT "
                 + "*, "
-                + "(1 / (1 + POWER(:E, ((" + changeInTime + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3))) * (" + numberOfLikes + " / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(12,8)) ) + 1 ) AS weight "
+                + "((1 / (1 + POWER(:E, ((" + changeInTime + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3)))) * ((" + numberOfLikes + " / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(12,8)) ) + 1) ) AS weight "
                 + "FROM NewsFeedEvent E "
                 + "ORDER BY weight DESC";
             // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
@@ -241,6 +239,8 @@ public class NewsFeedEventRepository {
             .setFirstRow((pageNum - 1) * pageSize)
             .setMaxRows(pageSize)
             .findPagedList();
+
+
 
             ebeanServer.createSqlQuery(sql)
                 .setParameter("E", this.E)
