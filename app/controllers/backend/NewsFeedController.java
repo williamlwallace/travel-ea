@@ -562,7 +562,11 @@ public class NewsFeedController extends TEABackController {
                 controllers.backend.routes.javascript.NewsFeedController.getLikeStatus(),
                 controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.getDestinationNewsFeed(),
-                controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed()
+                controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed(),
+                controllers.backend.routes.javascript.NewsFeedController.getTrendingUsers(),
+                controllers.backend.routes.javascript.NewsFeedController.getTrendingDestinations()
+
+
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

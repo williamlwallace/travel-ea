@@ -2,15 +2,6 @@
     padding: 2rem;
 }
 
-.search-bar {
-    display: flex;
-}
-
-.search-bar-item-div {
-    margin: 0 5px 10px 5px;
-    width: 28.5rem;
-}
-
 .follower-summary-picture {
     width: 4rem;
     border: 1px solid rgba(0,0,0,.125);
@@ -56,12 +47,18 @@
 }
 
 #followersCardList, #followedByCardList {
-    height: 50%;
-    overflow-y: scroll;
+    overflow: auto;
+    max-height: 25rem;
+    min-height: 5rem;
 }
 
 #no-followers, #no-following {
     margin-left: auto;
     margin-right: auto;
     display: table;
+}
+
+#followers-dialog, #following-dialog {
+    align-items: flex-start;
+    margin-top: 10rem;
 }
