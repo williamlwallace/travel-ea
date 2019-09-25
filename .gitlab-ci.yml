@@ -10,12 +10,6 @@ junit:
   script:
     - sbt test
 
-jest:
-  stage: test
-  script:
-  - npm install
-  - npm test
-
 recent-artifacts:
   stage: deploy
   script:
