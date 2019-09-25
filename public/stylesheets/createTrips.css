@@ -96,3 +96,9 @@
 .date-columns {
     max-width: 50%;
 }
+
+.empty-trip-message {
+    vertical-align: middle;
+    text-align: center;
+    line-height: 240px;
+}

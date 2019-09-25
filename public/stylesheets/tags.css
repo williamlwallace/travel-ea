@@ -26,6 +26,7 @@
     max-height: 25px;
     line-height: 16px;
     padding:4px;
+    overflow-x: hidden;
 }
 
 .tags-display {
