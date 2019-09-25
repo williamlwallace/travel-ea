@@ -81,11 +81,10 @@ function createDestinationCards(dests) {
 
 /**
  * Returns a boolean of the getonlymine selector tick box
- * @returns {boolean} True if the getonlymine text box it ticked, false otherwise
+ * @returns {Boolean} True if the getonlymine text box it ticked, false otherwise
  */
 function getOnlyGetMine() {
-    const currentValue = $('#onlyGetMine').val();
-    return currentValue === "On";
+    return $('#onlyGetMine').is(":checked");
 }
 
 /**
@@ -130,13 +129,13 @@ function getDestinations() {
 
     // Append non-list params
     if(getSearchQuery() !== "") { url.searchParams.append("searchQuery", getSearchQuery()); }
-    if(getOnlyGetMine() !== "") { url.searchParams.append("onlyGetMine", getOnlyGetMine()); }
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", getPageSize().toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
+    url.searchParams.append("onlyGetMine", getOnlyGetMine().toString());
     url.searchParams.append("requestOrder", requestOrder++);
 
     return get(url)

@@ -46,52 +46,10 @@
                     <div class="tab-pane fade show active" id="cardsTab" role="tabpanel" aria-labelledby="card-tab">
 
                         <div class="container pt-4">
-                            <div class="filterButtonContainer">
-                                <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
-                                aria-expanded="false" aria-controls="collapseDestinationFilter">Filter</button>
-                            </div>
 
-                            @* The destination filter options *@
-                            <div class="collapse" id="collapseDestinationFilter">
-                                <div class="card card-body" id="card-body">
-                                    <div class="filterItemDiv">
-                                        <label for="searchQuery">Search</label>
-                                        <input id="searchQuery" class="form-control validate"/>
-                                    </div>
-                                    <div class="filterItemDiv pt-2  pb-2">
-                                        <label for="pageSize">Results per page</label>
-                                        <input id="pageSize" type="number" class="form-control validate" value="10" min="1" max="100"/>
-                                    </div>
-
-                                        <label for="sortBy">Sort by</label>
-                                        <div class="row">
-                                            <div class="filterItemDiv col">
-                                                <select id="sortBy" class="form-control selectpicker" data-style="form-control">
-                                                    <option value="name">Name</option>
-                                                    <option value="type">Type</option>
-                                                    <option value="country.name">Country</option>
-                                                </select>
-                                            </div>
-                                            <div class="filterItemDiv col">
-                                                <select id="ascending" class="form-control selectpicker" data-style="form-control">
-                                                    <option value="true">Ascending</option>
-                                                    <option value="false">Descending</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                    <div class="form-check pt-3">
-                                        <input type="checkbox" class="form-check-input" id="onlyGetMine">
-                                        <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
-                                    </div>
-
-                                    <div class="text-center pt-3" id="buttonDiv">
-                                        <div id="applyButton">
-                                            <button class="btn btn-outline-secondary" onclick='clearDestinationsFilter()'>Clear</button>
-                                            <button class="btn btn-primary"  type="submit" onclick='refreshData()'>Apply</button>
-                                        </div>
-                                    </div>
-                                </div>
+                            @* The destination filter button and collapsible options *@
+                            <div id="destinationFilterPlaceholder">
+                                @modules.destinationFilter()
                             </div>
 
                             @* The destinations cards *@

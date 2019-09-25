@@ -412,10 +412,9 @@ pre {
 
 /*CSS for filter objects*/
 .filterItemDiv {
-    padding: 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
     display: inline-block;
     width:15rem;
-    height:7rem;
 }
 
 .closeButton {
