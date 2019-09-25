@@ -1,9 +1,20 @@
-.filterButton {
-    margin-bottom: 10px;
-    float:right;
-    display:block;
+#createTripButton {
+    float: left;
+    display: block;
 }
 
-.tripsCollapse {
-    text-align: center;
+#tripPagination {
+    margin-top: -1.5rem;
+}
+
+#tripCardsList {
+    margin-top: 3rem;
+}
+
+#tripPageSize {
+    width: 7.5rem;
+}
+
+#no-trips-found {
+    margin: 10rem;
 }

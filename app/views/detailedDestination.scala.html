@@ -181,11 +181,10 @@
                                 <!-- Photo Tab -->
                             <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
                                 <div class="tab-buttons">
-                                    <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
-                                    <a class="button-secondary" id="upload-gallery-image-button" >
-                                        <span class="destination-button" style="float: right;
-                                            padding-left: 10px;">Link Photo</span>
-                                    </a>
+                                    <div id="tagFilterOuter">
+                                        <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                                    </div>
+                                    <button class="btn btn-primary" id="upload-gallery-image-button">Link Photo</button>
                                     <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto(
                                         "@controllers.backend.routes.PhotoController.upload()")'
                                     accept="image/jpeg, image/png" style="display: none;" multiple/>

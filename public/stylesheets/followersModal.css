@@ -3,9 +3,13 @@
 }
 
 .follower-summary-picture {
-    width: 4rem;
+    height: 4rem;
     border: 1px solid rgba(0,0,0,.125);
     max-width: none !important;
+}
+
+.first-trending-card-text {
+    font-size: 2rem
 }
 
 .follower-summary-name {
@@ -21,7 +25,7 @@
 
 .follower-card {
     display: flex;
-    padding: 5px;
+    padding: 10px;
     cursor: pointer;
 }
 
@@ -44,7 +48,7 @@
     width: 260px;
 }
 
-#followersCardList, #followedByCardList {
+.follower-cards-list {
     overflow: auto;
     max-height: 25rem;
     min-height: 5rem;

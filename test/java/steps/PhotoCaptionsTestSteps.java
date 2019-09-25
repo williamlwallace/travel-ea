@@ -35,7 +35,7 @@ import util.objects.Pair;
 public class PhotoCaptionsTestSteps {
 
     @When("set the photo caption to {string}")
-    public void set_the_photo_caption_to(String string) throws IOException {
+    public void set_the_photo_caption_to(String string) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode json = mapper.createObjectNode();
         json.set("tags", Json.toJson(new Tag[0]));

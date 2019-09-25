@@ -12,10 +12,6 @@
     font-size: 18px;
 }
 
-.tz-gallery {
-    padding: 40px 1.5rem 40px;
-}
-
 .tz-gallery .lightbox img {
     width: 100%;
     margin-bottom: 30px;
@@ -31,7 +27,6 @@
 .baguetteBox-button {
     background-color: transparent !important;
 }
-
 
 @media(max-width: 768px) {
     body {

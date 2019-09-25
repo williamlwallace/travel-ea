@@ -19,14 +19,16 @@
                 @modules.newsFeed("explore-feed")
             </div>
             <div class="col-md-6">
+                <h2 class="explore-trending-text">Trending Users</h2>
                 <div class="explore-trending">
                     @modules.followerCard()
                     <div id="followersCardList"></div>
                 </div>
                 <br/>
+                <h2 class="explore-trending-text">Trending Destinations</h2>
                 <div class="explore-trending">
-                    @modules.followerCard()
                     <div id="followersCardListDestinations"></div>
+                    <label id="no-trending"></label>
                 </div>
             </div>
         </div>

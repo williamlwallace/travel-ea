@@ -41,15 +41,16 @@ public class Validator {
     }
 
     /**
-     * Checks field is not empty for tags fields only, as tags are a set there
-     * must be a check for if size is equal to zero
+     * Checks field is not empty for tags fields only, as tags are a set there must be a check for
+     * if size is equal to zero
      *
      * @param field json field name
      * @param name Name of field to be displayed on front end error label (use capitals and spaces)
      * @return Boolean whether validation succeeds
      */
     protected Boolean requiredTags(String field, String name) {
-        if (this.form.has(field) && (this.form.get(field).isArray() && this.form.get(field).size() >= 0)) {
+        if (this.form.has(field) && (this.form.get(field).isArray()
+            && this.form.get(field).size() >= 0)) {
             return true;
         }
         this.errorResponse.map(String.format("%s field must be present", name), field);
@@ -232,9 +233,24 @@ public class Validator {
         String date = this.form.get(field).asText("");
         try {
             Date formDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
-            Date currentDate = Calendar.getInstance().getTime();
-            if (formDate.after(currentDate)) {
-                this.errorResponse.map("Date of Birth cannot be after current date", field);
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.YEAR, -5);
+            Date minAllowedDate = cal.getTime();
+
+            cal.add(Calendar.YEAR, -120);
+            Date maxAllowedDate = cal.getTime();
+
+            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+            if (formDate.after(minAllowedDate)) {
+                this.errorResponse
+                    .map("Date of Birth cannot be after " + formatter.format(minAllowedDate),
+                        field);
+                return false;
+            } else if (formDate.before(maxAllowedDate)) {
+                this.errorResponse
+                    .map("Date of Birth cannot be before " + formatter.format(maxAllowedDate),
+                        field);
                 return false;
             }
         } catch (ParseException e) {
