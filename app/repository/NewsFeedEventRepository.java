@@ -46,7 +46,6 @@ public class NewsFeedEventRepository {
     private final Double TRENDING_LIKE_TUNING = 1.0; // The bigger this gets, the less influence the amount of likes has
     private final Double E = 2.718281828459045;
 
-
     @Inject
     public NewsFeedEventRepository(EbeanConfig ebeanConfig,
         DatabaseExecutionContext executionContext) {
@@ -99,10 +98,10 @@ public class NewsFeedEventRepository {
 
         return supplyAsync(() ->
             ebeanServer.find(NewsFeedEvent.class)
-            .where()
-            .eq("ref_id", photo.guid)
-            .in("event_type", relevantTypes)
-            .delete()
+                .where()
+                .eq("ref_id", photo.guid)
+                .in("event_type", relevantTypes)
+                .delete()
         );
     }
 
@@ -121,7 +120,7 @@ public class NewsFeedEventRepository {
             NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name()
         );
 
-        return supplyAsync(() ->{
+        return supplyAsync(() -> {
             //this is not pretty but ebean queries to annoying to do in one.
             Integer rows = ebeanServer.find(NewsFeedEvent.class)
                 .where()
@@ -153,23 +152,24 @@ public class NewsFeedEventRepository {
 
         return supplyAsync(() ->
             ebeanServer.find(NewsFeedEvent.class)
-            .where()
-            .eq("ref_id", trip.id)
-            .in("event_type", relevantTypes)
-            .delete()
+                .where()
+                .eq("ref_id", trip.id)
+                .in("event_type", relevantTypes)
+                .delete()
         );
     }
 
     /**
      * Gets all the events in a pgaed fashion. Can filter by user or destination ids.
-     * 
+     *
      * @param userIds list of users to filter by, null for no filtering
      * @param destIds List of destinations to filter by, null for no filtering
      * @param pageNum page number
      * @param pageSize length of page
      * @return List of Events
      */
-    public CompletableFuture<PagedList<NewsFeedEvent>> getPagedEvents(List<Long> userIds, // Possibly null
+    public CompletableFuture<PagedList<NewsFeedEvent>> getPagedEvents(List<Long> userIds,
+        // Possibly null
         List<Long> destIds,
         Integer pageNum,
         Integer pageSize) {
@@ -193,16 +193,16 @@ public class NewsFeedEventRepository {
                         (destIds != null && userIds == null) ? SQL_FALSE : SQL_TRUE
                     ).endOr()
                     .or()
-                        .in("t0.dest_id", destIdsNotNull)
-                        .in("t0.user_id", userIdsNotNull)
-                        .raw((destIds != null && userIds != null) ? "false" : "true")
+                    .in("t0.dest_id", destIdsNotNull)
+                    .in("t0.user_id", userIdsNotNull)
+                    .raw((destIds != null && userIds != null) ? "false" : "true")
                     .endOr();
-                    
+
             // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
             PagedList<NewsFeedEvent> events = eventsExprList.orderBy("created desc")
-            .setFirstRow((pageNum - 1) * pageSize)
-            .setMaxRows(pageSize)
-            .findPagedList();
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
 
             return events;
         });
@@ -210,7 +210,7 @@ public class NewsFeedEventRepository {
 
     /**
      * Gets all the events in a pagaed fashion. TRENDING
-     * 
+     *
      * @param pageNum page number
      * @param pageSize length of page
      * @return List of Events
@@ -228,40 +228,28 @@ public class NewsFeedEventRepository {
 
             String sql = "SELECT "
                 + "*, "
-                + "((1 / (1 + POWER(:E, ((" + changeInTime + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3)))) * ((" + numberOfLikes + " / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(12,8)) ) + 1) ) AS weight "
+                + "((1 / (1 + POWER(:E, ((" + changeInTime
+                + " / CAST(:TRENDING_TIME_TUNING AS DECIMAL(12,8))) - 3)))) * ((" + numberOfLikes
+                + " / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(12,8)) ) + 1) ) AS weight "
                 + "FROM NewsFeedEvent E "
                 + "ORDER BY weight DESC";
             // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
             PagedList<NewsFeedEvent> events = ebeanServer.findNative(NewsFeedEvent.class, sql)
-            .setParameter("E", this.E)
-            .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
-            .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
-            .setFirstRow((pageNum - 1) * pageSize)
-            .setMaxRows(pageSize)
-            .findPagedList();
-
-
+                .setParameter("E", this.E)
+                .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
+                .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
+                .setFirstRow((pageNum - 1) * pageSize)
+                .setMaxRows(pageSize)
+                .findPagedList();
 
             ebeanServer.createSqlQuery(sql)
                 .setParameter("E", this.E)
                 .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
                 .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
                 .findEachRow(((resultSet, rowNum) -> {
-                    System.out.println("Weight at row " + rowNum + ": " + resultSet.getDouble(resultSet.findColumn("weight")));
+                    System.out.println("Weight at row " + rowNum + ": " + resultSet
+                        .getDouble(resultSet.findColumn("weight")));
                 }));
-
-//            String sql2 = "SELECT ((CAST((SELECT COUNT(*) FROM Likes AS L WHERE L.event_id = E.guid) AS DECIMAL(18,4)) / CAST(:TRENDING_LIKE_TUNING AS DECIMAL(18,4)) ) + 1 )  AS weight FROM NewsFeedEvent AS E";
-//            // Order by specified column and asc/desc if given, otherwise default to most recently created profiles first
-//            List<Double> weights = new ArrayList<Double>();
-//            ebeanServer.createSqlQuery(sql2)
-//            .setParameter("E", this.E)
-//            .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
-//            .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
-//            .findEachRow(((resultSet, rowNum) -> {
-//                weights.add(resultSet.getDouble(1));
-//            }));
-//
-//            System.out.println(Json.toJson(weights));
 
             return events;
         });
@@ -276,12 +264,12 @@ public class NewsFeedEventRepository {
      */
     public CompletableFuture<Likes> getLikes(Long eventId, Long userId) {
         return supplyAsync(() ->
-                ebeanServer.find(Likes.class)
-                        .where().and(
-                        Expr.eq("event_id", eventId),
-                        Expr.eq("user_id", userId))
-                        .findOneOrEmpty()
-                        .orElse(null));
+            ebeanServer.find(Likes.class)
+                .where().and(
+                Expr.eq("event_id", eventId),
+                Expr.eq("user_id", userId))
+                .findOneOrEmpty()
+                .orElse(null));
     }
 
     /**
@@ -305,8 +293,8 @@ public class NewsFeedEventRepository {
      */
     public CompletableFuture<Long> deleteLike(Long id) {
         return supplyAsync(() ->
-                        Long.valueOf(ebeanServer.delete(Likes.class, id))
-                , executionContext);
+                Long.valueOf(ebeanServer.delete(Likes.class, id))
+            , executionContext);
     }
 
     /**
@@ -328,7 +316,7 @@ public class NewsFeedEventRepository {
 
     /**
      * Retrieves trending users based on the followers they have recieved in the last week
-     * 
+     *
      * @return A list of 5 trending users
      */
     public CompletableFuture<List<Profile>> getTrendingUsers() {
@@ -351,7 +339,7 @@ public class NewsFeedEventRepository {
 
     /**
      * Retrieves trending destinations based on the followers they have recieved in the last week
-     * 
+     *
      * @return A list of 5 trending destinations
      */
     public CompletableFuture<List<Destination>> getTrendingDestinations() {
@@ -362,9 +350,10 @@ public class NewsFeedEventRepository {
                 .findList()
                 .stream()
                 .map(td -> {
-                    td.destination.followerCount = Long.valueOf(ebeanServer.find(FollowerDestination.class)
-                        .where().eq("destination_id", td.destination.id)
-                        .findCount());
+                    td.destination.followerCount = Long
+                        .valueOf(ebeanServer.find(FollowerDestination.class)
+                            .where().eq("destination_id", td.destination.id)
+                            .findCount());
                     return td.destination;
                 })
                 .collect(Collectors.toList());
