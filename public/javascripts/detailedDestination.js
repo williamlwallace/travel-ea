@@ -550,12 +550,13 @@ function toggleLinked(guid, newLinked, destinationId) {
         destinationId, guid).url;
     const handler = function (status, json) {
         if (status === 200) {
-            if (!this.newLinked) {
+            if (json !== "Succesfully Updated") {
                 label.innerHTML = "Not-Linked";
                 label.setAttribute("src",
                     "/assets/images/location-unlinked.png");
                 label.setAttribute("onClick",
-                    "toggleLinked(" + guid + "," + !this.newLinked + ")");
+                    "toggleLinked(" + guid + "," + !this.newLinked + "," + destinationId + ")");
+                label.setAttribute("class", "privacy white-circle-background");
                 toast("Photo Unlinked",
                     "Photo has been successfully removed from this destination");
             } else {
@@ -563,7 +564,8 @@ function toggleLinked(guid, newLinked, destinationId) {
                 label.setAttribute("src",
                     "/assets/images/location-linked.png");
                 label.setAttribute("onClick",
-                    "toggleLinked(" + guid + "," + !this.newLinked + ")");
+                    "toggleLinked(" + guid + "," + !this.newLinked + "," + destinationId + ")");
+                label.setAttribute("class", "privacy white-circle-background");
                 toast("Photo Linked",
                     "Photo Successfully linked to this destination");
             }
@@ -580,8 +582,6 @@ function toggleLinked(guid, newLinked, destinationId) {
     }.bind({newLinked});
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler, data);
     undoRedo.sendAndAppend(reqData);
-
-    $("#linkPhotoToDestinationModal").modal('hide');
     getDestinationPhotos();
 }
 
