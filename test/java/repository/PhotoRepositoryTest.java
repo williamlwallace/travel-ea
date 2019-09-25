@@ -12,7 +12,6 @@ import java.util.concurrent.CompletionException;
 import models.Photo;
 import models.Tag;
 import models.User;
-import org.apache.commons.lang3.concurrent.ConcurrentException;
 import org.junit.Before;
 import org.junit.Test;
 import util.objects.Pair;
@@ -165,13 +164,9 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void deletePhoto() {
-        try {
-            Photo deletedPhoto = photoRepository.deletePhoto(1L).join();
+        Photo deletedPhoto = photoRepository.deletePhoto(1L).join();
 
-            assertNotNull(deletedPhoto);
-        } catch (Exception e){
-            System.out.println("Concurrent exception in test");
-        }
+        assertNotNull(deletedPhoto);
     }
 
     @Test
@@ -200,13 +195,9 @@ public class PhotoRepositoryTest extends repository.RepositoryTest {
 
     @Test
     public void deletePhotoByFilename() {
-        try {
-            assertTrue(
-                photoRepository.deletePhotoByFilename("./public/storage/photos/test/test3.jpeg")
-                    .join());
-        } catch (Exception e){
-            System.out.println("Concurrent exception in test");
-        }
+        assertTrue(
+            photoRepository.deletePhotoByFilename("./public/storage/photos/test/test3.jpeg")
+                .join());
     }
 
     @Test
