@@ -123,9 +123,9 @@ pre {
 .title-frame {
     background-color: #818182;
     text-align: center;
-    height: 30vh;
+    height: 35vh;
     max-height: 70rem;
-    min-height: 25rem;
+    min-height: 200px;;
     align-items: center;
     position: relative;
 }
@@ -164,7 +164,7 @@ pre {
     position: absolute;
     left: 0;
     right: 0;
-    top: 5rem;
+    top: 3.5rem;
     bottom: 0;
     width: auto;
 }
