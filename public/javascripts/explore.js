@@ -3,7 +3,10 @@
  */
 $(document).ready(function () {
    populateTrendingUsers();
-   populateTrendingDestinations()
+   populateTrendingDestinations();
+
+    const exploreFeed = new NewsFeed(null, 'explore-feed',
+        newsFeedRouter.controllers.backend.NewsFeedController.getExploreFeed().url);
 });
 
 /**

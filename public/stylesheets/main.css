@@ -410,6 +410,12 @@ pre {
     background: linear-gradient(90deg, #161616, #ffffff);
 }
 
+.sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 4rem;
+}
+
 /*CSS for filter objects*/
 .filterItemDiv {
     padding: 1rem;
