@@ -160,7 +160,7 @@ public class Authenticator extends Action.Simple {
             if (!(request.uri().equals(
                 controllers.frontend.routes.ProfileController.createProfileIndex().toString()) ||
                 request.uri().equals(
-                controllers.backend.routes.ProfileController.addNewProfile().toString()))
+                    controllers.backend.routes.ProfileController.addNewProfile().toString()))
                 && profile == null) {
                 if (request.uri().contains(API)) {
                     return supplyAsync(() -> forbidden(Json.toJson(FORBIDDEN)));
@@ -168,11 +168,17 @@ public class Authenticator extends Action.Simple {
                     return supplyAsync(() -> redirect(
                         controllers.frontend.routes.ProfileController.createProfileIndex()));
                 }
+            } else if (profile != null && request.uri().equals(
+                controllers.frontend.routes.ProfileController.createProfileIndex().toString())) {
+                return supplyAsync(() -> redirect(
+                    controllers.frontend.routes.ApplicationController.home()));
             }
             CompletableFuture<Result> fail;
-            fail = request.uri().contains(API) ? supplyAsync(() -> forbidden(Json.toJson(FORBIDDEN))) : supplyAsync(
-                () -> redirect(controllers.frontend.routes.ApplicationController.cover())
-                    .discardingCookie(JWT_AUTH));
+            fail =
+                request.uri().contains(API) ? supplyAsync(() -> forbidden(Json.toJson(FORBIDDEN)))
+                    : supplyAsync(
+                        () -> redirect(controllers.frontend.routes.ApplicationController.cover())
+                            .discardingCookie(JWT_AUTH));
             return matched ? delegate.call(request.addAttr(ActionState.USER, user)) : fail;
         });
     }
