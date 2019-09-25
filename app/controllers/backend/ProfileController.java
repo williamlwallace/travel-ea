@@ -234,11 +234,17 @@ public class ProfileController extends TEABackController {
         Integer requestOrder) {
 
         return profileRepository.getUserFollowingProfiles(profileId, searchQuery, pageNum, pageSize)
-            .thenApplyAsync(pagedResults ->
-                ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder,
-                    pagedResults.getTotalPageCount())))
+            .thenApplyAsync(pagedResults -> {
+                    List<Long> userIds = pagedResults.getList().stream().map(x -> x.userId).collect(
+                        Collectors.toList());
+                    Map<Long, Long> userFollowerCounts = userRepository.getFollowCounts(userIds);
+                    for (Profile profile : pagedResults.getList()) {
+                        profile.followerUsersCount = userFollowerCounts.get(profile.userId);
+                    }
+                    return ok(Json.toJson(new PagingResponse<>(pagedResults.getList(), requestOrder,
+                        pagedResults.getTotalPageCount())));
+                }
             );
-
     }
 
     /**
@@ -264,7 +270,6 @@ public class ProfileController extends TEABackController {
             .thenApplyAsync(pagedResults -> {
                     List<Long> followerIds = pagedResults.getList().stream().map(x -> x.userId).collect(
                         Collectors.toList());
-
                     Map<Long, Long> followCounts = userRepository.getFollowCounts(followerIds);
                     for (Profile profile : pagedResults.getList()) {
                         profile.followerUsersCount = followCounts.get(profile.userId);

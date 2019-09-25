@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
@@ -819,9 +820,16 @@ public class DestinationController extends TEABackController {
 
             return destinationRepository
                 .getDestinationsFollowedByUser(userId, searchQuery, pageNum, pageSize)
-                .thenApplyAsync(pagedDestinations ->
-                    ok(Json.toJson(new PagingResponse<>(pagedDestinations.getList(), requestOrder,
-                        pagedDestinations.getTotalPageCount())))
+                .thenApplyAsync(pagedDestinations -> {
+                    List<Long> destinationIds = pagedDestinations.getList().stream().map(x -> x.id).collect(
+                        Collectors.toList());
+                    Map<Long, Long> destinationFollowerCounts = destinationRepository.getDestinationsFollowerCounts(destinationIds);
+                    for (Destination destination : pagedDestinations.getList()) {
+                        destination.followerCount = destinationFollowerCounts.get(destination.id);
+                    }
+                    return ok(Json.toJson(new PagingResponse<>(pagedDestinations.getList(), requestOrder,
+                        pagedDestinations.getTotalPageCount())));
+                    }
                 );
         });
     }

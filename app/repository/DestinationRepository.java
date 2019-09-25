@@ -519,4 +519,22 @@ public class DestinationRepository {
                 .findPagedList();
         });
     }
+
+    /**
+     * Gets the number of followers each destination has
+     *
+     * @param ids DestinationIds of the destinations for which to get the follower counts of
+     * @return map between a destination id and the number of followers they have
+     */
+    public Map<Long, Long> getDestinationsFollowerCounts(List<Long> ids) {
+        String sqlQuery = "SELECT destination_id, (SELECT COUNT(*) FROM `FollowerDestination` FD2 "
+        + "WHERE FD2.destination_id = FD1.destination_id) AS followCount FROM `FollowerDestination` "
+        + "FD1 WHERE FD1.destination_id in (:ids) GROUP BY FD1.destination_id";
+
+        Map<Long,Long> results = new HashMap<>();
+        ebeanServer.createSqlQuery(sqlQuery).setParameter("ids", ids).findEachRow(((resultSet, rowNum) -> {
+            results.put(resultSet.getLong(1), resultSet.getLong(2));
+        }));
+        return results;
+    }
 }

@@ -239,26 +239,14 @@ $('#users-following-btn').on('click', function () {
  * Handler to handle the user typing in the search box
  */
 $('#followingSearch').on('keyup', function (e) {
-    if (e.keyCode === 13) { //Enter
-        searchFollowing($(this).val());
-    } else if (e.keyCode === 8 || e.keyCode === 46) { //Backspace or delete
-        if ($(this).val() === "") {
-            searchFollowing($(this).val());
-        }
-    }
+    searchFollowing($(this).val());
 });
 
 /**
  * Handler to handle the user typing in the search box
  */
 $('#followersSearch').on('keyup', function (e) {
-    if (e.keyCode === 13) { //Enter
-        searchFollowers($(this).val());
-    } else if (e.keyCode === 8 || e.keyCode === 46) { //Backspace or delete
-        if ($(this).val() === "") {
-            searchFollowers($(this).val());
-        }
-    }
+    searchFollowers($(this).val());
 });
 
 /**
@@ -541,8 +529,47 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
                     + dest.primaryPhoto.thumbnailFilename);
             }
             $(clone).find("#follower-card").attr("data-id", dest.id.toString());
-            $(clone).find("#follower-summary-follower-count").append(user.followerUsersCount);
+            $(clone).find("#follower-summary-follower-count").append(dest.followerCount);
             $("#followersCardList").get(0).appendChild(clone);
+
+            $(".follower-card").click((element) => {
+                const data = $(element.currentTarget).data();
+                if (data !== undefined) {
+                    location.href = `/destinations/${data.id}`;
+                }
+            });
+        });
+    }
+}
+
+
+/**
+ * Create follower cards for destinations that a user is following for the explore page
+ * @param {Array} destinations - List of all destinations that need to be made into cards
+ * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
+ */
+function createDestinationFollowerCardExplorePage(destinations, clearFollowers) {
+    if (clearFollowers) {
+        $("#followersCardListDestinations").html("");
+    }
+
+    if (destinations.length < 1 && clearFollowers) {
+        $("#followersCardListDestinations").html(
+            '<label id="no-following">No destinations found</label>');
+    } else {
+        destinations.forEach((dest) => {
+            const template = $("#followerCardTemplate").get(0);
+            const clone = template.content.cloneNode(true);
+
+            $(clone).find("#follower-summary-name").append(dest.name);
+            if (dest.primaryPhoto) {
+                $(clone).find("#follower-picture").attr("src",
+                    "../../user_content/"
+                    + dest.primaryPhoto.thumbnailFilename);
+            }
+            $(clone).find("#follower-card").attr("data-id", dest.id.toString());
+            $(clone).find("#follower-summary-follower-count").append(dest.followerCount);
+            $("#followersCardListDestinations").get(0).appendChild(clone);
 
             $(".follower-card").click((element) => {
                 const data = $(element.currentTarget).data();
