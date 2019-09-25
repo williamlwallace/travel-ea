@@ -25,7 +25,6 @@ $(document).ready(function () {
     $("#feed-tab").click();
 });
 
-
 /**
  * Initializes trip table and calls method to populate
  */
@@ -55,68 +54,72 @@ function getProfileTripResults() {
  * permission to see that information, null if not
  */
 function fillProfileData(userId) {
-    getUser(userId).then(user => {
-        if (document.getElementById("summary_email") && user.username) {
-            document.getElementById("summary_email").innerText = user.username;
+    // If a profile is viewed by the owner or an admin, display the users email
+    getUserId().then(loggedInUserId => {
+        if (loggedInUserId === userId || isUserAdmin()) {
+            getUser(userId).then(user => {
+                document.getElementById(
+                    "summary_email").innerText = user.username;
+            });
         }
-        get(profileRouter.controllers.backend.ProfileController.getProfile(
-            profileId).url)
-        .then(response => {
-            response.json().then(profile => {
-                if (response.status !== 200) {
-                    showErrors(profile);
-                } else {
-                    document.getElementById(
-                        "summary_name").innerText = profile.firstName
-                        + ' '
-                        + profile.lastName;
-                    document.getElementById(
-                        "summary_age").innerHTML = calc_age(
-                        Date.parse(profile.dateOfBirth));
-                    document.getElementById(
-                        "summary_gender").innerText = profile.gender;
-                    arrayToCountryString(profile.nationalities, 'name',
-                        countryRouter.controllers.backend.CountryController.getAllCountries().url)
-                    .then(out => {
-                        $("#summary_nationalities").html('');
-                        const nationalities = out.split(",");
-                        for (let i = 0; i < nationalities.length; i++) {
+    });
+
+    get(profileRouter.controllers.backend.ProfileController.getProfile(
+        profileId).url).then(response => {
+        response.json().then(profile => {
+            if (response.status !== 200) {
+                showErrors(profile);
+            } else {
+                document.getElementById(
+                    "summary_name").innerText = profile.firstName
+                    + ' '
+                    + profile.lastName;
+                document.getElementById(
+                    "summary_age").innerHTML = calc_age(
+                    Date.parse(profile.dateOfBirth));
+                document.getElementById(
+                    "summary_gender").innerText = profile.gender;
+                arrayToCountryString(profile.nationalities, 'name',
+                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                .then(out => {
+                    $("#summary_nationalities").html('');
+                    const nationalities = out.split(",");
+                    for (let i = 0; i < nationalities.length; i++) {
+                        document.getElementById(
+                            "summary_nationalities").innerHTML += '<li>'
+                            + nationalities[i].trim() + '</li>';
+                    }
+                });
+                arrayToCountryString(profile.passports, 'name',
+                    countryRouter.controllers.backend.CountryController.getAllCountries().url)
+                .then(out => {
+                    // If passports were cleared, update html text to None: Fix for Issue #36
+                    if (out === "") {
+                        document.getElementById(
+                            "summary_passports").innerHTML = "None"
+                    } else {
+                        $("#summary_passports").html('');
+                        const passports = out.split(",");
+                        for (let i = 0; i < passports.length; i++) {
                             document.getElementById(
-                                "summary_nationalities").innerHTML += '<li>'
-                                + nationalities[i].trim() + '</li>';
+                                "summary_passports").innerHTML += '<li>'
+                                + passports[i].trim() + '</li>';
                         }
-                    });
-                    arrayToCountryString(profile.passports, 'name',
-                        countryRouter.controllers.backend.CountryController.getAllCountries().url)
-                    .then(out => {
-                        // If passports were cleared, update html text to None: Fix for Issue #36
-                        if (out === "") {
-                            document.getElementById(
-                                "summary_passports").innerHTML = "None"
-                        } else {
-                            $("#summary_passports").html('');
-                            const passports = out.split(",");
-                            for (let i = 0; i < passports.length; i++) {
-                                document.getElementById(
-                                    "summary_passports").innerHTML += '<li>'
-                                    + passports[i].trim() + '</li>';
-                            }
-                        }
-                    });
-                    arrayToString(profile.travellerTypes, 'description',
-                        profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
-                    .then(out => {
-                        $("#summary_travellerTypes").html('');
-                        const travellerTypes = out.split(",");
-                        for (let i = 0; i < travellerTypes.length;
-                            i++) {
-                            document.getElementById(
-                                "summary_travellerTypes").innerHTML += '<li>'
-                                + travellerTypes[i].trim() + '</li>';
-                        }
-                    });
-                }
-            })
+                    }
+                });
+                arrayToString(profile.travellerTypes, 'description',
+                    profileRouter.controllers.backend.ProfileController.getAllTravellerTypes().url)
+                .then(out => {
+                    $("#summary_travellerTypes").html('');
+                    const travellerTypes = out.split(",");
+                    for (let i = 0; i < travellerTypes.length;
+                        i++) {
+                        document.getElementById(
+                            "summary_travellerTypes").innerHTML += '<li>'
+                            + travellerTypes[i].trim() + '</li>';
+                    }
+                });
+            }
         })
     });
 }
@@ -613,5 +616,4 @@ function toggleProfileTripFilterButton() {
     const toggled = profileTripsFilterButton.css("display") === "block";
     profileTripsFilterButton.css("display", toggled ? "none" : "block");
     $('#profileCreateTripButton').css("display", toggled ? "none" : "block");
-    // $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
 }

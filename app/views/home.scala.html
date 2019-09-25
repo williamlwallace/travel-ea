@@ -3,16 +3,20 @@
 
 @scripts = {
     <script src="@routes.Assets.at("javascripts/home.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/trips.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/util/newsFeed.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/baguetteBox.min.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/common/jquery.bootpag.min.js")" type="text/javascript"></script>
     <script src="@controllers.backend.routes.NewsFeedController.newsFeedRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.UserController.userRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
 }
 
 @layouts.main("Home", user, scripts) {
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/profile.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/tripCards.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -28,6 +32,9 @@
         </div>
     </div>
 
-
     <div id="startchange"></div>
 }
+
+<script type="text/javascript">
+    const tripTagDisplay = new TagDisplay("trip-tag-display");
+</script>
