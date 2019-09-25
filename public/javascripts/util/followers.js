@@ -453,19 +453,13 @@ function createUserFollowerCard(users, clearFollowers) {
             }
             $(clone).find("#follower-card").attr("data-id",
                 user.userId.toString());
-
             // Set follower count on user card
             const followerCount = countFormatter(user.followerUsersCount);
             $(clone).find("#follower-summary-follower-count").append(
                 followerCount + " Followers");
-            $("#followersCardList").get(0).appendChild(clone);
+            $(clone).find("#follower-card").click(function() {location.href = `/profile/${user.userId}`});
 
-            $(".follower-card").click((element) => {
-                const data = $(element.currentTarget).data();
-                if (data !== undefined) {
-                    location.href = `/profile/${data.id}`;
-                }
-            });
+            $("#followersCardList").get(0).appendChild(clone);
         });
     }
 }
@@ -502,14 +496,9 @@ function createUserFollowedByCard(users, clearFollowing) {
             const followerCount = countFormatter(user.followerUsersCount);
             $(clone).find("#follower-summary-follower-count").append(
                 followerCount + " Followers");
+            $(clone).find("#follower-card").click(function() {location.href = `/profile/${user.userId}`});
             $("#followedByCardList").get(0).appendChild(clone);
 
-            $(".follower-card").click((element) => {
-                const data = $(element.currentTarget).data();
-                if (data !== undefined) {
-                    location.href = `/profile/${data.id}`;
-                }
-            });
         });
     }
 }
@@ -544,14 +533,8 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
             const followerCount = countFormatter(dest.followerCount);
             $(clone).find("#follower-summary-follower-count").append(
                 followerCount + " Followers");
+            $(clone).find("#follower-card").click(function() {location.href = `/destinations/${dest.id}`});
             $("#followersCardList").get(0).appendChild(clone);
-
-            $(".follower-card").click((element) => {
-                const data = $(element.currentTarget).data();
-                if (data !== undefined) {
-                    location.href = `/destinations/${data.id}`;
-                }
-            });
         });
     }
 }
@@ -577,16 +560,13 @@ function createDestinationFollowerCardExplorePage(destinations) {
                     "../../user_content/"
                     + dest.primaryPhoto.thumbnailFilename);
             }
-            $(clone).find("#follower-card").attr("data-id", dest.id.toString());
-            $(clone).find("#follower-summary-follower-count").append(dest.followerCount);
+            // Set follower count on destination card
+            const followerCount = countFormatter(dest.followerCount);
+            $(clone).find("#follower-summary-follower-count").append(
+                followerCount + " Followers");
+            $(clone).find("#follower-card").click(function() {location.href = `/destinations/${dest.id}`});
             $("#followersCardListDestinations").get(0).appendChild(clone);
 
-            $(".follower-card").click((element) => {
-                const data = $(element.currentTarget).data();
-                if (data !== undefined) {
-                    location.href = `/destinations/${data.id}`;
-                }
-            });
         });
     }
 }
