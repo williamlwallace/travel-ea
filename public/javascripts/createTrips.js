@@ -88,7 +88,7 @@ function createDestinationCards(destinations) {
         // Add to trip button
         const addToTripButton = document.createElement("BUTTON");
         addToTripButton.classList.add("btn");
-        addToTripButton.classList.add("btn-secondary");
+        addToTripButton.classList.add("btn-primary");
         addToTripButton.innerText = "Add To Trip";
         addToTripButton.addEventListener("click", function () {
             addDestinationToTrip(dest.id, dest.name, dest.destType,
