@@ -35,4 +35,9 @@ public class NewsFeedResponseItem {
         this.data = data;
         this.eventIds = eventIds;
     }
+
+    /**
+     * default constructor for deserializing
+     */
+    public NewsFeedResponseItem() {}
 }

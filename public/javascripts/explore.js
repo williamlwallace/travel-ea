@@ -3,7 +3,10 @@
  */
 $(document).ready(function () {
    populateTrendingUsers();
-   populateTrendingDestinations()
+   populateTrendingDestinations();
+
+    const exploreFeed = new NewsFeed(null, 'explore-feed',
+        newsFeedRouter.controllers.backend.NewsFeedController.getExploreFeed().url);
 });
 
 /**
@@ -34,7 +37,7 @@ function populateTrendingDestinations() {
          if (response.status !== 200) {
             showErrors(dests);
          } else {
-            createDestinationFollowerCardExplorePage(dests, false);
+            createDestinationFollowerCardExplorePage(dests);
          }
       });
    });
