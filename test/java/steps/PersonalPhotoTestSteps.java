@@ -116,7 +116,14 @@ public class PersonalPhotoTestSteps {
         // Post to url and get result, checking that a success was returned
         // Get result and check it was successful
         Result result = route(fakeApp, request);
-        Assert.assertEquals(201, result.status());
+
+        // Sleep for a bit to ensure photo processing can occur
+        try {
+            Thread.sleep(1000);
+            Assert.assertEquals(201, result.status());
+        } catch (Exception e) {
+            System.out.println("sleep interrupted");
+        }
     }
 
     @Then("the number of photos i can view will be {int}")

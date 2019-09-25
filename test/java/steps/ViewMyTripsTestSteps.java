@@ -140,6 +140,49 @@ public class ViewMyTripsTestSteps extends WithApplication {
         assertEquals(OK, result.status());
     }
 
+    @Given("I have created a public trip")
+    public void have_created_a_public_trip() {
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
+
+        Destination dest1 = new Destination();
+        dest1.id = 1L;
+        dest1.country = countryDefinition;
+
+        Destination dest2 = new Destination();
+        dest2.id = 2L;
+        dest2.country = countryDefinition;
+
+        TripData tripData1 = new TripData();
+        tripData1.position = 1L;
+        tripData1.destination = dest1;
+
+        TripData tripData2 = new TripData();
+        tripData2.position = 2L;
+        tripData2.destination = dest2;
+
+        Trip trip = new Trip();
+        List<TripData> tripArray = new ArrayList<>();
+        tripArray.add(tripData1);
+        tripArray.add(tripData2);
+        trip.tripDataList = tripArray;
+        trip.userId = userId;
+        trip.isPublic = true;
+
+        JsonNode node = Json.toJson(trip);
+
+        // Create request to create a new trip
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .bodyJson(node)
+            .cookie(adminAuthCookie)
+            .uri("/api/trip");
+
+        // Get result and check it was successful
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+    }
+
     @When("I click view my trips")
     public void i_click_view_my_trips() {
         // Create request to get trips
