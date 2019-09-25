@@ -274,3 +274,12 @@ function toggleFilterButton() {
     const toggled = peopleFilterButton.css("display") === "block";
     peopleFilterButton.css("display", toggled ? "none" : "block");
 }
+
+/**
+ * Allows search of people on enter key press
+ */
+$(document).on('keypress',function(e) {
+    if(e.which === 13) {
+        getPeopleResults();
+    }
+});
