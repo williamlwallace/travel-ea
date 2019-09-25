@@ -126,7 +126,7 @@
 
                                 <!-- Photo Tab -->
                             <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
-                                <div>
+                                <div class="col-md-11">
                                     <div id="tagFilterOuter">
                                         <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
                                     </div>
@@ -140,6 +140,7 @@
 
                                 <!-- Trips Tab -->
                             <div class="tab-pane" id="profile-trips-tab" role="tabpanel" aria-labelledby="trips-tab">
+                                <div class="col-md-11">
                                     <button id="profileTripsFilterButton" class="btn btn-secondary filterButton" role="button" data-toggle="collapse" data-target="#profileTripsFilterCollapse"
                                     aria-expanded="false" aria-controls="profileTripsFilterCollapse" onclick="toggleProfileTripFilterButton()">
                                         Filter</button>
@@ -184,6 +185,7 @@
                                 @modules.tripCards()
                                 <div id="profileTripCardsList">
                                     <div id="tripCardsList"></div>
+                                </div>
                                 </div>
                             </div>
                         </div>
