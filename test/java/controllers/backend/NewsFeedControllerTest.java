@@ -225,7 +225,6 @@ public class NewsFeedControllerTest extends controllers.backend.ControllersTest 
         assertEquals(5, destinations.size());
 
         for (Destination destination : destinations) {
-            System.out.println(Json.toJson(destination));
             assertTrue(expectedTrending.contains(destination.id));
         }
     }
