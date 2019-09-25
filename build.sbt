@@ -1,6 +1,6 @@
 name := "SENG302 TEAM 400 - Proffat"
 
-version := "0.0.4"
+version := "1.0.0"
 
 scalaVersion := "2.12.8"
 

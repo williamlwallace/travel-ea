@@ -1,9 +1,12 @@
 <template id="followerCardTemplate">
-    <div class="follower-card" id="follower-card">
-        <div>
+    <div class="follower-card row-auto" id="follower-card">
+        <div class="col-auto">
             <img class="follower-summary-picture" id="follower-picture" src="/assets/images/default-profile-picture.jpg" onerror="this.src='/assets/images/default-profile-picture.jpg';"/>
         </div>
-        <div class="col-md-6 follower-summary-name" id="follower-summary-name"></div>
-        <div class="col-md-2 follower-summary-follower-count" id="follower-summary-follower-count"></div>
+        <div class="col-auto">
+            <div class="row follower-summary-name" id="follower-summary-name"></div>
+            <div class="row follower-summary-follower-count" id="follower-summary-follower-count"></div>
+        </div>
+        <div class="col" id="follow-btn-parent"></div>
     </div>
 </template>

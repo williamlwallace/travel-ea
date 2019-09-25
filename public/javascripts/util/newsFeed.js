@@ -345,7 +345,13 @@ function addTags(card, tags) {
  * @param {string} date date string
  */
 function formatDate(date) {
-    return `${date[2]}/${date[1]}/${date[0]} ${date[3]}:${date[4]}`
+    const day = `${date[2]}`;
+    const month = `${date[1]}`.padStart(2, "0");
+    const year = `${date[0]}`;
+    const hour = `${date[3]}`.padStart(2, "0");
+    const minute = `${date[4]}`.padStart(2, "0");
+
+    return day + "/" + month + "/" + year + " " + hour + ":" + minute;
 }
 
 /**
@@ -596,7 +602,7 @@ function createdNewDestinationCard(event) {
     const dest = event.data;
     const destinationCard = createDestinationCard(dest);
     card.find('.wrapper-body').append(destinationCard);
-
+    addTags(card, event.data.tags);
     return card
 }
 

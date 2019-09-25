@@ -398,7 +398,6 @@ pre {
 
 #follow-btn-parent {
     margin-left: auto;
-    margin-right: 1.5rem;
 }
 
 .underline{
@@ -410,12 +409,17 @@ pre {
     background: linear-gradient(90deg, #161616, #ffffff);
 }
 
+.sticky {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 4rem;
+}
+
 /*CSS for filter objects*/
 .filterItemDiv {
-    padding: 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
     display: inline-block;
     width:15rem;
-    height:7rem;
 }
 
 .closeButton {
