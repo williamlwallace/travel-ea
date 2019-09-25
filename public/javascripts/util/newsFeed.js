@@ -86,6 +86,10 @@ class NewsFeed {
      * Shows no more pages to be loaded
      */
     noMorePages() {
+        if (this.feed[0].id === 'main-feed' && !this.pageNumber) {
+            this.EMPTY_NEWS_FEED = "";
+            this.feed.find('.empty-feed-splash').attr('src', "/assets/images/no_events_splash.png");
+        }
         this.feed.find('#feed-bottom-message').text(
             this.pageNumber ? this.NO_MORE_LOAD : this.EMPTY_NEWS_FEED);
     }
