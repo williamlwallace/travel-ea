@@ -7,10 +7,8 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.ExpressionList;
-import io.ebean.OrderBy;
 import io.ebean.PagedList;
 import io.ebean.Query;
-import io.ebean.RawSqlBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -326,7 +324,7 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE "
-                + "follower_id=" + profileId + ") "
+                + "follower_id=" + profileId + " AND deleted = 0) "
                 + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
@@ -360,7 +358,7 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT follower_id FROM FollowerUser WHERE "
-                + "user_id=" + profileId + ") "
+                + "user_id=" + profileId + " AND deleted = 0) "
                 + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
@@ -388,7 +386,7 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT follower_id FROM FollowerDestination WHERE "
-                + "destination_id=" + destinationId + ") "
+                + "destination_id=" + destinationId + " AND deleted = 0) "
                 + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 

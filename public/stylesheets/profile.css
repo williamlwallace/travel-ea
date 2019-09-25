@@ -332,16 +332,6 @@ section#timeline a {
 .profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
 .profile-nav-text{font-weight: 600; font-size: 22px}
 
-#profile-tabs{
-    max-width: 70rem;
-}
-
-#feed {
-    margin-top: 1rem;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-}
-
 #profileCreateTripButton, #add-photo-button {
     float: left;
 }
@@ -351,8 +341,6 @@ section#timeline a {
 }
 
 #profile-trips-tab, #photos {
-    margin-left: 1.5rem;
-    margin-right: 1.5rem;
     min-height: 76%;
 }
 

@@ -47,3 +47,8 @@
 .user-card-button {
     margin-bottom: 10px;
 }
+
+.destination-card-add-to-trip {
+    float: right;
+    padding-top: 0.5rem;
+}
