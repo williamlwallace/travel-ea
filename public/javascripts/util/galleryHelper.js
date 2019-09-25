@@ -71,6 +71,8 @@ $('#upload-img').on('click', function () {
                         $('#upload-img').prop('disabled', false);
                         $('#dismiss-modal').prop('disabled', false);
                         $('#upload-gallery-image-file').val('');
+                        $('#image-to-upload').attr('src', '');
+                        $('.uploader').css('display', 'block');
                     });
 
                 toast("Photo Added!",
