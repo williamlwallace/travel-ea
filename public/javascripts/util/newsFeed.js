@@ -602,7 +602,7 @@ function createdNewDestinationCard(event) {
     const dest = event.data;
     const destinationCard = createDestinationCard(dest);
     card.find('.wrapper-body').append(destinationCard);
-
+    addTags(card, event.data.tags);
     return card
 }
 
