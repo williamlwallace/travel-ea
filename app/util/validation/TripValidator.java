@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import models.Destination;
+import models.Trip;
 import models.TripData;
 
 /**
@@ -118,17 +119,15 @@ public class TripValidator extends Validator {
     /**
      * Validates a trip is not public with private destinations
      *
-     * @param isPublic Privacy of trip
-     * @param destinations List of destination objects in trip
+     * @param trip Trip object with destination information
      * @return Error response containing error messages
      */
-    public ErrorResponse validateDestinationPrivacy(boolean isPublic,
-        List<Destination> destinations) {
-        if (isPublic) {
-            for (int i = 0; i < destinations.size(); i++) {
-                if (!destinations.get(i).isPublic) {
-                    this.getErrorResponse().map("Public trip cannot have private destination.",
-                        Integer.toString(i + 1));
+    public ErrorResponse validateDestinationPrivacy(Trip trip) {
+        if (trip.isPublic) {
+            for (TripData tripData : trip.tripDataList) {
+                if (!tripData.destination.isPublic) {
+                    this.getErrorResponse().map("A public trip cannot contain a private destination",
+                        tripData.position.toString());
                 }
             }
         }

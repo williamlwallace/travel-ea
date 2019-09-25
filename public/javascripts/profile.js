@@ -32,7 +32,7 @@ $(document).ready(function () {
 function profileLoadTrips() {
     if (!tripPaginationHelper) {
         tripPaginationHelper = new PaginationHelper(1, 1,
-            getProfileTripResults, "profileTripPagination");
+            getProfileTripResults, "tripPagination");
     }
     getProfileTripResults();
 }
@@ -603,4 +603,15 @@ function getProfilePicturesForGallery() {
         profilePhotoPaginationHelper.getCurrentPageNumber().toString());
     fillGallery(url, 'profile-gallery', 'page-selection-profile-picture',
         profilePhotoPaginationHelper);
+}
+
+/**
+ * Toggles the filter button between being visible and invisible on the profile page
+ */
+function toggleProfileTripFilterButton() {
+    let profileTripsFilterButton = $("#profileTripsFilterButton");
+    const toggled = profileTripsFilterButton.css("display") === "block";
+    profileTripsFilterButton.css("display", toggled ? "none" : "block");
+    $('#profileCreateTripButton').css("display", toggled ? "none" : "block");
+    // $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
 }

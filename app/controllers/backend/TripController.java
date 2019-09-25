@@ -64,7 +64,14 @@ public class TripController extends TEABackController {
     /**
      * Gets all trips if user is admin, otherwise gets all public trips.
      *
-     * @return JSON object with list of trips that a user has, bad request if user has no trips
+     * @param request Http request
+     * @param userId Id the requesting user
+     * @param searchQuery Query to search all fields for
+     * @param ascending Whether or not to sort in ascending order
+     * @param pageNum Page number to get
+     * @param pageSize Number of results to show per page
+     * @param requestOrder The order of this request compared to others from the same page
+     * @return Paged list of trips
      */
     @With({Everyone.class, Authenticator.class})
     public CompletableFuture<Result> getAllTrips(Http.Request request, Long userId,
@@ -72,6 +79,9 @@ public class TripController extends TEABackController {
         Integer requestOrder) {
 
         User user = request.attrs().get(ActionState.USER);
+
+        pageSize = pageSize > 100 ? 100 : pageSize;
+        pageSize = pageSize < 1 ? 1 : pageSize;
 
         // By default, only get public trips
         boolean getPrivate = false;
@@ -172,8 +182,17 @@ public class TripController extends TEABackController {
 
         return destinationRepository.getDestinationsById(destinationIds)
             .thenComposeAsync(destinations -> {
+                // Sets all the destination information in the trip data list so it can be validated
+                for (Destination dest : destinations) {
+                    for (TripData tripData : trip.tripDataList) {
+                        if (tripData.destination.id.equals(dest.id)) {
+                            tripData.destination = dest;
+                        }
+                    }
+                }
+
                 ErrorResponse destinationValidationResult = new TripValidator(null)
-                    .validateDestinationPrivacy(trip.isPublic, destinations);
+                    .validateDestinationPrivacy(trip);
 
                 if (destinationValidationResult.error()) {
                     return CompletableFuture
@@ -192,26 +211,29 @@ public class TripController extends TEABackController {
                             .supplyAsync(
                                 () -> notFound(Json.toJson("Trip with provided ID not found")));
                     } else {
-                        Json.toJson(oldTrip.tripDataList.stream().map(x -> x.destination.id).collect(Collectors.toList()));
+                        Json.toJson(oldTrip.tripDataList.stream().map(x -> x.destination.id)
+                            .collect(Collectors.toList()));
                         return tagRepository.addTags(trip.tags).thenComposeAsync(existingTags -> {
                             userRepository.updateUsedTags(user, oldTrip, trip);
                             trip.tags = existingTags;
                             return tripRepository.updateTrip(trip).thenComposeAsync(uploaded -> {
                                 if (uploaded) {
-                                    if(trip.isPublic && !oldTrip.isPublic) {
+                                    if (trip.isPublic && !oldTrip.isPublic) {
                                         // Create new newsFeedEvent
                                         NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                                         newsFeedEvent.refId = trip.id;
                                         newsFeedEvent.userId = trip.userId;
-                                        newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
+                                        newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_TRIP
+                                            .name();
 
-                                        return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
-                                            eventId -> ok(Json.toJson(trip.id)));
-                                    } else if(trip.isPublic) {
+                                        return newsFeedEventRepository
+                                            .addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
+                                                eventId -> ok(Json.toJson(trip.id)));
+                                    } else if (trip.isPublic) {
                                         // Make newsFeedEvents for all new destination
                                         List<NewsFeedEvent> newsFeedEvents = new ArrayList<>();
-                                        for(TripData tripData : trip.tripDataList) {
-                                            if(!oldTrip.tripDataList.stream()
+                                        for (TripData tripData : trip.tripDataList) {
+                                            if (!oldTrip.tripDataList.stream()
                                                 .map(td -> td.destination.id)
                                                 .collect(Collectors.toList())
                                                 .contains(tripData.destination.id)) {
@@ -220,7 +242,8 @@ public class TripController extends TEABackController {
                                                 newsFeedEvent.refId = trip.id;
                                                 newsFeedEvent.destId = tripData.destination.id;
                                                 newsFeedEvent.userId = trip.userId;
-                                                newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP.name();
+                                                newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_TRIP
+                                                    .name();
                                                 newsFeedEvents.add(newsFeedEvent);
                                             }
                                         }
@@ -230,10 +253,9 @@ public class TripController extends TEABackController {
                                             .map(newsFeedEventRepository::addNewsFeedEvent)
                                             .toArray(CompletableFuture[]::new)
                                         ).thenApplyAsync(v -> ok(Json.toJson(trip.id)));
-                                    }
-
-                                    else {
-                                        return CompletableFuture.supplyAsync(() -> ok(Json.toJson(trip.id)));
+                                    } else {
+                                        return CompletableFuture
+                                            .supplyAsync(() -> ok(Json.toJson(trip.id)));
                                     }
                                 } else {
                                     return CompletableFuture.supplyAsync(Results::notFound);
@@ -276,32 +298,33 @@ public class TripController extends TEABackController {
             } else if (!user.admin && !user.id.equals(existingTrip.userId)) {
                 return CompletableFuture.supplyAsync(() -> forbidden(Json.toJson("Forbidden")));
             } else {
-                // Checks trip does not get made public with private destinations
-                List<Destination> destinations = existingTrip.tripDataList.stream()
-                    .map(tripData -> tripData.destination).collect(Collectors.toList());
+                updatedTrip.tripDataList = existingTrip.tripDataList;
                 ErrorResponse destinationValidationResult = new TripValidator(null)
-                    .validateDestinationPrivacy(updatedTrip.isPublic, destinations);
+                    .validateDestinationPrivacy(updatedTrip);
 
                 if (destinationValidationResult.error()) {
                     return CompletableFuture.supplyAsync(() -> badRequest(
-                        Json.toJson("Trip cannot be public as it contains a private destination")));
+                        Json.toJson(
+                            "Trip cannot be made public as it contains a private destination")));
                 }
 
                 // Update trip in db
                 return tripRepository.updateTrip(updatedTrip).thenComposeAsync(uploaded ->
                     {
                         // if the trip was made public, add a newsFeedEvent for it
-                        if(updatedTrip.isPublic) {
+                        if (updatedTrip.isPublic) {
                             // Create new newsFeedEvent
                             NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                             newsFeedEvent.eventType = NewsFeedEventType.CREATED_NEW_TRIP.name();
                             newsFeedEvent.refId = updatedTrip.id;
                             newsFeedEvent.userId = updatedTrip.userId;
 
-                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent).thenApplyAsync(
-                                eventId -> ok(Json.toJson(existingTrip)));
+                            return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
+                                .thenApplyAsync(
+                                    eventId -> ok(Json.toJson(existingTrip)));
                         } else {
-                            newsFeedEventRepository.cleanUpTripEvents(updatedTrip); // clean up events if trip was made private
+                            newsFeedEventRepository.cleanUpTripEvents(
+                                updatedTrip); // clean up events if trip was made private
                             return CompletableFuture.supplyAsync(() -> ok(Json.toJson(existingTrip)));
                         }
                     }
@@ -380,8 +403,17 @@ public class TripController extends TEABackController {
 
         return destinationRepository.getDestinationsById(destinationIds)
             .thenComposeAsync(destinations -> {
+                // Sets all the destination information in the trip data list so it can be validated
+                for (Destination dest : destinations) {
+                    for (TripData tripData : trip.tripDataList) {
+                        if (tripData.destination.id.equals(dest.id)) {
+                            tripData.destination = dest;
+                        }
+                    }
+                }
+
                 ErrorResponse destinationValidationResult = new TripValidator(null)
-                    .validateDestinationPrivacy(trip.isPublic, destinations);
+                    .validateDestinationPrivacy(trip);
 
                 if (destinationValidationResult.error()) {
                     return CompletableFuture

@@ -82,7 +82,7 @@ public class PersonalPhotoTestSteps {
     }
 
     @When("I upload a valid photo")
-    public void i_upload_a_valid_photo() throws IOException {
+    public void i_upload_a_valid_photo() {
         // Load a file from the public images to upload
         File file = getFile("./public/images/favicon.png");
 

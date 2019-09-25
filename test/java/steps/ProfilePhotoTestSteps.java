@@ -18,10 +18,9 @@ import play.mvc.Result;
 import play.test.Helpers;
 
 public class ProfilePhotoTestSteps {
-
     @Then("I can set it as my profile photo")
     @When("I set it as my profile photo")
-    public void i_set_it_as_my_profile_photo() throws IOException {
+    public void i_set_it_as_my_profile_photo() {
         Http.RequestBuilder updateRequest = Helpers.fakeRequest().uri("/api/photo/1/profile")
             .method("PUT")
             .cookie(adminAuthCookie)
@@ -83,6 +82,5 @@ public class ProfilePhotoTestSteps {
         assertEquals(200, result.status());
         Profile profile = new ObjectMapper()
             .readValue(Helpers.contentAsString(result), Profile.class);
-        String filename = profile.coverPhoto.filename;
     }
 }

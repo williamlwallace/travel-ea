@@ -2,8 +2,6 @@
  * List container for sortable destination cards
  */
 .list {
-    /*white-space: nowrap;*/
-    /*overflow-y: scroll;*/
     overflow-x: hidden;
 }
 

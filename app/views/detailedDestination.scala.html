@@ -51,7 +51,7 @@
 
                     <a id="changePrimaryPhotoButton" class="edit-button" style="top: 0;" title="Edit Primary Picture"><i class="fas fa-pen fa-1x"></i></a>
 
-                    <img src= "@routes.Assets.at("images/default-destination-primary.png")" id="DestinationProfilePicture" class="img-thumbnail profile-picture">
+                    <img src= "@routes.Assets.at("images/default-destination-primary.png")" id="DestinationProfilePicture" onerror="this.src='/assets/images/default-destination-primary.png';" class="img-thumbnail profile-picture">
                     <div class="destination-details">
                         <div style="padding-bottom: 10px">
                             <span id="destination_name" class="destination_name h1" style="display: inline"></span>
@@ -103,7 +103,7 @@
                                     <div>Type
                                         <em class="fas prefix grey-text"></em>
                                         <input type="text" name="destType" id="destType" class="form-control validate" required>
-                                        <label id="_typeError" class="error-messages"></label>
+                                        <label id="destTypeError" class="error-messages"></label>
                                     </div>
 
                                     <div>District
@@ -181,11 +181,10 @@
                                 <!-- Photo Tab -->
                             <div class="tab-pane" id="photos" role="tabpanel" aria-labelledby="photos-tab">
                                 <div class="tab-buttons">
-                                    <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
-                                    <a class="button-secondary" id="upload-gallery-image-button" >
-                                        <span class="destination-button" style="float: right;
-                                            padding-left: 10px;">Link Photo</span>
-                                    </a>
+                                    <div id="tagFilterOuter">
+                                        <select name="tagFilter" id="tagFilter" data-live-search="true" data-size="5" title="Filter by tags" data-width="200px" multiple></select>
+                                    </div>
+                                    <button class="btn btn-primary" id="upload-gallery-image-button">Link Photo</button>
                                     <input id="upload-gallery-image-file" type="file" onchange='uploadNewGalleryPhoto(
                                         "@controllers.backend.routes.PhotoController.upload()")'
                                     accept="image/jpeg, image/png" style="display: none;" multiple/>

@@ -1,41 +1,11 @@
-#filterItemDiv {
-    padding: 10px;
-    display: inline-block;
-    width:200px;
-    height:90px;
-    text-align: left;
-}
-
-.filterItemDiv {
-    padding: 10px;
-    display: inline-block;
-    width:200px;
-    height:90px;
-}
-
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
 }
 
 input[type=number] {
     -moz-appearance:textfield; /* Firefox */
-}
-
-#filterButton {
-    margin: auto;
-    display: block;
-}
-
-#collapseExample {
-    padding-bottom: 15px;
-}
-
-#card-body {
-    display: inline-block;
-    width: -webkit-fill-available;
 }
 
 #gender {
@@ -46,18 +16,14 @@ input[type=number] {
     width: 120px;
 }
 
-#pageSize {
-    width: 100px;
-}
-
 #buttonDiv {
     padding-top: 10px;
 }
 
-#closeButton {
-    float: left;
-}
-
 #applyButton {
     float: right;
+}
+
+#peopleCardsList {
+    margin-top: 3rem;
 }

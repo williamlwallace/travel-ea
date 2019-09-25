@@ -186,10 +186,15 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
     if (primaryPhoto) {
          image = "../../user_content/" + primaryPhoto.thumbnailFilename;
     }
+
     // Finds id not used
     while (cards.includes(cardId.toString())) {
         cardId++;
     }
+
+    // Reduce latitude and longitude dp to 2
+    latitude = Math.round(latitude * 100) / 100;
+    longitude = Math.round(longitude * 100) / 100;
 
     getCountryNameById(countryId).then(countryName => {
         document.getElementById('list').insertAdjacentHTML('beforeend',
@@ -248,14 +253,12 @@ function addDestinationToTrip(id, name, type, district, latitude, longitude,
             + '                                                </div>\n'
             + '                                            </form>\n'
             + '                                            <div class="text-center">\n'
-            + '                                                <label id="destinationError"></label><br/>\n'
+            + '                                                <label id="destinationError" class="error-messages"></label><br/>\n'
             + '                                            </div>\n'
             + '                                        </div>\n'
             + '                                    </div>\n'
             + '                                </div>\n'
             + '                            </div>'
-
-
         );
         checkTripListEmpty();
     });

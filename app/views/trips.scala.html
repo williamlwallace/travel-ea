@@ -18,39 +18,44 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/tripCards.css")">
 
     <div class="container">
-        <div class="text-center">
-            <a class="btn btn-primary" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
+        <div class="text-center" id="trip-header-button-div">
+            <a class="btn btn-primary tripFilterButton" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
             @* Filter *@
             <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
             aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
         </div><br>
 
         @* The Trips Table *@
-        <div class="tripsCollapse collapse" id="collapseExample">
+        <div class="collapse" id="collapseExample">
             <div class="card card-body" id="card-body">
-                <div class="row">
-                    <div id="filterItemDiv">
-                        <label for="tripPageSize">Results per page</label>
-                        <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" required/>
-                    </div>
-                    <div id="filterItemDiv">
-                        <label for="tripSearch">Search</label>
-                        <input type=text id="tripSearch" class="form-control"/>
-                    </div>
-                    <div id="filterItemDiv">
-                        <label for="tripAscending">Order by</label>
-                        <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
-                            <option value="true">Ascending</option>
-                            <option value="false">Descending</option>
-                        </select>
-                    </div>
+                <div class="filterItemDiv">
+                    <label for="tripSearch">Search</label>
+                    <input type=text id="tripSearch" class="form-control" placeholder="Destination Name"/>
+                </div>
+                <div class="filterItemDiv resultsPerPageDiv">
+                    <label for="tripPageSize">Results per page</label>
+                    <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" max="100" required/>
+                </div>
+                <div class="filterItemDiv">
+                    <label for="tripAscending">Order by</label>
+                    <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
+                        <option value="true">Ascending</option>
+                        <option value="false">Descending</option>
+                    </select>
+                </div>
+                <div class="filterItemDiv">
+                    <label for="filterMyTrips">Display</label>
+                    <select id="filterMyTrips" class="form-control" data-style="form-control selectpicker">
+                        <option value="allTrips">All Trips</option>
+                        <option value="myTrips">My Trips</option>
+                    </select>
                 </div>
                 <div class="text-center" id="buttonDiv">
-                    <div id="closeButton">
+                    <div class="closeButton">
                         <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
                     </div>
-                    <div id="applyButton">
-                        <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                    <div class="filterControlButtons">
+                        <button class="btn btn-secondary" onclick='clearTripFilter()'>Clear</button>
                         <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
                     </div>
                 </div>

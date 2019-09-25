@@ -146,7 +146,8 @@ public class ProfileRepository {
             travellerTypeIds == null ? new ArrayList<>() : travellerTypeIds;
         List<String> gendersNotNull = genders == null ? new ArrayList<>() : genders;
         Integer minAgeNotNull = minAge == null ? -1 : minAge;
-        Integer maxAgeNotNull = maxAge == null ? -1 : maxAge;
+        Integer maxAgeNotNull = maxAge == null ? -1
+            : maxAge + 1;    // Must subtract one to allow people same age as max day to be included
         final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery)
             .replaceAll(" ", "").toLowerCase();
 
@@ -330,7 +331,8 @@ public class ProfileRepository {
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
-                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setParameter("searchQuery",
+                    "%" + searchQuery + "%") // No injection here, move along
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
@@ -391,7 +393,8 @@ public class ProfileRepository {
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
-                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setParameter("searchQuery",
+                    "%" + searchQuery + "%") // No injection here, move along
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
@@ -400,6 +403,7 @@ public class ProfileRepository {
 
     /**
      * Gets a list of all ids of users that someone follows
+     *
      * @param followerId ID of person to get who they follow
      * @return List of IDs of users followed
      */
@@ -410,11 +414,12 @@ public class ProfileRepository {
                 .eq("follower_id", followerId)
                 .select("userId")
                 .findSingleAttributeList()
-            );
+        );
     }
 
     /**
      * Gets a list of all ids of users that someone follows
+     *
      * @param followerId ID of person to get who they follow
      * @return List of IDs of users followed
      */
@@ -425,7 +430,7 @@ public class ProfileRepository {
                 .eq("follower_id", followerId)
                 .select("destinationId")
                 .findSingleAttributeList()
-            );
+        );
     }
 
 }

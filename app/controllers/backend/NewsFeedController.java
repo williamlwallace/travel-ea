@@ -5,6 +5,7 @@ import actions.Authenticator;
 import actions.roles.Everyone;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.ebean.PagedList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -135,6 +136,44 @@ public class NewsFeedController extends TEABackController {
     }
 
     /**
+     * Endpoint to fetch all news feed data for explore
+     *
+     * @param request HTTP request containing user auth
+     * @param pageNum Page number to retrieve
+     * @param pageSize Number of results to give per page
+     * @param requestOrder The order of the request we are showing
+     * @return Paging response with all values needed to create cards for each event
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getExploreFeed(Http.Request request, Integer pageNum, Integer pageSize, Integer requestOrder) {
+        return getTrendingNewsFeed(pageNum, pageSize, requestOrder);
+    }
+
+    /**
+     * Gets the news feed data of trending
+     *
+     * @param pageNum page number
+     * @param pageSize page size
+     */
+    private CompletableFuture<Result> getTrendingNewsFeed(
+        Integer pageNum,
+        Integer pageSize,
+        Integer requestOrder) {
+        // Perform repository call
+        return newsFeedEventRepository.getPagedTrendingEvents(pageNum, pageSize)
+        .thenComposeAsync(pagedEvents -> {
+            return convertEventsToData(pagedEvents)
+            .thenApplyAsync(completedStrategies -> {
+                // Serialize and return a paging response with all created NewsFeedResponseItems
+                return ok(Json.toJson(new PagingResponse<>(
+                    completedStrategies,
+                    requestOrder,
+                    pagedEvents.getTotalPageCount())));
+            });
+        });
+    }
+
+    /**
      * Gets the news feed data
      *
      * @param userIds list of userIds
@@ -149,54 +188,66 @@ public class NewsFeedController extends TEABackController {
         Integer requestOrder) {
         // Perform repository call
         return newsFeedEventRepository.getPagedEvents(userIds, destIds, pageNum, pageSize)
-            .thenComposeAsync(pagedEvents -> {
-                    // Modify returned events list to only include singular events, and create a new list of grouped events
-                    Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(
-                        pagedEvents.getList());
-                    List<NewsFeedEvent> events = pair.getKey();
-                    List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
-                    // Collect a list of the completable strategies created for each event, singular and grouped
-                    List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events
-                        .stream()
-                        .map(x -> getStrategyForEvent(x).execute())
-                        .collect(Collectors.toList());
+        .thenComposeAsync(pagedEvents -> {
+            return convertEventsToData(pagedEvents)
+            .thenApplyAsync(completedStrategies -> {
+                // Sort all completed strategies by creation date (most recent first)
+                completedStrategies
+                    .sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
 
-                    completableStrategies.addAll(groupedEvents.stream()
-                        .map(x -> getStrategyForEvent(x).execute())
-                        .collect(Collectors.toList()));
+                // Serialize and return a paging response with all created NewsFeedResponseItems
+                return ok(Json.toJson(new PagingResponse<>(
+                    completedStrategies,
+                    requestOrder,
+                    pagedEvents.getTotalPageCount())));
+            });
+        });
+    }
 
-                    // Wait until all strategies have executed then return paging response
-                    return CompletableFuture
-                        .allOf(completableStrategies.toArray(new CompletableFuture[0]))
-                        .thenApplyAsync(v -> {
-                            // Append the correct created time and event type to each complete event
-                            List<NewsFeedResponseItem> completedStrategies = completableStrategies
-                                .stream().map(CompletableFuture::join).collect(Collectors.toList());
-                            // Single events
-                            for (int i = 0; i < events.size(); i++) {
-                                completedStrategies.get(i).created = events.get(i).created;
-                                completedStrategies.get(i).eventType = events.get(i).eventType;
-                            }
-                            // Grouped events
-                            for (int i = events.size(); i < groupedEvents.size() + events.size(); i++) {
-                                completedStrategies.get(i).created = groupedEvents
-                                    .get(i - events.size()).created;
-                                completedStrategies.get(i).eventType = groupedEvents
-                                    .get(i - events.size()).eventType;
-                            }
+    /**
+     * Takes a paged list of newsfeedevents and converts them to a list of newsfeed response items
+     * for the frontend.
+     *
+     * @param pagedEvents a PagedList of newsfeedevents
+     * @return completedStrategies
+     */
+    private CompletableFuture<List<NewsFeedResponseItem>> convertEventsToData(PagedList<NewsFeedEvent> pagedEvents) {
+        // Modify returned events list to only include singular events, and create a new list of grouped events
+        Pair<List<NewsFeedEvent>, List<GroupedNewsFeedEvent>> pair = filterOutGroupedEvents(
+            pagedEvents.getList());
+        List<NewsFeedEvent> events = pair.getKey();
+        List<GroupedNewsFeedEvent> groupedEvents = pair.getValue();
+        // Collect a list of the completable strategies created for each event, singular and grouped
+        List<CompletableFuture<NewsFeedResponseItem>> completableStrategies = events
+            .stream()
+            .map(x -> getStrategyForEvent(x).execute())
+            .collect(Collectors.toList());
 
-                            // Sort all completed strategies by creation date (most recent first)
-                            completedStrategies
-                                .sort(Collections.reverseOrder(Comparator.comparing(cs -> cs.created)));
+        completableStrategies.addAll(groupedEvents.stream()
+            .map(x -> getStrategyForEvent(x).execute())
+            .collect(Collectors.toList()));
 
-                            // Serialize and return a paging response with all created NewsFeedResponseItems
-                            return ok(Json.toJson(new PagingResponse<>(
-                                completedStrategies,
-                                requestOrder,
-                                pagedEvents.getTotalPageCount())));
-                        });
-                }
-            );
+        // Wait until all strategies have executed then return paging response
+        return CompletableFuture
+        .allOf(completableStrategies.toArray(new CompletableFuture[0]))
+        .thenApplyAsync(v -> {
+            // Append the correct created time and event type to each complete event
+            List<NewsFeedResponseItem> completedStrategies = completableStrategies
+                .stream().map(CompletableFuture::join).collect(Collectors.toList());
+            // Single events
+            for (int i = 0; i < events.size(); i++) {
+                completedStrategies.get(i).created = events.get(i).created;
+                completedStrategies.get(i).eventType = events.get(i).eventType;
+            }
+            // Grouped events
+            for (int i = events.size(); i < groupedEvents.size() + events.size(); i++) {
+                completedStrategies.get(i).created = groupedEvents
+                    .get(i - events.size()).created;
+                completedStrategies.get(i).eventType = groupedEvents
+                    .get(i - events.size()).eventType;
+            }
+            return completedStrategies;
+        });
     }
 
     /**
@@ -471,6 +522,31 @@ public class NewsFeedController extends TEABackController {
         });
     }
 
+    /**
+     * Gets a list of trending user profiles
+     * 
+     * @param request the http request
+     * @return trendingProfiles a result with a list of trending profiles
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrendingUsers(Http.Request request) {
+        return newsFeedEventRepository.getTrendingUsers().thenApplyAsync(trending -> 
+            ok(Json.toJson(trending))
+        );
+    }
+
+    /**
+     * Gets a list of trending destinations
+     * 
+     * @param request the http request
+     * @return trendingDestinations a result with a list of trending destinations
+     */
+    @With({Everyone.class, Authenticator.class})
+    public CompletableFuture<Result> getTrendingDestinations(Http.Request request) {
+        return newsFeedEventRepository.getTrendingDestinations().thenApplyAsync(trending ->
+           ok(Json.toJson(trending))
+        );
+    }
 
     /**
      * Lists routes to put in JS router for use from frontend.
@@ -486,7 +562,11 @@ public class NewsFeedController extends TEABackController {
                 controllers.backend.routes.javascript.NewsFeedController.getLikeStatus(),
                 controllers.backend.routes.javascript.NewsFeedController.getProfileNewsFeed(),
                 controllers.backend.routes.javascript.NewsFeedController.getDestinationNewsFeed(),
-                controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed()
+                controllers.backend.routes.javascript.NewsFeedController.getMainNewsFeed(),
+                controllers.backend.routes.javascript.NewsFeedController.getTrendingUsers(),
+                controllers.backend.routes.javascript.NewsFeedController.getTrendingDestinations()
+
+
             )
         ).as(Http.MimeTypes.JAVASCRIPT);
     }

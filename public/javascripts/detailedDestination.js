@@ -126,10 +126,9 @@ function deleteDestination(destinationId, redirect) {
  * @param {number} userId userId of destination owner
  */
 function canModify(userId) {
-    getUserId().then(loggedUserid => {
-        return (userId === loggedUserid || isUserAdmin());
-    })
-    .then(canModify => {
+    getUserId().then(loggedUserId => {
+        return (userId === parseInt(loggedUserId) || isUserAdmin());
+    }).then(canModify => {
         if (canModify) {
             $(".can-modify").css("display", "inline");
             $("#destinationTTButton").text("Edit Traveller Types");
@@ -252,6 +251,8 @@ function editDestination(destinationId) {
                 populateDestinationDetails(this.destinationId);
                 $('#editDestinationModal').modal('hide');
                 closeEdit();
+            } else {
+                showErrors(json);
             }
         }.bind({destinationId, initialUpdate});
         const reqData = new ReqData(requestTypes['UPDATE'], URL, handler,
@@ -286,9 +287,11 @@ function populateEditDestination(destinationId) {
                     "latitudeDeat").value = destination.latitude;
                 document.getElementById(
                     "longitudeDeat").value = destination.longitude;
-                // Fills country picker
+
+                // Fills country picker, needs to be padded to length 3 with 0's
                 $('#countryDropDown').selectpicker('val',
-                    destination.country.id);
+                    destination.country.id.toString().padStart(3, "0"));
+
                 // Fills tag input field
                 tagPicker.populateTags(destination.tags);
             }

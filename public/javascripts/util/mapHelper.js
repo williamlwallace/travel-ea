@@ -10,7 +10,6 @@ class DestinationMap {
         this.markerCluster;
         this.userId = userId;
         this.creativeMode = creativeMode;
-        let markerCluster;
         //Setting public and private marker images, resized
         this.markerPublic = {
             url: 'https://image.flaticon.com/icons/svg/149/149060.svg',
@@ -23,10 +22,10 @@ class DestinationMap {
     }
 
     /**
-     * Like places a marker on the map and like its like gnarly.
-     * @param location
-     * @param icon
-     * @returns {google.maps.Marker}
+     * Places a marker on the map.
+     * @param {Object} location The location to place the marker
+     * @param {Object} icon The icon to use as the marker on the map
+     * @returns {Object} The marker object
      */
     placeMarker(location, icon) {
         const marker = new google.maps.Marker({
@@ -95,13 +94,15 @@ class DestinationMap {
 
     /**
      * Goes through all destinations and adds to map
-     * @param {Array} destinations list of destinations
+     *
+     * @param {Array} destinations - List of destinations to add to map
      */
     addDestinations(destinations) {
         // Loop through markers list and add them to the map
         for (const destination of destinations) {
             this.addDestination(destination);
         }
+
         if (destinations.length >= 30) {
             this.clusterMarkers();
         } else if (this.markerCluster) {
@@ -129,7 +130,7 @@ class DestinationMap {
         }
         this.markerCluster = new MarkerClusterer(this.map, this.markers,
             {imagePath: '/assets/images/markerClusterer/m'});
-        // add listner to stop marker change on cluster click
+        // add listener to stop marker change on cluster click
         google.maps.event.addListener(this.map, 'zoom_changed', function () {
             map.creativeMode = false;
             setTimeout(() => {
@@ -140,6 +141,7 @@ class DestinationMap {
 
     /**
      * Populates the markers list with props which can be iterated over to dynamically add destination markers
+     * @param {Array} dests The array of destinations to create markers for
      */
     populateMarkers(dests) {
         const destinations = [];

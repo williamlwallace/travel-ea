@@ -75,22 +75,10 @@ tr.clickable-row {
 }
 
 /*
- * Full Screen Background for the home page
+ * Cover photo on home page
  */
-.home-bg {
-    /* The image used */
+#main-cover {
     background-image: url("../images/wakatipu.jpeg");
-
-    /* Default background colour */
-    background-color: #818182;
-
-    /* Full height */
-    height: 100%;
-
-    /* Center and scale the image nicely */
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
 }
 
 .home-main {
@@ -102,7 +90,7 @@ tr.clickable-row {
 }
 
 /**
-* Style for labels that are <pre> so that addiing  errors doesnt clear them
+* Style for labels that are <pre> so that adding errors doesn't clear them
  */
 pre {
     font-size: 20px;
@@ -179,7 +167,6 @@ pre {
     top: 5rem;
     bottom: 0;
     width: auto;
-    z-index: 10;
 }
 
 .upload-btn-wrapper {
@@ -411,6 +398,7 @@ pre {
 
 #follow-btn-parent {
     margin-left: auto;
+    margin-right: 1.5rem;
 }
 
 .underline{
@@ -420,4 +408,43 @@ pre {
     height:1px;
     background:black;
     background: linear-gradient(90deg, #161616, #ffffff);
+}
+
+/*CSS for filter objects*/
+.filterItemDiv {
+    padding: 1rem;
+    display: inline-block;
+    width:15rem;
+    height:7rem;
+}
+
+.closeButton {
+    margin-left: 1rem;
+    float: left;
+    display: inline-block;
+}
+
+.collapse {
+    margin-bottom: 1rem;
+}
+
+.filterControlButtons {
+    float: right;
+    margin-right: 1rem;
+    display: inline-block;
+}
+
+.filterButton {
+    margin: auto;
+    display: block;
+    float: right;
+}
+
+.resultsPerPageDiv {
+    width: 9.5rem;
+}
+
+#card-body {
+    display: inline-block;
+    width: -webkit-fill-available;
 }

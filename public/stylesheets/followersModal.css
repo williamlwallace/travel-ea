@@ -1,15 +1,5 @@
-
 .follower-tab {
     padding: 2rem;
-}
-
-.search-bar {
-    display: flex;
-}
-
-.search-bar-item-div {
-    margin: 0 5px 10px 5px;
-    width: 28.5rem;
 }
 
 .follower-summary-picture {
@@ -23,9 +13,23 @@
     margin: 1rem;
 }
 
+.follower-summary-follower-count {
+    font-size: 1rem;
+    margin: 1rem;
+    text-align: right;
+    font-family: "Roboto Condensed", sans-serif;
+    color: #afafaf;
+}
+
 .follower-card {
     display: flex;
-    padding: 5px
+    padding: 5px;
+    cursor: pointer;
+}
+
+.follower-card:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
 }
 
 /* Tab panel buttons */
@@ -40,4 +44,21 @@
 
 .search-input {
     width: 260px;
+}
+
+#followersCardList, #followedByCardList {
+    overflow: auto;
+    max-height: 25rem;
+    min-height: 5rem;
+}
+
+#no-followers, #no-following {
+    margin-left: auto;
+    margin-right: auto;
+    display: table;
+}
+
+#followers-dialog, #following-dialog {
+    align-items: flex-start;
+    margin-top: 10rem;
 }
