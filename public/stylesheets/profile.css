@@ -332,10 +332,6 @@ section#timeline a {
 .profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
 .profile-nav-text{font-weight: 600; font-size: 22px}
 
-.tab-buttons {
-    /*padding: 0 2.5rem 0 1.5rem;*/
-}
-
 #profileCreateTripButton, #add-photo-button {
     float: left;
 }
