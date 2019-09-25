@@ -542,20 +542,16 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
     }
 }
 
-
 /**
  * Create follower cards for destinations that a user is following for the explore page
  * @param {Array} destinations - List of all destinations that need to be made into cards
- * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
-function createDestinationFollowerCardExplorePage(destinations, clearFollowers) {
-    if (clearFollowers) {
-        $("#followersCardListDestinations").html("");
-    }
+function createDestinationFollowerCardExplorePage(destinations) {
+    $("#followersCardListDestinations").html("");
 
-    if (destinations.length < 1 && clearFollowers) {
+    if (destinations.length < 1) {
         $("#followersCardListDestinations").html(
-            '<label id="no-following">No destinations found</label>');
+            '<label id="no-trending">No Destinations are Currently Trending</label>');
     } else {
         destinations.forEach((dest) => {
             const template = $("#followerCardTemplate").get(0);

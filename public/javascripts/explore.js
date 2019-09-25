@@ -37,7 +37,7 @@ function populateTrendingDestinations() {
          if (response.status !== 200) {
             showErrors(dests);
          } else {
-            createDestinationFollowerCardExplorePage(dests, false);
+            createDestinationFollowerCardExplorePage(dests);
          }
       });
    });
