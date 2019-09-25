@@ -58,7 +58,7 @@ function getAndCreateTrips(url, paginationHelper) {
             response.json()
             .then(json => {
                 if (response.status !== 200) {
-                    toast("Error", "Error fetching trip data", "danger")
+                    toast("Error", json, "danger", 5000)
                 } else {
                     if (tripsLastRecievedRequestOrder < json.requestOrder) {
                         const totalNumberPages = json.totalNumberPages;
@@ -71,14 +71,14 @@ function getAndCreateTrips(url, paginationHelper) {
                                     createTripCard(item));
                             });
 
-                            $(".card-body").click((element) => {
-                                if (!$(element.currentTarget).find(
-                                    ".title").data()) {
-                                    return;
-                                }
-                                populateModal($(element.currentTarget).find(
-                                    ".title").data().id);
-                            });
+                            // $(".card-body").click((element) => {
+                            //     if (!$(element.currentTarget).find(
+                            //         ".title").data()) {
+                            //         return;
+                            //     }
+                            //     populateModal($(element.currentTarget).find(
+                            //         ".title").data().id);
+                            // });
                         } else {
                             $("#tripCardsList").html(
                                 '<div class="text-center"><p id="no-trips-found">No trips found!</p></div>');
@@ -96,7 +96,7 @@ function getAndCreateTrips(url, paginationHelper) {
 /**
  * Creates a html trip card
  *
- * @param trip is Json profile object
+ * @param {Object} trip - Json trip object
  */
 function createTripCard(trip) {
     const template = $("#tripCardTemplate").get(0);
@@ -122,6 +122,10 @@ function createTripCard(trip) {
     $(clone).find("#destinations").append(tripLength + " destinations");
     $(clone).find("#date").append(firstDate);
     $(clone).find(".title").attr("data-id", trip.id.toString());
+
+    $(clone).find(".card-body").click(() => {
+        populateModal(trip.id);
+    });
 
     return $(clone);
 }

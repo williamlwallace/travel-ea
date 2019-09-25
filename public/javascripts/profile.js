@@ -616,5 +616,4 @@ function toggleProfileTripFilterButton() {
     const toggled = profileTripsFilterButton.css("display") === "block";
     profileTripsFilterButton.css("display", toggled ? "none" : "block");
     $('#profileCreateTripButton').css("display", toggled ? "none" : "block");
-    // $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
 }
