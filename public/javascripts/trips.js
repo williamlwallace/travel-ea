@@ -28,7 +28,7 @@ function getTripResults() {
  * Filters the cards with filtered results
  */
 function getAndCreateTrips(url, paginationHelper) {
-    let pageSize = $('#tripPageSize');
+    const pageSize = $('#tripPageSize');
     if (pageSize.val() > 100) {
         pageSize.val(100);
         toast("Results per page too large",

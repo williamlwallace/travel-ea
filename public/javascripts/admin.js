@@ -145,9 +145,23 @@ function getUserResults() {
         userRouter.controllers.backend.UserController.userSearch().url,
         window.location.origin);
 
+    const pageSize = getPageSize();
+    const pageSizeSelector = $('#pageSize');
+    if (pageSize > 100) {
+        pageSizeSelector.val(100);
+        toast("Results per page too large",
+            "The maximum results per page is 100, only 100 results will be returned",
+            "warning", 7500);
+    } else if (pageSize < 1) {
+        pageSizeSelector.val(1);
+        toast("Results per page too small",
+            "The minimum results per page is 1, 1 result will be returned",
+            "warning", 7500);
+    }
+
     url.searchParams.append("searchQuery", getSearchQuery());
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
-    url.searchParams.append("pageSize", getPageSize().toString());
+    url.searchParams.append("pageSize", pageSize.toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
     url.searchParams.append("requestOrder", requestOrder++);

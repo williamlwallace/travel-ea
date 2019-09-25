@@ -145,8 +145,8 @@ function getPeopleResults() {
         url.searchParams.append("searchQuery", getSelectedName());
     }
 
-    let pageSize = getPageSize();
-    let pageSizeSelector = $("#pageSize");
+    const pageSize = getPageSize();
+    const pageSizeSelector = $("#pageSize");
     if (pageSize > 100) {
         pageSizeSelector.val(100);
         toast("Results per page too large",
