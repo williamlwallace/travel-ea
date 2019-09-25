@@ -139,6 +139,8 @@ GET           /api/user/:id/newsfeed                 controllers.backend.NewsFee
 # Main news feed (from who logged in user follows)
 GET           /api/mynewsfeed                        controllers.backend.NewsFeedController.getMainNewsFeed(request:Request, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
+GET           /api/newsfeed/explore                  controllers.backend.NewsFeedController.getExploreFeed(request:Request, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
+
 # Destination news feed
 GET           /api/destination/:id/newsfeed          controllers.backend.NewsFeedController.getDestinationNewsFeed(request:Request, id:Long, pageNum: Integer ?= 1, pageSize: Integer ?= 10, requestOrder: Integer ?= 1)
 
