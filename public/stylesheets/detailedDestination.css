@@ -335,3 +335,7 @@ section#timeline article:nth-child(n) div.inner h2:after {
 .clickable-div {
     pointer-events: none !important;
 }
+
+.link-image {
+    height: 30px;
+}

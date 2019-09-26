@@ -260,10 +260,7 @@ pre {
 .privacy {
     position: absolute;
     top: 2px;
-    /*left: 2px;*/
     z-index: 100;
-    /* background-color: #FFF; */
-    /*padding: 8px 20px 2px;*/
     color: grey !important;
     font-weight: bold;
     cursor: pointer;
@@ -272,10 +269,14 @@ pre {
     line-height: 10px;
     border-radius: 50%;
     margin-right: 15px;
-    height: 30px;
 }
 
-.privacy:hover {
+.privacy-on-photo {
+    opacity: .7;
+    height: 1rem;
+}
+
+.privacy-on-photo:hover {
     opacity: 1;
 }
 
@@ -417,7 +418,9 @@ pre {
     margin: 2px;
     padding: 5px;
     left: 1rem;
-    border-radius: 5px
+    border-radius: 5px;
+    font-size: 1rem;
+
 }
 
 .white-square-background:hover {
