@@ -2,7 +2,7 @@ let travellerTypeRequestTable;
 let tripsTable;
 let requestOrder = 0;
 let lastRecievedRequestOrder = -1;
-let paginationHelper;
+let userPaginationHelper;
 let tripTagDisplay;
 let destPhoto;
 let photoId;
@@ -29,7 +29,7 @@ $(document).ready(function () {
     };
 
     clearUserFilter();
-    paginationHelper = new PaginationHelper(1, 1, getUserResults,
+    userPaginationHelper = new PaginationHelper(1, 1, getUserResults,
         "userPagination");
     getUserResults();
 
@@ -160,7 +160,8 @@ function getUserResults() {
     }
 
     url.searchParams.append("searchQuery", getSearchQuery());
-    url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
+    url.searchParams.append("pageNum",
+        userPaginationHelper.getCurrentPageNumber());
     url.searchParams.append("pageSize", pageSize.toString());
     url.searchParams.append("sortBy", getSortBy());
     url.searchParams.append("ascending", getAscending());
@@ -178,7 +179,8 @@ function getUserResults() {
                         createUserCard(item);
                     });
 
-                    paginationHelper.setTotalNumberOfPages(totalNumberPages);
+                    userPaginationHelper.setTotalNumberOfPages(
+                        totalNumberPages);
 
                     //Set click handler for toggle admin using data-id
                     $(".admin").click(event => {
@@ -559,3 +561,9 @@ function acceptDestinationPrimaryPhoto(destId, photoId) {
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
+
+$("#adminTripPaginationBottom, #userPaginationBottom").on("click", function () {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#profile-tabs").offset().top
+    }, 750);
+});

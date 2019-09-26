@@ -78,8 +78,24 @@
                     </div>
                 </div>
 
+                <nav aria-label="Page navigation">
+                    <ul class="pagination userPagination">
+                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
+
                 @modules.userCards()
                 <div id="userCardsList"></div>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination userPagination" id="userPaginationBottom">
+                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
             </div>
 
 
@@ -125,8 +141,8 @@
                         </div>
                     </div>
 
-                    <nav aria-label="Page navigation" id="tripPaginationTop" class="tripsFilterButton">
-                        <ul class="pagination">
+                    <nav aria-label="Page navigation" id="adminTripPaginationTop" class="tripsFilterButton">
+                        <ul class="pagination tripPagination">
                             <li class="page-item"><a class="page-link" href="#">Previous</a></li>
 
                             <li class="page-item"><a class="page-link" href="#">Next</a></li>
@@ -134,14 +150,12 @@
                     </nav>
                 </div>
 
-
-
                 @modules.tripCards()
 
                 <div id="tripCardsList"></div>
 
-                <nav aria-label="Page navigation" id="tripPaginationBottom" class="tripsFilterButton">
-                    <ul class="pagination">
+                <nav aria-label="Page navigation" id="adminTripPaginationBottom" class="tripsFilterButton">
+                    <ul class="pagination tripPagination">
                         <li class="page-item"><a class="page-link" href="#">Previous</a></li>
 
                         <li class="page-item"><a class="page-link" href="#">Next</a></li>

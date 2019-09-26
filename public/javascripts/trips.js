@@ -9,7 +9,7 @@ let carouselDataId = 0;
  */
 function onPageLoad(userId) {
     tripsPaginationHelper = new PaginationHelper(1, 1, getTripResults,
-        "pagination");
+        "tripPagination");
     getTripResults();
 }
 

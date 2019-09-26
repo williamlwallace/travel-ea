@@ -83,3 +83,7 @@ input[type=number] {
 #createTripButton {
     float: left;
 }
+
+#adminTripPaginationBottom {
+    margin-top: 3rem;
+}
