@@ -14,8 +14,8 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/peopleCards.css")">
 
     @* Filter *@
-    <div style="padding-bottom: 10px;">
-        <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseExample"
+    <div>
+        <button id="peopleFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
         aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
     </div>
     <div>
@@ -41,7 +41,7 @@
                         <label data-error="wrong" data-success="right"></label>
                     </div>
                 </div>
-                <div class="filterItemDiv">
+                <div class="filterItemDiv resultsPerPageDiv">
                     <label for="pageSize">Results per page</label>
                     <input id="pageSize" type="number" class="form-control validate" value="10" min="1" required/>
                 </div>
@@ -50,13 +50,11 @@
                     <select id="nationalities" class="form-control selectpicker" data-style="form-control"
                     data-live-search="true"
                     data-size="5" multiple>
-                        <option value="">Select Nationality</option>
                     </select>
                 </div>
                 <div class="filterItemDiv">
                     <label for="travellerTypes">Type of Traveller</label>
                     <select id="travellerTypes" class="form-control selectpicker" data-style="form-control" multiple>
-                        <option value="">Select Traveller Type</option>
                     </select>
                 </div>
                 <div class="filterItemDiv">
@@ -76,11 +74,11 @@
                     </select>
                 </div>
                 <div class="text-center" id="buttonDiv">
-                    <div id="closeButton">
+                    <div class="closeButton">
                         <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#collapseExample" onclick="toggleFilterButton()">Close</button>
                     </div>
-                    <div id="applyButton">
-                        <button class="btn btn-secondary" onclick='clearFilter()'>Clear</button>
+                    <div class="filterControlButtons">
+                        <button class="btn btn-secondary" onclick='clearPeopleFilter()'>Clear</button>
                         <button class="btn btn-primary"  onclick='getPeopleResults()'>Apply</button>
                     </div>
                 </div>

@@ -4,10 +4,6 @@ can add an intermediate modal as is the case in detailed destinations *@
 
 @(canModify: Boolean, withTitle: Boolean, galleryId: String, pageId: String, editModal:Boolean, paginationClass: String)
 
-
-@* Photo Gallery *@
-<div id="@galleryId" class="text-center">There are no photos!</div>
-
 <nav aria-label="Page navigation">
     <ul class="@paginationClass pagination" id="@pageId">
         <li class="page-item"><a class="page-link" href="#">Previous</a></li>
@@ -16,6 +12,8 @@ can add an intermediate modal as is the case in detailed destinations *@
     </ul>
 </nav>
 
+@* Photo Gallery *@
+<div id="@galleryId" class="text-center col-md-11">There are no photos!</div>
 
 @* Upload modal *@
 @if(canModify) {
@@ -39,7 +37,7 @@ can add an intermediate modal as is the case in detailed destinations *@
                 <input id="upload-gallery-image-file" type="file" accept="image/jpeg, image/png"/>
 
                 <div class="image-body text-center">
-                    <img src=""/>
+                    <img id="image-to-upload" src=""/>
                 </div>
 
                 <div id="caption">

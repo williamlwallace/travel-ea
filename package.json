@@ -8,7 +8,13 @@
     "test": "test"
   },
   "scripts": {
-    "test": "jest ./test/public"
+    "test": "jest ./test/public",
+    "clear-storage": "bash ./scripts/clear-storage.sh",
+    "generate-data-non-photo": "python3 ./scripts/data-generation/generate_data.py",
+    "upload-photos": "node ./scripts/data-generation/upload_photos.js",
+    "generate-data-local": "npm run clear-storage && npm run generate-data-non-photo && npm run upload-photos ./public/storage, ./public/storage",
+    "generate-data-dev": "npm run generate-data-non-photo && npm run upload-photos ./public/storage /home/sengstudent/devServerProffat/seng302-team-400-proffat-1.0.0/public/storage/",
+    "generate-data-prod": "npm run generate-data-non-photo && npm run upload-photos ./public/storage /home/sengstudent/prodServerProffat/seng302-team-400-proffat-1.0.0/public/storage/"
   },
   "repository": {
     "type": "git",
@@ -18,6 +24,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "jest": "^24.8.0",
-    "node-fetch": "^2.6.0"
+    "node-fetch": "^2.6.0",
+    "xhr": "^2.5.0"
   }
 }

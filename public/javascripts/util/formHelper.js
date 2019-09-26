@@ -6,7 +6,7 @@
  */
 function showErrors(json, parentElement = "main") {
     const elements = document.getElementById(
-        parentElement).getElementsByTagName("label");
+        parentElement).getElementsByClassName("error-messages");
     for (let i in elements) {
         elements[i].innerHTML = "";
         for (const key of Object.keys(json)) {
@@ -33,9 +33,11 @@ function showErrors(json, parentElement = "main") {
  */
 function hideErrors(parentElement) {
     const elements = document.getElementById(
-        parentElement).getElementsByTagName("label");
+        parentElement).getElementsByClassName("error-messages");
     for (let i in elements) {
-        elements[i].innerHTML = "";
+        if (elements[i]) {
+            elements[i].innerHTML = "";
+        }
     }
 }
 
@@ -123,14 +125,7 @@ function fillDropDown(dropdownName, dict, sort = false) {
             }
         });
     }
-/*
-    for (let i in array) {
-        let option = document.createElement("OPTION");
-        option.innerHTML = array[i].value;
-        option.value = array[i].id;
-        // Add list element to drop down list
-        document.getElementById(dropdownName).appendChild(option);
-    }*/
+
     $.each(array, function(number, item) {
         dropdown.append($('<option>').text(item.value).attr('value', item.id));
     });

@@ -7,10 +7,8 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.ExpressionList;
-import io.ebean.OrderBy;
 import io.ebean.PagedList;
 import io.ebean.Query;
-import io.ebean.RawSqlBuilder;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -146,7 +144,8 @@ public class ProfileRepository {
             travellerTypeIds == null ? new ArrayList<>() : travellerTypeIds;
         List<String> gendersNotNull = genders == null ? new ArrayList<>() : genders;
         Integer minAgeNotNull = minAge == null ? -1 : minAge;
-        Integer maxAgeNotNull = maxAge == null ? -1 : maxAge;
+        Integer maxAgeNotNull = maxAge == null ? -1
+            : maxAge + 1;    // Must subtract one to allow people same age as max day to be included
         final String cleanedSearchQuery = (searchQuery == null ? "" : searchQuery)
             .replaceAll(" ", "").toLowerCase();
 
@@ -325,12 +324,13 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT user_id FROM FollowerUser WHERE "
-                + "follower_id=" + profileId + ") "
+                + "follower_id=" + profileId + " AND deleted = 0) "
                 + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
-                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setParameter("searchQuery",
+                    "%" + searchQuery + "%") // No injection here, move along
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
@@ -358,7 +358,7 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT follower_id FROM FollowerUser WHERE "
-                + "user_id=" + profileId + ") "
+                + "user_id=" + profileId + " AND deleted = 0) "
                 + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
@@ -386,12 +386,13 @@ public class ProfileRepository {
 
             String sql = "SELECT * FROM Profile "
                 + "WHERE user_id IN (SELECT follower_id FROM FollowerDestination WHERE "
-                + "destination_id=" + destinationId + ") "
+                + "destination_id=" + destinationId + " AND deleted = 0) "
                 + "AND CONCAT(LOWER(first_name), ' ', LOWER(last_name)) LIKE LOWER(:searchQuery) "
                 + "ORDER BY (SELECT COUNT(*) FROM FollowerUser WHERE user_id=Profile.user_id) desc";
 
             return ebeanServer.findNative(Profile.class, sql)
-                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setParameter("searchQuery",
+                    "%" + searchQuery + "%") // No injection here, move along
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
@@ -400,6 +401,7 @@ public class ProfileRepository {
 
     /**
      * Gets a list of all ids of users that someone follows
+     *
      * @param followerId ID of person to get who they follow
      * @return List of IDs of users followed
      */
@@ -410,11 +412,12 @@ public class ProfileRepository {
                 .eq("follower_id", followerId)
                 .select("userId")
                 .findSingleAttributeList()
-            );
+        );
     }
 
     /**
      * Gets a list of all ids of users that someone follows
+     *
      * @param followerId ID of person to get who they follow
      * @return List of IDs of users followed
      */
@@ -425,7 +428,7 @@ public class ProfileRepository {
                 .eq("follower_id", followerId)
                 .select("destinationId")
                 .findSingleAttributeList()
-            );
+        );
     }
 
 }

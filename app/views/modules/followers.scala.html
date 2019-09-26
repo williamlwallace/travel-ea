@@ -9,7 +9,7 @@ Id is the id of the relevant thing, ie destination or user*@
 @*Followers Modal*@
 @if(destination) {
     <div class="modal fade" id="followers-modal" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered" id="followers-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
@@ -19,9 +19,18 @@ Id is the id of the relevant thing, ie destination or user*@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div>
-                    <input type="text" id="search" placeholder="Search">
-                    <button>Search</button>
+                <div class="tab-pane row" id="followers" role="tabpanel" aria-labelledby="followers-tab">
+                    <div class="follower-tab col">
+                        <div class="search-bar row">
+                            <div class="search-bar-item-div col">
+                                <input type="text" id="followersSearch" placeholder="Search" class="form-control">
+                            </div>
+                        </div>
+                        <br/>
+                        @* Placeholder for profile cards *@
+                        @modules.followerCard()
+                        <div id="followedByCardList" class="row-auto"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,7 +40,7 @@ Id is the id of the relevant thing, ie destination or user*@
 @*Following Modal*@
 @if(!destination) {
     <div class="modal fade" id="following-modal" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-dialog-centered" id="following-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     @* Tabs *@
@@ -53,12 +62,13 @@ Id is the id of the relevant thing, ie destination or user*@
                     <div class="tab-content">
                         <!-- Following Tab -->
                         <div class="tab-pane row" id="following" role="tabpanel" aria-labelledby="following-tab">
-                            <div class="follower-tab">
-                                <div class="search-bar">
-                                    <div class="search-bar-item-div">
-                                        <input type="text" id="search" placeholder="Search" class="form-control search-input">
+                            <div class="follower-tab col">
+                                <div class="search-bar row">
+                                    <div class="search-bar-item-div col-md-6">
+                                        <input type="text" id="followingSearch" placeholder="Search" class="form-control search-input">
                                     </div>
-                                    <div class="btn-group search-bar-item-div">
+                                    <span style="flex-grow:1"></span>
+                                    <div class="btn-group search-bar-item-div col-auto">
                                         <button id="users-following-btn" type="button" class="btn btn-primary">Users</button>
                                         <button id="dests-following-btn" type="button" class="btn btn-outline-primary">Destinations</button>
                                     </div>
@@ -66,18 +76,18 @@ Id is the id of the relevant thing, ie destination or user*@
                                 <br/>
                                 @* The destinations cards *@
                                 @modules.followerCard()
-                                <div id="followersCardList"></div>
+                                <div id="followersCardList" class="follower-cards-list row-auto"></div>
                             </div>
                         </div>
                         <!-- Followers tab -->
                         <div class="tab-pane row" id="followers" role="tabpanel" aria-labelledby="followers-tab">
                             <div class="follower-tab">
                                 <div>
-                                    <input type="text" id="search" placeholder="Search" class="form-control">
+                                    <input type="text" id="followersSearch" placeholder="Search" class="form-control">
                                 </div>
                                 <br/>
-                                @* The destinations cards *@
-                                <div id="followedByCardList"></div>
+                                @* The followers cards *@
+                                <div id="followedByCardList" class="follower-cards-list"></div>
                             </div>
                         </div>
                     </div>

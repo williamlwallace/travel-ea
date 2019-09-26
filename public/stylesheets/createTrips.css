@@ -2,8 +2,6 @@
  * List container for sortable destination cards
  */
 .list {
-    /*white-space: nowrap;*/
-    /*overflow-y: scroll;*/
     overflow-x: hidden;
 }
 
@@ -97,4 +95,10 @@
 
 .date-columns {
     max-width: 50%;
+}
+
+.empty-trip-message {
+    vertical-align: middle;
+    text-align: center;
+    line-height: 240px;
 }
