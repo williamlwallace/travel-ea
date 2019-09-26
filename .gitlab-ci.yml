@@ -29,7 +29,7 @@ start-server-dev:
     - sbt clean
     - sbt update
     - cd scripts
-    - npm run generate-data-local
+    - npm run generate-data-dev
     - cd ..
     - sbt dist
     - sudo rm -rf ~/devServerProffat
@@ -49,7 +49,7 @@ start-server-prod:
     - sbt clean
     - sbt update
     - cd scripts
-    - npm run generate-data-local
+    - npm run generate-data-prod
     - cd ..
     - sbt dist
     - sudo rm -rf ~/prodServerProffat
