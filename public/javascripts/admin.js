@@ -218,7 +218,8 @@ function toggleTripFilterButton() {
     const filterButton = $("#tripsFilterButton");
     const toggled = filterButton.css("display") === "block";
     filterButton.css("display", toggled ? "none" : "block");
-    $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
+    $("#createTripButton").css("display", toggled ? "none" : "inline-block");
+
 }
 
 /**

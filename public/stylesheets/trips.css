@@ -3,10 +3,6 @@
     display: block;
 }
 
-#tripPaginationTop {
-    margin-top: -1.5rem;
-}
-
 #tripCardsList {
     margin-top: 3rem;
 }
@@ -21,4 +17,8 @@
 
 #tripPaginationBottom {
     margin-top: 3rem;
+}
+
+#createTripButton {
+    float: left;
 }

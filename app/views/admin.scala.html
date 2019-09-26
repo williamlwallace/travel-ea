@@ -88,44 +88,65 @@
             <div class="tab-pane" id="trips" role="tabpanel" aria-labelledby="trips-tab">
                 @* Trip Table *@
                 <label class="error-messages" id="adminError"></label>
-                <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#tripsFilterCollapse"
-                aria-expanded="false" aria-controls="tripsFilterCollapse" onclick="toggleTripFilterButton()">Filter</button>
+                <div>
+                    <button class="btn btn-primary filterButotn" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</button>
+                    <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#tripsFilterCollapse"
+                    aria-expanded="false" aria-controls="tripsFilterCollapse" onclick="toggleTripFilterButton()">Filter</button>
 
-                @* The Trips Table *@
-                <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
+                    @* The Trips Table *@
+                    <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
 
-                <div class="tripsCollapse collapse" id="tripsFilterCollapse">
-                    <div class="card card-body" id="card-body">
-                        <div class="filterItemDiv">
-                            <label for="tripSearch">Search</label>
-                            <input type=text id="tripSearch" class="form-control" placeholder="Destination Name"/>
-                        </div>
-                        <div class="filterItemDiv resultsPerPageDiv">
-                            <label for="tripPageSize">Results per page</label>
-                            <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" max="100" required/>
-                        </div>
-                        <div class="filterItemDiv">
-                            <label for="tripAscending">Order by</label>
-                            <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
-                                <option value="true">Ascending</option>
-                                <option value="false">Descending</option>
-                            </select>
-                        </div>
-                        <div class="text-center" id="tripsButtonDiv">
-                            <div class="closeButton">
-                                <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#tripsFilterCollapse" onclick="toggleTripFilterButton()">Close</button>
+                    <div class="tripsCollapse collapse" id="tripsFilterCollapse">
+                        <div class="card card-body" id="card-body">
+                            <div class="filterItemDiv">
+                                <label for="tripSearch">Search</label>
+                                <input type=text id="tripSearch" class="form-control" placeholder="Destination Name"/>
                             </div>
-                            <div class="filterControlButtons">
-                                <button class="btn btn-secondary" onclick='clearTripFilter()'>Clear</button>
-                                <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
+                            <div class="filterItemDiv resultsPerPageDiv">
+                                <label for="tripPageSize">Results per page</label>
+                                <input id="tripPageSize" type="number" class="form-control validate" value="10" min="1" max="100" required/>
+                            </div>
+                            <div class="filterItemDiv">
+                                <label for="tripAscending">Order by</label>
+                                <select id="tripAscending" class="form-control" data-style="form-control selectpicker">
+                                    <option value="true">Ascending</option>
+                                    <option value="false">Descending</option>
+                                </select>
+                            </div>
+                            <div class="text-center" id="tripsButtonDiv">
+                                <div class="closeButton">
+                                    <button class="btn btn-outline-secondary" data-toggle="collapse" data-target="#tripsFilterCollapse" onclick="toggleTripFilterButton()">Close</button>
+                                </div>
+                                <div class="filterControlButtons">
+                                    <button class="btn btn-secondary" onclick='clearTripFilter()'>Clear</button>
+                                    <button class="btn btn-primary"  onclick='getTripResults()'>Apply</button>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <nav aria-label="Page navigation" id="tripPaginationTop" class="tripsFilterButton">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </nav>
                 </div>
+
+
 
                 @modules.tripCards()
 
                 <div id="tripCardsList"></div>
+
+                <nav aria-label="Page navigation" id="tripPaginationBottom" class="tripsFilterButton">
+                    <ul class="pagination">
+                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
             </div>
 
             <div class="tab-pane" id="requests" role="tabpanel" aria-labelledby="requests-tab">

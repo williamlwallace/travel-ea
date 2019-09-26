@@ -80,6 +80,6 @@ input[type=number] {
     margin-left: auto;
 }
 
-#tripPagination {
-    margin-top: -1.5rem;
+#createTripButton {
+    float: left;
 }
