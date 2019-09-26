@@ -560,11 +560,20 @@ function acceptDestinationPrimaryPhoto(destId, photoId) {
 }
 
 /**
- * Allows search of users and trips on enter key press
+ * Allows search of users on enter key press
  */
-$(document).on('keypress',function(e) {
+$("#usersFilterCollapse").on('keypress',function(e) {
     if(e.which === 13) {
         getUserResults();
+    }
+});
+
+/**
+ * Allows search of trips on enter key press
+ */
+$("#tripsFilterCollapse").on('keypress',function(e) {
+    if(e.which === 13) {
         getTripResults();
     }
 });
+
