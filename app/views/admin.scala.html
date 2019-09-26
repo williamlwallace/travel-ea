@@ -105,7 +105,7 @@
                 @* Trip Table *@
                 <label class="error-messages" id="adminError"></label>
                 <div>
-                    <button class="btn btn-primary filterButotn" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</button>
+                    <a class="btn btn-primary filterButton" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
                     <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#tripsFilterCollapse"
                     aria-expanded="false" aria-controls="tripsFilterCollapse" onclick="toggleTripFilterButton()">Filter</button>
 
