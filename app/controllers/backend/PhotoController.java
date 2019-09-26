@@ -150,7 +150,7 @@ public class PhotoController extends TEABackController {
             }
 
             // Adds new tags and retrieves existing tags
-            return tagRepository.addTags(newPhotoDetails.tags).thenApplyAsync(tags -> {
+            return tagRepository.addTags(newPhotoDetails.tags).thenComposeAsync(tags -> {
                 // Stores the old caption and tag data
                 ObjectMapper mapper = new ObjectMapper();
                 ObjectNode oldData = mapper.createObjectNode();
@@ -160,13 +160,14 @@ public class PhotoController extends TEABackController {
                 // Sets fields with new photo data and updates
                 photo.caption = newPhotoDetails.caption;
                 photo.tags = tags;
-                photoRepository.updatePhoto(photo);
 
-                try {
-                    return ok(sanitizeJson(oldData));
-                } catch (IOException ex) {
-                    return internalServerError(Json.toJson(SANITIZATION_ERROR));
-                }
+                return photoRepository.updatePhoto(photo).thenApplyAsync(guid -> {
+                    try {
+                        return ok(sanitizeJson(oldData));
+                    } catch (IOException ex) {
+                        return internalServerError(Json.toJson(SANITIZATION_ERROR));
+                    }
+                });
             });
         });
     }

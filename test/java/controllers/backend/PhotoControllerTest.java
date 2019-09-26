@@ -1,8 +1,5 @@
 package controllers.backend;
 
-import static controllers.backend.ControllersTest.adminAuthCookie;
-import static controllers.backend.ControllersTest.fakeApp;
-import static controllers.backend.ControllersTest.nonAdminAuthCookie;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
@@ -374,7 +371,7 @@ public class PhotoControllerTest extends controllers.backend.ControllersTest {
         assertEquals(OK, getResult.status());
 
         Photo photo = new ObjectMapper().readValue(Helpers.contentAsString(getResult), Photo.class);
-        
+
         assertEquals(newCaption, photo.caption);
         assertEquals(tags.size(), photo.tags.size());
         assertTrue(photo.tags.containsAll(tags));
