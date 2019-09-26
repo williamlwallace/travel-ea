@@ -103,7 +103,8 @@
 
                                     <div>Type
                                         <em class="fas prefix grey-text"></em>
-                                        <input type="text" name="destType" id="destType" class="form-control validate" required>
+                                        <select id="destination-type-dd" name="destType" class="form-control validate selectpicker"
+                                        data-live-search="true" data-size="5"></select>
                                         <label id="destTypeError" class="error-messages"></label>
                                     </div>
 
@@ -323,6 +324,7 @@
     getAndFillDD(
         "@controllers.backend.routes.TagController.getAllDestinationPhotoTags(destinationId)",
         ["tagFilter"], "name", false, "name");
+    fillTypeDropDown("destination-type-dd");
     populateDestinationDetails(@destinationId);
     getPrimaryPicture();
     const type_ = "destination";
