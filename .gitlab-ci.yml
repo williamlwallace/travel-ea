@@ -42,7 +42,7 @@ start-server-dev:
     - sbt dist
     - sudo rm -rf ~/devServerProffat
     - mkdir -p ~/devServerProffat
-    - unzip target/universal/seng302-team-400-proffat-0.0.4.zip -d ~/devServerProffat
+    - unzip target/universal/seng302-team-400-proffat-1.0.0.zip -d ~/devServerProffat
     - sudo systemctl stop proffatDevServer
     - sudo systemctl start proffatDevServer
 
@@ -58,7 +58,7 @@ start-server-prod:
     - sbt dist
     - sudo rm -rf ~/prodServerProffat
     - mkdir -p ~/prodServerProffat
-    - unzip target/universal/seng302-team-400-proffat-0.0.4.zip -d ~/prodServerProffat
+    - unzip target/universal/seng302-team-400-proffat-1.0.0.zip -d ~/prodServerProffat
     - sudo systemctl stop proffatProdServer
     - sudo systemctl start proffatProdServer
 
