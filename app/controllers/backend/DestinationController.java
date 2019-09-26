@@ -850,7 +850,7 @@ public class DestinationController extends TEABackController {
      */
     @With({Everyone.class, Authenticator.class})
     public CompletionStage<Result> googleMapsHelper() {
-        String apiKey = "";
+        String apiKey = "AIzaSyC9Z1g5p2rQtS0nHgDudzCCXVl2HJl3NPI";
         WSRequest request = ws.url("https://maps.googleapis.com/maps/api/js");
         request.addQueryParameter("key", apiKey);
         request.setRequestTimeout(Duration.ofSeconds(7));
