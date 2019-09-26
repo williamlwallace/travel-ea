@@ -402,7 +402,6 @@ function createdNewTripCard(event) {
     const card = createUserWrapperCard(event);
     const tripCard = createTripCard(event.data);
     card.find('.wrapper-body').append(tripCard);
-    console.log(event.data);
     addTags(card, event.data.tags);
     return card;
 }
