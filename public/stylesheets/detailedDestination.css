@@ -348,3 +348,8 @@ section#timeline article:nth-child(n) div.inner h2:after {
 .link-image {
     height: 30px;
 }
+
+
+.show {
+    width: 100%;
+}
