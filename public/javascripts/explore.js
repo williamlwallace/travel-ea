@@ -20,7 +20,7 @@ function populateTrendingUsers() {
          if (response.status !== 200) {
             showErrors(users);
          } else {
-            createUserFollowerCard(users, false);
+            createSummaryCard("followersCardList", users, false, "No users are currently trending");
          }
       });
    });
@@ -37,7 +37,7 @@ function populateTrendingDestinations() {
          if (response.status !== 200) {
             showErrors(dests);
          } else {
-            createDestinationFollowerCardExplorePage(dests);
+            createSummaryCard("followersCardListDestinations", dests, false, "No Destinations are currently trending", true);
          }
       });
    });
