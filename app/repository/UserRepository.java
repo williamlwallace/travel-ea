@@ -249,6 +249,10 @@ public class UserRepository {
             + "WHERE FU2.user_id = FU1.user_id) AS followCount FROM `FollowerUser` "
             + "FU1 WHERE FU1.user_id in (:ids) GROUP BY FU1.user_id;";
 
+        if(ids.isEmpty()) {
+            ids.add(-1L);
+        }
+
         Map<Long,Long> results = new HashMap<>();
         ebeanServer.createSqlQuery(sqlQuery).setParameter("ids", ids).findEachRow(((resultSet, rowNum) -> {
             results.put(resultSet.getLong(1), resultSet.getLong(2));
