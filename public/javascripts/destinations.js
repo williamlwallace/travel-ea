@@ -304,6 +304,8 @@ function resetDestinationModal() {
     tagPicker.clearTags();
     hideErrors("addDestinationForm");
     $('#destinationPrivacyStatus').siblings('label').html('Private');
+    $("#countryDropDown").val("004"); //Resets to Afghanistan
+    $("#countryDropDown").selectpicker("refresh"); //Resets to Afghanistan
 }
 
 /**
@@ -395,4 +397,3 @@ $('#collapseDestinationFilter').keypress(function (e) {
         refreshData();
     }
 });
-

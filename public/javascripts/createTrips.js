@@ -509,5 +509,14 @@ $("#collapseDestinationFilter").on('keypress',function(e) {
     }
 });
 
-
-
+/**
+ * Resets the fields of the destinations filter
+ */
+function clearDestinationsFilter() {
+    $("#searchQuery").val("");
+    $("#pageSize").val(10);
+    $("#sortBy").val("name");
+    $("#sortBy").selectpicker("refresh");
+    $("#ascending").val("true");
+    $("#ascending").selectpicker("refresh");
+}
