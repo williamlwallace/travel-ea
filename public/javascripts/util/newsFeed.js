@@ -535,7 +535,6 @@ function multipleGalleryPhotos(event) {
     }
 
     if (photos.length === 1) {
-        console.log("short boi");
         photoCard.find(".carousel-control-prev").remove();
         photoCard.find(".carousel-control-next").remove();
     }
