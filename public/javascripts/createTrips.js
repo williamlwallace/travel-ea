@@ -514,7 +514,7 @@ $("#collapseDestinationFilter").on('keypress',function(e) {
  */
 function clearDestinationsFilter() {
     $("#searchQuery").val("");
-    $("#pageSize").val(10);
+    $("#pageSize").val(25);
     $("#sortBy").val("name");
     $("#sortBy").selectpicker("refresh");
     $("#ascending").val("true");
