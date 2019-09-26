@@ -500,5 +500,14 @@ $('#CreateDestinationCancelButton').click(function () {
     resetDestinationModal();
 });
 
+/**
+ * Allows search of people on enter key press
+ */
+$("#collapseDestinationFilter").on('keypress',function(e) {
+    if(e.which === 13) {
+        refreshData();
+    }
+});
+
 
 

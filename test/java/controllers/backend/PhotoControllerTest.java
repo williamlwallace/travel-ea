@@ -112,51 +112,6 @@ public class PhotoControllerTest extends controllers.backend.ControllersTest {
     }
 
     @Test
-    public void testMultipleFileUpload() {
-        // Load a file from the public images to upload
-        File file1 = getFile("./public/images/favicon.png");
-        File file2 = getFile("./public/images/travelEA.png");
-
-        // List of objects that will be appended to the body of our multipart/form-data
-        List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
-
-        // Add text field parts
-        for (Pair<String, String> pair : Arrays.asList(
-            new Pair<>("isTest", "true"),
-            new Pair<>("profilePhotoName", "favicon.png"),
-            new Pair<>("publicPhotoFileNames", "travelEA.png"),
-            new Pair<>("tags", "[{\"name\":\"Germany\"}]")
-        )) {
-            partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
-        }
-
-        // Convert these files to multipart form data parts
-        partsList
-            .add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto1.png", "image/png",
-                FileIO.fromPath(file1.toPath()),
-                "form-data"));
-        partsList
-            .add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto2.png", "image/png",
-                FileIO.fromPath(file2.toPath()),
-                "form-data"));
-
-        // Create a request, with only the single part to add
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
-            .method("POST")
-            .cookie(adminAuthCookie)
-            .bodyMultipart(
-                partsList,
-                play.libs.Files.singletonTemporaryFileCreator(),
-                fakeApp.asScala().materializer()
-            );
-
-        // Post to url and get result, checking that a success was returned
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(CREATED, result.status());
-    }
-
-    @Test
     public void PhotoToDestLinking() {
         //create request with no body
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/destination/1/photo/1")
@@ -419,7 +374,7 @@ public class PhotoControllerTest extends controllers.backend.ControllersTest {
         assertEquals(OK, getResult.status());
 
         Photo photo = new ObjectMapper().readValue(Helpers.contentAsString(getResult), Photo.class);
-
+        
         assertEquals(newCaption, photo.caption);
         assertEquals(tags.size(), photo.tags.size());
         assertTrue(photo.tags.containsAll(tags));

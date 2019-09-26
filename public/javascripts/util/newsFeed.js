@@ -478,6 +478,11 @@ function multipleDestinations(event) {
         destinationObjects.append(carouselWrapper);
     }
 
+    if (destinations.length === 1) {
+        destinationCard.find(".carousel-control-prev").remove();
+        destinationCard.find(".carousel-control-next").remove();
+    }
+
     card.find('.wrapper-body').append(destinationCard);
     return card;
 }
@@ -527,6 +532,11 @@ function multipleGalleryPhotos(event) {
         baguetteWrapper.append(imageWrapper);
         carouselWrapper.append(baguetteWrapper);
         photoThumbnails.append(carouselWrapper);
+    }
+
+    if (photos.length === 1) {
+        photoCard.find(".carousel-control-prev").remove();
+        photoCard.find(".carousel-control-next").remove();
     }
 
     addTags(card, photos[0].tags);

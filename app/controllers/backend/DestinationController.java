@@ -102,34 +102,12 @@ public class DestinationController extends TEABackController {
         // Checks if similar destination already exists
         List<Destination> destinations = destinationRepository
             .getSimilarDestinations(newDestination);
+
         for (Destination destination : destinations) {
-            if (destination.user.id.equals(user.id) || destination.isPublic) {
+            if (destination.user.id.equals(newDestination.user.id) || destination.isPublic) {
                 return CompletableFuture
-                    .supplyAsync(() -> badRequest(Json.toJson("Duplicate destination")));
+                    .supplyAsync(() -> badRequest(Json.toJson("This destination already exists")));
             }
-        }
-
-        // Find all similar destinations that need to be merged and collect only their IDs
-        List<Long> similarIds = destinations.stream().map(x -> x.id)
-            .collect(Collectors.toList());
-
-        // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
-        // TripData
-        int rowsChanged = destinationRepository
-            .mergeDestinationsTripData(similarIds, newDestination.id);
-        // Photos
-        rowsChanged += destinationRepository
-            .mergeDestinationsPhotos(similarIds, newDestination.id);
-
-        // If any rows were changed when re-referencing, the destination
-        // has been used by another user and must be transferred to admin ownership
-        if (rowsChanged > 0) {
-            destinationRepository.changeDestinationOwner(newDestination.id, MASTER_ADMIN_ID);
-        }
-
-        // Once all old usages have been re-referenced, delete the found similar destinations
-        for (Long simId : similarIds) {
-            destinationRepository.deleteDestination(simId);
         }
 
         return tagRepository.addTags(newDestination.tags).thenComposeAsync(existingTags -> {
@@ -137,6 +115,10 @@ public class DestinationController extends TEABackController {
             newDestination.tags = existingTags;
             return destinationRepository.addDestination(newDestination)
                 .thenComposeAsync(id -> {
+                    // Merge similar destinations to new destination
+                    mergeSimilarDestinations(newDestination);
+
+                    // Create news feed event for newly added destination if destination is public
                     if (newDestination.isPublic) {
                         NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
                         newsFeedEvent.refId = id;
@@ -183,43 +165,23 @@ public class DestinationController extends TEABackController {
                 return CompletableFuture
                     .supplyAsync(() -> notFound(Json.toJson("No such destination exists")));
             }
+
             // Check if user owns the destination (or is an admin)
             if (!destination.user.id.equals(user.id) && !user.admin) {
                 return CompletableFuture.supplyAsync(
                     () -> forbidden(Json.toJson("You are not allowed to perform this action")));
             }
+
             // Check if destination was already public
             if (destination.isPublic) {
                 return CompletableFuture
                     .supplyAsync(() -> badRequest(Json.toJson("Destination was already public")));
             }
 
-            destinationRepository.setDestinationToPublicInDatabase(destination.id);
-
-            // Find all similar destinations that need to be merged and collect only their IDs
-            List<Destination> destinations = destinationRepository
-                .getSimilarDestinations(destination);
-            List<Long> similarIds = destinations.stream().map(x -> x.id)
-                .collect(Collectors.toList());
-
-            // Re-reference each instance of the old destinations to the new one, keeping track of how many rows were changed
-            // TripData
-            int rowsChanged = destinationRepository
-                .mergeDestinationsTripData(similarIds, destination.id);
-            // Photos
-            rowsChanged += destinationRepository
-                .mergeDestinationsPhotos(similarIds, destination.id);
-
-            // If any rows were changed when re-referencing, the destination
-            // has been used by another user and must be transferred to admin ownership
-            if (rowsChanged > 0) {
-                destinationRepository.changeDestinationOwner(destination.id, MASTER_ADMIN_ID);
-            }
-
-            // Once all old usages have been re-referenced, delete the found similar destinations
-            for (Long simId : similarIds) {
-                destinationRepository.deleteDestination(simId);
-            }
+            // Set destination to public and merge similar destinations
+            destination.isPublic = true;
+            destinationRepository.updateDestination(destination);
+            mergeSimilarDestinations(destination);
 
             // Create news feed event for updating destination
             NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
@@ -227,14 +189,8 @@ public class DestinationController extends TEABackController {
             newsFeedEvent.refId = destination.id;
             newsFeedEvent.eventType = NewsFeedEventType.UPDATED_EXISTING_DESTINATION.name();
 
-            final int rows = rowsChanged;
             return newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent)
-                .thenApplyAsync(
-                    eventId -> ok(Json.toJson(
-                        "Successfully made destination public, and re-referenced " + rows
-                            + " to new public destination"))
-                );
-
+                .thenApplyAsync(eventId -> ok(Json.toJson("Successfully made destination public")));
         });
     }
 
@@ -256,8 +212,11 @@ public class DestinationController extends TEABackController {
                 destination.deleted = !destination.deleted;
                 return destinationRepository.updateDestination(destination)
                     .thenComposeAsync(upId ->
-                        newsFeedEventRepository.cleanUpDestinationEvents(destination).thenApplyAsync(rows ->
-                            ok(Json.toJson("Successfully toggled destination deletion of destination with id: "+ upId)))
+                        newsFeedEventRepository.cleanUpDestinationEvents(destination)
+                            .thenApplyAsync(rows ->
+                                ok(Json.toJson(
+                                    "Successfully toggled destination deletion of destination with id: "
+                                        + upId)))
                     );
 
             } else {
@@ -278,6 +237,7 @@ public class DestinationController extends TEABackController {
     public CompletableFuture<Result> editDestination(Http.Request request, Long id) {
         JsonNode data = request.body().asJson();
         User user = request.attrs().get(ActionState.USER);
+
         ErrorResponse validatorResult = new DestinationValidator(data).validateDestination(true);
         return destinationRepository.getDestination(id).thenComposeAsync(destination -> {
             if (destination == null) {
@@ -296,8 +256,9 @@ public class DestinationController extends TEABackController {
                 // Check if destination already exists, if so rejects update
                 List<Destination> destinations = destinationRepository
                     .getSimilarDestinations(editedDestination);
+
                 for (Destination dest : destinations) {
-                    if (dest.user.id.equals(user.id) || dest.isPublic) {
+                    if (dest.user.id.equals(destination.user.id) || dest.isPublic) {
                         return CompletableFuture.supplyAsync(() -> badRequest(
                             Json.toJson("Another destination with these details already exists")));
                     }
@@ -309,6 +270,9 @@ public class DestinationController extends TEABackController {
                         editedDestination.tags = existingTags;
                         return destinationRepository.updateDestination(editedDestination)
                             .thenComposeAsync(updatedDestination -> {
+                                // Merges destinations with the updated destination if similar
+                                mergeSimilarDestinations(updatedDestination);
+
                                 if (updatedDestination.isPublic) {
                                     // Create news feed event for updating destination
                                     NewsFeedEvent newsFeedEvent = new NewsFeedEvent();
@@ -333,6 +297,40 @@ public class DestinationController extends TEABackController {
                         "Forbidden, user does not have permission to edit this destination")));
             }
         });
+    }
+
+    /**
+     * Uses the given destination details to check if similar destinations should be merged, used
+     * when new destination is made, destination is edited, or destination is made public
+     *
+     * @param destination Destination being updated
+     */
+    private void mergeSimilarDestinations(Destination destination) {
+        // Destination must be public for it to merge with other destinations
+        if (destination.isPublic) {
+
+            // Find the similar destinations
+            List<Destination> destinations = destinationRepository
+                .getSimilarDestinations(destination);
+
+            // If there are similar destinations
+            if (!destinations.isEmpty()) {
+                List<Long> similarIds = destinations.stream().map(x -> x.id)
+                    .collect(Collectors.toList());
+
+                // Merge trip data and photos to the new destination
+                destinationRepository.mergeDestinationsTripData(similarIds, destination.id);
+                destinationRepository.mergeDestinationsPhotos(similarIds, destination.id);
+
+                // Transfer new destinations ownership to admin
+                destinationRepository.changeDestinationOwner(destination.id, MASTER_ADMIN_ID);
+
+                // Delete old destinations which are no longer needed
+                for (Long simId : similarIds) {
+                    destinationRepository.deleteDestination(simId);
+                }
+            }
+        }
     }
 
     /**
@@ -551,7 +549,7 @@ public class DestinationController extends TEABackController {
      * @param photoId Id of photo
      * @return Response result containing success/error message
      */
-    @With({Admin.class, Authenticator.class}) //admin auth
+    @With({Admin.class, Authenticator.class})    // Admin auth
     public CompletableFuture<Result> rejectDestinationPrimaryPhoto(Http.Request request,
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenApplyAsync(destination -> {
@@ -570,7 +568,7 @@ public class DestinationController extends TEABackController {
      * @param photoId Id of photo
      * @return Response result containing success/error message
      */
-    @With({Admin.class, Authenticator.class}) //admin auth
+    @With({Admin.class, Authenticator.class})    // Admin auth
     public CompletableFuture<Result> acceptDestinationPrimaryPhoto(Http.Request request,
         Long destId, Long photoId) {
         return destinationRepository.getDestination(destId).thenComposeAsync(destination -> {
@@ -733,7 +731,6 @@ public class DestinationController extends TEABackController {
                                     ok(Json.toJson("unfollowed")));
                         }
                     });
-
             }
         });
 
@@ -830,14 +827,17 @@ public class DestinationController extends TEABackController {
             return destinationRepository
                 .getDestinationsFollowedByUser(userId, searchQuery, pageNum, pageSize)
                 .thenApplyAsync(pagedDestinations -> {
-                    List<Long> destinationIds = pagedDestinations.getList().stream().map(x -> x.id).collect(
-                        Collectors.toList());
-                    Map<Long, Long> destinationFollowerCounts = destinationRepository.getDestinationsFollowerCounts(destinationIds);
-                    for (Destination destination : pagedDestinations.getList()) {
-                        destination.followerCount = destinationFollowerCounts.get(destination.id);
-                    }
-                    return ok(Json.toJson(new PagingResponse<>(pagedDestinations.getList(), requestOrder,
-                        pagedDestinations.getTotalPageCount())));
+                        List<Long> destinationIds = pagedDestinations.getList().stream().map(x -> x.id)
+                            .collect(
+                                Collectors.toList());
+                        Map<Long, Long> destinationFollowerCounts = destinationRepository
+                            .getDestinationsFollowerCounts(destinationIds);
+                        for (Destination destination : pagedDestinations.getList()) {
+                            destination.followerCount = destinationFollowerCounts.get(destination.id);
+                        }
+                        return ok(
+                            Json.toJson(new PagingResponse<>(pagedDestinations.getList(), requestOrder,
+                                pagedDestinations.getTotalPageCount())));
                     }
                 );
         });

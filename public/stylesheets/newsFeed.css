@@ -45,6 +45,8 @@
     text-align: right;
     font-family: "Roboto Condensed", sans-serif;
     color: #afafaf;
+    margin-right: 0;
+    margin-left: auto;
 }
 
 .wrapper-body-wrapper {

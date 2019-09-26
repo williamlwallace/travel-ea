@@ -141,7 +141,6 @@ public class DestinationRepository {
      * to the id of the destination that they have been merged to. I.e if there are 3 Eiffel towers,
      * and one of them is made public, the other two will now point to the new public Eiffel tower.
      *
-     *
      * The number of rows changed is also returned, use this to check if there were other
      * destinations in use that have been merged, i.e that we must transfer this newly public
      * destination to the ownership of master admin
@@ -154,6 +153,7 @@ public class DestinationRepository {
      */
     public int mergeDestinationsTripData(Collection<Long> similarDestinationIds,
         Long newDestinationId) {
+
         // Return 0 rows changed if no similar destinations found
         if (similarDestinationIds.isEmpty()) {
             return 0;
@@ -319,10 +319,12 @@ public class DestinationRepository {
     public CompletableFuture<List<Destination>> getAllDestinationsWithRequests() {
         return supplyAsync(() -> {
 
-            List<DestinationTravellerTypePending> travellerTypeRequests = ebeanServer.find(DestinationTravellerTypePending.class)
-                    .findList();
-            List<PendingDestinationPhoto> photoRequests = ebeanServer.find(PendingDestinationPhoto.class)
-                    .findList();
+            List<DestinationTravellerTypePending> travellerTypeRequests = ebeanServer
+                .find(DestinationTravellerTypePending.class)
+                .findList();
+            List<PendingDestinationPhoto> photoRequests = ebeanServer
+                .find(PendingDestinationPhoto.class)
+                .findList();
 
             Set<Long> destinationsWithPending = new HashSet<>();
 
@@ -336,7 +338,8 @@ public class DestinationRepository {
             if (destinationsWithPending.isEmpty()) {
                 return new ArrayList<>();
             } else {
-                return ebeanServer.find(Destination.class).where().idIn(destinationsWithPending).findList();
+                return ebeanServer.find(Destination.class).where().idIn(destinationsWithPending)
+                    .findList();
             }
         }, executionContext);
     }
@@ -364,40 +367,40 @@ public class DestinationRepository {
         String cleanedQueryString = "%" + (searchQuery == null ? "" : searchQuery) + "%";
 
         return supplyAsync(() -> ebeanServer.find(Destination.class)
-                .fetch("country")
-                .where()
-                // Only get results that match search query, or if no search query provided
-                // Big nested or statement allows for searching multiple fields by one value
-                .or(
-                    (searchQuery == null || searchQuery.equals("")) ? SQL_TRUE : SQL_FALSE,
+            .fetch("country")
+            .where()
+            // Only get results that match search query, or if no search query provided
+            // Big nested or statement allows for searching multiple fields by one value
+            .or(
+                (searchQuery == null || searchQuery.equals("")) ? SQL_TRUE : SQL_FALSE,
+                Expr.or(
+                    Expr.ilike("name", cleanedQueryString),
                     Expr.or(
-                        Expr.ilike("name", cleanedQueryString),
+                        Expr.ilike("type", cleanedQueryString),
                         Expr.or(
-                            Expr.ilike("type", cleanedQueryString),
-                            Expr.or(
-                                Expr.ilike("country.name", cleanedQueryString),
-                                Expr.ilike("district", cleanedQueryString)
-                            )
+                            Expr.ilike("country.name", cleanedQueryString),
+                            Expr.ilike("district", cleanedQueryString)
                         )
                     )
-                ).endOr()
-                // If the user only wants their own destinations, filter out all other
-                .or(
-                    Expr.eq("user_id", userId),
-                    onlyGetMine ? SQL_FALSE : SQL_TRUE
-                ).endOr()
-                // If the user doesn't only want theirs, show them public and their own
-                .or(
-                    onlyGetMine ? SQL_TRUE : SQL_FALSE,
-                    Expr.or(
-                        Expr.eq("is_public", true),
-                        Expr.eq("user_id", userId)
-                    )
                 )
-                .orderBy(sortBy + " " + (ascending ? "asc" : "desc"))
-                .setFirstRow((pageNum - 1) * pageSize)
-                .setMaxRows(pageSize)
-                .findPagedList());
+            ).endOr()
+            // If the user only wants their own destinations, filter out all other
+            .or(
+                Expr.eq("user_id", userId),
+                onlyGetMine ? SQL_FALSE : SQL_TRUE
+            ).endOr()
+            // If the user doesn't only want theirs, show them public and their own
+            .or(
+                onlyGetMine ? SQL_TRUE : SQL_FALSE,
+                Expr.or(
+                    Expr.eq("is_public", true),
+                    Expr.eq("user_id", userId)
+                )
+            )
+            .orderBy(sortBy + " " + (ascending ? "asc" : "desc"))
+            .setFirstRow((pageNum - 1) * pageSize)
+            .setMaxRows(pageSize)
+            .findPagedList());
     }
 
     /**
@@ -444,7 +447,8 @@ public class DestinationRepository {
     }
 
     /**
-     * Gets the followerUser object from the database where the two given ids match the relevant columns
+     * Gets the followerUser object from the database where the two given ids match the relevant
+     * columns
      *
      * @param destId the id of the destination which is being followed
      * @param followerId the id of the user following
@@ -493,10 +497,10 @@ public class DestinationRepository {
      */
     public CompletableFuture<Long> getDestinationFollowerCount(Long destinationId) {
         return supplyAsync(() ->
-            Long.valueOf(ebeanServer.find(FollowerDestination.class)
-                .where()
-                .eq("destination_id", destinationId)
-                .findCount())
+                Long.valueOf(ebeanServer.find(FollowerDestination.class)
+                    .where()
+                    .eq("destination_id", destinationId)
+                    .findCount())
             , executionContext);
     }
 
@@ -522,7 +526,8 @@ public class DestinationRepository {
                 + "WHERE destination_id=Destination.id) desc";
 
             return ebeanServer.findNative(Destination.class, sql)
-                .setParameter("searchQuery", "%" + searchQuery + "%") // No injection here, move along
+                .setParameter("searchQuery",
+                    "%" + searchQuery + "%") // No injection here, move along
                 .setFirstRow((pageNum - 1) * pageSize)
                 .setMaxRows(pageSize)
                 .findPagedList();
@@ -537,8 +542,8 @@ public class DestinationRepository {
      */
     public Map<Long, Long> getDestinationsFollowerCounts(List<Long> ids) {
         String sqlQuery = "SELECT destination_id, (SELECT COUNT(*) FROM `FollowerDestination` FD2 "
-        + "WHERE FD2.destination_id = FD1.destination_id) AS followCount FROM `FollowerDestination` "
-        + "FD1 WHERE FD1.destination_id in (:ids) GROUP BY FD1.destination_id";
+            + "WHERE FD2.destination_id = FD1.destination_id) AS followCount FROM `FollowerDestination` "
+            + "FD1 WHERE FD1.destination_id in (:ids) GROUP BY FD1.destination_id";
 
         if (ids.isEmpty()) {
             return null;
