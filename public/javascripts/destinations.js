@@ -152,7 +152,7 @@ function refreshData() {
  */
 function clearDestinationsFilter() {
     $("#searchQuery").val("");
-    $("#pageSize").val(10);
+    $("#pageSize").val(25);
     $("#sortBy").val("name");
     $("#sortBy").selectpicker("refresh");
     $("#ascending").val("true");
@@ -304,6 +304,8 @@ function resetDestinationModal() {
     tagPicker.clearTags();
     hideErrors("addDestinationForm");
     $('#destinationPrivacyStatus').siblings('label').html('Private');
+    $("#countryDropDown").val("004"); //Resets to Afghanistan
+    $("#countryDropDown").selectpicker("refresh"); //Resets to Afghanistan
 }
 
 /**
@@ -395,4 +397,3 @@ $('#collapseDestinationFilter').keypress(function (e) {
         refreshData();
     }
 });
-

@@ -617,3 +617,15 @@ function toggleProfileTripFilterButton() {
     profileTripsFilterButton.css("display", toggled ? "none" : "block");
     $('#profileCreateTripButton').css("display", toggled ? "none" : "block");
 }
+
+/**
+ * Scrolls the user to the top of the list when the user changes the page from
+ * the bottom pagination bar
+ */
+$("#tripPaginationBottom").on("click", function () {
+    const titleFrame = $("#title-frame");
+    $([document.documentElement, document.body]).animate({
+        scrollTop: titleFrame.offset().top + titleFrame.height()
+            - $("#navbar").height()
+    }, 1000);
+});

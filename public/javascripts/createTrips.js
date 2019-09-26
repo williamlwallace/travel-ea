@@ -90,10 +90,15 @@ function createDestinationCards(destinations) {
         addToTripButton.classList.add("destination-button-card");
         addToTripButton.innerText = "Add To Trip";
         addToTripButton.addEventListener("click", function () {
-            console.log(dest.primaryPhoto.filename);
+            let primaryPhoto;
+            if (dest.primaryPhoto === null) {
+                primaryPhoto = null
+            } else {
+                primaryPhoto = dest.primaryPhoto.filename
+            }
             addDestinationToTrip(dest.id, dest.name, dest.destType,
                 dest.district, dest.latitude, dest.longitude, dest.country.id,
-                dest.primaryPhoto)
+                primaryPhoto)
         });
 
         $(clone).find("#addToTrip").append(addToTripButton);
@@ -509,5 +514,14 @@ $("#collapseDestinationFilter").on('keypress',function(e) {
     }
 });
 
-
-
+/**
+ * Resets the fields of the destinations filter
+ */
+function clearDestinationsFilter() {
+    $("#searchQuery").val("");
+    $("#pageSize").val(25);
+    $("#sortBy").val("name");
+    $("#sortBy").selectpicker("refresh");
+    $("#ascending").val("true");
+    $("#ascending").selectpicker("refresh");
+}
