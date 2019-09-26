@@ -278,7 +278,7 @@ function toggleFilterButton() {
 /**
  * Allows search of people on enter key press
  */
-$(document).on('keypress',function(e) {
+$("#collapseExample").on('keypress',function(e) {
     if(e.which === 13) {
         getPeopleResults();
     }

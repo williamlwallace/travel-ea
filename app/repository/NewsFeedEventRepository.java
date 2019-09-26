@@ -42,8 +42,8 @@ public class NewsFeedEventRepository {
     private final Expression SQL_FALSE = Expr.raw("false");
     private final Expression SQL_TRUE = Expr.raw("true");
 
-    private final Double TRENDING_TIME_TUNING = 1000.0; // The bigger this gets, the longer it takes for a post to fall off
-    private final Double TRENDING_LIKE_TUNING = 1.0; // The bigger this gets, the less influence the amount of likes has
+    private final Double TRENDING_TIME_TUNING = 3000.0; // The bigger this gets, the longer it takes for a post to fall off
+    private final Double TRENDING_LIKE_TUNING = 0.5; // The bigger this gets, the less influence the amount of likes has
     private final Double E = 2.718281828459045;
 
     @Inject

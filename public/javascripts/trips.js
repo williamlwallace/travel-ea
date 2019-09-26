@@ -413,7 +413,7 @@ function clearTripFilter() {
 /**
  * Allows search of destination on enter key press
  */
-$(document).on('keypress',function(e) {
+$("#collapseExample").on('keypress',function(e) {
     if(e.which === 13) {
         getTripResults();
     }
