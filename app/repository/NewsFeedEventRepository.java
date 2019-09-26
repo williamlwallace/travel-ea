@@ -247,8 +247,6 @@ public class NewsFeedEventRepository {
                 .setParameter("TRENDING_TIME_TUNING", this.TRENDING_TIME_TUNING)
                 .setParameter("TRENDING_LIKE_TUNING", this.TRENDING_LIKE_TUNING)
                 .findEachRow(((resultSet, rowNum) -> {
-                    System.out.println("Weight at row " + rowNum + ": " + resultSet
-                        .getDouble(resultSet.findColumn("weight")));
                 }));
 
             return events;

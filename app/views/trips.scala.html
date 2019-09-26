@@ -19,11 +19,11 @@
 
     <div class="container">
         <div class="text-center" id="trip-header-button-div">
-            <a class="btn btn-primary tripFilterButton" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</a>
+            <button class="btn btn-primary filterButton" id="createTripButton" href="@controllers.frontend.routes.TripController.createTrip(user.id)" role="button">Create New Trip</button>
             @* Filter *@
             <button id="tripsFilterButton" class="btn btn-secondary filterButton" type="button" data-toggle="collapse" data-target="#collapseExample"
             aria-expanded="false" aria-controls="collapseExample" onclick="toggleFilterButton()">Filter</button>
-        </div><br>
+        </div>
 
         @* The Trips Table *@
         <div class="collapse" id="collapseExample">
@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <nav aria-label="Page navigation" id="tripPagination" class="tripsFilterButton">
+        <nav aria-label="Page navigation" id="tripPaginationTop" class="tripsFilterButton">
             <ul class="pagination tripPagination">
                 <li class="page-item"><a class="page-link" href="#">Previous</a></li>
 
@@ -72,6 +72,14 @@
 
         @modules.tripCards()
         <div id="tripCardsList"></div>
+
+        <nav aria-label="Page navigation" id="tripPaginationBottom" class="tripsFilterButton">
+            <ul class="pagination tripPagination">
+                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+            </ul>
+        </nav>
 
     </div>
 

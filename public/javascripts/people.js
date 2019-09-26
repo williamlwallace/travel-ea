@@ -276,6 +276,17 @@ function toggleFilterButton() {
 }
 
 /**
+ * Scrolls the user to the top of the list of people when changing page from the
+ * bottom pagination bar
+ */
+$("#peoplePaginationBottom").on("click", function () {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#title-frame").offset().top + $("#title-frame").height()
+            - $("#navbar").height()
+    }, 1000);
+});
+
+/**
  * Allows search of people on enter key press
  */
 $("#collapseExample").on('keypress',function(e) {

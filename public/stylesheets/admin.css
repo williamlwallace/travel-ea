@@ -46,7 +46,7 @@ code {
     padding-top: 3px;
 }
 
-#tripPagination {
+#tripPaginationTop {
     margin-top: 0;
 }
 
@@ -80,6 +80,10 @@ input[type=number] {
     margin-left: auto;
 }
 
-#tripPagination {
-    margin-top: -1.5rem;
+#createTripButton {
+    float: left;
+}
+
+#adminTripPaginationBottom {
+    margin-top: 3rem;
 }
