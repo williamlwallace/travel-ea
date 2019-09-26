@@ -86,7 +86,7 @@ def generate_traveller_types(num_users, num_existing_users, num_traveller_types)
     traveller_types -- a list of strings to be added to the SQL script
     """
     
-    traveller_types = ["INSERT INTO TravellerType (user_id, traveller_type_id) VALUES\n"]
+    traveller_types = ["INSERT IGNORE INTO TravellerType (user_id, traveller_type_id) VALUES\n"]
     traveller_type_templates = "({0}, {1}),\n"
     
     for i in range(num_users):
@@ -126,8 +126,8 @@ def generate_users(num_users, num_existing_users, photos_filename):
     
     photos = {}
         
-    users = ["INSERT INTO User(username, password, salt, creation_date) VALUES\n"]
-    profiles = ["INSERT INTO Profile(user_id, first_name, last_name, date_of_birth, gender, creation_date) VALUES\n"]
+    users = ["INSERT IGNORE INTO User(username, password, salt, creation_date) VALUES\n"]
+    profiles = ["INSERT IGNORE INTO Profile(user_id, first_name, last_name, date_of_birth, gender, creation_date) VALUES\n"]
     
     user_template = "('{0}', '{1}', '{2}', '{3}'),\n"
     profile_template = "({0}, '{1}', '{2}', '{3}', '{4}', '{5}'),\n"
@@ -190,7 +190,7 @@ def generate_destinations(countries):
                         destination references and the name of the destination
     """
     
-    destinations = ["INSERT INTO Destination(user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES\n"]
+    destinations = ["INSERT IGNORE INTO Destination(user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES\n"]
     destination_info = []
     
     with open('./scripts/data-generation/Destinations.csv', newline='') as csvfile:
@@ -233,7 +233,7 @@ def generate_trips(num_trips, num_users):
     trips -- a list of strings to be added to the SQL script
     """
     
-    trips = ["INSERT INTO Trip (user_id, is_public) VALUES\n"]
+    trips = ["INSERT IGNORE INTO Trip (user_id, is_public) VALUES\n"]
     trip_template = "({0}, {1}),\n"
     
     for i in range(num_trips):
@@ -261,7 +261,7 @@ def generate_trip_data(num_existing_trips, num_trips, num_destinations):
                              destinations visited along the trip
     """
     
-    trip_data = ["INSERT INTO TripData (trip_id, position, destination_id) VALUES\n"]
+    trip_data = ["INSERT IGNORE INTO TripData (trip_id, position, destination_id) VALUES\n"]
     trip_data_template = "({0}, {1}, {2}),\n"
     
     trip_destination_data = {}
@@ -308,7 +308,7 @@ def generate_treasure_hunts(num_treasure_hunts, num_users, num_destinations,
     treasure_hunts -- a list of strings to be added to the SQL script
     """
     
-    treasure_hunts = ["INSERT INTO TreasureHunt(user_id, destination_id, riddle, start_date, end_date) VALUES\n"]
+    treasure_hunts = ["INSERT IGNORE INTO TreasureHunt(user_id, destination_id, riddle, start_date, end_date) VALUES\n"]
     treasure_hunt_template = "({0}, {1}, '{2}', '{3}', '{4}'),\n"
     
     for i in range(num_treasure_hunts):
@@ -360,10 +360,10 @@ def generate_tags(trip_destination_data, destination_info,
             three types of tags
     """    
     
-    tags = ["INSERT INTO Tag(id, name) VALUES\n"]
+    tags = ["INSERT IGNORE INTO Tag(id, name) VALUES\n"]
     used_tags = existing_tags.copy()
-    destination_tags = ["INSERT INTO DestinationTag(tag_id, destination_id) VALUES\n"]
-    trip_tags = ["INSERT INTO TripTag(tag_id, trip_id) VALUES\n"]
+    destination_tags = ["INSERT IGNORE INTO DestinationTag(tag_id, destination_id) VALUES\n"]
+    trip_tags = ["INSERT IGNORE INTO TripTag(tag_id, trip_id) VALUES\n"]
     
     tag_template = "({0}, {1}),\n"
        
@@ -515,9 +515,9 @@ def main():
         file.writelines(country_insert)
         file.writelines(users)
         file.writelines(profiles)
-        file.writelines(["INSERT INTO Nationality (user_id, country_id) VALUES\n"])
+        file.writelines(["INSERT IGNORE INTO Nationality (user_id, country_id) VALUES\n"])
         file.writelines(values)
-        file.writelines(["INSERT INTO Passport (user_id, country_id) VALUES\n"])
+        file.writelines(["INSERT IGNORE INTO Passport (user_id, country_id) VALUES\n"])
         file.writelines(values)
         file.writelines(traveller_types)
         file.writelines(destinations)
