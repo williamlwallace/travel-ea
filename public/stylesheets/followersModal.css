@@ -1,3 +1,9 @@
+#following-modal{
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+}
+
 .follower-tab {
     padding: 2rem;
 }
@@ -38,8 +44,7 @@
 .follower-nav{display:block;padding:0 1.5rem 0;color: #000000;}
 .follower-nav:focus,.profile-nav:hover{text-decoration:none}
 .follower-nav.active{border-bottom: 1px solid #495057;}
-.follower-nav:hover{color:#495057}
-
+.follower-nav:hover{color:#495057; text-decoration: none}
 .follower-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
 .follower-nav-text{font-weight: 600; font-size: 22px}
 

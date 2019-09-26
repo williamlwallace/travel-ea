@@ -558,3 +558,22 @@ function acceptDestinationPrimaryPhoto(destId, photoId) {
     const reqData = new ReqData(requestTypes['TOGGLE'], URL, handler);
     undoRedo.sendAndAppend(reqData);
 }
+
+/**
+ * Allows search of users on enter key press
+ */
+$("#usersFilterCollapse").on('keypress',function(e) {
+    if(e.which === 13) {
+        getUserResults();
+    }
+});
+
+/**
+ * Allows search of trips on enter key press
+ */
+$("#tripsFilterCollapse").on('keypress',function(e) {
+    if(e.which === 13) {
+        getTripResults();
+    }
+});
+

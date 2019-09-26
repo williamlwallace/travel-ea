@@ -409,3 +409,12 @@ function clearTripFilter() {
     $("#filterMyTrips").val("allTrips");
     getTripResults();
 }
+
+/**
+ * Allows search of destination on enter key press
+ */
+$("#collapseExample").on('keypress',function(e) {
+    if(e.which === 13) {
+        getTripResults();
+    }
+});
