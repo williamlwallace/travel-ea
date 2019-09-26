@@ -1,7 +1,11 @@
 $('#dismiss-modal').on('click', function () {
     const progressBarHolder = $('#progressBarHolder');
     progressBarHolder.attr('style', 'display:none;');
-
+    $('#upload-gallery-image-file').val('');
+    $('#image-to-upload').attr('src', '');
+    $('.uploader').css('display', 'block');
+    $('#caption input').val('');
+    $('#caption').prop('placeholder', 'Caption');
     $('#upload-modal').modal('hide');
 });
 
@@ -72,6 +76,8 @@ $('#upload-img').on('click', function () {
                         $('#dismiss-modal').prop('disabled', false);
                         $('#upload-gallery-image-file').val('');
                         $('#image-to-upload').attr('src', '');
+                        $('#caption input').val('');
+                        $('#caption').prop('placeholder', 'Caption');
                         $('.uploader').css('display', 'block');
                     });
 
