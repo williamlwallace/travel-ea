@@ -3,7 +3,7 @@
     display: block;
 }
 
-#tripPagination {
+#tripPaginationTop {
     margin-top: -1.5rem;
 }
 
@@ -17,4 +17,8 @@
 
 #no-trips-found {
     margin: 10rem;
+}
+
+#tripPaginationBottom {
+    margin-top: 3rem;
 }

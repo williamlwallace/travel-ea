@@ -27,3 +27,7 @@ input[type=number] {
 #peopleCardsList {
     margin-top: 3rem;
 }
+
+#peoplePaginationBottom {
+    margin-top: 3rem;
+}

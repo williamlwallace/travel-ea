@@ -86,9 +86,25 @@
         </div>
     </div>
 
+    <nav aria-label="Page navigation">
+        <ul class="pagination" id="peoplePaginationTop">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+
     @modules.peopleCards()
 
     <div id="peopleCardsList"></div>
+
+    <nav aria-label="Page navigation">
+        <ul class="pagination" id="peoplePaginationBottom">
+            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+
+            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
 }
 
 @*Calling javascript functions for auto-populating the nationality and traveller type selection lists in the filter*@

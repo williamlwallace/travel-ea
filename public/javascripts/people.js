@@ -274,3 +274,10 @@ function toggleFilterButton() {
     const toggled = peopleFilterButton.css("display") === "block";
     peopleFilterButton.css("display", toggled ? "none" : "block");
 }
+
+$("#peoplePaginationBottom").on("click", function () {
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#title-frame").offset().top + $("#title-frame").height()
+            - $("#navbar").height()
+    }, 1000);
+});
