@@ -1,34 +1,53 @@
 <template id="destinationCardTemplate">
-    <div id="card" class="card destinationCard">
-        <div class="container-fluid">
-            <div id="banner row">
-            </div>
-            <div id="inner-card" class="card row">
-                <div id="card-header" class="card-header card-header-destinations border-0">
-                    <div id="card-img-div">
-                        <img id="card-thumbnail" src="" alt="">
+    <div class="container-fluid dest-card-div">
+        <div id="row">
+            <div id="col-12 mt-3">
+                <div class="card dest-card">
+                    <div class="card-horizontal">
+                        <div class="img-wrapper">
+                            <img id="card-thumbnail" src="/assets/images//default-destination-primary.png" alt="">
+                        </div>
+                        <div class="card-body row">
+                            <div class="col-12">
+                                <div class="row" style="padding-bottom: 1rem;">
+                                    <div class="col-7">
+                                        <span class="title destination-button-card" id="card-header"></span>
+                                    </div>
+                                    <div class="col-5" id="addToTrip"></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6 col-md-12">
+                                        <p class="card-text dest-text" id="district">
+                                            <i class="fas fa-city" data-toggle="tooltip" data-placement="top" title="District" style="padding-right: 3px"></i>
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12">
+                                        <p class="card-text dest-text" id="country">
+                                            <i class="fas fa-flag" data-toggle="tooltip" data-placement="top" title="Country" style="padding-right: 3px"></i>
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12">
+                                        <p class="card-text dest-text" id="destType">
+                                            <i class="fas fa-landmark" data-toggle="tooltip" data-placement="top" title="Type" style="padding-right: 3px"></i>
+                                        </p>
+                                    </div>
+                                    <div class="col-lg-6 col-md-12">
+                                        <p class="card-text dest-text" id="destinatonCardTravellerTypes">
+                                            <i class="fas fa-luggage-cart" data-toggle="tooltip" data-placement="top" title="Traveller Types" style="padding-right: 3px"></i>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card-body row">
-            <div class="col-6">
-                <p class="card-text" id="country">
-                    <i class="fas fa-flag" data-toggle="tooltip" data-placement="top" title="Country" style="padding-right: 3px"></i>
-                </p>
-                <p class="card-text" id="district">
-                    <i class="fas fa-city" data-toggle="tooltip" data-placement="top" title="District" style="padding-right: 3px"></i>
-                </p>
-            </div>
-            <div class="col-6">
-                <p class="card-text" id="destType">
-                    <i class="fas fa-landmark" data-toggle="tooltip" data-placement="top" title="Type" style="padding-right: 3px"></i>
-                </p>
-                <p class="card-text" id="destinatonCardTravellerTypes">
-                    <i class="fas fa-luggage-cart" data-toggle="tooltip" data-placement="top" title="Traveller Types" style="padding-right: 3px"></i>
-                </p>
-                <div id="addToTrip" class="destination-card-add-to-trip"></div>
-            </div>
-        </div>
     </div>
+
+        @*<div id="inner-card" class="card row">*@
+            @*<div id="card-header" class="card-header card-header-destinations border-0">*@
+            @*</div>*@
+        @*</div>*@
+
 </template>

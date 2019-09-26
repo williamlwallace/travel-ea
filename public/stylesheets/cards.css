@@ -19,21 +19,36 @@
 
 }
 
+.dest-text {
+    font-size: 1rem;
+    display: inline-block;
+}
+
 #card-img-div{
     display: inline-block;
     max-height: 5rem;
     max-width: 5rem;
+}
 
+#card-thumbnail {
+    height: 10rem;
+    padding: 0.5rem;
+}
+
+span.destination-button-card {
+    text-decoration: inherit;
+    color: inherit;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+span.destination-button-card:hover {
+    text-decoration-line: underline;
 }
 
 #card-thumbnail-div {
     background-color: white;
-}
-
-#card-thumbnail {
-    /*box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);*/
-    max-height: 5rem;
-    max-width: 5rem;
 }
 
 #flag {
@@ -51,4 +66,22 @@
 .destination-card-add-to-trip {
     float: right;
     padding-top: 0.5rem;
+}
+
+.dest-body {
+    display: inline-block;
+}
+
+.card-horizontal {
+    display:flex;
+    flex: 1 1 auto;
+}
+
+.dest-card-div {
+    padding-bottom: 1rem;
+    max-width: 45rem;
+}
+
+.dest-card {
+    border-radius: 0px;
 }

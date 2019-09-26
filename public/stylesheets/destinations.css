@@ -36,6 +36,10 @@ a.black-nav {
     padding: 16px;
 }
 
+#createDestinationPopOut {
+    padding-left: 0px;
+}
+
 .hideCreateDestinationPopOut {
     width: 0px;
     display: none;
