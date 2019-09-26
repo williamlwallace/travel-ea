@@ -100,7 +100,6 @@ class NewsFeed {
                 const card = createCard(event);
                 this.feed.find(".news-feed-body").append(card);
             }
-
         }
     }
 
