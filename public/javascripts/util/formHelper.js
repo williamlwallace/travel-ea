@@ -133,6 +133,37 @@ function fillDropDown(dropdownName, dict, sort = false) {
     dropdown.selectpicker('refresh');
 }
 
+function fillTypeDropDown(dropDownName) {
+
+    let dict = {};
+    const destinationTypes = [
+        "City",
+        "Town",
+        "Place",
+        "Mountain",
+        "Accommodation",
+        "Eatery",
+        "Monument",
+        "Beach",
+        "Lake",
+        "River",
+        "Historical Place",
+        "Museum",
+        "Attraction",
+        "Shopping",
+        "Landmark",
+        "Island",
+        "Tower",
+        "Event",
+        "Other"];
+
+    for (const type of destinationTypes) {
+        dict[type] = type;
+    }
+
+    fillDropDown(dropDownName, dict);
+}
+
 /**
  * Sets form fields values
  * @param {JSON} json - Json containing field ids and values
