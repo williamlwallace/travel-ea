@@ -432,36 +432,7 @@ function populateDestinationFollowers(destinationId, searchQuery,
  * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
 function createUserFollowerCard(users, clearFollowers) {
-    if (clearFollowers) {
-        $("#followersCardList").html("");
-    }
-
-    if (users.length < 1 && clearFollowers) {
-        $("#followersCardList").html(
-            '<label id="no-following">No users found</label>');
-    } else {
-        users.forEach((user) => {
-            const template = $("#followerCardTemplate").get(0);
-            const clone = template.content.cloneNode(true);
-
-            $(clone).find("#follower-summary-name").append(
-                user.firstName + ' ' + user.lastName);
-            if (user.profilePhoto) {
-                $(clone).find("#follower-picture").attr("src",
-                    "../../user_content/"
-                    + user.profilePhoto.thumbnailFilename);
-            }
-            $(clone).find("#follower-card").attr("data-id",
-                user.userId.toString());
-            // Set follower count on user card
-            const followerCount = countFormatter(user.followerUsersCount);
-            $(clone).find("#follower-summary-follower-count").append(
-                followerCount + " Followers");
-            $(clone).find("#follower-card").click(function() {location.href = `/profile/${user.userId}`});
-
-            $("#followersCardList").get(0).appendChild(clone);
-        });
-    }
+    createSummaryCard("followersCardList", users, clearFollowers, "Not following any users");
 }
 
 /**
@@ -470,37 +441,7 @@ function createUserFollowerCard(users, clearFollowers) {
  * @param {Boolean} clearFollowing Whether or not to clear the followed already displayed
  */
 function createUserFollowedByCard(users, clearFollowing) {
-    if (clearFollowing) {
-        $("#followedByCardList").html("");
-    }
-
-    if (users.length < 1 && clearFollowing) {
-        $("#followedByCardList").html(
-            '<label id="no-followers">No followers found</label>');
-    } else {
-        users.forEach((user) => {
-            const template = $("#followerCardTemplate").get(0);
-            const clone = template.content.cloneNode(true);
-
-            $(clone).find("#follower-summary-name").append(
-                user.firstName + ' ' + user.lastName);
-            if (user.profilePhoto) {
-                $(clone).find("#follower-picture").attr("src",
-                    "../../user_content/"
-                    + user.profilePhoto.thumbnailFilename);
-            }
-            $(clone).find("#follower-card").attr("data-id",
-                user.userId.toString());
-
-            // Set follower count on user card
-            const followerCount = countFormatter(user.followerUsersCount);
-            $(clone).find("#follower-summary-follower-count").append(
-                followerCount + " Followers");
-            $(clone).find("#follower-card").click(function() {location.href = `/profile/${user.userId}`});
-            $("#followedByCardList").get(0).appendChild(clone);
-
-        });
-    }
+    createSummaryCard("followedByCardList", users, clearFollowing, "No users are following");
 }
 
 /**
@@ -509,68 +450,67 @@ function createUserFollowedByCard(users, clearFollowing) {
  * @param {Boolean} clearFollowers Whether or not to clear the followers already displayed
  */
 function createDestinationFollowerCard(destinations, clearFollowers) {
-    if (clearFollowers) {
-        $("#followersCardList").html("");
-    }
-
-    if (destinations.length < 1 && clearFollowers) {
-        $("#followersCardList").html(
-            '<label id="no-following">No destinations found</label>');
-    } else {
-        destinations.forEach((dest) => {
-            const template = $("#followerCardTemplate").get(0);
-            const clone = template.content.cloneNode(true);
-
-            $(clone).find("#follower-summary-name").append(dest.name);
-            $(clone).find("#follower-picture").attr("src",
-                "/assets/images/default-destination-primary.png");
-            if (dest.primaryPhoto) {
-                $(clone).find("#follower-picture").attr("src",
-                    "../../user_content/"
-                    + dest.primaryPhoto.thumbnailFilename);
-            }
-            $(clone).find("#follower-card").attr("data-id", dest.id.toString());
-
-            // Set follower count on destination card
-            const followerCount = countFormatter(dest.followerCount);
-            $(clone).find("#follower-summary-follower-count").append(
-                followerCount + " Followers");
-            $(clone).find("#follower-card").click(function() {location.href = `/destinations/${dest.id}`});
-            $("#followersCardList").get(0).appendChild(clone);
-        });
-    }
+    createSummaryCard("followersCardList", destinations, clearFollowers, "Not following any destinations", true);
 }
 
 /**
- * Create follower cards for destinations that a user is following for the explore page
- * @param {Array} destinations - List of all destinations that need to be made into cards
+ * Create follower/following cards for users and destinations
+ * @param {String} wrapperId
+ * @param {Array} objects - List of all objects that need to be made into cards
+ * @param {Boolean} clearFollowers Whether or not to clear the cards already displayed
+ * @param {String} emptyMessage the message to display when there are no cards to display
+ * @param {Boolean} destination true to make destination cards, false to make user cards
  */
-function createDestinationFollowerCardExplorePage(destinations) {
-    $("#followersCardListDestinations").html("");
+function createSummaryCard(wrapperId, objects, clearFollowers, emptyMessage, destination=false) {
+    const wrapperElement = $("#" + wrapperId);
 
-    if (destinations.length < 1) {
-        $("#followersCardListDestinations").html(
-            '<label id="no-trending">No Destinations are Currently Trending</label>');
+    if (clearFollowers) {
+        wrapperElement.html("");
+    }
+
+    if (objects.length < 1 && clearFollowers) {
+        wrapperElement.html(
+            '<label class="empty-message">' + emptyMessage + '</label>');
     } else {
-        destinations.forEach((dest) => {
+        objects.forEach((object) => {
             const template = $("#followerCardTemplate").get(0);
             const clone = template.content.cloneNode(true);
 
-            $(clone).find("#follower-summary-name").append(dest.name);
-            $(clone).find("#follower-picture").attr("src",
-                "/assets/images/default-destination-primary.png");
-            if (dest.primaryPhoto) {
-                $(clone).find("#follower-picture").attr("src",
-                    "../../user_content/"
-                    + dest.primaryPhoto.thumbnailFilename);
+            let href;
+            let name;
+            let followerCount;
+            let thumbnailPath;
+            let thumbnailErrorPath;
+            if (destination) {
+                href = `/destinations/${object.id}`;
+                name = object.name;
+                thumbnailErrorPath = "/assets/images/default-destination-primary.png";
+                if (object.primaryPhoto) {
+                    thumbnailPath = "../user_content/" + object.primaryPhoto.thumbnailFilename;
+                } else {
+                    thumbnailPath = thumbnailErrorPath;
+                }
+                followerCount = countFormatter(object.followerCount);
+            } else {
+                href = `/profile/${object.userId}`;
+                name = object.firstName + ' ' + object.lastName;
+                thumbnailErrorPath = "/assets/images/default-profile-picture.jpg";
+                if (object.profilePhoto) {
+                    thumbnailPath = "../user_content/" + object.profilePhoto.thumbnailFilename;
+                } else {
+                    thumbnailPath = thumbnailErrorPath;
+                }
+                followerCount = countFormatter(object.followerUsersCount);
             }
-            // Set follower count on destination card
-            const followerCount = countFormatter(dest.followerCount);
-            $(clone).find("#follower-summary-follower-count").append(
-                followerCount + " Followers");
-            $(clone).find("#follower-card").click(function() {location.href = `/destinations/${dest.id}`});
-            $("#followersCardListDestinations").get(0).appendChild(clone);
 
+            $(clone).find("#follower-summary-name").append(name);
+            $(clone).find("#follower-picture").attr("onerror", "this.src='"+ thumbnailErrorPath +"'");
+            $(clone).find("#follower-summary-follower-count").append(
+                followerCount + " Follower" + (followerCount === 1 ? "" : "s"));
+            $(clone).find("#follower-picture").attr("src", thumbnailPath);
+            $(clone).find("#follower-card").click(function() {location.href = href});
+
+            wrapperElement.get(0).appendChild(clone);
         });
     }
 }
