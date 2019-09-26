@@ -40,9 +40,13 @@ start-server-dev:
     - sbt clean
     - sbt update
     - sbt dist
+    - cd scripts
+    - npm run generate-data-local
+    - cd ..
     - sudo rm -rf ~/devServerProffat
     - mkdir -p ~/devServerProffat
     - unzip target/universal/seng302-team-400-proffat-1.0.0.zip -d ~/devServerProffat
+    - sudo cp -R public /home/sengstudent/devServerProffat/seng302-team-400-proffat-1.0.0/public/
     - sudo systemctl stop proffatDevServer
     - sudo systemctl start proffatDevServer
 
@@ -56,9 +60,13 @@ start-server-prod:
     - sbt clean
     - sbt update
     - sbt dist
+    - cd scripts
+    - npm run generate-data-local
+    - cd ..
     - sudo rm -rf ~/prodServerProffat
     - mkdir -p ~/prodServerProffat
     - unzip target/universal/seng302-team-400-proffat-1.0.0.zip -d ~/prodServerProffat
+    - sudo cp -R public /home/sengstudent/prodServerProffat/seng302-team-400-proffat-1.0.0/public/
     - sudo systemctl stop proffatProdServer
     - sudo systemctl start proffatProdServer
 
