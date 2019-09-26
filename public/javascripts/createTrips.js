@@ -86,14 +86,14 @@ function createDestinationCards(destinations) {
         $(clone).find("#tags").append(tags ? tags : "No tags");
 
         // Add to trip button
-        const addToTripButton = document.createElement("BUTTON");
-        addToTripButton.classList.add("btn");
-        addToTripButton.classList.add("btn-secondary");
+        const addToTripButton = document.createElement("span");
+        addToTripButton.classList.add("destination-button-card");
         addToTripButton.innerText = "Add To Trip";
         addToTripButton.addEventListener("click", function () {
+            console.log(dest.primaryPhoto.filename);
             addDestinationToTrip(dest.id, dest.name, dest.destType,
                 dest.district, dest.latitude, dest.longitude, dest.country.id,
-                dest.primaryPhoto.filename)
+                dest.primaryPhoto)
         });
 
         $(clone).find("#addToTrip").append(addToTripButton);
