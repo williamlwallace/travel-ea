@@ -91,9 +91,15 @@ function createDestinationCards(destinations) {
         addToTripButton.classList.add("btn-primary");
         addToTripButton.innerText = "Add To Trip";
         addToTripButton.addEventListener("click", function () {
+            let primaryPhoto;
+            if (dest.primaryPhoto === null) {
+                primaryPhoto = null
+            } else {
+                primaryPhoto = dest.primaryPhoto.filename
+            }
             addDestinationToTrip(dest.id, dest.name, dest.destType,
                 dest.district, dest.latitude, dest.longitude, dest.country.id,
-                dest.primaryPhoto.filename)
+                primaryPhoto)
         });
 
         $(clone).find("#addToTrip").append(addToTripButton);
