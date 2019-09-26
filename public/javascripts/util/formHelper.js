@@ -133,6 +133,11 @@ function fillDropDown(dropdownName, dict, sort = false) {
     dropdown.selectpicker('refresh');
 }
 
+/**
+ * Fills the destination types drop down
+ * 
+ * @param dropDownName The name of the dropDown element
+ */
 function fillTypeDropDown(dropDownName) {
 
     let dict = {};
@@ -147,7 +152,7 @@ function fillTypeDropDown(dropDownName) {
         "Beach",
         "Lake",
         "River",
-        "Historical Place",
+        "Historic Place",
         "Museum",
         "Attraction",
         "Shopping",
