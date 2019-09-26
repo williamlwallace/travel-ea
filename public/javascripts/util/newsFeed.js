@@ -458,6 +458,9 @@ function multipleDestinations(event) {
     const eventId = event.id;
     const destinationCardId = "multiple-destination-carousel-" + eventId;
     const destinationObjects = destinationCard.find('.carousel-inner');
+    if (destinations.length === 1) {
+        console.log("short boi")
+    }
 
     for (let i = 0; i < destinations.length; i++) {
         destinationCard.find(".main-carousel").attr("id", destinationCardId);
@@ -476,6 +479,12 @@ function multipleDestinations(event) {
 
         carouselWrapper.append(destCard);
         destinationObjects.append(carouselWrapper);
+    }
+
+    if (destinations.length === 1) {
+        console.log("short boi");
+        destinationCard.find(".carousel-control-prev").remove();
+        destinationCard.find(".carousel-control-next").remove();
     }
 
     card.find('.wrapper-body').append(destinationCard);
@@ -527,6 +536,12 @@ function multipleGalleryPhotos(event) {
         baguetteWrapper.append(imageWrapper);
         carouselWrapper.append(baguetteWrapper);
         photoThumbnails.append(carouselWrapper);
+    }
+
+    if (photos.length === 1) {
+        console.log("short boi");
+        photoCard.find(".carousel-control-prev").remove();
+        photoCard.find(".carousel-control-next").remove();
     }
 
     addTags(card, photos[0].tags);
