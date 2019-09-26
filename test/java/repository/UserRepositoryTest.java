@@ -394,17 +394,19 @@ public class UserRepositoryTest extends repository.RepositoryTest {
     }
 
     @Test
-    public void updateUserTagsNewTaggable() throws SQLException {
+    public void updateUserTagsNewTaggable() throws SQLException, InterruptedException {
         User originalUser = userRepository.findID(2L).join();
 
         assertNotNull(originalUser);
         assertEquals(1, originalUser.usedTags.size());
-
         assertEquals(1, countUsedTagsForUser(2L));
 
         ResultSet originalResultSet = getTagsForUserFromDatabase(2L);
         originalResultSet.next();
         Timestamp originalTimestamp = originalResultSet.getTimestamp("time_used");
+
+        // Sleep for one second to ensure timestamps are not the same due to fast database interactions
+        Thread.sleep(1000);
 
         Destination newDestination = new Destination();
         Tag newTag = new Tag("sports");
