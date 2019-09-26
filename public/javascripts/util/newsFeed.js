@@ -458,9 +458,6 @@ function multipleDestinations(event) {
     const eventId = event.id;
     const destinationCardId = "multiple-destination-carousel-" + eventId;
     const destinationObjects = destinationCard.find('.carousel-inner');
-    if (destinations.length === 1) {
-        console.log("short boi")
-    }
 
     for (let i = 0; i < destinations.length; i++) {
         destinationCard.find(".main-carousel").attr("id", destinationCardId);
@@ -482,7 +479,6 @@ function multipleDestinations(event) {
     }
 
     if (destinations.length === 1) {
-        console.log("short boi");
         destinationCard.find(".carousel-control-prev").remove();
         destinationCard.find(".carousel-control-next").remove();
     }
