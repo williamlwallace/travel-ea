@@ -1,4 +1,4 @@
-@import play.mvc.Http.Request
+
 @(user: models.User)
 
 @scripts = {
@@ -17,6 +17,7 @@
 @layouts.main("Home", user, scripts) {
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/profile.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/cards.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/tripCards.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/profile.css")">
 
