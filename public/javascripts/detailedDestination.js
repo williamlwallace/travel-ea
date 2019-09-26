@@ -420,20 +420,6 @@ function fillTravellerTypeInfo() {
 }
 
 /**
- * On click handler to change tab panel on destination page
- */
-$('#dest-tabs a').on('click', function (event) {
-    event.preventDefault();
-    $(this).tab('show');
-    let activeTab = $('#dest-tabs a.active').attr('id');
-    if (activeTab === "photos-tab") {
-        $([document.documentElement, document.body]).animate({
-            scrollTop: $("#main-gallery").offset().top
-        }, 500);
-    }
-});
-
-/**
  Gets a users photos and adds them to the gallery in the modal for setting a primary photo
  * is paginated
  */

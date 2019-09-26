@@ -552,14 +552,131 @@ public class DestinationControllerTest extends controllers.backend.ControllersTe
     }
 
     @Test
+    public void createPublicDestinationAndMergeSimilar() throws SQLException, IOException {
+        // Get existing trip data and photo which reference destination 2
+        TripData oldTripData = tripDataFromResultSet(
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+                .executeQuery()).iterator().next();
+
+        ResultSet rs = connection
+            .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        rs.next();
+
+        Long oldPhotoDestId = rs.getLong(1);
+        assertEquals((Long) 2L, oldTripData.destination.id);
+        assertEquals((Long) 2L, oldPhotoDestId);
+
+        // Create a new public destination this should merge all of destination 1, 2 and 8 into the new destination
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
+
+        User user = new User();
+        user.id = 3L;
+
+        Destination destination = new Destination();
+        destination.user = user;
+        destination.name = "The Eiffel Tower";
+        destination.destType = "Monument";
+        destination.district = "Paris";
+        destination.latitude = 48.8586;
+        destination.longitude = 2.2947;
+        destination.country = countryDefinition;
+        destination.isPublic = true;
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(POST)
+            .bodyJson(Json.toJson(destination))
+            .cookie(adminAuthCookie)
+            .uri(CREATE_DEST_URL);
+
+        // Get result and check it was successfully
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        Long newDestinationId = new ObjectMapper().readValue(Helpers.contentAsString(result), Long.class);
+
+        // Check that trip data got pointed to new destination
+        TripData newTripData = tripDataFromResultSet(
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+                .executeQuery()).iterator().next();
+        assertEquals(newDestinationId, newTripData.destination.id);
+
+        // Check that photo got pointed to new destination
+        ResultSet newRs = connection
+            .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        newRs.next();
+        Long newPhotoDestId = newRs.getLong(1);
+        assertEquals(newDestinationId, newPhotoDestId);
+    }
+
+    @Test
+    public void editDestinationToPublicAndMergeSimilar() throws SQLException {
+        // Get existing trip data and photo which reference destination 2
+        TripData oldTripData = tripDataFromResultSet(
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+                .executeQuery()).iterator().next();
+
+        ResultSet rs = connection
+            .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        rs.next();
+
+        Long oldPhotoDestId = rs.getLong(1);
+        assertEquals((Long) 2L, oldTripData.destination.id);
+        assertEquals((Long) 2L, oldPhotoDestId);
+
+        // Create a new public destination this should merge all of destination 1, 2 and 8 into the new destination
+        CountryDefinition countryDefinition = new CountryDefinition();
+        countryDefinition.id = 1L;
+
+        User user = new User();
+        user.id = 2L;
+
+        Destination destination = new Destination();
+        destination.id = 8L;
+        destination.user = user;
+        destination.name = "The Eiffel Tower";
+        destination.destType = "Monument";
+        destination.district = "Paris";
+        destination.latitude = 48.8586;
+        destination.longitude = 2.2947;
+        destination.country = countryDefinition;
+        destination.isPublic = true;
+
+        Http.RequestBuilder request = Helpers.fakeRequest()
+            .method(PUT)
+            .bodyJson(Json.toJson(destination))
+            .cookie(nonAdminAuthCookie)
+            .uri(DEST_URL_SLASH + destination.id);
+
+        // Get result and check it was successfully
+        Result result = route(fakeApp, request);
+        assertEquals(OK, result.status());
+
+        // Check that trip data got pointed to new destination
+        TripData newTripData = tripDataFromResultSet(
+            connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
+                .executeQuery()).iterator().next();
+        assertEquals(destination.id, newTripData.destination.id);
+
+        // Check that photo got pointed to new destination
+        ResultSet newRs = connection
+            .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
+        newRs.next();
+        Long newPhotoDestId = newRs.getLong(1);
+        assertEquals(destination.id, newPhotoDestId);
+    }
+
+    @Test
     public void makeDestinationPublicAndMergeSimilar() throws SQLException {
         // Get existing trip data and photo which reference destination 2
         TripData oldTripData = tripDataFromResultSet(
             connection.prepareStatement("SELECT * FROM TripData WHERE position = 2;")
                 .executeQuery()).iterator().next();
+
         ResultSet rs = connection
             .prepareStatement("SELECT destination_id FROM DestinationPhoto;").executeQuery();
         rs.next();
+
         Long oldPhotoDestId = rs.getLong(1);
         assertEquals((Long) 2L, oldTripData.destination.id);
         assertEquals((Long) 2L, oldPhotoDestId);

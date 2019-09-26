@@ -1,8 +1,5 @@
 package controllers.backend;
 
-import static controllers.backend.ControllersTest.adminAuthCookie;
-import static controllers.backend.ControllersTest.fakeApp;
-import static controllers.backend.ControllersTest.nonAdminAuthCookie;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.io.FileUtils.getFile;
 import static org.junit.Assert.assertEquals;
@@ -94,51 +91,6 @@ public class PhotoControllerTest extends controllers.backend.ControllersTest {
         partsList.add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto.png", "image/png",
             FileIO.fromPath(file.toPath()),
             "form-data"));
-
-        // Create a request, with only the single part to add
-        Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")
-            .method("POST")
-            .cookie(adminAuthCookie)
-            .bodyMultipart(
-                partsList,
-                play.libs.Files.singletonTemporaryFileCreator(),
-                fakeApp.asScala().materializer()
-            );
-
-        // Post to url and get result, checking that a success was returned
-        // Get result and check it was successful
-        Result result = route(fakeApp, request);
-        assertEquals(CREATED, result.status());
-    }
-
-    @Test
-    public void testMultipleFileUpload() {
-        // Load a file from the public images to upload
-        File file1 = getFile("./public/images/favicon.png");
-        File file2 = getFile("./public/images/travelEA.png");
-
-        // List of objects that will be appended to the body of our multipart/form-data
-        List<Http.MultipartFormData.Part<Source<ByteString, ?>>> partsList = new ArrayList<>();
-
-        // Add text field parts
-        for (Pair<String, String> pair : Arrays.asList(
-            new Pair<>("isTest", "true"),
-            new Pair<>("profilePhotoName", "favicon.png"),
-            new Pair<>("publicPhotoFileNames", "travelEA.png"),
-            new Pair<>("tags", "[{\"name\":\"Germany\"}]")
-        )) {
-            partsList.add(new Http.MultipartFormData.DataPart(pair.getKey(), pair.getValue()));
-        }
-
-        // Convert these files to multipart form data parts
-        partsList
-            .add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto1.png", "image/png",
-                FileIO.fromPath(file1.toPath()),
-                "form-data"));
-        partsList
-            .add(new Http.MultipartFormData.FilePart<>("picture", "testPhoto2.png", "image/png",
-                FileIO.fromPath(file2.toPath()),
-                "form-data"));
 
         // Create a request, with only the single part to add
         Http.RequestBuilder request = Helpers.fakeRequest().uri("/api/photo")

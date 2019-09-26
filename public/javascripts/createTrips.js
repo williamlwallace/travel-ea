@@ -86,14 +86,19 @@ function createDestinationCards(destinations) {
         $(clone).find("#tags").append(tags ? tags : "No tags");
 
         // Add to trip button
-        const addToTripButton = document.createElement("BUTTON");
-        addToTripButton.classList.add("btn");
-        addToTripButton.classList.add("btn-secondary");
+        const addToTripButton = document.createElement("span");
+        addToTripButton.classList.add("destination-button-card");
         addToTripButton.innerText = "Add To Trip";
         addToTripButton.addEventListener("click", function () {
+            let primaryPhoto;
+            if (dest.primaryPhoto === null) {
+                primaryPhoto = null
+            } else {
+                primaryPhoto = dest.primaryPhoto.filename
+            }
             addDestinationToTrip(dest.id, dest.name, dest.destType,
                 dest.district, dest.latitude, dest.longitude, dest.country.id,
-                dest.primaryPhoto.filename)
+                primaryPhoto)
         });
 
         $(clone).find("#addToTrip").append(addToTripButton);
@@ -500,5 +505,23 @@ $('#CreateDestinationCancelButton').click(function () {
     resetDestinationModal();
 });
 
+/**
+ * Allows search of people on enter key press
+ */
+$("#collapseDestinationFilter").on('keypress',function(e) {
+    if(e.which === 13) {
+        refreshData();
+    }
+});
 
-
+/**
+ * Resets the fields of the destinations filter
+ */
+function clearDestinationsFilter() {
+    $("#searchQuery").val("");
+    $("#pageSize").val(25);
+    $("#sortBy").val("name");
+    $("#sortBy").selectpicker("refresh");
+    $("#ascending").val("true");
+    $("#ascending").selectpicker("refresh");
+}

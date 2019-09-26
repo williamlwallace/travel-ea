@@ -10,8 +10,7 @@
  */
 .parent {
     overflow: auto;
-    min-height: 240px;
-    max-height:40rem;
+    max-height: 74%;
 }
 
 /*
@@ -39,7 +38,7 @@
 }
 
 .scrollBlock {
-    max-height: 620px;
+    max-height: 63%;
 }
 
 #destinationCardList {
@@ -101,4 +100,8 @@
     vertical-align: middle;
     text-align: center;
     line-height: 240px;
+}
+
+#createTripDestinationPagination {
+    margin-top: 1rem;
 }

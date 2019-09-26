@@ -3,10 +3,6 @@
     display: block;
 }
 
-#tripPagination {
-    margin-top: -1.5rem;
-}
-
 #tripCardsList {
     margin-top: 3rem;
 }
@@ -17,4 +13,12 @@
 
 #no-trips-found {
     margin: 10rem;
+}
+
+#tripPaginationBottom {
+    margin-top: 3rem;
+}
+
+#createTripButton {
+    float: left;
 }

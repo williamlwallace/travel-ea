@@ -134,6 +134,42 @@ function fillDropDown(dropdownName, dict, sort = false) {
 }
 
 /**
+ * Fills the destination types drop down
+ * 
+ * @param dropDownName The name of the dropDown element
+ */
+function fillTypeDropDown(dropDownName) {
+
+    let dict = {};
+    const destinationTypes = [
+        "City",
+        "Town",
+        "Place",
+        "Mountain",
+        "Accommodation",
+        "Eatery",
+        "Monument",
+        "Beach",
+        "Lake",
+        "River",
+        "Historic Place",
+        "Museum",
+        "Attraction",
+        "Shopping",
+        "Landmark",
+        "Island",
+        "Tower",
+        "Event",
+        "Other"];
+
+    for (const type of destinationTypes) {
+        dict[type] = type;
+    }
+
+    fillDropDown(dropDownName, dict);
+}
+
+/**
  * Sets form fields values
  * @param {JSON} json - Json containing field ids and values
  */

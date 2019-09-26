@@ -36,6 +36,10 @@ a.black-nav {
     padding: 16px;
 }
 
+#createDestinationPopOut {
+    padding-left: 0px;
+}
+
 .hideCreateDestinationPopOut {
     width: 0px;
     display: none;
@@ -62,6 +66,13 @@ a.black-nav {
 }
 
 .filterButtonContainer {
-    padding-bottom: 2.3rem;
     text-align: center;
+}
+
+#filterButton {
+    margin-bottom: 1rem;
+}
+
+.pagination-destinations {
+    padding-top: 0 !important;
 }

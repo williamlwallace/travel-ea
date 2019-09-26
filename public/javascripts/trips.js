@@ -70,15 +70,6 @@ function getAndCreateTrips(url, paginationHelper) {
                                 $("#tripCardsList").append(
                                     createTripCard(item));
                             });
-
-                            // $(".card-body").click((element) => {
-                            //     if (!$(element.currentTarget).find(
-                            //         ".title").data()) {
-                            //         return;
-                            //     }
-                            //     populateModal($(element.currentTarget).find(
-                            //         ".title").data().id);
-                            // });
                         } else {
                             $("#tripCardsList").html(
                                 '<div class="text-center"><p id="no-trips-found">No trips found!</p></div>');
@@ -396,7 +387,6 @@ function toggleFilterButton() {
     const toggled = tripsFilterButton.css("display") === "block";
     tripsFilterButton.css("display", toggled ? "none" : "block");
     $('#createTripButton').css("display", toggled ? "none" : "block");
-    $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
 }
 
 /**
@@ -409,6 +399,18 @@ function clearTripFilter() {
     $("#filterMyTrips").val("allTrips");
     getTripResults();
 }
+
+/**
+ * Scrolls the user to the top of the list when the user changes the page from
+ * the bottom pagination bar
+ */
+$("#tripPaginationBottom, #tripPaginationTop").on("click", function () {
+    const titleFrame = $("#title-frame");
+    $([document.documentElement, document.body]).animate({
+        scrollTop: titleFrame.offset().top + titleFrame.height()
+            - $("#navbar").height()
+    }, 1000);
+});
 
 /**
  * Allows search of destination on enter key press

@@ -7,7 +7,6 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import models.User;
 import play.libs.concurrent.HttpExecutionContext;
-import play.libs.ws.WSClient;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;

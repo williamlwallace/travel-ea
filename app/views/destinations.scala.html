@@ -45,7 +45,7 @@
 
                     <div class="tab-pane fade show active" id="cardsTab" role="tabpanel" aria-labelledby="card-tab">
 
-                        <div class="container pt-4">
+                        <div class="mt-4">
 
                             @* The destination filter button and collapsible options *@
                             <div id="destinationFilterPlaceholder">
@@ -81,7 +81,8 @@
 
                                 <div>Type
                                     <em class="fas prefix grey-text"></em>
-                                    <input type="text" name="destType" class="form-control validate" required>
+                                    <select id="destination-type-dd" name="destType" class="form-control validate selectpicker"
+                                    data-live-search="true" data-size="5"></select>
                                     <label id="_typeError" class="error-messages"></label>
                                 </div>
 
@@ -143,6 +144,6 @@
 <script type="text/javascript">
     onPageLoad(@user.id);
     getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
-
+    fillTypeDropDown("destination-type-dd");
     const tagPicker = new TagPicker(@user.id, "destinations-tag");
 </script>
