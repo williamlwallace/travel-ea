@@ -79,6 +79,9 @@ public class UserController extends TEABackController {
     public CompletableFuture<Result> userSearch(Http.Request request, String searchQuery,
         String sortBy, Boolean ascending, Integer pageNum, Integer pageSize, Integer requestOrder) {
 
+        pageSize = pageSize > 100 ? 100 : pageSize;
+        pageSize = pageSize < 1 ? 1 : pageSize;
+
         return userRepository
             .search(request.attrs().get(ActionState.USER).id, searchQuery, sortBy, ascending,
                 pageNum, pageSize)

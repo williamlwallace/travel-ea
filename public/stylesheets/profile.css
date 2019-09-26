@@ -82,7 +82,7 @@ span.user-info {
 }
 
 /**
-* Invalid countrys
+* Invalid countries
  */
 span.invalid-country {
     font-weight: 400;
@@ -126,22 +126,6 @@ img.profile-picture {
 div.section-title {
     padding: 10px 5px 10px 5px;
     font-weight: 500;
-}
-
-/**
- * Styling for the section buttons
- */
-a.button-secondary {
-    color: #1b1e21;
-}
-
-a.button-secondary:hover {
-    color: #6d6d6e;
-    text-decoration-line: underline;
-}
-
-a.button-secondary:active {
-    color: #1b1e21;
 }
 
 span.profile-button {
@@ -348,39 +332,26 @@ section#timeline a {
 .profile-nav{border:1px solid transparent;border-top-left-radius:.25rem;border-top-right-radius:.25rem}
 .profile-nav-text{font-weight: 600; font-size: 22px}
 
-#profile-tabs{
-    max-width: 70rem;
-}
-
-.tab-buttons {
-    padding: 0 2.5rem 0 1.5rem;
-}
-
-#tripCardsList {
-    padding: 40px 2.5rem 40px 1.5rem;
-    min-height: 76%;
-}
-
-#closeButton {
+#profileCreateTripButton, #add-photo-button {
     float: left;
 }
 
-#applyButton {
+#tripsFilterButton, #tagFilterOuter {
     float: right;
 }
 
-#filterItemDiv {
-    margin: 0 5px 10px 5px;
+#profile-trips-tab, #photos {
+    min-height: 76%;
 }
 
-.tripsCollapse {
-    padding: 0 1.5rem;
+.tz-gallery {
+    margin-top: 3rem;
 }
 
-.tripsFilterCard {
-    max-width: 36rem;
+#no-trips-found {
+    margin: 10rem;
 }
 
-#feed {
-    padding: 2rem 6rem 0 6rem;
+#profileTripCardsList {
+    margin-top: 3rem;
 }

@@ -59,6 +59,16 @@
                 <div id="tripError" class="error-messages"></div>
                     <!-- Destination card deck -->
                 <div id="parent"  style="border:1px solid #cecece; background-color: #ececed;" class="parent">
+                    @if(trip.tripDataList.length == 0) {
+                        <div id="emptyTripContainer" class="empty-trip-message">
+                            <label>Add destinations to your trip via the side bar or filter to find places you have visited</label>
+                        </div>
+                    } else {
+                        <div id="emptyTripContainer" class="empty-trip-message" style="display: none">
+                            <label>Add destinations to your trip via the side bar or filter to find places you have visited</label>
+                        </div>
+                    }
+
                     <div id="list" class="list">
                         @for(i <- trip.tripDataList.indices) {
                             <div class="card card-dest-for-trip flex-row" id=@i >
@@ -135,53 +145,12 @@
             </div>
 
             <div class="col-4 scrollblock">
-                <div class="filterButtonContainer">
-                    <button id="filterButton" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#collapseDestinationFilter"
-                    aria-expanded="false" aria-controls="collapseDestinationFilter">Filter Destinations To Add</button>
+
+                @* The destination filter button and collapsible options *@
+                <div id="destinationFilterPlaceholder">
+                    @modules.destinationFilter()
                 </div>
-                @* The destination filter options *@
-                <div class="collapse" id="collapseDestinationFilter">
-                    <div class="card card-body" id="card-body">
-                        <div class="filterItemDiv">
-                            <label for="searchQuery">Search</label>
-                            <input id="searchQuery" class="form-control validate"/>
-                        </div>
-                        <div class="filterItemDiv pt-2  pb-2">
-                            <label for="pageSize">Results per page</label>
-                            <input id="pageSize" type="number" class="form-control validate" value="10" min="1"/>
-                        </div>
 
-                        <label for="sortBy">Sort by</label>
-                        <div class="row">
-                            <div class="filterItemDiv col">
-                                <select id="sortBy" class="form-control selectpicker" data-style="form-control">
-                                    <option value="name">Name</option>
-                                    <option value="type">Type</option>
-                                    <option value="country.name">Country</option>
-                                    <option value="last_name">Last Name</option>
-                                </select>
-                            </div>
-                            <div class="filterItemDiv col">
-                                <select id="ascending" class="form-control selectpicker" data-style="form-control">
-                                    <option value="true">Ascending</option>
-                                    <option value="false">Descending</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-check pt-3">
-                            <input type="checkbox" class="form-check-input" id="onlyGetMine">
-                            <label class="form-check-label" for="onlyGetMine">Get only my destinations</label>
-                        </div>
-
-                        <div class="text-center pt-3" id="buttonDiv">
-                            <div id="applyButton">
-                                <button class="btn btn-outline-secondary" onclick='clearFilter()'>Clear</button>
-                                <button class="btn btn-primary"  onclick='refreshData()'>Apply</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 @* The destinations cards *@
                 @modules.destinationCards()
                 <div id="destinationCardList"></div>
@@ -250,24 +219,24 @@
 }
 
 <script type="text/javascript">
-        onPageLoad(@ownerId);
-        getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
-        const createTripTagPicker = new TagPicker(@user.id, "create-trip-tag");
-        if (@trip.tags.size() != 0) {
-            @for(i <- trip.getTagsList().indices) {
-                createTripTagPicker.insertTag("@trip.getTagsList()(i).name");
-            }
+    onPageLoad(@ownerId);
+    getAndFillDD(countryApiUrl, ["countryDropDown"], "name", false, "numericCode", true);
+    const createTripTagPicker = new TagPicker(@user.id, "create-trip-tag");
+    if (@trip.tags.size() != 0) {
+        @for(i <- trip.getTagsList().indices) {
+            createTripTagPicker.insertTag("@trip.getTagsList()(i).name");
         }
-        $( function() {
-            $( "#list" ).disableSelection().sortable({
-                scroll: true,
-                axis: 'y',
-                revert: true,
-                helper: function(event, ui){
-                    let $clone =  $(ui).clone();
-                    $clone .css('position','absolute');
-                    return $clone.get(0);
-                },
-            });
-        } );
+    }
+    $( function() {
+        $( "#list" ).disableSelection().sortable({
+            scroll: true,
+            axis: 'y',
+            revert: true,
+            helper: function(event, ui){
+                let $clone =  $(ui).clone();
+                $clone .css('position','absolute');
+                return $clone.get(0);
+            },
+        });
+    } );
 </script>

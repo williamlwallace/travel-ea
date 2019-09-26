@@ -1,6 +1,7 @@
 let tripsRequestOrder = 0;
 let tripsLastRecievedRequestOrder = -1;
 let tripsPaginationHelper;
+let carouselDataId = 0;
 
 /**
  * Initializes trip pages
@@ -27,10 +28,22 @@ function getTripResults() {
  * Filters the cards with filtered results
  */
 function getAndCreateTrips(url, paginationHelper) {
+    const pageSize = $('#tripPageSize');
+    if (pageSize.val() > 100) {
+        pageSize.val(100);
+        toast("Results per page too large",
+            "The maximum results per page is 100, only 100 results will be returned",
+            "warning", 7500);
+    } else if (pageSize < 1) {
+        pageSize.val(1);
+        toast("Results per page too small",
+            "The minimum results per page is 1, 1 result will be returned",
+            "warning", 7500);
+    }
 
     // Append pagination params
     url.searchParams.append("pageNum", paginationHelper.getCurrentPageNumber());
-    url.searchParams.append("pageSize", $('#tripPageSize').val().toString());
+    url.searchParams.append("pageSize", pageSize.val().toString());
     url.searchParams.append("searchQuery", $('#tripSearch').val());
     url.searchParams.append("ascending", $('#tripAscending').val());
     url.searchParams.append("requestOrder", tripsRequestOrder++);
@@ -45,26 +58,34 @@ function getAndCreateTrips(url, paginationHelper) {
             response.json()
             .then(json => {
                 if (response.status !== 200) {
-                    toast("Error", "Error fetching people data", "danger")
+                    toast("Error", json, "danger", 5000)
                 } else {
                     if (tripsLastRecievedRequestOrder < json.requestOrder) {
                         const totalNumberPages = json.totalNumberPages;
                         $("#tripCardsList").html("");
                         tripsLastRecievedRequestOrder = json.requestOrder;
-                        json.data.forEach((item) => {
-                            $("#tripCardsList").append(createTripCard(item));
-                        });
 
-                        $(".card-body").click((element) => {
-                            if (!$(element.currentTarget).find(
-                                ".title").data()) {
-                                return;
-                            }
-                            populateModal($(element.currentTarget).find(
-                                ".title").data().id);
-                        });
-                        paginationHelper.setTotalNumberOfPages(totalNumberPages);
+                        if (json.data.length >= 1) {
+                            json.data.forEach((item) => {
+                                $("#tripCardsList").append(
+                                    createTripCard(item));
+                            });
 
+                            // $(".card-body").click((element) => {
+                            //     if (!$(element.currentTarget).find(
+                            //         ".title").data()) {
+                            //         return;
+                            //     }
+                            //     populateModal($(element.currentTarget).find(
+                            //         ".title").data().id);
+                            // });
+                        } else {
+                            $("#tripCardsList").html(
+                                '<div class="text-center"><p id="no-trips-found">No trips found!</p></div>');
+                        }
+
+                        paginationHelper.setTotalNumberOfPages(
+                            totalNumberPages);
                     }
                 }
             })
@@ -75,7 +96,7 @@ function getAndCreateTrips(url, paginationHelper) {
 /**
  * Creates a html trip card
  *
- * @param trip is Json profile object
+ * @param {Object} trip - Json trip object
  */
 function createTripCard(trip) {
     const template = $("#tripCardTemplate").get(0);
@@ -102,10 +123,12 @@ function createTripCard(trip) {
     $(clone).find("#date").append(firstDate);
     $(clone).find(".title").attr("data-id", trip.id.toString());
 
+    $(clone).find(".card-body").click(() => {
+        populateModal(trip.id);
+    });
+
     return $(clone);
 }
-
-let i = 0; // Global counter for carousel data-id
 
 /**
  * Creates a carousel for given clone and trip data
@@ -115,7 +138,7 @@ let i = 0; // Global counter for carousel data-id
  */
 function initCarousel(clone, trip) {
     $(clone).find("#card-thumbnail-div-trips").append(
-        `<div id=tripCarousel-${i} class="trip-carousel carousel slide trip-carousel-fade carousel-fade" data-ride=carousel data-id=tripCarousel-${i}><div id=carousel-inner class= 'trip-carousel-inner carousel-inner' data-id=carousel-inner-${i}></div></div>`
+        `<div id=tripCarousel-${carouselDataId} class="trip-carousel carousel slide trip-carousel-fade carousel-fade" data-ride=carousel data-id=tripCarousel-${carouselDataId}><div id=carousel-inner class= 'trip-carousel-inner carousel-inner' data-id=carousel-inner-${carouselDataId}></div></div>`
     );
     let photo = null;
     let photoNum = 0;
@@ -128,7 +151,8 @@ function initCarousel(clone, trip) {
             photoNum += 1;
         }
         if (photo) {
-            $(clone).find(`[data-id="carousel-inner-${i}"]`).append(
+            $(clone).find(
+                `[data-id="carousel-inner-${carouselDataId}"]`).append(
                 "<div class=\"trip-carousel-item carousel-item\">\n"
                 + "<img src=" + photo
                 + " class=\"d-block w-100\">\n"
@@ -142,12 +166,12 @@ function initCarousel(clone, trip) {
         $(clone).find('.carousel-item').first().addClass('active');
         $(clone).carousel();
         if (photoNum > 1) {
-            $(clone).find(`[data-id="tripCarousel-${i}"]`).append(
-                `<a class=carousel-control-prev href=#tripCarousel-${i} role=button data-slide=prev>
+            $(clone).find(`[data-id="tripCarousel-${carouselDataId}"]`).append(
+                `<a class=carousel-control-prev href=#tripCarousel-${carouselDataId} role=button data-slide=prev>
                 <span class='carousel-control-prev-icon trip-carousel-control-prev-icon' aria-hidden=true></span>
                 <span class=sr-only>Previous</span>
                 </a>
-                <a id=next-button class=carousel-control-next href=#tripCarousel-${i} role=button data-slide=next>
+                <a id=next-button class=carousel-control-next href=#tripCarousel-${carouselDataId} role=button data-slide=next>
                 <span class='carousel-control-next-icon trip-carousel-control-next-icon' aria-hidden=true></span>
                 <span class=sr-only>Next</span>
                 </a>`
@@ -155,7 +179,7 @@ function initCarousel(clone, trip) {
         }
         $('#next-button').click()
     }
-    i++;
+    carouselDataId++;
 }
 
 /**
@@ -225,7 +249,7 @@ function createTimeline(trip) {
             }
 
             $("#privacy-img").click(function () {
-                updateTripPrivacy( 
+                updateTripPrivacy(
                     tripRouter.controllers.backend.TripController.updateTripPrivacy().url,
                     "/assets/images/public.png", "/assets/images/private.png",
                     trip.id)
@@ -329,8 +353,6 @@ function deleteTrip(tripId, userId) {
             this.initialDelete = false;
         }
 
-        const getTripURL = tripRouter.controllers.backend.TripController.getAllTrips(
-            userId).url;
         $('#trip-modal').modal('hide');
         if (window.location.href.includes("/profile/")) {
             profileLoadTrips();
@@ -370,13 +392,29 @@ function copyTrip(tripId, userId) {
  * Toggles the filter button between being visible and invisible
  */
 function toggleFilterButton() {
-    const toggled = $('#tripsFilterButton').css("display") === "block";
-    $('#tripsFilterButton').css("display", toggled ? "none" : "block");
+    let tripsFilterButton = $("#tripsFilterButton");
+    const toggled = tripsFilterButton.css("display") === "block";
+    tripsFilterButton.css("display", toggled ? "none" : "block");
+    $('#createTripButton').css("display", toggled ? "none" : "block");
+    $('#tripPagination').css("margin-top", toggled ? "0rem" : "-1.5rem");
 }
 
 /**
  * Clears the filter and repopulates the cards
  */
-function clearFilter() {
-    $('#search').val('');
+function clearTripFilter() {
+    $("#tripSearch").val("");
+    $("#tripPageSize").val(10);
+    $("#tripAscending").val("true");
+    $("#filterMyTrips").val("allTrips");
+    getTripResults();
 }
+
+/**
+ * Allows search of destination on enter key press
+ */
+$("#collapseExample").on('keypress',function(e) {
+    if(e.which === 13) {
+        getTripResults();
+    }
+});

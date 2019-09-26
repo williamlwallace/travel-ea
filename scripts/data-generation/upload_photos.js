@@ -105,8 +105,8 @@ function sendPhoto(photo, userId) {
 function generateDestPictureSql() {
     for (let i = 1; i <= DESTINATION_ID_MAX; i++) {
         const filename = resolve(`${storageDirectory}/photos/dest_photo_${i}.jpg`);
-        const insertPhoto = `INSERT INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${i}, '${filename}', '${filename}', 0);`;
-        const destinationPhoto = `INSERT INTO DestinationPhoto(photo_id, destination_id) VALUES (${photoId}, ${i});`;
+        const insertPhoto = `INSERT IGNORE INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${i}, '${filename}', '${filename}', 0);`;
+        const destinationPhoto = `INSERT IGNORE INTO DestinationPhoto(photo_id, destination_id) VALUES (${photoId}, ${i});`;
         const updateProfile = `UPDATE Destination SET primary_photo_guid = ${photoId} WHERE id=${i};`
         stream.write(insertPhoto + '\n');
         stream.write(destinationPhoto + '\n');
@@ -121,7 +121,7 @@ function generateDestPictureSql() {
 function generateProfilePictureSql(users) {
     for (const user of users) {
         const filename = resolve(`${storageDirectory}/photos/user_photo_${user}.jpg`);
-        const insertPhoto = `INSERT INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${user}, '${filename}', '${filename}', 1);`;
+        const insertPhoto = `INSERT IGNORE INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${user}, '${filename}', '${filename}', 1);`;
         const updateProfile = `UPDATE Profile SET profile_photo_guid = ${photoId} WHERE user_id=${user};`
         stream.write(insertPhoto + '\n');
         stream.write(updateProfile + '\n\n');

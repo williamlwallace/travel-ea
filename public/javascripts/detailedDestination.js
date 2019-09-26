@@ -19,7 +19,7 @@ $(document).ready(function () {
         "destination-primary-photo-pagination");
     getDestinationPhotos();
     $("#feed-tab").click();
-    destinationFeed = new NewsFeed(DESTINATIONID, 'destination-feed',
+    const destinationFeed = new NewsFeed(DESTINATIONID, 'destination-feed',
         newsFeedRouter.controllers.backend.NewsFeedController.getDestinationNewsFeed(
             DESTINATIONID).url);
 });
