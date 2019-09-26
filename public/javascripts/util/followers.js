@@ -522,6 +522,8 @@ function createDestinationFollowerCard(destinations, clearFollowers) {
             const clone = template.content.cloneNode(true);
 
             $(clone).find("#follower-summary-name").append(dest.name);
+            $(clone).find("#follower-picture").attr("src",
+                "/assets/images/default-destination-primary.png");
             if (dest.primaryPhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
@@ -555,6 +557,8 @@ function createDestinationFollowerCardExplorePage(destinations) {
             const clone = template.content.cloneNode(true);
 
             $(clone).find("#follower-summary-name").append(dest.name);
+            $(clone).find("#follower-picture").attr("src",
+                "/assets/images/default-destination-primary.png");
             if (dest.primaryPhoto) {
                 $(clone).find("#follower-picture").attr("src",
                     "../../user_content/"
