@@ -9,18 +9,7 @@ junit:
   stage: test
   script:
     - sbt test
-
-recent-artifacts:
-  stage: deploy
-  script:
-    - sbt dist
-  artifacts:
-    paths:
-      - target/universal/*.zip
-    expire_in: 1 week
   except:
-    - tags
-  only:
     - master-dev@seng302-2019/team-400
 
 release-artifacts:
