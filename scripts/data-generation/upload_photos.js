@@ -24,7 +24,7 @@ console.log("\nDownloading profile pictures...");
 
 createProfileReqs()
 .then(() => {
-    console.log("profile photos completed\n")
+    console.log("profile photos completed\n");
     console.log("\nDownloading Destination Photos...");
     createDestinationPhotos()
     .then(() => {
@@ -38,7 +38,7 @@ createProfileReqs()
 /**
  * Downloads a file from a url to given directory and name
  *
- * @param {stirng} URL address of photo
+ * @param {string} URL address of photo
  * @param {string} filename directory and filename ot save
  */
 function downloadPhotoToFile(URL, filename) {
