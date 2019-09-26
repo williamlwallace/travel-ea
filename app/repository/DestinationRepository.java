@@ -7,14 +7,23 @@ import io.ebean.EbeanServer;
 import io.ebean.Expr;
 import io.ebean.Expression;
 import io.ebean.PagedList;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import models.*;
+import models.Destination;
+import models.DestinationTag;
+import models.DestinationTravellerTypePending;
+import models.FollowerDestination;
+import models.PendingDestinationPhoto;
+import models.TripData;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 import play.db.ebean.EbeanConfig;
 
@@ -536,11 +545,15 @@ public class DestinationRepository {
             + "WHERE FD2.destination_id = FD1.destination_id) AS followCount FROM `FollowerDestination` "
             + "FD1 WHERE FD1.destination_id in (:ids) GROUP BY FD1.destination_id";
 
-        Map<Long, Long> results = new HashMap<>();
-        ebeanServer.createSqlQuery(sqlQuery).setParameter("ids", ids)
-            .findEachRow(((resultSet, rowNum) -> {
-                results.put(resultSet.getLong(1), resultSet.getLong(2));
-            }));
-        return results;
+        if (ids.isEmpty()) {
+            return null;
+        } else {
+            Map<Long, Long> results = new HashMap<>();
+            ebeanServer.createSqlQuery(sqlQuery).setParameter("ids", ids)
+                .findEachRow(((resultSet, rowNum) -> {
+                    results.put(resultSet.getLong(1), resultSet.getLong(2));
+                }));
+            return results;
+        }
     }
 }

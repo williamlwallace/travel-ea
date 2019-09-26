@@ -12,8 +12,9 @@
     "clear-storage": "bash ./scripts/clear-storage.sh",
     "generate-data-non-photo": "python3 ./scripts/data-generation/generate_data.py",
     "upload-photos": "node ./scripts/data-generation/upload_photos.js",
-    "generate-data-local": "npm run clear-storage && npm run generate-data-non-photo && npm run upload-photos ./public/storage",
-    "generate-data-vm": "npm run generate-data-non-photo && npm run upload-photos ../public/storage"
+    "generate-data-local": "npm run clear-storage && npm run generate-data-non-photo && npm run upload-photos ./public/storage, ./public/storage",
+    "generate-data-dev": "npm run generate-data-non-photo && npm run upload-photos ./public/storage /home/sengstudent/devServerProffat/seng302-team-400-proffat-1.0.0/public/storage/",
+    "generate-data-prod": "npm run generate-data-non-photo && npm run upload-photos ./public/storage /home/sengstudent/prodServerProffat/seng302-team-400-proffat-1.0.0/public/storage/"
   },
   "repository": {
     "type": "git",

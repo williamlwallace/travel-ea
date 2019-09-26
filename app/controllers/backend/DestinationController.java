@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import models.Destination;
 import models.FollowerDestination;
 import models.NewsFeedEvent;
+import models.Profile;
 import models.User;
 import models.enums.NewsFeedEventType;
 import play.libs.Json;
@@ -790,8 +791,16 @@ public class DestinationController extends TEABackController {
             return profileRepository
                 .getUsersFollowingDestination(destId, searchQuery, pageNum, pageSize)
                 .thenApplyAsync(pagedFollowers ->
-                    ok(Json.toJson(new PagingResponse<>(pagedFollowers.getList(), requestOrder,
-                        pagedFollowers.getTotalPageCount())))
+                    {
+                        Map<Long, Long> followCounts = userRepository.getFollowCounts(pagedFollowers.getList().stream().map(x -> x.userId).collect(
+                            Collectors.toList()));
+                        for(Profile follower : pagedFollowers.getList()) {
+                            follower.followerUsersCount = followCounts.get(follower.userId);
+                        }
+
+                        return ok(Json.toJson(new PagingResponse<>(pagedFollowers.getList(), requestOrder,
+                            pagedFollowers.getTotalPageCount())));
+                    }
                 );
         });
     }
