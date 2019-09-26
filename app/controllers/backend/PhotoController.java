@@ -742,7 +742,7 @@ public class PhotoController extends TEABackController {
                                             newsFeedEvent.eventType = NewsFeedEventType.LINK_DESTINATION_PHOTO
                                                 .name();
 
-                                            newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent);
+                                            if (photo.isPublic) { newsFeedEventRepository.addNewsFeedEvent(newsFeedEvent); }
                                             return ok(Json.toJson("Succesfully Updated"));
                                         });
                                 }
