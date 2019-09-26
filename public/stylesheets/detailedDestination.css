@@ -33,9 +33,6 @@ div.destination {
     display: none;
 }
 
-.photoLink {
-    opacity: 0.5;
-}
 
 /**
  * The destination details on the left
@@ -346,4 +343,13 @@ section#timeline article:nth-child(n) div.inner h2:after {
 
 #tagFilterOuter {
     float: right;
+}
+
+.link-image {
+    height: 30px;
+}
+
+
+.show {
+    width: 100%;
 }

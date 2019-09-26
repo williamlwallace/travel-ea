@@ -260,23 +260,23 @@ pre {
 .privacy {
     position: absolute;
     top: 2px;
-    left: 2px;
     z-index: 100;
-    /* background-color: #FFF; */
-    padding: 8px 20px 2px;
-    color: #000;
+    color: grey !important;
     font-weight: bold;
     cursor: pointer;
-    opacity: .2;
     text-align: center;
     font-size: 22px;
     line-height: 10px;
     border-radius: 50%;
     margin-right: 15px;
-    height: 38px;
 }
 
-.privacy:hover {
+.privacy-on-photo {
+    opacity: .7;
+    height: 1rem;
+}
+
+.privacy-on-photo:hover {
     opacity: 1;
 }
 
@@ -451,4 +451,34 @@ pre {
 #card-body {
     display: inline-block;
     width: -webkit-fill-available;
+}
+
+/**
+ * Button with white back ground for overlaying images
+ */
+.white-square-background {
+    cursor: pointer;
+    background-color: white;
+    margin: 2px;
+    padding: 5px;
+    left: 1rem;
+    border-radius: 5px;
+    font-size: 1rem;
+
+}
+
+.white-square-background:hover {
+    color: #000000 !important;
+}
+
+.left-square-button {
+    padding-left: 6px;
+    margin-left: -2px;
+    margin-top: -3px;
+}
+
+.right-square-button {
+    padding-right: 6px;
+    margin-right: -2px;
+    margin-top: -3px;
 }
