@@ -12,6 +12,8 @@
 
     <script src="@controllers.backend.routes.NewsFeedController.newsFeedRoutes()" type="text/javascript"></script>
     <script src="@controllers.backend.routes.TagController.tagRoutes" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.DestinationController.destinationRoutes()" type="text/javascript"></script>
+    <script src="@controllers.backend.routes.TripController.tripRoutes()" type="text/javascript"></script>
 }
 
 @layouts.main("Explore", user, scripts){
@@ -21,6 +23,8 @@
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/cards.css")">
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/tripCards.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/baguetteBox.min.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/profile.css")">
+
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame">
@@ -30,6 +34,8 @@
             </div>
         </div>
     </div>
+
+    @modules.tripModal()
 
     <div class="main-explore-page" id="startchange">
         <div class="row explore-inner-wrapper">
@@ -51,5 +57,8 @@
             </div>
         </div>
     </div>
-
 }
+
+<script type="text/javascript">
+    const tripTagDisplay = new TagDisplay("trip-tag-display");
+</script>

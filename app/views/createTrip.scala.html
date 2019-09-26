@@ -145,17 +145,22 @@
             </div>
 
             <div class="col-4 scrollblock">
-
                 @* The destination filter button and collapsible options *@
                 <div id="destinationFilterPlaceholder">
                     @modules.destinationFilter()
                 </div>
 
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-destinations">
+                        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>
                 @* The destinations cards *@
                 @modules.destinationCards()
                 <div id="destinationCardList"></div>
                 <nav aria-label="Page navigation">
-                    <ul class="pagination pagination-destinations">
+                    <ul class="pagination pagination-destinations" id="createTripDestinationPagination">
                         <li class="page-item"><a class="page-link" href="#">Previous</a></li>
                         <li class="page-item"><a class="page-link" href="#">Next</a></li>
                     </ul>
