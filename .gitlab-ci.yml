@@ -10,19 +10,6 @@ junit:
   script:
     - sbt test
 
-recent-artifacts:
-  stage: deploy
-  script:
-    - sbt dist
-  artifacts:
-    paths:
-      - target/universal/*.zip
-    expire_in: 1 week
-  except:
-    - tags
-  only:
-    - master-dev@seng302-2019/team-400
-
 release-artifacts:
  stage: deploy
  script:
@@ -39,10 +26,14 @@ start-server-dev:
     - sudo git lfs pull
     - sbt clean
     - sbt update
+    - cd scripts
+    - npm run generate-data-dev
+    - cd ..
     - sbt dist
     - sudo rm -rf ~/devServerProffat
     - mkdir -p ~/devServerProffat
-    - unzip target/universal/seng302-team-400-proffat-0.0.4.zip -d ~/devServerProffat
+    - unzip target/universal/seng302-team-400-proffat-1.0.0.zip -d ~/devServerProffat
+    - sudo cp -R public /home/sengstudent/devServerProffat/seng302-team-400-proffat-1.0.0/public/
     - sudo systemctl stop proffatDevServer
     - sudo systemctl start proffatDevServer
 
@@ -55,10 +46,14 @@ start-server-prod:
     - sudo git lfs pull
     - sbt clean
     - sbt update
+    - cd scripts
+    - npm run generate-data-prod
+    - cd ..
     - sbt dist
     - sudo rm -rf ~/prodServerProffat
     - mkdir -p ~/prodServerProffat
-    - unzip target/universal/seng302-team-400-proffat-0.0.4.zip -d ~/prodServerProffat
+    - unzip target/universal/seng302-team-400-proffat-1.0.0.zip -d ~/prodServerProffat
+    - sudo cp -R public /home/sengstudent/prodServerProffat/seng302-team-400-proffat-1.0.0/public/
     - sudo systemctl stop proffatProdServer
     - sudo systemctl start proffatProdServer
 

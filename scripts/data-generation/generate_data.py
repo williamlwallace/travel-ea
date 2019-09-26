@@ -86,7 +86,7 @@ def generate_traveller_types(num_users, num_existing_users, num_traveller_types)
     traveller_types -- a list of strings to be added to the SQL script
     """
     
-    traveller_types = ["INSERT INTO TravellerType (user_id, traveller_type_id) VALUES\n"]
+    traveller_types = ["INSERT IGNORE INTO TravellerType (user_id, traveller_type_id) VALUES\n"]
     traveller_type_templates = "({0}, {1}),\n"
     
     for i in range(num_users):
@@ -118,7 +118,6 @@ def generate_users(num_users, num_existing_users, photos_filename):
     users -- a list of strings to be added to the SQL script
     profiles -- a list of strings to be added to the SQL script
     """
-
     URL = "https://randomuser.me/api/?results=" + str(num_users)
     r = requests.get(url=URL)
     data = r.json()["results"]
@@ -127,8 +126,8 @@ def generate_users(num_users, num_existing_users, photos_filename):
     
     photos = {}
         
-    users = ["INSERT INTO User(username, password, salt, creation_date) VALUES\n"]
-    profiles = ["INSERT INTO Profile(user_id, first_name, last_name, date_of_birth, gender, creation_date) VALUES\n"]
+    users = ["INSERT IGNORE INTO User(username, password, salt, creation_date) VALUES\n"]
+    profiles = ["INSERT IGNORE INTO Profile(user_id, first_name, last_name, date_of_birth, gender, creation_date) VALUES\n"]
     
     user_template = "('{0}', '{1}', '{2}', '{3}'),\n"
     profile_template = "({0}, '{1}', '{2}', '{3}', '{4}', '{5}'),\n"
@@ -191,7 +190,7 @@ def generate_destinations(countries):
                         destination references and the name of the destination
     """
     
-    destinations = ["INSERT INTO Destination(user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES\n"]
+    destinations = ["INSERT IGNORE INTO Destination(user_id, name, type, district, latitude, longitude, country_id, is_public) VALUES\n"]
     destination_info = []
     
     with open('./scripts/data-generation/Destinations.csv', newline='') as csvfile:
@@ -234,7 +233,7 @@ def generate_trips(num_trips, num_users):
     trips -- a list of strings to be added to the SQL script
     """
     
-    trips = ["INSERT INTO Trip (user_id, is_public) VALUES\n"]
+    trips = ["INSERT IGNORE INTO Trip (user_id, is_public) VALUES\n"]
     trip_template = "({0}, {1}),\n"
     
     for i in range(num_trips):
@@ -262,7 +261,7 @@ def generate_trip_data(num_existing_trips, num_trips, num_destinations):
                              destinations visited along the trip
     """
     
-    trip_data = ["INSERT INTO TripData (trip_id, position, destination_id) VALUES\n"]
+    trip_data = ["INSERT IGNORE INTO TripData (trip_id, position, destination_id) VALUES\n"]
     trip_data_template = "({0}, {1}, {2}),\n"
     
     trip_destination_data = {}
@@ -309,7 +308,7 @@ def generate_treasure_hunts(num_treasure_hunts, num_users, num_destinations,
     treasure_hunts -- a list of strings to be added to the SQL script
     """
     
-    treasure_hunts = ["INSERT INTO TreasureHunt(user_id, destination_id, riddle, start_date, end_date) VALUES\n"]
+    treasure_hunts = ["INSERT IGNORE INTO TreasureHunt(user_id, destination_id, riddle, start_date, end_date) VALUES\n"]
     treasure_hunt_template = "({0}, {1}, '{2}', '{3}', '{4}'),\n"
     
     for i in range(num_treasure_hunts):
@@ -361,14 +360,14 @@ def generate_tags(trip_destination_data, destination_info,
             three types of tags
     """    
     
-    tags = ["INSERT INTO Tag(id, name) VALUES\n"]
+    tags = ["INSERT IGNORE INTO Tag(id, name) VALUES\n"]
     used_tags = existing_tags.copy()
-    destination_tags = ["INSERT INTO DestinationTag(tag_id, destination_id) VALUES\n"]
-    trip_tags = ["INSERT INTO TripTag(tag_id, trip_id) VALUES\n"]
+    destination_tags = ["INSERT IGNORE INTO DestinationTag(tag_id, destination_id) VALUES\n"]
+    trip_tags = ["INSERT IGNORE INTO TripTag(tag_id, trip_id) VALUES\n"]
     
     tag_template = "({0}, {1}),\n"
        
-    current_tag_id = len(used_tags) + 1
+    current_tag_id = len(used_tags) + 20
     
     for i in range(num_destinations):
         destination_name = destination_info[i][0]
@@ -452,11 +451,11 @@ def main():
     """
     
     # Data existing in the evolutions already
-    num_existing_users = 3
+    num_existing_users = 23
     num_existing_traveller_types = 7
-    num_existing_trips = 1
-    num_existing_destinations = 64
-    existing_tags = {"'Russia'": 1, "'sports'": 2, "'#TravelEA'": 3}
+    num_existing_trips = 50
+    num_existing_destinations = 107
+    existing_tags = {"'Africa'": 21, "'america'": 24, "'Arena'": 61, "'Argentina'": 5, "'asia'": 90, "'Australia'": 13, "'Barcelona'": 55, "'beach'": 32, "'Brazil'": 7, "'cali'": 94, "'Campaign'": 88, "'capital'": 80, "'Catalonia'": 58, "'china'": 79, "'City'": 43, "'cold'": 48, "'Company'": 52, "'dangerous'": 40, "'Definitely legitimate business trip'": 101, "'dubai'": 17, "'egypt'": 33, "'eiffel'": 85, "'europe'": 46, "'exciting'": 39, "'FC Barcelona'": 57, "'Food'": 75, "'Footbal'": 11, "'Football'": 56, "'Genghis Khan'": 92, "'Germany'": 62, "'Google'": 51, "'greece'": 34, "'holiday'": 12, "'hollywood'": 96, "'Holocaust'": 45, "'Home'": 68, "'Hot'": 8, "'House'": 69, "'india'": 18, "'island'": 27, "'italy'": 15, "'japan'": 30, "'korea'": 38, "'la'": 95, "'landmark'": 19, "'london'": 29, "'miami'": 31, "'Mongol Horde'": 87, "'Mongolia'": 89, "'Mountain'": 20, "'New Zealand'": 59, "'North Island'": 35, "'north korea'": 37, "'nyc'": 97, "'philippines'": 25, "'Poland'": 44, "'Putin'": 84, "'Ramen'": 74, "'Rio'": 6, "'road trip'": 23, "'Round the world'": 81, "'Russia'": 1, "'scotland'": 49, "'singapore'": 98, "'snow'": 47, "'Soccer'": 10, "'South America'": 4, "'South Island'": 36, "'Spain'": 9, "'Spooky'": 83, "'sports'": 2, "'Spy Trip'": 100, "'Spying'": 99, "'Stadium'": 54, "'sun'": 14, "'tower'": 86, "'travel'": 16, "'tro'": 103, "'tropical'": 26, "'uk'": 50, "'uruguay'": 64, "'US'": 53, "'usa'": 93, "'vietnam'": 91, "'Warsaw'": 42, "'WW2'": 41}
     
     # New data
     num_users = 5000 # Max 5000
@@ -516,9 +515,9 @@ def main():
         file.writelines(country_insert)
         file.writelines(users)
         file.writelines(profiles)
-        file.writelines(["INSERT INTO Nationality (user_id, country_id) VALUES\n"])
+        file.writelines(["INSERT IGNORE INTO Nationality (user_id, country_id) VALUES\n"])
         file.writelines(values)
-        file.writelines(["INSERT INTO Passport (user_id, country_id) VALUES\n"])
+        file.writelines(["INSERT IGNORE INTO Passport (user_id, country_id) VALUES\n"])
         file.writelines(values)
         file.writelines(traveller_types)
         file.writelines(destinations)

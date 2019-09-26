@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/gallery-grid.css")">
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/profile.css")">
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/cards.css")">
 
     @* The custom title section with background image *@
     <div class="title-frame" id="title-frame" style="pointer-events: all !important;">
@@ -236,6 +237,11 @@
                 </div>
                 @* all images gallery *@
                 @modules.gallery(false, false, "link-gallery", "link-selection", false, "link-destination-photo-pagination")
+                <div class="modal-footer d-flex justify-content-right">
+                    <button class="btn btn-secondary" data-dismiss="modal">
+                        Done
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -400,10 +400,23 @@ function clearTripFilter() {
     getTripResults();
 }
 
+/**
+ * Scrolls the user to the top of the list when the user changes the page from
+ * the bottom pagination bar
+ */
 $("#tripPaginationBottom, #tripPaginationTop").on("click", function () {
     const titleFrame = $("#title-frame");
     $([document.documentElement, document.body]).animate({
         scrollTop: titleFrame.offset().top + titleFrame.height()
             - $("#navbar").height()
     }, 1000);
+});
+
+/**
+ * Allows search of destination on enter key press
+ */
+$("#collapseExample").on('keypress',function(e) {
+    if(e.which === 13) {
+        getTripResults();
+    }
 });

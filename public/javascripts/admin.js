@@ -562,6 +562,27 @@ function acceptDestinationPrimaryPhoto(destId, photoId) {
     undoRedo.sendAndAppend(reqData);
 }
 
+/**
+ * Allows search of users on enter key press
+ */
+$("#usersFilterCollapse").on('keypress',function(e) {
+    if(e.which === 13) {
+        getUserResults();
+    }
+});
+
+/**
+ * Allows search of trips on enter key press
+ */
+$("#tripsFilterCollapse").on('keypress',function(e) {
+    if(e.which === 13) {
+        getTripResults();
+    }
+});
+
+/**
+ * Scrolls the user to the top when changing page from the bottom pagination bar
+ */
 $("#adminTripPaginationBottom, #userPaginationBottom").on("click", function () {
     $([document.documentElement, document.body]).animate({
         scrollTop: $("#profile-tabs").offset().top

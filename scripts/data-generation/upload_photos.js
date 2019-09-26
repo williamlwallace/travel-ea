@@ -10,12 +10,13 @@ const PHOTO_SIZES = [240, 270, 300, 330, 360];
 
 const commandArgs = process.argv.slice(2);
 
-if (commandArgs.length !== 1) {
-    console.log('usage: storage/directory');
+if (commandArgs.length !== 2) {
+    console.log('usage: storage/directory storage/directory(sql)');
     return;
 }
 
 const storageDirectory = commandArgs[0];
+const sqlStorageDir = commandArgs[1];
 const stream = fs.createWriteStream(EVOLUTION_FILE, {flags:'a'});
 let photoId = 1;
 
@@ -104,9 +105,9 @@ function sendPhoto(photo, userId) {
  */
 function generateDestPictureSql() {
     for (let i = 1; i <= DESTINATION_ID_MAX; i++) {
-        const filename = resolve(`${storageDirectory}/photos/dest_photo_${i}.jpg`);
-        const insertPhoto = `INSERT INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${i}, '${filename}', '${filename}', 0);`;
-        const destinationPhoto = `INSERT INTO DestinationPhoto(photo_id, destination_id) VALUES (${photoId}, ${i});`;
+        const filename = resolve(`${sqlStorageDir}/photos/dest_photo_${i}.jpg`);
+        const insertPhoto = `INSERT IGNORE INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${i}, '${filename}', '${filename}', 0);`;
+        const destinationPhoto = `INSERT IGNORE INTO DestinationPhoto(photo_id, destination_id) VALUES (${photoId}, ${i});`;
         const updateProfile = `UPDATE Destination SET primary_photo_guid = ${photoId} WHERE id=${i};`
         stream.write(insertPhoto + '\n');
         stream.write(destinationPhoto + '\n');
@@ -120,8 +121,8 @@ function generateDestPictureSql() {
  */
 function generateProfilePictureSql(users) {
     for (const user of users) {
-        const filename = resolve(`${storageDirectory}/photos/user_photo_${user}.jpg`);
-        const insertPhoto = `INSERT INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${user}, '${filename}', '${filename}', 1);`;
+        const filename = resolve(`${sqlStorageDir}/photos/user_photo_${user}.jpg`);
+        const insertPhoto = `INSERT IGNORE INTO Photo(user_id, filename, thumbnail_filename, used_for_profile) VALUES (${user}, '${filename}', '${filename}', 1);`;
         const updateProfile = `UPDATE Profile SET profile_photo_guid = ${photoId} WHERE user_id=${user};`
         stream.write(insertPhoto + '\n');
         stream.write(updateProfile + '\n\n');

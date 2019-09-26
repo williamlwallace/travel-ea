@@ -1,7 +1,11 @@
 $('#dismiss-modal').on('click', function () {
     const progressBarHolder = $('#progressBarHolder');
     progressBarHolder.attr('style', 'display:none;');
-
+    $('#upload-gallery-image-file').val('');
+    $('#image-to-upload').attr('src', '');
+    $('.uploader').css('display', 'block');
+    $('#caption input').val('');
+    $('#caption').prop('placeholder', 'Caption');
     $('#upload-modal').modal('hide');
 });
 
@@ -71,6 +75,10 @@ $('#upload-img').on('click', function () {
                         $('#upload-img').prop('disabled', false);
                         $('#dismiss-modal').prop('disabled', false);
                         $('#upload-gallery-image-file').val('');
+                        $('#image-to-upload').attr('src', '');
+                        $('#caption input').val('');
+                        $('#caption').prop('placeholder', 'Caption');
+                        $('.uploader').css('display', 'block');
                     });
 
                 toast("Photo Added!",
@@ -351,7 +359,12 @@ function createGalleryObjects(hasFullSizeLinks, pageHelper,
         if (withLinkButton) {
             const linkButton = createLinkButton(isLinked, guid,
                 destinationId);
-            tile.appendChild(linkButton)
+            tile.appendChild(linkButton);
+            const toggleFunction = function () {
+                toggleLinked(guid, !isLinked, destinationId);
+            };
+            photo.addEventListener("click", toggleFunction);
+            photo.style.cursor = "pointer";
         }
         photo.setAttribute("data-id", guid);
         photo.setAttribute("data-caption", caption);
@@ -385,7 +398,8 @@ function createGalleryObjects(hasFullSizeLinks, pageHelper,
 function createToggleButton(isPublic, guid) {
     const toggleButton = document.createElement("span");
     const toggleLabel = document.createElement("input");
-    toggleLabel.setAttribute("class", "privacy");
+    toggleButton.setAttribute("class", "privacy white-square-background left-square-button");
+    toggleLabel.setAttribute("class", "privacy-on-photo");
     toggleLabel.setAttribute("id", guid + "privacy");
     toggleLabel.setAttribute("type", "image");
 
@@ -413,16 +427,16 @@ function createToggleButton(isPublic, guid) {
 function createLinkButton(isLinked, guid, destinationId) {
     const linkButton = document.createElement("span");
     const linkLabel = document.createElement("input");
-    linkLabel.setAttribute("class", "privacy photoLink");
+    linkLabel.setAttribute("class", "privacy white-square-background left-square-button link-image");
     linkLabel.setAttribute("id", guid + "linked");
     linkLabel.setAttribute("type", "image");
 
     if (isLinked) {
         linkLabel.setAttribute("src",
-            "/assets/images/location-linked.png");
+            "/assets/images/success.png");
     } else {
         linkLabel.setAttribute("src",
-            "/assets/images/location-unlinked.png");
+            "/assets/images/oval.png");
     }
     linkLabel.innerHTML = isLinked ? "Linked" : "Not-Linked";
     linkLabel.setAttribute("onClick",
@@ -439,8 +453,9 @@ function createEditButton() {
     const editPhotoButton = document.createElement("span");
     const editPhotoIcon = document.createElement("i");
     editPhotoButton.setAttribute("id", "editPhoto");
-    editPhotoButton.setAttribute("class", "close");
-    editPhotoIcon.setAttribute("class", "fas fa-pen fa-1x");
+    editPhotoButton.setAttribute("class", "privacy edit-photo-button");
+    editPhotoIcon.setAttribute("id", "editPhotoButton");
+    editPhotoIcon.setAttribute("class", "fas fa-pen white-square-background right-square-button");
     editPhotoButton.appendChild(editPhotoIcon);
     return editPhotoButton;
 }
@@ -462,7 +477,7 @@ function addPhotos(galleryObjects, galleryId, pageSelectionId) {
                     'data-tags')}`;
             }
         });
-        $('.img-wrap .close').on('click', function () {
+        $('.img-wrap .edit-photo-button').on('click', function () {
             let guid = $(this).closest('.img-wrap').find('a').data("id");
             let filename = $(this).closest('.img-wrap').find('a').data(
                 "filename");
