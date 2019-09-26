@@ -278,15 +278,11 @@ function populateEditDestination(destinationId) {
             } else {
                 openEdit();
                 hideErrors("editDestinationForm");
-                document.getElementById("name").value = destination.name;
-                document.getElementById(
-                    "destType").value = destination.destType;
-                document.getElementById(
-                    "district").value = destination.district;
-                document.getElementById(
-                    "latitudeDeat").value = destination.latitude;
-                document.getElementById(
-                    "longitudeDeat").value = destination.longitude;
+                $("#name").val(destination.name);
+                $("#destType").val(destination.destType);
+                $("#district").val(destination.district);
+                $("#latitudeDeat").val(destination.latitude);
+                $("#longitudeDeat").val(destination.longitude);
 
                 // Fills country picker, needs to be padded to length 3 with 0's
                 $('#countryDropDown').selectpicker('val',
