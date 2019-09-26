@@ -44,6 +44,9 @@ createProfileReqs()
 function downloadPhotoToFile(URL, filename) {
     return new Promise((resolve, reject) => {
         https.get(URL, function(res) {
+            if (res.statusCode != 200 && res.statusCode != 201) {
+                return resolve();
+            }
             const file = fs.createWriteStream(filename);
             res.pipe(file);
             return resolve();
