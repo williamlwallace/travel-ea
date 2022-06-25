@@ -24,7 +24,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "jest": "^24.8.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.7",
     "xhr": "^2.5.0"
   }
 }
